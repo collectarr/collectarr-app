@@ -23,10 +23,10 @@ Future<void> main(List<String> args) async {
     stdout.writeln(
       'Local DB seeded. catalog_items=${report.catalogCount} '
       'seed_catalog_items=${report.seededCatalogCount} '
-      'owned_items=${report.ownedCount} tracking_entries=${report.trackingCount} '
+      'library_entries=${report.entryCount} tracking_entries=${report.trackingCount} '
       'item_images_cache=${report.imageCount} '
       'typed_graph=${_formatCounts(report.typedGraphCounts)} '
-      'typed_owned=${_formatCounts(report.typedOwnedCounts)} '
+      'typed_entries=${_formatCounts(report.typedEntryCounts)} '
       'typed_tracking=${_formatCounts(report.typedTrackingCounts)} '
       'typed_tracking_units=${_formatCounts(report.typedTrackingUnitCounts)} '
       'auxiliary=${_formatCounts(report.auxiliaryCounts)} '

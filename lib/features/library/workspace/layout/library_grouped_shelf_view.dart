@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -60,10 +61,10 @@ class LibraryGroupedShelfView extends StatelessWidget {
   final LibraryGroupItemContextMenuCallback? onItemContextMenu;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
 
-  bool _isActive(LibraryProjectionItem item) => item.node.id == selectedId;
+  bool _isActive(LibraryProjectionItem item) => item.target.id == selectedId;
 
   bool _isSelected(LibraryProjectionItem item) =>
-      selectedIds.contains(item.node.id);
+      selectedIds.contains(item.target.id);
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +104,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
       mainAxisExtent: tileExtent * 1.08,
       selectionEnabled: false,
       itemIdOf: (item) => item.id,
-      backgroundColor: kAppGridCanvas,
+      backgroundColor: libraryFolderDepthColor(context, 0),
       itemBuilder: (context, folder) => LibraryGroupFolderTile(
         group: folder.group,
         accent: accent,
@@ -124,7 +125,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
     final mainAxisExtent = defaultCoverSize * viewProfile.coverGridHeightFactor;
     final fallbackCoverAspectRatio = 1 / viewProfile.coverGridHeightFactor;
     return ColoredBox(
-      color: appPalette(context).gridCanvas,
+      color: libraryFolderDepthColor(context, 0),
       child: CustomScrollView(
         slivers: [
           if (_showsBulkCollapseControls)
@@ -219,14 +220,14 @@ class LibraryGroupedShelfView extends StatelessWidget {
                 mainAxisExtent: mainAxisExtent,
                 selectionEnabled: selectionEnabled,
                 selectedIds: selectedIds,
-                itemIdOf: (item) => item.item.node.id,
+                itemIdOf: (item) => item.item.target.id,
                 onSelectionChanged: onBoxSelectionChanged,
                 shrinkWrap: true,
                 scrollable: false,
                 itemBuilder: (context, shelfItem) {
                   final item = shelfItem.item;
                   final child = LibraryCoverTile(
-                    key: ValueKey(item.node.id),
+                    key: ValueKey(item.target.id),
                     item: item,
                     customFieldBadges: item.customFieldBadges,
                     active: _isActive(item),
@@ -234,7 +235,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
                     selectionMode: selectionEnabled,
                     onTap: () => onTapItem(item),
                     onSelectionToggleTap: () =>
-                        onToggleSelectionItem(item.node.id),
+                        onToggleSelectionItem(item.target.id),
                     onDoubleTap: () => onOpenItem(item),
                     onEditTap: () => onEditItem(item),
                     onSecondaryTapUp: onItemContextMenu == null
@@ -342,7 +343,7 @@ class LibraryGroupFolderTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final representative = group.representativeItem;
-    final ownedCount = group.items.where((item) => item.source.isOwned).length;
+    final entryCount = group.items.where((item) => item.source.isEntry).length;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -487,7 +488,7 @@ class LibraryGroupFolderTile extends StatelessWidget {
                               ),
                               const Spacer(),
                               _GroupStats(
-                                ownedCount: ownedCount,
+                                entryCount: entryCount,
                                 totalCount: group.count,
                               ),
                             ],
@@ -508,11 +509,11 @@ class LibraryGroupFolderTile extends StatelessWidget {
 
 class _GroupStats extends StatelessWidget {
   const _GroupStats({
-    required this.ownedCount,
+    required this.entryCount,
     required this.totalCount,
   });
 
-  final int ownedCount;
+  final int entryCount;
   final int totalCount;
 
   @override
@@ -520,7 +521,7 @@ class _GroupStats extends StatelessWidget {
     final palette = appPalette(context);
     final lines = <String>[
       '$totalCount items',
-      '$ownedCount owned',
+      '$entryCount entry',
     ];
     return DecoratedBox(
       decoration: BoxDecoration(

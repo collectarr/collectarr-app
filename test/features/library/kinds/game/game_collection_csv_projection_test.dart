@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -53,7 +52,7 @@ void main() {
 
   test('projects Game catalog cells with platform and edition semantics', () {
     final projection = const GameCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'game-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(
@@ -66,15 +65,14 @@ void main() {
         physicalFormat: 'cartridge',
         physicalFormatLabel: 'Cartridge',
         payload: {
-          'edition': '1.0',
-          'platform': 'Nintendo Switch',
+          'item_number': '1.0',
+          'platforms': ['Nintendo Switch'],
           'edition_title': 'Collector edition',
         },
       )).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'game-1',
-        quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
     );
@@ -85,7 +83,7 @@ void main() {
       'The Legend of Zelda',
       '1.0',
       'Nintendo Switch',
-      '1.0',
+      'Collector edition',
       'cartridge',
       'Cartridge',
       'Nintendo',
@@ -93,7 +91,7 @@ void main() {
       '045496590593',
     ]);
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: false),
+      projection.entryCellsAfterIndex(entry, clzFriendly: false),
       everyElement(isEmpty),
     );
   });

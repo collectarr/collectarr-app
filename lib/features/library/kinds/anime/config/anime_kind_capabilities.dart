@@ -1,12 +1,14 @@
 import '../anime_module_dependencies.dart';
 import 'anime_kind_configuration.dart';
 import '../add/anime_add_contribution.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import '../data/anime_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final animeKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.anime,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'features',
       label: 'Features',
@@ -53,15 +55,6 @@ final animeKindPhysicalMediaFormats = animePhysicalMediaFormats;
 
 final animeKindTrackingProfile = animeTrackingProfile;
 
-final animeKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final animeKindReleaseCapability =
-    const AnimeReleaseProjectionCapability<LibraryWorkspaceDto>();
-
-final animeKindReleaseDetailSource = const AnimeReleaseDetailSource();
-
-final animeKindCatalogTarget = const AnimeCatalogTargetCapability();
-
 final LibraryRelationCapability? animeKindRelations = null;
 
 final LibraryValueCapability? animeKindValue = null;
@@ -88,11 +81,9 @@ final animeKindIdentity = const LibraryKindIdentity(
 );
 
 final animeKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'anilist',
   catalogMetadataDecoder: AnimeMetadata.fromJson,
+  catalogTransportCodec: AnimeCatalogTransportCodec(),
   searchQueryBuilder: animeMetadataSearchQuery,
-  usesTreeProviderCandidates: true,
-  providers: [anilistMetadataProvider],
 );
 
 final animeKindHierarchy = const LibraryHierarchyCapability(
@@ -100,44 +91,34 @@ final animeKindHierarchy = const LibraryHierarchyCapability(
   childrenTitleBuilder: animeChildrenTitle,
 );
 
-final animeKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Series', plural: 'Series'),
-  release: LibraryEntityLabel(singular: 'Release', plural: 'Releases'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+final animeKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem:
+      LibraryTargetLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final animeKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.watch,
-  writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
-  contentTargets: {LibraryTrackingTargetScope.content},
+  writableTargets: {LibraryTrackingTarget.content},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
+  contentTargets: {LibraryTrackingTarget.content},
 );
 
-final animeKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
-  copy: LibraryEntityActionSet.copy,
+final animeKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final animeKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
-        heroBuilder: buildAnimeWorkInspectorHero,
-        sectionsBuilder: buildAnimeWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildAnimeReleaseInspectorHero,
-        sectionsBuilder: buildAnimeReleaseInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
-        heroBuilder: buildAnimeCopyInspectorHero,
-        sectionsBuilder: buildAnimeCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildAnimeCatalogItemInspectorHero,
+      sectionsBuilder: buildAnimeCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildAnimeLibraryEntryInspectorHero,
+      sectionsBuilder: buildAnimeLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
   trackingEditor: LibraryTrackingEditorCapability(

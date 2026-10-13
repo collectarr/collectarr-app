@@ -1,0 +1,258 @@
+{
+  "catalog": {
+    "id": "657cf11a-3fa8-577d-9d36-20280ec4aca4",
+    "kind": "music",
+    "revision": 1,
+    "title": "Collectarr Inspector Reference",
+    "sort_title": "Collectarr Inspector Reference",
+    "subtitle": "Deluxe Edition",
+    "artist": "Powerwolf",
+    "artist_credits": [
+      {
+        "id": "a4b59466-6ce1-583d-8625-b113ab7aa0d8",
+        "name": "Powerwolf",
+        "sort_name": "Powerwolf",
+        "join_phrase": "",
+        "sequence": 1
+      }
+    ],
+    "original_release_date": {
+      "year": 2024,
+      "month": 5,
+      "day": 21
+    },
+    "release_date": {
+      "year": 2026,
+      "month": 2,
+      "day": 18
+    },
+    "label": "Metal Blade Records",
+    "barcode": "039842503912",
+    "catalog_number": "UI-REF-2026",
+    "genres": [
+      "Heavy Metal",
+      "Rock"
+    ],
+    "packaging": "Gatefold",
+    "country": "Germany",
+    "extra": [
+      "Booklet",
+      "Poster"
+    ],
+    "box_set": "Reference Collection",
+    "credits": [
+      {
+        "id": "5dccfd6e-a31d-5d49-bd43-ba9f6b18b1ad",
+        "name": "John Reference",
+        "sort_name": "John Reference",
+        "role": "Producer",
+        "instruments": [],
+        "sequence": 1
+      }
+    ],
+    "external_links": [
+      {
+        "url": "https://example.com/inspector-reference",
+        "title": "Reference page",
+        "description": "Edition information"
+      }
+    ],
+    "cover_image_url": null,
+    "back_cover_image_url": null,
+    "thumbnail_image_url": null,
+    "discs": [
+      {
+        "id": "67b2ec11-56f0-5cb5-bcbf-7235015ea317",
+        "disc_number": 1,
+        "title": "Original album",
+        "format_family": "vinyl",
+        "format": "Vinyl",
+        "sound_types": [
+          "Stereo"
+        ],
+        "recording_date": {
+          "year": 2024,
+          "month": 2,
+          "day": 18
+        },
+        "recording_locations": [
+          "Abbey Road"
+        ],
+        "is_live": false,
+        "spars_code": "DDD",
+        "credits": [
+          {
+            "id": "153bbeed-5549-59d1-bc78-0d161c45bbec",
+            "name": "Jane Reference",
+            "sort_name": "Jane Reference",
+            "role": "Conductor",
+            "instruments": [],
+            "sequence": 1
+          }
+        ],
+        "tracks": [
+          {
+            "id": "4bc46d7c-f05c-5245-8910-c4a8167cde4d",
+            "position": "1",
+            "position_order": 1,
+            "title": "Reference Overture",
+            "artist": "Powerwolf",
+            "composition": "Reference Work",
+            "duration_ms": 255000,
+            "is_header": false,
+            "parent_header_id": null,
+            "indent_level": 0
+          }
+        ],
+        "color": "Red",
+        "vinyl_weight_grams": 180,
+        "rpm": "45",
+        "matrix_number_side_a": "REF-A",
+        "matrix_number_side_b": "REF-B"
+      },
+      {
+        "id": "bbfb49f6-df30-5d02-9b76-ea5b782e065b",
+        "disc_number": 2,
+        "title": "Studio sessions",
+        "format_family": "opticalDisc",
+        "format": "CD",
+        "sound_types": [
+          "Stereo"
+        ],
+        "recording_date": {
+          "year": 2025,
+          "month": 2,
+          "day": 18
+        },
+        "recording_locations": [
+          "Abbey Road"
+        ],
+        "is_live": false,
+        "spars_code": "DDD",
+        "credits": [
+          {
+            "id": "d8178717-c50b-5c63-a28a-535e01c252af",
+            "name": "Jane Reference",
+            "sort_name": "Jane Reference",
+            "role": "Conductor",
+            "instruments": [],
+            "sequence": 1
+          }
+        ],
+        "tracks": [
+          {
+            "id": "a2333177-c02e-5413-a5b9-4b30d4812a5a",
+            "position": "2",
+            "position_order": 1,
+            "title": "Studio Session",
+            "artist": "Powerwolf",
+            "composition": "Reference Work",
+            "duration_ms": 270000,
+            "is_header": false,
+            "parent_header_id": null,
+            "indent_level": 0
+          }
+        ],
+        "matrix_number": "REF-2"
+      },
+      {
+        "id": "d0f390ba-d9af-527e-863b-a15011153982",
+        "disc_number": 3,
+        "title": "Live concert",
+        "format_family": "digital",
+        "format": "FLAC",
+        "sound_types": [
+          "Stereo"
+        ],
+        "recording_date": {
+          "year": 2026,
+          "month": 2,
+          "day": 18
+        },
+        "recording_locations": [
+          "Wembley"
+        ],
+        "is_live": true,
+        "spars_code": "ADD",
+        "credits": [
+          {
+            "id": "139b5cd2-6ac5-57e5-84f3-54495b7a0863",
+            "name": "Jane Reference",
+            "sort_name": "Jane Reference",
+            "role": "Conductor",
+            "instruments": [],
+            "sequence": 1
+          }
+        ],
+        "tracks": [
+          {
+            "id": "0252f859-394d-5e45-a0ce-cb9b24cc2c16",
+            "position": "3",
+            "position_order": 1,
+            "title": "Concert Finale",
+            "artist": "Powerwolf",
+            "composition": "Reference Work",
+            "duration_ms": 285000,
+            "is_header": false,
+            "parent_header_id": null,
+            "indent_level": 0
+          }
+        ],
+        "matrix_number": "REF-3"
+      }
+    ]
+  },
+  "entry_id": "beba4847-5ae5-550a-bde8-1109394ec355",
+  "personal": {
+    "quantity": 2,
+    "rating": 8,
+    "media_condition": "Near Mint",
+    "is_digital": false,
+    "condition": "Very Good",
+    "grade": "NM",
+    "purchase_date": "2026-01-15T00:00:00.000Z",
+    "purchase_date_parts": {
+      "year": 2026,
+      "month": 1,
+      "day": 15
+    },
+    "price_paid_cents": 4599,
+    "currency": "EUR",
+    "personal_notes": "Inspector reference with all supported fields populated.",
+    "index_number": 101,
+    "tags": "Reference | Deluxe",
+    "sold_at": "2026-03-01T00:00:00.000Z",
+    "sell_price_cents": 5500,
+    "sold_to": "Alex Reference",
+    "owner_label": "Audit Owner",
+    "purchase_store": "Reference Records",
+    "collection_status": "in_collection",
+    "market_value_cents": 6500,
+    "signed_by": "Powerwolf",
+    "last_cleaned_date": "2026-02-01T00:00:00.000Z",
+    "last_cleaned_date_parts": {
+      "year": 2026,
+      "month": 2,
+      "day": 1
+    },
+    "media": [
+      {
+        "disc_id": "67b2ec11-56f0-5cb5-bcbf-7235015ea317",
+        "storage_device": "Record Cabinet",
+        "storage_slot": "Shelf 1"
+      },
+      {
+        "disc_id": "bbfb49f6-df30-5d02-9b76-ea5b782e065b",
+        "storage_device": "Record Cabinet",
+        "storage_slot": "Shelf 2"
+      },
+      {
+        "disc_id": "d0f390ba-d9af-527e-863b-a15011153982",
+        "storage_device": "Record Cabinet",
+        "storage_slot": "Shelf 3"
+      }
+    ]
+  },
+  "created_at": "2026-01-15T12:00:00Z",
+  "updated_at": "2026-02-18T12:00:00Z"
+}

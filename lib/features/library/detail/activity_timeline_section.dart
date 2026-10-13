@@ -1,8 +1,7 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -19,14 +18,14 @@ class ActivityTimelineSection extends ConsumerStatefulWidget {
   const ActivityTimelineSection({
     super.key,
     required this.itemRef,
-    required this.ownedItemRefs,
+    required this.libraryEntryRefs,
     required this.accent,
   });
 
-  final CatalogEntityRef itemRef;
+  final CatalogItemRef itemRef;
 
-  /// All owned-item references for this catalog item (needed for loan lookup).
-  final List<OwnedItemRef> ownedItemRefs;
+  /// All entry-item references for this catalog item (needed for loan lookup).
+  final List<LibraryEntryRef> libraryEntryRefs;
   final Color accent;
 
   @override
@@ -57,8 +56,8 @@ class _ActivityTimelineSectionState
     final db = ref.read(localDatabaseProvider);
     final repo = LoanRepository(db);
     final allLoans = <Loan>[];
-    for (final ownedItemRef in widget.ownedItemRefs) {
-      allLoans.addAll(await repo.getLoansForItem(ownedItemRef));
+    for (final libraryEntryRef in widget.libraryEntryRefs) {
+      allLoans.addAll(await repo.getLoansForItem(libraryEntryRef));
     }
     if (mounted) setState(() => _loans = allLoans);
   }
@@ -67,27 +66,28 @@ class _ActivityTimelineSectionState
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final theme = Theme.of(context);
-    final ownedItems = ref.watch(collectionSummariesProvider).maybeWhen(
+    final entryRefs = widget.libraryEntryRefs.toSet();
+    final libraryEntries = ref.watch(collectionSummariesProvider).maybeWhen(
           data: (items) => items
-              .where(
-                (i) =>
-                    i.catalogRef != null &&
-                    i.catalogRef!.rootScope == widget.itemRef,
-              )
+              .where((item) => entryRefs.contains(item.ref))
               .toList(growable: false),
-          orElse: () => const <OwnedItemSummary>[],
+          orElse: () => const <LibraryEntrySummary>[],
         );
-    final trackingSummaries =
-        ref.watch(trackingSummariesByCatalogRefProvider)[widget.itemRef] ??
-            const <TrackingSummary>[];
-    final watchSessions =
-        ref.watch(watchSessionsByCatalogRefProvider(widget.itemRef));
+    final trackingByEntry =
+        ref.watch(trackingSummariesByLibraryEntryRefProvider);
+    final trackingSummaries = [
+      for (final entryRef in entryRefs) ...?trackingByEntry[entryRef],
+    ];
+    final watchSessions = [
+      for (final entryRef in entryRefs)
+        ...ref.watch(watchSessionsByLibraryEntryRefProvider(entryRef)),
+    ];
     final wishlistItems =
         ref.watch(wishlistByCatalogRefProvider)[widget.itemRef] ??
             const <WishlistItem>[];
 
     final events = ActivityEventAggregator.aggregate(
-      ownedItems: ownedItems,
+      libraryEntries: libraryEntries,
       trackingRecords: [
         for (final summary in trackingSummaries)
           TrackingActivitySummary.fromSummary(summary),

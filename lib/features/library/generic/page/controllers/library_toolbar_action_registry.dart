@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
-import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_actions.dart';
@@ -36,16 +35,12 @@ class LibraryToolbarSearchContext {
 class LibraryToolbarViewContext {
   const LibraryToolbarViewContext({
     required this.type,
-    required this.activeBrowserMode,
-    required this.activeReleaseFolderTitleItemId,
     required this.onShowAddDialogFlow,
     required this.onShowColumnChooserFlow,
     required this.onShowSortDialogFlow,
     required this.onSetGroupingPanelVisibility,
     required this.onSetGroupPresentation,
     required this.onUpdateViewState,
-    required this.onSetBrowserMode,
-    required this.onCloseReleaseFolder,
     required this.onClearToolbarSearchChip,
     required this.onQuickViewSelected,
     required this.onSetSelectedLetter,
@@ -59,8 +54,6 @@ class LibraryToolbarViewContext {
   });
 
   final LibraryKindRegistration type;
-  final LibraryWorkspaceBrowserMode activeBrowserMode;
-  final String? activeReleaseFolderTitleItemId;
 
   LibraryWorkspaceViewProfile get viewProfile =>
       libraryViewProfileForKind(type.kind);
@@ -72,8 +65,6 @@ class LibraryToolbarViewContext {
   final void Function(
     LibraryWorkspaceViewState Function(LibraryWorkspaceViewState),
   ) onUpdateViewState;
-  final ValueChanged<LibraryWorkspaceBrowserMode> onSetBrowserMode;
-  final VoidCallback onCloseReleaseFolder;
   final VoidCallback onClearToolbarSearchChip;
   final ValueChanged<LibraryQuickView?> onQuickViewSelected;
   final ValueChanged<String?> onSetSelectedLetter;
@@ -84,18 +75,11 @@ class LibraryToolbarViewContext {
   final VoidCallback onShowSortFavoritesManagerFlow;
   final ValueChanged<LibraryTableColumnPreset> onApplyColumnFavorite;
   final ValueChanged<LibraryTableColumnPreset> onTogglePinnedColumnFavorite;
-
-  bool get showReleaseFolderBack =>
-      libraryBrowserNavigationPolicy.shouldShowReleaseFolderBack(
-        browserMode: activeBrowserMode,
-        releaseFolderWorkId: activeReleaseFolderTitleItemId,
-      );
 }
 
 class LibraryToolbarGroupingContext {
   const LibraryToolbarGroupingContext({
     required this.onClearFilters,
-    required this.onEditFilters,
     required this.onRandomPick,
     required this.onSmartLists,
     required this.onShowUserFoldersFlow,
@@ -103,7 +87,6 @@ class LibraryToolbarGroupingContext {
   });
 
   final VoidCallback onClearFilters;
-  final ValueChanged<LibraryProjection?> onEditFilters;
   final ValueChanged<LibraryProjection?> onRandomPick;
   final ValueChanged<ShelfState?> onSmartLists;
   final VoidCallback onShowUserFoldersFlow;
@@ -134,6 +117,7 @@ class LibraryToolbarCollectionActionsContext {
     required this.onTransferFieldData,
     required this.onReassignIndex,
     required this.onPrintReport,
+    required this.onExportCsvTxt,
     required this.onShareCollection,
     required this.onCompareMetadataWithServer,
     required this.onMissingSequenceReport,
@@ -142,6 +126,7 @@ class LibraryToolbarCollectionActionsContext {
   final ValueChanged<LibraryProjection?> onTransferFieldData;
   final ValueChanged<LibraryProjection?> onReassignIndex;
   final ValueChanged<LibraryProjection?> onPrintReport;
+  final ValueChanged<LibraryProjection?> onExportCsvTxt;
   final ValueChanged<LibraryProjection?> onShareCollection;
   final Future<void> Function(
     LibraryProjection projection, {
@@ -196,13 +181,10 @@ class LibraryToolbarActionRegistry {
   }) {
     final availability = actionContext.view.type.toolbarActionAvailability;
     final registration = actionContext.view.type;
-    final activeScope = projection != null && projection.allItems.isNotEmpty
-        ? projection.allItems.first.node.scope
-        : libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
-            actionContext.view.activeBrowserMode,
-          );
-    final activeFields = libraryKindWorkspaceForKind(registration.kind)
-        .fieldsForScope(activeScope);
+    final workspace = libraryKindWorkspaceForKind(registration.kind);
+    final activeFields = projection != null && projection.allItems.isNotEmpty
+        ? workspace.fieldsForTarget(projection.allItems.first.target)
+        : workspace.fields;
     final kindToolbarActions =
         libraryToolbarForKind(registration.kind)?.actions ?? const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
@@ -271,10 +253,6 @@ class LibraryToolbarActionRegistry {
           actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) => next.copyWith(viewMode: mode),
       ),
-      onBrowserModeChanged: actionContext.view.onSetBrowserMode,
-      onReleaseFolderBack: actionContext.view.showReleaseFolderBack
-          ? actionContext.view.onCloseReleaseFolder
-          : null,
       onDetailsLayoutChanged: (LibraryDetailsLayout layout) =>
           actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) =>
@@ -308,9 +286,6 @@ class LibraryToolbarActionRegistry {
           : (String value) =>
               actionContext.metadata.onJumpToNumberSubmitted(projection, value),
       onClearFilters: actionContext.grouping.onClearFilters,
-      onEditFilters: projection == null
-          ? null
-          : () => actionContext.grouping.onEditFilters(projection),
       onRandomPick: projection == null
           ? null
           : () => actionContext.grouping.onRandomPick(projection),
@@ -346,6 +321,9 @@ class LibraryToolbarActionRegistry {
           : () => actionContext.collectionActions.onReassignIndex(projection),
       onPrintReport: projection != null && projection.filteredItems.isNotEmpty
           ? () => actionContext.collectionActions.onPrintReport(projection)
+          : null,
+      onExportCsvTxt: projection != null && projection.filteredItems.isNotEmpty
+          ? () => actionContext.collectionActions.onExportCsvTxt(projection)
           : null,
       onShareCollection: projection != null &&
               projection.filteredItems.isNotEmpty

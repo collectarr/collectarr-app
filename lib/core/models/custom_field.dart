@@ -1,17 +1,22 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-
 enum CustomFieldValueType {
   text('text', 'Text'),
-  longText('longText', 'Long text'),
+  longText('longText', 'Text Area'),
   number('number', 'Number'),
+  decimal('decimal', 'Decimal'),
+  percentage('percentage', 'Percentage'),
+  weight('weight', 'Weight'),
+  size('size', 'Size'),
+  fixedButtons('fixedButtons', 'Fixed Button Bar'),
+  fixedList('fixedList', 'Fixed List'),
+  duration('duration', 'Duration'),
   currency('currency', 'Currency'),
   date('date', 'Date'),
   time('time', 'Time'),
-  boolean('boolean', 'Yes / No'),
-  singleSelect('singleSelect', 'Single-select'),
-  multiSelect('multiSelect', 'Multi-select'),
+  boolean('boolean', 'Toggle'),
+  singleSelect('singleSelect', 'Pick List'),
+  multiSelect('multiSelect', 'Multi-Value Pick List'),
   url('url', 'URL'),
   person('person', 'Person / contact');
 
@@ -20,7 +25,24 @@ enum CustomFieldValueType {
   final String apiValue;
   final String label;
 
-  bool get supportsOptions => this == singleSelect || this == multiSelect;
+  bool get supportsOptions =>
+      this == singleSelect || this == multiSelect || isFixedChoice;
+
+  bool get isFixedChoice => this == fixedButtons || this == fixedList;
+
+  int? get maximumOptions => switch (this) {
+        fixedButtons => 4,
+        fixedList => 20,
+        _ => null,
+      };
+
+  List<String> get allowedUnits => switch (this) {
+        weight => const ['g', 'kg', 'lb', 'oz'],
+        size => const ['cm', 'in', 'mm'],
+        _ => const [],
+      };
+
+  bool get hasUnit => this == weight || this == size;
 
   bool get isMultiValue => this == multiSelect;
 
@@ -39,15 +61,7 @@ enum CustomFieldValueType {
 }
 
 enum CustomFieldTargetScope {
-  work('work'),
-  edition('edition'),
-  release('release'),
-  issue('issue'),
-  episode('episode'),
-  track('track'),
-  ownedCopy('ownedCopy'),
-  trackingRecord('trackingEntry'),
-  media('media'),
+  libraryEntry('libraryEntry'),
   all('all');
 
   const CustomFieldTargetScope(this.apiValue);
@@ -57,14 +71,14 @@ enum CustomFieldTargetScope {
   static CustomFieldTargetScope fromApiValue(String? value) {
     final normalized = value?.trim();
     if (normalized == null || normalized.isEmpty) {
-      return CustomFieldTargetScope.media;
+      return CustomFieldTargetScope.libraryEntry;
     }
     for (final scope in CustomFieldTargetScope.values) {
       if (scope.apiValue == normalized) {
         return scope;
       }
     }
-    return CustomFieldTargetScope.media;
+    throw FormatException('Unknown custom field target scope: $value');
   }
 }
 
@@ -94,6 +108,8 @@ class CustomFieldDefinition {
   String get valueTypeLabel => valueType.label;
   bool get supportsOptions => valueType.supportsOptions;
   List<String> get optionValues => parseCustomFieldOptions(options);
+  String? get unit =>
+      valueType.hasUnit && optionValues.isNotEmpty ? optionValues.first : null;
 
   CustomFieldTargetScope get targetScope =>
       CustomFieldTargetScope.fromApiValue(editScope);
@@ -244,6 +260,10 @@ String displayCustomFieldValue(
       },
     CustomFieldValueType.multiSelect =>
       parseCustomFieldMultiValues(trimmed).join(', '),
+    CustomFieldValueType.percentage => '$trimmed%',
+    CustomFieldValueType.weight ||
+    CustomFieldValueType.size =>
+      '$trimmed ${definition.unit ?? (definition.valueType == CustomFieldValueType.weight ? 'kg' : 'cm')}',
     _ => trimmed,
   };
 }
@@ -253,7 +273,6 @@ class CustomFieldValue {
     required this.id,
     required this.targetId,
     required this.targetScope,
-    this.catalogRef,
     required this.fieldDefinitionId,
     this.value,
     required this.updatedAt,
@@ -262,7 +281,6 @@ class CustomFieldValue {
   final String id;
   final String targetId;
   final CustomFieldTargetScope targetScope;
-  final CatalogEntityRef? catalogRef;
   final String fieldDefinitionId;
   final String? value;
   final DateTime updatedAt;
@@ -273,10 +291,6 @@ class CustomFieldValue {
       targetId: json['target_id'] as String,
       targetScope:
           CustomFieldTargetScope.fromApiValue(json['target_scope'] as String?),
-      catalogRef: json['catalog_ref'] is Map
-          ? CatalogEntityRef.fromJson(
-              Map<String, Object?>.from(json['catalog_ref'] as Map))
-          : null,
       fieldDefinitionId: json['field_definition_id'] as String,
       value: json['value'] as String?,
       updatedAt: DateTime.parse(json['updated_at'] as String),
@@ -287,7 +301,6 @@ class CustomFieldValue {
     return {
       'target_id': targetId,
       'target_scope': targetScope.apiValue,
-      if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
       'field_definition_id': fieldDefinitionId,
       'value': value,
     };
@@ -297,7 +310,6 @@ class CustomFieldValue {
     String? id,
     String? targetId,
     CustomFieldTargetScope? targetScope,
-    CatalogEntityRef? catalogRef,
     String? fieldDefinitionId,
     String? value,
     DateTime? updatedAt,
@@ -306,7 +318,6 @@ class CustomFieldValue {
       id: id ?? this.id,
       targetId: targetId ?? this.targetId,
       targetScope: targetScope ?? this.targetScope,
-      catalogRef: catalogRef ?? this.catalogRef,
       fieldDefinitionId: fieldDefinitionId ?? this.fieldDefinitionId,
       value: value ?? this.value,
       updatedAt: updatedAt ?? this.updatedAt,

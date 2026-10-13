@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
@@ -9,40 +9,53 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_repository.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 
 final class GameCatalogTransportCodec
-    implements CatalogKindTransportCodec<GameMedia> {
+    implements CatalogKindTransportCodec<GameCatalogMetadata> {
   const GameCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.game;
 
   @override
-  GameMedia decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is GameMedia) return metadata;
-    return GameMedia.fromJson(catalogTransportPayloadFor(item));
-  }
+  GameCatalogMetadata decode(CatalogItemDto item) =>
+      GameCatalogMetadata.fromJson(item.kindData);
 
   @override
-  Future<void> upsert(LocalDatabase db, GameMedia item) {
-    return GameRepository(db).updateMedia(item);
-  }
+  GameCatalogMetadata decodeKindData(Map<String, dynamic> kindData) =>
+      GameCatalogMetadata.fromJson(kindData);
 
   @override
-  CatalogDisplaySummary summarize(GameMedia item) => CatalogDisplaySummary.root(
+  CatalogItemDto encode(String id, GameCatalogMetadata item) =>
+      CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        kindData: item.toJson(),
+      );
+
+  @override
+  CatalogDisplaySummary summarize(
+    String catalogItemId,
+    GameCatalogMetadata item,
+  ) =>
+      CatalogDisplaySummary.forCatalogItem(
         kind: kind,
-        id: item.id.value,
+        id: catalogItemId,
         primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
 
   @override
-  GameWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      GameWorkspaceCatalogData.fromTransport(item);
+  GameWorkspaceData workspaceData(CatalogItemDto item) =>
+      GameWorkspaceData(metadata: decode(item));
+
+  @override
+  GameWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      GameWorkspaceData(metadata: GameCatalogMetadata.fromJson(kindData));
 
   @override
   Future<Map<String, int>> countCatalogValues(
@@ -56,9 +69,7 @@ final class GameCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) decode(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }
@@ -92,7 +103,7 @@ final class GameCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    GameMedia item,
+    GameCatalogMetadata item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -102,7 +113,7 @@ final class GameCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(GameMedia item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(GameCatalogMetadata item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -111,40 +122,20 @@ final class GameCatalogTransportCodec
       );
 
   @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
-  }
-
-  @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final media = await GameRepository(db).search();
-    return [
-      for (final item in media) _projection(item),
-    ];
+    return CatalogItemCacheRepository(db).findAll(kind: kind);
   }
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final media = await GameRepository(db).search();
     return [
-      for (final item in media) summarize(item),
+      for (final item in await listTransport(db))
+        summarize(item.id, decode(item)),
     ];
   }
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
-}
-
-CatalogItemDto _projection(GameMedia item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
-  payload['id'] ??= item.id.value;
-  payload['kind'] ??= 'game';
-  payload['title'] ??= item.title;
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(GameMedia.fromJson(projection.payload));
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }

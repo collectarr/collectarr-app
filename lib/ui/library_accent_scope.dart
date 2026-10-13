@@ -18,19 +18,6 @@ class LibraryAccentData {
 
   Color get actionAccent => libraryAccentActionColor(accent);
 
-  LinearGradient chromeGradient({
-    AlignmentGeometry begin = Alignment.topLeft,
-    AlignmentGeometry end = Alignment.bottomRight,
-    Brightness brightness = Brightness.dark,
-  }) {
-    return libraryChromeGradient(
-      accent,
-      begin: begin,
-      end: end,
-      brightness: brightness,
-    );
-  }
-
   Color chromeBorderColor({Brightness brightness = Brightness.dark}) {
     return libraryChromeBorderColor(accent, brightness: brightness);
   }
@@ -332,22 +319,16 @@ class LibraryAccentChrome extends StatelessWidget {
     super.key,
     required this.accent,
     required this.animationDuration,
-    this.begin = Alignment.centerLeft,
-    this.end = Alignment.centerRight,
   });
 
   final Color accent;
   final Duration animationDuration;
-  final AlignmentGeometry begin;
-  final AlignmentGeometry end;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedLibraryChromeGradient(
+    return AnimatedLibraryChrome(
       accent: accent,
       duration: animationDuration,
-      begin: begin,
-      end: end,
       borderBuilder: (animatedAccent, _) => Border(
         bottom: BorderSide(
           color: Color.alphaBlend(

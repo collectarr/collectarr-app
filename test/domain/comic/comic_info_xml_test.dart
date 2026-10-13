@@ -1,7 +1,6 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_xml.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_data_factories.dart';
@@ -9,17 +8,17 @@ import '../../helpers/test_data_factories.dart';
 void main() {
   test('ComicInfo export is contributed from a typed Comic boundary', () {
     final previews = comicInfoExportPreviews([
-      LibraryWorkspaceSource(
+      testLibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Amazing Fantasy',
-          itemNumber: '15',
           publisher: 'Marvel Comics',
           synopsis: 'A public synopsis',
           releaseDate: DateTime.utc(1962, 8, 10),
           releaseYear: 1962,
+          payload: const {'issue_number': '15'},
         ).asShelfCatalogItem),
       ),
     ]);
@@ -32,15 +31,15 @@ void main() {
         contains('<Publisher>Marvel Comics</Publisher>'));
   });
 
-  test('ComicInfo XML serializes comic-owned metadata and personal state', () {
-    final metadata = ComicMedia(
+  test('ComicInfo XML serializes comic-entry metadata and personal state', () {
+    final metadata = ComicCatalogItem(
       title: 'Amazing Fantasy',
       seriesTitle: 'Amazing Fantasy',
       issueNumber: '15',
       synopsis: 'A public synopsis',
       publisher: 'Marvel Comics',
       releaseDate: DateTime(1962, 8, 10),
-      physicalFormatLabel: 'Softcover',
+      physicalFormat: 'Softcover',
     );
 
     final xml = const ComicInfoXml().serialize(metadata);

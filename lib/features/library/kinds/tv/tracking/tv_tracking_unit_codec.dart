@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
@@ -28,9 +26,8 @@ final class TvTrackingUnitCodec implements TrackingUnitStorageCodec {
         fromStorageRow(
           trackingUnitStorageRowFromColumns(
             id: row.id,
-            targetRefJson: row.targetRefJson,
             trackingEntryId: row.trackingEntryId,
-            ownedRefKey: row.ownedRefKey,
+            libraryEntryRefKey: row.libraryEntryRefKey,
             completedAt: row.completedAt,
             updatedAt: row.updatedAt,
             deletedAt: row.deletedAt,
@@ -54,9 +51,8 @@ final class TvTrackingUnitCodec implements TrackingUnitStorageCodec {
     return fromStorageRow(
       trackingUnitStorageRowFromColumns(
         id: row.id,
-        targetRefJson: row.targetRefJson,
         trackingEntryId: row.trackingEntryId,
-        ownedRefKey: row.ownedRefKey,
+        libraryEntryRefKey: row.libraryEntryRefKey,
         completedAt: row.completedAt,
         updatedAt: row.updatedAt,
         deletedAt: row.deletedAt,
@@ -92,9 +88,8 @@ final class TvTrackingUnitCodec implements TrackingUnitStorageCodec {
       await db.into(db.tvTrackingUnitRows).insertOnConflictUpdate(
             TvTrackingUnitRowsCompanion.insert(
               id: unit.id,
-              targetRefJson: jsonEncode(unit.targetRef.toJson()),
               trackingEntryId: Value(unit.trackingEntryId),
-              ownedRefKey: Value(unit.ownedRef?.key),
+              libraryEntryRefKey: unit.libraryEntryRef.key,
               completedAt: unit.completedAt,
               updatedAt: unit.updatedAt,
               deletedAt: Value(unit.deletedAt),
@@ -137,14 +132,39 @@ final class TvTrackingUnitCodec implements TrackingUnitStorageCodec {
         coordinates is _TvCoordinates ? coordinates : const _TvCoordinates();
     return TvTrackingUnit(
       id: row.id,
-      targetRef: row.targetRef,
       trackingEntryId: row.trackingEntryId,
-      ownedRef: row.ownedRef,
+      libraryEntryRef: row.libraryEntryRef,
       seasonNumber: typedCoordinates.seasonNumber,
       episodeNumber: typedCoordinates.episodeNumber,
       completedAt: row.completedAt,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
+    );
+  }
+
+  @override
+  TrackingUnitSummary fromSyncPayload({
+    required String id,
+    required Map<String, Object?> payload,
+    required DateTime updatedAt,
+    required DateTime? deletedAt,
+  }) {
+    requireTrackingUnitType(payload, TvTrackingUnit.type);
+    final row = trackingUnitStorageRowFromSyncPayload(
+      id: id,
+      payload: payload,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+    if (row.libraryEntryRef.kind != kind) {
+      throw const FormatException('TV tracking unit has a non-TV ref');
+    }
+    return fromStorageRow(
+      row,
+      _TvCoordinates(
+        seasonNumber: trackingUnitSyncInt(payload['season_number']),
+        episodeNumber: trackingUnitSyncInt(payload['episode_number']),
+      ),
     );
   }
 

@@ -1,8 +1,15 @@
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/app_page_header.dart';
+import 'ebay_search_preferences.dart';
+import 'package:collectarr_app/features/settings/library_layout_setting.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/device/device_identity.dart';
+import 'package:collectarr_app/features/settings/local_font_settings_panel.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
@@ -11,20 +18,24 @@ import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
-import 'package:collectarr_app/features/library/csv/catalog_item_v1_csv_exporter.dart';
-import 'package:collectarr_app/features/library/state/catalog_item_v1_providers.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
-import 'package:collectarr_app/features/settings/settings_library_nav_widgets.dart';
+import 'package:collectarr_app/features/settings/settings_proposal_history.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -47,6 +58,11 @@ import 'package:go_router/go_router.dart';
 
 part 'settings_connection_actions.dart';
 
+final _metadataProposalHistoryProvider =
+    FutureProvider.autoDispose<List<MetadataProposalRecord>>((ref) async {
+  return const MetadataProposalStore().read();
+});
+
 final _deviceIdentityProvider = FutureProvider.autoDispose<String>((ref) async {
   return DeviceIdentity().getOrCreate();
 });
@@ -55,6 +71,7 @@ enum SettingsSection {
   connection('Connection', Icons.route_outlined),
   libraries('Libraries', Icons.view_comfy_alt_outlined),
   appearance('Appearance', Icons.palette_outlined),
+  proposals('Proposals', Icons.fact_check_outlined),
   data('Data', Icons.backup_outlined),
   account('Account', Icons.account_circle_outlined),
   logs('Logs', Icons.bug_report_outlined);
@@ -64,13 +81,22 @@ enum SettingsSection {
   final IconData icon;
 }
 
+SettingsSection? settingsSectionFromRouteValue(String? value) {
+  for (final section in SettingsSection.values) {
+    if (section.name == value) return section;
+  }
+  return null;
+}
+
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({
     super.key,
     this.showWebSyncWarning = kIsWeb,
+    this.initialSection,
   });
 
   final bool showWebSyncWarning;
+  final SettingsSection? initialSection;
 
   @override
   ConsumerState<SettingsPage> createState() => _SettingsPageState();
@@ -91,6 +117,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   void initState() {
     super.initState();
+    _selectedSection = widget.initialSection ?? SettingsSection.connection;
+  }
+
+  @override
+  void didUpdateWidget(covariant SettingsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialSection != widget.initialSection &&
+        widget.initialSection != null) {
+      _selectedSection = widget.initialSection!;
+    }
   }
 
   @override
@@ -107,16 +143,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final settings = ref.watch(connectionSettingsProvider);
     final auth = ref.watch(authControllerProvider);
     final sync = ref.watch(syncControllerProvider);
-    final mediaCatalog = fallbackMediaCatalog;
+    final mediaCatalog = ref.watch(mediaCatalogProvider).maybeWhen(
+          data: (catalog) => catalog,
+          orElse: () => fallbackMediaCatalog,
+        );
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final uiPreferences = ref.watch(uiPreferencesProvider);
+    final metadataProposalHistory = ref.watch(_metadataProposalHistoryProvider);
     final deviceId = ref.watch(_deviceIdentityProvider);
     final selectedLibraryKind = ref.watch(selectedLibraryKindProvider);
     final accentScope = LibraryAccentScope.maybeOf(context);
     final accent = accentScope?.accent ??
         libraryAccentForKind(catalogMediaKindFromValue(selectedLibraryKind));
-    final animationDuration = accentScope?.data.animationDuration ??
-        (uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero);
     final isAndroidPlatform =
         Theme.of(context).platform == TargetPlatform.android;
     _syncTextControllers(settings);
@@ -132,6 +170,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         mediaCatalog: mediaCatalog,
         navPreferences: navPreferences,
         uiPreferences: uiPreferences,
+        metadataProposalHistory: metadataProposalHistory,
         deviceId: deviceId,
         isAndroidPlatform: isAndroidPlatform,
       );
@@ -141,17 +180,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return Theme(
         data: buildLibraryAccentTheme(Theme.of(context), accent),
         child: Scaffold(
-          appBar: AppBar(
-            leading: _buildBackButton(context),
-            title: const Text('Settings'),
-            backgroundColor: libraryAccentChromeFallbackColor(accent),
-            surfaceTintColor: Colors.transparent,
-            flexibleSpace: LibraryAccentChrome(
-              key: ValueKey(accent),
-              accent: accent,
-              animationDuration: animationDuration,
-            ),
-          ),
+          backgroundColor: appManagementCanvasColor(context),
+          appBar: AppPageHeader(
+              icon: Icons.settings_outlined,
+              leading: _buildBackButton(context),
+              title: const Text('Settings')),
           body: ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: SettingsSection.values.length,
@@ -171,17 +204,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       builder: (ctx) => Theme(
                         data: buildLibraryAccentTheme(Theme.of(ctx), accent),
                         child: Scaffold(
-                          appBar: AppBar(
-                            title: Text(section.title),
-                            backgroundColor:
-                                libraryAccentChromeFallbackColor(accent),
-                            surfaceTintColor: Colors.transparent,
-                            flexibleSpace: LibraryAccentChrome(
-                              key: ValueKey(accent),
-                              accent: accent,
-                              animationDuration: animationDuration,
-                            ),
-                          ),
+                          backgroundColor: appManagementCanvasColor(context),
+                          appBar: AppPageHeader(
+                              icon: Icons.settings_outlined,
+                              leading: AppPageBackButton(),
+                              title: Text(section.title)),
                           body: buildSection(section),
                         ),
                       ),
@@ -195,82 +222,34 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       );
     }
 
-    if (windowClass.isMedium) {
-      return Theme(
-        data: buildLibraryAccentTheme(Theme.of(context), accent),
-        child: Scaffold(
-          appBar: AppBar(
-            leading: _buildBackButton(context),
-            title: const Text('Settings'),
-            backgroundColor: libraryAccentChromeFallbackColor(accent),
-            surfaceTintColor: Colors.transparent,
-            flexibleSpace: LibraryAccentChrome(
-              key: ValueKey(accent),
-              accent: accent,
-              animationDuration: animationDuration,
-            ),
-          ),
-          body: Row(
-            children: [
-              SizedBox(
-                width: 240,
-                child: Material(
-                  color: appPalette(context).panel,
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    children: SettingsSection.values.map((section) {
-                      final isSelected = section == _selectedSection;
-                      return ListTile(
-                        leading: Icon(section.icon,
-                            color: isSelected ? accent : null),
-                        title: Text(
-                          section.title,
-                          style: TextStyle(
-                            fontWeight:
-                                isSelected ? FontWeight.w700 : FontWeight.w500,
-                            color: isSelected ? accent : null,
-                          ),
-                        ),
-                        selected: isSelected,
-                        onTap: () => setState(() => _selectedSection = section),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-              const VerticalDivider(width: 1, thickness: 1),
-              Expanded(
-                child: buildSection(_selectedSection),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     return Theme(
       data: buildLibraryAccentTheme(Theme.of(context), accent),
       child: DefaultTabController(
+        key: ValueKey(_selectedSection),
+        initialIndex: SettingsSection.values.indexOf(_selectedSection),
         length: SettingsSection.values.length,
         child: Scaffold(
-          appBar: AppBar(
-            leading: _buildBackButton(context),
-            title: const Text('Settings'),
-            backgroundColor: libraryAccentChromeFallbackColor(accent),
-            surfaceTintColor: Colors.transparent,
-            flexibleSpace: LibraryAccentChrome(
-              key: ValueKey(accent),
-              accent: accent,
-              animationDuration: animationDuration,
-            ),
-            bottom: TabBar(
-              isScrollable: false,
-              tabAlignment: TabAlignment.fill,
-              tabs: SettingsSection.values
-                  .map((s) => Tab(icon: Icon(s.icon), text: s.title))
-                  .toList(),
-            ),
-          ),
+          backgroundColor: appManagementCanvasColor(context),
+          appBar: AppPageHeader(
+              icon: Icons.settings_outlined,
+              leading: _buildBackButton(context),
+              title: const Text('Settings'),
+              bottom: TabBar(
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+                labelColor: appPalette(context).textPrimary,
+                unselectedLabelColor: appPalette(context).textSecondary,
+                indicatorColor: accent,
+                tabs: SettingsSection.values
+                    .map((s) => Tab(
+                        height: 36,
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                          Icon(s.icon, size: 16),
+                          const SizedBox(width: 6),
+                          Text(s.title)
+                        ])))
+                    .toList(),
+              )),
           body: TabBarView(
             children: SettingsSection.values.map(buildSection).toList(),
           ),
@@ -280,12 +259,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Widget _buildBackButton(BuildContext context) {
-    return IconButton(
-      key: const Key('settings.back'),
-      tooltip: 'Back to library',
-      onPressed: () => context.go(AppRoutes.libraries),
-      icon: const Icon(Icons.arrow_back),
-    );
+    return AppPageBackButton(
+        key: const Key('settings.back'),
+        onPressed: () => context.go(AppRoutes.forKind(
+            AppRoutes.libraries,
+            LibraryAccentScope.maybeOf(context)?.kind ??
+                ref.read(selectedLibraryKindProvider))));
   }
 
   Widget _buildSectionContent({
@@ -296,6 +275,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     required List<CatalogMediaType> mediaCatalog,
     required LibraryNavPreferences navPreferences,
     required UiPreferences uiPreferences,
+    required AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
     required AsyncValue<String> deviceId,
     required bool isAndroidPlatform,
   }) {
@@ -307,6 +287,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             mediaCatalog, navPreferences, isAndroidPlatform);
       case SettingsSection.appearance:
         return _buildAppearanceSection(uiPreferences);
+      case SettingsSection.proposals:
+        return _buildProposalsSection(metadataProposalHistory);
       case SettingsSection.data:
         return _buildDataSection();
       case SettingsSection.account:
@@ -563,25 +545,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return _SettingsTabBody(
       children: [
         _SettingsPanel(
-          icon: Icons.view_comfy_alt_outlined,
-          title: 'Library navigation',
-          child: SettingsLibraryNavigationPanel(
-            catalog: mediaCatalog,
-            preferences: navPreferences,
-            onOrderChanged: (order) => ref
-                .read(libraryNavPreferencesProvider.notifier)
-                .setOrder(order),
-            onVisibilityChanged: (kind, visible) => ref
-                .read(libraryNavPreferencesProvider.notifier)
-                .setKindVisible(kind, visible),
-            onAccentChanged: (kind, color) => ref
-                .read(libraryNavPreferencesProvider.notifier)
-                .setKindAccent(kind, color),
-            onReset: () =>
-                ref.read(libraryNavPreferencesProvider.notifier).reset(),
-          ),
-        ),
-        _SettingsPanel(
           icon: Icons.view_list_outlined,
           title: 'Library customization',
           child: Column(
@@ -632,7 +595,184 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Widget _buildAppearanceSection(UiPreferences uiPreferences) {
+  Widget _buildAppearanceSection(UiPreferences preferences) {
+    final controller = ref.read(uiPreferencesProvider.notifier);
+    Widget toggle(String label, bool value, ValueChanged<bool> onChanged) =>
+        CheckboxListTile(
+            controlAffinity: ListTileControlAffinity.leading,
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            title: Text(label),
+            value: value,
+            onChanged: (value) {
+              if (value != null) onChanged(value);
+            });
+    return DefaultTabController(
+      length: 4,
+      child: Column(children: [
+        const TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            tabs: [
+              Tab(text: 'Customization'),
+              Tab(text: 'Covers & layout'),
+              Tab(text: 'Typography'),
+              Tab(text: 'Behaviour & links'),
+            ]),
+        Expanded(
+            child: TabBarView(children: [
+          _SettingsTabBody(twoColumns: true, children: [
+            _SettingsPanel(
+                icon: Icons.palette_outlined,
+                title: 'Application',
+                child: Column(children: [
+                  DropdownButtonFormField<ThemeMode>(
+                    initialValue: ref.watch(appThemeModeProvider),
+                    decoration:
+                        const InputDecoration(labelText: 'Application skin'),
+                    items: const [
+                      DropdownMenuItem(
+                          value: ThemeMode.system, child: Text('System')),
+                      DropdownMenuItem(
+                          value: ThemeMode.light, child: Text('Light')),
+                      DropdownMenuItem(
+                          value: ThemeMode.dark, child: Text('Dark')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        ref.read(appThemeModeProvider.notifier).setMode(value);
+                      }
+                    },
+                  ),
+                  toggle('Animations', preferences.animationsEnabled,
+                      controller.setAnimationsEnabled),
+                ])),
+            _SettingsPanel(
+                icon: Icons.view_sidebar,
+                title: 'Details panel',
+                child: Column(children: [
+                  DropdownButtonFormField<DetailsPanelTemplate>(
+                    isExpanded: true,
+                    initialValue: preferences.detailsPanelTemplate,
+                    decoration: const InputDecoration(
+                        labelText: 'Template for Details Panel'),
+                    items: DetailsPanelTemplate.values
+                        .map((value) => DropdownMenuItem(
+                            value: value,
+                            child: Text(
+                                value == DetailsPanelTemplate.application
+                                    ? 'Follow application'
+                                    : value.name[0].toUpperCase() +
+                                        value.name.substring(1))))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        controller.setDetailsPanelTemplate(value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  const LibraryLayoutSetting(),
+                  toggle('Show backdrop', preferences.showInspectorBackdrop,
+                      controller.setShowInspectorBackdrop),
+                  toggle(
+                      'Show back cover if space is available',
+                      preferences.showInspectorBackCover,
+                      controller.setShowInspectorBackCover),
+                ])),
+            _SettingsPanel(
+                icon: Icons.menu,
+                title: 'List view',
+                child: Column(children: [
+                  toggle('Wrap column content', preferences.wrapColumnContent,
+                      controller.setWrapColumnContent),
+                  toggle('Auto-size column widths', preferences.autoSizeColumns,
+                      controller.setAutoSizeColumns),
+                  toggle(
+                      'Show Collection Status indicators',
+                      preferences.showCollectionIndicators,
+                      controller.setShowCollectionIndicators),
+                  toggle('Show pencil icons (for editing)',
+                      preferences.showEditIcons, controller.setShowEditIcons),
+                ])),
+            _TabResetActions(
+                label: 'Reset appearance defaults',
+                onReset: _resetAppearanceDefaults),
+          ]),
+          _buildCoverAppearanceSection(preferences),
+          const _SettingsTabBody(twoColumns: true, children: [
+            _SettingsPanel(
+                icon: Icons.text_fields_outlined,
+                title: 'Typography',
+                child: LocalFontSettingsPanel()),
+          ]),
+          _SettingsTabBody(twoColumns: true, children: [
+            _SettingsPanel(
+                icon: Icons.help_outline,
+                title: 'Ask for confirmation',
+                child: Column(children: [
+                  toggle('When removing items', preferences.confirmRemoval,
+                      controller.setConfirmRemoval),
+                  toggle(
+                      'When duplicating items',
+                      preferences.confirmDuplication,
+                      controller.setConfirmDuplication),
+                ])),
+            _SettingsPanel(
+                icon: Icons.shopping_bag_outlined,
+                title: 'eBay search links',
+                child: Column(children: [
+                  DropdownButtonFormField<EbaySearchFilter>(
+                    isExpanded: true,
+                    initialValue: preferences.ebaySearchFilter,
+                    decoration:
+                        const InputDecoration(labelText: 'Listings filter'),
+                    items: EbaySearchFilter.values
+                        .map((value) => DropdownMenuItem(
+                            value: value, child: Text(value.label)))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) controller.setEbaySearchFilter(value);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<EbayRegion>(
+                    isExpanded: true,
+                    initialValue: preferences.ebayRegion,
+                    decoration: const InputDecoration(labelText: 'eBay region'),
+                    items: EbayRegion.values
+                        .map((value) => DropdownMenuItem(
+                            value: value, child: Text(value.label)))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) controller.setEbayRegion(value);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  toggle('Show eBay links', preferences.showEbayLinks,
+                      controller.setShowEbayLinks),
+                  toggle(
+                      'Show for Wish List entries only',
+                      preferences.ebayWishlistOnly,
+                      controller.setEbayWishlistOnly),
+                  toggle('Toolbar', preferences.ebayToolbar,
+                      controller.setEbayToolbar),
+                  toggle(
+                      'Details panel: next to cover',
+                      preferences.ebayNextToCover,
+                      controller.setEbayNextToCover),
+                  toggle(
+                      'Details panel: Links section',
+                      preferences.ebayLinksSection,
+                      controller.setEbayLinksSection),
+                ])),
+          ]),
+        ])),
+      ]),
+    );
+  }
+
+  Widget _buildCoverAppearanceSection(UiPreferences uiPreferences) {
     return _SettingsTabBody(
       children: [
         _SettingsPanel(
@@ -641,35 +781,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: Icon(
-                  ref.watch(appThemeModeProvider) == ThemeMode.dark
-                      ? Icons.dark_mode
-                      : Icons.light_mode,
-                ),
-                title: const Text('Dark mode'),
-                subtitle: const Text(
-                  'Switch between dark and light theme.',
-                ),
-                value: ref.watch(appThemeModeProvider) == ThemeMode.dark,
-                onChanged: (value) => ref
-                    .read(appThemeModeProvider.notifier)
-                    .setMode(value ? ThemeMode.dark : ThemeMode.light),
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.gradient_outlined),
-                title: const Text('Animations'),
-                subtitle: const Text(
-                  'Enable or disable all UI animations, transitions and effects.',
-                ),
-                value: uiPreferences.animationsEnabled,
-                onChanged: (value) => ref
-                    .read(uiPreferencesProvider.notifier)
-                    .setAnimationsEnabled(value),
-              ),
-              const Divider(height: 24),
               Text('Cover grid',
                   style: Theme.of(context)
                       .textTheme
@@ -705,11 +816,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 leading: const Icon(Icons.space_bar),
                 title: const Text('Grid spacing'),
                 subtitle: Slider(
-                  value: uiPreferences.gridSpacing,
+                  value: uiPreferences.gridSpacing.clamp(4.0, 24.0),
                   min: 4,
-                  max: 14,
-                  divisions: 10,
-                  label: '${uiPreferences.gridSpacing.round()} px',
+                  max: 24,
+                  divisions: 20,
+                  label:
+                      '${uiPreferences.gridSpacing.clamp(4.0, 24.0).round()} px',
                   onChanged: (value) => ref
                       .read(uiPreferencesProvider.notifier)
                       .setGridSpacing(value.roundToDouble()),
@@ -727,11 +839,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 leading: const Icon(Icons.photo_size_select_large),
                 title: const Text('Card cover width'),
                 subtitle: Slider(
-                  value: uiPreferences.cardCoverWidth,
+                  value: uiPreferences.cardCoverWidth.clamp(60.0, 120.0),
                   min: 60,
                   max: 120,
                   divisions: 12,
-                  label: '${uiPreferences.cardCoverWidth.round()} px',
+                  label:
+                      '${uiPreferences.cardCoverWidth.clamp(60.0, 120.0).round()} px',
                   onChanged: (value) => ref
                       .read(uiPreferencesProvider.notifier)
                       .setCardCoverWidth(value.roundToDouble()),
@@ -761,11 +874,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 leading: const Icon(Icons.density_small),
                 title: const Text('Sidebar row padding'),
                 subtitle: Slider(
-                  value: uiPreferences.sidebarRowPadding,
+                  value: uiPreferences.sidebarRowPadding.clamp(0.0, 8.0),
                   min: 0,
                   max: 8,
                   divisions: 8,
-                  label: '${uiPreferences.sidebarRowPadding.round()} px',
+                  label:
+                      '${uiPreferences.sidebarRowPadding.clamp(0.0, 8.0).round()} px',
                   onChanged: (value) => ref
                       .read(uiPreferencesProvider.notifier)
                       .setSidebarRowPadding(value.roundToDouble()),
@@ -783,10 +897,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ],
           ),
         ),
-        const _SettingsPanel(
-          icon: Icons.text_fields_outlined,
-          title: 'Typography',
-          child: _FontDiagnosticsPanel(),
+      ],
+    );
+  }
+
+  Widget _buildProposalsSection(
+    AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
+  ) {
+    return _SettingsTabBody(
+      children: [
+        _SettingsPanel(
+          icon: Icons.outbox_outlined,
+          title: 'Metadata proposals',
+          child: SettingsMetadataProposalHistory(
+            records: metadataProposalHistory.value ?? const [],
+            isLoading: metadataProposalHistory.isLoading,
+            onClear: _clearProposalHistory,
+          ),
         ),
       ],
     );
@@ -802,7 +929,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Import or export your collection in the stable Catalog Item v1 CSV format.',
+                'Import or export your local collection as Collectarr CSV, CLZ-friendly CSV, or ComicInfo.xml. Personal fields stored on this device stay in the exported data.',
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -820,9 +947,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     label: const Text('Export collection'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: _copyBackup,
+                    onPressed: () => _copyBackup(clzFriendly: false),
                     icon: const Icon(Icons.copy_all),
-                    label: const Text('Copy Catalog Item v1 CSV'),
+                    label: const Text('Copy Collectarr export'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () => _copyBackup(clzFriendly: true),
+                    icon: const Icon(Icons.table_view),
+                    label: const Text('Copy CLZ-friendly export'),
                   ),
                   OutlinedButton.icon(
                     onPressed: _copySyncBackupGuide,
@@ -943,24 +1075,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   if (auth.isAuthenticated)
                     SettingsStatusChip(
-                      icon: auth.canEditCatalog
+                      icon: auth.isAdmin
                           ? Icons.admin_panel_settings_outlined
                           : Icons.person_outline,
-                      label: auth.isAdmin
-                          ? 'Core admin'
-                          : auth.canEditCatalog
-                              ? 'Catalog editor'
-                              : 'Viewer account',
+                      label: auth.isAdmin ? 'Core admin' : 'Standard account',
                     ),
                 ],
               ),
               const SizedBox(height: 12),
               Text(
                 auth.isAuthenticated
-                    ? auth.canEditCatalog
-                        ? 'You can search, create, and edit shared Catalog Items. Owned Copies and personal collection data remain local to this App.'
-                        : 'You can search the shared catalog and add local Owned Copies. Creating or editing shared Catalog Items requires a catalog editor or admin account.'
-                    : 'You can browse the app. Sign in to add Owned Copies; catalog editors and admins can also change shared Catalog Items.',
+                    ? auth.isAdmin
+                        ? 'Full admin access: dashboard, logs, system management, and all catalog operations.'
+                        : 'Catalog search, proposals, and corrections are available. Admin-only tools (dashboard, logs) are hidden.'
+                    : 'You can browse the app and send metadata proposals without signing in. Admin sign in is only needed for admin/server features.',
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -1044,32 +1172,66 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
-  Future<void> _copyBackup() async {
-    final rows = await ref.read(catalogItemV1AllWorkspacesProvider.future);
-    final data = const CatalogItemV1CsvExporter().export(rows).content;
+  Future<void> _copyBackup({required bool clzFriendly}) async {
+    final state = await ref.read(shelfProvider.future);
+    final db = ref.read(localDatabaseProvider);
+    final cfRepo = CustomFieldRepository(db);
+    final cfDefs = await cfRepo.listDefinitions();
+    final cfValues = await cfRepo.listAllValues();
+    final entryRecordsByRef = await LibraryEntryStore(db).findByRefs(
+      state.entries
+          .map((entry) => entry.libraryEntryRef)
+          .whereType<LibraryEntryRef>(),
+    );
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
+    final data = clzFriendly
+        ? csv.exportClzFriendlyShelf(
+            state.entries,
+            customFieldDefinitions: cfDefs,
+            customFieldValuesByItem: cfValues,
+            entryRecordsByRef: entryRecordsByRef,
+          )
+        : csv.exportShelf(
+            state.entries,
+            customFieldDefinitions: cfDefs,
+            customFieldValuesByItem: cfValues,
+            entryRecordsByRef: entryRecordsByRef,
+          );
     await Clipboard.setData(ClipboardData(text: data));
     if (!mounted) {
       return;
     }
     _showToast(
-      'Catalog Item v1 CSV copied',
+      clzFriendly
+          ? 'CLZ-friendly CSV backup copied'
+          : 'Collectarr CSV backup copied',
       tone: AppToastTone.success,
     );
   }
 
   Future<void> _showImportExportWizard({required int initialIndex}) async {
-    final catalogRows =
-        await ref.read(catalogItemV1AllWorkspacesProvider.future);
+    final state = await ref.read(shelfProvider.future);
+    final db = ref.read(localDatabaseProvider);
+    final cfRepo = CustomFieldRepository(db);
+    final cfDefs = await cfRepo.listDefinitions();
+    final cfValues = await cfRepo.listAllValues();
+    final entryRecordsByRef = await LibraryEntryStore(db).findByRefs(
+      state.entries
+          .map((entry) => entry.libraryEntryRef)
+          .whereType<LibraryEntryRef>(),
+    );
     if (!mounted) {
       return;
     }
     final imported = await showDialog<int>(
       context: context,
       builder: (context) => ImportExportWizardDialog(
+        entries: state.entries,
+        profiles: collectionCsvKindProfiles,
         initialIndex: initialIndex,
-        additionalExports: [
-          const CatalogItemV1CsvExporter().export(catalogRows)
-        ],
+        customFieldDefinitions: cfDefs,
+        customFieldValuesByItem: cfValues,
+        entryRecordsByRef: entryRecordsByRef,
       ),
     );
     if (imported != null && mounted) {
@@ -1104,6 +1266,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return;
     }
     _showToast('Sync backup guide copied', tone: AppToastTone.success);
+  }
+
+  Future<void> _clearProposalHistory() async {
+    await const MetadataProposalStore().clear();
+    if (mounted) {
+      ref.invalidate(_metadataProposalHistoryProvider);
+      setState(() {});
+      _showToast('Local proposal history cleared', tone: AppToastTone.success);
+    }
   }
 
   Future<void> _regenerateDeviceId() async {
@@ -1160,6 +1331,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (ctx) => AccentAlertDialog(
+          headerIcon: AppIcons.backupRestore,
           title: const Text('Restore database'),
           content: const Text(
             'This will replace ALL local data with the backup contents. '
@@ -1201,6 +1373,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final firstConfirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         title: const Text('Clear database'),
         content: const Text(
           'This will permanently delete ALL local data. '
@@ -1227,6 +1400,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final secondConfirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         title: const Text('Are you absolutely sure?'),
         content: const Text(
           'All collection data, tracking history, custom fields, '
@@ -1312,115 +1486,52 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 }
 
-class _FontDiagnosticsPanel extends StatelessWidget {
-  const _FontDiagnosticsPanel();
-
-  static const _interAsset = 'assets/fonts/Inter-Variable.ttf';
-  static const _monoAsset = 'assets/fonts/JetBrainsMono-Variable.ttf';
-
-  Future<bool> _assetAvailable(String assetPath) async {
-    try {
-      await rootBundle.load(assetPath);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text('Primary: Inter â€¢ Monospace: JetBrains Mono'),
-        const SizedBox(height: 8),
-        Text(
-          'Inter sample: The quick brown fox 12345',
-          style: textTheme.bodyMedium?.copyWith(
-            fontFamily: kClzPrimaryFontFamily,
-            fontFamilyFallback: kClzFontFallback,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'JetBrains Mono sample: ABCDEF 1234567890',
-          style: textTheme.bodyMedium?.copyWith(
-            fontFamily: kClzMonospaceFontFamily,
-            fontFamilyFallback: kClzMonospaceFontFallback,
-          ),
-        ),
-        const SizedBox(height: 12),
-        FutureBuilder<bool>(
-          future: _assetAvailable(_interAsset),
-          builder: (context, snapshot) {
-            final ok = snapshot.data == true;
-            return _FontStatusRow(
-              label: 'Inter font asset',
-              value: ok ? 'Loaded' : 'Missing',
-              ok: ok,
-            );
-          },
-        ),
-        const SizedBox(height: 6),
-        FutureBuilder<bool>(
-          future: _assetAvailable(_monoAsset),
-          builder: (context, snapshot) {
-            final ok = snapshot.data == true;
-            return _FontStatusRow(
-              label: 'JetBrains Mono asset',
-              value: ok ? 'Loaded' : 'Missing',
-              ok: ok,
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class _FontStatusRow extends StatelessWidget {
-  const _FontStatusRow({
-    required this.label,
-    required this.value,
-    required this.ok,
-  });
-
-  final String label;
-  final String value;
-  final bool ok;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(
-          ok ? Icons.check_circle_outline : Icons.error_outline,
-          size: 16,
-          color: ok ? Colors.greenAccent : Colors.orangeAccent,
-        ),
-        const SizedBox(width: 8),
-        Text('$label: $value'),
-      ],
-    );
-  }
-}
-
 class _SettingsTabBody extends StatelessWidget {
-  const _SettingsTabBody({required this.children});
+  const _SettingsTabBody({required this.children, this.twoColumns = false});
 
   final List<Widget> children;
+  final bool twoColumns;
 
   @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: children.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => children[index],
-    );
-  }
+  Widget build(BuildContext context) =>
+      LayoutBuilder(builder: (context, constraints) {
+        final wide = twoColumns && constraints.maxWidth >= 800;
+        return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+                child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 960),
+                    child: wide
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                                for (var column = 0; column < 2; column++) ...[
+                                  if (column != 0) const SizedBox(width: 28),
+                                  Expanded(
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                        for (var index = column;
+                                            index < children.length;
+                                            index += 2)
+                                          Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 20),
+                                              child: children[index])
+                                      ])),
+                                ],
+                              ])
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                                for (final child in children)
+                                  Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 20),
+                                      child: child)
+                              ]))));
+      });
 }
 
 class _TabResetActions extends StatelessWidget {
@@ -1458,13 +1569,8 @@ class _SettingsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: colorScheme.outlineVariant),
-      ),
+    return Material(
+      color: libraryWorkspaceBackgroundColor(context),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -1472,17 +1578,18 @@ class _SettingsPanel extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon),
-                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     title,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700, fontSize: 22),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const Divider(height: 18),
             child,
           ],
         ),

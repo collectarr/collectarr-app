@@ -2,176 +2,17 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:flutter/material.dart';
-
-class EditableComicCreator {
-  EditableComicCreator({
-    required this.nameController,
-    required this.roleController,
-    Map<String, dynamic>? metadata,
-  }) : metadata = Map<String, dynamic>.from(metadata ?? const {});
-
-  factory EditableComicCreator.custom({String name = '', String role = ''}) {
-    return EditableComicCreator(
-      nameController: TextEditingController(text: name),
-      roleController: TextEditingController(text: role),
-      metadata: const {'source_type': 'custom'},
-    );
-  }
-
-  factory EditableComicCreator.fromMetadata(Map<String, dynamic> metadata) {
-    return EditableComicCreator(
-      nameController:
-          TextEditingController(text: metadata['name']?.toString() ?? ''),
-      roleController: TextEditingController(
-        text: metadata['role']?.toString() ?? metadata['job']?.toString() ?? '',
-      ),
-      metadata: metadata,
-    );
-  }
-
-  factory EditableComicCreator.fromLookupResult(Map<String, dynamic> result) {
-    final role = result['role']?.toString().trim().isNotEmpty == true
-        ? result['role']!.toString().trim()
-        : result['job']?.toString().trim().isNotEmpty == true
-            ? result['job']!.toString().trim()
-            : '';
-    return EditableComicCreator(
-      nameController:
-          TextEditingController(text: result['name']?.toString() ?? ''),
-      roleController: TextEditingController(text: role),
-      metadata: {
-        ...result,
-        'source_type': 'core',
-      },
-    );
-  }
-
-  final TextEditingController nameController;
-  final TextEditingController roleController;
-  final Map<String, dynamic> metadata;
-
-  Map<String, dynamic> toMap() {
-    final result = <String, dynamic>{
-      ...metadata,
-      'name': nameController.text.trim(),
-      'role': roleController.text.trim(),
-      'source_type': metadata['source_type']?.toString() ?? 'custom',
-    };
-    result.removeWhere(
-      (key, value) =>
-          value == null || (value is String && value.trim().isEmpty),
-    );
-    return result;
-  }
-
-  void dispose() {
-    nameController.dispose();
-    roleController.dispose();
-  }
-}
-
-class EditableComicCharacter {
-  EditableComicCharacter({
-    required this.nameController,
-    required this.realNameController,
-    Map<String, dynamic>? metadata,
-  }) : metadata = Map<String, dynamic>.from(metadata ?? const {});
-
-  factory EditableComicCharacter.custom(String name) {
-    return EditableComicCharacter(
-      nameController: TextEditingController(text: name),
-      realNameController: TextEditingController(),
-      metadata: const {'source_type': 'custom'},
-    );
-  }
-
-  factory EditableComicCharacter.fromMetadata(Map<String, dynamic> metadata) {
-    return EditableComicCharacter(
-      nameController:
-          TextEditingController(text: metadata['name']?.toString() ?? ''),
-      realNameController:
-          TextEditingController(text: metadata['real_name']?.toString() ?? ''),
-      metadata: metadata,
-    );
-  }
-
-  factory EditableComicCharacter.fromLookupResult(Map<String, dynamic> result) {
-    return EditableComicCharacter(
-      nameController:
-          TextEditingController(text: result['name']?.toString() ?? ''),
-      realNameController:
-          TextEditingController(text: result['real_name']?.toString() ?? ''),
-      metadata: {
-        ...result,
-        'source_type': 'core',
-      },
-    );
-  }
-
-  final TextEditingController nameController;
-  final TextEditingController realNameController;
-  final Map<String, dynamic> metadata;
-
-  Map<String, dynamic> toMap() {
-    final result = <String, dynamic>{
-      ...metadata,
-      'name': nameController.text.trim(),
-      'real_name': realNameController.text.trim(),
-      'source_type': metadata['source_type']?.toString() ?? 'custom',
-    };
-    result.removeWhere(
-      (key, value) =>
-          value == null || (value is String && value.trim().isEmpty),
-    );
-    return result;
-  }
-
-  void dispose() {
-    nameController.dispose();
-    realNameController.dispose();
-  }
-}
-
-List<EditableComicCreator> initComicCreators(ComicMedia item) {
-  final payload = item.toSyncPayload();
-  final creators = payload['creators'];
-  if (creators is List) {
-    return [
-      for (final creator in creators.whereType<Map<String, dynamic>>())
-        EditableComicCreator.fromMetadata(creator),
-    ];
-  }
-  return const [];
-}
-
-List<EditableComicCharacter> initComicCharacters(ComicMedia item) {
-  final payload = item.toSyncPayload();
-  final characterDetails = payload['character_details'];
-  if (characterDetails is List && characterDetails.isNotEmpty) {
-    return [
-      for (final character
-          in characterDetails.whereType<Map<String, dynamic>>())
-        EditableComicCharacter.fromMetadata(character),
-    ];
-  }
-  final characters = payload['characters'];
-  if (characters is List) {
-    return [
-      for (final characterName in characters.map((c) => c.toString()))
-        EditableComicCharacter.custom(characterName),
-    ];
-  }
-  return const [];
-}
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 
 LibraryEditSelection applyComicSelectionEdits(
   LibraryEditSelection selection,
   List<EditableComicCreator> creators,
   List<EditableComicCharacter> characters,
-  List<Map<String, TextEditingController>> links,
-) {
+  List<LibraryExternalLinkDraftRow> links, {
+  required Map<LibraryExternalLinkDraftRow, ComicLink> originalExternalLinks,
+}) {
   final mappedCreators = creators
       .map((creator) => creator.toMap())
       .where(
@@ -185,46 +26,40 @@ LibraryEditSelection applyComicSelectionEdits(
             (character['name']?.toString().trim().isNotEmpty ?? false),
       )
       .toList(growable: false);
-  final characterNames = characterDetails
-      .map((character) => character['name']!.toString())
-      .toList(growable: false);
-  final current = selection.kindItem.kindCapability
-          .mapTransport((transport) => transport)
-          .kindMetadata is ComicMedia
-      ? selection.kindItem.kindCapability
-          .mapTransport((transport) => transport)
-          .kindMetadata as ComicMedia
-      : ComicMedia.fromJson(selection.kindItem.kindCapability
-          .mapTransport((transport) => transport)
-          .payload);
+  final typedCharacterDetails =
+      characterDetails.map(ComicCharacter.fromValue).toList(growable: false);
+  final typedCreators =
+      mappedCreators.map(ComicCreator.fromValue).toList(growable: false);
+  final current = selection.kindItem.kindCapability.mapTransport(
+    (transport) => ComicCatalogItem.fromJson(transport.kindData),
+  );
 
   final existingTrailerLinks = current.links.where((l) => l.isTrailerLink);
   final newComicLinks = <ComicLink>[
     ...existingTrailerLinks,
     for (final l in links)
-      if ((l['url']?.text.trim() ?? '').isNotEmpty)
+      if (l.urlController.text.trim().isNotEmpty)
         ComicLink(
-          url: l['url']!.text.trim(),
-          title: emptyToNull(l['title']?.text ?? ''),
-          description: emptyToNull(l['title']?.text ?? ''),
-          source: 'manual',
-          isAutomatic: false,
-          kind: 'external',
+          url: l.urlController.text.trim(),
+          title: emptyToNull(l.titleController.text),
+          description: emptyToNull(l.descriptionController.text),
+          source: originalExternalLinks[l]?.source ?? 'manual',
+          isAutomatic: originalExternalLinks[l]?.isAutomatic ?? false,
+          kind: originalExternalLinks[l]?.kind ?? 'external',
         ),
   ];
 
   final updatedMetadata = current.copyWith(
-    creators: mappedCreators.isNotEmpty ? mappedCreators : current.creators,
-    characterDetails: characterDetails.isNotEmpty
-        ? characterDetails
-        : current.characterDetails,
-    characters: characterNames.isNotEmpty ? characterNames : current.characters,
+    creators: typedCreators,
+    characterDetails: typedCharacterDetails,
+    characters: typedCharacterDetails,
     links: newComicLinks,
   );
 
   final updatedItem = selection.kindItem.kindCapability.mapTransport(
     (transport) => CatalogSearchCandidate.fromItem(
-      transport.withKindMetadata(updatedMetadata),
+      transport.replacingKindData(updatedMetadata),
+      basedOn: selection.kindItem,
     ),
   );
   return selection.copyWith(kindItem: updatedItem);

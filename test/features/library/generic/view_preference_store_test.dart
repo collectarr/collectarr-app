@@ -27,21 +27,24 @@ void main() {
         LibraryFolderPreset.single('publisher'));
 
     final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString('library.movie.folderPreset'), 'group.publisher');
+    expect(
+      prefs.getString('library.v1.movie.folderPreset'),
+      'group.publisher',
+    );
   });
 
   test('read populates cache and clearing removes cached values', () async {
     SharedPreferences.setMockInitialValues({
-      'library.movie.quickView': LibraryQuickView.owned.name,
-      'library.movie.folderPreset': 'year',
+      'library.v1.movie.quickView': LibraryQuickView.entry.name,
+      'library.v1.movie.folderPreset': 'year',
     });
 
-    expect(await movieStore.readQuickView(), LibraryQuickView.owned);
+    expect(await movieStore.readQuickView(), LibraryQuickView.entry);
     expect(
       await movieStore.readFolderPreset(),
       LibraryFolderPreset.single('year'),
     );
-    expect(movieStore.cachedQuickView, LibraryQuickView.owned);
+    expect(movieStore.cachedQuickView, LibraryQuickView.entry);
     expect(movieStore.cachedFolderPreset, LibraryFolderPreset.single('year'));
 
     await movieStore.writeQuickView(null);

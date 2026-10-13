@@ -1,13 +1,11 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 
 class LibraryProjectionEngine {
   LibraryProjectionEngine({
@@ -35,44 +33,39 @@ class LibraryProjectionEngine {
     required LibraryKindRegistration type,
     required LibraryWorkspaceViewState viewState,
     required LibraryProjectionQuery query,
-    LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.work,
-    String? releaseFolderWorkId,
     List<LibraryBucket>? overrideBuckets,
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
-    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
+    Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
-    final fields = workspace.fieldsForScope(
-      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(browserMode),
-    );
+    final fields = workspace.fields;
     final allItems = libraryItemsForShelf(
       shelf,
       type,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
       customFieldValuesByItem: customFieldValuesByItem,
-      browserMode: browserMode,
-      releaseFolderWorkId: releaseFolderWorkId,
     );
 
+    if (query.collectionEntryIds case final members?) {
+      allItems.removeWhere(
+          (item) => !members.contains(item.source.libraryEntryRef?.id.value));
+    }
     final scopedBucketItems = <LibraryProjectionItem>[];
     for (final item in allItems) {
       if (query.constrainedItemIds != null &&
-          !query.constrainedItemIds!.contains(item.node.id)) {
+          !query.constrainedItemIds!.contains(item.target.id)) {
         continue;
       }
       var matchesScope = true;
       for (final filter in query.bucketScopeFilters) {
-        final bucket = index.getGroupBucket(
-          item,
-          filter.groupId,
-          (it, mode) => groupingEngine.getGroupBucketForItem(it, type, mode),
-        );
-        if (bucket != filter.bucket) {
+        if (!groupingEngine
+            .bucketsForItem(item, type, filter.groupId, index: index)
+            .contains(filter.bucket)) {
           matchesScope = false;
           break;
         }
@@ -87,14 +80,17 @@ class LibraryProjectionEngine {
       final searchDoc = index.getSearchDocument(
         item,
         customFieldValuesByItem,
+        fields.searchValuesFor(item),
+        fields.containedSearchValuesFor(item),
       );
       if (filterEngine.matches(
         item: item,
         query: query,
         searchDoc: searchDoc,
         type: type,
+        searchTarget: searchTarget,
         index: index,
-        activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+        activeLoanLibraryEntryIds: activeLoanLibraryEntryIds,
         customFieldValuesByDefinitionByItem:
             customFieldValuesByDefinitionByItem,
       )) {
@@ -117,7 +113,7 @@ class LibraryProjectionEngine {
     final groupId = query.groupId ?? fields.defaultGroup;
     if (groupId == null) {
       throw StateError(
-        'Workspace scope ${fields.entityScope.apiValue} has no default group.',
+        'Workspace ${fields.kindNamespace} has no default group.',
       );
     }
     final buckets = overrideBuckets ??

@@ -1,0 +1,7095 @@
+{
+  "formatVersion": 1,
+  "policy": {
+    "databaseSource": "Drift Table column getters",
+    "domainAliases": "Kind-local Drift mapper named arguments",
+    "workspaceSource": "Kind-entry LibraryFieldId declarations",
+    "generatedAt": null
+  },
+  "kinds": {
+    "anime": {
+      "tables": [
+        {
+          "name": "AnimeTrackingRows",
+          "source": "lib/features/library/kinds/anime/data/local/anime_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "status",
+              "sqlName": "status"
+            },
+            {
+              "property": "sourceType",
+              "sqlName": "source_type"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "startedAt",
+              "sqlName": "started_at"
+            },
+            {
+              "property": "finishedAt",
+              "sqlName": "finished_at"
+            },
+            {
+              "property": "progressCurrent",
+              "sqlName": "progress_current"
+            },
+            {
+              "property": "progressTotal",
+              "sqlName": "progress_total"
+            },
+            {
+              "property": "timesCompleted",
+              "sqlName": "times_completed"
+            },
+            {
+              "property": "seasonNumber",
+              "sqlName": "season_number"
+            },
+            {
+              "property": "episodeNumber",
+              "sqlName": "episode_number"
+            },
+            {
+              "property": "episodeRatingsJson",
+              "sqlName": "episode_ratings_json"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        },
+        {
+          "name": "AnimeTrackingUnitRows",
+          "source": "lib/features/library/kinds/anime/data/local/anime_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "trackingEntryId",
+              "sqlName": "tracking_entry_id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "completedAt",
+              "sqlName": "completed_at"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            },
+            {
+              "property": "seasonNumber",
+              "sqlName": "season_number"
+            },
+            {
+              "property": "episodeNumber",
+              "sqlName": "episode_number"
+            }
+          ]
+        },
+        {
+          "name": "AnimeWatchSessionRows",
+          "source": "lib/features/library/kinds/anime/data/local/anime_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryId",
+              "sqlName": "library_entry_id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "episodeId",
+              "sqlName": "episode_id"
+            },
+            {
+              "property": "trackingEntryId",
+              "sqlName": "tracking_entry_id"
+            },
+            {
+              "property": "seasonNumber",
+              "sqlName": "season_number"
+            },
+            {
+              "property": "episodeNumber",
+              "sqlName": "episode_number"
+            },
+            {
+              "property": "sourceType",
+              "sqlName": "source_type"
+            },
+            {
+              "property": "seenWhere",
+              "sqlName": "seen_where"
+            },
+            {
+              "property": "watchedAt",
+              "sqlName": "watched_at"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        },
+        {
+          "name": "AnimeCustomEpisodeRows",
+          "source": "lib/features/library/kinds/anime/data/local/anime_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryId",
+              "sqlName": "library_entry_id"
+            },
+            {
+              "property": "seasonNumber",
+              "sqlName": "season_number"
+            },
+            {
+              "property": "episodeNumber",
+              "sqlName": "episode_number"
+            },
+            {
+              "property": "title",
+              "sqlName": "title"
+            },
+            {
+              "property": "description",
+              "sqlName": "description"
+            },
+            {
+              "property": "airDate",
+              "sqlName": "air_date"
+            },
+            {
+              "property": "runtimeMinutes",
+              "sqlName": "runtime_minutes"
+            },
+            {
+              "property": "stillImageUrl",
+              "sqlName": "still_image_url"
+            },
+            {
+              "property": "localImagePath",
+              "sqlName": "local_image_path"
+            },
+            {
+              "property": "thumbnailImageUrl",
+              "sqlName": "thumbnail_image_url"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        }
+      ],
+      "workspaceIdSources": [
+        "lib/features/library/kinds/anime/workspace/anime_ids.dart"
+      ],
+      "mapperSources": [],
+      "fields": {
+        "addedAt": {
+          "symbols": [
+            "addedAt",
+            "added_at"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.added_at"
+          ]
+        },
+        "airDate": {
+          "symbols": [
+            "airDate",
+            "air_date"
+          ],
+          "databaseColumns": [
+            "airDate"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "air_date"
+          ],
+          "workspaceFieldIds": []
+        },
+        "airingStatus": {
+          "symbols": [
+            "airingStatus",
+            "airing_status"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.airing_status"
+          ]
+        },
+        "barcode": {
+          "symbols": [
+            "barcode"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.barcode"
+          ]
+        },
+        "completedAt": {
+          "symbols": [
+            "completedAt",
+            "completed_at"
+          ],
+          "databaseColumns": [
+            "completedAt"
+          ],
+          "databaseTables": [
+            "AnimeTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "completed_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "condition": {
+          "symbols": [
+            "condition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.condition"
+          ]
+        },
+        "cover": {
+          "symbols": [
+            "cover"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.cover"
+          ]
+        },
+        "deletedAt": {
+          "symbols": [
+            "deletedAt",
+            "deleted_at"
+          ],
+          "databaseColumns": [
+            "deletedAt"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows",
+            "AnimeTrackingRows",
+            "AnimeTrackingUnitRows",
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "deleted_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "description": {
+          "symbols": [
+            "description"
+          ],
+          "databaseColumns": [
+            "description"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "description"
+          ],
+          "workspaceFieldIds": []
+        },
+        "englishTitle": {
+          "symbols": [
+            "englishTitle",
+            "english_title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.english_title"
+          ]
+        },
+        "episodeCount": {
+          "symbols": [
+            "episodeCount",
+            "episode_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.episode_count"
+          ]
+        },
+        "episodeId": {
+          "symbols": [
+            "episodeId",
+            "episode_id"
+          ],
+          "databaseColumns": [
+            "episodeId"
+          ],
+          "databaseTables": [
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "episode_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "episodeNumber": {
+          "symbols": [
+            "episodeNumber",
+            "episode_number"
+          ],
+          "databaseColumns": [
+            "episodeNumber"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows",
+            "AnimeTrackingRows",
+            "AnimeTrackingUnitRows",
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "episode_number"
+          ],
+          "workspaceFieldIds": []
+        },
+        "episodeRatings": {
+          "symbols": [
+            "episodeRatings",
+            "episodeRatingsJson",
+            "episode_ratings",
+            "episode_ratings_json"
+          ],
+          "databaseColumns": [
+            "episodeRatingsJson"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows"
+          ],
+          "sqlNames": [
+            "episode_ratings_json"
+          ],
+          "workspaceFieldIds": []
+        },
+        "episodeRuntimeMinutes": {
+          "symbols": [
+            "episodeRuntimeMinutes",
+            "episode_runtime_minutes"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.episode_runtime_minutes"
+          ]
+        },
+        "finishedAt": {
+          "symbols": [
+            "finishedAt",
+            "finished_at"
+          ],
+          "databaseColumns": [
+            "finishedAt"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows"
+          ],
+          "sqlNames": [
+            "finished_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "format": {
+          "symbols": [
+            "format"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.format"
+          ]
+        },
+        "genres": {
+          "symbols": [
+            "genres"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.genres"
+          ]
+        },
+        "id": {
+          "symbols": [
+            "id"
+          ],
+          "databaseColumns": [
+            "id"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows",
+            "AnimeTrackingRows",
+            "AnimeTrackingUnitRows",
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "libraryEntryId": {
+          "symbols": [
+            "libraryEntryId",
+            "library_entry_id"
+          ],
+          "databaseColumns": [
+            "libraryEntryId"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows",
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "library_entry_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows",
+            "AnimeTrackingUnitRows",
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
+        "licensors": {
+          "symbols": [
+            "licensors"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.licensors"
+          ]
+        },
+        "localImagePath": {
+          "symbols": [
+            "localImagePath",
+            "local_image_path"
+          ],
+          "databaseColumns": [
+            "localImagePath"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "local_image_path"
+          ],
+          "workspaceFieldIds": []
+        },
+        "location": {
+          "symbols": [
+            "location"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.location"
+          ]
+        },
+        "nativeTitle": {
+          "symbols": [
+            "nativeTitle",
+            "native_title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.native_title"
+          ]
+        },
+        "notes": {
+          "symbols": [
+            "notes"
+          ],
+          "databaseColumns": [
+            "notes"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows",
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "notes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "pricePaid": {
+          "symbols": [
+            "pricePaid",
+            "price_paid"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.price_paid"
+          ]
+        },
+        "producers": {
+          "symbols": [
+            "producers"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.producers"
+          ]
+        },
+        "progressCurrent": {
+          "symbols": [
+            "progressCurrent",
+            "progress_current"
+          ],
+          "databaseColumns": [
+            "progressCurrent"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_current"
+          ],
+          "workspaceFieldIds": []
+        },
+        "progressTotal": {
+          "symbols": [
+            "progressTotal",
+            "progress_total"
+          ],
+          "databaseColumns": [
+            "progressTotal"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_total"
+          ],
+          "workspaceFieldIds": []
+        },
+        "publisher": {
+          "symbols": [
+            "publisher"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.publisher"
+          ]
+        },
+        "rating": {
+          "symbols": [
+            "rating"
+          ],
+          "databaseColumns": [
+            "rating"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows",
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "rating"
+          ],
+          "workspaceFieldIds": [
+            "anime.rating"
+          ]
+        },
+        "releaseDate": {
+          "symbols": [
+            "releaseDate",
+            "release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.release_date"
+          ]
+        },
+        "releaseYear": {
+          "symbols": [
+            "releaseYear",
+            "release_year"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.release_year"
+          ]
+        },
+        "romajiTitle": {
+          "symbols": [
+            "romajiTitle",
+            "romaji_title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.romaji_title"
+          ]
+        },
+        "runtimeMinutes": {
+          "symbols": [
+            "runtimeMinutes",
+            "runtime_minutes"
+          ],
+          "databaseColumns": [
+            "runtimeMinutes"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "runtime_minutes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "season": {
+          "symbols": [
+            "season"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.season"
+          ]
+        },
+        "seasonNumber": {
+          "symbols": [
+            "seasonNumber",
+            "season_number"
+          ],
+          "databaseColumns": [
+            "seasonNumber"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows",
+            "AnimeTrackingRows",
+            "AnimeTrackingUnitRows",
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "season_number"
+          ],
+          "workspaceFieldIds": []
+        },
+        "seasonYear": {
+          "symbols": [
+            "seasonYear",
+            "season_year"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.season_year"
+          ]
+        },
+        "seenWhere": {
+          "symbols": [
+            "seenWhere",
+            "seen_where"
+          ],
+          "databaseColumns": [
+            "seenWhere"
+          ],
+          "databaseTables": [
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "seen_where"
+          ],
+          "workspaceFieldIds": []
+        },
+        "sourceMaterial": {
+          "symbols": [
+            "sourceMaterial",
+            "source_material"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.source_material"
+          ]
+        },
+        "sourceType": {
+          "symbols": [
+            "sourceType",
+            "source_type"
+          ],
+          "databaseColumns": [
+            "sourceType"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows",
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "source_type"
+          ],
+          "workspaceFieldIds": []
+        },
+        "startedAt": {
+          "symbols": [
+            "startedAt",
+            "started_at"
+          ],
+          "databaseColumns": [
+            "startedAt"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows"
+          ],
+          "sqlNames": [
+            "started_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "status": {
+          "symbols": [
+            "status"
+          ],
+          "databaseColumns": [
+            "status"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows"
+          ],
+          "sqlNames": [
+            "status"
+          ],
+          "workspaceFieldIds": [
+            "anime.status"
+          ]
+        },
+        "stillImageUrl": {
+          "symbols": [
+            "stillImageUrl",
+            "still_image_url"
+          ],
+          "databaseColumns": [
+            "stillImageUrl"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "still_image_url"
+          ],
+          "workspaceFieldIds": []
+        },
+        "studio": {
+          "symbols": [
+            "studio"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.studio"
+          ]
+        },
+        "studios": {
+          "symbols": [
+            "studios"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.studios"
+          ]
+        },
+        "themes": {
+          "symbols": [
+            "themes"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.themes"
+          ]
+        },
+        "thumbnailImageUrl": {
+          "symbols": [
+            "thumbnailImageUrl",
+            "thumbnail_image_url"
+          ],
+          "databaseColumns": [
+            "thumbnailImageUrl"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "thumbnail_image_url"
+          ],
+          "workspaceFieldIds": []
+        },
+        "timesCompleted": {
+          "symbols": [
+            "timesCompleted",
+            "times_completed"
+          ],
+          "databaseColumns": [
+            "timesCompleted"
+          ],
+          "databaseTables": [
+            "AnimeTrackingRows"
+          ],
+          "sqlNames": [
+            "times_completed"
+          ],
+          "workspaceFieldIds": []
+        },
+        "title": {
+          "symbols": [
+            "title"
+          ],
+          "databaseColumns": [
+            "title"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "title"
+          ],
+          "workspaceFieldIds": [
+            "anime.title"
+          ]
+        },
+        "trackingEntryId": {
+          "symbols": [
+            "trackingEntryId",
+            "tracking_entry_id"
+          ],
+          "databaseColumns": [
+            "trackingEntryId"
+          ],
+          "databaseTables": [
+            "AnimeTrackingUnitRows",
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "tracking_entry_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "updatedAt": {
+          "symbols": [
+            "updatedAt",
+            "updated_at"
+          ],
+          "databaseColumns": [
+            "updatedAt"
+          ],
+          "databaseTables": [
+            "AnimeCustomEpisodeRows",
+            "AnimeTrackingRows",
+            "AnimeTrackingUnitRows",
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "updated_at"
+          ],
+          "workspaceFieldIds": [
+            "anime.updated_at"
+          ]
+        },
+        "watchStatus": {
+          "symbols": [
+            "watchStatus",
+            "watch_status"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.watch_status"
+          ]
+        },
+        "watchedAt": {
+          "symbols": [
+            "watchedAt",
+            "watched_at"
+          ],
+          "databaseColumns": [
+            "watchedAt"
+          ],
+          "databaseTables": [
+            "AnimeWatchSessionRows"
+          ],
+          "sqlNames": [
+            "watched_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "wishlist": {
+          "symbols": [
+            "wishlist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.wishlist"
+          ]
+        }
+      }
+    },
+    "boardgame": {
+      "tables": [
+        {
+          "name": "BoardGamePlaySessionsRows",
+          "source": "lib/features/library/kinds/boardgame/data/local/boardgame_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "boardGameId",
+              "sqlName": "board_game_id"
+            },
+            {
+              "property": "date",
+              "sqlName": "date"
+            },
+            {
+              "property": "playersJson",
+              "sqlName": "players_json"
+            },
+            {
+              "property": "winner",
+              "sqlName": "winner"
+            },
+            {
+              "property": "scoresJson",
+              "sqlName": "scores_json"
+            },
+            {
+              "property": "durationMinutes",
+              "sqlName": "duration_minutes"
+            },
+            {
+              "property": "location",
+              "sqlName": "location"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            }
+          ]
+        },
+        {
+          "name": "BoardGameTrackingRows",
+          "source": "lib/features/library/kinds/boardgame/data/local/boardgame_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "sourceType",
+              "sqlName": "source_type"
+            },
+            {
+              "property": "status",
+              "sqlName": "status"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "startedAt",
+              "sqlName": "started_at"
+            },
+            {
+              "property": "finishedAt",
+              "sqlName": "finished_at"
+            },
+            {
+              "property": "progressCurrent",
+              "sqlName": "progress_current"
+            },
+            {
+              "property": "progressTotal",
+              "sqlName": "progress_total"
+            },
+            {
+              "property": "timesCompleted",
+              "sqlName": "times_completed"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        }
+      ],
+      "workspaceIdSources": [
+        "lib/features/library/kinds/boardgame/workspace/boardgame_ids.dart"
+      ],
+      "mapperSources": [
+        "lib/features/library/kinds/boardgame/data/local/boardgame_local_mapper.dart"
+      ],
+      "fields": {
+        "addedAt": {
+          "symbols": [
+            "addedAt",
+            "added_at"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.added_at"
+          ]
+        },
+        "barcode": {
+          "symbols": [
+            "barcode"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.barcode"
+          ]
+        },
+        "bestPlayers": {
+          "symbols": [
+            "bestPlayers",
+            "best_players"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.best_players"
+          ]
+        },
+        "bggRank": {
+          "symbols": [
+            "bggRank",
+            "bgg_rank"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.bgg_rank"
+          ]
+        },
+        "bggRating": {
+          "symbols": [
+            "bggRating",
+            "bgg_rating"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.bgg_rating"
+          ]
+        },
+        "boardGameId": {
+          "symbols": [
+            "boardGameId",
+            "board_game_id"
+          ],
+          "databaseColumns": [
+            "boardGameId"
+          ],
+          "databaseTables": [
+            "BoardGamePlaySessionsRows"
+          ],
+          "sqlNames": [
+            "board_game_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "complexityWeight": {
+          "symbols": [
+            "complexityWeight",
+            "complexity_weight"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.complexity_weight"
+          ]
+        },
+        "condition": {
+          "symbols": [
+            "condition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.condition"
+          ]
+        },
+        "cover": {
+          "symbols": [
+            "cover"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.cover"
+          ]
+        },
+        "date": {
+          "symbols": [
+            "date"
+          ],
+          "databaseColumns": [
+            "date"
+          ],
+          "databaseTables": [
+            "BoardGamePlaySessionsRows"
+          ],
+          "sqlNames": [
+            "date"
+          ],
+          "workspaceFieldIds": []
+        },
+        "deletedAt": {
+          "symbols": [
+            "deletedAt",
+            "deleted_at"
+          ],
+          "databaseColumns": [
+            "deletedAt"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "deleted_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "designer": {
+          "symbols": [
+            "designer"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.designer"
+          ]
+        },
+        "durationMinutes": {
+          "symbols": [
+            "durationMinutes",
+            "duration_minutes"
+          ],
+          "databaseColumns": [
+            "durationMinutes"
+          ],
+          "databaseTables": [
+            "BoardGamePlaySessionsRows"
+          ],
+          "sqlNames": [
+            "duration_minutes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "expansionFor": {
+          "symbols": [
+            "expansionFor",
+            "expansion_for"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.expansion_for"
+          ]
+        },
+        "finishedAt": {
+          "symbols": [
+            "finishedAt",
+            "finished_at"
+          ],
+          "databaseColumns": [
+            "finishedAt"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "finished_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "id": {
+          "symbols": [
+            "id"
+          ],
+          "databaseColumns": [
+            "id"
+          ],
+          "databaseTables": [
+            "BoardGamePlaySessionsRows",
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
+        "location": {
+          "symbols": [
+            "location"
+          ],
+          "databaseColumns": [
+            "location"
+          ],
+          "databaseTables": [
+            "BoardGamePlaySessionsRows"
+          ],
+          "sqlNames": [
+            "location"
+          ],
+          "workspaceFieldIds": [
+            "boardgame.location"
+          ]
+        },
+        "maxPlayers": {
+          "symbols": [
+            "maxPlayers",
+            "max_players"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.max_players"
+          ]
+        },
+        "maxPlaytimeMinutes": {
+          "symbols": [
+            "maxPlaytimeMinutes",
+            "max_playtime_minutes"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.max_playtime_minutes"
+          ]
+        },
+        "minAge": {
+          "symbols": [
+            "minAge",
+            "min_age"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.min_age"
+          ]
+        },
+        "minPlayers": {
+          "symbols": [
+            "minPlayers",
+            "min_players"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.min_players"
+          ]
+        },
+        "minPlaytimeMinutes": {
+          "symbols": [
+            "minPlaytimeMinutes",
+            "min_playtime_minutes"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.min_playtime_minutes"
+          ]
+        },
+        "notes": {
+          "symbols": [
+            "notes"
+          ],
+          "databaseColumns": [
+            "notes"
+          ],
+          "databaseTables": [
+            "BoardGamePlaySessionsRows",
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "notes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "playTime": {
+          "symbols": [
+            "playTime",
+            "play_time"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.play_time"
+          ]
+        },
+        "playerCount": {
+          "symbols": [
+            "playerCount",
+            "player_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.player_count"
+          ]
+        },
+        "players": {
+          "symbols": [
+            "players",
+            "playersJson",
+            "players_json"
+          ],
+          "databaseColumns": [
+            "playersJson"
+          ],
+          "databaseTables": [
+            "BoardGamePlaySessionsRows"
+          ],
+          "sqlNames": [
+            "players_json"
+          ],
+          "workspaceFieldIds": []
+        },
+        "pricePaid": {
+          "symbols": [
+            "pricePaid",
+            "price_paid"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.price_paid"
+          ]
+        },
+        "progressCurrent": {
+          "symbols": [
+            "progressCurrent",
+            "progress_current"
+          ],
+          "databaseColumns": [
+            "progressCurrent"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_current"
+          ],
+          "workspaceFieldIds": []
+        },
+        "progressTotal": {
+          "symbols": [
+            "progressTotal",
+            "progress_total"
+          ],
+          "databaseColumns": [
+            "progressTotal"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_total"
+          ],
+          "workspaceFieldIds": []
+        },
+        "publisher": {
+          "symbols": [
+            "publisher"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.publisher"
+          ]
+        },
+        "rating": {
+          "symbols": [
+            "rating"
+          ],
+          "databaseColumns": [
+            "rating"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "rating"
+          ],
+          "workspaceFieldIds": [
+            "boardgame.rating"
+          ]
+        },
+        "recommendedPlayers": {
+          "symbols": [
+            "recommendedPlayers",
+            "recommended_players"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.recommended_players"
+          ]
+        },
+        "releaseDate": {
+          "symbols": [
+            "releaseDate",
+            "release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.release_date"
+          ]
+        },
+        "scores": {
+          "symbols": [
+            "scores",
+            "scoresJson",
+            "scores_json"
+          ],
+          "databaseColumns": [
+            "scoresJson"
+          ],
+          "databaseTables": [
+            "BoardGamePlaySessionsRows"
+          ],
+          "sqlNames": [
+            "scores_json"
+          ],
+          "workspaceFieldIds": []
+        },
+        "sourceType": {
+          "symbols": [
+            "sourceType",
+            "source_type"
+          ],
+          "databaseColumns": [
+            "sourceType"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "source_type"
+          ],
+          "workspaceFieldIds": []
+        },
+        "startedAt": {
+          "symbols": [
+            "startedAt",
+            "started_at"
+          ],
+          "databaseColumns": [
+            "startedAt"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "started_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "status": {
+          "symbols": [
+            "status"
+          ],
+          "databaseColumns": [
+            "status"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "status"
+          ],
+          "workspaceFieldIds": [
+            "boardgame.status"
+          ]
+        },
+        "timesCompleted": {
+          "symbols": [
+            "timesCompleted",
+            "times_completed"
+          ],
+          "databaseColumns": [
+            "timesCompleted"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "times_completed"
+          ],
+          "workspaceFieldIds": []
+        },
+        "title": {
+          "symbols": [
+            "title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.title"
+          ]
+        },
+        "updatedAt": {
+          "symbols": [
+            "updatedAt",
+            "updated_at"
+          ],
+          "databaseColumns": [
+            "updatedAt"
+          ],
+          "databaseTables": [
+            "BoardGameTrackingRows"
+          ],
+          "sqlNames": [
+            "updated_at"
+          ],
+          "workspaceFieldIds": [
+            "boardgame.updated_at"
+          ]
+        },
+        "winner": {
+          "symbols": [
+            "winner"
+          ],
+          "databaseColumns": [
+            "winner"
+          ],
+          "databaseTables": [
+            "BoardGamePlaySessionsRows"
+          ],
+          "sqlNames": [
+            "winner"
+          ],
+          "workspaceFieldIds": []
+        },
+        "wishlist": {
+          "symbols": [
+            "wishlist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "boardgame.wishlist"
+          ]
+        }
+      }
+    },
+    "book": {
+      "tables": [
+        {
+          "name": "BookTrackingUnitRows",
+          "source": "lib/features/library/kinds/book/data/local/book_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "trackingEntryId",
+              "sqlName": "tracking_entry_id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "completedAt",
+              "sqlName": "completed_at"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            },
+            {
+              "property": "volumeNumber",
+              "sqlName": "volume_number"
+            },
+            {
+              "property": "chapterNumber",
+              "sqlName": "chapter_number"
+            }
+          ]
+        },
+        {
+          "name": "BookTrackingRows",
+          "source": "lib/features/library/kinds/book/data/local/book_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "sourceType",
+              "sqlName": "source_type"
+            },
+            {
+              "property": "status",
+              "sqlName": "status"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "startedAt",
+              "sqlName": "started_at"
+            },
+            {
+              "property": "finishedAt",
+              "sqlName": "finished_at"
+            },
+            {
+              "property": "progressCurrent",
+              "sqlName": "progress_current"
+            },
+            {
+              "property": "progressTotal",
+              "sqlName": "progress_total"
+            },
+            {
+              "property": "timesCompleted",
+              "sqlName": "times_completed"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        }
+      ],
+      "workspaceIdSources": [
+        "lib/features/library/kinds/book/workspace/book_ids.dart"
+      ],
+      "mapperSources": [],
+      "fields": {
+        "addedAt": {
+          "symbols": [
+            "addedAt",
+            "added_at"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.added_at"
+          ]
+        },
+        "author": {
+          "symbols": [
+            "author"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.author"
+          ]
+        },
+        "chapterNumber": {
+          "symbols": [
+            "chapterNumber",
+            "chapter_number"
+          ],
+          "databaseColumns": [
+            "chapterNumber"
+          ],
+          "databaseTables": [
+            "BookTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "chapter_number"
+          ],
+          "workspaceFieldIds": []
+        },
+        "completedAt": {
+          "symbols": [
+            "completedAt",
+            "completed_at"
+          ],
+          "databaseColumns": [
+            "completedAt"
+          ],
+          "databaseTables": [
+            "BookTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "completed_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "condition": {
+          "symbols": [
+            "condition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.condition"
+          ]
+        },
+        "cover": {
+          "symbols": [
+            "cover"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.cover"
+          ]
+        },
+        "coverArtist": {
+          "symbols": [
+            "coverArtist",
+            "cover_artist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.cover_artist"
+          ]
+        },
+        "deletedAt": {
+          "symbols": [
+            "deletedAt",
+            "deleted_at"
+          ],
+          "databaseColumns": [
+            "deletedAt"
+          ],
+          "databaseTables": [
+            "BookTrackingRows",
+            "BookTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "deleted_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "editor": {
+          "symbols": [
+            "editor"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.editor"
+          ]
+        },
+        "finishedAt": {
+          "symbols": [
+            "finishedAt",
+            "finished_at"
+          ],
+          "databaseColumns": [
+            "finishedAt"
+          ],
+          "databaseTables": [
+            "BookTrackingRows"
+          ],
+          "sqlNames": [
+            "finished_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "format": {
+          "symbols": [
+            "format"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.format"
+          ]
+        },
+        "id": {
+          "symbols": [
+            "id"
+          ],
+          "databaseColumns": [
+            "id"
+          ],
+          "databaseTables": [
+            "BookTrackingRows",
+            "BookTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "illustrator": {
+          "symbols": [
+            "illustrator"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.illustrator"
+          ]
+        },
+        "isbn": {
+          "symbols": [
+            "isbn"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.isbn"
+          ]
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "BookTrackingRows",
+            "BookTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
+        "location": {
+          "symbols": [
+            "location"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.location"
+          ]
+        },
+        "notes": {
+          "symbols": [
+            "notes"
+          ],
+          "databaseColumns": [
+            "notes"
+          ],
+          "databaseTables": [
+            "BookTrackingRows"
+          ],
+          "sqlNames": [
+            "notes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "pageCount": {
+          "symbols": [
+            "pageCount",
+            "page_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.page_count"
+          ]
+        },
+        "pricePaid": {
+          "symbols": [
+            "pricePaid",
+            "price_paid"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.price_paid"
+          ]
+        },
+        "progressCurrent": {
+          "symbols": [
+            "progressCurrent",
+            "progress_current"
+          ],
+          "databaseColumns": [
+            "progressCurrent"
+          ],
+          "databaseTables": [
+            "BookTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_current"
+          ],
+          "workspaceFieldIds": []
+        },
+        "progressTotal": {
+          "symbols": [
+            "progressTotal",
+            "progress_total"
+          ],
+          "databaseColumns": [
+            "progressTotal"
+          ],
+          "databaseTables": [
+            "BookTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_total"
+          ],
+          "workspaceFieldIds": []
+        },
+        "publisher": {
+          "symbols": [
+            "publisher"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.publisher"
+          ]
+        },
+        "rating": {
+          "symbols": [
+            "rating"
+          ],
+          "databaseColumns": [
+            "rating"
+          ],
+          "databaseTables": [
+            "BookTrackingRows"
+          ],
+          "sqlNames": [
+            "rating"
+          ],
+          "workspaceFieldIds": [
+            "book.rating"
+          ]
+        },
+        "readStatus": {
+          "symbols": [
+            "readStatus",
+            "read_status"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.read_status"
+          ]
+        },
+        "releaseDate": {
+          "symbols": [
+            "releaseDate",
+            "release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.release_date"
+          ]
+        },
+        "series": {
+          "symbols": [
+            "series"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.series"
+          ]
+        },
+        "signedBy": {
+          "symbols": [
+            "signedBy",
+            "signed_by"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.signed_by"
+          ]
+        },
+        "sourceType": {
+          "symbols": [
+            "sourceType",
+            "source_type"
+          ],
+          "databaseColumns": [
+            "sourceType"
+          ],
+          "databaseTables": [
+            "BookTrackingRows"
+          ],
+          "sqlNames": [
+            "source_type"
+          ],
+          "workspaceFieldIds": []
+        },
+        "startedAt": {
+          "symbols": [
+            "startedAt",
+            "started_at"
+          ],
+          "databaseColumns": [
+            "startedAt"
+          ],
+          "databaseTables": [
+            "BookTrackingRows"
+          ],
+          "sqlNames": [
+            "started_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "status": {
+          "symbols": [
+            "status"
+          ],
+          "databaseColumns": [
+            "status"
+          ],
+          "databaseTables": [
+            "BookTrackingRows"
+          ],
+          "sqlNames": [
+            "status"
+          ],
+          "workspaceFieldIds": [
+            "book.status"
+          ]
+        },
+        "subtitle": {
+          "symbols": [
+            "subtitle"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.subtitle"
+          ]
+        },
+        "timesCompleted": {
+          "symbols": [
+            "timesCompleted",
+            "times_completed"
+          ],
+          "databaseColumns": [
+            "timesCompleted"
+          ],
+          "databaseTables": [
+            "BookTrackingRows"
+          ],
+          "sqlNames": [
+            "times_completed"
+          ],
+          "workspaceFieldIds": []
+        },
+        "title": {
+          "symbols": [
+            "title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.title"
+          ]
+        },
+        "trackingEntryId": {
+          "symbols": [
+            "trackingEntryId",
+            "tracking_entry_id"
+          ],
+          "databaseColumns": [
+            "trackingEntryId"
+          ],
+          "databaseTables": [
+            "BookTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "tracking_entry_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "translator": {
+          "symbols": [
+            "translator"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.translator"
+          ]
+        },
+        "updatedAt": {
+          "symbols": [
+            "updatedAt",
+            "updated_at"
+          ],
+          "databaseColumns": [
+            "updatedAt"
+          ],
+          "databaseTables": [
+            "BookTrackingRows",
+            "BookTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "updated_at"
+          ],
+          "workspaceFieldIds": [
+            "book.updated_at"
+          ]
+        },
+        "volumeNumber": {
+          "symbols": [
+            "volumeNumber",
+            "volume_number"
+          ],
+          "databaseColumns": [
+            "volumeNumber"
+          ],
+          "databaseTables": [
+            "BookTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "volume_number"
+          ],
+          "workspaceFieldIds": []
+        },
+        "wishlist": {
+          "symbols": [
+            "wishlist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "book.wishlist"
+          ]
+        }
+      }
+    },
+    "comic": {
+      "tables": [
+        {
+          "name": "ComicReadingRows",
+          "source": "lib/features/library/kinds/comic/data/local/comic_local_tables.dart",
+          "columns": [
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "status",
+              "sqlName": "status"
+            },
+            {
+              "property": "startedAt",
+              "sqlName": "started_at"
+            },
+            {
+              "property": "finishedAt",
+              "sqlName": "finished_at"
+            }
+          ]
+        },
+        {
+          "name": "ComicTrackingUnitRows",
+          "source": "lib/features/library/kinds/comic/data/local/comic_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "trackingEntryId",
+              "sqlName": "tracking_entry_id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "completedAt",
+              "sqlName": "completed_at"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            },
+            {
+              "property": "issueNumber",
+              "sqlName": "issue_number"
+            }
+          ]
+        },
+        {
+          "name": "ComicTrackingRows",
+          "source": "lib/features/library/kinds/comic/data/local/comic_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "sourceType",
+              "sqlName": "source_type"
+            },
+            {
+              "property": "status",
+              "sqlName": "status"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "startedAt",
+              "sqlName": "started_at"
+            },
+            {
+              "property": "finishedAt",
+              "sqlName": "finished_at"
+            },
+            {
+              "property": "progressCurrent",
+              "sqlName": "progress_current"
+            },
+            {
+              "property": "progressTotal",
+              "sqlName": "progress_total"
+            },
+            {
+              "property": "timesCompleted",
+              "sqlName": "times_completed"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        }
+      ],
+      "workspaceIdSources": [
+        "lib/features/library/kinds/comic/workspace/comic_ids.dart"
+      ],
+      "mapperSources": [
+        "lib/features/library/kinds/comic/data/local/comic_local_mapper.dart"
+      ],
+      "fields": {
+        "addedAt": {
+          "symbols": [
+            "addedAt",
+            "added_at"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.added_at"
+          ]
+        },
+        "artist": {
+          "symbols": [
+            "artist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.artist"
+          ]
+        },
+        "barcode": {
+          "symbols": [
+            "barcode"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.barcode"
+          ]
+        },
+        "certificationNumber": {
+          "symbols": [
+            "certificationNumber",
+            "certification_number"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.certification_number"
+          ]
+        },
+        "completedAt": {
+          "symbols": [
+            "completedAt",
+            "completed_at"
+          ],
+          "databaseColumns": [
+            "completedAt"
+          ],
+          "databaseTables": [
+            "ComicTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "completed_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "condition": {
+          "symbols": [
+            "condition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.condition"
+          ]
+        },
+        "cover": {
+          "symbols": [
+            "cover"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.cover"
+          ]
+        },
+        "coverArtist": {
+          "symbols": [
+            "coverArtist",
+            "cover_artist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.cover_artist"
+          ]
+        },
+        "coverPrice": {
+          "symbols": [
+            "coverPrice",
+            "cover_price"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.cover_price"
+          ]
+        },
+        "customLabel": {
+          "symbols": [
+            "customLabel",
+            "custom_label"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.custom_label"
+          ]
+        },
+        "deletedAt": {
+          "symbols": [
+            "deletedAt",
+            "deleted_at"
+          ],
+          "databaseColumns": [
+            "deletedAt"
+          ],
+          "databaseTables": [
+            "ComicTrackingRows",
+            "ComicTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "deleted_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "finishedAt": {
+          "symbols": [
+            "finishedAt",
+            "finished_at"
+          ],
+          "databaseColumns": [
+            "finishedAt"
+          ],
+          "databaseTables": [
+            "ComicReadingRows",
+            "ComicTrackingRows"
+          ],
+          "sqlNames": [
+            "finished_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "grade": {
+          "symbols": [
+            "grade"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.grade"
+          ]
+        },
+        "graderNotes": {
+          "symbols": [
+            "graderNotes",
+            "grader_notes"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.grader_notes"
+          ]
+        },
+        "gradingCompany": {
+          "symbols": [
+            "gradingCompany",
+            "grading_company"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.grading_company"
+          ]
+        },
+        "id": {
+          "symbols": [
+            "id"
+          ],
+          "databaseColumns": [
+            "id"
+          ],
+          "databaseTables": [
+            "ComicTrackingRows",
+            "ComicTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "imprint": {
+          "symbols": [
+            "imprint"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.imprint"
+          ]
+        },
+        "issueNumber": {
+          "symbols": [
+            "issueNumber",
+            "issue_number"
+          ],
+          "databaseColumns": [
+            "issueNumber"
+          ],
+          "databaseTables": [
+            "ComicTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "issue_number"
+          ],
+          "workspaceFieldIds": [
+            "comic.issue_number"
+          ]
+        },
+        "keyCategory": {
+          "symbols": [
+            "keyCategory",
+            "key_category"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.key_category"
+          ]
+        },
+        "keyComic": {
+          "symbols": [
+            "keyComic",
+            "key_comic"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.key_comic"
+          ]
+        },
+        "keyReason": {
+          "symbols": [
+            "keyReason",
+            "key_reason"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.key_reason"
+          ]
+        },
+        "keySeverity": {
+          "symbols": [
+            "keySeverity",
+            "key_severity"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.key_severity"
+          ]
+        },
+        "labelType": {
+          "symbols": [
+            "labelType",
+            "label_type"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.label_type"
+          ]
+        },
+        "lastBagBoardDate": {
+          "symbols": [
+            "lastBagBoardDate",
+            "last_bag_board_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.last_bag_board_date"
+          ]
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "ComicReadingRows",
+            "ComicTrackingRows",
+            "ComicTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
+        "location": {
+          "symbols": [
+            "location"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.location"
+          ]
+        },
+        "notes": {
+          "symbols": [
+            "notes"
+          ],
+          "databaseColumns": [
+            "notes"
+          ],
+          "databaseTables": [
+            "ComicTrackingRows"
+          ],
+          "sqlNames": [
+            "notes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "pageCount": {
+          "symbols": [
+            "pageCount",
+            "page_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.page_count"
+          ]
+        },
+        "pageQuality": {
+          "symbols": [
+            "pageQuality",
+            "page_quality"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.page_quality"
+          ]
+        },
+        "pricePaid": {
+          "symbols": [
+            "pricePaid",
+            "price_paid"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.price_paid"
+          ]
+        },
+        "progressCurrent": {
+          "symbols": [
+            "progressCurrent",
+            "progress_current"
+          ],
+          "databaseColumns": [
+            "progressCurrent"
+          ],
+          "databaseTables": [
+            "ComicTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_current"
+          ],
+          "workspaceFieldIds": []
+        },
+        "progressTotal": {
+          "symbols": [
+            "progressTotal",
+            "progress_total"
+          ],
+          "databaseColumns": [
+            "progressTotal"
+          ],
+          "databaseTables": [
+            "ComicTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_total"
+          ],
+          "workspaceFieldIds": []
+        },
+        "publisher": {
+          "symbols": [
+            "publisher"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.publisher"
+          ]
+        },
+        "rating": {
+          "symbols": [
+            "rating"
+          ],
+          "databaseColumns": [
+            "rating"
+          ],
+          "databaseTables": [
+            "ComicReadingRows",
+            "ComicTrackingRows"
+          ],
+          "sqlNames": [
+            "rating"
+          ],
+          "workspaceFieldIds": [
+            "comic.rating"
+          ]
+        },
+        "rawOrSlabbed": {
+          "symbols": [
+            "rawOrSlabbed",
+            "raw_or_slabbed"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.raw_or_slabbed"
+          ]
+        },
+        "readStatus": {
+          "symbols": [
+            "readStatus",
+            "read_status"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.read_status"
+          ]
+        },
+        "releaseDate": {
+          "symbols": [
+            "releaseDate",
+            "release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.release_date"
+          ]
+        },
+        "series": {
+          "symbols": [
+            "series"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.series"
+          ]
+        },
+        "signedBy": {
+          "symbols": [
+            "signedBy",
+            "signed_by"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.signed_by"
+          ]
+        },
+        "sourceType": {
+          "symbols": [
+            "sourceType",
+            "source_type"
+          ],
+          "databaseColumns": [
+            "sourceType"
+          ],
+          "databaseTables": [
+            "ComicTrackingRows"
+          ],
+          "sqlNames": [
+            "source_type"
+          ],
+          "workspaceFieldIds": []
+        },
+        "startedAt": {
+          "symbols": [
+            "startedAt",
+            "started_at"
+          ],
+          "databaseColumns": [
+            "startedAt"
+          ],
+          "databaseTables": [
+            "ComicReadingRows",
+            "ComicTrackingRows"
+          ],
+          "sqlNames": [
+            "started_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "status": {
+          "symbols": [
+            "status"
+          ],
+          "databaseColumns": [
+            "status"
+          ],
+          "databaseTables": [
+            "ComicReadingRows",
+            "ComicTrackingRows"
+          ],
+          "sqlNames": [
+            "status"
+          ],
+          "workspaceFieldIds": [
+            "comic.status"
+          ]
+        },
+        "timesCompleted": {
+          "symbols": [
+            "timesCompleted",
+            "times_completed"
+          ],
+          "databaseColumns": [
+            "timesCompleted"
+          ],
+          "databaseTables": [
+            "ComicTrackingRows"
+          ],
+          "sqlNames": [
+            "times_completed"
+          ],
+          "workspaceFieldIds": []
+        },
+        "title": {
+          "symbols": [
+            "title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.title"
+          ]
+        },
+        "trackingEntryId": {
+          "symbols": [
+            "trackingEntryId",
+            "tracking_entry_id"
+          ],
+          "databaseColumns": [
+            "trackingEntryId"
+          ],
+          "databaseTables": [
+            "ComicTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "tracking_entry_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "updatedAt": {
+          "symbols": [
+            "updatedAt",
+            "updated_at"
+          ],
+          "databaseColumns": [
+            "updatedAt"
+          ],
+          "databaseTables": [
+            "ComicTrackingRows",
+            "ComicTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "updated_at"
+          ],
+          "workspaceFieldIds": [
+            "comic.updated_at"
+          ]
+        },
+        "variant": {
+          "symbols": [
+            "variant"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.variant"
+          ]
+        },
+        "wishlist": {
+          "symbols": [
+            "wishlist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.wishlist"
+          ]
+        },
+        "writer": {
+          "symbols": [
+            "writer"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "comic.writer"
+          ]
+        }
+      }
+    },
+    "game": {
+      "tables": [
+        {
+          "name": "GameTrackingRows",
+          "source": "lib/features/library/kinds/game/data/local/game_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "sourceType",
+              "sqlName": "source_type"
+            },
+            {
+              "property": "status",
+              "sqlName": "status"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "startedAt",
+              "sqlName": "started_at"
+            },
+            {
+              "property": "finishedAt",
+              "sqlName": "finished_at"
+            },
+            {
+              "property": "progressCurrent",
+              "sqlName": "progress_current"
+            },
+            {
+              "property": "progressTotal",
+              "sqlName": "progress_total"
+            },
+            {
+              "property": "timesCompleted",
+              "sqlName": "times_completed"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        }
+      ],
+      "workspaceIdSources": [
+        "lib/features/library/kinds/game/workspace/game_ids.dart"
+      ],
+      "mapperSources": [],
+      "fields": {
+        "addedAt": {
+          "symbols": [
+            "addedAt",
+            "added_at"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.added_at"
+          ]
+        },
+        "ageRating": {
+          "symbols": [
+            "ageRating",
+            "age_rating"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.age_rating"
+          ]
+        },
+        "barcode": {
+          "symbols": [
+            "barcode"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.barcode"
+          ]
+        },
+        "boxOnlyPrice": {
+          "symbols": [
+            "boxOnlyPrice",
+            "box_only_price"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.box_only_price"
+          ]
+        },
+        "cibPrice": {
+          "symbols": [
+            "cibPrice",
+            "cib_price"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.cib_price"
+          ]
+        },
+        "completeness": {
+          "symbols": [
+            "completeness"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.completeness"
+          ]
+        },
+        "completionStatus": {
+          "symbols": [
+            "completionStatus",
+            "completion_status"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.completion_status"
+          ]
+        },
+        "condition": {
+          "symbols": [
+            "condition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.condition"
+          ]
+        },
+        "coreRegion": {
+          "symbols": [
+            "coreRegion",
+            "core_region"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.core_region"
+          ]
+        },
+        "cover": {
+          "symbols": [
+            "cover"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.cover"
+          ]
+        },
+        "deletedAt": {
+          "symbols": [
+            "deletedAt",
+            "deleted_at"
+          ],
+          "databaseColumns": [
+            "deletedAt"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "deleted_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "developer": {
+          "symbols": [
+            "developer"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.developer"
+          ]
+        },
+        "edition": {
+          "symbols": [
+            "edition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.edition"
+          ]
+        },
+        "finishedAt": {
+          "symbols": [
+            "finishedAt",
+            "finished_at"
+          ],
+          "databaseColumns": [
+            "finishedAt"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "finished_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "franchise": {
+          "symbols": [
+            "franchise"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.franchise"
+          ]
+        },
+        "gradedPrice": {
+          "symbols": [
+            "gradedPrice",
+            "graded_price"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.graded_price"
+          ]
+        },
+        "hasBox": {
+          "symbols": [
+            "hasBox",
+            "has_box"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.has_box"
+          ]
+        },
+        "hasManual": {
+          "symbols": [
+            "hasManual",
+            "has_manual"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.has_manual"
+          ]
+        },
+        "id": {
+          "symbols": [
+            "id"
+          ],
+          "databaseColumns": [
+            "id"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
+        "location": {
+          "symbols": [
+            "location"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.location"
+          ]
+        },
+        "loosePrice": {
+          "symbols": [
+            "loosePrice",
+            "loose_price"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.loose_price"
+          ]
+        },
+        "manualOnlyPrice": {
+          "symbols": [
+            "manualOnlyPrice",
+            "manual_only_price"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.manual_only_price"
+          ]
+        },
+        "newPrice": {
+          "symbols": [
+            "newPrice",
+            "new_price"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.new_price"
+          ]
+        },
+        "notes": {
+          "symbols": [
+            "notes"
+          ],
+          "databaseColumns": [
+            "notes"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "notes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "platform": {
+          "symbols": [
+            "platform"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.platform"
+          ]
+        },
+        "pricePaid": {
+          "symbols": [
+            "pricePaid",
+            "price_paid"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.price_paid"
+          ]
+        },
+        "pricechartingId": {
+          "symbols": [
+            "pricechartingId",
+            "pricecharting_id"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.pricecharting_id"
+          ]
+        },
+        "progressCurrent": {
+          "symbols": [
+            "progressCurrent",
+            "progress_current"
+          ],
+          "databaseColumns": [
+            "progressCurrent"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_current"
+          ],
+          "workspaceFieldIds": []
+        },
+        "progressTotal": {
+          "symbols": [
+            "progressTotal",
+            "progress_total"
+          ],
+          "databaseColumns": [
+            "progressTotal"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_total"
+          ],
+          "workspaceFieldIds": []
+        },
+        "publisher": {
+          "symbols": [
+            "publisher"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.publisher"
+          ]
+        },
+        "rating": {
+          "symbols": [
+            "rating"
+          ],
+          "databaseColumns": [
+            "rating"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "rating"
+          ],
+          "workspaceFieldIds": [
+            "game.rating"
+          ]
+        },
+        "region": {
+          "symbols": [
+            "region"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.region"
+          ]
+        },
+        "releaseDate": {
+          "symbols": [
+            "releaseDate",
+            "release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.release_date"
+          ]
+        },
+        "series": {
+          "symbols": [
+            "series"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.series"
+          ]
+        },
+        "sourceType": {
+          "symbols": [
+            "sourceType",
+            "source_type"
+          ],
+          "databaseColumns": [
+            "sourceType"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "source_type"
+          ],
+          "workspaceFieldIds": []
+        },
+        "startedAt": {
+          "symbols": [
+            "startedAt",
+            "started_at"
+          ],
+          "databaseColumns": [
+            "startedAt"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "started_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "status": {
+          "symbols": [
+            "status"
+          ],
+          "databaseColumns": [
+            "status"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "status"
+          ],
+          "workspaceFieldIds": [
+            "game.status"
+          ]
+        },
+        "timesCompleted": {
+          "symbols": [
+            "timesCompleted",
+            "times_completed"
+          ],
+          "databaseColumns": [
+            "timesCompleted"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "times_completed"
+          ],
+          "workspaceFieldIds": []
+        },
+        "title": {
+          "symbols": [
+            "title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.title"
+          ]
+        },
+        "updatedAt": {
+          "symbols": [
+            "updatedAt",
+            "updated_at"
+          ],
+          "databaseColumns": [
+            "updatedAt"
+          ],
+          "databaseTables": [
+            "GameTrackingRows"
+          ],
+          "sqlNames": [
+            "updated_at"
+          ],
+          "workspaceFieldIds": [
+            "game.updated_at"
+          ]
+        },
+        "valueLocked": {
+          "symbols": [
+            "valueLocked",
+            "value_locked"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.value_locked"
+          ]
+        },
+        "wishlist": {
+          "symbols": [
+            "wishlist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.wishlist"
+          ]
+        }
+      }
+    },
+    "manga": {
+      "tables": [
+        {
+          "name": "MangaTrackingUnitRows",
+          "source": "lib/features/library/kinds/manga/data/local/manga_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "trackingEntryId",
+              "sqlName": "tracking_entry_id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "completedAt",
+              "sqlName": "completed_at"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            },
+            {
+              "property": "volumeNumber",
+              "sqlName": "volume_number"
+            },
+            {
+              "property": "chapterNumber",
+              "sqlName": "chapter_number"
+            }
+          ]
+        },
+        {
+          "name": "MangaTrackingRows",
+          "source": "lib/features/library/kinds/manga/data/local/manga_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "sourceType",
+              "sqlName": "source_type"
+            },
+            {
+              "property": "status",
+              "sqlName": "status"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "startedAt",
+              "sqlName": "started_at"
+            },
+            {
+              "property": "finishedAt",
+              "sqlName": "finished_at"
+            },
+            {
+              "property": "progressCurrent",
+              "sqlName": "progress_current"
+            },
+            {
+              "property": "progressTotal",
+              "sqlName": "progress_total"
+            },
+            {
+              "property": "timesCompleted",
+              "sqlName": "times_completed"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        }
+      ],
+      "workspaceIdSources": [
+        "lib/features/library/kinds/manga/workspace/manga_ids.dart"
+      ],
+      "mapperSources": [],
+      "fields": {
+        "addedAt": {
+          "symbols": [
+            "addedAt",
+            "added_at"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.added_at"
+          ]
+        },
+        "artists": {
+          "symbols": [
+            "artists"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.artists"
+          ]
+        },
+        "authors": {
+          "symbols": [
+            "authors"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.authors"
+          ]
+        },
+        "barcode": {
+          "symbols": [
+            "barcode"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.barcode"
+          ]
+        },
+        "boxSetOuterCondition": {
+          "symbols": [
+            "boxSetOuterCondition",
+            "box_set_outer_condition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.box_set_outer_condition"
+          ]
+        },
+        "chapterCount": {
+          "symbols": [
+            "chapterCount",
+            "chapter_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.chapter_count"
+          ]
+        },
+        "chapterNumber": {
+          "symbols": [
+            "chapterNumber",
+            "chapter_number"
+          ],
+          "databaseColumns": [
+            "chapterNumber"
+          ],
+          "databaseTables": [
+            "MangaTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "chapter_number"
+          ],
+          "workspaceFieldIds": []
+        },
+        "completedAt": {
+          "symbols": [
+            "completedAt",
+            "completed_at"
+          ],
+          "databaseColumns": [
+            "completedAt"
+          ],
+          "databaseTables": [
+            "MangaTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "completed_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "condition": {
+          "symbols": [
+            "condition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.condition"
+          ]
+        },
+        "cover": {
+          "symbols": [
+            "cover"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.cover"
+          ]
+        },
+        "deletedAt": {
+          "symbols": [
+            "deletedAt",
+            "deleted_at"
+          ],
+          "databaseColumns": [
+            "deletedAt"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows",
+            "MangaTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "deleted_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "demographic": {
+          "symbols": [
+            "demographic"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.demographic"
+          ]
+        },
+        "dustJacketCondition": {
+          "symbols": [
+            "dustJacketCondition",
+            "dust_jacket_condition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.dust_jacket_condition"
+          ]
+        },
+        "dustJacketPresent": {
+          "symbols": [
+            "dustJacketPresent",
+            "dust_jacket_present"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.dust_jacket_present"
+          ]
+        },
+        "editionFormat": {
+          "symbols": [
+            "editionFormat",
+            "edition_format"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.edition_format"
+          ]
+        },
+        "englishTitle": {
+          "symbols": [
+            "englishTitle",
+            "english_title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.english_title"
+          ]
+        },
+        "finishedAt": {
+          "symbols": [
+            "finishedAt",
+            "finished_at"
+          ],
+          "databaseColumns": [
+            "finishedAt"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows"
+          ],
+          "sqlNames": [
+            "finished_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "genres": {
+          "symbols": [
+            "genres"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.genres"
+          ]
+        },
+        "id": {
+          "symbols": [
+            "id"
+          ],
+          "databaseColumns": [
+            "id"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows",
+            "MangaTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "insertsPresent": {
+          "symbols": [
+            "insertsPresent",
+            "inserts_present"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.inserts_present"
+          ]
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows",
+            "MangaTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
+        "localizedEdition": {
+          "symbols": [
+            "localizedEdition",
+            "localized_edition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.localized_edition"
+          ]
+        },
+        "localizedPublisher": {
+          "symbols": [
+            "localizedPublisher",
+            "localized_publisher"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.localized_publisher"
+          ]
+        },
+        "location": {
+          "symbols": [
+            "location"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.location"
+          ]
+        },
+        "nativeTitle": {
+          "symbols": [
+            "nativeTitle",
+            "native_title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.native_title"
+          ]
+        },
+        "notes": {
+          "symbols": [
+            "notes"
+          ],
+          "databaseColumns": [
+            "notes"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows"
+          ],
+          "sqlNames": [
+            "notes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "obiStripPresent": {
+          "symbols": [
+            "obiStripPresent",
+            "obi_strip_present"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.obi_strip_present"
+          ]
+        },
+        "originalPublisher": {
+          "symbols": [
+            "originalPublisher",
+            "original_publisher"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.original_publisher"
+          ]
+        },
+        "pricePaid": {
+          "symbols": [
+            "pricePaid",
+            "price_paid"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.price_paid"
+          ]
+        },
+        "printing": {
+          "symbols": [
+            "printing"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.printing"
+          ]
+        },
+        "progressCurrent": {
+          "symbols": [
+            "progressCurrent",
+            "progress_current"
+          ],
+          "databaseColumns": [
+            "progressCurrent"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_current"
+          ],
+          "workspaceFieldIds": []
+        },
+        "progressTotal": {
+          "symbols": [
+            "progressTotal",
+            "progress_total"
+          ],
+          "databaseColumns": [
+            "progressTotal"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_total"
+          ],
+          "workspaceFieldIds": []
+        },
+        "publicationStatus": {
+          "symbols": [
+            "publicationStatus",
+            "publication_status"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.publication_status"
+          ]
+        },
+        "publisher": {
+          "symbols": [
+            "publisher"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.publisher"
+          ]
+        },
+        "rating": {
+          "symbols": [
+            "rating"
+          ],
+          "databaseColumns": [
+            "rating"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows"
+          ],
+          "sqlNames": [
+            "rating"
+          ],
+          "workspaceFieldIds": [
+            "manga.rating"
+          ]
+        },
+        "readStatus": {
+          "symbols": [
+            "readStatus",
+            "read_status"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.read_status"
+          ]
+        },
+        "readingDirection": {
+          "symbols": [
+            "readingDirection",
+            "reading_direction"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.reading_direction"
+          ]
+        },
+        "releaseDate": {
+          "symbols": [
+            "releaseDate",
+            "release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.release_date"
+          ]
+        },
+        "romajiTitle": {
+          "symbols": [
+            "romajiTitle",
+            "romaji_title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.romaji_title"
+          ]
+        },
+        "serializationPlatform": {
+          "symbols": [
+            "serializationPlatform",
+            "serialization_platform"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.serialization_platform"
+          ]
+        },
+        "series": {
+          "symbols": [
+            "series"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.series"
+          ]
+        },
+        "signedBy": {
+          "symbols": [
+            "signedBy",
+            "signed_by"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.signed_by"
+          ]
+        },
+        "slipcoverPresent": {
+          "symbols": [
+            "slipcoverPresent",
+            "slipcover_present"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.slipcover_present"
+          ]
+        },
+        "sourceType": {
+          "symbols": [
+            "sourceType",
+            "source_type"
+          ],
+          "databaseColumns": [
+            "sourceType"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows"
+          ],
+          "sqlNames": [
+            "source_type"
+          ],
+          "workspaceFieldIds": []
+        },
+        "startedAt": {
+          "symbols": [
+            "startedAt",
+            "started_at"
+          ],
+          "databaseColumns": [
+            "startedAt"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows"
+          ],
+          "sqlNames": [
+            "started_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "status": {
+          "symbols": [
+            "status"
+          ],
+          "databaseColumns": [
+            "status"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows"
+          ],
+          "sqlNames": [
+            "status"
+          ],
+          "workspaceFieldIds": [
+            "manga.status"
+          ]
+        },
+        "themes": {
+          "symbols": [
+            "themes"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.themes"
+          ]
+        },
+        "timesCompleted": {
+          "symbols": [
+            "timesCompleted",
+            "times_completed"
+          ],
+          "databaseColumns": [
+            "timesCompleted"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows"
+          ],
+          "sqlNames": [
+            "times_completed"
+          ],
+          "workspaceFieldIds": []
+        },
+        "title": {
+          "symbols": [
+            "title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.title"
+          ]
+        },
+        "totalVolumes": {
+          "symbols": [
+            "totalVolumes",
+            "total_volumes"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.total_volumes"
+          ]
+        },
+        "trackingEntryId": {
+          "symbols": [
+            "trackingEntryId",
+            "tracking_entry_id"
+          ],
+          "databaseColumns": [
+            "trackingEntryId"
+          ],
+          "databaseTables": [
+            "MangaTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "tracking_entry_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "translator": {
+          "symbols": [
+            "translator"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.translator"
+          ]
+        },
+        "updatedAt": {
+          "symbols": [
+            "updatedAt",
+            "updated_at"
+          ],
+          "databaseColumns": [
+            "updatedAt"
+          ],
+          "databaseTables": [
+            "MangaTrackingRows",
+            "MangaTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "updated_at"
+          ],
+          "workspaceFieldIds": [
+            "manga.updated_at"
+          ]
+        },
+        "volumeNumber": {
+          "symbols": [
+            "volumeNumber",
+            "volume_number"
+          ],
+          "databaseColumns": [
+            "volumeNumber"
+          ],
+          "databaseTables": [
+            "MangaTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "volume_number"
+          ],
+          "workspaceFieldIds": [
+            "manga.volume_number"
+          ]
+        },
+        "wishlist": {
+          "symbols": [
+            "wishlist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.wishlist"
+          ]
+        }
+      }
+    },
+    "movie": {
+      "tables": [
+        {
+          "name": "MovieTrackingRows",
+          "source": "lib/features/library/kinds/movie/data/local/movie_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "sourceType",
+              "sqlName": "source_type"
+            },
+            {
+              "property": "status",
+              "sqlName": "status"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "startedAt",
+              "sqlName": "started_at"
+            },
+            {
+              "property": "finishedAt",
+              "sqlName": "finished_at"
+            },
+            {
+              "property": "progressCurrent",
+              "sqlName": "progress_current"
+            },
+            {
+              "property": "progressTotal",
+              "sqlName": "progress_total"
+            },
+            {
+              "property": "timesCompleted",
+              "sqlName": "times_completed"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        }
+      ],
+      "workspaceIdSources": [
+        "lib/features/library/kinds/movie/workspace/movie_ids.dart"
+      ],
+      "mapperSources": [],
+      "fields": {
+        "addedAt": {
+          "symbols": [
+            "addedAt",
+            "added_at"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.added_at"
+          ]
+        },
+        "ageRating": {
+          "symbols": [
+            "ageRating",
+            "age_rating"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.age_rating"
+          ]
+        },
+        "audienceRating": {
+          "symbols": [
+            "audienceRating",
+            "audience_rating"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.audience_rating"
+          ]
+        },
+        "audioTracks": {
+          "symbols": [
+            "audioTracks",
+            "audio_tracks"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.audio_tracks"
+          ]
+        },
+        "barcode": {
+          "symbols": [
+            "barcode"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.barcode"
+          ]
+        },
+        "condition": {
+          "symbols": [
+            "condition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.condition"
+          ]
+        },
+        "cover": {
+          "symbols": [
+            "cover"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.cover"
+          ]
+        },
+        "deletedAt": {
+          "symbols": [
+            "deletedAt",
+            "deleted_at"
+          ],
+          "databaseColumns": [
+            "deletedAt"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "deleted_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "director": {
+          "symbols": [
+            "director"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.director"
+          ]
+        },
+        "edition": {
+          "symbols": [
+            "edition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.edition"
+          ]
+        },
+        "editionLabel": {
+          "symbols": [
+            "editionLabel",
+            "edition_label"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.edition_label"
+          ]
+        },
+        "editionReleaseDate": {
+          "symbols": [
+            "editionReleaseDate",
+            "edition_release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.edition_release_date"
+          ]
+        },
+        "finishedAt": {
+          "symbols": [
+            "finishedAt",
+            "finished_at"
+          ],
+          "databaseColumns": [
+            "finishedAt"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "finished_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "format": {
+          "symbols": [
+            "format"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.format"
+          ]
+        },
+        "genre": {
+          "symbols": [
+            "genre"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.genre"
+          ]
+        },
+        "id": {
+          "symbols": [
+            "id"
+          ],
+          "databaseColumns": [
+            "id"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
+        "location": {
+          "symbols": [
+            "location"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.location"
+          ]
+        },
+        "movieOrTvSeries": {
+          "symbols": [
+            "movieOrTvSeries",
+            "movie_or_tv_series"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.movie_or_tv_series"
+          ]
+        },
+        "notes": {
+          "symbols": [
+            "notes"
+          ],
+          "databaseColumns": [
+            "notes"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "notes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "originalTitle": {
+          "symbols": [
+            "originalTitle",
+            "original_title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.original_title"
+          ]
+        },
+        "pricePaid": {
+          "symbols": [
+            "pricePaid",
+            "price_paid"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.price_paid"
+          ]
+        },
+        "producer": {
+          "symbols": [
+            "producer"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.producer"
+          ]
+        },
+        "progressCurrent": {
+          "symbols": [
+            "progressCurrent",
+            "progress_current"
+          ],
+          "databaseColumns": [
+            "progressCurrent"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_current"
+          ],
+          "workspaceFieldIds": []
+        },
+        "progressTotal": {
+          "symbols": [
+            "progressTotal",
+            "progress_total"
+          ],
+          "databaseColumns": [
+            "progressTotal"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_total"
+          ],
+          "workspaceFieldIds": []
+        },
+        "publisher": {
+          "symbols": [
+            "publisher"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.publisher"
+          ]
+        },
+        "rating": {
+          "symbols": [
+            "rating"
+          ],
+          "databaseColumns": [
+            "rating"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "rating"
+          ],
+          "workspaceFieldIds": [
+            "movie.rating"
+          ]
+        },
+        "releaseDate": {
+          "symbols": [
+            "releaseDate",
+            "release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.release_date"
+          ]
+        },
+        "releaseYear": {
+          "symbols": [
+            "releaseYear",
+            "release_year"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.release_year"
+          ]
+        },
+        "runtimeMinutes": {
+          "symbols": [
+            "runtimeMinutes",
+            "runtime_minutes"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.runtime_minutes"
+          ]
+        },
+        "sourceType": {
+          "symbols": [
+            "sourceType",
+            "source_type"
+          ],
+          "databaseColumns": [
+            "sourceType"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "source_type"
+          ],
+          "workspaceFieldIds": []
+        },
+        "startedAt": {
+          "symbols": [
+            "startedAt",
+            "started_at"
+          ],
+          "databaseColumns": [
+            "startedAt"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "started_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "status": {
+          "symbols": [
+            "status"
+          ],
+          "databaseColumns": [
+            "status"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "status"
+          ],
+          "workspaceFieldIds": [
+            "movie.status"
+          ]
+        },
+        "studio": {
+          "symbols": [
+            "studio"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.studio"
+          ]
+        },
+        "timesCompleted": {
+          "symbols": [
+            "timesCompleted",
+            "times_completed"
+          ],
+          "databaseColumns": [
+            "timesCompleted"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "times_completed"
+          ],
+          "workspaceFieldIds": []
+        },
+        "title": {
+          "symbols": [
+            "title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.title"
+          ]
+        },
+        "updatedAt": {
+          "symbols": [
+            "updatedAt",
+            "updated_at"
+          ],
+          "databaseColumns": [
+            "updatedAt"
+          ],
+          "databaseTables": [
+            "MovieTrackingRows"
+          ],
+          "sqlNames": [
+            "updated_at"
+          ],
+          "workspaceFieldIds": [
+            "movie.updated_at"
+          ]
+        },
+        "watchStatus": {
+          "symbols": [
+            "watchStatus",
+            "watch_status"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.watch_status"
+          ]
+        },
+        "wishlist": {
+          "symbols": [
+            "wishlist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.wishlist"
+          ]
+        },
+        "writer": {
+          "symbols": [
+            "writer"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.writer"
+          ]
+        }
+      }
+    },
+    "music": {
+      "tables": [
+        {
+          "name": "MusicTrackingRows",
+          "source": "lib/features/library/kinds/music/data/local/music_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "sourceType",
+              "sqlName": "source_type"
+            },
+            {
+              "property": "status",
+              "sqlName": "status"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "startedAt",
+              "sqlName": "started_at"
+            },
+            {
+              "property": "finishedAt",
+              "sqlName": "finished_at"
+            },
+            {
+              "property": "progressCurrent",
+              "sqlName": "progress_current"
+            },
+            {
+              "property": "progressTotal",
+              "sqlName": "progress_total"
+            },
+            {
+              "property": "timesCompleted",
+              "sqlName": "times_completed"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        },
+        {
+          "name": "MusicListenEventsRows",
+          "source": "lib/features/library/kinds/music/data/local/music_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "listenedAt",
+              "sqlName": "listened_at"
+            },
+            {
+              "property": "startedAt",
+              "sqlName": "started_at"
+            },
+            {
+              "property": "finishedAt",
+              "sqlName": "finished_at"
+            },
+            {
+              "property": "location",
+              "sqlName": "location"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "createdAt",
+              "sqlName": "created_at"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        }
+      ],
+      "workspaceIdSources": [
+        "lib/features/library/kinds/music/workspace/music_ids.dart"
+      ],
+      "mapperSources": [],
+      "fields": {
+        "addedAt": {
+          "symbols": [
+            "addedAt",
+            "added_at"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.added_at"
+          ]
+        },
+        "artist": {
+          "symbols": [
+            "artist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.artist"
+          ]
+        },
+        "artistSummary": {
+          "symbols": [
+            "artistSummary",
+            "artist_summary"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.artist_summary"
+          ]
+        },
+        "barcode": {
+          "symbols": [
+            "barcode"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.barcode"
+          ]
+        },
+        "boxSet": {
+          "symbols": [
+            "boxSet",
+            "box_set"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.box_set"
+          ]
+        },
+        "catalogNumber": {
+          "symbols": [
+            "catalogNumber",
+            "catalog_number"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.catalog_number"
+          ]
+        },
+        "condition": {
+          "symbols": [
+            "condition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.condition"
+          ]
+        },
+        "country": {
+          "symbols": [
+            "country"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.country"
+          ]
+        },
+        "cover": {
+          "symbols": [
+            "cover"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.cover"
+          ]
+        },
+        "createdAt": {
+          "symbols": [
+            "createdAt",
+            "created_at"
+          ],
+          "databaseColumns": [
+            "createdAt"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows"
+          ],
+          "sqlNames": [
+            "created_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "credit.contributor": {
+          "symbols": [
+            "credit.contributor"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.credit.contributor"
+          ]
+        },
+        "credit.instrument": {
+          "symbols": [
+            "credit.instrument"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.credit.instrument"
+          ]
+        },
+        "credit.role": {
+          "symbols": [
+            "credit.role"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.credit.role"
+          ]
+        },
+        "deletedAt": {
+          "symbols": [
+            "deletedAt",
+            "deleted_at"
+          ],
+          "databaseColumns": [
+            "deletedAt"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows",
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "deleted_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "disc.format": {
+          "symbols": [
+            "disc.format"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.format"
+          ]
+        },
+        "disc.formatFamily": {
+          "symbols": [
+            "disc.formatFamily",
+            "disc.format_family"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.format_family"
+          ]
+        },
+        "disc.isLive": {
+          "symbols": [
+            "disc.isLive",
+            "disc.is_live"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.is_live"
+          ]
+        },
+        "disc.recordingDate": {
+          "symbols": [
+            "disc.recordingDate",
+            "disc.recording_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.recording_date"
+          ]
+        },
+        "disc.recordingDate.earliest": {
+          "symbols": [
+            "disc.recordingDate.earliest",
+            "disc.recording_date.earliest"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.recording_date.earliest"
+          ]
+        },
+        "disc.recordingDate.latest": {
+          "symbols": [
+            "disc.recordingDate.latest",
+            "disc.recording_date.latest"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.recording_date.latest"
+          ]
+        },
+        "disc.recordingMonth": {
+          "symbols": [
+            "disc.recordingMonth",
+            "disc.recording_month"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.recording_month"
+          ]
+        },
+        "disc.recordingYear": {
+          "symbols": [
+            "disc.recordingYear",
+            "disc.recording_year"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.recording_year"
+          ]
+        },
+        "disc.spars": {
+          "symbols": [
+            "disc.spars"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.spars"
+          ]
+        },
+        "discCount": {
+          "symbols": [
+            "discCount",
+            "disc_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc_count"
+          ]
+        },
+        "finishedAt": {
+          "symbols": [
+            "finishedAt",
+            "finished_at"
+          ],
+          "databaseColumns": [
+            "finishedAt"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows",
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "finished_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "formatSummary": {
+          "symbols": [
+            "formatSummary",
+            "format_summary"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.format_summary"
+          ]
+        },
+        "genre": {
+          "symbols": [
+            "genre"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.genre"
+          ]
+        },
+        "grade": {
+          "symbols": [
+            "grade"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.grade"
+          ]
+        },
+        "id": {
+          "symbols": [
+            "id"
+          ],
+          "databaseColumns": [
+            "id"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows",
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "indexNumber": {
+          "symbols": [
+            "indexNumber",
+            "index_number"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.index_number"
+          ]
+        },
+        "lastCleaned": {
+          "symbols": [
+            "lastCleaned",
+            "last_cleaned"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.last_cleaned"
+          ]
+        },
+        "lastListened": {
+          "symbols": [
+            "lastListened",
+            "last_listened"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.last_listened"
+          ]
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows",
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
+        "listenCount": {
+          "symbols": [
+            "listenCount",
+            "listen_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.listen_count"
+          ]
+        },
+        "listenedAt": {
+          "symbols": [
+            "listenedAt",
+            "listened_at"
+          ],
+          "databaseColumns": [
+            "listenedAt"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows"
+          ],
+          "sqlNames": [
+            "listened_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "location": {
+          "symbols": [
+            "location"
+          ],
+          "databaseColumns": [
+            "location"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows"
+          ],
+          "sqlNames": [
+            "location"
+          ],
+          "workspaceFieldIds": [
+            "music.location"
+          ]
+        },
+        "marketValue": {
+          "symbols": [
+            "marketValue",
+            "market_value"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.market_value"
+          ]
+        },
+        "notes": {
+          "symbols": [
+            "notes"
+          ],
+          "databaseColumns": [
+            "notes"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows",
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "notes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "packaging": {
+          "symbols": [
+            "packaging"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.packaging"
+          ]
+        },
+        "pricePaid": {
+          "symbols": [
+            "pricePaid",
+            "price_paid"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.price_paid"
+          ]
+        },
+        "progressCurrent": {
+          "symbols": [
+            "progressCurrent",
+            "progress_current"
+          ],
+          "databaseColumns": [
+            "progressCurrent"
+          ],
+          "databaseTables": [
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_current"
+          ],
+          "workspaceFieldIds": []
+        },
+        "progressTotal": {
+          "symbols": [
+            "progressTotal",
+            "progress_total"
+          ],
+          "databaseColumns": [
+            "progressTotal"
+          ],
+          "databaseTables": [
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_total"
+          ],
+          "workspaceFieldIds": []
+        },
+        "publisher": {
+          "symbols": [
+            "publisher"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.publisher"
+          ]
+        },
+        "purchaseDate": {
+          "symbols": [
+            "purchaseDate",
+            "purchase_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.purchase_date"
+          ]
+        },
+        "rating": {
+          "symbols": [
+            "rating"
+          ],
+          "databaseColumns": [
+            "rating"
+          ],
+          "databaseTables": [
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "rating"
+          ],
+          "workspaceFieldIds": [
+            "music.rating"
+          ]
+        },
+        "recordingLocation": {
+          "symbols": [
+            "recordingLocation",
+            "recording_location"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.recording_location"
+          ]
+        },
+        "releaseDate": {
+          "symbols": [
+            "releaseDate",
+            "release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.release_date"
+          ]
+        },
+        "rpm": {
+          "symbols": [
+            "rpm"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.rpm"
+          ]
+        },
+        "signedBy": {
+          "symbols": [
+            "signedBy",
+            "signed_by"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.signed_by"
+          ]
+        },
+        "sound": {
+          "symbols": [
+            "sound"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.sound"
+          ]
+        },
+        "sourceType": {
+          "symbols": [
+            "sourceType",
+            "source_type"
+          ],
+          "databaseColumns": [
+            "sourceType"
+          ],
+          "databaseTables": [
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "source_type"
+          ],
+          "workspaceFieldIds": []
+        },
+        "startedAt": {
+          "symbols": [
+            "startedAt",
+            "started_at"
+          ],
+          "databaseColumns": [
+            "startedAt"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows",
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "started_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "status": {
+          "symbols": [
+            "status"
+          ],
+          "databaseColumns": [
+            "status"
+          ],
+          "databaseTables": [
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "status"
+          ],
+          "workspaceFieldIds": [
+            "music.status"
+          ]
+        },
+        "storageDevice": {
+          "symbols": [
+            "storageDevice",
+            "storage_device"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.storage_device"
+          ]
+        },
+        "storageSlot": {
+          "symbols": [
+            "storageSlot",
+            "storage_slot"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.storage_slot"
+          ]
+        },
+        "storageSummary": {
+          "symbols": [
+            "storageSummary",
+            "storage_summary"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.storage_summary"
+          ]
+        },
+        "timesCompleted": {
+          "symbols": [
+            "timesCompleted",
+            "times_completed"
+          ],
+          "databaseColumns": [
+            "timesCompleted"
+          ],
+          "databaseTables": [
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "times_completed"
+          ],
+          "workspaceFieldIds": []
+        },
+        "title": {
+          "symbols": [
+            "title"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.title"
+          ]
+        },
+        "track.composition": {
+          "symbols": [
+            "track.composition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.track.composition"
+          ]
+        },
+        "trackCount": {
+          "symbols": [
+            "trackCount",
+            "track_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.track_count"
+          ]
+        },
+        "updatedAt": {
+          "symbols": [
+            "updatedAt",
+            "updated_at"
+          ],
+          "databaseColumns": [
+            "updatedAt"
+          ],
+          "databaseTables": [
+            "MusicListenEventsRows",
+            "MusicTrackingRows"
+          ],
+          "sqlNames": [
+            "updated_at"
+          ],
+          "workspaceFieldIds": [
+            "music.updated_at"
+          ]
+        },
+        "vinylColor": {
+          "symbols": [
+            "vinylColor",
+            "vinyl_color"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.vinyl_color"
+          ]
+        },
+        "wishlist": {
+          "symbols": [
+            "wishlist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.wishlist"
+          ]
+        }
+      }
+    },
+    "tv": {
+      "tables": [
+        {
+          "name": "TvWatchSessionRows",
+          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryId",
+              "sqlName": "library_entry_id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "episodeId",
+              "sqlName": "episode_id"
+            },
+            {
+              "property": "trackingEntryId",
+              "sqlName": "tracking_entry_id"
+            },
+            {
+              "property": "seasonNumber",
+              "sqlName": "season_number"
+            },
+            {
+              "property": "episodeNumber",
+              "sqlName": "episode_number"
+            },
+            {
+              "property": "sourceType",
+              "sqlName": "source_type"
+            },
+            {
+              "property": "seenWhere",
+              "sqlName": "seen_where"
+            },
+            {
+              "property": "watchedAt",
+              "sqlName": "watched_at"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        },
+        {
+          "name": "TvCustomEpisodeRows",
+          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryId",
+              "sqlName": "library_entry_id"
+            },
+            {
+              "property": "seasonNumber",
+              "sqlName": "season_number"
+            },
+            {
+              "property": "episodeNumber",
+              "sqlName": "episode_number"
+            },
+            {
+              "property": "title",
+              "sqlName": "title"
+            },
+            {
+              "property": "description",
+              "sqlName": "description"
+            },
+            {
+              "property": "airDate",
+              "sqlName": "air_date"
+            },
+            {
+              "property": "runtimeMinutes",
+              "sqlName": "runtime_minutes"
+            },
+            {
+              "property": "stillImageUrl",
+              "sqlName": "still_image_url"
+            },
+            {
+              "property": "localImagePath",
+              "sqlName": "local_image_path"
+            },
+            {
+              "property": "thumbnailImageUrl",
+              "sqlName": "thumbnail_image_url"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            }
+          ]
+        },
+        {
+          "name": "TvTrackingRows",
+          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "sourceType",
+              "sqlName": "source_type"
+            },
+            {
+              "property": "status",
+              "sqlName": "status"
+            },
+            {
+              "property": "rating",
+              "sqlName": "rating"
+            },
+            {
+              "property": "startedAt",
+              "sqlName": "started_at"
+            },
+            {
+              "property": "finishedAt",
+              "sqlName": "finished_at"
+            },
+            {
+              "property": "progressCurrent",
+              "sqlName": "progress_current"
+            },
+            {
+              "property": "progressTotal",
+              "sqlName": "progress_total"
+            },
+            {
+              "property": "timesCompleted",
+              "sqlName": "times_completed"
+            },
+            {
+              "property": "notes",
+              "sqlName": "notes"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            },
+            {
+              "property": "seasonNumber",
+              "sqlName": "season_number"
+            },
+            {
+              "property": "episodeNumber",
+              "sqlName": "episode_number"
+            },
+            {
+              "property": "episodeRatingsJson",
+              "sqlName": "episode_ratings_json"
+            }
+          ]
+        },
+        {
+          "name": "TvTrackingUnitRows",
+          "source": "lib/features/library/kinds/tv/data/local/tv_local_tables.dart",
+          "columns": [
+            {
+              "property": "id",
+              "sqlName": "id"
+            },
+            {
+              "property": "trackingEntryId",
+              "sqlName": "tracking_entry_id"
+            },
+            {
+              "property": "libraryEntryRefKey",
+              "sqlName": "library_entry_ref_key"
+            },
+            {
+              "property": "completedAt",
+              "sqlName": "completed_at"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            },
+            {
+              "property": "deletedAt",
+              "sqlName": "deleted_at"
+            },
+            {
+              "property": "seasonNumber",
+              "sqlName": "season_number"
+            },
+            {
+              "property": "episodeNumber",
+              "sqlName": "episode_number"
+            }
+          ]
+        }
+      ],
+      "workspaceIdSources": [
+        "lib/features/library/kinds/tv/workspace/tv_ids.dart"
+      ],
+      "mapperSources": [],
+      "fields": {
+        "addedAt": {
+          "symbols": [
+            "addedAt",
+            "added_at"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.added_at"
+          ]
+        },
+        "airDate": {
+          "symbols": [
+            "airDate",
+            "air_date"
+          ],
+          "databaseColumns": [
+            "airDate"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "air_date"
+          ],
+          "workspaceFieldIds": []
+        },
+        "barcode": {
+          "symbols": [
+            "barcode"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.barcode"
+          ]
+        },
+        "completedAt": {
+          "symbols": [
+            "completedAt",
+            "completed_at"
+          ],
+          "databaseColumns": [
+            "completedAt"
+          ],
+          "databaseTables": [
+            "TvTrackingUnitRows"
+          ],
+          "sqlNames": [
+            "completed_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "condition": {
+          "symbols": [
+            "condition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.condition"
+          ]
+        },
+        "contentRating": {
+          "symbols": [
+            "contentRating",
+            "content_rating"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.content_rating"
+          ]
+        },
+        "cover": {
+          "symbols": [
+            "cover"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.cover"
+          ]
+        },
+        "creator": {
+          "symbols": [
+            "creator"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.creator"
+          ]
+        },
+        "deletedAt": {
+          "symbols": [
+            "deletedAt",
+            "deleted_at"
+          ],
+          "databaseColumns": [
+            "deletedAt"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows",
+            "TvTrackingRows",
+            "TvTrackingUnitRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "deleted_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "description": {
+          "symbols": [
+            "description"
+          ],
+          "databaseColumns": [
+            "description"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "description"
+          ],
+          "workspaceFieldIds": []
+        },
+        "episodeCount": {
+          "symbols": [
+            "episodeCount",
+            "episode_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.episode_count"
+          ]
+        },
+        "episodeId": {
+          "symbols": [
+            "episodeId",
+            "episode_id"
+          ],
+          "databaseColumns": [
+            "episodeId"
+          ],
+          "databaseTables": [
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "episode_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "episodeNumber": {
+          "symbols": [
+            "episodeNumber",
+            "episode_number"
+          ],
+          "databaseColumns": [
+            "episodeNumber"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows",
+            "TvTrackingRows",
+            "TvTrackingUnitRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "episode_number"
+          ],
+          "workspaceFieldIds": []
+        },
+        "episodeRatings": {
+          "symbols": [
+            "episodeRatings",
+            "episodeRatingsJson",
+            "episode_ratings",
+            "episode_ratings_json"
+          ],
+          "databaseColumns": [
+            "episodeRatingsJson"
+          ],
+          "databaseTables": [
+            "TvTrackingRows"
+          ],
+          "sqlNames": [
+            "episode_ratings_json"
+          ],
+          "workspaceFieldIds": []
+        },
+        "episodeRuntimeMinutes": {
+          "symbols": [
+            "episodeRuntimeMinutes",
+            "episode_runtime_minutes"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.episode_runtime_minutes"
+          ]
+        },
+        "finishedAt": {
+          "symbols": [
+            "finishedAt",
+            "finished_at"
+          ],
+          "databaseColumns": [
+            "finishedAt"
+          ],
+          "databaseTables": [
+            "TvTrackingRows"
+          ],
+          "sqlNames": [
+            "finished_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "firstAirDate": {
+          "symbols": [
+            "firstAirDate",
+            "first_air_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.first_air_date"
+          ]
+        },
+        "id": {
+          "symbols": [
+            "id"
+          ],
+          "databaseColumns": [
+            "id"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows",
+            "TvTrackingRows",
+            "TvTrackingUnitRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "lastAirDate": {
+          "symbols": [
+            "lastAirDate",
+            "last_air_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.last_air_date"
+          ]
+        },
+        "libraryEntryId": {
+          "symbols": [
+            "libraryEntryId",
+            "library_entry_id"
+          ],
+          "databaseColumns": [
+            "libraryEntryId"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "library_entry_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "libraryEntryRefKey": {
+          "symbols": [
+            "libraryEntryRefKey",
+            "library_entry_ref_key"
+          ],
+          "databaseColumns": [
+            "libraryEntryRefKey"
+          ],
+          "databaseTables": [
+            "TvTrackingRows",
+            "TvTrackingUnitRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "library_entry_ref_key"
+          ],
+          "workspaceFieldIds": []
+        },
+        "localImagePath": {
+          "symbols": [
+            "localImagePath",
+            "local_image_path"
+          ],
+          "databaseColumns": [
+            "localImagePath"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "local_image_path"
+          ],
+          "workspaceFieldIds": []
+        },
+        "location": {
+          "symbols": [
+            "location"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.location"
+          ]
+        },
+        "network": {
+          "symbols": [
+            "network"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.network"
+          ]
+        },
+        "notes": {
+          "symbols": [
+            "notes"
+          ],
+          "databaseColumns": [
+            "notes"
+          ],
+          "databaseTables": [
+            "TvTrackingRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "notes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "pricePaid": {
+          "symbols": [
+            "pricePaid",
+            "price_paid"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.price_paid"
+          ]
+        },
+        "progressCurrent": {
+          "symbols": [
+            "progressCurrent",
+            "progress_current"
+          ],
+          "databaseColumns": [
+            "progressCurrent"
+          ],
+          "databaseTables": [
+            "TvTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_current"
+          ],
+          "workspaceFieldIds": []
+        },
+        "progressTotal": {
+          "symbols": [
+            "progressTotal",
+            "progress_total"
+          ],
+          "databaseColumns": [
+            "progressTotal"
+          ],
+          "databaseTables": [
+            "TvTrackingRows"
+          ],
+          "sqlNames": [
+            "progress_total"
+          ],
+          "workspaceFieldIds": []
+        },
+        "rating": {
+          "symbols": [
+            "rating"
+          ],
+          "databaseColumns": [
+            "rating"
+          ],
+          "databaseTables": [
+            "TvTrackingRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "rating"
+          ],
+          "workspaceFieldIds": [
+            "tv.rating"
+          ]
+        },
+        "releaseDate": {
+          "symbols": [
+            "releaseDate",
+            "release_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.release_date"
+          ]
+        },
+        "releaseYear": {
+          "symbols": [
+            "releaseYear",
+            "release_year"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.release_year"
+          ]
+        },
+        "runtimeMinutes": {
+          "symbols": [
+            "runtimeMinutes",
+            "runtime_minutes"
+          ],
+          "databaseColumns": [
+            "runtimeMinutes"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "runtime_minutes"
+          ],
+          "workspaceFieldIds": []
+        },
+        "seasonCount": {
+          "symbols": [
+            "seasonCount",
+            "season_count"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.season_count"
+          ]
+        },
+        "seasonNumber": {
+          "symbols": [
+            "seasonNumber",
+            "season_number"
+          ],
+          "databaseColumns": [
+            "seasonNumber"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows",
+            "TvTrackingRows",
+            "TvTrackingUnitRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "season_number"
+          ],
+          "workspaceFieldIds": []
+        },
+        "seenWhere": {
+          "symbols": [
+            "seenWhere",
+            "seen_where"
+          ],
+          "databaseColumns": [
+            "seenWhere"
+          ],
+          "databaseTables": [
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "seen_where"
+          ],
+          "workspaceFieldIds": []
+        },
+        "series": {
+          "symbols": [
+            "series"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.series"
+          ]
+        },
+        "sourceType": {
+          "symbols": [
+            "sourceType",
+            "source_type"
+          ],
+          "databaseColumns": [
+            "sourceType"
+          ],
+          "databaseTables": [
+            "TvTrackingRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "source_type"
+          ],
+          "workspaceFieldIds": []
+        },
+        "startedAt": {
+          "symbols": [
+            "startedAt",
+            "started_at"
+          ],
+          "databaseColumns": [
+            "startedAt"
+          ],
+          "databaseTables": [
+            "TvTrackingRows"
+          ],
+          "sqlNames": [
+            "started_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "status": {
+          "symbols": [
+            "status"
+          ],
+          "databaseColumns": [
+            "status"
+          ],
+          "databaseTables": [
+            "TvTrackingRows"
+          ],
+          "sqlNames": [
+            "status"
+          ],
+          "workspaceFieldIds": [
+            "tv.status"
+          ]
+        },
+        "stillImageUrl": {
+          "symbols": [
+            "stillImageUrl",
+            "still_image_url"
+          ],
+          "databaseColumns": [
+            "stillImageUrl"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "still_image_url"
+          ],
+          "workspaceFieldIds": []
+        },
+        "streamingService": {
+          "symbols": [
+            "streamingService",
+            "streaming_service"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.streaming_service"
+          ]
+        },
+        "thumbnailImageUrl": {
+          "symbols": [
+            "thumbnailImageUrl",
+            "thumbnail_image_url"
+          ],
+          "databaseColumns": [
+            "thumbnailImageUrl"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "thumbnail_image_url"
+          ],
+          "workspaceFieldIds": []
+        },
+        "timesCompleted": {
+          "symbols": [
+            "timesCompleted",
+            "times_completed"
+          ],
+          "databaseColumns": [
+            "timesCompleted"
+          ],
+          "databaseTables": [
+            "TvTrackingRows"
+          ],
+          "sqlNames": [
+            "times_completed"
+          ],
+          "workspaceFieldIds": []
+        },
+        "title": {
+          "symbols": [
+            "title"
+          ],
+          "databaseColumns": [
+            "title"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows"
+          ],
+          "sqlNames": [
+            "title"
+          ],
+          "workspaceFieldIds": [
+            "tv.title"
+          ]
+        },
+        "trackingEntryId": {
+          "symbols": [
+            "trackingEntryId",
+            "tracking_entry_id"
+          ],
+          "databaseColumns": [
+            "trackingEntryId"
+          ],
+          "databaseTables": [
+            "TvTrackingUnitRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "tracking_entry_id"
+          ],
+          "workspaceFieldIds": []
+        },
+        "tvStatus": {
+          "symbols": [
+            "tvStatus",
+            "tv_status"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.tv_status"
+          ]
+        },
+        "updatedAt": {
+          "symbols": [
+            "updatedAt",
+            "updated_at"
+          ],
+          "databaseColumns": [
+            "updatedAt"
+          ],
+          "databaseTables": [
+            "TvCustomEpisodeRows",
+            "TvTrackingRows",
+            "TvTrackingUnitRows",
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "updated_at"
+          ],
+          "workspaceFieldIds": [
+            "tv.updated_at"
+          ]
+        },
+        "watchStatus": {
+          "symbols": [
+            "watchStatus",
+            "watch_status"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.watch_status"
+          ]
+        },
+        "watchedAt": {
+          "symbols": [
+            "watchedAt",
+            "watched_at"
+          ],
+          "databaseColumns": [
+            "watchedAt"
+          ],
+          "databaseTables": [
+            "TvWatchSessionRows"
+          ],
+          "sqlNames": [
+            "watched_at"
+          ],
+          "workspaceFieldIds": []
+        },
+        "wishlist": {
+          "symbols": [
+            "wishlist"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "tv.wishlist"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -48,7 +48,7 @@ final class MovieCollectionCsvImportRow {
         barcode ?? '',
       ];
 
-  List<String> get ownedCells => [grade ?? '', ...List<String>.filled(8, '')];
+  List<String> get entryCells => [grade ?? '', ...List<String>.filled(8, '')];
 
   static String _formatDate(DateTime? value) {
     if (value == null) return '';
@@ -63,7 +63,7 @@ final class MovieCollectionCsvImportRow {
 final class MovieCollectionCsvImportProfile {
   const MovieCollectionCsvImportProfile();
 
-  /// Canonical schema-v1 header owned by this kind's CSV integration.
+  /// Canonical schema-v1 header entry by this kind's CSV integration.
   ///
   /// The same wire positions may be duplicated between kinds intentionally;
   /// Collection never interprets these labels as a shared domain schema.
@@ -86,7 +86,6 @@ final class MovieCollectionCsvImportProfile {
     'price_paid_cents',
     'currency',
     'notes',
-    'quantity',
     'location_id',
     'index_number',
     'cover_price_cents',
@@ -126,7 +125,6 @@ final class MovieCollectionCsvImportProfile {
     'Purchase Price',
     'Currency',
     'Cover Price',
-    'Quantity',
     'Location ID',
     'Index',
     'Raw / Slabbed',
@@ -228,7 +226,7 @@ final class MovieCollectionCsvImportProfile {
 
     // A kind-less CLZ export is accepted only when it carries Movie's
     // unambiguous Studio + UPC labels. Other rows are handled by another
-    // kind-owned profile.
+    // kind-entry profile.
     final normalizedHeader = header.map(_normalizeColumn).toSet();
     return normalizedHeader.contains('studio') &&
         normalizedHeader.contains('upc_barcode');

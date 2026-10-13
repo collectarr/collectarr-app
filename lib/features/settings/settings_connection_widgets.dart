@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -5,7 +6,6 @@ import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
 import 'package:collectarr_app/features/settings/settings_formatting.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -15,7 +15,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 // ---------------------------------------------------------------------------
 
 class SettingsPairingCodeDialog extends StatefulWidget {
-  const SettingsPairingCodeDialog();
+  const SettingsPairingCodeDialog({super.key});
 
   @override
   State<SettingsPairingCodeDialog> createState() =>
@@ -34,6 +34,7 @@ class _SettingsPairingCodeDialogState extends State<SettingsPairingCodeDialog> {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.sync,
       title: const Text('Apply pairing code'),
       content: SizedBox(
         width: 520,
@@ -63,7 +64,7 @@ class _SettingsPairingCodeDialogState extends State<SettingsPairingCodeDialog> {
 }
 
 class SettingsPairingQrDialog extends StatelessWidget {
-  const SettingsPairingQrDialog({required this.code});
+  const SettingsPairingQrDialog({super.key, required this.code});
 
   final String code;
 
@@ -71,6 +72,7 @@ class SettingsPairingQrDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return AccentAlertDialog(
+      headerIcon: AppIcons.sync,
       title: const Text('Pairing QR'),
       content: SizedBox(
         width: 360,
@@ -119,7 +121,7 @@ class SettingsPairingQrDialog extends StatelessWidget {
 }
 
 class SettingsSyncWebWarning extends StatelessWidget {
-  const SettingsSyncWebWarning();
+  const SettingsSyncWebWarning({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +157,7 @@ class SettingsSyncWebWarning extends StatelessWidget {
 
 class SettingsDiagnosticRow extends StatelessWidget {
   const SettingsDiagnosticRow(
-      {required this.diagnostic, required this.idleLabel});
+      {super.key, required this.diagnostic, required this.idleLabel});
 
   final SettingsDiagnosticState? diagnostic;
   final String idleLabel;
@@ -185,6 +187,7 @@ class SettingsDiagnosticRow extends StatelessWidget {
 
 class SettingsStatusChip extends StatelessWidget {
   const SettingsStatusChip({
+    super.key,
     required this.icon,
     required this.label,
     this.isError = false,
@@ -211,6 +214,7 @@ class SettingsStatusChip extends StatelessWidget {
 
 class SettingsSyncServiceSummary extends StatelessWidget {
   const SettingsSyncServiceSummary({
+    super.key,
     required this.status,
     required this.devices,
   });
@@ -290,6 +294,7 @@ class SettingsSyncServiceSummary extends StatelessWidget {
 
 class SettingsSyncConflictSummary extends StatelessWidget {
   const SettingsSyncConflictSummary({
+    super.key,
     required this.changes,
     required this.onKeepLocal,
     required this.onDismiss,
@@ -438,6 +443,7 @@ class _SyncConflictDiffDialog extends StatelessWidget {
     final localPayload = change.localPayload ?? const <String, dynamic>{};
     final servicePayload = change.servicePayload ?? const <String, dynamic>{};
     return AccentAlertDialog(
+      headerIcon: AppIcons.sync,
       title: const Text('Sync conflict diff'),
       content: SizedBox(
         width: 860,
@@ -547,8 +553,6 @@ class _PayloadPanel extends StatelessWidget {
             SelectableText(
               encoded,
               style: const TextStyle(
-                fontFamily: kClzMonospaceFontFamily,
-                fontFamilyFallback: kClzMonospaceFontFallback,
                 fontSize: 12,
               ),
             ),

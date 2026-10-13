@@ -1,37 +1,45 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
-/// Catalog fields consumed by the Tv kind.
+/// Read-only TV display fields projected from the selected kind document.
 final class TvCatalogFields {
-  const TvCatalogFields._(this._candidate, this._common);
+  const TvCatalogFields._(this._candidate, this._metadata);
 
   final CatalogSearchCandidate _candidate;
-  final CatalogCommonDto? _common;
+  final TvMetadata? _metadata;
 
   String get title => _candidate.summary.primaryLabel;
-  String? get displayTitle => _common?.displayTitle;
-  String? get localizedTitle => _common?.localizedTitle;
-  String? get originalTitle => _common?.originalTitle;
-  String? get titleExtension => _common?.titleExtension;
-  List<String> get searchAliases => _common?.searchAliases ?? const [];
-  String? get sortKey => _common?.sortKey;
-  String? get synopsis => _common?.synopsis;
-  String? get coverImageUrl => _common?.coverImageUrl ?? _candidate.summary.imageUrl;
-  String? get thumbnailImageUrl => _common?.thumbnailImageUrl;
-  String? get coverImageData => _common?.coverImageData;
-  DateTime? get releaseDate => _common?.releaseDate;
-  int? get releaseYear => _common?.releaseYear;
-
+  String? get displayTitle => _metadata?.displayTitle;
+  String? get localizedTitle => _metadata?.localizedTitle;
+  String? get originalTitle => _metadata?.originalTitle;
+  String? get titleExtension => _metadata?.titleExtension;
+  List<String> get searchAliases => _metadata?.searchAliases ?? const [];
+  String? get sortKey => _metadata?.sortKey;
+  String? get synopsis => _metadata?.synopsis;
+  String? get coverImageUrl =>
+      _metadata?.coverImageUrl ?? _candidate.summary.imageUrl;
+  String? get thumbnailImageUrl => _metadata?.thumbnailImageUrl;
+  String? get coverImageData => _metadata?.coverImageData;
+  DateTime? get releaseDate => _metadata?.releaseDate;
+  int? get releaseYear =>
+      _metadata?.releaseYear ?? _metadata?.releaseDateParts?.year;
+  String? get editionTitle => _metadata?.editionTitle;
+  String? get itemNumber => _metadata?.itemNumber;
+  String? get variant => _metadata?.variant;
+  String? get publisher => _metadata?.publisher;
+  String? get barcode => _metadata?.barcode;
+  String? get physicalFormat => _metadata?.physicalFormat;
+  String? get physicalFormatLabel => _metadata?.physicalFormatLabel;
   bool get hasReleaseDate => releaseDate != null || releaseYear != null;
 }
 
 extension TvCatalogCandidateFields on CatalogSearchCandidate {
   TvCatalogFields get tvCatalogFields {
     try {
-      final common = kindCapability.mapTransport(
-        (item) => item.common,
+      final metadata = kindCapability.mapTransport(
+        (item) => TvMetadata.fromJson(item.kindData),
       );
-      return TvCatalogFields._(this, common);
+      return TvCatalogFields._(this, metadata);
     } on StateError {
       return TvCatalogFields._(this, null);
     }

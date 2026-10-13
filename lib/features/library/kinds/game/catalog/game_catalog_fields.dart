@@ -1,26 +1,27 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 
 /// Catalog fields consumed by the Game kind.
 final class GameCatalogFields {
-  const GameCatalogFields._(this._candidate, this._common);
+  const GameCatalogFields._(this.summary, this.metadata);
 
-  final CatalogSearchCandidate _candidate;
-  final CatalogCommonDto? _common;
+  final CatalogCandidateSummary summary;
+  final GameCatalogMetadata? metadata;
 
-  String get title => _candidate.summary.primaryLabel;
-  String? get displayTitle => _common?.displayTitle;
-  String? get localizedTitle => _common?.localizedTitle;
-  String? get originalTitle => _common?.originalTitle;
-  String? get titleExtension => _common?.titleExtension;
-  List<String> get searchAliases => _common?.searchAliases ?? const [];
-  String? get sortKey => _common?.sortKey;
-  String? get synopsis => _common?.synopsis;
-  String? get coverImageUrl => _common?.coverImageUrl ?? _candidate.summary.imageUrl;
-  String? get thumbnailImageUrl => _common?.thumbnailImageUrl;
-  String? get coverImageData => _common?.coverImageData;
-  DateTime? get releaseDate => _common?.releaseDate;
-  int? get releaseYear => _common?.releaseYear;
+  String get title => metadata?.title ?? summary.primaryLabel;
+  String? get displayTitle => metadata?.displayTitle;
+  String? get localizedTitle => metadata?.localizedTitle;
+  String? get originalTitle => metadata?.originalTitle;
+  String? get titleExtension => metadata?.titleExtension;
+  List<String> get searchAliases => metadata?.searchAliases ?? const [];
+  String? get sortKey => metadata?.sortKey;
+  String? get itemNumber => metadata?.itemNumber;
+  String? get synopsis => metadata?.synopsis;
+  String? get coverImageUrl => metadata?.coverImageUrl ?? summary.imageUrl;
+  String? get thumbnailImageUrl =>
+      metadata?.thumbnailImageUrl ?? summary.imageUrl;
+  DateTime? get releaseDate => metadata?.releaseDate;
+  int? get releaseYear => releaseDate?.year;
 
   bool get hasReleaseDate => releaseDate != null || releaseYear != null;
 }
@@ -28,12 +29,13 @@ final class GameCatalogFields {
 extension GameCatalogCandidateFields on CatalogSearchCandidate {
   GameCatalogFields get gameCatalogFields {
     try {
-      final common = kindCapability.mapTransport(
-        (item) => item.common,
+      final item = kindCapability.mapTransport((item) => item);
+      return GameCatalogFields._(
+        summary,
+        GameCatalogMetadata.fromJson(item.kindData),
       );
-      return GameCatalogFields._(this, common);
     } on StateError {
-      return GameCatalogFields._(this, null);
+      return GameCatalogFields._(summary, null);
     }
   }
 }

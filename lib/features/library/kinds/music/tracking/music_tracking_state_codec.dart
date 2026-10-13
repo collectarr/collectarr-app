@@ -1,18 +1,15 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:drift/drift.dart';
 
 import 'music_tracking_state.dart';
 
-/// Music-owned lifecycle tracking mapping. Track/disc state remains in the
+/// Music-entry lifecycle tracking mapping. Track/disc state remains in the
 /// Music vertical and is not inferred by the sync host.
 final class MusicTrackingStateCodec
     with TrackingStorageCodecSupport
@@ -36,8 +33,7 @@ final class MusicTrackingStateCodec
           _validatedStorageRow(
             trackingStorageRowFromColumns(
               id: row.id,
-              catalogRefJson: row.catalogRefJson,
-              ownedRefKey: row.ownedRefKey,
+              libraryEntryRefKey: row.libraryEntryRefKey,
               sourceType: row.sourceType,
               status: row.status,
               rating: row.rating,
@@ -65,8 +61,7 @@ final class MusicTrackingStateCodec
     await db.into(db.musicTrackingRows).insertOnConflictUpdate(
           MusicTrackingRowsCompanion.insert(
             id: entry.id,
-            catalogRefJson: jsonEncode(typed.catalogRef.toJson()),
-            ownedRefKey: const Value(null),
+            libraryEntryRefKey: typed.libraryEntryRef.key,
             sourceType: Value(typed.sourceTypeApiValue),
             status: Value(typed.statusStorageValue),
             rating: Value(typed.rating),
@@ -97,8 +92,7 @@ final class MusicTrackingStateCodec
   @override
   MusicTrackingState create({
     required String id,
-    required CatalogEntityRef catalogRef,
-    OwnedItemRef? ownedRef,
+    required LibraryEntryRef libraryEntryRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -111,13 +105,10 @@ final class MusicTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    _validateMusicRelease(catalogRef);
-    if (ownedRef != null) {
-      throw StateError('Music tracking cannot be attached to an owned copy.');
-    }
+    _validateMusicEntry(libraryEntryRef);
     return MusicTrackingState(
       id: id,
-      releaseRef: catalogRef,
+      libraryEntryRef: libraryEntryRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -157,15 +148,17 @@ final class MusicTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    final catalogRef = _catalogRefFromPayload(payload);
-    _validateMusicRelease(catalogRef);
-    final ownedRef = ownedItemRefFromSerialized(payload['owned_ref']);
-    if (ownedRef != null) {
-      throw StateError('Music tracking cannot be attached to an owned copy.');
+    final libraryEntryRef = libraryEntryRefFromSerialized(
+      payload['library_entry_ref'],
+    );
+    if (libraryEntryRef == null || libraryEntryRef.kind != kind) {
+      throw const FormatException(
+        'Music tracking requires a Music library_entry_ref.',
+      );
     }
     return MusicTrackingState(
       id: id,
-      releaseRef: catalogRef,
+      libraryEntryRef: libraryEntryRef,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -188,7 +181,7 @@ final class MusicTrackingStateCodec
     final validated = _validatedStorageRow(row);
     return MusicTrackingState(
       id: validated.id,
-      releaseRef: validated.catalogRef,
+      libraryEntryRef: validated.libraryEntryRef,
       sourceType: validated.sourceType,
       status: validated.status,
       rating: validated.rating,
@@ -209,15 +202,6 @@ final class MusicTrackingStateCodec
     return super.summaryFromStorageRow(row);
   }
 
-  CatalogEntityRef _catalogRefFromPayload(Map<String, dynamic> payload) {
-    final raw = payload['catalog_ref'];
-    if (raw is! Map) {
-      throw const FormatException(
-          'Music tracking entry is missing catalog_ref');
-    }
-    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
-  }
-
   MusicTrackingState _typedEntry(TrackingStorageRecord entry) {
     if (entry is! MusicTrackingState) {
       throw ArgumentError.value(
@@ -226,30 +210,29 @@ final class MusicTrackingStateCodec
         'Expected MusicTrackingState',
       );
     }
-    _validateMusicRelease(entry.catalogRef);
-    if (entry.ownedRef != null) {
-      throw StateError('Music tracking cannot be attached to an owned copy.');
+    final libraryEntryRef = entry.libraryEntryRef;
+    if (libraryEntryRef.kind != kind) {
+      throw StateError('Music tracking requires a Music library entry owner.');
     }
     return entry;
   }
 
   TrackingStorageRow _validatedStorageRow(TrackingStorageRow row) {
-    _validateMusicRelease(row.catalogRef);
-    if (row.ownedRef != null) {
-      throw StateError('Music tracking cannot be attached to an owned copy.');
+    final libraryEntryRef = row.libraryEntryRef;
+    if (libraryEntryRef.kind != kind) {
+      throw StateError('Music tracking requires a Music library entry owner.');
     }
     return row;
   }
 
-  void _validateMusicRelease(CatalogEntityRef ref) {
-    if (ref.mediaKind != kind) {
+  void _validateMusicEntry(LibraryEntryRef ref) {
+    if (ref.kind != kind) {
       throw ArgumentError.value(
-        ref.mediaKind,
-        'catalogRef.kind',
-        'Expected Music tracking entry',
+        ref.kind,
+        'libraryEntryRef.kind',
+        'Music tracking requires a Music library entry',
       );
     }
-    requireMusicReleaseRef(ref, label: 'Music tracking catalogRef');
   }
 }
 

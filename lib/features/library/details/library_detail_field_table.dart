@@ -9,11 +9,13 @@ class LibraryDetailFieldTable extends StatelessWidget {
     required this.fields,
     this.minCellWidth = 220,
     this.labelWidth = 92,
+    this.showHeader = true,
   });
 
   final List<LibraryDetailField> fields;
   final double minCellWidth;
   final double labelWidth;
+  final bool showHeader;
 
   @override
   Widget build(BuildContext context) {
@@ -32,47 +34,52 @@ class LibraryDetailFieldTable extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: palette.surface.withValues(alpha: 0.72),
-                  border: Border(
-                    bottom: BorderSide(color: palette.divider),
+              if (showHeader)
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: palette.surface.withValues(alpha: 0.72),
+                    border: Border(
+                      bottom: BorderSide(color: palette.divider),
+                    ),
+                  ),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: labelWidth,
+                          child: Text(
+                            'Field',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: palette.textMuted,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.3,
+                                ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Value',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: palette.textMuted,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.3,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: labelWidth,
-                        child: Text(
-                          'Field',
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: palette.textMuted,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 0.3,
-                                  ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Value',
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: palette.textMuted,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 0.3,
-                                  ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
+              if (showHeader) const SizedBox(height: 8),
               Wrap(
                 spacing: gap,
                 runSpacing: 2,

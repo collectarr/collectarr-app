@@ -1,25 +1,24 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/comic_creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_people_editors.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/state/api_provider.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 
 extension ComicEditTabBuilders on ComicEditHost {
-  Widget buildComicOwnedDetailsTab() {
+  Widget buildComicEntryDetailsTab() {
     return EditTabShell(
       children: [
         EditSection(
@@ -35,7 +34,7 @@ extension ComicEditTabBuilders on ComicEditHost {
                 ),
                 LibraryEditTextField(
                   controller: comicOriginalTitleController,
-                  label: 'Original title',
+                  label: 'Original Title',
                 ),
               ]),
               const SizedBox(height: 10),
@@ -77,10 +76,11 @@ extension ComicEditTabBuilders on ComicEditHost {
                           validator: optionalIntValidator,
                         ),
                         const SizedBox(height: 10),
-                        TagPickListField(
+                        LibraryVocabularyField(
                           controller: comicGenresEditController,
                           options: comicGenreOptions,
                           label: 'Genres',
+                          multiSelect: true,
                         ),
                       ],
                     );
@@ -110,10 +110,11 @@ extension ComicEditTabBuilders on ComicEditHost {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: TagPickListField(
+                        child: LibraryVocabularyField(
                           controller: comicGenresEditController,
                           options: comicGenreOptions,
                           label: 'Genres',
+                          multiSelect: true,
                         ),
                       ),
                     ],
@@ -131,15 +132,12 @@ extension ComicEditTabBuilders on ComicEditHost {
             children: [
               LibraryEditResponsiveRow(children: [
                 LibraryEditTextField(
-                    controller: comicSortKeyController, label: 'Sort title'),
-                TextFormField(
+                    controller: comicSortKeyController, label: 'Sort Title'),
+                LibraryEditTextField(
                   controller: comicSearchAliasesController,
-                  minLines: 1,
                   maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Search aliases',
-                    hintText: 'Comma-separated aliases',
-                  ),
+                  label: 'Search Aliases',
+                  hint: 'Comma-separated aliases',
                 ),
               ]),
               const SizedBox(height: 10),
@@ -159,125 +157,32 @@ extension ComicEditTabBuilders on ComicEditHost {
   Widget buildComicCreatorsTab() {
     return EditTabShell(
       children: [
-        EditSection(
-          title: 'Creators',
+        ComicCreatorListEditor(
+          creators: comicCreators,
           accent: comicAccent,
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  FilledButton.icon(
-                    onPressed: () => comicMutateState(
-                      () => comicCreators.add(EditableComicCreator.custom()),
-                    ),
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Add'),
-                  ),
-                  const SizedBox(width: 8),
-                  OutlinedButton.icon(
-                    onPressed: _addCatalogComicCreator,
-                    icon: const Icon(Icons.person_search_outlined, size: 16),
-                    label: const Text('Find in Catalog'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              if (comicCreators.isEmpty)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Creators is empty',
-                    style: TextStyle(color: appPalette(comicContext).textMuted),
-                  ),
-                )
-              else
-                ReorderableListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  onReorderItem: (oldIndex, newIndex) {
-                    comicMutateState(() {
-                      final item = comicCreators.removeAt(oldIndex);
-                      comicCreators.insert(newIndex, item);
-                    });
-                  },
-                  itemCount: comicCreators.length,
-                  itemBuilder: (context, index) {
-                    final creator = comicCreators[index];
-                    final currentRole = creator.roleController.text.trim();
-                    final roles = <String>[
-                      if (currentRole.isNotEmpty &&
-                          !kComicCreatorRoles.contains(currentRole))
-                        currentRole,
-                      ...kComicCreatorRoles,
-                    ];
-                    return Padding(
-                      key: ValueKey(creator),
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          ReorderableDragStartListener(
-                            index: index,
-                            child: Icon(
-                              Icons.drag_handle,
-                              color: appPalette(comicContext).textMuted,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          SizedBox(
-                            width: 180,
-                            child: LibraryDropdownPickField<String>(
-                              label: 'Role',
-                              value: currentRole.isEmpty ? null : currentRole,
-                              options: [
-                                for (final role in roles)
-                                  LibraryFieldOption(
-                                    value: role,
-                                    label: role,
-                                  ),
-                              ],
-                              openPicker: (
-                                      {required label,
-                                      required selectedValue,
-                                      required options}) =>
-                                  showPickListSelectDialog(
-                                context: comicContext,
-                                label: label,
-                                options: options,
-                                selectedValue: selectedValue,
-                              ),
-                              onChanged: (value) {
-                                if (value == null) return;
-                                creator.roleController.text = value;
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextFormField(
-                              controller: creator.nameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Name',
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => _lookupComicCreatorForRow(index),
-                            icon: const Icon(Icons.person_search, size: 18),
-                            tooltip: 'Lookup',
-                          ),
-                          IconButton(
-                            onPressed: () => comicMutateState(
-                              () => comicCreators.removeAt(index).dispose(),
-                            ),
-                            icon: const Icon(Icons.close, size: 18),
-                            tooltip: 'Remove',
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-            ],
+          onAdd: () => comicMutateState(
+            () => comicCreators.add(EditableComicCreator.custom()),
+          ),
+          onRemove: (index) => comicMutateState(
+            () => comicCreators.removeAt(index).dispose(),
+          ),
+          onReorder: (oldIndex, newIndex) => comicMutateState(() {
+            final item = comicCreators.removeAt(oldIndex);
+            comicCreators.insert(newIndex, item);
+          }),
+          onChanged: () => comicMutateState(() {}),
+          onFindInCatalog: _addCatalogComicCreator,
+          onLookupCreator: _lookupComicCreatorForRow,
+          roleOpenPicker: ({
+            required label,
+            required selectedValue,
+            required options,
+          }) =>
+              showPickListSelectDialog(
+            context: comicContext,
+            label: label,
+            options: options,
+            selectedValue: selectedValue,
           ),
         ),
       ],
@@ -287,103 +192,21 @@ extension ComicEditTabBuilders on ComicEditHost {
   Widget buildComicCharactersTab() {
     return EditTabShell(
       children: [
-        EditSection(
-          title: 'Characters',
+        ComicCharacterListEditor(
+          characters: comicCharacters,
           accent: comicAccent,
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: comicCharacterDraftController,
-                      decoration:
-                          const InputDecoration(hintText: 'Character name'),
-                      onSubmitted: (_) => _addComicCharacter(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton.icon(
-                    onPressed: _addComicCharacter,
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Add'),
-                  ),
-                  const SizedBox(width: 8),
-                  OutlinedButton.icon(
-                    onPressed: _addCatalogComicCharacter,
-                    icon: const Icon(Icons.person_search_outlined, size: 16),
-                    label: const Text('Find in Catalog'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              if (comicCharacters.isEmpty)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Characters is empty',
-                    style: TextStyle(color: appPalette(comicContext).textMuted),
-                  ),
-                )
-              else
-                ReorderableListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  onReorderItem: (oldIndex, newIndex) {
-                    comicMutateState(() {
-                      final item = comicCharacters.removeAt(oldIndex);
-                      comicCharacters.insert(newIndex, item);
-                    });
-                  },
-                  itemCount: comicCharacters.length,
-                  itemBuilder: (context, index) {
-                    final character = comicCharacters[index];
-                    return Padding(
-                      key: ValueKey(character),
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          ReorderableDragStartListener(
-                            index: index,
-                            child: Icon(
-                              Icons.drag_handle,
-                              color: appPalette(comicContext).textMuted,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            flex: 4,
-                            child: TextFormField(
-                              controller: character.nameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Character',
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            flex: 3,
-                            child: TextFormField(
-                              controller: character.realNameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Real name',
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => comicMutateState(
-                              () => comicCharacters.removeAt(index).dispose(),
-                            ),
-                            icon: const Icon(Icons.close, size: 18),
-                            tooltip: 'Remove',
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-            ],
+          onAdd: () => comicMutateState(
+            () => comicCharacters.add(EditableComicCharacter.custom('')),
           ),
+          onRemove: (index) => comicMutateState(
+            () => comicCharacters.removeAt(index).dispose(),
+          ),
+          onReorder: (oldIndex, newIndex) => comicMutateState(() {
+            final item = comicCharacters.removeAt(oldIndex);
+            comicCharacters.insert(newIndex, item);
+          }),
+          onChanged: () => comicMutateState(() {}),
+          onFindInCatalog: _addCatalogComicCharacter,
         ),
       ],
     );
@@ -395,32 +218,11 @@ extension ComicEditTabBuilders on ComicEditHost {
         EditSection(
           title: 'External Links',
           accent: comicAccent,
-          child: LibraryExternalLinksTable<Map<String, TextEditingController>>(
-            rows: [
-              for (final link in comicLinks)
-                LibraryExternalLinkEditRow<Map<String, TextEditingController>>(
-                  identity: link,
-                  urlController: link['url']!,
-                  descriptionController: link['title']!,
-                ),
-            ],
+          child: LibraryExternalLinksDraftEditor(
+            links: comicLinks,
             accent: comicAccent,
             addLabel: 'New Link',
-            onAdd: () => comicMutateState(
-              () => comicLinks.add(comicCreateLinkControllers()),
-            ),
-            onReorder: (oldIndex, newIndex) => comicMutateState(() {
-              final item = comicLinks.removeAt(oldIndex);
-              comicLinks.insert(newIndex, item);
-            }),
-            onRemoveSelected: (selectedRows) => comicMutateState(() {
-              for (final row in selectedRows) {
-                final link = row.identity;
-                if (!comicLinks.remove(link)) continue;
-                link['title']?.dispose();
-                link['url']?.dispose();
-              }
-            }),
+            onChanged: () => comicMutateState(() {}),
           ),
         ),
       ],
@@ -428,53 +230,16 @@ extension ComicEditTabBuilders on ComicEditHost {
   }
 
   Widget buildComicMainTab() {
-    final editPresentation = comicEditPresentation;
     return EditTabShell(
       children: [
-        _ownedComicMainOverviewCard(),
-        if (editPresentation.showsOwnershipReferenceSection)
-          EditSection(
-            title: editPresentation.ownershipReferenceTitle,
-            accent: comicAccent,
-            child: Column(
-              children: [
-                buildComicOwnershipAnchorSelectionField(),
-                if (comicSelectedOwnedAnchorType == 'edition' ||
-                    comicSelectedOwnedAnchorType == 'variant') ...[
-                  const SizedBox(height: 10),
-                  LibraryEditResponsiveRow(children: [
-                    buildComicEditionSelectionField(),
-                    if (comicSelectedOwnedAnchorType == 'variant')
-                      buildComicVariantSelectionField(),
-                  ]),
-                ],
-                if (comicSelectedOwnedAnchorType == 'bundle_release') ...[
-                  const SizedBox(height: 10),
-                  buildComicBundleReleaseSelectionField(
-                    fieldKey: const Key('library-edit-owned-bundle-field'),
-                    label: editPresentation.ownedBundleLabel,
-                    selectedBundleReleaseId: comicSelectedBundleReleaseId,
-                    onChanged: (value) {
-                      comicMutateState(() {
-                        final normalized = value?.trim();
-                        comicSelectedBundleReleaseId =
-                            normalized == null || normalized.isEmpty
-                                ? null
-                                : normalized;
-                      });
-                    },
-                  ),
-                ],
-              ],
-            ),
-          ),
+        _entryComicMainOverviewCard(),
         EditSection(
           title: 'Storage & Notes',
           accent: comicAccent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (comicShowPhysicalOwnedFields) ...[
+              if (comicShowPhysicalEntryFields) ...[
                 LibraryEditResponsiveRow(children: [
                   buildComicCollectionStatusPickField(),
                   buildComicLocationPickerField(),
@@ -487,11 +252,6 @@ extension ComicEditTabBuilders on ComicEditHost {
                     validator: optionalIntValidator,
                   ),
                   LibraryEditTextField(
-                    controller: comicQuantityController,
-                    label: 'Quantity',
-                    validator: optionalIntValidator,
-                  ),
-                  LibraryEditTextField(
                     controller: comicOwnerLabelController,
                     label: 'Owner',
                     hint: 'Name of the owner',
@@ -500,16 +260,17 @@ extension ComicEditTabBuilders on ComicEditHost {
                 const SizedBox(height: 10),
               ] else ...[
                 Text(
-                  'Digital copies do not expose physical storage fields.',
+                  'Digital items do not expose physical storage fields.',
                   style: TextStyle(color: appPalette(comicContext).textMuted),
                 ),
                 const SizedBox(height: 10),
               ],
-              TagPickListField(
+              LibraryVocabularyField(
                 controller: comicTagsController,
                 options: comicTagOptions,
                 label: 'Tags',
                 hint: 'Comma-separated tags',
+                multiSelect: true,
               ),
               const SizedBox(height: 10),
               LibraryEditResponsiveRow(children: [
@@ -525,35 +286,18 @@ extension ComicEditTabBuilders on ComicEditHost {
                 ),
               ]),
               const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: comicStorageDeviceController,
-                  label: 'Storage device',
-                ),
-                LibraryEditTextField(
-                  controller: comicStorageSlotController,
-                  label: 'Storage slot',
-                ),
-              ]),
-              const SizedBox(height: 10),
-              TextFormField(
+              LibraryEditTextField(
                 controller: comicTrackingNotesController,
+                label: 'Tracking notes',
                 minLines: 2,
                 maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Tracking notes',
-                  border: OutlineInputBorder(),
-                ),
               ),
               const SizedBox(height: 10),
-              TextFormField(
+              LibraryEditTextField(
                 controller: comicNotesController,
+                label: 'Personal notes',
                 minLines: 4,
                 maxLines: 7,
-                decoration: const InputDecoration(
-                  labelText: 'Personal notes',
-                  alignLabelWithHint: true,
-                ),
               ),
             ],
           ),
@@ -723,14 +467,11 @@ extension ComicEditTabBuilders on ComicEditHost {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextFormField(
+                        LibraryEditTextField(
                           controller: comicNotesController,
+                          label: 'Notes',
                           minLines: 6,
                           maxLines: 9,
-                          decoration: const InputDecoration(
-                            labelText: 'Notes',
-                            alignLabelWithHint: true,
-                          ),
                         ),
                         const SizedBox(height: 10),
                         MediaRatingField(controller: comicRatingController),
@@ -754,15 +495,12 @@ extension ComicEditTabBuilders on ComicEditHost {
                       children: [
                         Expanded(
                           flex: 8,
-                          child: TextFormField(
+                          child: LibraryEditTextField(
                             controller: comicNotesController,
+                            label: 'Notes',
                             expands: true,
                             minLines: null,
                             maxLines: null,
-                            decoration: const InputDecoration(
-                              labelText: 'Notes',
-                              alignLabelWithHint: true,
-                            ),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -802,7 +540,7 @@ extension ComicEditTabBuilders on ComicEditHost {
     );
   }
 
-  Widget _ownedComicMainOverviewCard() {
+  Widget _entryComicMainOverviewCard() {
     final palette = appPalette(comicContext);
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -994,22 +732,6 @@ extension ComicEditTabBuilders on ComicEditHost {
     });
   }
 
-  void _addComicCharacter() {
-    final normalized = comicCharacterDraftController.text.trim();
-    if (normalized.isEmpty) return;
-    final exists = comicCharacters.any((character) =>
-        character.nameController.text.trim().toLowerCase() ==
-        normalized.toLowerCase());
-    if (exists) {
-      comicCharacterDraftController.clear();
-      return;
-    }
-    comicMutateState(() {
-      comicCharacters.add(EditableComicCharacter.custom(normalized));
-      comicCharacterDraftController.clear();
-    });
-  }
-
   Future<void> _addCatalogComicCharacter() async {
     final api = comicRef.read(apiClientProvider);
     final character = await _showComicLookupDialog(
@@ -1067,83 +789,88 @@ extension ComicEditTabBuilders on ComicEditHost {
       }
     }
 
-    final selected = await showDialog<Map<String, dynamic>>(
-      context: comicContext,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AccentAlertDialog(
-              title: Text(title),
-              content: SizedBox(
-                width: 620,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: searchController,
-                            decoration: InputDecoration(hintText: searchHint),
-                            onSubmitted: (_) => runSearch(setDialogState),
+    try {
+      return await showDialog<Map<String, dynamic>>(
+        context: comicContext,
+        builder: (dialogContext) {
+          return StatefulBuilder(
+            builder: (context, setDialogState) {
+              return AccentAlertDialog(
+                headerIcon: AppIcons.tabDetails,
+                title: Text(title),
+                content: SizedBox(
+                  width: 620,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: LibraryTextFormControl(
+                              controller: searchController,
+                              decoration: InputDecoration(hintText: searchHint),
+                              onFieldSubmitted: (_) =>
+                                  runSearch(setDialogState),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          FilledButton(
+                            onPressed: () => runSearch(setDialogState),
+                            child: const Text('Search'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (isLoading)
+                        const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: CircularProgressIndicator(),
+                        )
+                      else if (error != null)
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            error!,
+                            style: const TextStyle(color: Colors.redAccent),
+                          ),
+                        )
+                      else
+                        Flexible(
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: results.length,
+                            separatorBuilder: (_, __) =>
+                                const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final result = results[index];
+                              final subtitle = subtitleForResult(result);
+                              return ListTile(
+                                title: Text(titleForResult(result)),
+                                subtitle:
+                                    subtitle.isEmpty ? null : Text(subtitle),
+                                onTap: () =>
+                                    Navigator.of(dialogContext).pop(result),
+                              );
+                            },
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        FilledButton(
-                          onPressed: () => runSearch(setDialogState),
-                          child: const Text('Search'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    if (isLoading)
-                      const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: CircularProgressIndicator(),
-                      )
-                    else if (error != null)
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                          error!,
-                          style: const TextStyle(color: Colors.redAccent),
-                        ),
-                      )
-                    else
-                      Flexible(
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: results.length,
-                          separatorBuilder: (_, __) => const Divider(height: 1),
-                          itemBuilder: (context, index) {
-                            final result = results[index];
-                            final subtitle = subtitleForResult(result);
-                            return ListTile(
-                              title: Text(titleForResult(result)),
-                              subtitle:
-                                  subtitle.isEmpty ? null : Text(subtitle),
-                              onTap: () =>
-                                  Navigator.of(dialogContext).pop(result),
-                            );
-                          },
-                        ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancel'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-    searchController.dispose();
-    return selected;
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    } finally {
+      searchController.dispose();
+    }
   }
 
   List<ResolvedComicEditImage> _resolvedEditImages() {
@@ -1155,7 +882,7 @@ extension ComicEditTabBuilders on ComicEditHost {
 
   String _buildComicMarketSearchQuery() {
     return [
-      comicMedia.title,
+      comicCatalogItem.title,
       if (emptyToNull(comicNumberController.text) case final issue?) '#$issue',
       if (emptyToNull(comicPhysicalFormatLabelController.text)
           case final format?)
@@ -1167,7 +894,7 @@ extension ComicEditTabBuilders on ComicEditHost {
   Widget buildComicCoverTab() {
     final coverUrl = emptyToNull(comicCoverController.text) ??
         emptyToNull(comicThumbnailController.text) ??
-        comicMedia.releases.firstOrNull?.coverImageUrl;
+        comicCatalogItem.coverImageUrl;
     final resolvedImages = _resolvedEditImages();
     final backCover = firstResolvedComicEditImageOfType(
       resolvedImages,
@@ -1218,7 +945,7 @@ extension ComicEditTabBuilders on ComicEditHost {
     return EditTabShell(
       children: [
         EditSection(
-          title: 'My images workflow',
+          title: 'My Images Workflow',
           accent: comicAccent,
           child: ComicPhotosWorkflowText(
             style: TextStyle(color: appPalette(comicContext).textMuted),

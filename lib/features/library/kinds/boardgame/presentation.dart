@@ -1,7 +1,12 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const boardGamesMetadataLabels = LibraryMetadataLabels(
@@ -31,37 +36,44 @@ const boardGamesStatsLabels = LibraryMediaStatsLabels(
 );
 
 final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  if (BoardGameFieldIdentities.series.filterable)
+    LibraryFilterDefinition<Object?>(
+      metadata: BoardGameFieldIdentities.series,
+      id: BoardGameFieldIdentities.seriesId,
+      label: BoardGameFieldIdentities.seriesLabel,
+      anyLabel: 'Any series',
+      value: (item) => (item.dto is BoardGameWorkspaceDto)
+          ? (item.dto as BoardGameWorkspaceDto).seriesTitle
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
-    id: 'series',
-    label: 'Series',
-    anyLabel: 'Any series',
-    value: (item) => (item.dto is BoardGameWorkspaceDto)
-        ? (item.dto as BoardGameWorkspaceDto).seriesTitle
-        : null,
-  ),
-  LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => BoardGameOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.tags?.split(','),
+    value: (item) => BoardGameLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.tags?.split(','),
   ),
+  if (BoardGameFieldIdentities.publisher.filterable)
+    LibraryFilterDefinition<Object?>(
+      metadata: BoardGameFieldIdentities.publisher,
+      id: BoardGameFieldIdentities.publisherId,
+      label: BoardGameFieldIdentities.publisherLabel,
+      anyLabel: 'Any publisher',
+      value: (item) => (item.dto is BoardGameWorkspaceDto)
+          ? (item.dto as BoardGameWorkspaceDto).publisher
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
-    id: 'publisher',
-    label: 'Publisher / Designer',
-    anyLabel: 'Any publisher / designer',
-    value: (item) => (item.dto is BoardGameWorkspaceDto)
-        ? (item.dto as BoardGameWorkspaceDto).publisher
-        : null,
-  ),
-  LibraryFilterDefinition<Object?>(
+    metadata: BoardGameWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -70,14 +82,16 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => BoardGameOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.condition,
+    value: (item) => BoardGameLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: BoardGameWorkspaceFieldMetadata.country,
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -86,6 +100,7 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: BoardGameWorkspaceFieldMetadata.language,
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
@@ -117,6 +132,24 @@ String boardGamesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
+  sortFavorites: [
+    LibrarySortFavorite(
+        id: 'title_asc',
+        label: 'Title A-Z',
+        icon: AppIcons.sortAlpha,
+        rules: [
+          LibrarySortRule(
+              column: BoardGameWorkspaceFieldMetadata.title.id, ascending: true)
+        ]),
+    LibrarySortFavorite(
+        id: 'release_latest',
+        label: 'Latest release',
+        icon: AppIcons.calendar,
+        rules: [
+          LibrarySortRule(
+              column: BoardGameFieldIdentities.releaseDate.id, ascending: false)
+        ]),
+  ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',

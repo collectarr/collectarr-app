@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_reposito
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
-/// Structural result of a kind-owned catalog decode.
+/// Structural result of a kind-entry catalog decode.
 ///
 /// The owning codec interprets its DTO and projects only the values required
 /// by generic vocabulary/serial infrastructure. The generic catalog host does

@@ -76,6 +76,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       sections.addAll(fields.map(_buildField));
     }
     return AccentAlertDialog(
+      headerIcon: AppIcons.inlineEdit,
       shape: adminDialogShape,
       title: Text('Edit metadata: ${widget.item.displayTitle}'),
       content: SizedBox(
@@ -247,6 +248,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AccentAlertDialog(
+            headerIcon: AppIcons.admin,
             shape: adminDialogShape,
             title: const Text('Preview metadata correction'),
             content: SizedBox(

@@ -1,18 +1,16 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_form_adapters.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_group_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 
-/// Builds the typed catalog candidate used by Music's manual Add flow.
+/// Builds the typed flat catalog candidate used by Music's manual Add flow.
 ///
 /// The shared Add host only asks the registered kind capability for this
-/// candidate; it does not interpret Music fields or construct a Music graph.
+/// candidate; the concrete edition stays a kind-entry Music item with
+/// contained discs and tracks.
 CatalogSearchCandidate? buildMusicManualCandidate(
   LibraryKindAddDraft draft, {
   required String title,
@@ -23,71 +21,111 @@ CatalogSearchCandidate? buildMusicManualCandidate(
   }
 
   final normalizedTitle = title.trim();
-  final releaseDate = draft.release.releaseDate ?? _yearDate(draft.year);
-  final groupId = MusicReleaseGroupId(
-    'manual-music-${DateTime.now().microsecondsSinceEpoch}',
-  );
-  final releaseId = MusicReleaseId('${groupId.value}-release');
-  final groupValues = MusicReleaseGroupFormValues(
-    title: normalizedTitle,
-    artist: draft.releaseGroup.artist,
-    originalReleaseDate: releaseDate,
-    genres: draft.releaseGroup.genres,
-    coverImageUrl: draft.releaseGroup.coverImageUrl,
-  );
-  final releaseValues = MusicReleaseFormValues(
-    title: _textOrNull(draft.release.title) ?? normalizedTitle,
-    publisher: draft.release.publisher,
-    catalogNumber: draft.release.catalogNumber,
-    barcode: draft.release.barcode,
-    physicalFormat: draft.release.physicalFormat,
-    physicalFormatLabel: draft.release.physicalFormatLabel,
-    packaging: draft.release.packaging,
-    countryCode: draft.release.countryCode,
-    language: draft.release.language,
-    releaseDate: releaseDate,
-  );
-  final mediumType = _textOrNull(
-    releaseValues.physicalFormatLabel.isNotEmpty
-        ? releaseValues.physicalFormatLabel
-        : releaseValues.physicalFormat,
-  );
-  final release = MusicReleaseFormAdapter.create(
-    releaseValues,
-    id: releaseId,
-    releaseGroupId: groupId,
-    mediums: mediumType == null
-        ? const []
-        : [
-            MusicMedium(
-              id: MusicMediumId('${releaseId.value}:medium:1'),
-              releaseId: releaseId,
-              mediumNumber: 1,
-              mediumType: mediumType,
-            ),
-          ],
-  );
-  final group = MusicReleaseGroupFormAdapter.create(
-    groupValues,
-    id: groupId,
-    releases: [release],
-  );
-  final item = CatalogItemDto.raw(
-    id: groupId.value,
-    mediaKind: CatalogMediaKind.music,
-    common: CatalogCommonDto(
-      title: normalizedTitle,
-      coverImageUrl: group.coverImageUrl,
-      releaseDate: releaseDate,
-      releaseYear: releaseDate?.year,
-    ),
-    kindMetadata: group,
-  );
+  final proposal = buildMusicManualProposalData(draft, title: normalizedTitle);
+  if (proposal == null) return null;
+  final id = 'manual-music-${DateTime.now().microsecondsSinceEpoch}';
+  final itemJson = <String, dynamic>{
+    'id': id,
+    'kind': 'music',
+    'title': normalizedTitle,
+    'artist': _textOrNull(draft.artist),
+    'revision': 1,
+    ...proposal,
+  };
+  final musicItem = MusicCatalogMapper.fromCatalogPayload(itemJson);
+  final localMusic = MusicAlbum.fromJson(
+      {...musicItem.toJson(), 'discs': _candidateDiscs(draft)});
+  final item = MusicCatalogMapper.toLocalCatalogItemDto(localMusic);
   return CatalogSearchCandidate.fromItem(item);
 }
 
-DateTime? _yearDate(int? year) =>
-    year == null || year < 1 ? null : DateTime.utc(year);
+/// Builds a flat Core proposal directly from the Music Add form values.
+///
+/// Proposal data follows the flat Music Catalog Item contract shown by the form.
+Map<String, Object?>? buildMusicManualProposalData(
+  LibraryKindAddDraft draft, {
+  required String title,
+}) {
+  if (draft is! MusicAddManualDraft) return null;
+  if (title.trim().isEmpty || musicAddSchema.validate!(draft) != null) {
+    return null;
+  }
+
+  final releaseDateParts = draft.releaseDateParts;
+  final barcode = _textOrNull(draft.barcode);
+  final countryCode = _textOrNull(draft.countryCode);
+  final country = countryCode == null
+      ? null
+      : _textOrNull(musicCountryName(countryCode) ?? countryCode);
+  final cover = _textOrNull(draft.coverImageUrl);
+  final backCover = _textOrNull(draft.backCoverImageUrl);
+  final originalReleaseDateParts = draft.originalReleaseDateParts;
+
+  return {
+    'title': title.trim(),
+    if (_textOrNull(draft.sortTitle) case final value?) 'sort_title': value,
+    if (_textOrNull(draft.subtitle) case final value?) 'subtitle': value,
+    if (releaseDateParts != null) 'release_date': releaseDateParts.toJson(),
+    if (originalReleaseDateParts != null)
+      'original_release_date': originalReleaseDateParts.toJson(),
+    'artist_credits': [
+      for (var index = 0; index < draft.artistCredits.length; index++)
+        {
+          'id': draft.artistCredits[index].id,
+          'name': draft.artistCredits[index].creditedName,
+          if (draft.artistCredits[index].sortName != null)
+            'sort_name': draft.artistCredits[index].sortName,
+          if (draft.artistCredits[index].artistId != null)
+            'artist_id': draft.artistCredits[index].artistId,
+          if (draft.artistCredits[index].joinPhrase != null)
+            'join_phrase': draft.artistCredits[index].joinPhrase,
+          'sequence': index + 1,
+        },
+    ],
+    'genres': List<String>.of(draft.genres),
+    if (_textOrNull(draft.recordLabel) case final value?) 'label': value,
+    if (barcode != null) 'barcode': barcode,
+    if (_textOrNull(draft.catalogNumber) case final value?)
+      'catalog_number': value,
+    if (country != null) 'country': country,
+    if (_textOrNull(draft.packaging) case final value?) 'packaging': value,
+    'extra': List<String>.of(draft.extra),
+    if (_textOrNull(draft.boxSet) case final value?) 'box_set': value,
+    if (cover != null) 'cover_image_url': cover,
+    if (backCover != null) 'back_cover_image_url': backCover,
+    'credits': [
+      for (final (index, credit)
+          in draft.credits.where((credit) => credit.discId == null).indexed)
+        credit.toCatalogData(sequence: index + 1),
+    ],
+    'discs': [
+      for (var index = 0; index < draft.discs.length; index++)
+        draft.discs[index].toProposalData(
+          index + 1,
+          credits: draft.credits.where(
+            (credit) => credit.discId == draft.discs[index].id,
+          ),
+        ),
+    ],
+    'external_links': [
+      for (final link in draft.externalLinks)
+        if (link.url.trim().isNotEmpty) link.toProposalData(),
+    ],
+  };
+}
+
+List<Map<String, dynamic>> _candidateDiscs(
+  MusicAddManualDraft draft,
+) =>
+    [
+      for (var discIndex = 0; discIndex < draft.discs.length; discIndex++)
+        draft.discs[discIndex].toProposalData(
+          discIndex + 1,
+          credits: draft.credits.where(
+            (credit) => credit.discId == draft.discs[discIndex].id,
+          ),
+        ),
+    ];
 
 String? _textOrNull(String value) {
   final text = value.trim();

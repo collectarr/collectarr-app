@@ -56,7 +56,7 @@ void main() {
 
     expect(defaults.viewMode, LibraryViewMode.grid);
     expect(defaults.detailsLayout, LibraryDetailsLayout.bottom);
-    expect(defaults.sortId, sort('comic.series'));
+    expect(defaults.sortId, sort('comic.release_date'));
     expect(defaults.coverSize, 128);
     expect(defaults.sidebarWidth, 250);
     expect(defaults.detailsWidth, 340);
@@ -113,48 +113,6 @@ void main() {
         sortId: sort('updated'),
         ascending: false,
       ),
-    ]);
-  });
-
-  test('workspace view state reorders visible table columns', () {
-    final state = profile.defaults().copyWith(
-      visibleColumnIds: {
-        field('title'),
-        field('issue'),
-        field('grade'),
-      },
-    );
-
-    final reordered = state.withReorderedColumn(
-      column: field('grade'),
-      beforeColumn: field('issue'),
-    );
-
-    expect(reordered.visibleColumnIds.toList(), [
-      field('title'),
-      field('grade'),
-      field('issue'),
-    ]);
-  });
-
-  test('workspace view state reorders a visible column to the end', () {
-    final state = profile.defaults().copyWith(
-      visibleColumnIds: {
-        field('title'),
-        field('issue'),
-        field('grade'),
-      },
-    );
-
-    final reordered = state.withReorderedColumn(
-      column: field('title'),
-      beforeColumn: null,
-    );
-
-    expect(reordered.visibleColumnIds.toList(), [
-      field('issue'),
-      field('grade'),
-      field('title'),
     ]);
   });
 

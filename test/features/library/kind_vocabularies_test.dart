@@ -3,13 +3,11 @@ import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_voc
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
@@ -20,7 +18,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_cont
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('PR 2: Kind-Owned Vocabularies Verification', () {
+  group('PR 2: Kind-Entry Vocabularies Verification', () {
     test(
         'Comic vocabularies have built-ins for grading, page quality, key categories, publisher',
         () {
@@ -96,7 +94,7 @@ void main() {
       expect(projector!(const Object()), isEmpty);
       expect(
         projector(
-          const ComicMedia(
+          const ComicCatalogItem(
             title: 'Typed Comic',
             publisher: 'Image Comics',
           ),
@@ -107,34 +105,26 @@ void main() {
 
     test('typed projectors preserve nested catalog fields', () {
       expect(
-        MovieVocabularies.distributor.valuesFrom!(
+        MovieVocabularies.screenRatio.valuesFrom!(
           const MovieCatalogMetadata(
             title: 'Typed Movie',
-            distributor: 'Criterion Collection',
+            screenRatio: '1.85:1',
           ),
         ),
-        contains('Criterion Collection'),
+        contains('1.85:1'),
       );
       expect(
         MusicVocabularies.packaging.valuesFrom!(
-          MusicReleaseGroup(
-            id: MusicReleaseGroupId('vocab-group'),
+          MusicAlbum(
             title: 'Typed Album',
-            releases: [
-              MusicRelease(
-                id: MusicReleaseId('vocab-release'),
-                releaseGroupId: MusicReleaseGroupId('vocab-group'),
-                title: 'Typed Album',
-                packaging: 'Digipak',
-              ),
-            ],
+            packaging: 'Digipak',
           ),
         ),
         contains('Digipak'),
       );
       expect(
         TvVocabularies.screenRatio.valuesFrom!(
-          const TvSeriesMetadata(
+          const TvMetadata(
             title: 'Typed Series',
             screenRatio: '1.78:1 (16:9)',
           ),

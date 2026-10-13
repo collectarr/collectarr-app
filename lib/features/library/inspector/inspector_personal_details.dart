@@ -1,15 +1,13 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
@@ -17,10 +15,10 @@ import 'package:collectarr_app/features/library/tracking/media_rating_field.dart
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -124,11 +122,11 @@ class InspectorCollectionFields extends StatelessWidget {
 class InspectorPersonalDetailsEditor extends ConsumerStatefulWidget {
   const InspectorPersonalDetailsEditor({
     super.key,
-    required this.ownedItem,
+    required this.libraryEntry,
     required this.accent,
   });
 
-  final OwnedItemSummary ownedItem;
+  final LibraryEntrySummary libraryEntry;
   final Color accent;
 
   @override
@@ -155,16 +153,16 @@ class _InspectorPersonalDetailsEditorState
     _currencyController = TextEditingController();
     _notesController = TextEditingController();
     _purchaseStoreController = TextEditingController();
-    _syncFromItem(widget.ownedItem);
+    _syncFromItem(widget.libraryEntry);
     unawaited(_loadAvailableLocations());
   }
 
   @override
   void didUpdateWidget(covariant InspectorPersonalDetailsEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.ownedItem.ref.id != widget.ownedItem.ref.id ||
-        oldWidget.ownedItem.updatedAt != widget.ownedItem.updatedAt) {
-      _syncFromItem(widget.ownedItem);
+    if (oldWidget.libraryEntry.ref.id != widget.libraryEntry.ref.id ||
+        oldWidget.libraryEntry.updatedAt != widget.libraryEntry.updatedAt) {
+      _syncFromItem(widget.libraryEntry);
     }
   }
 
@@ -304,7 +302,7 @@ class _InspectorPersonalDetailsEditorState
     );
   }
 
-  void _syncFromItem(OwnedItemSummary item) {
+  void _syncFromItem(LibraryEntrySummary item) {
     _purchaseDate = item.purchaseDate;
     _priceController.text = item.pricePaidCents == null
         ? ''
@@ -364,11 +362,11 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
-    await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          libraryOwnedEditForKind(
-            widget.ownedItem.catalogRef?.mediaKind ?? widget.ownedItem.ref.kind,
+    await ref.read(collectionCommandCoordinatorProvider).updateLibraryEntry(
+          libraryEntryEditForKind(
+            widget.libraryEntry.ref.kind,
           ).buildPersonalDetailsUpdateCommand(
-            ownedRef: widget.ownedItem.ref,
+            libraryEntryRef: widget.libraryEntry.ref,
             purchaseDate: _purchaseDate,
             pricePaidCents: price,
             currency: currency.isEmpty ? null : currency,
@@ -402,22 +400,16 @@ class _InspectorPersonalDetailsEditorState
 class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
   const InspectorTrackingDetailsEditor({
     super.key,
-    required this.itemId,
-    required this.mediaType,
     required this.trackingSummary,
     required this.profile,
     required this.accent,
     this.trackingEditor,
-    this.releases = const <LibraryWorkspaceReleaseSummary>[],
   });
 
-  final String itemId;
-  final String mediaType;
   final TrackingSummary trackingSummary;
   final MediaTrackingProfile profile;
   final Color accent;
   final LibraryTrackingEditorCapability? trackingEditor;
-  final List<LibraryWorkspaceReleaseSummary> releases;
 
   @override
   ConsumerState<InspectorTrackingDetailsEditor> createState() =>
@@ -435,8 +427,6 @@ class _InspectorTrackingDetailsEditorState
   TrackingStateEditMutation? _trackingEditorMutation;
   DateTime? _startedAt;
   DateTime? _finishedAt;
-  String? _selectedEditionId;
-  String? _selectedVariantId;
 
   @override
   void initState() {
@@ -486,45 +476,6 @@ class _InspectorTrackingDetailsEditorState
                 'Quick actions save immediately. Editor changes save when applied.',
           ),
         ),
-        if (widget.releases.isNotEmpty) ...[
-          _InspectorEditorRow(
-            label: 'Edition',
-            alignTop: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _TrackingEditionBrowser(
-                  releases: widget.releases,
-                  selectedEditionId: _selectedEditionId,
-                  selectedVariantId: _selectedVariantId,
-                  accent: accent,
-                  onEditionSelected: (editionId) {
-                    final release = widget.releases
-                        .where((value) => value.id == editionId)
-                        .firstOrNull;
-                    setState(() {
-                      _selectedEditionId = release?.id;
-                      _selectedVariantId = release?.variants.firstOrNull?.id;
-                    });
-                  },
-                  onVariantSelected: (variantId) {
-                    setState(() => _selectedVariantId = variantId);
-                  },
-                ),
-                const SizedBox(height: 6),
-                TextButton.icon(
-                  onPressed: _createEdition,
-                  icon: const Icon(Icons.add, size: 16),
-                  label: const Text('Add edition'),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
         _InspectorEditorRow(
           label: 'My Rating',
           child: MediaRatingField(controller: _ratingController),
@@ -675,24 +626,6 @@ class _InspectorTrackingDetailsEditorState
     _trackingNotesController.text = summary.notes ?? '';
     _startedAt = summary.startedAt;
     _finishedAt = summary.completedAt;
-    final targetCapability =
-        libraryCatalogTargetForKind(summary.catalogRef.kind);
-    final targetParts = targetCapability.parts(summary.catalogRef);
-    final editionId = targetParts.firstId;
-    final variantId = targetParts.secondId;
-    final release = widget.releases
-        .where((value) =>
-            value.id == editionId ||
-            value.variants.any((variant) => variant.id == variantId))
-        .firstOrNull;
-    final selectedRelease =
-        release ?? (widget.releases.isEmpty ? null : widget.releases.first);
-    _selectedEditionId = selectedRelease?.id;
-    _selectedVariantId = selectedRelease?.variants
-            .where((variant) => variant.id == variantId)
-            .firstOrNull
-            ?.id ??
-        selectedRelease?.variants.firstOrNull?.id;
   }
 
   Widget _dateField({
@@ -722,79 +655,9 @@ class _InspectorTrackingDetailsEditorState
     });
   }
 
-  Future<void> _createEdition() async {
-    final controller = TextEditingController();
-    final title = await showDialog<String>(
-      context: context,
-      builder: (context) => AccentAlertDialog(
-        backgroundColor: appPalette(context).panel,
-        title: const Text('New edition'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Edition title',
-            border: OutlineInputBorder(),
-          ),
-          onSubmitted: (value) => Navigator.of(context).pop(value.trim()),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: const Text('Create'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (title == null || title.isEmpty || !mounted) return;
-    try {
-      final api = ref.read(apiClientProvider);
-      final normalizedKind = widget.mediaType.trim().toLowerCase();
-      if (normalizedKind == 'book') {
-        final edition =
-            await api.createBookEdition(widget.itemId, title: title);
-        if (!mounted) return;
-        setState(() => _selectedEditionId = edition.id);
-      } else if (normalizedKind == 'boardgame') {
-        final edition =
-            await api.createBoardGameEdition(widget.itemId, title: title);
-        if (!mounted) return;
-        setState(() => _selectedEditionId = edition.id);
-      } else {
-        throw UnsupportedError(
-          'Edition creation not supported for $normalizedKind',
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create edition: $e')),
-      );
-    }
-  }
-
   Future<void> _save() async {
-    final targetCapability = libraryCatalogTargetForKind(
-      widget.trackingSummary.catalogRef.kind,
-    );
-    final target = widget.trackingSummary.ownedRef != null
-        ? TrackingTarget.owned(widget.trackingSummary.ownedRef!)
-        : TrackingTarget.catalog(widget.trackingSummary.catalogRef);
     await ref.read(trackingMutationsProvider).upsertTrackingState(
-          target,
-          targetRef: targetCapability.resolve(
-            widget.trackingSummary.catalogRef,
-            LibraryCatalogTargetSelection(
-              referenceType: LibraryAddReferenceType.edition,
-              firstId: _selectedEditionId,
-              secondId: _selectedVariantId,
-            ),
-          ),
+          widget.trackingSummary.libraryEntryRef,
           sourceType: widget.trackingSummary.sourceType,
           status: mediaTrackingStatusFromValue(
               _emptyToNull(_statusController.text)),
@@ -818,6 +681,7 @@ class _InspectorTrackingDetailsEditorState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
+        headerIcon: AppIcons.warning,
         backgroundColor: appPalette(context).panel,
         title: const Text('Stop tracking'),
         content: const Text(
@@ -838,7 +702,7 @@ class _InspectorTrackingDetailsEditorState
     if (confirmed != true || !mounted) return;
     await ref.read(trackingMutationsProvider).removeTrackingByRef(
           TrackingStateRef(
-            kind: widget.trackingSummary.catalogRef.mediaKind,
+            kind: widget.trackingSummary.libraryEntryRef.kind,
             id: widget.trackingSummary.id,
           ),
         );
@@ -856,119 +720,6 @@ class _InspectorTrackingDetailsEditorState
   String? _emptyToNull(String value) {
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
-  }
-}
-
-/// Visual edition & variant browser for tracked items.
-///
-/// Shows each edition as a selectable card. When an edition with variants is
-/// selected, variant tiles with cover thumbnails appear below.
-class _TrackingEditionBrowser extends StatelessWidget {
-  const _TrackingEditionBrowser({
-    required this.releases,
-    required this.selectedEditionId,
-    required this.selectedVariantId,
-    required this.accent,
-    required this.onEditionSelected,
-    required this.onVariantSelected,
-  });
-
-  final List<LibraryWorkspaceReleaseSummary> releases;
-  final String? selectedEditionId;
-  final String? selectedVariantId;
-  final Color accent;
-  final ValueChanged<String?> onEditionSelected;
-  final ValueChanged<String?> onVariantSelected;
-
-  LibraryWorkspaceReleaseSummary? get _activeRelease {
-    if (selectedEditionId == null) return null;
-    for (final e in releases) {
-      if (e.id == selectedEditionId) return e;
-    }
-    return null;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final activeRelease = _activeRelease;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          'Releases',
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: palette.textMuted,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.2,
-              ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 118,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: releases.length + 1,
-            separatorBuilder: (_, __) => const SizedBox(width: 8),
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return _EditionCard(
-                  title: 'Primary',
-                  subtitle: 'Default',
-                  isSelected: selectedEditionId == null,
-                  accent: accent,
-                  onTap: () => onEditionSelected(null),
-                );
-              }
-              final release = releases[index - 1];
-              final coverUrl = release.variants
-                  .where((v) => v.coverImageUrl != null)
-                  .map((v) => v.thumbnailImageUrl ?? v.coverImageUrl)
-                  .firstOrNull;
-              return _EditionCard(
-                title: release.title,
-                subtitle: [
-                  if (release.formatLabel != null) release.formatLabel!,
-                ].join(' · '),
-                coverUrl: coverUrl,
-                isSelected: selectedEditionId == release.id,
-                accent: accent,
-                onTap: () => onEditionSelected(release.id),
-              );
-            },
-          ),
-        ),
-        if (activeRelease != null && activeRelease.variants.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(
-            'Variants',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: palette.textMuted,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.2,
-                ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 118,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: activeRelease.variants.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final variant = activeRelease.variants[index];
-                return _VariantCard(
-                  variant: variant,
-                  isSelected: selectedVariantId == variant.id,
-                  accent: accent,
-                  onTap: () => onVariantSelected(variant.id),
-                );
-              },
-            ),
-          ),
-        ],
-      ],
-    );
   }
 }
 
@@ -1000,7 +751,7 @@ class _InspectorEditorRow extends StatelessWidget {
                 label,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: palette.textMuted,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       fontSize: 12,
                     ),
               ),
@@ -1012,247 +763,4 @@ class _InspectorEditorRow extends StatelessWidget {
       ),
     );
   }
-}
-
-@visibleForTesting
-Widget buildTrackingEditionBrowserForTesting({
-  required List<LibraryWorkspaceReleaseSummary> releases,
-  required String? selectedEditionId,
-  required String? selectedVariantId,
-  required Color accent,
-  required ValueChanged<String?> onEditionSelected,
-  required ValueChanged<String?> onVariantSelected,
-}) {
-  return _TrackingEditionBrowser(
-    releases: releases,
-    selectedEditionId: selectedEditionId,
-    selectedVariantId: selectedVariantId,
-    accent: accent,
-    onEditionSelected: onEditionSelected,
-    onVariantSelected: onVariantSelected,
-  );
-}
-
-class _EditionCard extends StatelessWidget {
-  const _EditionCard({
-    required this.title,
-    required this.isSelected,
-    required this.accent,
-    required this.onTap,
-    this.subtitle = '',
-    this.coverUrl,
-  });
-
-  final String title;
-  final String subtitle;
-  final String? coverUrl;
-  final bool isSelected;
-  final Color accent;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final onSurface = Theme.of(context).colorScheme.onSurface;
-    return _TrackingBrowserCardFrame(
-      width: 98,
-      isSelected: isSelected,
-      accent: accent,
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(9)),
-              child: coverUrl != null
-                  ? Image.network(
-                      coverUrl!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      errorBuilder: (_, __, ___) =>
-                          _placeholderIcon(context, Icons.album),
-                    )
-                  : _placeholderIcon(context, Icons.album),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(7, 6, 7, 7),
-            child: Column(
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: isSelected ? accent : onSurface,
-                  ),
-                ),
-                if (subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: palette.textMuted,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _VariantCard extends StatelessWidget {
-  const _VariantCard({
-    required this.variant,
-    required this.isSelected,
-    required this.accent,
-    required this.onTap,
-  });
-
-  final LibraryWorkspaceVariantSummary variant;
-  final bool isSelected;
-  final Color accent;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final onSurface = Theme.of(context).colorScheme.onSurface;
-    return _TrackingBrowserCardFrame(
-      width: 90,
-      isSelected: isSelected,
-      accent: accent,
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(9)),
-              child: variant.coverImageUrl != null
-                  ? Image.network(
-                      variant.thumbnailImageUrl ?? variant.coverImageUrl!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      errorBuilder: (_, __, ___) =>
-                          _placeholderIcon(context, Icons.image_outlined),
-                    )
-                  : _placeholderIcon(context, Icons.image_outlined),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(7, 6, 7, 7),
-            child: Column(
-              children: [
-                Text(
-                  variant.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: isSelected ? accent : onSurface,
-                  ),
-                ),
-                if (variant.formatLabel != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    variant.formatLabel!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: palette.textMuted,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TrackingBrowserCardFrame extends StatelessWidget {
-  const _TrackingBrowserCardFrame({
-    required this.width,
-    required this.isSelected,
-    required this.accent,
-    required this.onTap,
-    required this.child,
-  });
-
-  final double width;
-  final bool isSelected;
-  final Color accent;
-  final VoidCallback onTap;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        mouseCursor: WidgetStateMouseCursor.clickable,
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 140),
-          width: width,
-          decoration: BoxDecoration(
-            color: isSelected
-                ? Color.alphaBlend(
-                    accent.withValues(alpha: 0.16),
-                    colorScheme.surfaceContainerHigh,
-                  )
-                : palette.surfaceSubtle.withValues(alpha: 0.82),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color:
-                  isSelected ? accent.withValues(alpha: 0.85) : palette.divider,
-              width: isSelected ? 1.4 : 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: colorScheme.shadow.withValues(alpha: 0.18),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: child,
-        ),
-      ),
-    );
-  }
-}
-
-Widget _placeholderIcon(BuildContext context, IconData icon) {
-  final palette = appPalette(context);
-  return DecoratedBox(
-    decoration: BoxDecoration(
-      color: palette.surfaceSubtle.withValues(alpha: 0.96),
-    ),
-    child: Center(
-      child: Icon(icon, size: 22, color: palette.textMuted),
-    ),
-  );
 }

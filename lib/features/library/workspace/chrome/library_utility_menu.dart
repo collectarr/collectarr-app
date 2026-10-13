@@ -1,3 +1,7 @@
+import 'library_workspace_menus.dart';
+import 'library_workspace_controls.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 
@@ -42,7 +46,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
     required this.actions,
     required this.badgeCount,
     this.tooltip = 'Library tools',
-    this.defaultIcon = Icons.tune,
+    this.defaultIcon = AppIcons.toolbarTools,
     this.buttonLabel = 'Tools',
     this.quickViewsLabel = 'Quick Views',
   });
@@ -62,15 +66,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
     final selected = _selectedQuickView();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final trigger = DecoratedBox(
-      decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          colorScheme.surface.withValues(alpha: 0.88),
-          colorScheme.surfaceContainerLow,
-        ),
-        border: Border.all(color: colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(2),
-      ),
+    final trigger = LibraryToolbarHoverSurface(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
         child: Row(
@@ -86,8 +82,8 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
             ),
             const SizedBox(width: 1),
             Icon(
-              Icons.expand_more,
-              size: 15,
+              AppIcons.chevronDown,
+              size: 12,
               color: colorScheme.onSurfaceVariant,
             ),
           ],
@@ -100,11 +96,15 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       label: Text(
         badgeCount.toString(),
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
       ),
       child: PopupMenuButton<Object>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
         tooltip: tooltip,
         padding: EdgeInsets.zero,
+        color: libraryToolbarMenuSurface(context),
+        shape: libraryToolbarDropdownMenuShape(context),
+        menuPadding: EdgeInsets.zero,
         surfaceTintColor: Colors.transparent,
         position: PopupMenuPosition.under,
         onSelected: _handleSelected,
@@ -116,6 +116,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
 
   List<PopupMenuEntry<Object>> _buildMenuItems(BuildContext context) {
     final items = <PopupMenuEntry<Object>>[];
+    final accent = LibraryAccentScope.accentOf(context);
 
     if (quickViews.isNotEmpty) {
       items.add(_buildSectionHeader(quickViewsLabel));
@@ -124,18 +125,16 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
           PopupMenuItem<Object>(
             value: _LibraryUtilityQuickViewSelection<T>(view.value),
             height: kLibraryToolbarPopupItemHeight,
-            child: Material(
-              type: MaterialType.transparency,
-              child: ListTile(
-                dense: true,
-                minLeadingWidth: 18,
-                horizontalTitleGap: 8,
-                leading: Icon(view.icon, size: 18),
-                title: Text(view.label, style: const TextStyle(fontSize: 13)),
-                trailing: selectedQuickView == view.value
-                    ? const Icon(Icons.check, size: 16)
-                    : null,
-              ),
+            padding: const EdgeInsets.symmetric(horizontal: 7),
+            child: LibraryWorkspaceMenuRow(
+              padding: EdgeInsets.zero,
+              label: view.label,
+              leading: Icon(view.icon, size: 16),
+              trailing: selectedQuickView == view.value
+                  ? Icon(Icons.check, size: 16, color: accent)
+                  : null,
+              textStyle:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ),
         );
@@ -161,24 +160,27 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
           enabled: action.enabled && action.onSelected != null,
           height:
               action.description == null ? kLibraryToolbarPopupItemHeight : 42,
-          child: Material(
-            type: MaterialType.transparency,
-            child: ListTile(
-              dense: true,
-              minLeadingWidth: 18,
-              horizontalTitleGap: 8,
-              leading: Icon(action.icon, size: 18),
-              title: Text(action.label, style: const TextStyle(fontSize: 13)),
-              subtitle: action.description == null
-                  ? null
-                  : Text(
-                      action.description!,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          padding: const EdgeInsets.symmetric(horizontal: 7),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LibraryWorkspaceMenuRow(
+                padding: EdgeInsets.zero,
+                label: action.label,
+                leading: Icon(action.icon, size: 16),
+                trailing: action.trailing,
+                textStyle:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              if (action.description != null)
+                Padding(
+                    padding: const EdgeInsets.only(left: 24),
+                    child: Text(action.description!,
+                        style: TextStyle(
                             fontSize: 12,
-                          ),
-                    ),
-              trailing: action.trailing,
-            ),
+                            color: libraryToolbarMenuMutedText(context)))),
+            ],
           ),
         ),
       );

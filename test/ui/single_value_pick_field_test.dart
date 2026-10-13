@@ -1,8 +1,97 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('edit status fields use the same control height', (tester) async {
+    String? changedStatus;
+    final fields = [
+      SizedBox(
+        key: const ValueKey('collection-status'),
+        width: 240,
+        child: LibraryCollectionStatusField(
+          value: 'In Collection',
+          onChanged: (value) => changedStatus = value,
+        ),
+      ),
+      const SizedBox(
+        key: ValueKey('index'),
+        width: 120,
+        child: LibraryFormField(
+          label: 'Index',
+          child: LibraryTextFormControl(initialValue: '6'),
+        ),
+      ),
+      const SizedBox(
+        key: ValueKey('quantity'),
+        width: 120,
+        child: LibraryFormField(
+          label: 'Quantity',
+          child: LibraryTextFormControl(initialValue: '1'),
+        ),
+      ),
+      SizedBox(
+        key: const ValueKey('location'),
+        width: 240,
+        child: LibraryDropdownPickField<String>(
+          label: 'Location',
+          value: null,
+          options: const [],
+          onChanged: (_) {},
+          showFieldLabel: true,
+        ),
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: editDialogTheme(),
+        home: Scaffold(
+          body: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: fields,
+          ),
+        ),
+      ),
+    );
+
+    final heights = {
+      for (final field in [
+        'collection-status',
+        'index',
+        'quantity',
+        'location',
+      ])
+        field: tester.getSize(find.byKey(ValueKey(field))).height,
+    };
+    final decorators = find.byType(InputDecorator);
+    expect(decorators, findsNWidgets(3));
+    for (var index = 0; index < decorators.evaluate().length; index++) {
+      expect(
+        tester.getSize(decorators.at(index)).height,
+        LibraryMetrics.defaultFieldHeight,
+      );
+    }
+    expect(
+      heights.values.toSet(),
+      {20 + 1 + LibraryMetrics.defaultFieldHeight},
+      reason: 'Field heights differ: $heights',
+    );
+    await tester.tap(find.byTooltip('Choose collection status'));
+    await tester.pumpAndSettle();
+    expect(find.text('Collection'), findsOneWidget);
+    expect(find.text('Wish List'), findsOneWidget);
+    await tester.tap(find.text('For Sale'));
+    await tester.pumpAndSettle();
+    expect(changedStatus, 'For Sale');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('single value pick field exposes an inline picker menu',
       (tester) async {
     final controller = TextEditingController(text: 'Publisher A');

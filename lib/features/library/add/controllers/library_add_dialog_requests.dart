@@ -1,22 +1,18 @@
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 
 // Pluggable pane builder typedefs and their request payloads for the
 // library add dialog. Extracted from library_add_dialog.dart to keep the
@@ -27,26 +23,6 @@ typedef LibraryAddPreviewPaneBuilder = Widget Function(
   LibraryAddPreviewPaneRequest request,
 );
 
-typedef LibraryAddHeaderBuilder = Widget Function(
-  BuildContext context,
-  LibraryAddHeaderRequest request,
-);
-
-typedef LibraryAddModeBarBuilder = Widget Function(
-  BuildContext context,
-  LibraryAddModeBarRequest request,
-);
-
-typedef LibraryAddSearchPaneBuilder = Widget Function(
-  BuildContext context,
-  LibraryAddSearchPaneRequest request,
-);
-
-enum LibraryAddBottomBarPresentation {
-  responsiveMenu,
-  segmentedTarget,
-}
-
 class LibraryAddManualPaneRequest {
   const LibraryAddManualPaneRequest({
     required this.kind,
@@ -54,9 +30,9 @@ class LibraryAddManualPaneRequest {
     required this.type,
     this.commonDraft,
     this.kindDraft,
+    this.personalFields = const <PersonalLibraryFieldSpec>[],
     this.onCommonDraftChanged,
     this.onKindDraftChanged,
-    required this.titleController,
     required this.tagsController,
     required this.personalNotesController,
     required this.coverPriceController,
@@ -66,21 +42,30 @@ class LibraryAddManualPaneRequest {
     required this.sellPriceController,
     required this.soldDateController,
     required this.ownerLabelController,
-    required this.linksController,
     required this.isAdding,
     required this.defaultCondition,
+    this.conditions = const [],
+    this.tagOptions = const [],
+    this.ownerOptions = const [],
+    this.purchaseStoreOptions = const [],
+    this.locations = const [],
+    this.defaultLocationId,
     required this.defaultLocationLabel,
     required this.defaultPurchaseDate,
     required this.defaultTags,
-    required this.onAddOwned,
+    required this.onAddEntry,
     required this.onAddWishlist,
     required this.onAddTrack,
+    required this.onPropose,
     required this.manualDraft,
     this.customFieldDefinitions = const [],
     this.customFieldValues = const {},
     this.onCustomFieldValuesChanged,
     this.itemImages = const [],
     this.onItemImagesChanged,
+    this.onVocabularyValueChanged,
+    this.onVocabularyValuesChanged,
+    this.onManualDraftChanged,
   });
 
   final CatalogMediaKind kind;
@@ -88,10 +73,10 @@ class LibraryAddManualPaneRequest {
   final LibraryKindRegistration type;
   final LibraryAddCommonDraft? commonDraft;
   final LibraryAddKindDraft? kindDraft;
+  final List<PersonalLibraryFieldSpec> personalFields;
   final LibraryKindAddDraft manualDraft;
   final ValueChanged<LibraryAddCommonDraft>? onCommonDraftChanged;
   final ValueChanged<LibraryAddKindDraft>? onKindDraftChanged;
-  final TextEditingController titleController;
   final TextEditingController tagsController;
   final TextEditingController personalNotesController;
   final TextEditingController coverPriceController;
@@ -101,22 +86,31 @@ class LibraryAddManualPaneRequest {
   final TextEditingController sellPriceController;
   final TextEditingController soldDateController;
   final TextEditingController ownerLabelController;
-  final TextEditingController linksController;
   final bool isAdding;
   final String defaultCondition;
+  final List<String> conditions;
+  final List<String> tagOptions;
+  final List<String> ownerOptions;
+  final List<String> purchaseStoreOptions;
+  final List<StorageLocation> locations;
+  final String? defaultLocationId;
   final String? defaultLocationLabel;
   final DateTime? defaultPurchaseDate;
   final String? defaultTags;
-  final VoidCallback onAddOwned;
+  final VoidCallback onAddEntry;
   final VoidCallback onAddWishlist;
   final VoidCallback onAddTrack;
+  final VoidCallback onPropose;
 
   // Custom fields and images
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, String?> customFieldValues;
   final ValueChanged<Map<String, String?>>? onCustomFieldValuesChanged;
-  final List<ItemImage> itemImages;
+  final List<ItemImageDraft> itemImages;
   final ValueChanged<List<ItemImageEdit>>? onItemImagesChanged;
+  final LibraryVocabularyValueChanged? onVocabularyValueChanged;
+  final LibraryVocabularyValuesChanged? onVocabularyValuesChanged;
+  final VoidCallback? onManualDraftChanged;
 
   TDraft manualDraftAs<TDraft extends LibraryKindAddDraft>() =>
       manualDraft as TDraft;
@@ -127,59 +121,15 @@ class LibraryAddPreviewPaneRequest {
     required this.type,
     required this.accent,
     required this.item,
-    required this.candidate,
-    required this.candidatePreview,
     required this.isFetchingPreview,
-    required this.providerLabel,
     required this.searched,
-    required this.addTarget,
-    required this.referenceType,
-    required this.availableBundleReleases,
-    required this.selectedBundleReleaseId,
-    required this.selectedBundleReleaseDetail,
-    required this.selectedEditionId,
-    required this.selectedVariantId,
-    required this.isLoadingBundleReleases,
-    required this.isLoadingBundleReleaseDetail,
-    required this.onReferenceTypeChanged,
-    required this.onEditionSelected,
-    required this.onVariantSelected,
-    required this.onBundleReleaseSelected,
   });
 
   final LibraryKindRegistration type;
   final Color accent;
   final CatalogSearchCandidate? item;
-  final ProviderSearchCandidate? candidate;
-  final AdminProviderPreview? candidatePreview;
   final bool isFetchingPreview;
-  final String providerLabel;
   final bool searched;
-  final LibraryAddTarget addTarget;
-  final LibraryAddReferenceType referenceType;
-  final List<LibraryBundleSummary> availableBundleReleases;
-  final String? selectedBundleReleaseId;
-  final LibraryBundleDetail? selectedBundleReleaseDetail;
-  final String? selectedEditionId;
-  final String? selectedVariantId;
-  final bool isLoadingBundleReleases;
-  final bool isLoadingBundleReleaseDetail;
-  final ValueChanged<LibraryAddReferenceType> onReferenceTypeChanged;
-  final ValueChanged<String> onEditionSelected;
-  final ValueChanged<String> onVariantSelected;
-  final ValueChanged<String> onBundleReleaseSelected;
-}
-
-class LibraryAddHeaderRequest {
-  const LibraryAddHeaderRequest({
-    required this.type,
-    required this.accent,
-    required this.onClose,
-  });
-
-  final LibraryKindRegistration type;
-  final Color accent;
-  final VoidCallback onClose;
 }
 
 class LibraryAddModeBarRequest {
@@ -191,7 +141,6 @@ class LibraryAddModeBarRequest {
     required this.queryController,
     required this.identifierController,
     required this.isSearching,
-    required this.isSearchingProvider,
     required this.onModeChanged,
     required this.onSearch,
     required this.onQueryChanged,
@@ -219,7 +168,6 @@ class LibraryAddModeBarRequest {
   final TextEditingController queryController;
   final TextEditingController identifierController;
   final bool isSearching;
-  final bool isSearchingProvider;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
@@ -245,71 +193,6 @@ class LibraryAddModeBarRequest {
   }
 }
 
-class LibraryAddSearchPaneRequest {
-  const LibraryAddSearchPaneRequest({
-    required this.type,
-    required this.isBusy,
-    required this.error,
-    required this.accent,
-    required this.results,
-    required this.providerResults,
-    required this.queuedProviderIngests,
-    required this.selectedProvider,
-    required this.searchedProvider,
-    required this.selectedResultId,
-    required this.selectedProviderCandidateId,
-    required this.checkedResultIds,
-    required this.checkedProviderIds,
-    required this.ownedCatalogRefs,
-    this.coreMatchSummary,
-    this.providerMatchSummary,
-    required this.resultPolicy,
-    required this.resultPolicyState,
-    required this.onResultPolicyOptionChanged,
-    required this.isWideLayout,
-    required this.showCoreResults,
-    required this.showProviderResults,
-    required this.onSelectResult,
-    required this.onSelectProviderCandidate,
-    required this.onToggleResultCheck,
-    required this.onToggleProviderCheck,
-    required this.onShowCoreResultsChanged,
-    required this.onShowProviderResultsChanged,
-    required this.onSearchCore,
-  });
-
-  final LibraryKindRegistration type;
-  final bool isBusy;
-  final String? error;
-  final Color accent;
-  final List<CatalogSearchCandidate> results;
-  final List<ProviderSearchCandidate> providerResults;
-  final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
-  final String selectedProvider;
-  final bool searchedProvider;
-  final String? selectedResultId;
-  final String? selectedProviderCandidateId;
-  final Set<String> checkedResultIds;
-  final Set<String> checkedProviderIds;
-  final Set<CatalogEntityRef> ownedCatalogRefs;
-  final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
-  final String? Function(ProviderSearchCandidate candidate)?
-      providerMatchSummary;
-  final LibraryAddResultPolicy resultPolicy;
-  final LibraryAddResultPolicyState resultPolicyState;
-  final void Function(String id, bool value) onResultPolicyOptionChanged;
-  final bool isWideLayout;
-  final bool showCoreResults;
-  final bool showProviderResults;
-  final ValueChanged<String> onSelectResult;
-  final ValueChanged<String> onSelectProviderCandidate;
-  final ValueChanged<String> onToggleResultCheck;
-  final ValueChanged<String> onToggleProviderCheck;
-  final ValueChanged<bool> onShowCoreResultsChanged;
-  final ValueChanged<bool> onShowProviderResultsChanged;
-  final VoidCallback onSearchCore;
-}
-
 class LibraryAddBottomBarRequest {
   const LibraryAddBottomBarRequest({
     required this.type,
@@ -317,15 +200,12 @@ class LibraryAddBottomBarRequest {
     required this.defaultTags,
     required this.accent,
     required this.selectedItem,
-    required this.selectedCandidate,
-    required this.selectedQueuedIngest,
-    required this.providerLabel,
     required this.addTarget,
+    this.collectionStatus = 'In Collection',
+    this.onCollectionStatusChanged,
     required this.addCount,
     this.hasCheckedSelection = false,
     required this.isAdding,
-    required this.isQueueingIngest,
-    required this.isAdmin,
     required this.defaultCondition,
     required this.defaultLocationLabel,
     required this.defaultPurchaseDate,
@@ -335,8 +215,6 @@ class LibraryAddBottomBarRequest {
     required this.onDefaultLocationPressed,
     required this.onDefaultPurchaseDateChanged,
     required this.onAdd,
-    required this.onQueueIngest,
-    required this.onPropose,
     required this.isWideLayout,
   });
 
@@ -345,15 +223,12 @@ class LibraryAddBottomBarRequest {
   final String? defaultTags;
   final Color accent;
   final CatalogSearchCandidate? selectedItem;
-  final ProviderSearchCandidate? selectedCandidate;
-  final LibraryQueuedProviderIngest? selectedQueuedIngest;
-  final String providerLabel;
   final LibraryAddTarget addTarget;
+  final String collectionStatus;
+  final ValueChanged<String>? onCollectionStatusChanged;
   final int addCount;
   final bool hasCheckedSelection;
   final bool isAdding;
-  final bool isQueueingIngest;
-  final bool isAdmin;
   final String defaultCondition;
   final String? defaultLocationLabel;
   final DateTime? defaultPurchaseDate;
@@ -363,7 +238,5 @@ class LibraryAddBottomBarRequest {
   final VoidCallback onDefaultLocationPressed;
   final ValueChanged<DateTime?> onDefaultPurchaseDateChanged;
   final VoidCallback? onAdd;
-  final VoidCallback? onQueueIngest;
-  final VoidCallback? onPropose;
   final bool isWideLayout;
 }

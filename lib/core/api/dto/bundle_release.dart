@@ -1,4 +1,3 @@
-import '../../models/provider_link.dart';
 import '../../models/partial_date.dart';
 
 class BundleReleaseContentSummary {
@@ -181,6 +180,102 @@ class BundleReleaseMember {
   }
 }
 
+class AdminBundleReleaseMemberUpdate {
+  const AdminBundleReleaseMemberUpdate({
+    this.id,
+    this.itemId,
+    required this.role,
+    this.sequenceNumber,
+    this.discNumber,
+    this.discLabel,
+    this.quantity = 1,
+    this.isPrimary = false,
+  });
+
+  final String? id;
+  final String? itemId;
+  final String role;
+  final int? sequenceNumber;
+  final int? discNumber;
+  final String? discLabel;
+  final int quantity;
+  final bool isPrimary;
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null && id!.trim().isNotEmpty) 'id': id,
+      if (itemId != null && itemId!.trim().isNotEmpty) 'item_id': itemId,
+      'role': role,
+      if (sequenceNumber != null) 'sequence_number': sequenceNumber,
+      if (discNumber != null) 'disc_number': discNumber,
+      if (discLabel != null) 'disc_label': discLabel,
+      'quantity': quantity,
+      'is_primary': isPrimary,
+    };
+  }
+}
+
+class AdminBundleReleaseCorrection {
+  const AdminBundleReleaseCorrection({
+    this.title,
+    this.bundleType,
+    this.format,
+    this.variantType,
+    this.packagingType,
+    this.region,
+    this.language,
+    this.publisher,
+    this.sku,
+    this.barcode,
+    this.releaseDate,
+    this.releaseDateParts,
+    this.coverImageUrl,
+    this.thumbnailImageUrl,
+    this.members,
+  });
+
+  final String? title;
+  final String? bundleType;
+  final String? format;
+  final String? variantType;
+  final String? packagingType;
+  final String? region;
+  final String? language;
+  final String? publisher;
+  final String? sku;
+  final String? barcode;
+  final DateTime? releaseDate;
+  final PartialDate? releaseDateParts;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+  final List<AdminBundleReleaseMemberUpdate>? members;
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (title != null) 'title': title,
+      if (bundleType != null) 'bundle_type': bundleType,
+      if (format != null) 'format': format,
+      if (variantType != null) 'variant_type': variantType,
+      if (packagingType != null) 'packaging_type': packagingType,
+      if (region != null) 'region': region,
+      if (language != null) 'language': language,
+      if (publisher != null) 'publisher': publisher,
+      if (sku != null) 'sku': sku,
+      if (barcode != null) 'barcode': barcode,
+      if (releaseDate != null)
+        'release_date':
+            '${releaseDate!.toUtc().year.toString().padLeft(4, '0')}-${releaseDate!.toUtc().month.toString().padLeft(2, '0')}-${releaseDate!.toUtc().day.toString().padLeft(2, '0')}',
+      if (releaseDateParts != null)
+        'release_date_parts': releaseDateParts!.toJson(),
+      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+      if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+      if (members != null)
+        'members':
+            members!.map((member) => member.toJson()).toList(growable: false),
+    };
+  }
+}
+
 class BundleReleaseDetail extends BundleReleaseSummary {
   const BundleReleaseDetail({
     required super.id,
@@ -188,7 +283,6 @@ class BundleReleaseDetail extends BundleReleaseSummary {
     required super.title,
     required super.contentSummary,
     required this.members,
-    required this.providerLinks,
     this.franchiseId,
     super.bundleType,
     super.format,
@@ -211,7 +305,6 @@ class BundleReleaseDetail extends BundleReleaseSummary {
     super.volumeName,
   });
   final String? franchiseId;
-  final List<ProviderLink> providerLinks;
   final List<BundleReleaseMember> members;
 
   factory BundleReleaseDetail.fromJson(Map<String, dynamic> json) {
@@ -241,10 +334,6 @@ class BundleReleaseDetail extends BundleReleaseSummary {
       volumeId: summary.volumeId,
       volumeName: summary.volumeName,
       franchiseId: json['franchise_id'] as String?,
-      providerLinks: (json['provider_links'] as List<dynamic>? ?? const [])
-          .whereType<Map<String, dynamic>>()
-          .map(ProviderLink.fromJson)
-          .toList(growable: false),
       members: (json['members'] as List<dynamic>? ?? const [])
           .whereType<Map<String, dynamic>>()
           .map(BundleReleaseMember.fromJson)

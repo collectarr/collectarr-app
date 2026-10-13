@@ -1,5 +1,39 @@
 part of 'admin_page.dart';
 
+// Metadata proposals, add dialog, shared widgets, utility functions
+
+class _ProposalPayloadPreview extends StatelessWidget {
+  const _ProposalPayloadPreview({
+    required this.kind,
+    required this.payload,
+  });
+
+  final CatalogMediaKind kind;
+  final Map<String, Object?> payload;
+
+  @override
+  Widget build(BuildContext context) {
+    final fields = libraryAdminContributorForKind(kind)?.proposalFields ??
+        const <LibraryAdminProposalField>[];
+    final values = LibraryMetadataCorrectionValues.fromSerialized(payload);
+    final badges = <String>[
+      for (final field in fields)
+        if (field.read(values).trim().isNotEmpty)
+          '${field.label}: ${field.read(values).trim()}',
+    ];
+    if (badges.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        for (final badge in badges) _MiniChip(label: badge),
+      ],
+    );
+  }
+}
+
 class _CorrectionPreviewEntry {
   const _CorrectionPreviewEntry({
     required this.label,
@@ -33,8 +67,14 @@ class _Fact extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(label, style: Theme.of(context).textTheme.labelSmall),
-            Text(value, style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ],
         ),
       ),
@@ -43,7 +83,10 @@ class _Fact extends StatelessWidget {
 }
 
 class _DestructiveWarning extends StatelessWidget {
-  const _DestructiveWarning({required this.icon, required this.message});
+  const _DestructiveWarning({
+    required this.icon,
+    required this.message,
+  });
 
   final IconData icon;
   final String message;
@@ -92,7 +135,10 @@ class _CorrectionPreviewRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(change.label, style: Theme.of(context).textTheme.labelLarge),
+              Text(
+                change.label,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
               const SizedBox(height: 6),
               Text('Before: ${change.before}'),
               Text('After: ${change.after}'),
@@ -110,11 +156,19 @@ class _MiniChip extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) => Chip(
-        label: Text(label),
-        visualDensity: VisualDensity.compact,
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      );
+  Widget build(BuildContext context) {
+    return Chip(
+      label: Text(label),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+  }
+}
+
+String _proposalKindLabel(String kind) {
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  return adminKindLabelForType(mediaKind, plural: false) ??
+      adminFallbackKindLabel(kind);
 }
 
 String _adminErrorMessage(Object error) {
@@ -124,10 +178,10 @@ String _adminErrorMessage(Object error) {
       return 'Admin access was rejected.';
     }
     if (statusCode == 422) {
-      return 'The Core request was invalid.';
+      return 'Catalog request was invalid.';
     }
     if (statusCode != null && statusCode >= 500) {
-      return 'Core could not complete the admin request.';
+      return 'Metadata server could not complete the admin request.';
     }
     final message = error.message?.trim();
     if (message != null && message.isNotEmpty) {
@@ -137,12 +191,11 @@ String _adminErrorMessage(Object error) {
   return error.toString();
 }
 
-String _shortId(String id) => id.length <= 8 ? id : id.substring(0, 8);
-
-String _formatDate(DateTime value) =>
-    '${value.year.toString().padLeft(4, '0')}-'
-    '${value.month.toString().padLeft(2, '0')}-'
-    '${value.day.toString().padLeft(2, '0')}';
+String _formatDate(DateTime value) {
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
+}
 
 String _formatDateTime(DateTime value) {
   final local = value.toLocal();

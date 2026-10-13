@@ -1,46 +1,34 @@
 import '../movie_module_dependencies.dart';
-import '../ownership/movie_transfer_owned_item.dart';
+import '../entries/movie_transfer_library_entry.dart';
 
 final movieKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.work,
-      builder: buildMovieLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.release,
-      builder: buildMovieReleaseLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.copy,
-      builder: buildMovieMediaLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildMovieLibraryEditDialog,
+      libraryEntry: buildMovieLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
   presentation: movieLibraryEditPresentation,
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: MovieVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
-    MovieOwnedItem item => item.grade,
+  entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
+    MovieLibraryEntry item => item.personal.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   createSession: createMovieEditDraft,
-  ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
-  ownedFormatHintResolver: resolveMovieOwnedFormatHint,
-  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      MovieOwnedItemUpdatePayload.partial(
+  entryDigitalFlagResolver: resolveMovieEntryDigitalFlag,
+  entryFormatHintResolver: resolveMovieEntryFormatHint,
+  entryIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      MovieLibraryEntryUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
-  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      MovieOwnedItemUpdatePayload.partial(
+  entryConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      MovieLibraryEntryUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
-  ownedBulkUpdatePayloadBuilder:
+  entryBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          MovieOwnedItemUpdatePayload.partial(
+          MovieLibraryEntryUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -50,7 +38,7 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
         locationId == null ? const Patch.unchanged() : Patch.set(locationId),
     tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
   ),
-  ownedPersonalDetailsUpdatePayloadBuilder: (
+  entryPersonalDetailsUpdatePayloadBuilder: (
     _,
     purchaseDate,
     pricePaidCents,
@@ -60,7 +48,7 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      MovieOwnedItemUpdatePayload.partial(
+      MovieLibraryEntryUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -69,30 +57,29 @@ final movieKindEditCapabilities = LibraryEditCapabilitySet(
     locationId:
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
-  ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = movieTransferOwnedItem(updated);
-    return MovieOwnedItemUpdatePayload.partial(
-      condition: Patch.set(typed.condition),
-      grade: Patch.set(typed.grade),
-      personalNotes: Patch.set(typed.personalNotes),
-      locationId: Patch.set(typed.locationId),
-      tags: Patch.set(typed.tags),
-      currency: Patch.set(typed.currency),
-      soldTo: Patch.set(typed.soldTo),
-      purchaseStore: Patch.set(typed.purchaseStore),
-      pricePaidCents: Patch.set(typed.pricePaidCents),
-      sellPriceCents: Patch.set(typed.sellPriceCents),
-      quantity: Patch.set(typed.quantity),
-      indexNumber: Patch.set(typed.indexNumber),
-      purchaseDate: Patch.set(typed.purchaseDate),
-      soldAt: Patch.set(typed.soldAt),
+  entryTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = movieTransferLibraryEntry(updated);
+    return MovieLibraryEntryUpdatePayload.partial(
+      condition: Patch.set(typed.personal.condition),
+      grade: Patch.set(typed.personal.grade),
+      personalNotes: Patch.set(typed.personal.personalNotes),
+      locationId: Patch.set(typed.personal.locationId),
+      tags: Patch.set(typed.personal.tags),
+      currency: Patch.set(typed.personal.currency),
+      soldTo: Patch.set(typed.personal.soldTo),
+      purchaseStore: Patch.set(typed.personal.purchaseStore),
+      pricePaidCents: Patch.set(typed.personal.pricePaidCents),
+      sellPriceCents: Patch.set(typed.personal.sellPriceCents),
+      indexNumber: Patch.set(typed.personal.indexNumber),
+      purchaseDate: Patch.set(typed.personal.purchaseDate),
+      soldAt: Patch.set(typed.personal.soldAt),
       details: Patch.set(
-        const MovieOwnedDetailsCodec().draftFromDetails(
-          typed.details,
+        const MovieEntryDetailsCodec().draftFromDetails(
+          typed.personal.details,
         ),
       ),
     );
   },
-  ownedDetailsResetPayloadBuilder: () =>
-      MovieOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+  entryDetailsResetPayloadBuilder: () =>
+      MovieLibraryEntryUpdatePayload.partial(details: const Patch.clear()),
 );

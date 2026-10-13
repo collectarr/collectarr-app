@@ -8,10 +8,12 @@ final class LibrarySearchDocument {
   const LibrarySearchDocument({
     required this.itemId,
     required this.normalizedTokens,
+    this.containedTokens = const [],
   });
 
   final String itemId;
   final List<String> normalizedTokens;
+  final List<String> containedTokens;
 
   bool matches(
     String query, {
@@ -19,7 +21,10 @@ final class LibrarySearchDocument {
   }) {
     final trimmed = query.trim().toLowerCase();
     if (trimmed.isEmpty) return true;
-    for (final token in normalizedTokens) {
+    for (final token in [
+      if (searchTarget.includesMedia) ...normalizedTokens,
+      if (searchTarget.includesTracks) ...containedTokens,
+    ]) {
       if (token.contains(trimmed)) return true;
     }
     return false;
@@ -28,16 +33,24 @@ final class LibrarySearchDocument {
 
 class LibrarySearchIndex {
   final Map<String, LibrarySearchDocument> _documents = {};
+  final Map<String, Object> _sources = {};
 
   LibrarySearchDocument getOrBuild(
     LibraryProjectionItem item, [
     Map<String, List<String>> customFieldValuesByItem = const {},
+    Iterable<String> searchFieldValues = const [],
+    Iterable<String> containedSearchValues = const [],
   ]) {
-    final existing = _documents[item.node.id];
+    final key = item.target.stableKey;
+    final existing = _documents[key];
     // Custom field values are supplied by the caller and may change between
     // executions while the projection engine is reused. Rebuild in that case
     // instead of returning a document that was indexed without the new values.
-    if (existing != null && customFieldValuesByItem.isEmpty) return existing;
+    if (existing != null &&
+        customFieldValuesByItem.isEmpty &&
+        identical(_sources[key], item.source)) {
+      return existing;
+    }
 
     final tokens = <String>{};
     final dto = item.dto;
@@ -51,6 +64,7 @@ class LibrarySearchIndex {
     }
 
     add(dto.primaryLabel);
+    add(source.title);
     add(source.catalogSummary?.primaryLabel);
     add(source.catalogSummary?.subtitle);
     for (final token in source.catalogSearchTokens) {
@@ -60,7 +74,7 @@ class LibrarySearchIndex {
     add(card.itemNumber);
     add(card.variant);
     add(card.format);
-    for (final token in dto.searchTokens) {
+    for (final token in searchFieldValues) {
       add(token);
     }
     if (card.releaseDate != null) {
@@ -70,7 +84,7 @@ class LibrarySearchIndex {
 
     for (final targetId in customFieldTargetIds(
       source: source,
-      node: item.node,
+      target: item.target,
     )) {
       final cfValues = customFieldValuesByItem[targetId];
       if (cfValues == null) continue;
@@ -80,12 +94,20 @@ class LibrarySearchIndex {
     }
 
     final doc = LibrarySearchDocument(
-      itemId: item.node.id,
+      itemId: item.target.id,
       normalizedTokens: List<String>.unmodifiable(tokens),
+      containedTokens: List<String>.unmodifiable({
+        for (final value in containedSearchValues)
+          if (value.trim().isNotEmpty) value.trim().toLowerCase(),
+      }),
     );
-    _documents[item.node.id] = doc;
+    _documents[key] = doc;
+    _sources[key] = item.source;
     return doc;
   }
 
-  void clear() => _documents.clear();
+  void clear() {
+    _documents.clear();
+    _sources.clear();
+  }
 }

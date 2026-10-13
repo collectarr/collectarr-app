@@ -4,12 +4,11 @@ import 'package:collectarr_app/features/library/inspector/sections/contributors_
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/personal_status_section.dart';
-import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_data.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildMovieInspectorSections(
@@ -19,43 +18,17 @@ List<Widget> buildMovieInspectorSections(
   return _buildMovieEntitySections(
     context,
     request,
-    includeReleaseList: true,
     includePersonalStatus: true,
   );
 }
 
-List<Widget> buildMovieWorkInspectorSections(
+List<Widget> buildMovieLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
   return _buildMovieEntitySections(
     context,
     request,
-    includeReleaseList: true,
-    includePersonalStatus: false,
-  );
-}
-
-List<Widget> buildMovieReleaseInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return _buildMovieEntitySections(
-    context,
-    request,
-    includeReleaseList: false,
-    includePersonalStatus: false,
-  );
-}
-
-List<Widget> buildMovieCopyInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return _buildMovieEntitySections(
-    context,
-    request,
-    includeReleaseList: false,
     includePersonalStatus: true,
   );
 }
@@ -63,26 +36,22 @@ List<Widget> buildMovieCopyInspectorSections(
 List<Widget> _buildMovieEntitySections(
   BuildContext context,
   LibraryInspectorRequest request, {
-  required bool includeReleaseList,
   required bool includePersonalStatus,
 }) {
   final item = request.item;
   final dto = item.dto;
   final adapter = dto is MovieWorkspaceDto ? dto : null;
   final movieDto = dto is MovieWorkspaceDto ? dto : null;
-  final metadata = item.source.catalogData is MovieWorkspaceCatalogData
-      ? (item.source.catalogData! as MovieWorkspaceCatalogData).metadata
+  final metadata = item.source.kindPresentationData is MovieWorkspaceData
+      ? (item.source.kindPresentationData! as MovieWorkspaceData).metadata
       : null;
-  final editionCount = metadata?.releases.length ?? 0;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Title', value: dto.primaryLabel),
     if (movieDto?.publisher?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Studio', value: movieDto!.publisher!),
     if (adapter?.releaseDate != null)
       LibraryDetailField(
-          label: 'Release date', value: _formatDate(adapter!.releaseDate!)),
-    if (includeReleaseList)
-      LibraryDetailField(label: 'Releases', value: editionCount.toString()),
+          label: 'Release Date', value: _formatDate(adapter!.releaseDate!)),
     if (movieDto?.barcode?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Barcode', value: movieDto!.barcode!),
     if (adapter?.country?.trim().isNotEmpty == true)
@@ -94,9 +63,14 @@ List<Widget> _buildMovieEntitySections(
     if (metadata?.audienceRating?.trim().isNotEmpty == true)
       LibraryDetailField(
           label: 'Audience rating', value: metadata!.audienceRating!),
-    if (metadata?.trailerUrls.isNotEmpty == true)
+    if (metadata?.links.any((link) => link.isTrailerLink) == true)
       LibraryDetailField(
-          label: 'Trailers', value: metadata!.trailerUrls.length.toString()),
+        label: 'Trailers',
+        value: metadata!.links
+            .where((link) => link.isTrailerLink)
+            .length
+            .toString(),
+      ),
   ];
 
   final sections = <Widget>[
@@ -115,18 +89,16 @@ List<Widget> _buildMovieEntitySections(
           ),
       ],
     ),
-    if (includeReleaseList && (metadata?.releases.isNotEmpty ?? false))
-      InspectorReleasesSection(request: request),
     if ((metadata?.creators ?? const <Map<String, dynamic>>[]).isNotEmpty)
       InspectorContributorsSection(request: request),
     if ((metadata?.links.isNotEmpty ?? false))
       InspectorLinksTrailersSection(request: request),
     if (includePersonalStatus &&
-        (request.ownedItem != null || request.trackingSummary != null))
+        (request.libraryEntry != null || request.trackingSummary != null))
       InspectorPersonalStatusSection(
         type: request.type,
         item: item,
-        ownedItem: request.ownedItem,
+        libraryEntry: request.libraryEntry,
         trackingSummary: request.trackingSummary,
         accent: request.accent,
         onFilterByValue: request.onFilterByValue,
@@ -136,41 +108,25 @@ List<Widget> _buildMovieEntitySections(
   return sections;
 }
 
-Widget buildMovieWorkInspectorHero(
+Widget buildMovieInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: request.ownedCopies,
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
-Widget buildMovieReleaseInspectorHero(
+Widget buildMovieLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: request.ownedCopies,
-      accent: request.accent,
-    );
-
-Widget buildMovieCopyInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) =>
-    LibraryDetailHero(
-      type: request.type,
-      item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: [
-        if (request.ownedItem != null) request.ownedItem!,
-      ],
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
@@ -200,7 +156,7 @@ class _MovieInspectorPanel extends StatelessWidget {
         onEdit: request.onEdit,
         onShare: request.onShare,
         onDuplicate: request.onDuplicate,
-        onToggleOwned: request.onToggleOwned,
+        onToggleEntry: request.onToggleEntry,
         onLoan: request.onLoan,
         onRefreshMetadata: request.onRefreshMetadata,
         onUnlinkFromCore: request.onUnlinkFromCore,
@@ -209,7 +165,7 @@ class _MovieInspectorPanel extends StatelessWidget {
       hero: LibraryDetailHero(
         type: request.inspector.type,
         item: item,
-        ownedItem: request.inspector.ownedItem,
+        libraryEntry: request.inspector.libraryEntry,
         accent: accent,
       ),
       sections: [
@@ -218,10 +174,6 @@ class _MovieInspectorPanel extends StatelessWidget {
           title: 'Details',
           children: [
             ...sections,
-            if (request.ownedCopiesSection != null) ...[
-              request.ownedCopiesSection!,
-              const SizedBox(height: 8),
-            ],
             if (request.bundleSection != null) ...[
               request.bundleSection!,
               const SizedBox(height: 8),

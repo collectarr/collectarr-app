@@ -9,9 +9,6 @@ abstract final class LibraryPagePreferencesControllerOps {
       final expectedKind = state.widget.type.kind;
       final presets = await LibraryColumnPresetStore(
         state.widget.type,
-        scope: state._activeBrowserMode == LibraryWorkspaceBrowserMode.release
-            ? LibraryEntityScope.release
-            : LibraryEntityScope.work,
       ).read();
       if (!state.mounted ||
           loadToken != state._session.preferences.columnFavoritesLoadToken ||
@@ -80,8 +77,10 @@ abstract final class LibraryPagePreferencesControllerOps {
         return;
       }
       state._mutateState(() {
-        state._session.preferences.folderDisplayMode =
-            displayMode ?? LibraryFolderDisplayMode.drilldown;
+        state._session.preferences.folderDisplayMode = displayMode ??
+            (preset.modes.length > 1
+                ? LibraryFolderDisplayMode.tree
+                : LibraryFolderDisplayMode.drilldown);
         state._session.preferences.folderTreeExpandedNodeIds = expandedNodeIds;
         state._session.preferences.folderTreeSelectedNodeId = selectedNodeId;
         state._session.preferences.groupPresentationOverride =

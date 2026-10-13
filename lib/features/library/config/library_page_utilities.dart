@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 
@@ -18,7 +19,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
 
   LibraryBulkActions bulkActions() => LibraryBulkActions(
         coordinator: ref.read(collectionCommandCoordinatorProvider),
-        ownedMutations: ref.read(ownedItemMutationsProvider),
+        entryMutations: ref.read(libraryEntryMutationsProvider),
         wishlistMutations: ref.read(wishlistMutationsProvider),
         trackingMutations: ref.read(trackingMutationsProvider),
         catalogSnapshots: CatalogSnapshotRepository(
@@ -35,6 +36,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         title: Text('Remove selected $itemLabel?'),
         content: Text(
           'This removes $count selected item${count == 1 ? '' : 's'} '
@@ -63,6 +65,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         title: Text('Remove $itemLabel?'),
         content: Text(
           'Remove "$title" from the local shelf and queue the change for sync?',

@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/calendar/calendar_event_contributor.dart';
 
-typedef CalendarTitleForRef = String Function(CatalogEntityRef ref);
+typedef CalendarTitleForRef = String Function(LibraryEntryRef ref);
 
 /// Boundary context for a kind calendar contribution.
 ///
@@ -15,13 +17,13 @@ typedef CalendarTitleForRef = String Function(CatalogEntityRef ref);
 final class LibraryCalendarContext {
   const LibraryCalendarContext({
     this.database,
-    this.catalogRefs = const <CatalogEntityRef>{},
+    this.libraryEntryRefs = const <LibraryEntryRef>{},
     required this.watchSessions,
     required this.titleForRef,
   });
 
   final LocalDatabase? database;
-  final Iterable<CatalogEntityRef> catalogRefs;
+  final Iterable<LibraryEntryRef> libraryEntryRefs;
   final Iterable<WatchSession> watchSessions;
   final CalendarTitleForRef titleForRef;
 }

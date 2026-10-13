@@ -1,140 +1,90 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 
 /// Fully typed read model used by the Music inspector.
 ///
 /// The generic inspector host still owns navigation and chrome, but Music
-/// resolves its graph once here. The individual sections never need to
-/// rehydrate a transport DTO or guess whether a row represents a group,
-/// release, medium, or owned copy.
+/// resolves the concrete album and its contained discs/tracks once here.
 final class MusicInspectorViewModel {
   const MusicInspectorViewModel({
-    required this.group,
-    required this.release,
-    required this.releases,
-    required this.mediums,
+    required this.music,
+    required this.discs,
     required this.tracks,
-    this.owned,
+    this.entry,
   });
 
   factory MusicInspectorViewModel.from(LibraryProjectionView item) {
-    final catalog = item.source.catalogData is MusicWorkspaceCatalogData
-        ? item.source.catalogData! as MusicWorkspaceCatalogData
-        : _fallbackMusicCatalog(item.source);
+    final catalog = item.source.kindPresentationData;
+    if (catalog is! MusicWorkspaceData) {
+      throw StateError(
+        'Music entry ${item.source.target.id} has no typed Music projection.',
+      );
+    }
 
-    final release = item.dto is MusicWorkspaceProjection
-        ? (item.dto as MusicWorkspaceProjection).release
-        : catalog.release;
-    final isReleaseLike =
-        item.node is LibraryReleaseRef || item.node is LibraryCopyRef;
-    final releases = isReleaseLike
-        ? [if (release != null) release]
-        : List<MusicRelease>.unmodifiable(catalog.music.releases);
-    final detailReleases = isReleaseLike ? releases : const <MusicRelease>[];
-    final mediums = <MusicMedium>[
-      for (final entry in detailReleases) ...entry.mediums,
+    final music = catalog.music;
+    final detailReleases = [music];
+    final discs = <MusicDisc>[
+      for (final entry in detailReleases) ...entry.discs,
     ];
     final tracks = <MusicTrackListEntry>[
       for (final releaseEntry in detailReleases)
-        for (final medium in releaseEntry.mediums)
-          for (final track in medium.tracks)
+        for (final disc in releaseEntry.discs)
+          for (final track in disc.tracks)
             MusicTrackListEntry(
-              mediumNumber: medium.mediumNumber,
+              discNumber: disc.discNumber,
               track: track,
-              releaseId: releaseEntry.id.value,
-              releaseTitle: releaseEntry.title,
+              albumId: item.target.id,
+              albumTitle: releaseEntry.title,
               catalogNumber: releaseEntry.catalogNumber,
             ),
     ];
 
     return MusicInspectorViewModel(
-      group: catalog.music,
-      release: release,
-      releases: releases,
-      mediums: List<MusicMedium>.unmodifiable(mediums),
+      music: music,
+      discs: List<MusicDisc>.unmodifiable(discs),
       tracks: List<MusicTrackListEntry>.unmodifiable(tracks),
-      owned:
-          MusicOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch),
+      entry: MusicLibraryEntryProjection.fromDispatch(
+          item.source.libraryEntryDispatch),
     );
   }
 
-  final MusicReleaseGroup group;
-  final MusicRelease? release;
-  final List<MusicRelease> releases;
-  final List<MusicMedium> mediums;
+  final MusicAlbum music;
+  final List<MusicDisc> discs;
   final List<MusicTrackListEntry> tracks;
-  final MusicOwnedItem? owned;
+  final MusicLibraryEntry? entry;
 
-  MusicOwnedMediumStorageView storageForMedium(int mediumNumber) {
-    final ownedDetails = owned?.details;
-    final scoped = ownedDetails?.medium(mediumNumber);
+  MusicEntryDiscStorageView storageForDisc(int discNumber) {
+    final entryDetails = entry?.personal.details;
+    final discId = discs
+        .where((disc) => disc.discNumber == discNumber)
+        .firstOrNull
+        ?.id
+        .value;
+    final scoped = discId == null ? null : entryDetails?.disc(discId);
     if (scoped != null) {
-      return MusicOwnedMediumStorageView(
-        mediumNumber: mediumNumber,
+      return MusicEntryDiscStorageView(
+        discNumber: discNumber,
         storageDevice: scoped.storageDevice,
         storageSlot: scoped.storageSlot,
       );
     }
-    return MusicOwnedMediumStorageView(mediumNumber: mediumNumber);
-  }
-
-  List<MusicMatrixRunoutView> matrixForMedium(int mediumNumber) {
-    final runouts = owned?.details.matrixRunoutsForMedium(mediumNumber) ??
-        const <MusicMatrixRunout>[];
-    return [
-      for (final runout in runouts)
-        MusicMatrixRunoutView(
-          mediumNumber: mediumNumber,
-          side: runout.side,
-          text: runout.runoutText,
-        ),
-    ];
+    return MusicEntryDiscStorageView(discNumber: discNumber);
   }
 }
 
-MusicWorkspaceCatalogData _fallbackMusicCatalog(
-  LibraryWorkspaceSource source,
-) {
-  final sourceRef = source.catalogRef;
-  final rootId = (sourceRef?.kind == CatalogMediaKind.music
-          ? sourceRef!.rootScope.id
-          : source.itemId)
-      .trim();
-  final ref = CatalogEntityRef(
-    kind: CatalogMediaKind.music,
-    entityType: CatalogEntityTypeId.root,
-    id: rootId.isEmpty ? 'unknown-music-item' : rootId,
-  );
-  return MusicWorkspaceCatalogData.fromMusic(
-    MusicReleaseGroup(
-      id: MusicReleaseGroupId(ref.id),
-      title: source.title,
-      coverImageUrl: source.catalogSummary?.imageUrl,
-    ),
-    ref: ref,
-  );
-}
-
-final class MusicOwnedMediumStorageView {
-  const MusicOwnedMediumStorageView({
-    required this.mediumNumber,
+final class MusicEntryDiscStorageView {
+  const MusicEntryDiscStorageView({
+    required this.discNumber,
     this.storageDevice,
     this.storageSlot,
   });
 
-  final int mediumNumber;
+  final int discNumber;
   final String? storageDevice;
   final String? storageSlot;
 
@@ -145,16 +95,4 @@ final class MusicOwnedMediumStorageView {
     ];
     return values.isEmpty ? '-' : values.join(' / ');
   }
-}
-
-final class MusicMatrixRunoutView {
-  const MusicMatrixRunoutView({
-    required this.mediumNumber,
-    required this.side,
-    required this.text,
-  });
-
-  final int mediumNumber;
-  final String side;
-  final String text;
 }

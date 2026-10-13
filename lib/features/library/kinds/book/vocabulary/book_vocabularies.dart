@@ -1,105 +1,122 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 
 abstract final class BookVocabularyIds {
-  static const publisher = VocabularyId<String>('book.publisher');
-  static const format = VocabularyId<String>('book.format');
+  static const publisher = BookFieldIdentities.publisherVocabulary;
+  static const format = BookFieldIdentities.formatVocabulary;
   static const binding = VocabularyId<String>('book.binding');
   static const language = VocabularyId<String>('book.language');
   static const condition = VocabularyId<String>('book.condition');
 }
 
 abstract final class BookVocabularies {
-  static Future<int> countOwnedValue(
-    LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
-  ) {
-    return countPickListOwnedValues(
-      items: BookOwnedRepository(db).listActive(),
-      normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
-    );
+  static Future<List<String>> entryOptions(
+      LocalDatabase db, String semanticName) async {
+    return [
+      for (final item in await BookEntryRepository(db).listActive())
+        ..._entryValues(item, semanticName)
+            .whereType<String>()
+            .where((value) => value.trim().isNotEmpty)
+    ];
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: BookEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
+
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: BookOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: BookEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: BookOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: BookEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: BookOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: BookEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static BookOwnedItem _replaceOwnedValue(
-    BookOwnedItem item,
+  static BookLibraryEntry _replaceEntryValue(
+    BookLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
     switch (semanticName) {
       case 'condition':
-        return item.copyWith(condition: targetValue);
+        return item.copyWith(
+          personal: item.personal.copyWith(condition: targetValue),
+        );
       case 'grade':
-        return item.copyWith(grade: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(grade: targetValue));
       case 'purchase_store':
-        return item.copyWith(purchaseStore: targetValue);
+        return item.copyWith(
+          personal: item.personal.copyWith(purchaseStore: targetValue),
+        );
       case 'sold_to':
-        return item.copyWith(soldTo: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(soldTo: targetValue));
       case 'collection_status':
-        return item.copyWith(collectionStatus: targetValue);
+        return item.copyWith(
+          personal: item.personal.copyWith(collectionStatus: targetValue),
+        );
       case 'tags':
         return item.copyWith(
-          tags: replacePickListDelimitedValue(
-            item.tags,
-            normalizedSourceValues,
-            targetValue,
+          personal: item.personal.copyWith(
+            tags: replacePickListDelimitedValue(
+              item.personal.tags,
+              normalizedSourceValues,
+              targetValue,
+            ),
           ),
         );
       case 'signed_by':
         return item.copyWith(
-          details: item.details.copyWith(signedBy: targetValue),
+          personal: item.personal.copyWith(
+            details: item.personal.details.copyWith(signedBy: targetValue),
+          ),
         );
     }
     return item;
   }
 
-  static Iterable<String?> _ownedValues(
-    BookOwnedItem item,
+  static Iterable<String?> _entryValues(
+    BookLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {
-      'condition' => item.condition,
-      'grade' => item.grade,
-      'purchase_store' => item.purchaseStore,
-      'sold_to' => item.soldTo,
-      'collection_status' => item.collectionStatus,
+      'condition' => item.personal.condition,
+      'grade' => item.personal.grade,
+      'purchase_store' => item.personal.purchaseStore,
+      'sold_to' => item.personal.soldTo,
+      'collection_status' => item.personal.collectionStatus,
       _ => null,
     };
     if (standard != null) {
@@ -107,11 +124,16 @@ abstract final class BookVocabularies {
       return;
     }
     if (semanticName == 'tags') {
-      yield* item.tags?.split(',') ?? const <String>[];
+      yield* item.personal.tags?.split(',') ?? const <String>[];
       return;
     }
     if (semanticName == 'signed_by') {
-      yield item.details.signedBy;
+      yield item.personal.details.signedBy;
+    }
+    for (final vocabulary in all) {
+      if (vocabulary.key.split('.').last == semanticName) {
+        yield* vocabulary.valuesFrom?.call(item.metadata) ?? const <String>[];
+      }
     }
   }
 
@@ -213,13 +235,11 @@ abstract final class BookVocabularies {
 Iterable<String?> _publisherCatalogValues(BookCatalogMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.publisher,
-    metadata.originalPublisher,
   ]);
 }
 
 Iterable<String?> _formatCatalogValues(BookCatalogMetadata metadata) sync* {
   yield* vocabularyValues([
-    metadata.physicalFormatLabel,
     metadata.physicalFormat,
   ]);
 }
@@ -227,6 +247,5 @@ Iterable<String?> _formatCatalogValues(BookCatalogMetadata metadata) sync* {
 Iterable<String?> _languageCatalogValues(BookCatalogMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.language,
-    metadata.originalLanguage,
   ]);
 }

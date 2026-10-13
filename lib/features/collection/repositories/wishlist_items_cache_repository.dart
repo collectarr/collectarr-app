@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -29,13 +28,13 @@ class WishlistItemsCacheRepository {
   }
 
   Future<WishlistItem?> findActiveByCatalogRef(
-    CatalogEntityRef catalogRef,
+    CatalogItemRef catalogRef,
   ) async {
     return (await findActiveByCatalogRefs([catalogRef])).firstOrNull;
   }
 
   Future<List<WishlistItem>> findActiveByCatalogRefs(
-    Iterable<CatalogEntityRef> catalogRefs,
+    Iterable<CatalogItemRef> catalogRefs,
   ) async {
     final wanted = catalogRefs.toSet();
     if (wanted.isEmpty) return const [];
@@ -54,7 +53,7 @@ class WishlistItemsCacheRepository {
   }
 
   Future<void> upsert(WishlistItem item) {
-    requireKnownCatalogRef(item.catalogRef, 'wishlist.catalogRef');
+    requireKnownCatalogItemRef(item.catalogRef, 'wishlist.catalogRef');
     return _db.into(_db.wishlistItemsCache).insert(
           _toCompanion(item),
           mode: InsertMode.insertOrReplace,
@@ -66,7 +65,7 @@ class WishlistItemsCacheRepository {
       return;
     }
     for (final item in items) {
-      requireKnownCatalogRef(item.catalogRef, 'wishlist.catalogRef');
+      requireKnownCatalogItemRef(item.catalogRef, 'wishlist.catalogRef');
     }
     await _db.batch((batch) {
       batch.insertAll(
@@ -78,7 +77,7 @@ class WishlistItemsCacheRepository {
   }
 
   Future<void> markDeleted(WishlistItem item, DateTime deletedAt) {
-    requireKnownCatalogRef(item.catalogRef, 'wishlist.catalogRef');
+    requireKnownCatalogItemRef(item.catalogRef, 'wishlist.catalogRef');
     return _db.into(_db.wishlistItemsCache).insert(
           _toCompanion(
               item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt)),
@@ -92,7 +91,7 @@ class WishlistItemsCacheRepository {
       return;
     }
     for (final item in items) {
-      requireKnownCatalogRef(item.catalogRef, 'wishlist.catalogRef');
+      requireKnownCatalogItemRef(item.catalogRef, 'wishlist.catalogRef');
     }
     await _db.batch((batch) {
       batch.insertAll(
@@ -114,11 +113,10 @@ class WishlistItemsCacheRepository {
         'Wishlist row ${row.id} contains an invalid catalog reference',
       );
     }
-    final referenceJson = Map<String, Object?>.from(rawCatalogRef);
-    final catalogRef = referenceJson.containsKey('entity_type')
-        ? CatalogEntityRef.fromJson(referenceJson)
-        : _catalogEntityRefFromV1(CatalogItemRef.fromJson(referenceJson));
-    requireKnownCatalogRef(catalogRef, 'wishlist.catalogRef');
+    final catalogRef = CatalogItemRef.fromJson(
+      Map<String, dynamic>.from(rawCatalogRef),
+    );
+    requireKnownCatalogItemRef(catalogRef, 'wishlist.catalogRef');
     return WishlistItem(
       id: row.id,
       catalogRef: catalogRef,
@@ -130,13 +128,6 @@ class WishlistItemsCacheRepository {
       deletedAt: row.deletedAt,
     );
   }
-
-  CatalogEntityRef _catalogEntityRefFromV1(CatalogItemRef reference) =>
-      CatalogEntityRef(
-        kind: reference.kind,
-        entityType: CatalogEntityTypeId.root,
-        id: reference.id,
-      );
 
   WishlistItemsCacheCompanion _toCompanion(WishlistItem item) {
     return WishlistItemsCacheCompanion.insert(

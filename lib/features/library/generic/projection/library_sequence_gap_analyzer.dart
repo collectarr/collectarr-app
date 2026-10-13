@@ -2,16 +2,16 @@ class LibrarySequenceGapAnalyzer {
   const LibrarySequenceGapAnalyzer();
 
   List<int> calculateMissingSequence({
-    required List<int> ownedValues,
+    required List<int> entryValues,
     int? maxValue,
   }) {
-    if (ownedValues.isEmpty) return const [];
-    final sorted = List<int>.from(ownedValues)..sort();
+    if (entryValues.isEmpty) return const [];
+    final sorted = List<int>.from(entryValues)..sort();
     final limit = maxValue ?? sorted.last;
-    final ownedSet = sorted.toSet();
+    final entrySet = sorted.toSet();
     final gaps = <int>[];
     for (var i = 1; i <= limit; i++) {
-      if (!ownedSet.contains(i)) {
+      if (!entrySet.contains(i)) {
         gaps.add(i);
       }
     }
@@ -19,20 +19,20 @@ class LibrarySequenceGapAnalyzer {
   }
 
   List<int> calculateGapsForBucket({
-    required Set<int> ownedNumbers,
+    required Set<int> entryNumbers,
     required Set<int> bucketNumbers,
     int maxGapCount = 1000,
   }) {
-    if (ownedNumbers.length < 2 || bucketNumbers.length < 2) {
+    if (entryNumbers.length < 2 || bucketNumbers.length < 2) {
       return const [];
     }
-    final sortedOwned = ownedNumbers.toList(growable: false)..sort();
+    final sortedEntry = entryNumbers.toList(growable: false)..sort();
     final sortedExisting = bucketNumbers.toList(growable: false)..sort();
     final missing = <int>[];
 
     for (final number in sortedExisting) {
-      if (number < sortedOwned.first || number > sortedOwned.last) continue;
-      if (ownedNumbers.contains(number)) continue;
+      if (number < sortedEntry.first || number > sortedEntry.last) continue;
+      if (entryNumbers.contains(number)) continue;
       missing.add(number);
       if (missing.length > maxGapCount) break;
     }

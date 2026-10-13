@@ -78,30 +78,78 @@ void main() {
 
     final localPayload = {
       'title': 'Abbey Road',
-      'series': {'series_title': 'The Beatles'},
       'music': {
+        'title': 'Abbey Road',
+        'label': 'Apple Records',
         'catalog_number': 'PCS 7088',
+        'credits': [
+          {
+            'id': 'album-credit-1',
+            'name': 'George Martin',
+            'role': 'Producer',
+            'instruments': <String>[],
+            'sequence': 1,
+          },
+        ],
         'discs': [
-          {'disc_number': 1, 'disc_name': 'Side A'},
+          {
+            'id': 'disc-a',
+            'disc_number': 1,
+            'format_family': 'vinyl',
+            'format': 'LP',
+            'recording_date': {'year': 1969},
+            'recording_locations': ['Abbey Road'],
+            'is_live': false,
+            'sound_types': <String>[],
+            'credits': <Map<String, Object>>[],
+            'tracks': <Map<String, Object>>[],
+          },
         ],
       },
-      'creators': [
-        {'role': 'Artist', 'name': 'The Beatles'},
-      ],
     };
     final serverPayload = {
       'title': 'Abbey Road',
-      'series': {'series_title': 'The Beatles'},
       'music': {
+        'title': 'Abbey Road',
+        'label': 'Apple Records',
         'catalog_number': 'PCS 7088',
+        'credits': [
+          {
+            'id': 'album-credit-1',
+            'name': 'George Martin',
+            'role': 'Producer',
+            'instruments': <String>[],
+            'sequence': 1,
+          },
+        ],
         'discs': [
-          {'disc_number': 1, 'disc_name': 'Side A'},
-          {'disc_number': 2, 'disc_name': 'Side B'},
+          {
+            'id': 'disc-a',
+            'disc_number': 1,
+            'format_family': 'vinyl',
+            'format': 'LP',
+            'recording_date': {'year': 1969},
+            'recording_locations': ['Abbey Road'],
+            'is_live': false,
+            'sound_types': <String>[],
+            'credits': <Map<String, Object>>[],
+            'tracks': <Map<String, Object>>[],
+          },
+          {
+            'id': 'disc-b',
+            'disc_number': 2,
+            'format_family': 'opticalDisc',
+            'format': 'CD',
+            'recording_date': {'year': 2026, 'month': 2, 'day': 18},
+            'recording_locations': ['Wembley'],
+            'is_live': true,
+            'spars_code': 'ADD',
+            'sound_types': <String>[],
+            'credits': <Map<String, Object>>[],
+            'tracks': <Map<String, Object>>[],
+          },
         ],
       },
-      'creators': [
-        {'role': 'Artist', 'name': 'The Beatles'},
-      ],
     };
 
     final panels = buildMusicMetadataComparePanels(
@@ -113,6 +161,18 @@ void main() {
 
     expect(panels.length, 3);
     expect(panels.every((p) => p is MetadataDiffPanel), isTrue);
+    final creditPanel = panels[1] as MetadataDiffPanel;
+    expect(creditPanel.title, 'Album credits (Local vs Server)');
+    expect(creditPanel.entries.single.label, 'Credit album-credit-1');
+    final discPanel = panels[2] as MetadataDiffPanel;
+    expect(discPanel.entries.map((entry) => entry.label), [
+      'Disc 1 (disc-a)',
+      'Disc 2 (disc-b)',
+    ]);
+    expect(discPanel.entries.last.serverValue,
+        contains('Recording date: 2026-02-18'));
+    expect(discPanel.entries.last.serverValue,
+        contains('Recording locations: Wembley'));
 
     expect(libraryMetadataForKind(CatalogMediaKind.music).supportsServerCompare,
         isTrue);

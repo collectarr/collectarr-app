@@ -29,6 +29,7 @@ final class VocabularyDefinition<T> {
     this.allowCustomValues = true,
     this.multiValue = false,
     this.valuesFrom,
+    this.optionLabel,
   });
 
   final VocabularyId<T> id;
@@ -37,6 +38,7 @@ final class VocabularyDefinition<T> {
   final bool allowCustomValues;
   final bool multiValue;
   final VocabularyCatalogValueProjector? valuesFrom;
+  final String Function(String value)? optionLabel;
 
   String get key => id.value;
 

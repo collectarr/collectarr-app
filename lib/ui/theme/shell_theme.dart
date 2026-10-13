@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_chrome.dart';
+import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/ui/theme/theme_primitives.dart';
 import 'package:flutter/material.dart';
@@ -28,9 +30,10 @@ ThemeData buildAppShellTheme({
       backgroundColor: palette.topBar,
       foregroundColor: appBarTextColor,
       elevation: 0,
-      toolbarHeight: 42,
+      toolbarHeight: shellAppBarHeight,
       titleTextStyle: TextStyle(
         color: appBarTextColor,
+        fontFamily: appFontFamily,
         fontSize: 16,
         fontWeight: FontWeight.w700,
       ),
@@ -42,8 +45,9 @@ ThemeData buildAppShellTheme({
       labelTextStyle: WidgetStatePropertyAll(
         TextStyle(
           color: textColor,
+          fontFamily: appFontFamily,
           fontSize: 13,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
       ),
       iconTheme: WidgetStatePropertyAll(
@@ -83,9 +87,11 @@ ThemeData buildAppShellTheme({
       indicatorColor: palette.accent,
       labelColor: textColor,
       unselectedLabelColor: palette.textMuted,
-      labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-      unselectedLabelStyle: const TextStyle(
-        fontSize: 13,
+      labelStyle: TextStyle(
+          fontFamily: appFontFamily, fontSize: 14, fontWeight: FontWeight.w700),
+      unselectedLabelStyle: TextStyle(
+        fontFamily: appFontFamily,
+        fontSize: 14,
         fontWeight: FontWeight.w500,
       ),
     ),
@@ -102,9 +108,12 @@ ThemeData buildAppShellTheme({
       dividerThickness: 1,
       headingTextStyle: TextStyle(
         color: textColor,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
       ),
-      dataTextStyle: TextStyle(color: textColor),
+      dataTextStyle: TextStyle(
+        color: textColor,
+        fontWeight: FontWeight.w500,
+      ),
     ),
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(

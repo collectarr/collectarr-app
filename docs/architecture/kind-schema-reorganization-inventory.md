@@ -1,20 +1,20 @@
 # Kind Workspace and Form Inventory
 
-> **Historical implementation inventory, not a CLZ field ledger.** This file
-> describes the former Work/Release/Copy workspace schemas. Its Add/Edit IDs
-> are evidence of fields in Collectarr only; they do not prove CLZ parity or
-> define the Catalog Item v1 target. Use the per-kind
-> [Catalog Item field ledgers](catalog-item-v1-field-ledgers/README.md) for the
-> v1 field review and [cutover plan](catalog-item-v1-cutover.md) for the new
-> ownership structure.
+> Historical snapshot captured on 2026-09-24 before Music was flattened. The
+> Music-specific source paths and Release Group/Release scopes below are no
+> longer current. Use [the Music field ledger](music-catalog-field-inventory.md)
+> for Music decisions and [current status](current-status.md) for the active
+> architecture. All nine kinds have since moved to the flat Catalog Item and
+> local-entry model; the tables below are retained only as historical source
+> data, not as active schemas or remaining work.
 
-Captured from the workspace field declarations, identifier modules, scope contributions, and Add/Edit schema IDs present on 2026-09-24. This ledger records the fields, identifiers, defaults, and persistence consumers inventoried before schema extraction. The semantic rows remain valid; each kind section links to the explicit live Work, Release, and Copy schema files after migration.
+This inventory records the fields, identifiers, defaults, and persistence consumers inventoried before schema extraction. It is retained as a historical audit, not as an implementation plan.
 
 For workspace fields, the projected source is taken from each field callback where it is a direct DTO expression. Context-dependent callbacks are marked derived; inspect the linked declaration before moving them. Columns, sorts, groups, defaults, facets, and form IDs are listed alongside the per-scope field rows so that file extraction can preserve the whole surface.
 
 ## Comic
 
-Sources: Work schema `[lib/features/library/kinds/comic/workspace/comic_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/comic/workspace/comic_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/comic/workspace/comic_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/comic/workspace/comic_workspace_facets.dart`; IDs: `[lib/features/library/kinds/comic/workspace/comic_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/comic/workspace/comic_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: Catalog Item schema `[lib/features/library/kinds/comic/workspace/comic_catalog_item_workspace_schema.dart]`; Collection Item schema `[lib/features/library/kinds/comic/workspace/comic_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/comic/workspace/comic_workspace_facets.dart`; IDs: `[lib/features/library/kinds/comic/workspace/comic_ids.dart]`; contribution/default overrides: `[lib/features/library/kinds/comic/workspace/comic_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
@@ -155,29 +155,24 @@ Sources: Work schema `[lib/features/library/kinds/anime/workspace/anime_work_wor
 
 ## Book
 
-Sources: Work schema `[lib/features/library/kinds/book/workspace/book_work_workspace_schema.dart]`; Release schema `[lib/features/library/kinds/book/workspace/book_release_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/book/workspace/book_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/book/workspace/book_workspace_facets.dart`; IDs: `[lib/features/library/kinds/book/workspace/book_ids.dart]`; preference codec: `lib/features/library/kinds/book/workspace/book_preference_codec.dart`; contribution/default overrides: `[lib/features/library/kinds/book/workspace/book_workspace_contribution.dart]`. Workspace scope is recorded on each field definition. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: combined Catalog Item fields `[lib/features/library/kinds/book/workspace/book_catalog_item_workspace_fields.dart]` and details `[lib/features/library/kinds/book/workspace/book_catalog_item_details_workspace_fields.dart]`; Catalog Item schema `[lib/features/library/kinds/book/workspace/book_catalog_item_workspace_schema.dart]`; Copy schema `[lib/features/library/kinds/book/workspace/book_copy_workspace_schema.dart]`; facets: `lib/features/library/kinds/book/workspace/book_workspace_facets.dart`; IDs: `[lib/features/library/kinds/book/workspace/book_ids.dart]`; preference codec: `lib/features/library/kinds/book/workspace/book_preference_codec.dart`; contribution/default overrides: `[lib/features/library/kinds/book/workspace/book_workspace_contribution.dart]`. The Catalog Item is still routed through the generic `work` scope internally; it no longer has a separate Release workspace. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | Existing ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
-| work | `title` | `book.title` | Title | `dto.title` | yes | yes | — | yes |
-| work | `author` | `book.author` | Author | `dto.author` | yes | yes | yes | yes |
-| work | `series` | `book.series` | Series | `dto.seriesTitle` | — | — | yes | — |
-| work | `cover` | `book.cover` | Cover | `context.dto.coverImageUrl` | yes | — | — | yes |
-| work | `subtitle` | `book.subtitle` | Subtitle | `dto.subtitle` | yes | — | — | — |
-| work | `translator` | `book.translator` | Translator | `dto.translator` | yes | — | — | — |
-| work | `editor` | `book.editor` | Editor | `dto.editor` | yes | — | — | — |
-| work | `illustrator` | `book.illustrator` | Illustrator | `dto.illustrator` | yes | — | — | — |
-| work | `coverArtist` | `book.cover_artist` | Cover Artist | `dto.coverArtist` | — | — | — | — |
-| work | `printing` | `book.printing` | Printing | `dto.printing` | yes | — | — | — |
-| work | `numberLine` | `book.number_line` | Number Line | `dto.numberLine` | yes | — | — | — |
-| release | `publisher` | `book.publisher` | Publisher | `dto.publisher` | yes | — | yes | yes |
-| release | `pageCount` | `book.page_count` | Page count | `dto.pageCount` | — | yes | — | — |
-| release | `isbn` | `book.isbn` | ISBN | `dto.isbn ?? dto.barcode` | yes | — | — | yes |
-| release | `releaseDate` | `book.release_date` | Release Date | `dto.releaseDate` | yes | yes | — | yes |
-| release | `format` | `book.format` | Format | `dto.format` | yes | — | yes | — |
-| release | `firstEdition` | `book.first_edition` | First Edition | `context.dto.firstEdition` | yes | — | — | — |
-| release | `dewey` | `book.dewey` | Dewey Decimal | `dto.dewey` | yes | — | — | — |
-| release | `locClassification` | `book.loc_classification` | LoC Classification | `dto.locClassification` | — | — | — | — |
+| catalog_item | `title` | `book.title` | Title | `dto.title` | yes | yes | — | yes |
+| catalog_item | `author` | `book.author` | Author | `dto.author` | yes | yes | yes | yes |
+| catalog_item | `series` | `book.series` | Series | `dto.seriesTitle` | — | — | yes | — |
+| catalog_item | `cover` | `book.cover` | Cover | `context.dto.coverImageUrl` | yes | — | — | yes |
+| catalog_item | `subtitle` | `book.subtitle` | Subtitle | `dto.subtitle` | yes | — | — | — |
+| catalog_item | `translator` | `book.translator` | Translator | `dto.translator` | yes | — | — | — |
+| catalog_item | `editor` | `book.editor` | Editor | `dto.editor` | yes | — | — | — |
+| catalog_item | `illustrator` | `book.illustrator` | Illustrator | `dto.illustrator` | yes | — | — | — |
+| catalog_item | `coverArtist` | `book.cover_artist` | Cover Artist | `dto.coverArtist` | — | — | — | — |
+| catalog_item | `publisher` | `book.publisher` | Publisher | `dto.publisher` | yes | — | yes | yes |
+| catalog_item | `pageCount` | `book.page_count` | Page count | `dto.pageCount` | — | yes | — | — |
+| catalog_item | `isbn` | `book.isbn` | ISBN | `dto.isbn ?? dto.barcode` | yes | — | — | yes |
+| catalog_item | `releaseDate` | `book.release_date` | Release Date | `dto.releaseDate` | yes | yes | — | yes |
+| catalog_item | `format` | `book.format` | Format | `dto.format` | yes | — | yes | — |
 | copy | `condition` | `book.condition` | Condition | `derived from projection/context` | yes | — | yes | yes |
 | copy | `location` | `book.location` | Location | `context.source.locationPath` | yes | — | yes | yes |
 | copy | `pricePaid` | `book.price_paid` | Purchase Price | `context.source.pricePaidCents` | yes | — | — | yes |
@@ -191,8 +186,8 @@ Sources: Work schema `[lib/features/library/kinds/book/workspace/book_work_works
 
 - Workspace sort IDs: book.author, book.page_count, book.release_date, book.status, book.title
 - Workspace group IDs: book.author, book.condition, book.format, book.location, book.publisher, book.series
-- Default visible column IDs by scope: work: book.author, book.cover, book.title; release: book.isbn, book.publisher, book.release_date; copy: book.condition, book.location, book.price_paid, book.rating, book.read_status, book.status, book.updated_at, book.wishlist
-- Root schema defaults: sort `book.author`; group `book.author`. Release/Copy overrides: see `lib/features/library/kinds/book/workspace/book_workspace_contribution.dart`.
+- Default visible column IDs by scope: catalog_item: book.author, book.cover, book.isbn, book.publisher, book.release_date, book.title; copy: book.condition, book.location, book.price_paid, book.rating, book.read_status, book.status, book.updated_at, book.wishlist
+- Catalog Item/Copy defaults: sort `book.author`; group `book.author`. Copy schema: see `lib/features/library/kinds/book/workspace/book_workspace_contribution.dart`.
 - Facet ID members: author, publisher, genre, format, subject, translator
 - Add/Edit field IDs (prefix identifies source family): add:age_rating, add:authors, add:back_cover_image_url, add:barcode, add:characters, add:country, add:edition, add:number, add:publication, add:publication_year, add:series_group, add:variant, edit:additional_details, edit:details, edit:dust_jacket_condition, edit:dust_jacket_present, edit:edition, edit:edition_details, edit:identity, edit:owned, edit:publication, edit:publication_details, edit:signature, edit:signed_by, edit:titles, forms:audio_length_minutes, forms:binding, forms:cover_image_url, forms:description, forms:dimensions, forms:distributor, forms:edition_statement, forms:first_edition, forms:first_publication_date, forms:format, forms:genres, forms:imprint, forms:isbn, forms:language, forms:original_language, forms:original_publication_date, forms:page_count, forms:publisher, forms:region, forms:release_date, forms:release_status, forms:search_aliases, forms:sort_title, forms:subtitle, forms:thumbnail_image_url, forms:title, forms:upc
 
@@ -360,7 +355,7 @@ Sources: Work schema `[lib/features/library/kinds/tv/workspace/tv_work_workspace
 
 ## Music
 
-Sources: work fields `[music_release_group_workspace_fields.dart]`, release fields `[music_release_workspace_fields.dart]`, copy fields `[music_owned_copy_workspace_fields.dart]`; scoped schemas live beside them. IDs are declared in `[music_ids.dart]`; legacy scope-aware preference decoding is in `[music_preference_codec.dart]`. Form IDs are collected from the live Add/Edit/forms source files.
+Sources: work fields `[music_release_group_workspace_fields.dart]`, release fields `[music_release_workspace_fields.dart]`, copy fields `[music_collection_item_workspace_fields.dart]`; scoped schemas live beside them. IDs are declared in `[music_ids.dart]`; legacy scope-aware preference decoding is in `[music_preference_codec.dart]`. Form IDs are collected from the live Add/Edit/forms source files.
 
 | Scope | Workspace field | ID | Label | Projected source | Column | Sort | Group | Default visible |
 |---|---|---|---|---|---:|---:|---:|---:|
@@ -370,9 +365,8 @@ Sources: work fields `[music_release_group_workspace_fields.dart]`, release fiel
 | work | `releaseDate` | `music.release_group.release_date` | Release Date | `dto.music.releaseDate` | yes | yes | — | yes |
 | work | `releaseCount` | `music.release_count` | Release count | `dto.releaseCount` | yes | yes | — | yes |
 | work | `trackCount` | `music.release_group.track_count` | Track count | `dto.music.trackCount` | yes | yes | — | yes |
-| work | `aggregateListenCount` | `music.aggregate_listen_count` | Aggregate listens | `dto.aggregateListenCount` | yes | yes | — | yes |
-| work | `aggregateLastListened` | `music.aggregate_last_listened` | Last listened | `dto.aggregateLastListened` | yes | yes | — | yes |
-| work | `listenedReleaseCount` | `music.listened_release_count` | Listened releases | `dto.listenedReleaseCount` | yes | yes | — | yes |
+| work | `listenCount` | `music.listen_count` | Listen count | `dto.listenCount` | yes | yes | — | yes |
+| work | `lastListened` | `music.last_listened` | Last listened | `dto.lastListened` | yes | yes | — | yes |
 | work | `status` | `music.status` | Status | `context.source.isOwned/isWishlisted` | yes | — | — | yes |
 | work | `cover` | `music.cover` | Cover | `context.dto.imageUrl` | yes | — | — | yes |
 | release | `title` | `music.title` | Title | `dto.primaryLabel` | yes | yes | — | yes |
@@ -381,8 +375,6 @@ Sources: work fields `[music_release_group_workspace_fields.dart]`, release fiel
 | release | `releaseDate` | `music.release.release_date` | Release Date | `dto.release.releaseDate` | yes | yes | — | yes |
 | release | `trackCount` | `music.release.track_count` | Track count | `dto.release.trackCount` | yes | yes | — | yes |
 | release | `barcode` | `music.barcode` | Barcode | `dto.barcode` | yes | — | — | yes |
-| release | `listenCount` | `music.listen_count` | Listen count | `dto.listenCount` | yes | yes | — | yes |
-| release | `lastListened` | `music.last_listened` | Last listened | `dto.lastListened` | yes | yes | — | yes |
 | release | `catalogNumber` | `music.catalog_number` | Catalog Number | `dto.catalogNumber` | yes | — | — | — |
 | release | `format` | `music.format` | Format | `dto.format` | yes | — | yes | — |
 | release | `releaseType` | `music.release_type` | Release type | `dto.releaseType` | yes | — | — | — |
@@ -397,7 +389,7 @@ Sources: work fields `[music_release_group_workspace_fields.dart]`, release fiel
 | copy | `title` | `music.title` | Title | `dto.primaryLabel` | yes | yes | — | yes |
 | copy | `artist` | `music.artist` | Artist | `dto.artist` | yes | yes | yes | yes |
 | copy | `publisher` | `music.publisher` | Label | `dto.publisher` | yes | yes | yes | — |
-| copy | `condition` | `music.condition` | Condition | `MusicOwnedItem.condition` | yes | yes | yes | yes |
+| copy | `condition` | `music.condition` | Condition | `MusicCollectionItem.condition` | yes | yes | yes | yes |
 | copy | `location` | `music.location` | Location | `context.source.locationPath` | yes | yes | yes | yes |
 | copy | `pricePaid` | `music.price_paid` | Purchase Price | `context.source.pricePaidCents` | yes | yes | — | yes |
 | copy | `status` | `music.status` | Status | `context.source.isOwned/isWishlisted` | yes | yes | — | yes |
@@ -406,13 +398,13 @@ Sources: work fields `[music_release_group_workspace_fields.dart]`, release fiel
 | copy | `wishlist` | `music.wishlist` | Wishlist | `context.source.isWishlisted` | yes | — | — | — |
 | copy | `updatedAt` | `music.updated_at` | Updated | `context.source.updatedAt` | yes | yes | — | yes |
 | copy | `addedAt` | `music.added_at` | Added | `context.source.addedAt` | yes | yes | — | — |
-| copy | `signedBy` | `music.signed_by` | Signed By | `MusicOwnedItem.details.signedBy` | yes | — | — | — |
-| copy | `grade` | `music.grade` | Grade | `MusicOwnedItem.grade` | yes | yes | yes | yes |
-| copy | `storage` | `music.storage` | Storage | `MusicOwnedItem.details.media[]` | yes | yes | yes | yes |
+| copy | `signedBy` | `music.signed_by` | Signed By | `MusicCollectionItem.details.signedBy` | yes | — | — | — |
+| copy | `grade` | `music.grade` | Grade | `MusicCollectionItem.grade` | yes | yes | yes | yes |
+| copy | `storage` | `music.storage` | Storage | `MusicCollectionItem.details.media[]` | yes | yes | yes | yes |
 | copy | `purchaseDate` | `music.purchase_date` | Purchase date | `context.source.purchaseDate` | yes | yes | — | yes |
 | copy | `marketValue` | `music.market_value` | Market value | `context.source.marketValueCents` | yes | yes | — | yes |
-| copy | `indexNumber` | `music.index_number` | Index number | `MusicOwnedItem.indexNumber` | yes | yes | — | yes |
-| copy | `lastCleaned` | `music.last_cleaned` | Last cleaned | `MusicOwnedItem.details.lastCleanedDate` | yes | yes | — | — |
+| copy | `indexNumber` | `music.index_number` | Index number | `MusicCollectionItem.indexNumber` | yes | yes | — | yes |
+| copy | `lastCleaned` | `music.last_cleaned` | Last cleaned | `MusicCollectionItem.details.lastCleanedDate` | yes | yes | — | — |
 
 - Workspace sort IDs: music.added_at, music.aggregate_last_listened, music.aggregate_listen_count, music.artist, music.condition, music.disc_count, music.grade, music.index_number, music.last_cleaned, music.last_listened, music.listen_count, music.listened_release_count, music.location, music.market_value, music.price_paid, music.purchase_date, music.release.release_date, music.release.track_count, music.release_count, music.release_group.release_date, music.release_group.track_count, music.status, music.storage, music.title, music.updated_at
 - Workspace group IDs: music.artist, music.box_set, music.condition, music.country, music.format, music.genre, music.grade, music.location, music.publisher, music.storage
@@ -421,7 +413,7 @@ Sources: work fields `[music_release_group_workspace_fields.dart]`, release fiel
 - Legacy preference IDs `music.release_date` and `music.track_count` are decoded to release group IDs in work mode and Release IDs in release mode. Other Music IDs remain unchanged.
 - Title, artist, status, and cover intentionally share IDs across the three projections; Release and Copy also share the same publisher ID. Release Group and Release date/count IDs are distinct because their projected values differ.
 - Facet ID members: artist, publisher, genre, format, country
-- Add/Edit field IDs (prefix identifies source family): add:release, add:release_group, add:year, edit:collection_status, edit:condition, edit:currency, edit:current_value, edit:digital, edit:edition, edit:grade, edit:identity, edit:index_number, edit:last_cleaned, edit:listening, edit:location, edit:notes, edit:owner, edit:personal, edit:personal_notes, edit:purchase, edit:purchase_date, edit:purchase_price, edit:purchase_store, edit:quantity, edit:recording, edit:release, edit:release_group, edit:sale, edit:sell_price, edit:signed_by, edit:sold_at, edit:sold_to, edit:tags, edit:tracking, edit:tracking_notes, edit:tracking_rating, edit:tracking_status, forms:artist, forms:barcode, forms:box_set_name, forms:box_set_position, forms:box_set_ref, forms:catalog_number, forms:country, forms:cover_image_url, forms:format, forms:genres, forms:is_live, forms:language, forms:original_release_date, forms:original_title, forms:packaging, forms:record_label, forms:recording_date, forms:release_date, forms:release_status, forms:release_type, forms:sort_title, forms:studio, forms:subtitle, forms:title, forms:upc
+- Add/Edit field IDs (prefix identifies source family): add:release, add:release_group, add:year, edit:collection_status, edit:condition, edit:currency, edit:current_value, edit:digital, edit:edition, edit:grade, edit:identity, edit:index_number, edit:last_cleaned, edit:listening, edit:location, edit:notes, edit:owner, edit:personal, edit:personal_notes, edit:purchase, edit:purchase_date, edit:purchase_price, edit:purchase_store, edit:recording, edit:release, edit:release_group, edit:sale, edit:sell_price, edit:signed_by, edit:sold_at, edit:sold_to, edit:tags, edit:tracking, edit:tracking_notes, edit:tracking_rating, edit:tracking_status, forms:artist, forms:barcode, forms:box_set_name, forms:box_set_position, forms:box_set_ref, forms:catalog_number, forms:country, forms:cover_image_url, forms:format, forms:genres, forms:is_live, forms:language, forms:original_release_date, forms:original_title, forms:packaging, forms:record_label, forms:recording_date, forms:release_date, forms:release_status, forms:release_type, forms:sort_title, forms:studio, forms:subtitle, forms:title, forms:upc
 
 ## Persistence audit points
 

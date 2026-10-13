@@ -1,21 +1,28 @@
 import 'dart:convert';
+import 'package:collectarr_app/core/platform/save_export_file.dart';
 
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:flutter/services.dart';
 
 /// Supported export formats for collection integration.
 enum ExportFormat {
   csv('CSV', 'Spreadsheet', Icons.table_chart_outlined),
   json('JSON', 'Structured data for APIs', Icons.data_object),
-  xml('XML', 'For CLZ import', Icons.code),
+  xml('XML', 'Structured collection export', Icons.code),
   markdown('Markdown', 'Readable checklist', Icons.text_snippet_outlined);
 
   const ExportFormat(this.label, this.description, this.icon);
@@ -29,36 +36,41 @@ Future<void> showIntegrationExportDialog({
   required BuildContext context,
   required LibraryKindRegistration type,
   required ShelfState shelfState,
+  ExportFormat? format,
 }) {
   return showDialog<void>(
     context: context,
-    builder: (_) => _IntegrationExportDialog(
-      type: type,
-      shelfState: shelfState,
+    builder: (context) => Theme(
+      data: libraryAccentTheme(context, libraryAccentForKind(type.kind)),
+      child: _IntegrationExportDialog(
+        type: type,
+        shelfState: shelfState,
+        format: format,
+      ),
     ),
   );
 }
 
-class _IntegrationExportDialog extends StatelessWidget {
+class _IntegrationExportDialog extends ConsumerWidget {
   const _IntegrationExportDialog({
     required this.type,
     required this.shelfState,
+    this.format,
   });
 
   final LibraryKindRegistration type;
   final ShelfState shelfState;
+  final ExportFormat? format;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
     return AccentAlertDialog(
       backgroundColor: palette.panel,
-      title: const Row(
-        children: [
-          Icon(Icons.upload_outlined, size: 22),
-          SizedBox(width: 8),
-          Text('Export Collection'),
-        ],
+      title: AccentDialogHeader(
+        title: 'Export Collection',
+        icon: Icons.upload_outlined,
+        accent: libraryAccentForKind(type.kind),
       ),
       content: SizedBox(
         width: 340,
@@ -70,13 +82,26 @@ class _IntegrationExportDialog extends StatelessWidget {
               style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
             const SizedBox(height: 16),
-            for (final format in ExportFormat.values) ...[
+            for (final format
+                in format == null ? ExportFormat.values : [format!]) ...[
               _ExportFormatTile(
                 format: format,
-                onTap: () => _export(context, format),
+                onTap: () => _export(context, ref, format),
               ),
               if (format != ExportFormat.values.last) const SizedBox(height: 8),
             ],
+            if (format == ExportFormat.xml)
+              FilledButton.icon(
+                onPressed: () async {
+                  final saved = await saveExportText(
+                      filename: '${type.kind.apiValue}.xml',
+                      content: _toXml(),
+                      mimeType: 'application/xml');
+                  if (saved && context.mounted) Navigator.pop(context);
+                },
+                icon: const Icon(Icons.download),
+                label: const Text('Download XML'),
+              ),
           ],
         ),
       ),
@@ -89,23 +114,37 @@ class _IntegrationExportDialog extends StatelessWidget {
     );
   }
 
-  void _export(BuildContext context, ExportFormat format) {
+  Future<void> _export(
+    BuildContext context,
+    WidgetRef ref,
+    ExportFormat format,
+  ) async {
+    final entryRecordsByRef = await LibraryEntryStore(
+      ref.read(localDatabaseProvider),
+    ).findByRefs(
+      shelfState.entries
+          .map((entry) => entry.libraryEntryRef)
+          .whereType<LibraryEntryRef>(),
+    );
+    if (!context.mounted) return;
     final data = switch (format) {
-      ExportFormat.csv => _toCsv(type),
+      ExportFormat.csv => _toCsv(entryRecordsByRef),
       ExportFormat.json => _toJson(),
       ExportFormat.xml => _toXml(),
       ExportFormat.markdown => _toMarkdown(type),
     };
-    Clipboard.setData(ClipboardData(text: data));
+    await Clipboard.setData(ClipboardData(text: data));
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Copied ${format.label} to clipboard')),
     );
     Navigator.pop(context);
   }
 
-  String _toCsv(LibraryKindRegistration registration) {
+  String _toCsv(Map<LibraryEntryRef, LibraryEntryRecord> entryRecordsByRef) {
     return CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportShelf(
       shelfState.entries,
+      entryRecordsByRef: entryRecordsByRef,
     );
   }
 
@@ -113,12 +152,12 @@ class _IntegrationExportDialog extends StatelessWidget {
     final items = shelfState.entries
         .map(
           (entry) => {
-            'id': entry.catalogRef?.id ?? entry.itemId,
+            'id': entry.target.id,
+            'ref': entry.target.stableKey,
             'kind': entry.mediaKind.apiValue,
             'title': entry.title,
-            'owned': entry.isOwned,
+            'entry': entry.isEntry,
             'wishlist': entry.isWishlisted,
-            if (entry.isOwned) 'quantity': entry.quantity,
           },
         )
         .toList();
@@ -137,9 +176,9 @@ class _IntegrationExportDialog extends StatelessWidget {
         '<collection name="${_escapeXml(type.identity.title)}" count="${shelfState.entries.length}">');
     for (final entry in shelfState.entries) {
       buffer.writeln(
-          '  <item id="${_escapeXml(entry.catalogRef?.id ?? entry.itemId)}" kind="${entry.mediaKind.apiValue}">');
+          '  <item id="${_escapeXml(entry.target.id)}" ref="${_escapeXml(entry.target.stableKey)}" kind="${entry.mediaKind.apiValue}">');
       buffer.writeln('    <title>${_escapeXml(entry.title)}</title>');
-      buffer.writeln('    <owned>${entry.isOwned}</owned>');
+      buffer.writeln('    <entry>${entry.isEntry}</entry>');
       buffer.writeln('    <wishlist>${entry.isWishlisted}</wishlist>');
       buffer.writeln('  </item>');
     }
@@ -156,16 +195,10 @@ class _IntegrationExportDialog extends StatelessWidget {
     for (final entry in shelfState.entries) {
       final projection = libraryKindWorkspaceForKind(registration.kind).project(
         source: entry,
-        node: LibraryWorkRef(
-          workId: entry.catalogRef?.id ?? entry.itemId,
-        ),
       );
       final card = libraryCardPresentationForEntry(
         LibraryProjectionItem(
           source: entry,
-          node: LibraryWorkRef(
-            workId: entry.catalogRef?.id ?? entry.itemId,
-          ),
           dto: projection.dto,
         ),
       );
@@ -211,7 +244,8 @@ class _ExportFormatTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
-              Icon(format.icon, size: 20, color: kAppAccent),
+              Icon(format.icon,
+                  size: 20, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

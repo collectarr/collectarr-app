@@ -11,6 +11,12 @@ const _mangaCombinedTabs = [
     sectionIds: ['catalog_snapshot'],
   ),
   LibraryEditTabSpec(
+    id: 'edition',
+    icon: Icons.inventory_2_outlined,
+    label: 'Edition Details',
+    sectionIds: ['manga_edition'],
+  ),
+  LibraryEditTabSpec(
     id: 'synopsis',
     icon: Icons.notes,
     label: 'Plot',
@@ -29,33 +35,10 @@ const _mangaCombinedTabs = [
     sectionIds: ['purchase', 'value_summary'],
   ),
   LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person,
-    label: 'Personal',
-    sectionIds: [
-      'tracking_personal',
-      'wishlist_reference',
-      'owned_notes',
-      'collection_fields_info',
-    ],
-  ),
-  LibraryEditTabSpec(
     id: 'sold',
     icon: Icons.sell,
     label: 'Sold',
     sectionIds: ['sold_status', 'profit_loss'],
-  ),
-  LibraryEditTabSpec(
-    id: 'custom',
-    icon: Icons.tune,
-    label: 'Custom Fields',
-    sectionIds: ['custom_fields'],
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.photo_library,
-    label: 'Photos',
-    sectionIds: ['photos'],
   ),
   LibraryEditTabSpec(
     id: 'cover',
@@ -64,10 +47,10 @@ const _mangaCombinedTabs = [
     sectionIds: ['cover_images'],
   ),
   LibraryEditTabSpec(
-    id: 'owned',
+    id: 'entry',
     icon: Icons.inventory_2,
-    label: 'Owned',
-    sectionIds: ['manga_owned'],
+    label: 'Entry',
+    sectionIds: ['manga_entry'],
   ),
 ];
 
@@ -75,18 +58,15 @@ class MangaLibraryEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const MangaLibraryEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: true,
+          useEntryMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
           trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
-          ownedTabs: _mangaCombinedTabs,
+          entryDigitalTrackingSectionTitle: 'Digital Entry Details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _mangaCombinedTabs,
           trackedTabs: _mangaCombinedTabs,
           catalogTabs: _mangaCombinedTabs,
           customTabBuilder: buildMangaCustomTabView,
@@ -95,4 +75,47 @@ class MangaLibraryEditPresentationBuilder
 
 const mangaLibraryEditPresentation = LibraryEditPresentation(
   builder: MangaLibraryEditPresentationBuilder(),
+  sharedTabs: [
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person,
+        label: 'Personal',
+        sectionIds: [
+          'tracking_personal',
+          'wishlist_reference',
+          'entry_notes',
+          'collection_fields_info',
+        ],
+      ),
+      afterTabId: 'value',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'custom',
+        icon: Icons.tune,
+        label: 'Custom Fields',
+        sectionIds: ['custom_fields'],
+      ),
+      afterTabId: 'sold',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'photos',
+        icon: Icons.photo_library,
+        label: 'Photos',
+        sectionIds: ['photos'],
+      ),
+      afterTabId: 'custom',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'links',
+        icon: Icons.public,
+        label: 'Links',
+        sectionIds: ['external_links'],
+      ),
+      afterTabId: 'cover',
+    ),
+  ],
 );

@@ -1,40 +1,36 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:flutter/material.dart';
-
-enum BoardGameCanonicalEditField {
-  title,
-  displayTitle,
-  sortTitle,
-  originalTitle,
-  localizedTitle,
-  searchAliases,
-  synopsis,
-  coverImage,
-  thumbnailImage
-}
 
 class BoardGameEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
-    implements LibraryReleaseEditSession, LibraryCopyEditSession {
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryEntryEditSessionDefaults
+    implements
+        LibraryCatalogItemEditSession,
+        LibraryEntryEditSession,
+        BoardGameCatalogFormDraft {
   BoardGameEditDraft({
-    this.ownedItem,
+    this.libraryEntry,
     this.editionLanguage,
     this.editionRegion,
     this.componentCondition,
@@ -44,39 +40,19 @@ class BoardGameEditDraft
     this.hasCustomInsert = false,
     this.hasPaintedMiniatures = false,
     this.storageNotes,
-    required this.editionTitleController,
-    required this.originalTitleController,
-    required this.releaseYearController,
-    required this.minPlayersController,
-    required this.maxPlayersController,
-    required this.recommendedPlayersController,
-    required this.bestPlayersController,
-    required this.minPlaytimeController,
-    required this.maxPlaytimeController,
-    required this.minimumAgeController,
-    required this.complexityWeightController,
-    required this.designersController,
-    required this.artistsController,
-    required this.publisherController,
-    required this.mechanicsController,
-    required this.categoriesController,
-    required this.familiesController,
-    required this.themesController,
-    required this.expansionsController,
-    required this.expansionForController,
-    required this.languagesController,
-    required this.bggRatingController,
-    required this.bggRatingCountController,
-    required this.bggRankController,
-    required this.seriesTitleController,
-    required this.itemNumberController,
-    required this.physicalFormatController,
-    required this.barcodeController,
-    required this.variantController,
-    required this.releaseDateController,
+    required this.values,
+    required this.catalogTitle,
+    required this.externalLinks,
+    required this.originalExternalLinks,
   });
 
-  final BoardGameOwnedItem? ownedItem;
+  final BoardGameLibraryEntry? libraryEntry;
+
+  @override
+  final BoardGameCatalogFormValues values;
+
+  @override
+  String catalogTitle;
 
   String? editionLanguage;
   String? editionRegion;
@@ -87,39 +63,65 @@ class BoardGameEditDraft
   bool hasCustomInsert;
   bool hasPaintedMiniatures;
   String? storageNotes;
-  final TextEditingController editionTitleController;
-  final TextEditingController originalTitleController;
-  final TextEditingController minPlayersController;
-  final TextEditingController maxPlayersController;
-  final TextEditingController recommendedPlayersController;
-  final TextEditingController bestPlayersController;
-  final TextEditingController minPlaytimeController;
-  final TextEditingController maxPlaytimeController;
-  final TextEditingController minimumAgeController;
-  final TextEditingController complexityWeightController;
-  final TextEditingController designersController;
-  final TextEditingController artistsController;
-  final TextEditingController publisherController;
-  final TextEditingController mechanicsController;
-  final TextEditingController categoriesController;
-  final TextEditingController familiesController;
-  final TextEditingController themesController;
-  final TextEditingController expansionsController;
-  final TextEditingController expansionForController;
-  final TextEditingController languagesController;
-  final TextEditingController bggRatingController;
-  final TextEditingController bggRatingCountController;
-  final TextEditingController bggRankController;
-  final TextEditingController seriesTitleController;
-  final TextEditingController itemNumberController;
-  final TextEditingController physicalFormatController;
-  final TextEditingController barcodeController;
-  final TextEditingController variantController;
-  final TextEditingController releaseDateController;
-  final TextEditingController releaseYearController;
+  final List<LibraryExternalLinkDraftRow> externalLinks;
+  final Map<LibraryExternalLinkDraftRow, BoardGameLink> originalExternalLinks;
+  bool _externalLinksEdited = false;
+
+  void markExternalLinksEdited() => _externalLinksEdited = true;
+
+  BoardGameLink _boardGameLinkFromDraft(
+    LibraryExternalLinkDraftRow row,
+    int position,
+  ) {
+    final original = originalExternalLinks[row];
+    final title = _boardGameOptional(row.titleController.text);
+    return BoardGameLink(
+      url: row.urlController.text.trim(),
+      id: original?.id,
+      label: title,
+      title: title,
+      site: original?.site,
+      name: original?.name,
+      kind: original?.kind,
+      description: _boardGameOptional(row.descriptionController.text),
+      position: position,
+      linkType: original?.linkType,
+    );
+  }
+
+  void dispose() {
+    for (final link in externalLinks) {
+      link.dispose();
+    }
+  }
 
   @override
-  JsonEncodable toDetailsDraft() => BoardgameOwnedDetailsDraft(
+  void setExternalLinks(List<TrailerLinkDto> links) {
+    for (final row in externalLinks) {
+      row.dispose();
+    }
+    externalLinks.clear();
+    originalExternalLinks.clear();
+    for (final link in links) {
+      final row = LibraryExternalLinkDraftRow(
+        title: link.title ?? '',
+        url: link.url,
+        description: link.description ?? '',
+      );
+      externalLinks.add(row);
+      originalExternalLinks[row] = BoardGameLink(
+        url: link.url,
+        title: link.title,
+        label: link.title,
+        description: link.description,
+        kind: link.kind,
+      );
+    }
+    _externalLinksEdited = true;
+  }
+
+  @override
+  JsonEncodable toDetailsDraft() => BoardgameEntryDetailsDraft(
         editionLanguage: editionLanguage,
         editionRegion: editionRegion,
         componentCondition: componentCondition,
@@ -132,44 +134,42 @@ class BoardGameEditDraft
       );
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
-    final item = ownedItem;
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
+    final item = libraryEntry;
     if (item == null) return;
-    personal.ownerLabelController.text = item.ownerLabel ?? '';
-    personal.conditionController.text = item.condition ?? '';
-    personal.gradeController.text = item.grade ?? '';
-    personal.purchaseDateController.text =
-        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
-    personal.priceController.text = item.pricePaidCents == null
+    personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
+    personal.conditionController.text = item.personal.condition ?? '';
+    personal.gradeController.text = item.personal.grade ?? '';
+    personal.purchaseDateController.text = item.personal.purchaseDate == null
         ? ''
-        : (item.pricePaidCents! / 100).toStringAsFixed(2);
-    personal.currencyController.text = item.currency ?? '';
-    personal.quantityController.text = item.quantity.toString();
-    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
-    personal.notesController.text = item.personalNotes ?? '';
-    personal.tagsController.text = item.tags ?? '';
-    personal.sellPriceController.text = item.sellPriceCents == null
+        : formatDate(item.personal.purchaseDate!);
+    personal.priceController.text = item.personal.pricePaidCents == null
         ? ''
-        : (item.sellPriceCents! / 100).toStringAsFixed(2);
-    personal.soldToController.text = item.soldTo ?? '';
-    personal.purchaseStoreController.text = item.purchaseStore ?? '';
-    personal.marketValueController.text = item.marketValueCents == null
+        : (item.personal.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.personal.currency ?? '';
+    personal.indexNumberController.text =
+        item.personal.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personal.personalNotes ?? '';
+    personal.tagsController.text = item.personal.tags ?? '';
+    personal.sellPriceController.text = item.personal.sellPriceCents == null
         ? ''
-        : (item.marketValueCents! / 100).toStringAsFixed(2);
-    personal.selectedLocationId = item.locationId;
-    personal.soldAt = item.soldAt;
-    personal.collectionStatus = item.collectionStatus;
+        : (item.personal.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.personal.soldTo ?? '';
+    personal.purchaseStoreController.text = item.personal.purchaseStore ?? '';
+    personal.marketValueController.text = item.personal.marketValueCents == null
+        ? ''
+        : (item.personal.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.personal.locationId;
+    personal.soldAt = item.personal.soldAt;
+    personal.collectionStatus = item.personal.collectionStatus;
   }
 
   @override
-  BoardgameOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedItemRef ownedRef,
-    required PersonalStateDraft personal,
+  BoardgameLibraryEntryUpdatePayload buildEntryUpdatePayload({
+    required LibraryEntryRef libraryEntryRef,
+    required LibraryEntryPersonalBindings personal,
   }) {
-    final targetRef = personal.selectedOwnedTargetRef;
-    return BoardgameOwnedItemUpdatePayload(
-      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+    return BoardgameLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -212,516 +212,113 @@ class BoardGameEditDraft
       soldTo: personal.soldToController.text.trim().isEmpty
           ? const Patch.clear()
           : Patch.set(personal.soldToController.text.trim()),
-      details: Patch.set(toDetailsDraft() as BoardgameOwnedDetailsDraft),
+      details: Patch.set(toDetailsDraft() as BoardgameEntryDetailsDraft),
     );
-  }
-
-  void dispose() {
-    editionTitleController.dispose();
-    originalTitleController.dispose();
-    releaseYearController.dispose();
-    minPlayersController.dispose();
-    maxPlayersController.dispose();
-    recommendedPlayersController.dispose();
-    bestPlayersController.dispose();
-    minPlaytimeController.dispose();
-    maxPlaytimeController.dispose();
-    minimumAgeController.dispose();
-    complexityWeightController.dispose();
-    designersController.dispose();
-    artistsController.dispose();
-    publisherController.dispose();
-    mechanicsController.dispose();
-    categoriesController.dispose();
-    familiesController.dispose();
-    themesController.dispose();
-    expansionsController.dispose();
-    expansionForController.dispose();
-    languagesController.dispose();
-    bggRatingController.dispose();
-    bggRatingCountController.dispose();
-    bggRankController.dispose();
-    seriesTitleController.dispose();
-    itemNumberController.dispose();
-    physicalFormatController.dispose();
-    barcodeController.dispose();
-    variantController.dispose();
-    releaseDateController.dispose();
   }
 
   @override
   LibraryEditSelection applyCanonicalEdits(
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
-  ) {
-    final aliases = fields
-        .controller(BoardGameCanonicalEditField.searchAliases)
-        .text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((entry) => entry.trim())
-        .where((entry) => entry.isNotEmpty)
-        .toList();
-    return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(selection
-          .kindItem.kindCapability
-          .mapTransport((transport) => transport.copyWith(
-                title: fields
-                    .controller(BoardGameCanonicalEditField.title)
-                    .text
-                    .trim(),
-                displayTitle: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.displayTitle)
-                    .text),
-                sortKey: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.sortTitle)
-                    .text),
-                originalTitle: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.originalTitle)
-                    .text),
-                localizedTitle: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.localizedTitle)
-                    .text),
-                searchAliases: aliases.isEmpty ? null : aliases,
-                synopsis: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.synopsis)
-                    .text),
-                coverImageUrl: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.coverImage)
-                    .text),
-                thumbnailImageUrl: emptyToNull(fields
-                    .controller(BoardGameCanonicalEditField.thumbnailImage)
-                    .text),
-              ))),
-    );
-  }
+  ) =>
+      selection;
 
   @override
   LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
-  ) {
-    final metadata = item.boardGameCatalogFields;
-    fields.create(BoardGameCanonicalEditField.title,
-        initialValue: metadata.title);
-    fields.create(BoardGameCanonicalEditField.displayTitle,
-        initialValue: metadata.displayTitle ?? '');
-    fields.create(BoardGameCanonicalEditField.sortTitle,
-        initialValue: metadata.sortKey ?? '');
-    fields.create(BoardGameCanonicalEditField.originalTitle,
-        initialValue: metadata.originalTitle ?? '');
-    fields.create(BoardGameCanonicalEditField.localizedTitle,
-        initialValue: metadata.localizedTitle ?? '');
-    fields.create(BoardGameCanonicalEditField.searchAliases,
-        initialValue: metadata.searchAliases.join(', '));
-    fields.create(BoardGameCanonicalEditField.synopsis,
-        initialValue: metadata.synopsis ?? '');
-    fields.create(BoardGameCanonicalEditField.coverImage,
-        initialValue: metadata.coverImageUrl ?? '');
-    fields.create(BoardGameCanonicalEditField.thumbnailImage,
-        initialValue: metadata.thumbnailImageUrl ?? '');
-    return LibraryEditFormSchema(
-      fields: [
-        LibraryEditFormFieldSpec(
-          id: BoardGameCanonicalEditField.title,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(BoardGameCanonicalEditField.title),
-          label: 'Title',
-          required: true,
-        ),
-        LibraryEditFormFieldSpec(
-          id: BoardGameCanonicalEditField.sortTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(BoardGameCanonicalEditField.sortTitle),
-          label: 'Sort title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: BoardGameCanonicalEditField.originalTitle,
-          section: LibraryEditFormSection.details,
-          controller:
-              fields.controller(BoardGameCanonicalEditField.originalTitle),
-          label: 'Original title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: BoardGameCanonicalEditField.localizedTitle,
-          section: LibraryEditFormSection.details,
-          controller:
-              fields.controller(BoardGameCanonicalEditField.localizedTitle),
-          label: 'Localized title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: BoardGameCanonicalEditField.displayTitle,
-          section: LibraryEditFormSection.details,
-          controller:
-              fields.controller(BoardGameCanonicalEditField.displayTitle),
-          label: 'Display title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: BoardGameCanonicalEditField.searchAliases,
-          section: LibraryEditFormSection.details,
-          controller:
-              fields.controller(BoardGameCanonicalEditField.searchAliases),
-          label: 'Search aliases',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: BoardGameCanonicalEditField.thumbnailImage,
-          section: LibraryEditFormSection.details,
-          controller:
-              fields.controller(BoardGameCanonicalEditField.thumbnailImage),
-          label: 'Thumbnail image URL',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: BoardGameCanonicalEditField.coverImage,
-          section: LibraryEditFormSection.artwork,
-          controller: fields.controller(BoardGameCanonicalEditField.coverImage),
-          label: 'Cover Image URL',
-        ),
-        LibraryEditFormFieldSpec(
-          id: BoardGameCanonicalEditField.synopsis,
-          section: LibraryEditFormSection.description,
-          controller: fields.controller(BoardGameCanonicalEditField.synopsis),
-          label: 'Synopsis',
-          maxLines: 8,
-        ),
-      ],
-      sectionTitles: const {
-        LibraryEditFormSection.details: 'Details',
-        LibraryEditFormSection.artwork: 'Cover Image',
-        LibraryEditFormSection.description: 'Synopsis',
-      },
-    );
-  }
+  ) =>
+      LibraryEditFormSchema.empty;
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .kindMetadata is BoardGameMetadata
-        ? (selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .kindMetadata as BoardGameMetadata)
-        : null;
-    if (meta != null) {
-      final originalTitle = _nullableText(originalTitleController);
-      final editionTitle = _nullableText(editionTitleController);
-      final year = _intValue(releaseYearController);
-      final minPlayers = _intValue(minPlayersController);
-      final maxPlayers = _intValue(maxPlayersController);
-      final recommendedPlayers = _nullableText(recommendedPlayersController);
-      final bestPlayers = _nullableText(bestPlayersController);
-      final minPlaytime = _intValue(minPlaytimeController);
-      final maxPlaytime = _intValue(maxPlaytimeController);
-      final minimumAge = _intValue(minimumAgeController);
-      final complexityWeight = _doubleValue(complexityWeightController);
-      final designers =
-          _splitValues(designersController, fallback: meta.designers);
-      final artists = _splitValues(artistsController, fallback: meta.artists);
-      final publishers = _splitValues(
-        publisherController,
-        fallback: meta.publishers.isNotEmpty
-            ? meta.publishers
-            : [if (meta.publisher != null) meta.publisher!],
-      );
-      final mechanics =
-          _splitValues(mechanicsController, fallback: meta.mechanics);
-      final categories =
-          _splitValues(categoriesController, fallback: meta.categories);
-      final families =
-          _splitValues(familiesController, fallback: meta.families);
-      final themes = _splitValues(themesController, fallback: meta.themes);
-      final expansions =
-          _splitValues(expansionsController, fallback: meta.expansions);
-      final expansionFor = _nullableText(expansionForController);
-      final languages =
-          _splitValues(languagesController, fallback: meta.languages);
-      final bggRating = _doubleValue(bggRatingController);
-      final bggRatingCount = _intValue(bggRatingCountController);
-      final bggRank = _intValue(bggRankController);
-      final seriesTitle = _nullableText(seriesTitleController);
-      final series = _updatedSeries(meta.series, seriesTitle);
-      final itemNumber = _nullableText(itemNumberController);
-      final physicalFormat = _nullableText(physicalFormatController);
-      final barcode = _nullableText(barcodeController);
-      final variant = _nullableText(variantController);
-      final releaseDate = DateTime.tryParse(releaseDateController.text.trim());
-      final rawPayload = _withoutEditedFields(meta.rawPayload);
-      if (editionTitle != null) rawPayload['edition_title'] = editionTitle;
-      if (releaseDate != null) {
-        rawPayload['release_date'] = releaseDate.toIso8601String();
-      }
-      final updatedMeta = BoardGameMetadata(
-        title: meta.title,
-        originalTitle: originalTitle,
-        synopsis: meta.synopsis,
-        yearPublished: year,
-        minPlayers: minPlayers,
-        maxPlayers: maxPlayers,
-        recommendedPlayers: recommendedPlayers,
-        bestPlayers: bestPlayers,
-        minPlaytimeMinutes: minPlaytime,
-        maxPlaytimeMinutes: maxPlaytime,
-        minimumAge: minimumAge,
-        complexityWeight: complexityWeight,
-        designers: designers,
-        artists: artists,
-        publishers: publishers,
-        mechanics: mechanics,
-        categories: categories,
-        families: families,
-        themes: themes,
-        expansions: expansions,
-        expansionFor: expansionFor,
-        languages: languages,
-        bggRating: bggRating,
-        bggRatingCount: bggRatingCount,
-        bggRank: bggRank,
-        series: series,
-        seriesTitle: seriesTitle,
-        itemNumber: itemNumber,
-        physicalFormat: physicalFormat,
-        physicalFormatLabel: physicalFormat,
-        publisher: publishers.firstOrNull,
-        barcode: barcode,
-        variant: variant,
-        creators: meta.creators,
-        links: meta.links,
-        rawPayload: rawPayload,
-      );
-      return selection.copyWith(
-        kindItem: selection.kindItem.kindCapability.mapTransport(
-          (transport) => CatalogSearchCandidate.fromItem(
-            transport.withKindMetadata(updatedMeta),
-          ),
-        ),
-      );
+    final metadata = _boardGameMetadataFor(selection.kindItem);
+    if (metadata == null) return selection;
+    var updated = applyBoardGameCatalogFormValues(
+      current: metadata,
+      values: values,
+      title: catalogTitle,
+    );
+    if (_externalLinksEdited) {
+      updated = BoardGameMetadata.fromJson({
+        ...updated.toJson(),
+        'external_links': [
+          for (final (index, row) in externalLinks
+              .where((row) => row.urlController.text.trim().isNotEmpty)
+              .indexed)
+            _boardGameLinkFromDraft(row, index + 1).toJson(),
+        ],
+      });
     }
-    return selection;
+    return selection.copyWith(
+      kindItem: selection.kindItem.kindCapability.mapTransport(
+        (transport) => CatalogSearchCandidate.fromItem(
+          transport.replacingKindData(updated),
+          basedOn: selection.kindItem,
+        ),
+      ),
+    );
   }
 }
 
-String? _nullableText(TextEditingController controller) {
-  final value = controller.text.trim();
-  return value.isEmpty ? null : value;
-}
-
-int? _intValue(TextEditingController controller) =>
-    int.tryParse(controller.text.trim());
-
-double? _doubleValue(TextEditingController controller) =>
-    double.tryParse(controller.text.trim());
-
-List<String> _splitValues(
-  TextEditingController controller, {
-  required List<String> fallback,
-}) {
-  final values = controller.text
-      .split(RegExp(r'[,\r\n]+'))
-      .map((entry) => entry.trim())
-      .where((entry) => entry.isNotEmpty)
-      .toSet()
-      .toList();
-  return values.isEmpty ? fallback : values;
-}
-
-CatalogSeriesDetailsDto? _updatedSeries(
-  CatalogSeriesDetailsDto? original,
-  String? seriesTitle,
-) {
-  if (original == null && seriesTitle == null) return null;
-  return CatalogSeriesDetailsDto(
-    seriesId: original?.seriesId,
-    seriesTitle: seriesTitle,
-    volumeName: original?.volumeName,
-    volumeNumber: original?.volumeNumber,
-    volumeStartYear: original?.volumeStartYear,
-    seasonNumber: original?.seasonNumber,
-    episodeNumber: original?.episodeNumber,
-    tags: original?.tags,
+BoardGameMetadata? _boardGameMetadataFor(CatalogSearchCandidate item) {
+  if (item.summary.kind != CatalogMediaKind.boardgame) return null;
+  return item.kindCapability.mapTransport(
+    (transport) => BoardGameMetadata.fromJson(transport.kindData),
   );
-}
-
-Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
-  final cleaned = Map<String, dynamic>.from(rawPayload);
-  for (final key in [
-    'original_title',
-    'year_published',
-    'release_year',
-    'min_players',
-    'max_players',
-    'recommended_players',
-    'best_players',
-    'min_playtime_minutes',
-    'max_playtime_minutes',
-    'minimum_age',
-    'min_age',
-    'complexity_weight',
-    'weight',
-    'designers',
-    'artists',
-    'publishers',
-    'publisher',
-    'mechanics',
-    'categories',
-    'families',
-    'themes',
-    'expansions',
-    'expansion_for',
-    'languages',
-    'bgg_rating',
-    'rating',
-    'bgg_rating_count',
-    'rating_count',
-    'users_rated',
-    'bgg_rank',
-    'rank',
-    'series',
-    'series_title',
-    'item_number',
-    'issue_number',
-    'physical_format',
-    'physical_format_label',
-    'edition_title',
-    'release_date',
-    'barcode',
-    'variant',
-  ]) {
-    cleaned.remove(key);
-  }
-  return cleaned;
 }
 
 LibraryEditSessionBundle createBoardGameEditDraft({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryEntryDispatch? libraryEntryDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = BoardGameOwnedItemProjection.fromDispatch(ownedItemDispatch);
-  final bg = owned?.details;
-  final meta = item.kindCapability
-          .mapTransport((transport) => transport)
-          .kindMetadata is BoardGameMetadata
-      ? item.kindCapability.mapTransport((transport) => transport).kindMetadata
-          as BoardGameMetadata
-      : null;
+  final entry =
+      BoardGameLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
+  final boardGame = _boardGameMetadataFor(item);
+  if (boardGame == null) {
+    throw StateError('Expected a Board Game catalog item for its edit draft.');
+  }
+  final entryDetails = entry?.personal.details;
+  final linkRows = <LibraryExternalLinkDraftRow>[];
+  final originalLinks = <LibraryExternalLinkDraftRow, BoardGameLink>{};
+  for (final link in boardGame.externalLinks) {
+    final row = _boardGameLinkDraftRow(link);
+    linkRows.add(row);
+    originalLinks[row] = link;
+  }
   final draft = BoardGameEditDraft(
-    ownedItem: owned,
-    editionLanguage: bg?.editionLanguage,
-    editionRegion: bg?.editionRegion,
-    componentCondition: bg?.componentCondition,
-    componentCompleteness: bg?.componentCompleteness,
-    missingPiecesNotes: bg?.missingPiecesNotes,
-    isSleeved: bg?.isSleeved ?? false,
-    hasCustomInsert: bg?.hasCustomInsert ?? false,
-    hasPaintedMiniatures: bg?.hasPaintedMiniatures ?? false,
-    storageNotes: bg?.storageNotes,
-    editionTitleController: textControllers.create(
-      text: (item.boardGameCatalogFields.titleExtension ??
-                  item.kindCapability
-                      .mapTransport((transport) => transport)
-                      .editionTitle)
-              ?.trim() ??
-          '',
-    ),
-    originalTitleController: textControllers.create(
-      text: meta?.originalTitle ??
-          item.boardGameCatalogFields.originalTitle ??
-          '',
-    ),
-    minPlayersController: textControllers.create(
-      text: meta?.minPlayers?.toString() ?? '',
-    ),
-    maxPlayersController: textControllers.create(
-      text: meta?.maxPlayers?.toString() ?? '',
-    ),
-    recommendedPlayersController: textControllers.create(
-      text: meta?.recommendedPlayers ?? '',
-    ),
-    bestPlayersController: textControllers.create(
-      text: meta?.bestPlayers ?? '',
-    ),
-    minPlaytimeController: textControllers.create(
-      text: meta?.minPlaytimeMinutes?.toString() ?? '',
-    ),
-    maxPlaytimeController: textControllers.create(
-      text: meta?.maxPlaytimeMinutes?.toString() ?? '',
-    ),
-    minimumAgeController: textControllers.create(
-      text: meta?.minimumAge?.toString() ?? '',
-    ),
-    complexityWeightController: textControllers.create(
-      text: meta?.complexityWeight?.toString() ?? '',
-    ),
-    designersController: textControllers.create(
-      text: meta?.designers.join(', ') ?? '',
-    ),
-    artistsController: textControllers.create(
-      text: meta?.artists.join(', ') ?? '',
-    ),
-    publisherController: textControllers.create(
-      text: meta?.publishers.join(', ') ?? meta?.publisher ?? '',
-    ),
-    mechanicsController: textControllers.create(
-      text: meta?.mechanics.join(', ') ?? '',
-    ),
-    categoriesController: textControllers.create(
-      text: meta?.categories.join(', ') ?? '',
-    ),
-    familiesController: textControllers.create(
-      text: meta?.families.join(', ') ?? '',
-    ),
-    themesController: textControllers.create(
-      text: meta?.themes.join(', ') ?? '',
-    ),
-    expansionsController: textControllers.create(
-      text: meta?.expansions.join(', ') ?? '',
-    ),
-    expansionForController: textControllers.create(
-      text: meta?.expansionFor ?? '',
-    ),
-    languagesController: textControllers.create(
-      text: meta?.languages.join(', ') ?? '',
-    ),
-    bggRatingController: textControllers.create(
-      text: meta?.bggRating?.toString() ?? '',
-    ),
-    bggRatingCountController: textControllers.create(
-      text: meta?.bggRatingCount?.toString() ?? '',
-    ),
-    bggRankController: textControllers.create(
-      text: meta?.bggRank?.toString() ?? '',
-    ),
-    seriesTitleController: textControllers.create(
-      text: meta?.seriesTitle ?? '',
-    ),
-    itemNumberController: textControllers.create(
-      text: meta?.itemNumber ?? '',
-    ),
-    physicalFormatController: textControllers.create(
-      text: meta?.physicalFormatLabel ?? meta?.physicalFormat ?? '',
-    ),
-    barcodeController: textControllers.create(
-      text: meta?.barcode ?? '',
-    ),
-    variantController: textControllers.create(
-      text: meta?.variant ?? '',
-    ),
-    releaseDateController: textControllers.create(
-      text: item.boardGameCatalogFields.releaseDate == null
-          ? ''
-          : formatDate(item.boardGameCatalogFields.releaseDate!),
-    ),
-    releaseYearController: textControllers.create(
-      text: meta?.yearPublished?.toString() ??
-          item.boardGameCatalogFields.releaseYear?.toString() ??
-          '',
-    ),
+    libraryEntry: entry,
+    editionLanguage: entryDetails?.editionLanguage,
+    editionRegion: entryDetails?.editionRegion,
+    componentCondition: entryDetails?.componentCondition,
+    componentCompleteness: entryDetails?.componentCompleteness,
+    missingPiecesNotes: entryDetails?.missingPiecesNotes,
+    isSleeved: entryDetails?.isSleeved ?? false,
+    hasCustomInsert: entryDetails?.hasCustomInsert ?? false,
+    hasPaintedMiniatures: entryDetails?.hasPaintedMiniatures ?? false,
+    storageNotes: entryDetails?.storageNotes,
+    values: boardGameCatalogFormValuesFromMetadata(boardGame),
+    catalogTitle: boardGame.title,
+    externalLinks: linkRows,
+    originalExternalLinks: originalLinks,
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
-    copySession: draft,
+    catalogItemSession: draft,
+    entrySession: draft,
     disposeSession: draft.dispose,
   );
+}
+
+LibraryExternalLinkDraftRow _boardGameLinkDraftRow(BoardGameLink link) =>
+    LibraryExternalLinkDraftRow(
+      title: link.title ?? link.label ?? link.name ?? '',
+      url: link.url,
+      description: link.description ?? '',
+    );
+
+String? _boardGameOptional(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
 }

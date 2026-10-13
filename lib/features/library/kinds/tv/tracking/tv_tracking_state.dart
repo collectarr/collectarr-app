@@ -1,11 +1,11 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
-/// TV-owned hierarchy coordinates for a tracking entry.
+/// TV-entry hierarchy coordinates for a tracking entry.
 ///
 /// This is the typed home for TV season/episode data.
 final class TvTrackingCoordinates {
@@ -23,7 +23,7 @@ final class TvTrackingCoordinates {
       seasonNumber != null || episodeNumber != null;
 }
 
-/// Kind-owned coordinate patch used by TV edit/import flows.
+/// Kind-entry coordinate patch used by TV edit/import flows.
 final class TvTrackingCoordinatesPatch implements TrackingKindPatch {
   const TvTrackingCoordinatesPatch({
     this.seasonNumber,
@@ -45,14 +45,13 @@ final class TvTrackingCoordinatesPatch implements TrackingKindPatch {
   final bool setEpisodeRatings;
 }
 
-/// A TV tracking lifecycle entry with typed TV-owned coordinates.
+/// A TV tracking lifecycle entry with typed TV-entry coordinates.
 final class TvTrackingState extends PersonalTrackingBase
     with TrackingStorageRecordBehavior {
   TvTrackingState({
     required this.id,
-    required this.catalogRef,
     required this.coordinates,
-    this.ownedRef,
+    required this.libraryEntryRef,
     Object? sourceType,
     super.status,
     super.rating,
@@ -72,9 +71,7 @@ final class TvTrackingState extends PersonalTrackingBase
   @override
   final String id;
   @override
-  final CatalogEntityRef catalogRef;
-  @override
-  final OwnedItemRef? ownedRef;
+  final LibraryEntryRef libraryEntryRef;
   @override
   final TrackingSourceType? sourceType;
   @override
@@ -95,8 +92,7 @@ final class TvTrackingState extends PersonalTrackingBase
   @override
   TvTrackingState copyWith({
     String? id,
-    CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingStorageUnset,
+    Object? libraryEntryRef = trackingStorageUnset,
     Object? sourceType = trackingStorageUnset,
     Object? status = trackingStorageUnset,
     Object? rating = trackingStorageUnset,
@@ -111,11 +107,10 @@ final class TvTrackingState extends PersonalTrackingBase
   }) {
     return TvTrackingState(
       id: id ?? this.id,
-      catalogRef: catalogRef ?? this.catalogRef,
       coordinates: coordinates,
-      ownedRef: identical(ownedRef, trackingStorageUnset)
-          ? this.ownedRef
-          : ownedRef as OwnedItemRef?,
+      libraryEntryRef: identical(libraryEntryRef, trackingStorageUnset)
+          ? this.libraryEntryRef
+          : libraryEntryRef as LibraryEntryRef,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,
@@ -159,8 +154,7 @@ final class TvTrackingState extends PersonalTrackingBase
 
   TvTrackingState copyWithCoordinates({
     String? id,
-    CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingStorageUnset,
+    Object? libraryEntryRef = trackingStorageUnset,
     Object? sourceType = trackingStorageUnset,
     Object? status = trackingStorageUnset,
     Object? rating = trackingStorageUnset,
@@ -178,7 +172,6 @@ final class TvTrackingState extends PersonalTrackingBase
   }) {
     return TvTrackingState(
       id: id ?? this.id,
-      catalogRef: catalogRef ?? this.catalogRef,
       coordinates: TvTrackingCoordinates(
         seasonNumber: identical(seasonNumber, trackingStorageUnset)
             ? coordinates.seasonNumber
@@ -188,9 +181,9 @@ final class TvTrackingState extends PersonalTrackingBase
             : episodeNumber as int?,
         episodeRatings: episodeRatings ?? coordinates.episodeRatings,
       ),
-      ownedRef: identical(ownedRef, trackingStorageUnset)
-          ? this.ownedRef
-          : ownedRef as OwnedItemRef?,
+      libraryEntryRef: identical(libraryEntryRef, trackingStorageUnset)
+          ? this.libraryEntryRef
+          : libraryEntryRef as LibraryEntryRef,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,

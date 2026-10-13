@@ -1,100 +1,111 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 
 abstract final class BoardGameVocabularyIds {
   static const condition = VocabularyId<String>('boardgame.condition');
-  static const publisher = VocabularyId<String>('boardgame.publisher');
+  static const publisher = BoardGameFieldIdentities.publisherVocabulary;
   static const format = VocabularyId<String>('boardgame.format');
   static const category = VocabularyId<String>('boardgame.category');
 }
 
 abstract final class BoardGameVocabularies {
-  static Future<int> countOwnedValue(
-    LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
-  ) {
-    return countPickListOwnedValues(
-      items: BoardGameOwnedRepository(db).listActive(),
-      normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
-    );
+  static Future<List<String>> entryOptions(
+      LocalDatabase db, String semanticName) async {
+    return [
+      for (final item in await BoardGameEntryRepository(db).listActive())
+        ..._entryValues(item, semanticName)
+            .whereType<String>()
+            .where((value) => value.trim().isNotEmpty)
+    ];
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: BoardGameEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
+
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: BoardGameOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: BoardGameEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: BoardGameOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: BoardGameEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: BoardGameOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: BoardGameEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static BoardGameOwnedItem _replaceOwnedValue(
-    BoardGameOwnedItem item,
+  static BoardGameLibraryEntry _replaceEntryValue(
+    BoardGameLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
     switch (semanticName) {
       case 'condition':
-        return item.copyWith(condition: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(condition: targetValue));
       case 'grade':
-        return item.copyWith(grade: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(grade: targetValue));
       case 'purchase_store':
-        return item.copyWith(purchaseStore: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(purchaseStore: targetValue));
       case 'sold_to':
-        return item.copyWith(soldTo: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(soldTo: targetValue));
       case 'collection_status':
-        return item.copyWith(collectionStatus: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(collectionStatus: targetValue));
       case 'tags':
         return item.copyWith(
+            personal: item.personal.copyWith(
           tags: replacePickListDelimitedValue(
-            item.tags,
+            item.personal.tags,
             normalizedSourceValues,
             targetValue,
           ),
-        );
+        ));
     }
     return item;
   }
 
-  static Iterable<String?> _ownedValues(
-    BoardGameOwnedItem item,
+  static Iterable<String?> _entryValues(
+    BoardGameLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {
-      'condition' => item.condition,
-      'grade' => item.grade,
-      'purchase_store' => item.purchaseStore,
-      'sold_to' => item.soldTo,
-      'collection_status' => item.collectionStatus,
+      'condition' => item.personal.condition,
+      'grade' => item.personal.grade,
+      'purchase_store' => item.personal.purchaseStore,
+      'sold_to' => item.personal.soldTo,
+      'collection_status' => item.personal.collectionStatus,
       _ => null,
     };
     if (standard != null) {
@@ -102,7 +113,7 @@ abstract final class BoardGameVocabularies {
       return;
     }
     if (semanticName == 'tags') {
-      yield* item.tags?.split(',') ?? const <String>[];
+      yield* item.personal.tags?.split(',') ?? const <String>[];
       return;
     }
     final key = switch (semanticName) {
@@ -112,7 +123,12 @@ abstract final class BoardGameVocabularies {
       _ => null,
     };
     if (key != null) {
-      yield* pickListTextValues(item.details.toJson()[key]);
+      yield* pickListTextValues(item.personal.details.toJson()[key]);
+    }
+    for (final vocabulary in all) {
+      if (vocabulary.key.split('.').last == semanticName) {
+        yield* vocabulary.valuesFrom?.call(item.metadata) ?? const <String>[];
+      }
     }
   }
 

@@ -7,8 +7,6 @@ class LibraryProjectionService {
     required ShelfState shelf,
     required LibraryKindRegistration type,
     required LibraryWorkspaceViewState viewState,
-    LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.work,
-    String? releaseFolderWorkId,
     required String query,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
     required String? selectedBucket,
@@ -20,18 +18,17 @@ class LibraryProjectionService {
     List<LibraryBucketScopeFilter> bucketScopeFilters = const [],
     List<LibraryBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,
+    Set<String>? collectionEntryIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
-    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
+    Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
-    final fields = workspace.fieldsForScope(
-      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(browserMode),
-    );
+    final fields = workspace.fields;
     final projectionQuery = LibraryProjectionQuery(
       searchQuery: query,
       groupId: fields.decodeGroupId(groupMode),
@@ -43,6 +40,7 @@ class LibraryProjectionService {
       filterSelection: filterSelection,
       linkedMetadataFilter: linkedMetadataFilter,
       constrainedItemIds: constrainedItemIds,
+      collectionEntryIds: collectionEntryIds,
     );
 
     final engine = LibraryProjectionEngine();
@@ -51,13 +49,11 @@ class LibraryProjectionService {
       type: type,
       viewState: viewState,
       query: projectionQuery,
-      browserMode: browserMode,
-      releaseFolderWorkId: releaseFolderWorkId,
       overrideBuckets: overrideBuckets,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
-      activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+      activeLoanLibraryEntryIds: activeLoanLibraryEntryIds,
       searchTarget: searchTarget,
     );
   }

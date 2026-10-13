@@ -1,6 +1,7 @@
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_tab_helpers.dart';
+import 'package:collectarr_app/features/library/kinds/tv/forms/tv_credit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_named_detail_list.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
 
 class TvEditCrewTab extends StatelessWidget {
@@ -8,21 +9,41 @@ class TvEditCrewTab extends StatelessWidget {
     super.key,
     required this.accent,
     required this.tvEdit,
+    required this.markDirty,
   });
 
   final Color accent;
   final TvEditController tvEdit;
+  final VoidCallback markDirty;
 
   @override
   Widget build(BuildContext context) {
-    return buildTvCreditsTab(
-      title: 'Crew',
-      emptyMessage: 'No crew data yet.',
-      addLabel: 'Add Crew',
-      accent: accent,
-      credits: tvEdit.crewCredits,
-      onAdd: () =>
-          tvEdit.crewCredits.add(EditableTvCredit.custom(role: 'Director')),
+    return EditTabShell(
+      children: [
+        LibraryNamedDetailList(
+          title: 'Crew',
+          emptyMessage: 'No crew data yet.',
+          addLabel: 'Add Crew',
+          accent: accent,
+          removeTooltip: 'Remove crew credit',
+          rows: () => [
+            for (final credit in tvEdit.crewCredits)
+              LibraryNamedDetailControllers(
+                identity: credit,
+                name: credit.nameController,
+                detail: credit.roleController,
+              ),
+          ],
+          onAdd: () =>
+              tvEdit.crewCredits.add(EditableTvCredit.custom(role: 'Director')),
+          onRemove: (index) => tvEdit.crewCredits.removeAt(index).dispose(),
+          onReorder: (oldIndex, newIndex) {
+            final credit = tvEdit.crewCredits.removeAt(oldIndex);
+            tvEdit.crewCredits.insert(newIndex, credit);
+          },
+          onChanged: markDirty,
+        ),
+      ],
     );
   }
 }

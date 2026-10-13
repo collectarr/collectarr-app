@@ -1,6 +1,8 @@
+import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -10,36 +12,53 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef _InspectorCustomFieldsRequest = ({
   LocalDatabase db,
-  OwnedItemRef ownedRef,
+  LibraryEntryRef libraryEntryRef,
 });
 
 final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
     .family<_CustomFieldData, _InspectorCustomFieldsRequest>(
   (ref, request) async {
     final repo = CustomFieldRepository(request.db);
-    final definitions =
-        await repo.listDefinitions(mediaKind: request.ownedRef.kind.apiValue);
+    final definitions = await repo.listDefinitions(
+        mediaKind: request.libraryEntryRef.kind.apiValue);
     final values = await repo.listValuesForTarget(
-      targetId: request.ownedRef.key,
-      targetScope: CustomFieldTargetScope.ownedCopy,
+      targetId: request.libraryEntryRef.key,
+      targetScope: CustomFieldTargetScope.libraryEntry,
     );
+    final display = <String, CustomFieldDisplaySettings>{};
+    for (final definition in definitions) {
+      if (definition.valueType == CustomFieldValueType.multiSelect ||
+          definition.valueType == CustomFieldValueType.currency) {
+        display[definition.id] =
+            await CustomFieldDisplaySettings.read(definition.id);
+      }
+    }
+    final tab = await CustomFieldsDisplaySettings.read(
+        request.libraryEntryRef.kind.apiValue);
     return _CustomFieldData(
+      display: display,
+      tabName: tab.tabName,
       definitions: definitions,
       valueMap: {for (final v in values) v.fieldDefinitionId: v.value ?? ''},
     );
   },
 );
 
+/// Refresh labels and presentation after definition or tab settings are saved.
+void invalidateInspectorCustomFields(ProviderContainer container) {
+  container.invalidate(_inspectorCustomFieldsProvider);
+}
+
 class InspectorCustomFieldsSection extends ConsumerWidget {
   const InspectorCustomFieldsSection({
     super.key,
-    required this.ownedRef,
+    required this.libraryEntryRef,
     required this.db,
     required this.accent,
     this.onFilterByValue,
   });
 
-  final OwnedItemRef ownedRef;
+  final LibraryEntryRef libraryEntryRef;
   final LocalDatabase db;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -48,7 +67,7 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final data = ref
         .watch(_inspectorCustomFieldsProvider(
-          (db: db, ownedRef: ownedRef),
+          (db: db, libraryEntryRef: libraryEntryRef),
         ))
         .value;
     if (data == null || data.definitions.isEmpty) {
@@ -61,14 +80,20 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
         resolved.add(
           _ResolvedField(
             label: def.name,
-            value: displayCustomFieldValue(def, value),
+            value: def.valueType == CustomFieldValueType.multiSelect &&
+                    data.display[def.id]?.multiValueDisplay ==
+                        CustomFieldMultiValueDisplay.list
+                ? parseCustomFieldMultiValues(value).join('\n')
+                : def.valueType == CustomFieldValueType.currency
+                    ? '${libraryCurrencySymbol(data.display[def.id]?.currencyCode ?? 'USD')} $value'
+                    : displayCustomFieldValue(def, value),
           ),
         );
       }
     }
     if (resolved.isEmpty) return const SizedBox.shrink();
     return LibraryDetailSection(
-      title: 'Custom fields',
+      title: data.tabName,
       accentColor: accent,
       children: [
         LibraryDetailFieldTable(
@@ -90,7 +115,13 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
 }
 
 class _CustomFieldData {
-  const _CustomFieldData({required this.definitions, required this.valueMap});
+  const _CustomFieldData(
+      {required this.definitions,
+      required this.valueMap,
+      required this.display,
+      required this.tabName});
+  final Map<String, CustomFieldDisplaySettings> display;
+  final String tabName;
   final List<CustomFieldDefinition> definitions;
   final Map<String, String> valueMap;
 }

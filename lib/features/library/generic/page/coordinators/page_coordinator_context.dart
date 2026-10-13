@@ -1,11 +1,10 @@
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
-import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -26,7 +25,7 @@ typedef LibraryPageRebuild = void Function([VoidCallback? fn]);
 
 typedef LibraryPageEditDialogLauncher = Future<void> Function(
   LibraryProjectionItem item,
-  OwnedItemSummary? ownedItemOverride,
+  LibraryEntrySummary? libraryEntryOverride,
 );
 
 typedef LibraryPageCompareMetadataWithServer = Future<void> Function(
@@ -87,7 +86,7 @@ class LibraryPageCoordinatorContext {
     required List<LibrarySidebarScopeSnapshot> Function() getScopeHistory,
     required void Function(List<LibrarySidebarScopeSnapshot> value)
         setScopeHistory,
-    required Set<OwnedItemRef> Function() getActiveLoanOwnedItemIds,
+    required Set<LibraryEntryRef> Function() getActiveLoanLibraryEntryIds,
     required Set<String> Function() getPinnedSortFavoriteIds,
     required void Function(Set<String> value) setPinnedSortFavoriteIds,
     required Set<String> Function() getPinnedColumnFavoriteKeys,
@@ -155,7 +154,7 @@ class LibraryPageCoordinatorContext {
         _setActiveSmartListName = setActiveSmartListName,
         _getScopeHistory = getScopeHistory,
         _setScopeHistory = setScopeHistory,
-        _getActiveLoanOwnedItemIds = getActiveLoanOwnedItemIds,
+        _getActiveLoanLibraryEntryIds = getActiveLoanLibraryEntryIds,
         _getPinnedSortFavoriteIds = getPinnedSortFavoriteIds,
         _setPinnedSortFavoriteIds = setPinnedSortFavoriteIds,
         _getPinnedColumnFavoriteKeys = getPinnedColumnFavoriteKeys,
@@ -217,7 +216,7 @@ class LibraryPageCoordinatorContext {
   final void Function(String? value) _setActiveSmartListName;
   final List<LibrarySidebarScopeSnapshot> Function() _getScopeHistory;
   final void Function(List<LibrarySidebarScopeSnapshot> value) _setScopeHistory;
-  final Set<OwnedItemRef> Function() _getActiveLoanOwnedItemIds;
+  final Set<LibraryEntryRef> Function() _getActiveLoanLibraryEntryIds;
   final Set<String> Function() _getPinnedSortFavoriteIds;
   final void Function(Set<String> value) _setPinnedSortFavoriteIds;
   final Set<String> Function() _getPinnedColumnFavoriteKeys;
@@ -266,11 +265,6 @@ class LibraryPageCoordinatorContext {
   LibraryWorkspaceViewState? get viewState => _getViewState();
   set viewState(LibraryWorkspaceViewState? value) => _setViewState(value);
 
-  LibraryEntityScope get activeEntityScope =>
-      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
-        viewState?.browserMode ?? LibraryWorkspaceBrowserMode.work,
-      );
-
   LibrarySelectionState get selection => _getSelection();
   set selection(LibrarySelectionState value) => _setSelection(value);
 
@@ -318,7 +312,8 @@ class LibraryPageCoordinatorContext {
   set scopeHistory(List<LibrarySidebarScopeSnapshot> value) =>
       _setScopeHistory(value);
 
-  Set<OwnedItemRef> get activeLoanOwnedItemIds => _getActiveLoanOwnedItemIds();
+  Set<LibraryEntryRef> get activeLoanLibraryEntryIds =>
+      _getActiveLoanLibraryEntryIds();
 
   Set<String> get pinnedSortFavoriteIds => _getPinnedSortFavoriteIds();
   set pinnedSortFavoriteIds(Set<String> value) =>
@@ -353,6 +348,9 @@ class LibraryPageCoordinatorContext {
     required int count,
     String itemLabel = 'items',
   }) {
+    if (!ref.read(uiPreferencesProvider).confirmRemoval) {
+      return Future.value(true);
+    }
     return _confirmBulkRemove(
       context,
       count: count,
@@ -365,6 +363,9 @@ class LibraryPageCoordinatorContext {
     required String title,
     required String itemLabel,
   }) {
+    if (!ref.read(uiPreferencesProvider).confirmRemoval) {
+      return Future.value(true);
+    }
     return _confirmSingleRemove(
       context,
       title: title,

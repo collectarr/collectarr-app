@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
 
 abstract final class TvVocabularyIds {
   static const condition = VocabularyId<String>('tv.condition');
@@ -20,73 +20,83 @@ abstract final class TvVocabularyIds {
 }
 
 abstract final class TvVocabularies {
-  static Future<int> countOwnedValue(
-    LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
-  ) {
-    return countPickListOwnedValues(
-      items: TvOwnedRepository(db).listActive(),
-      normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
-    );
+  static Future<List<String>> entryOptions(
+      LocalDatabase db, String semanticName) async {
+    return [
+      for (final item in await TvEntryRepository(db).listActive())
+        ..._entryValues(item, semanticName)
+            .whereType<String>()
+            .where((value) => value.trim().isNotEmpty)
+    ];
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: TvEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
+
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: TvOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: TvEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: TvOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: TvEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: TvOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: TvEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static TvOwnedItem _replaceOwnedValue(
-    TvOwnedItem item,
+  static TvLibraryEntry _replaceEntryValue(
+    TvLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
     switch (semanticName) {
       case 'condition':
-        return item.copyWith(condition: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(condition: targetValue));
       case 'grade':
-        return item.copyWith(grade: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(grade: targetValue));
       case 'purchase_store':
-        return item.copyWith(purchaseStore: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(purchaseStore: targetValue));
       case 'sold_to':
-        return item.copyWith(soldTo: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(soldTo: targetValue));
       case 'collection_status':
-        return item.copyWith(collectionStatus: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(collectionStatus: targetValue));
       case 'tags':
         return item.copyWith(
+            personal: item.personal.copyWith(
           tags: replacePickListDelimitedValue(
-            item.tags,
+            item.personal.tags,
             normalizedSourceValues,
             targetValue,
           ),
-        );
+        ));
     }
     final key = switch (semanticName) {
       'features' => 'features',
@@ -96,20 +106,22 @@ abstract final class TvVocabularies {
       _ => null,
     };
     if (key == null) return item;
-    final details = item.details.toJson()..[key] = targetValue;
-    return item.copyWith(details: TvOwnedDetails.fromJson(details));
+    final details = item.personal.details.toJson()..[key] = targetValue;
+    return item.copyWith(
+        personal:
+            item.personal.copyWith(details: TvEntryDetails.fromJson(details)));
   }
 
-  static Iterable<String?> _ownedValues(
-    TvOwnedItem item,
+  static Iterable<String?> _entryValues(
+    TvLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {
-      'condition' => item.condition,
-      'grade' => item.grade,
-      'purchase_store' => item.purchaseStore,
-      'sold_to' => item.soldTo,
-      'collection_status' => item.collectionStatus,
+      'condition' => item.personal.condition,
+      'grade' => item.personal.grade,
+      'purchase_store' => item.personal.purchaseStore,
+      'sold_to' => item.personal.soldTo,
+      'collection_status' => item.personal.collectionStatus,
       _ => null,
     };
     if (standard != null) {
@@ -117,7 +129,7 @@ abstract final class TvVocabularies {
       return;
     }
     if (semanticName == 'tags') {
-      yield* item.tags?.split(',') ?? const <String>[];
+      yield* item.personal.tags?.split(',') ?? const <String>[];
       return;
     }
     final key = switch (semanticName) {
@@ -128,7 +140,12 @@ abstract final class TvVocabularies {
       _ => null,
     };
     if (key != null) {
-      yield* pickListTextValues(item.details.toJson()[key]);
+      yield* pickListTextValues(item.personal.details.toJson()[key]);
+    }
+    for (final vocabulary in all) {
+      if (vocabulary.key.split('.').last == semanticName) {
+        yield* vocabulary.valuesFrom?.call(item.metadata) ?? const <String>[];
+      }
     }
   }
 
@@ -148,7 +165,7 @@ abstract final class TvVocabularies {
   static const physicalFormat = VocabularyDefinition<String>(
     id: TvVocabularyIds.physicalFormat,
     label: 'Format',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(
       _physicalFormatCatalogValues,
     ),
     builtIns: [
@@ -162,8 +179,7 @@ abstract final class TvVocabularies {
   static const region = VocabularyDefinition<String>(
     id: TvVocabularyIds.region,
     label: 'Region',
-    valuesFrom:
-        TypedVocabularyProjector<TvSeriesMetadata>(_regionCatalogValues),
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(_regionCatalogValues),
     builtIns: [
       'Region A / Region 1',
       'Region B / Region 2',
@@ -175,7 +191,7 @@ abstract final class TvVocabularies {
   static const packaging = VocabularyDefinition<String>(
     id: TvVocabularyIds.packaging,
     label: 'Packaging',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(
       _packagingCatalogValues,
     ),
     builtIns: [
@@ -191,7 +207,7 @@ abstract final class TvVocabularies {
   static const distributor = VocabularyDefinition<String>(
     id: TvVocabularyIds.distributor,
     label: 'Distributor / Studio',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(
       _distributorCatalogValues,
     ),
     builtIns: [
@@ -208,7 +224,7 @@ abstract final class TvVocabularies {
   static const screenRatio = VocabularyDefinition<String>(
     id: TvVocabularyIds.screenRatio,
     label: 'Screen Ratio',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(
       _screenRatioCatalogValues,
     ),
     builtIns: [
@@ -222,7 +238,7 @@ abstract final class TvVocabularies {
   static const audio = VocabularyDefinition<String>(
     id: TvVocabularyIds.audio,
     label: 'Audio',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(_audioCatalogValues),
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(_audioCatalogValues),
     builtIns: [
       'Dolby Atmos',
       'DTS-HD Master Audio 5.1',
@@ -235,7 +251,7 @@ abstract final class TvVocabularies {
   static const subtitles = VocabularyDefinition<String>(
     id: TvVocabularyIds.subtitles,
     label: 'Subtitles',
-    valuesFrom: TypedVocabularyProjector<TvSeriesMetadata>(
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(
       _subtitlesCatalogValues,
     ),
     builtIns: [
@@ -250,8 +266,7 @@ abstract final class TvVocabularies {
   static const network = VocabularyDefinition<String>(
     id: TvVocabularyIds.network,
     label: 'Original Network',
-    valuesFrom:
-        TypedVocabularyProjector<TvSeriesMetadata>(_networkCatalogValues),
+    valuesFrom: TypedVocabularyProjector<TvMetadata>(_networkCatalogValues),
     builtIns: [
       'HBO',
       'Netflix',
@@ -285,50 +300,51 @@ abstract final class TvVocabularies {
 }
 
 Iterable<String?> _physicalFormatCatalogValues(
-  TvSeriesMetadata metadata,
+  TvMetadata metadata,
 ) sync* {
   yield* vocabularyValues([
     metadata.physicalFormatLabel,
     metadata.physicalFormat,
+    metadata.media.map((media) => media.mediaType),
   ]);
 }
 
-Iterable<String?> _regionCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _regionCatalogValues(TvMetadata metadata) {
   return vocabularyValues([
     metadata.region,
-    metadata.releases.map((release) => release.region),
+    metadata.media.map((media) => media.regionCode),
   ]);
 }
 
-Iterable<String?> _packagingCatalogValues(TvSeriesMetadata metadata) {
-  return vocabularyValues([
-    metadata.packaging,
-    metadata.releases.map((release) => release.packaging),
-  ]);
+Iterable<String?> _packagingCatalogValues(TvMetadata metadata) {
+  return vocabularyValues([metadata.packaging]);
 }
 
-Iterable<String?> _distributorCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _distributorCatalogValues(TvMetadata metadata) {
   return vocabularyValues([metadata.distributor]);
 }
 
-Iterable<String?> _screenRatioCatalogValues(TvSeriesMetadata metadata) {
-  return vocabularyValues([metadata.screenRatio]);
+Iterable<String?> _screenRatioCatalogValues(TvMetadata metadata) {
+  return vocabularyValues([
+    metadata.screenRatio,
+    metadata.media.map((media) => media.aspectRatio),
+  ]);
 }
 
-Iterable<String?> _audioCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _audioCatalogValues(TvMetadata metadata) {
   return vocabularyValues([
     metadata.audioTracks,
-    metadata.releases.expand((release) => release.audioTracks),
+    metadata.media.map((media) => media.audioTracks),
   ]);
 }
 
-Iterable<String?> _subtitlesCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _subtitlesCatalogValues(TvMetadata metadata) {
   return vocabularyValues([
     metadata.subtitles,
-    metadata.releases.expand((release) => release.subtitles),
+    metadata.media.map((media) => media.subtitles),
   ]);
 }
 
-Iterable<String?> _networkCatalogValues(TvSeriesMetadata metadata) {
+Iterable<String?> _networkCatalogValues(TvMetadata metadata) {
   return vocabularyValues([metadata.network]);
 }

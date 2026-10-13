@@ -25,7 +25,7 @@ class LibraryMetadataCreditsList extends StatelessWidget {
           title,
           style: textTheme.labelSmall?.copyWith(
             color: palette.textMuted,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             letterSpacing: 0.35,
           ),
         ),
@@ -67,7 +67,7 @@ class _LibraryMetadataCreditRow extends StatelessWidget {
             (role == null || role.isEmpty) ? 'Creator' : role,
             style: textTheme.labelSmall?.copyWith(
               color: palette.textMuted,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),

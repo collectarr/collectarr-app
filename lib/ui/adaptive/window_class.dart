@@ -101,28 +101,9 @@ class AppWindowClass {
     );
   }
 
-  /// Compute window class from layout [constraints].
-  factory AppWindowClass.fromConstraints(BoxConstraints constraints) {
-    return AppWindowClass.fromSize(
-      Size(
-        constraints.hasBoundedWidth ? constraints.maxWidth : double.infinity,
-        constraints.hasBoundedHeight ? constraints.maxHeight : double.infinity,
-      ),
-    );
-  }
-
   /// Retrieve the [AppWindowClass] from the nearest [MediaQuery] in the widget tree.
   static AppWindowClass of(BuildContext context) {
     return AppWindowClass.fromSize(MediaQuery.sizeOf(context));
-  }
-
-  /// Safely retrieve the [AppWindowClass] if [MediaQuery] is available.
-  static AppWindowClass? maybeOf(BuildContext context) {
-    final mediaQuery = MediaQuery.maybeOf(context);
-    if (mediaQuery == null) {
-      return null;
-    }
-    return AppWindowClass.fromSize(mediaQuery.size);
   }
 
   // Convenience width getters
@@ -165,21 +146,4 @@ class AppWindowClass {
   @override
   String toString() =>
       'AppWindowClass(widthClass: $widthClass, heightClass: $heightClass, size: $size)';
-}
-
-/// A widget that builds its child dynamically based on the ambient [AppWindowClass].
-class AdaptiveLayout extends StatelessWidget {
-  const AdaptiveLayout({
-    super.key,
-    required this.builder,
-  });
-
-  final Widget Function(BuildContext context, AppWindowClass windowClass)
-      builder;
-
-  @override
-  Widget build(BuildContext context) {
-    final windowClass = AppWindowClass.of(context);
-    return builder(context, windowClass);
-  }
 }

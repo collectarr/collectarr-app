@@ -1,0 +1,177 @@
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:flutter/material.dart';
+
+typedef LibraryNamedDetailFieldBuilder = Widget Function(
+  BuildContext context,
+  int index,
+  LibraryNamedDetailControllers row,
+);
+
+@immutable
+final class LibraryNamedDetailControllers {
+  const LibraryNamedDetailControllers({
+    required this.identity,
+    required this.name,
+    required this.detail,
+  });
+
+  final Object identity;
+  final TextEditingController name;
+  final TextEditingController detail;
+}
+
+/// Shared ordered name/detail editor for credits and kind-specific people lists.
+///
+/// The kind owns its credit models and mutations. This widget only renders
+/// their controller pairs and reports edits/additions to the owning draft.
+final class LibraryNamedDetailList extends StatelessWidget {
+  const LibraryNamedDetailList({
+    super.key,
+    required this.title,
+    required this.emptyMessage,
+    required this.addLabel,
+    required this.accent,
+    required this.rows,
+    this.removeTooltip = 'Remove item',
+    this.nameLabel = 'Name',
+    this.detailLabel = 'Role',
+    this.headerActions = const <Widget>[],
+    this.detailFieldBuilder,
+    this.rowActionsBuilder,
+    this.detailsBuilder,
+    required this.onAdd,
+    required this.onRemove,
+    required this.onReorder,
+    required this.onChanged,
+  });
+
+  final String title;
+  final String emptyMessage;
+  final String addLabel;
+  final Color accent;
+  final List<LibraryNamedDetailControllers> Function() rows;
+  final String removeTooltip;
+  final String nameLabel;
+  final String detailLabel;
+  final List<Widget> headerActions;
+  final LibraryNamedDetailFieldBuilder? detailFieldBuilder;
+  final LibraryNamedDetailFieldBuilder? rowActionsBuilder;
+  final LibraryNamedDetailFieldBuilder? detailsBuilder;
+  final VoidCallback onAdd;
+  final ValueChanged<int> onRemove;
+  final void Function(int oldIndex, int newIndex) onReorder;
+  final VoidCallback onChanged;
+
+  @override
+  Widget build(BuildContext context) => StatefulBuilder(
+        builder: (context, setState) {
+          final credits = rows();
+          return EditSection(
+            title: title,
+            accent: accent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (credits.isEmpty)
+                  EditSectionStateMessage(
+                    message: emptyMessage,
+                    icon: Icons.person_outline,
+                  )
+                else
+                  ReorderableListView.builder(
+                    shrinkWrap: true,
+                    primary: false,
+                    physics: const NeverScrollableScrollPhysics(),
+                    buildDefaultDragHandles: false,
+                    itemCount: credits.length,
+                    onReorderItem: (oldIndex, newIndex) {
+                      onReorder(oldIndex, newIndex);
+                      setState(() {});
+                      onChanged();
+                    },
+                    itemBuilder: (context, index) {
+                      final credit = credits[index];
+                      return Padding(
+                        key: ObjectKey(credit.identity),
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                ReorderableDragStartListener(
+                                  index: index,
+                                  child: const Icon(
+                                    Icons.drag_indicator,
+                                    size: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: LibraryEditTextField(
+                                    controller: credit.name,
+                                    label: nameLabel,
+                                    maxLines: 1,
+                                    onChanged: (_) => onChanged(),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: detailFieldBuilder?.call(
+                                        context,
+                                        index,
+                                        credit,
+                                      ) ??
+                                      LibraryEditTextField(
+                                        controller: credit.detail,
+                                        label: detailLabel,
+                                        maxLines: 1,
+                                        onChanged: (_) => onChanged(),
+                                      ),
+                                ),
+                                if (rowActionsBuilder != null)
+                                  rowActionsBuilder!(context, index, credit),
+                                IconButton(
+                                  tooltip: removeTooltip,
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () {
+                                    onRemove(index);
+                                    setState(() {});
+                                    onChanged();
+                                  },
+                                  icon: const Icon(Icons.close, size: 18),
+                                ),
+                              ],
+                            ),
+                            if (detailsBuilder != null) ...[
+                              const SizedBox(height: 6),
+                              detailsBuilder!(context, index, credit),
+                            ],
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                if (headerActions.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: headerActions,
+                  ),
+                ],
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    onAdd();
+                    setState(() {});
+                    onChanged();
+                  },
+                  icon: const Icon(Icons.add),
+                  label: Text(addLabel),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+}

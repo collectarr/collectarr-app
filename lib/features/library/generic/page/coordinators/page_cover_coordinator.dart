@@ -1,6 +1,7 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 // ignore_for_file: use_build_context_synchronously
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
@@ -23,11 +24,11 @@ class LibraryPageCoverCoordinator {
     final imagesRepo = ItemImagesCacheRepository(db);
     final service = ImageDownloadService(imagesRepo: imagesRepo);
 
-    final itemsToCover = <OwnedItemRef, String?>{};
+    final itemsToCover = <LibraryEntryRef, String?>{};
     for (final entry in shelfState.entries) {
-      final ownedRef = entry.ownedRef;
-      if (ownedRef == null) continue;
-      itemsToCover[ownedRef] = entry.catalogSummary?.imageUrl;
+      final libraryEntryRef = entry.libraryEntryRef;
+      if (libraryEntryRef == null) continue;
+      itemsToCover[libraryEntryRef] = entry.catalogSummary?.imageUrl;
     }
     if (itemsToCover.isEmpty) return;
 
@@ -100,6 +101,7 @@ class LibraryPageCoverCoordinator {
     await showDialog<void>(
       context: _page.context,
       builder: (dialogContext) => AccentAlertDialog(
+        headerIcon: AppIcons.tabImages,
         backgroundColor: appPalette(dialogContext).panel,
         title: const Text('Cover Matches'),
         content: ConstrainedBox(

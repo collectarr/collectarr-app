@@ -1,32 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 class LibraryEditPresentationContext {
   const LibraryEditPresentationContext({
-    required this.isOwned,
+    required this.isEntry,
     required this.isTrackingOnly,
     required this.hasTrackingContext,
     required this.hasWishlistContext,
     required this.isDigitalFormat,
     required this.hasPhysicalFormats,
-    required this.hasOwnedTargetOptions,
-    required this.hasAdditionalTargetOptions,
     required this.hasCustomFields,
-    this.scope = LibraryEntityScope.work,
   });
 
-  final bool isOwned;
+  final bool isEntry;
   final bool isTrackingOnly;
   final bool hasTrackingContext;
   final bool hasWishlistContext;
   final bool isDigitalFormat;
   final bool hasPhysicalFormats;
-  final bool hasOwnedTargetOptions;
-  final bool hasAdditionalTargetOptions;
   final bool hasCustomFields;
-  final LibraryEntityScope scope;
 }
 
 class LibraryEditTabSpec {
@@ -48,28 +41,52 @@ class LibraryEditTabSpec {
       sectionIdsForContext;
 }
 
+enum LibraryEditTabTargetScope {
+  all,
+  catalogItem,
+  tracked,
+  libraryEntry,
+}
+
+/// Declares a shared tab that the library edit host can compose around
+/// kind-owned tabs without asking the kind to build its lifecycle widget.
+class LibraryEditTabContribution {
+  const LibraryEditTabContribution({
+    required this.tab,
+    this.scope = LibraryEditTabTargetScope.all,
+    this.afterTabId,
+  });
+
+  final LibraryEditTabSpec tab;
+  final LibraryEditTabTargetScope scope;
+  final String? afterTabId;
+
+  bool isAvailableFor(LibraryEditPresentationContext context) =>
+      switch (scope) {
+        LibraryEditTabTargetScope.all => true,
+        LibraryEditTabTargetScope.catalogItem => !context.isEntry,
+        LibraryEditTabTargetScope.tracked => !context.isEntry &&
+            (context.isTrackingOnly || context.hasWishlistContext),
+        LibraryEditTabTargetScope.libraryEntry => context.isEntry,
+      };
+}
+
 class LibraryEditPresentationState {
   const LibraryEditPresentationState({
-    required this.showsOwnershipReferenceSection,
-    required this.usesOwnedMainArtworkLayout,
+    required this.usesEntryMainArtworkLayout,
     required this.usesDetailsTab,
     required this.usesArtworkCoverTab,
     required this.usesArtworkPhotosTab,
     required this.trackingSectionTitle,
     this.trackingSectionHint,
-    required this.ownershipReferenceTitle,
-    required this.ownedBundleLabel,
   });
 
-  final bool showsOwnershipReferenceSection;
-  final bool usesOwnedMainArtworkLayout;
+  final bool usesEntryMainArtworkLayout;
   final bool usesDetailsTab;
   final bool usesArtworkCoverTab;
   final bool usesArtworkPhotosTab;
   final String trackingSectionTitle;
   final String? trackingSectionHint;
-  final String ownershipReferenceTitle;
-  final String ownedBundleLabel;
 }
 
 abstract class LibraryEditPresentationBuilder {
@@ -99,7 +116,6 @@ abstract class LibraryEditPresentationBuilder {
     required BuildContext context,
     required LibraryEditShellState draft,
     required Color accent,
-    required LibraryEntityScope scope,
     required CatalogSearchCandidate item,
     required VoidCallback markDirty,
   }) =>
@@ -109,21 +125,39 @@ abstract class LibraryEditPresentationBuilder {
 class LibraryEditPresentation {
   const LibraryEditPresentation({
     required this.builder,
-    this.workBuilder,
-    this.releaseBuilder,
-    this.copyBuilder,
+    this.catalogItemBuilder,
+    this.entryBuilder,
+    this.sharedTabs = const [],
   });
 
   final LibraryEditPresentationBuilder builder;
-  final LibraryEditPresentationBuilder? workBuilder;
-  final LibraryEditPresentationBuilder? releaseBuilder;
-  final LibraryEditPresentationBuilder? copyBuilder;
+  final LibraryEditPresentationBuilder? catalogItemBuilder;
+  final LibraryEditPresentationBuilder? entryBuilder;
+  final List<LibraryEditTabContribution> sharedTabs;
 
-  LibraryEditPresentationBuilder builderForScope(LibraryEntityScope scope) {
-    return switch (scope) {
-      LibraryEntityScope.work => workBuilder ?? builder,
-      LibraryEntityScope.release => releaseBuilder ?? builder,
-      LibraryEntityScope.copy => copyBuilder ?? releaseBuilder ?? builder,
-    };
+  LibraryEditPresentationBuilder builderForTarget(bool isEntry) =>
+      isEntry ? entryBuilder ?? builder : catalogItemBuilder ?? builder;
+
+  List<LibraryEditTabSpec> buildTabs({
+    required LibraryEditPresentationContext context,
+    required bool isEntry,
+  }) {
+    final tabs = [
+      ...builderForTarget(isEntry).buildTabs(context: context),
+    ];
+    for (final contribution in sharedTabs) {
+      if (!contribution.isAvailableFor(context) ||
+          tabs.any((tab) => tab.id == contribution.tab.id)) {
+        continue;
+      }
+      final anchorIndex = contribution.afterTabId == null
+          ? -1
+          : tabs.indexWhere((tab) => tab.id == contribution.afterTabId);
+      tabs.insert(
+        anchorIndex < 0 ? tabs.length : anchorIndex + 1,
+        contribution.tab,
+      );
+    }
+    return tabs;
   }
 }

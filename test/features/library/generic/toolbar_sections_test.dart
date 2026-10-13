@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_view_co
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -24,8 +25,8 @@ void main() {
       label: 'Series | Issue',
       icon: Icons.swap_vert,
       rules: [
-        LibrarySortRule(column: 'series', ascending: true),
-        LibrarySortRule(column: 'issue', ascending: true),
+        LibrarySortRule(column: 'comic.series', ascending: true),
+        LibrarySortRule(column: 'comic.issue_number', ascending: true),
       ],
     );
 
@@ -74,7 +75,8 @@ void main() {
         findsOneWidget);
 
     await tester.tap(
-      find.descendant(of: sortButton, matching: find.byIcon(Icons.sort)),
+      find.descendant(
+          of: sortButton, matching: find.byIcon(AppIcons.sortAlpha)),
     );
     await tester.pump();
 
@@ -242,7 +244,13 @@ void main() {
     expect(find.byKey(const ValueKey('library-column-split-button')),
         findsOneWidget);
     expect(find.byType(LibraryDenseSplitButton<Object>), findsOneWidget);
-    expect(find.text('Essential'), findsOneWidget);
+    expect(find.text('Essential'), findsNothing);
+    expect(
+        tester
+            .widget<LibraryDenseSplitButton<Object>>(
+                find.byType(LibraryDenseSplitButton<Object>))
+            .iconOnly,
+        isTrue);
 
     final splitButton = tester.widget<LibraryDenseSplitButton<Object>>(
       find.byType(LibraryDenseSplitButton<Object>),
@@ -324,60 +332,68 @@ void main() {
     expect((items[5] as PopupMenuItem<Object>).value, overflowFavorite);
   });
 
-  testWidgets('desktop secondary toolbar shows folder preset chip with reset', (
+  testWidgets(
+      'desktop grouping stays in the sidebar without duplicate toolbar chips', (
     tester,
   ) async {
     final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
     final runtime = type;
-    LibraryFolderPreset? changedPreset;
+    String? linkedLabel;
+    var cleared = false;
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 1200,
-            child: LibraryDesktopSecondaryToolbar(
-              type: type,
-              viewState:
-                  libraryViewProfileForKind(runtime.kind).defaults().copyWith(
-                        viewMode: LibraryViewMode.list,
-                        detailsLayout: LibraryDetailsLayout.right,
-                      ),
-              counts: const LibraryToolbarCounts(shown: 10, total: 20),
-              onEditColumns: () {},
-              onSidebarVisibilityChanged: (_) {},
-              onViewModeChanged: (_) {},
-              onDetailsLayoutChanged: (_) {},
-              onCoverSizeChanged: (_) {},
-              selectedBucket: null,
-              onClearBucket: () {},
-              quickView: null,
-              hasActiveFilters: false,
-              onQuickViewSelected: (_) {},
-              onClearFilters: () {},
-              groupMode: 'series',
-              folderPreset: LibraryFolderPreset(
-                modes: const ['series', 'publisher'],
+    Widget buildToolbar() => MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 1200,
+              child: LibraryDesktopSecondaryToolbar(
+                type: type,
+                viewState:
+                    libraryViewProfileForKind(runtime.kind).defaults().copyWith(
+                          viewMode: LibraryViewMode.list,
+                          detailsLayout: LibraryDetailsLayout.right,
+                        ),
+                counts: const LibraryToolbarCounts(shown: 10, total: 20),
+                onEditColumns: () {},
+                onSidebarVisibilityChanged: (_) {},
+                onViewModeChanged: (_) {},
+                onDetailsLayoutChanged: (_) {},
+                onCoverSizeChanged: (_) {},
+                selectedBucket: 'Example series',
+                linkedMetadataFilterLabel: linkedLabel,
+                onClearBucket: () => cleared = true,
+                quickView: null,
+                hasActiveFilters: false,
+                onQuickViewSelected: (_) {},
+                onClearFilters: () {},
+                groupMode: 'series',
+                folderPreset: LibraryFolderPreset(
+                  modes: const ['series', 'publisher'],
+                ),
+                onGroupModeChanged: (_) {},
               ),
-              onGroupModeChanged: (preset) => changedPreset = preset,
             ),
           ),
-        ),
-      ),
-    );
+        );
+    await tester.pumpWidget(buildToolbar());
 
+    expect(find.byType(InputChip), findsNothing);
+    expect(find.byTooltip('Reset folders'), findsNothing);
+    expect(
+        tester
+            .getTopLeft(find.byKey(const Key('library-view-mode-dropdown')))
+            .dx,
+        4);
+
+    linkedLabel = 'Producer: Demo Contributor';
+    await tester.pumpWidget(buildToolbar());
     expect(find.byType(InputChip), findsOneWidget);
-    expect(find.byTooltip('Reset folders'), findsOneWidget);
-
-    await tester.tap(find.byTooltip('Reset folders'));
-    await tester.pumpAndSettle();
-
-    expect(changedPreset,
-        LibraryFolderPreset.single(libraryDefaultGroupMode(type)));
+    expect(find.text(linkedLabel), findsOneWidget);
+    await tester.tap(find.byTooltip('Delete'));
+    expect(cleared, isTrue);
   });
 
   testWidgets('compact toolbar exposes a visible folders shortcut',

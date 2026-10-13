@@ -1,10 +1,15 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const comicsMetadataLabels = LibraryMetadataLabels(
@@ -16,7 +21,7 @@ const comicsMetadataLabels = LibraryMetadataLabels(
   },
 );
 
-const comicLibraryMediaBuilder = ComicLibraryMediaPresentationBuilder(
+const comicLibraryMediaBuilder = ComicLibraryCatalogItemPresentationBuilder(
   showSummary: true,
   metadataLabels: comicsMetadataLabels,
 );
@@ -65,29 +70,34 @@ const comicLibraryGroupLabels = LibraryPresentationLabels(
 const comicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  if (ComicFieldIdentities.series.filterable)
+    LibraryFilterDefinition<Object?>(
+      metadata: ComicFieldIdentities.series,
+      id: ComicFieldIdentities.seriesId,
+      label: ComicFieldIdentities.seriesLabel,
+      anyLabel: 'Any series',
+      value: (item) => (item.dto is ComicWorkspaceDto)
+          ? (item.dto as ComicWorkspaceDto).seriesTitle
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
-    id: 'series',
-    label: 'Series',
-    anyLabel: 'Any series',
-    value: (item) => (item.dto is ComicWorkspaceDto)
-        ? (item.dto as ComicWorkspaceDto).seriesTitle
-        : null,
-  ),
-  LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => ComicOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.tags?.split(','),
+    value: (item) => ComicLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: ComicWorkspaceFieldMetadata.publisher,
     id: 'publisher',
     label: 'Publisher',
     anyLabel: 'Any publisher',
@@ -96,6 +106,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: ComicWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -104,38 +115,45 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: ComicWorkspaceFieldMetadata.grade,
     id: 'grade',
     label: 'Grade',
     anyLabel: 'Any grade',
     missingValueLabel: 'Missing grade',
-    value: (item) => ComicOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.grade,
+    value: (item) => ComicLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.grade,
     matches: (item, value) => value == LibraryFilterDefinition.missingValue
-        ? item.source.isOwned &&
-            (ComicOwnedItemProjection.fromDispatch(
-                            item.source.ownedItemDispatch)
-                        ?.grade ==
+        ? item.source.isEntry &&
+            (ComicLibraryEntryProjection.fromDispatch(
+                            item.source.libraryEntryDispatch)
+                        ?.personal
+                        .grade ==
                     null ||
-                ComicOwnedItemProjection.fromDispatch(
-                        item.source.ownedItemDispatch)!
+                ComicLibraryEntryProjection.fromDispatch(
+                        item.source.libraryEntryDispatch)!
+                    .personal
                     .grade!
                     .trim()
                     .isEmpty)
-        : ComicOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch)
-                ?.grade
+        : ComicLibraryEntryProjection.fromDispatch(
+                    item.source.libraryEntryDispatch)
+                ?.personal
+                .grade
                 ?.trim() ==
             value,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => ComicOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.condition,
+    value: (item) => ComicLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: ComicWorkspaceFieldMetadata.country,
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -144,6 +162,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: ComicWorkspaceFieldMetadata.language,
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
@@ -161,9 +180,46 @@ String comicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   );
 }
 
-final comicLibraryMediaPresentation = LibraryMediaPresentation(
+final comicLibraryCatalogItemPresentation = LibraryMediaPresentation(
+  sortFavorites: [
+    LibrarySortFavorite(
+        id: 'title_asc',
+        label: 'Title A-Z',
+        icon: AppIcons.sortAlpha,
+        rules: [
+          LibrarySortRule(
+              column: ComicWorkspaceFieldMetadata.title.id, ascending: true)
+        ]),
+    LibrarySortFavorite(
+        id: 'release_latest',
+        label: 'Latest release',
+        icon: AppIcons.calendar,
+        rules: [
+          LibrarySortRule(
+              column: ComicWorkspaceFieldMetadata.releaseDate.id,
+              ascending: false)
+        ]),
+    LibrarySortFavorite(
+        id: 'recent',
+        label: 'Recently updated',
+        icon: AppIcons.calendar,
+        rules: [
+          LibrarySortRule(
+              column: ComicWorkspaceFieldMetadata.updatedAt.id,
+              ascending: false)
+        ]),
+    LibrarySortFavorite(
+        id: 'value_desc',
+        label: 'Purchase price high to low',
+        icon: AppIcons.sortCount,
+        rules: [
+          LibrarySortRule(
+              column: ComicWorkspaceFieldMetadata.pricePaid.id,
+              ascending: false)
+        ]),
+  ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
-    queryHint: 'Enter title, creator, or keyword...',
+    queryHint: 'Search comics by series, issue, or exact title...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
   filterLabels: const LibraryPresentationLabels(
@@ -190,12 +246,15 @@ bool? comicQuickViewMatcher(
   LibraryQuickView view,
 ) {
   return switch (view) {
-    LibraryQuickView.missingGrade => item.source.isOwned &&
-        (ComicOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch)
-                    ?.grade ==
+    LibraryQuickView.missingGrade => item.source.isEntry &&
+        (ComicLibraryEntryProjection.fromDispatch(
+                        item.source.libraryEntryDispatch)
+                    ?.personal
+                    .grade ==
                 null ||
-            ComicOwnedItemProjection.fromDispatch(
-                    item.source.ownedItemDispatch)!
+            ComicLibraryEntryProjection.fromDispatch(
+                    item.source.libraryEntryDispatch)!
+                .personal
                 .grade!
                 .trim()
                 .isEmpty),

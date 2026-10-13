@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-/// Music-owned aliases for the collection CSV boundary.
+/// Music-entry aliases for the collection CSV boundary.
 final class MusicCollectionCsvImportProfile {
   const MusicCollectionCsvImportProfile();
 
-  /// Canonical schema-v1 header owned by this kind's CSV integration.
+  /// Canonical schema-v1 header entry by this kind's CSV integration.
   ///
   /// The same wire positions may be duplicated between kinds intentionally;
   /// Collection never interprets these labels as a shared domain schema.
@@ -27,7 +27,6 @@ final class MusicCollectionCsvImportProfile {
     'price_paid_cents',
     'currency',
     'notes',
-    'quantity',
     'location_id',
     'index_number',
     'cover_price_cents',
@@ -67,7 +66,6 @@ final class MusicCollectionCsvImportProfile {
     'Purchase Price',
     'Currency',
     'Cover Price',
-    'Quantity',
     'Location ID',
     'Index',
     'Raw / Slabbed',
@@ -158,7 +156,7 @@ final class MusicCollectionCsvImportProfile {
     ];
   }
 
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   }) {

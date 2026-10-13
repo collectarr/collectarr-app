@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -6,12 +7,12 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
 
@@ -60,7 +61,7 @@ String boardgameSeedCoverUrl(String title) {
 }
 
 final boardgameDevSeedContributor =
-    TypedDevSeedKindContributor<BoardGameOwnedItem>(
+    TypedDevSeedKindContributor<BoardGameLibraryEntry>(
   kind: CatalogMediaKind.boardgame,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
@@ -78,11 +79,9 @@ final boardgameDevSeedContributor =
   validateCatalog: validateBoardgameSeedCatalog,
   validateCatalogGraph: validateBoardgameSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: boardgameSeedOwnedItems,
-  ownedSummaryTyped: BoardGameOwnedItemProjection.toSummary,
-  validateOwnedTyped: validateBoardgameSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      BoardGameOwnedRepository(db).upsertAll(boardgameSeedOwnedItems(now)),
+  libraryEntriesTyped: boardgameSeedLibraryEntries,
+  libraryEntrySummaryTyped: BoardGameLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateBoardgameSeedEntry,
   trackingRecords: boardgameSeedTrackingStates,
   seedDatabase: seedBoardgameDatabase,
 );
@@ -96,9 +95,17 @@ void enrichBoardgameSeedPayload(
   payload.putIfAbsent('play_count', () => 5);
   payload.putIfAbsent(
     'last_played',
-    () => item.releaseDate?.toUtc().toIso8601String(),
+    () => BoardGameMetadata.fromJson(item.kindData)
+        .releaseDate
+        ?.asDateTime
+        ?.toUtc()
+        .toIso8601String(),
   );
   payload.putIfAbsent('favorite_player_count', () => 4);
+  payload.putIfAbsent('min_players', () => 1);
+  payload.putIfAbsent('max_players', () => 4);
+  payload.putIfAbsent('min_playtime_minutes', () => 45);
+  payload.putIfAbsent('max_playtime_minutes', () => 90);
   payload.putIfAbsent(
     'player_stats',
     () => <Map<String, dynamic>>[
@@ -122,50 +129,32 @@ List<String> validateBoardgameSeedCatalog(CatalogItemDto item) {
 List<String> validateBoardgameSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final editions = seedRequireObjectList(
+  final metadata = BoardGameMetadata.fromJson(item.kindData);
+  seedRequirePositiveInt(issues, prefix, 'min_players', metadata.minPlayers);
+  seedRequirePositiveInt(issues, prefix, 'max_players', metadata.maxPlayers);
+  seedRequirePositiveInt(
     issues,
     prefix,
-    'editions',
-    item.payload['editions'],
+    'min_playtime_minutes',
+    metadata.minPlaytimeMinutes,
   );
-  seedValidateChildren(
+  seedRequirePositiveInt(
     issues,
     prefix,
-    'editions',
-    editions,
-    kind: CatalogMediaKind.boardgame,
-    parentId: item.id,
-    parentKey: 'work_id',
-    titleKey: 'edition_title',
+    'max_playtime_minutes',
+    metadata.maxPlaytimeMinutes,
   );
-  for (var index = 0; index < editions.length; index++) {
-    final edition = editions[index];
-    seedRequirePositiveInt(
-      issues,
-      prefix,
-      'editions[$index].min_players',
-      edition['min_players'],
-    );
-    seedRequirePositiveInt(
-      issues,
-      prefix,
-      'editions[$index].max_players',
-      edition['max_players'],
-    );
-    seedRequirePositiveInt(
-      issues,
-      prefix,
-      'editions[$index].playing_time_minutes',
-      edition['playing_time_minutes'],
-    );
+  if (item.kindData.containsKey('editions') ||
+      item.kindData.containsKey('releases')) {
+    issues.add('$prefix must be a flat Board Game Catalog Item.');
   }
   return issues;
 }
 
-List<String> validateBoardgameSeedOwned(BoardGameOwnedItem item) {
+List<String> validateBoardgameSeedEntry(BoardGameLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
-  final details = item.details;
+  final prefix = 'boardgame/${item.id}';
+  final details = item.personal.details;
   seedRequireText(
       issues, prefix, 'boardgame.edition_language', details.editionLanguage);
   seedRequireText(
@@ -187,31 +176,7 @@ Future<void> seedBoardgameDatabase(
   );
 }
 
-CatalogItemDto enrichBoardgameSeedItem(CatalogItemDto item) {
-  final editions = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-edition-01',
-        'kind': 'boardgame',
-        'work_id': item.id,
-        'edition_title': edition['title'] ?? item.editionTitle ?? item.title,
-        'format': edition['format'] ?? item.physicalFormat ?? 'Board Game',
-        'publisher': edition['publisher'] ?? item.publisher,
-        'barcode': edition['barcode'] ?? item.barcode,
-        'country': edition['country'] ?? item.payload['country'],
-        'language': edition['language'] ?? item.payload['language'],
-        'age_rating': edition['age_rating'] ?? item.payload['age_rating'],
-        'release_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'release_status': edition['release_status'] ?? 'released',
-        'min_players': edition['min_players'] ?? 1,
-        'max_players': edition['max_players'] ?? 4,
-        'playing_time_minutes': edition['playing_time_minutes'] ?? 90,
-      },
-  ];
-  return withSeedPayload(item, {'editions': editions});
-}
+CatalogItemDto enrichBoardgameSeedItem(CatalogItemDto item) => item;
 
 List<CatalogItemDto> boardgameSeedCatalogItems() => [
       seedCatalogItem(
@@ -229,12 +194,12 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         physicalFormat: 'Board Game',
         ageRating: '14+',
         sortKey: 'gloomhaven-0001',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-gloomhaven',
           seriesTitle: 'Gloomhaven',
           tags: 'cooperative, dungeon crawl, campaign',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 14000,
           currency: 'USD',
         ),
@@ -255,7 +220,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         releaseYear: 2020,
         releaseDate: DateTime.utc(2020, 6, 18),
         sortKey: 'gloomhaven-0002',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-gloomhaven',
           seriesTitle: 'Gloomhaven',
         ),
@@ -277,7 +242,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         releaseDate: DateTime.utc(2019, 3, 8),
         ageRating: '10+',
         sortKey: 'wingspan-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 6500,
           currency: 'USD',
         ),
@@ -316,7 +281,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         releaseYear: 2015,
         releaseDate: DateTime.utc(2015, 10, 8),
         sortKey: 'pandemic-0002',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-pandemic',
           seriesTitle: 'Pandemic',
         ),
@@ -341,7 +306,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         ageRating: '12+',
         country: 'SE',
         sortKey: 'terraforming-mars-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 6999,
           currency: 'USD',
         ),
@@ -384,7 +349,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         releaseDate: DateTime.utc(2018, 8, 1),
         ageRating: '10+',
         sortKey: 'root-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 6000,
           currency: 'USD',
         ),
@@ -432,7 +397,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         releaseDate: DateTime.utc(2016, 8, 18),
         ageRating: '14+',
         sortKey: 'scythe-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 8000,
           currency: 'USD',
         ),
@@ -535,23 +500,33 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
       ),
     ];
 
-List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
-      for (var i = 1; i <= 15; i++)
-        BoardGameOwnedItem(
-          // Keep a deterministic first ID so repeated seed runs remain
-          // idempotent.
-          id: BoardGameOwnedItemId(
-            i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
-          ),
-          catalogRef: seedCatalogRef(
-            CatalogMediaKind.boardgame,
-            'seed-boardgame-${seedOrdinal2(i)}',
-          ),
-          createdAt: now.subtract(Duration(days: 600 - (i * 25))),
-          updatedAt: now,
+List<BoardGameLibraryEntry> boardgameSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in boardgameSeedCatalogItems())
+      item.id: BoardGameMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (var i = 1; i <= 15; i++)
+      BoardGameLibraryEntry(
+        // Keep a deterministic first ID so repeated seed runs remain
+        // idempotent.
+        id: LibraryEntryId(
+          i == 1 ? 'seed-entry-bg-01' : 'seed-entry-bg-${seedOrdinal2(i)}',
+        ),
+        metadata: metadataById['seed-boardgame-${seedOrdinal2(i)}'] ??
+            (throw StateError(
+              'Missing Board Game seed catalog item: ${seedOrdinal2(i)}',
+            )),
+        sourceCatalogRef: seedCatalogRef(
+          CatalogMediaKind.boardgame,
+          'seed-boardgame-${seedOrdinal2(i)}',
+        ),
+        createdAt: now.subtract(Duration(days: 600 - (i * 25))),
+        updatedAt: now,
+        personal: BoardGamePersonalData(
           isDigital: false,
           condition: i.isEven ? 'Near Mint' : 'Very Good',
-          details: BoardgameOwnedDetails(
+          details: BoardgameEntryDetails(
             editionLanguage: 'English',
             editionRegion: 'US',
             componentCondition: i.isEven ? 'Near Mint' : 'Very Good',
@@ -569,11 +544,12 @@ List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
           personalNotes: i == 1
               ? 'All characters unlocked.'
               : 'Complete retail copy with rulebook and components.',
-          quantity: 1,
           purchaseStore: i.isEven ? 'Local Game Store' : 'Miniature Market',
           collectionStatus: 'collected',
         ),
-    ];
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> boardgameSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
@@ -582,13 +558,9 @@ List<TrackingStorageRecord> boardgameSeedTrackingStates(DateTime now) => [
           id: i == 1
               ? 'seed-track-06'
               : 'seed-track-boardgame-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.boardgame,
-            'seed-boardgame-${seedOrdinal2(i)}',
-          ),
-          ownedRef: seedOwnedRef(
-            CatalogMediaKind.boardgame,
-            i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
+            i == 1 ? 'seed-entry-bg-01' : 'seed-entry-bg-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i == 1

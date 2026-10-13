@@ -1,14 +1,16 @@
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 
 abstract final class MangaFieldIds {
   static const status = LibraryFieldId<MangaKind, String?>('manga.status');
   static const cover = LibraryFieldId<MangaKind, String?>('manga.cover');
-  static const series = LibraryFieldId<MangaKind, String?>('manga.series');
+  static const series =
+      LibraryFieldId<MangaKind, String?>(MangaFieldIdentities.seriesId);
   static const title = LibraryFieldId<MangaKind, String>('manga.title');
   static const volumeNumber =
       LibraryFieldId<MangaKind, String?>('manga.volume_number');
   static const publisher =
-      LibraryFieldId<MangaKind, String?>('manga.publisher');
+      LibraryFieldId<MangaKind, String?>(MangaFieldIdentities.publisherId);
   static const releaseDate =
       LibraryFieldId<MangaKind, DateTime?>('manga.release_date');
   static const barcode = LibraryFieldId<MangaKind, String?>('manga.barcode');
@@ -58,7 +60,7 @@ abstract final class MangaFieldIds {
   static const genres = LibraryFieldId<MangaKind, List<String>>('manga.genres');
   static const themes = LibraryFieldId<MangaKind, List<String>>('manga.themes');
 
-  // Rich Manga Ownership Fields
+  // Rich Manga EntryPolicy Fields
   static const obiStripPresent =
       LibraryFieldId<MangaKind, bool>('manga.obi_strip_present');
   static const slipcoverPresent =
@@ -78,9 +80,10 @@ abstract final class MangaFieldIds {
 }
 
 abstract final class MangaSortIds {
-  static const series = LibrarySortId<MangaKind>('manga.series');
+  static const series = LibrarySortId<MangaKind>(MangaFieldIdentities.seriesId);
   static const volumeNumber = LibrarySortId<MangaKind>('manga.volume_number');
-  static const publisher = LibrarySortId<MangaKind>('manga.publisher');
+  static const publisher =
+      LibrarySortId<MangaKind>(MangaFieldIdentities.publisherId);
   static const status = LibrarySortId<MangaKind>('manga.status');
   static const title = LibrarySortId<MangaKind>('manga.title');
   static const releaseTitle = LibrarySortId<MangaKind>('manga.release_title');
@@ -96,9 +99,10 @@ abstract final class MangaSortIds {
 }
 
 abstract final class MangaGroupIds {
-  static const series = LibraryGroupId<MangaKind, String?>('manga.series');
+  static const series =
+      LibraryGroupId<MangaKind, String?>(MangaFieldIdentities.seriesId);
   static const publisher =
-      LibraryGroupId<MangaKind, String?>('manga.publisher');
+      LibraryGroupId<MangaKind, String?>(MangaFieldIdentities.publisherId);
   static const location = LibraryGroupId<MangaKind, String?>(
     'manga.location',
     semantic: LibraryGroupSemantic.location,
@@ -119,7 +123,8 @@ abstract final class MangaGroupIds {
 }
 
 abstract final class MangaFacetIds {
-  static const publisher = LibraryFacetId<MangaKind, String>('manga.publisher');
+  static const publisher =
+      LibraryFacetId<MangaKind, String>(MangaFieldIdentities.publisherId);
   static const genre = LibraryFacetId<MangaKind, String>('manga.genre');
   static const character = LibraryFacetId<MangaKind, String>('manga.character');
   static const theme = LibraryFacetId<MangaKind, String>('manga.theme');

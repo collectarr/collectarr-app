@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -48,14 +48,14 @@ class MissingComicSeriesReport {
     required this.seriesTitle,
     required this.coverUrl,
     required this.issueGroups,
-    required this.ownedIssueCount,
+    required this.entryIssueCount,
   });
 
   final String seriesKey;
   final String seriesTitle;
   final String? coverUrl;
   final List<MissingComicIssueGroup> issueGroups;
-  final int ownedIssueCount;
+  final int entryIssueCount;
 
   int get missingIssueCount => issueGroups.length;
 }
@@ -77,24 +77,21 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
     if (issueNumber == null) {
       continue;
     }
-    final series = metadata.series;
-    final seriesKey = series?.seriesId?.trim().isNotEmpty == true
-        ? series!.seriesId!.trim()
-        : series?.seriesTitle?.trim().isNotEmpty == true
-            ? series!.seriesTitle!.trim()
+    final seriesKey = metadata.seriesId?.trim().isNotEmpty == true
+        ? metadata.seriesId!.trim()
+        : metadata.seriesTitle?.trim().isNotEmpty == true
+            ? metadata.seriesTitle!.trim()
             : metadata.title;
-    final coverUrl = metadata.releases.isEmpty
-        ? null
-        : metadata.releases.first.coverImageUrl;
+    final coverUrl = metadata.coverImageUrl;
     final accumulator = bySeries.putIfAbsent(
       seriesKey,
       () => _MissingComicSeriesAccumulator(
         seriesKey: seriesKey,
-        seriesTitle: series?.seriesTitle?.trim().isNotEmpty == true
-            ? series!.seriesTitle!.trim()
+        seriesTitle: metadata.seriesTitle?.trim().isNotEmpty == true
+            ? metadata.seriesTitle!.trim()
             : metadata.title,
         coverUrl: coverUrl,
-        ownedIssueNumbers: <int>{},
+        entryIssueNumbers: <int>{},
         candidateVariants: <int, List<MissingComicIssueVariant>>{},
       ),
     );
@@ -103,12 +100,13 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
       accumulator.coverUrl = coverUrl;
     }
 
-    if (dto.ownedItem != null) {
-      accumulator.ownedIssueNumbers.add(issueNumber);
+    if (dto.libraryEntry != null) {
+      accumulator.entryIssueNumbers.add(issueNumber);
       continue;
     }
     if (options.excludeOnOrder &&
-        dto.ownedItem?.collectionStatus?.trim().toLowerCase() == 'on_order') {
+        dto.libraryEntry?.personal.collectionStatus?.trim().toLowerCase() ==
+            'on_order') {
       continue;
     }
     if (options.excludeUnreleased &&
@@ -129,7 +127,7 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
   final reports = <MissingComicSeriesReport>[];
   for (final accumulator in bySeries.values) {
     final missingNumbers = accumulator.candidateVariants.keys
-        .where((issue) => !accumulator.ownedIssueNumbers.contains(issue))
+        .where((issue) => !accumulator.entryIssueNumbers.contains(issue))
         .toList(growable: false)
       ..sort();
     if (missingNumbers.isEmpty) {
@@ -155,7 +153,7 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
         seriesTitle: accumulator.seriesTitle,
         coverUrl: accumulator.coverUrl,
         issueGroups: issueGroups,
-        ownedIssueCount: accumulator.ownedIssueNumbers.length,
+        entryIssueCount: accumulator.entryIssueNumbers.length,
       ),
     );
   }
@@ -270,13 +268,13 @@ String _verboseGroupLabel(MissingComicIssueGroup group) {
   return '${formatComicIssueLabel(group.issueNumber)} (${variants.join(' / ')})';
 }
 
-String _missingComicVariantLabel(ComicMedia metadata) {
+String _missingComicVariantLabel(ComicCatalogItem metadata) {
   final variant = metadata.variant?.trim();
   if (variant != null && variant.isNotEmpty) {
     return variant;
   }
-  return metadata.physicalFormatLabel?.trim().isNotEmpty == true
-      ? metadata.physicalFormatLabel!.trim()
+  return metadata.physicalFormat?.trim().isNotEmpty == true
+      ? metadata.physicalFormat!.trim()
       : metadata.title;
 }
 
@@ -303,13 +301,13 @@ class _MissingComicSeriesAccumulator {
     required this.seriesKey,
     required this.seriesTitle,
     required this.coverUrl,
-    required this.ownedIssueNumbers,
+    required this.entryIssueNumbers,
     required this.candidateVariants,
   });
 
   final String seriesKey;
   final String seriesTitle;
   String? coverUrl;
-  final Set<int> ownedIssueNumbers;
+  final Set<int> entryIssueNumbers;
   final Map<int, List<MissingComicIssueVariant>> candidateVariants;
 }

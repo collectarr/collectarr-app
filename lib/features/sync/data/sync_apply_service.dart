@@ -1,38 +1,42 @@
-import 'dart:convert';
-
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/core/models/user_folder.dart';
+import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/data/owned_copy_v1_repository.dart';
-import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
-import 'package:collectarr_app/features/library/data/catalog_item_wishlist_v1_repository.dart';
-import 'package:collectarr_app/features/library/domain/catalog_item_wishlist_v1.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_entry_persistence.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/tracking/library_tracking_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/drift.dart';
-import 'package:uuid/uuid.dart';
-
-const _uuid = Uuid();
 
 /// Orchestrates a full sync round-trip: push pending changes → pull server
 /// entities → apply them to the local cache.
@@ -45,23 +49,18 @@ class SyncApplyService {
     required this.client,
     required this.db,
     required this.queue,
-    required this.catalog,
-    required this.ownedPersistence,
+    required this.entryPersistence,
     required this.trackingRecords,
     required this.wishlistItems,
-    OwnedCopyV1Repository? ownedCopiesV1,
     LocationRepository? locations,
-  })  : ownedCopiesV1 = ownedCopiesV1 ?? OwnedCopyV1Repository(db),
-        locations = locations ?? LocationRepository(db);
+  }) : locations = locations ?? LocationRepository(db);
 
   final CollectarrSyncClient client;
   final LocalDatabase db;
   final SyncQueueRepository queue;
-  final CatalogTransportRepository catalog;
-  final CollectarrOwnedItemPersistence ownedPersistence;
+  final CollectarrLibraryEntryPersistence entryPersistence;
   final TrackingStorageRepository trackingRecords;
   final WishlistItemsCacheRepository wishlistItems;
-  final OwnedCopyV1Repository ownedCopiesV1;
   final LocationRepository locations;
 
   Future<SyncResult> syncNow(String deviceId, {DateTime? since}) async {
@@ -91,24 +90,32 @@ class SyncApplyService {
   }
 
   Future<void> _applyEntities(List<JsonMap> entities) async {
-    final catalogItems = <CatalogImportTransport>[];
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
-    final ownedPayloads = <_OwnedSyncPayload>[];
+    final userFolderUpserts = <UserFolder>[];
+    final userFolderDeletes = <String>[];
+    final entryPayloads = <_EntrySyncPayload>[];
     final tracking = <TrackingStorageSyncInput>[];
+    final trackingUnits = <TrackingUnitSummary>[];
     final wishlist = <WishlistItem>[];
-    final ownedCopiesV1Changes = <_OwnedCopyV1SyncInput>[];
-    final wishlistV1Changes = <_WishlistV1SyncInput>[];
     final watchSessions = <WatchSession>[];
+    final kindSyncEntities = <String, List<JsonMap>>{};
     final metadataOverrides = <UserMetadataOverride>[];
+    final entryImages = <({LibraryEntryRef ref, List<ItemImage> images})>[];
+    final entryCustomFields =
+        <({LibraryEntryRef ref, List<CustomFieldValue> values})>[];
+    final entryExternalLinks =
+        <({LibraryEntryRef ref, List<UserExternalLink> links})>[];
     final customEpisodes = <_CustomEpisodeSyncInput>[];
     final pickListUpserts = <JsonMap>[];
     final pickListDeletes = <String>[];
-    // Collect image data from snapshots keyed by the complete catalog ref.
-    // Equal IDs are valid across kinds and must never overwrite one another.
-    final imageDataByCatalogRef = <CatalogEntityRef, String>{};
     for (final entity in entities) {
       final type = entity['entity_type'] as String;
+      if (libraryKindSyncEntityCodecs
+          .any((codec) => codec.entityType == type)) {
+        kindSyncEntities.putIfAbsent(type, () => []).add(entity);
+        continue;
+      }
       if (type == 'location') {
         if (entity['action'] == 'delete') {
           locationDeletes.add(entity['entity_id'] as String);
@@ -116,52 +123,27 @@ class SyncApplyService {
           locationUpserts.add(_locationFromEntity(entity));
         }
       }
-      if (type == 'library_item_snapshot' && entity['action'] == 'upsert') {
-        final item = _catalogItemFromEntity(entity);
-        catalogItems.add(item);
-        final coverImageData = item.payload['cover_image_data'] as String?;
-        if (coverImageData != null) {
-          imageDataByCatalogRef[item.ref] = coverImageData;
+      if (type == 'user_folder') {
+        if (entity['action'] == 'delete') {
+          userFolderDeletes.add(entity['entity_id'] as String);
+        } else {
+          userFolderUpserts.add(_userFolderFromEntity(entity));
         }
       }
-      if (type == 'owned_item') {
-        ownedPayloads.add(_ownedPayloadFromEntity(entity));
-      }
-      if (type == 'owned_copy_v1') {
-        final payload = _payload(entity);
-        final copy = OwnedCopyV1.fromJson(payload);
-        if (ownedCopiesV1.syncEntityIdFor(copy.ref) != entity['entity_id']) {
-          throw FormatException(
-            'Owned Copy v1 sync identity does not match its scoped reference '
-            '"${entity['entity_id']}".',
-          );
-        }
-        ownedCopiesV1Changes.add(
-          (
-            copy: copy,
-            action: entity['action'] as String,
-            changedAt: DateTime.parse(entity['client_changed_at'] as String),
-          ),
-        );
-      }
-      if (type == 'catalog_item_wishlist_v1') {
-        final entry = CatalogItemWishlistV1.fromJson(_payload(entity));
-        if (entry.id != entity['entity_id']) {
-          throw FormatException(
-            'Wishlist v1 sync identity does not match payload ID '
-            '"${entity['entity_id']}".',
-          );
-        }
-        wishlistV1Changes.add(
-          (
-            entry: entry,
-            action: entity['action'] as String,
-            changedAt: DateTime.parse(entity['client_changed_at'] as String),
-          ),
-        );
+      if (type == 'library_entry') {
+        final payload = _entryPayloadFromEntity(entity);
+        entryPayloads.add(payload.entry);
+        entryImages.add((ref: payload.entry.ref, images: payload.images));
+        entryCustomFields
+            .add((ref: payload.entry.ref, values: payload.customFields));
+        entryExternalLinks
+            .add((ref: payload.entry.ref, links: payload.externalLinks));
       }
       if (type == 'tracking_entry') {
         tracking.add(_trackingRecordFromEntity(entity));
+      }
+      if (type == 'tracking_unit') {
+        trackingUnits.add(_trackingUnitFromEntity(entity));
       }
       if (type == 'wishlist_item') {
         wishlist.add(_wishlistItemFromEntity(entity));
@@ -187,35 +169,70 @@ class SyncApplyService {
       }
     }
     await db.transaction(() async {
-      await catalog.upsertTransports(catalogItems);
       for (final location in locationUpserts) {
         await locations.applySyncedUpsert(location);
       }
-      for (final item in ownedPayloads) {
-        await ownedPersistence.replaceFromPayload(item.kind, item.payload);
+      final folderRepository = UserFolderRepository(db);
+      for (final folder in userFolderUpserts) {
+        await folderRepository.applySyncedUpsert(folder);
+      }
+      for (final item in entryPayloads) {
+        await entryPersistence.replaceFromPayload(item.kind, item.payload);
+      }
+      final loanRepository = LoanRepository(db);
+      final readingQueueRepository = ReadingQueueRepository(db);
+      for (final entry in entryPayloads) {
+        await loanRepository.replaceForLibraryEntry(entry.ref, entry.loans);
+        await folderRepository.replaceMembershipsForItem(
+          entry.ref,
+          entry.folderMemberships,
+        );
+        await readingQueueRepository.applySyncedPosition(
+          entry.ref,
+          entry.readingQueuePosition,
+        );
+      }
+      final imageRepository = ItemImageRepository(db);
+      for (final entry in entryImages) {
+        await imageRepository.deleteAllForLibraryEntryRef(entry.ref);
+        for (final image in entry.images) {
+          await imageRepository.add(image);
+        }
+      }
+      final customFieldRepository = CustomFieldRepository(db);
+      for (final entry in entryCustomFields) {
+        await customFieldRepository.deleteValuesForTarget(
+          targetId: entry.ref.key,
+          targetScope: CustomFieldTargetScope.libraryEntry,
+        );
+        await customFieldRepository.upsertValues(entry.values);
+      }
+      final externalLinksRepository = UserExternalLinksCacheRepository(db);
+      for (final entry in entryExternalLinks) {
+        await externalLinksRepository.replaceSyncedForLibraryEntry(
+          entry.ref,
+          entry.links,
+        );
       }
       await trackingRecords.upsertSyncPayloads(tracking);
+      if (trackingUnits.isNotEmpty) {
+        await TrackingUnitStorageRepository(
+          db,
+          codecs: libraryTrackingUnitCodecs,
+        ).upsertAll(trackingUnits);
+      }
       await wishlistItems.upsertAll(wishlist);
-      for (final change in ownedCopiesV1Changes) {
-        await ownedCopiesV1.applySyncedChange(
-          copy: change.copy,
-          action: change.action,
-          changedAt: change.changedAt,
-        );
-      }
-      final wishlistV1Repository = CatalogItemWishlistV1Repository(db);
-      for (final change in wishlistV1Changes) {
-        await wishlistV1Repository.applySyncedChange(
-          entry: change.entry,
-          action: change.action,
-          changedAt: change.changedAt,
-        );
-      }
       if (watchSessions.isNotEmpty) {
         await WatchSessionsRepository(
           db,
           codecs: libraryWatchSessionCodecs,
         ).upsertAll(watchSessions);
+      }
+      for (final codec in libraryKindSyncEntityCodecs) {
+        final incoming = kindSyncEntities[codec.entityType];
+        if (incoming != null && incoming.isNotEmpty) {
+          await codec.applyPullBatch(db, incoming);
+        }
       }
       if (metadataOverrides.isNotEmpty) {
         await UserMetadataOverridesCacheRepository(db)
@@ -237,34 +254,10 @@ class SyncApplyService {
       for (final locationId in locationDeletes) {
         await locations.applySyncedDelete(locationId);
       }
+      for (final folderId in userFolderDeletes) {
+        await folderRepository.applySyncedDelete(folderId);
+      }
     });
-
-    // Store image bytes outside the main transaction so data sync completes
-    // first and images are processed in the background.
-    if (imageDataByCatalogRef.isNotEmpty && ownedPayloads.isNotEmpty) {
-      final imagesRepo = ItemImagesCacheRepository(db);
-      final ownedByCatalogRef = <CatalogEntityRef, OwnedItemRef>{};
-      for (final item in ownedPayloads) {
-        final rawCatalogRef = item.payload['catalog_ref'];
-        if (rawCatalogRef is! Map) continue;
-        final catalogRef = CatalogEntityRef.fromJson(
-          JsonMap.from(rawCatalogRef),
-        );
-        ownedByCatalogRef[catalogRef] = item.ref;
-      }
-      for (final entry in imageDataByCatalogRef.entries) {
-        final ownedRef = ownedByCatalogRef[entry.key];
-        if (ownedRef == null) continue;
-        final deterministicId =
-            _uuid.v5(Namespace.url.value, '${ownedRef.key}:front_cover');
-        await imagesRepo.upsert(
-          id: deterministicId,
-          ownedRef: ownedRef,
-          imageType: 'front_cover',
-          imageData: base64Decode(entry.value),
-        );
-      }
-    }
   }
 
   Future<void> _applyPickListValues(
@@ -299,54 +292,143 @@ class SyncApplyService {
   // Entity deserializers
   // ---------------------------------------------------------------------------
 
-  CatalogImportTransport _catalogItemFromEntity(
-    JsonMap entity,
-  ) {
-    final type = entity['entity_type'] as String;
-    if (type != 'library_item_snapshot') {
-      throw FormatException('Expected library_item_snapshot entity, got $type');
-    }
-    return catalog.transportFromSyncPayload(
-      id: entity['entity_id'] as String,
-      payload: _payload(entity),
-    );
-  }
-
-  _OwnedSyncPayload _ownedPayloadFromEntity(
+  _EntrySyncPayloadWithAttachments _entryPayloadFromEntity(
     JsonMap entity,
   ) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
-    final deletedAt = action == 'delete' ? entity['client_changed_at'] : null;
-    if (type != 'owned_item') {
-      throw FormatException('Expected owned_item entity, got $type');
+    if (type != 'library_entry') {
+      throw FormatException('Expected library_entry entity, got $type');
     }
-    final rawCatalogRef = payload['catalog_ref'];
-    if (rawCatalogRef is! Map) {
+    final entityId = entity['entity_id'];
+    if (entityId is! String || entityId.trim().isEmpty) {
+      throw const FormatException('Sync library_entry is missing entity_id');
+    }
+    final payloadId = payload['id'];
+    if (payloadId is String && payloadId != entityId) {
       throw const FormatException(
-        'Owned item sync payload is missing catalog_ref',
+        'Sync library_entry payload id does not match entity_id',
       );
     }
-    final catalogRef = CatalogEntityRef.fromJson(
-      JsonMap.from(rawCatalogRef),
+    final changedAt = entity['client_changed_at'];
+    if (changedAt is! String) {
+      throw const FormatException(
+        'Sync library_entry is missing client_changed_at',
+      );
+    }
+    final isDelete = action == 'delete';
+    final rawPersonalData = payload['personal_data'];
+    if (rawPersonalData is! Map) {
+      throw const FormatException(
+          'Sync library_entry is missing personal_data');
+    }
+    final personalData = Map<String, dynamic>.from(rawPersonalData);
+    final rawImages = _syncAttachmentRows(
+      personalData.remove(libraryEntrySyncImagesKey),
+      libraryEntrySyncImagesKey,
     );
-    final kind = catalogRef.mediaKind;
+    final rawCustomFields = _syncAttachmentRows(
+      personalData.remove(libraryEntrySyncCustomFieldsKey),
+      libraryEntrySyncCustomFieldsKey,
+    );
+    final rawExternalLinks = _syncAttachmentRows(
+      personalData.remove(libraryEntrySyncExternalLinksKey),
+      libraryEntrySyncExternalLinksKey,
+    );
+    final rawLoans = _syncAttachmentRows(
+      personalData.remove(libraryEntrySyncLoansKey),
+      libraryEntrySyncLoansKey,
+    );
+    final rawFolderMemberships = _syncAttachmentRows(
+      personalData.remove(libraryEntrySyncFolderMembershipsKey),
+      libraryEntrySyncFolderMembershipsKey,
+    );
+    final readingQueuePosition =
+        personalData.remove(libraryEntrySyncReadingQueuePositionKey);
+    if (readingQueuePosition != null && readingQueuePosition is! int) {
+      throw const FormatException(
+        'Sync library_entry reading queue position must be an integer or null.',
+      );
+    }
     final normalizedPayload = {
       ...payload,
-      'id': entity['entity_id'],
-      'created_at': payload['created_at'] ?? entity['client_changed_at'],
-      'updated_at': entity['client_changed_at'],
-      'deleted_at': deletedAt,
+      'id': entityId,
+      'personal_data': personalData,
+      'updated_at': payload['updated_at'] ?? changedAt,
+      'deleted_at':
+          isDelete ? payload['deleted_at'] ?? changedAt : payload['deleted_at'],
     };
+    final record = LibraryEntryRecord.fromJson(normalizedPayload);
+    final ref =
+        LibraryEntryRef(kind: record.kind, id: LibraryEntryId(record.id));
+    final images = <ItemImage>[
+      for (final value in rawImages)
+        ItemImage.fromJson({...value, 'library_entry_ref': ref.toJson()}),
+    ];
+    final loans = <Loan>[
+      for (final value in rawLoans)
+        Loan.fromJson({...value, 'library_entry_ref': ref.toJson()}),
+    ];
+    final folderMemberships = <({String folderId, int sortOrder})>[
+      for (final value in rawFolderMemberships)
+        _folderMembershipFromJson(value),
+    ];
+    final customFields = <CustomFieldValue>[
+      for (final value in rawCustomFields)
+        CustomFieldValue(
+          id: value['id'] as String,
+          targetId: ref.key,
+          targetScope: CustomFieldTargetScope.libraryEntry,
+          fieldDefinitionId: value['field_definition_id'] as String,
+          value: value['value'] as String?,
+          updatedAt: DateTime.parse(
+            value['updated_at'] as String? ?? changedAt,
+          ),
+        ),
+    ];
+    final externalLinks = <UserExternalLink>[
+      if (!isDelete)
+        for (final value in rawExternalLinks)
+          UserExternalLink.fromJson({
+            ...value,
+            'library_entry_ref': ref.toJson(),
+          }),
+    ];
     return (
-      kind: kind,
-      ref: OwnedItemRef.fromJson({
-        'kind': kind.apiValue,
-        'id': entity['entity_id'],
-      }),
-      payload: normalizedPayload,
+      entry: (
+        kind: record.kind,
+        ref: ref,
+        payload: normalizedPayload,
+        loans: isDelete ? const [] : loans,
+        folderMemberships: isDelete ? const [] : folderMemberships,
+        readingQueuePosition: isDelete ? null : readingQueuePosition as int?,
+      ),
+      images: images,
+      customFields: customFields,
+      externalLinks: isDelete ? const [] : externalLinks,
     );
+  }
+
+  UserFolder _userFolderFromEntity(JsonMap entity) {
+    final payload = _payload(entity);
+    return UserFolder.fromJson({
+      ...payload,
+      'id': entity['entity_id'],
+    });
+  }
+
+  ({String folderId, int sortOrder}) _folderMembershipFromJson(
+    Map<String, Object?> json,
+  ) {
+    final folderId = json['folder_id'];
+    final sortOrder = json['sort_order'];
+    if (folderId is! String ||
+        folderId.trim().isEmpty ||
+        (sortOrder != null && sortOrder is! int)) {
+      throw const FormatException('Invalid library entry folder membership.');
+    }
+    return (folderId: folderId, sortOrder: sortOrder as int? ?? 0);
   }
 
   WishlistItem _wishlistItemFromEntity(JsonMap entity) {
@@ -374,21 +456,58 @@ class SyncApplyService {
     if (type != 'tracking_entry') {
       throw FormatException('Expected tracking_entry entity, got $type');
     }
-    final rawRef = payload['target_ref'] ?? payload['catalog_ref'];
+    final rawRef = payload['library_entry_ref'];
     if (rawRef is! Map) {
       throw const FormatException(
-        'Tracking entry sync payload is missing catalog_ref',
+        'Tracking entry sync payload is missing library_entry_ref',
       );
     }
-    final catalogRef = CatalogEntityRef.fromJson(JsonMap.from(rawRef));
+    final libraryEntryRef = LibraryEntryRef.fromJson(
+      Map<String, Object?>.from(rawRef),
+    );
     return TrackingStorageSyncInput(
       ref: TrackingStateRef(
-        kind: catalogRef.mediaKind,
+        kind: libraryEntryRef.kind,
         id: entity['entity_id'] as String,
       ),
       payload: payload,
       updatedAt: DateTime.parse(entity['client_changed_at'] as String),
       deletedAt: deletedAt == null ? null : DateTime.parse(deletedAt as String),
+    );
+  }
+
+  TrackingUnitSummary _trackingUnitFromEntity(JsonMap entity) {
+    final type = entity['entity_type'] as String;
+    if (type != 'tracking_unit') {
+      throw FormatException('Expected tracking_unit entity, got $type');
+    }
+    final payload = _payload(entity);
+    final rawRef = payload['library_entry_ref'];
+    if (rawRef is! Map) {
+      throw const FormatException(
+        'Tracking unit sync payload is missing library_entry_ref',
+      );
+    }
+    final libraryEntryRef = LibraryEntryRef.fromJson(
+      Map<String, Object?>.from(rawRef),
+    );
+    final codec =
+        libraryTrackingUnitCodecs.cast<TrackingUnitStorageCodec?>().firstWhere(
+              (candidate) => candidate?.kind == libraryEntryRef.kind,
+              orElse: () => null,
+            );
+    if (codec == null) {
+      throw UnsupportedError(
+        'No tracking-unit codec is registered for ${libraryEntryRef.kind.apiValue}',
+      );
+    }
+    final action = entity['action'] as String;
+    final changedAt = DateTime.parse(entity['client_changed_at'] as String);
+    return codec.fromSyncPayload(
+      id: entity['entity_id'] as String,
+      payload: payload,
+      updatedAt: changedAt,
+      deletedAt: action == 'delete' ? changedAt : null,
     );
   }
 
@@ -400,9 +519,9 @@ class SyncApplyService {
     if (type != 'watch_session') {
       throw FormatException('Expected watch_session entity, got $type');
     }
-    final rawRef = payload['target_ref'] ?? payload['catalog_ref'];
+    final rawRef = payload['library_entry_ref'];
     final kind = rawRef is Map
-        ? catalogMediaKindFromValue(rawRef['kind'])
+        ? LibraryEntryRef.fromJson(Map<String, Object?>.from(rawRef)).kind
         : CatalogMediaKind.unknown;
     final codec = kind.isUnknown
         ? null
@@ -420,7 +539,7 @@ class SyncApplyService {
       );
     }
     throw UnsupportedError(
-      'No kind-owned watch-session codec is registered for ${kind.apiValue}',
+      'No kind-entry watch-session codec is registered for ${kind.apiValue}',
     );
   }
 
@@ -461,15 +580,15 @@ class SyncApplyService {
   }
 
   CustomEpisodeSyncCodec _customEpisodeCodecFor(JsonMap payload) {
-    final rawRef = payload['catalog_ref'];
+    final rawRef = payload['library_entry_ref'];
     final kind = rawRef is Map
-        ? catalogMediaKindFromValue(rawRef['kind'])
+        ? LibraryEntryRef.fromJson(Map<String, Object?>.from(rawRef)).kind
         : CatalogMediaKind.unknown;
     for (final codec in libraryCustomEpisodeCodecs) {
       if (codec.kind == kind) return codec;
     }
     throw UnsupportedError(
-      'No kind-owned custom-episode codec is registered for ${kind.apiValue}',
+      'No kind-entry custom-episode codec is registered for ${kind.apiValue}',
     );
   }
 
@@ -564,22 +683,35 @@ class SyncApplyService {
   }
 }
 
-typedef _OwnedSyncPayload = ({
+List<Map<String, Object?>> _syncAttachmentRows(Object? raw, String name) {
+  if (raw == null) return const [];
+  if (raw is! List) {
+    throw FormatException('Sync library_entry $name must be a list.');
+  }
+  final rows = <Map<String, Object?>>[];
+  for (final value in raw) {
+    if (value is! Map) {
+      throw FormatException('Sync library_entry $name has an invalid row.');
+    }
+    rows.add(Map<String, Object?>.from(value));
+  }
+  return rows;
+}
+
+typedef _EntrySyncPayload = ({
   CatalogMediaKind kind,
-  OwnedItemRef ref,
+  LibraryEntryRef ref,
   JsonMap payload,
+  List<Loan> loans,
+  List<({String folderId, int sortOrder})> folderMemberships,
+  int? readingQueuePosition,
 });
 
-typedef _OwnedCopyV1SyncInput = ({
-  OwnedCopyV1 copy,
-  String action,
-  DateTime changedAt,
-});
-
-typedef _WishlistV1SyncInput = ({
-  CatalogItemWishlistV1 entry,
-  String action,
-  DateTime changedAt,
+typedef _EntrySyncPayloadWithAttachments = ({
+  _EntrySyncPayload entry,
+  List<ItemImage> images,
+  List<CustomFieldValue> customFields,
+  List<UserExternalLink> externalLinks,
 });
 
 final class _CustomEpisodeSyncInput {

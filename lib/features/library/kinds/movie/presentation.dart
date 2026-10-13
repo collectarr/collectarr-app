@@ -1,5 +1,10 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
@@ -50,6 +55,7 @@ const moviesLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
+    metadata: MovieWorkspaceFieldMetadata.series,
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
@@ -58,20 +64,23 @@ final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => MovieOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.tags?.split(','),
+    value: (item) => MovieLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MovieWorkspaceFieldMetadata.publisher,
     id: 'publisher',
     label: 'Studio',
     anyLabel: 'Any studio',
@@ -80,6 +89,7 @@ final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MovieWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -88,14 +98,16 @@ final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => MovieOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.condition,
+    value: (item) => MovieLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MovieWorkspaceFieldMetadata.country,
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -104,6 +116,7 @@ final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MovieWorkspaceFieldMetadata.language,
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
@@ -122,8 +135,26 @@ String moviesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final moviesLibraryMediaPresentation = LibraryMediaPresentation(
+  sortFavorites: [
+    LibrarySortFavorite(
+        id: 'title_asc',
+        label: 'Title A-Z',
+        icon: AppIcons.sortAlpha,
+        rules: [
+          LibrarySortRule(
+              column: MovieFieldIdentities.title.id, ascending: true)
+        ]),
+    LibrarySortFavorite(
+        id: 'release_latest',
+        label: 'Latest release',
+        icon: AppIcons.calendar,
+        rules: [
+          LibrarySortRule(
+              column: MovieFieldIdentities.releaseDate.id, ascending: false)
+        ]),
+  ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
-    queryHint: 'Enter title, creator, or keyword...',
+    queryHint: 'Search by title, studio, year, or release...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
   filterLabels: const LibraryPresentationLabels(
@@ -141,7 +172,7 @@ final moviesLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: moviesLibraryBucketLabelBuilder,
   cardPresentationBuilder: buildMovieCardPresentation,
   compactBucketIcon: Icons.movie_filter_outlined,
-  emptyStateProviderSummarySuffix: ' Physical formats are tracked as editions.',
+  emptyStateSummarySuffix: ' Physical formats are tracked as editions.',
   previewLabels: moviesPreviewLabels,
   statsLabels: moviesStatsLabels,
   filterDefinitions: moviesLibraryFilterDefinitions,

@@ -1,18 +1,20 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 
 typedef GameFormValuesReader<TDraft> = GameCatalogFormValues Function(
   TDraft draft,
 );
 
-List<LibraryFieldSpec<TDraft>> gameWorkFields<TDraft>({
+List<LibraryFieldSpec<TDraft>> gameMetadataFields<TDraft>({
   required GameFormValuesReader<TDraft> values,
   bool includeTitle = true,
   Set<String>? include,
   Iterable<String>? ageRatingOptions,
+  Iterable<String>? platformOptions,
 }) =>
     [
       if (includeTitle)
@@ -23,8 +25,26 @@ List<LibraryFieldSpec<TDraft>> gameWorkFields<TDraft>({
           setValue: (draft, value) => values(draft).title = value,
         ),
       LibraryTextFieldSpec<TDraft>(
+        id: 'display_title',
+        label: 'Display Title',
+        value: (draft) => values(draft).displayTitle,
+        setValue: (draft, value) => values(draft).displayTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'original_title',
+        label: 'Original Title',
+        value: (draft) => values(draft).originalTitle,
+        setValue: (draft, value) => values(draft).originalTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'localized_title',
+        label: 'Localized Title',
+        value: (draft) => values(draft).localizedTitle,
+        setValue: (draft, value) => values(draft).localizedTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
         id: 'sort_title',
-        label: 'Sort title',
+        label: 'Sort Title',
         value: (draft) => values(draft).sortTitle,
         setValue: (draft, value) => values(draft).sortTitle = value,
       ),
@@ -53,7 +73,8 @@ List<LibraryFieldSpec<TDraft>> gameWorkFields<TDraft>({
         values: (draft) => values(draft).platforms.toSet(),
         setValues: (draft, next) =>
             values(draft).platforms = next.toList(growable: false),
-        options: _options(GameVocabularies.platform.builtIns),
+        options:
+            _options(platformOptions ?? GameVocabularies.platform.builtIns),
         pickListKey: GameVocabularyIds.platform.value,
         allowCustomValues: true,
       ),
@@ -61,15 +82,13 @@ List<LibraryFieldSpec<TDraft>> gameWorkFields<TDraft>({
         id: 'identifiers',
         label: 'Identifiers',
         value: (draft) => values(draft).identifiers.join(', '),
-        setValue: (draft, value) =>
-            values(draft).identifiers = _split(value),
+        setValue: (draft, value) => values(draft).identifiers = _split(value),
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'company_roles',
         label: 'Companies and roles',
         value: (draft) => values(draft).companyRoles.join(', '),
-        setValue: (draft, value) =>
-            values(draft).companyRoles = _split(value),
+        setValue: (draft, value) => values(draft).companyRoles = _split(value),
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'developers',
@@ -100,10 +119,9 @@ List<LibraryFieldSpec<TDraft>> gameWorkFields<TDraft>({
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'search_aliases',
-        label: 'Search aliases',
+        label: 'Search Aliases',
         value: (draft) => values(draft).searchAliases.join(', '),
-        setValue: (draft, value) =>
-            values(draft).searchAliases = _split(value),
+        setValue: (draft, value) => values(draft).searchAliases = _split(value),
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'original_language',
@@ -111,17 +129,23 @@ List<LibraryFieldSpec<TDraft>> gameWorkFields<TDraft>({
         value: (draft) => values(draft).originalLanguage,
         setValue: (draft, value) => values(draft).originalLanguage = value,
       ),
-      LibraryDateFieldSpec<TDraft>(
-        id: 'work_release_date',
-        label: 'Release date',
-        value: (draft) => values(draft).workReleaseDate,
-        setValue: (draft, value) => values(draft).workReleaseDate = value,
-      ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'franchise',
-        label: 'Franchise',
+        id: GameFieldIdentities.franchiseId,
+        label: GameFieldIdentities.franchiseLabel,
         value: (draft) => values(draft).franchise,
         setValue: (draft, value) => values(draft).franchise = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'toy_subtype',
+        label: 'Toy subtype',
+        value: (draft) => values(draft).toySubtype,
+        setValue: (draft, value) => values(draft).toySubtype = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'toy_type',
+        label: 'Toy type',
+        value: (draft) => values(draft).toyType,
+        setValue: (draft, value) => values(draft).toyType = value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'series',
@@ -143,33 +167,22 @@ List<LibraryFieldSpec<TDraft>> gameWorkFields<TDraft>({
       ),
     ].where((field) => include == null || include.contains(field.id)).toList();
 
-List<LibraryFieldSpec<TDraft>> gameReleaseFields<TDraft>({
+List<LibraryFieldSpec<TDraft>> gameCatalogItemFields<TDraft>({
   required GameFormValuesReader<TDraft> values,
   Set<String>? include,
-  String titleLabel = 'Release title',
-  Iterable<String>? platformOptions,
+  String titleLabel = 'Edition title',
   Iterable<String>? regionOptions,
   Iterable<String>? formatOptions,
-  FutureOr<void> Function()? onManagePlatform,
+  String? Function(String value)? physicalFormatIdForValue,
   FutureOr<void> Function()? onManageRegion,
   FutureOr<void> Function()? onManageFormat,
 }) =>
     [
       LibraryTextFieldSpec<TDraft>(
-        id: 'release_title',
+        id: 'edition_title',
         label: titleLabel,
-        value: (draft) => values(draft).releaseTitle,
-        setValue: (draft, value) => values(draft).releaseTitle = value,
-      ),
-      LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'platform',
-        label: 'Platform',
-        value: (draft) => _nullable(values(draft).platform),
-        setValue: (draft, value) => values(draft).platform = value ?? '',
-        options: _options(
-          platformOptions ?? GameVocabularies.platform.builtIns,
-        ),
-        onManage: onManagePlatform == null ? null : (_) => onManagePlatform(),
+        value: (draft) => values(draft).editionTitle,
+        setValue: (draft, value) => values(draft).editionTitle = value,
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'region',
@@ -177,27 +190,35 @@ List<LibraryFieldSpec<TDraft>> gameReleaseFields<TDraft>({
         value: (draft) => _nullable(values(draft).region),
         setValue: (draft, value) => values(draft).region = value ?? '',
         options: _options(regionOptions ?? GameVocabularies.region.builtIns),
+        pickListKey: GameVocabularyIds.region.value,
         onManage: onManageRegion == null ? null : (_) => onManageRegion(),
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'format',
         label: 'Format',
         value: (draft) => _nullable(values(draft).format),
-        setValue: (draft, value) => values(draft).format = value ?? '',
-        options: _options(formatOptions ?? GameVocabularies.edition.builtIns),
+        setValue: (draft, value) {
+          values(draft).format = value ?? '';
+          if (physicalFormatIdForValue != null) {
+            values(draft).physicalFormatId =
+                value == null ? null : physicalFormatIdForValue(value);
+          }
+        },
         onManage: onManageFormat == null ? null : (_) => onManageFormat(),
+        options: _options(formatOptions ?? GameVocabularies.edition.builtIns),
+        pickListKey: GameVocabularyIds.edition.value,
       ),
       LibraryDateFieldSpec<TDraft>(
-        id: 'release_date',
-        label: 'Release date',
+        id: GameFieldIdentities.releaseDateId,
+        label: GameFieldIdentities.releaseDateLabel,
         value: (draft) => values(draft).releaseDate,
         setValue: (draft, value) => values(draft).releaseDate = value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'publisher',
         label: 'Publisher',
-        value: (draft) => values(draft).releasePublisher,
-        setValue: (draft, value) => values(draft).releasePublisher = value,
+        value: (draft) => values(draft).publisher,
+        setValue: (draft, value) => values(draft).publisher = value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'catalog_number',
@@ -218,8 +239,8 @@ List<LibraryFieldSpec<TDraft>> gameReleaseFields<TDraft>({
         setValue: (draft, value) => values(draft).language = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'barcode',
-        label: 'Barcode',
+        id: GameFieldIdentities.barcodeId,
+        label: GameFieldIdentities.barcodeLabel,
         value: (draft) => values(draft).barcode,
         setValue: (draft, value) => values(draft).barcode = value,
       ),
@@ -229,12 +250,17 @@ List<LibraryFieldSpec<TDraft>> gameReleaseFields<TDraft>({
         value: (draft) => values(draft).coverImageUrl,
         setValue: (draft, value) => values(draft).coverImageUrl = value,
       ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'thumbnail_image_url',
+        label: 'Thumbnail image URL',
+        value: (draft) => values(draft).thumbnailImageUrl,
+        setValue: (draft, value) => values(draft).thumbnailImageUrl = value,
+      ),
       LibraryNumberFieldSpec<TDraft>(
         id: 'release_year',
         label: 'Release year',
         value: (draft) => values(draft).releaseYear?.toDouble(),
-        setValue: (draft, value) =>
-            values(draft).releaseYear = value?.toInt(),
+        setValue: (draft, value) => values(draft).releaseYear = value?.toInt(),
         minimum: 1,
       ),
       LibraryTextFieldSpec<TDraft>(
@@ -242,12 +268,6 @@ List<LibraryFieldSpec<TDraft>> gameReleaseFields<TDraft>({
         label: 'Variant',
         value: (draft) => values(draft).variant,
         setValue: (draft, value) => values(draft).variant = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'back_cover_image_url',
-        label: 'Back cover image URL',
-        value: (draft) => values(draft).backCoverImageUrl,
-        setValue: (draft, value) => values(draft).backCoverImageUrl = value,
       ),
     ].where((field) => include == null || include.contains(field.id)).toList();
 

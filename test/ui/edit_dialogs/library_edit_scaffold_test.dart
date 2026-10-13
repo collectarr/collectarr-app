@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +11,61 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: _EditScaffoldHarness()));
 
     expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
+    final save =
+        tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Save'));
+    expect(save.style!.backgroundColor!.resolve({}), Colors.teal);
     expect(find.text('Previous'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
+    for (final label in ['Previous', 'Next']) {
+      final button = find.widgetWithText(OutlinedButton, label);
+      expect(tester.getSize(button), const Size(100, 32));
+      expect(
+          find.descendant(
+              of: button,
+              matching: find.byIcon(label == 'Previous'
+                  ? AppIcons.chevronLeft
+                  : AppIcons.chevronRight)),
+          findsOneWidget);
+      final style = tester.widget<OutlinedButton>(button).style!;
+      expect(style.backgroundColor!.resolve({WidgetState.disabled}),
+          const Color(0xFF232323));
+      expect(style.backgroundColor!.resolve({WidgetState.hovered}),
+          const Color(0xFF535353));
+    }
+
     expect(find.text('Cancel'), findsOneWidget);
+  });
+
+  testWidgets('edit dialog stays top-anchored as its content grows', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: _EditScaffoldHarness(contentHeight: 100)),
+      ),
+    );
+    final dialogSurface = find.byWidgetPredicate(
+      (widget) => widget is Material && widget.type == MaterialType.card,
+    );
+    final initialTop = tester.getTopLeft(dialogSurface).dy;
+    final initialBottom = tester.getBottomRight(dialogSurface).dy;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: _EditScaffoldHarness(contentHeight: 300)),
+      ),
+    );
+
+    expect(tester.getTopLeft(dialogSurface).dy, closeTo(initialTop, 0.1));
+    expect(
+      tester.getBottomRight(dialogSurface).dy,
+      greaterThan(initialBottom),
+    );
   });
 
   testWidgets('reordering tabs keeps logical view order stable',
@@ -26,7 +79,12 @@ void main() {
     final mainLabel = find.text('Main');
     final gesture = await tester.startGesture(tester.getCenter(detailsLabel));
     await tester.pump(const Duration(milliseconds: 700));
-    await gesture.moveTo(tester.getCenter(mainLabel));
+    final start = tester.getCenter(detailsLabel);
+    final target = tester.getCenter(mainLabel) + const Offset(20, 0);
+    for (var step = 1; step <= 5; step++) {
+      await gesture.moveTo(Offset.lerp(start, target, step / 5)!);
+      await tester.pump(const Duration(milliseconds: 50));
+    }
     await tester.pump();
     await gesture.up();
     await tester.pumpAndSettle();
@@ -46,7 +104,9 @@ void main() {
 }
 
 class _EditScaffoldHarness extends StatefulWidget {
-  const _EditScaffoldHarness();
+  const _EditScaffoldHarness({this.contentHeight = 80});
+
+  final double contentHeight;
 
   @override
   State<_EditScaffoldHarness> createState() => _EditScaffoldHarnessState();
@@ -79,12 +139,15 @@ class _EditScaffoldHarnessState extends State<_EditScaffoldHarness>
             EditTab(icon: Icons.info_outline, label: 'Main'),
             EditTab(icon: Icons.tune, label: 'Details'),
           ],
-          views: const [
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Text('Main tab'),
+          views: [
+            SizedBox(
+              height: widget.contentHeight,
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Text('Main tab'),
+              ),
             ),
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(12),
               child: Text('Details tab'),
             ),

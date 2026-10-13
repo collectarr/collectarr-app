@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_data.dart';
 
 /// Comic's semantic contribution to the generic collection CSV host.
 ///
@@ -15,8 +15,8 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 /// that format. The returned lists are serialization cells, not Comic domain
 /// objects, so the type-erased boundary exists only at export.
 final class ComicCollectionCsvProjection
-    with CollectionCsvKindOwnedImportSupport
-    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
+    with CollectionCsvKindEntryImportSupport
+    implements CollectionCsvKindProfile, CollectionCsvEntryCellsDecoder {
   const ComicCollectionCsvProjection();
 
   @override
@@ -72,35 +72,35 @@ final class ComicCollectionCsvProjection
   }
 
   @override
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   }) {
     return const ComicCollectionCsvImportProfile()
         .parseRow(header: header, values: values)
-        ?.ownedCells;
+        ?.entryCells;
   }
 
   @override
   Map<String, List<String>> get columnAliases => _columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedCells(List<String> cells) {
-    if (cells.isEmpty || cells.length > collectionCsvV1OwnedCellCount + 1) {
+  JsonEncodable? decodeEntryCells(List<String> cells) {
+    if (cells.isEmpty || cells.length > collectionCsvV1EntryCellCount + 1) {
       return null;
     }
     final grade = _optionalCell(cells[0]);
     final detailCells = [
       ...cells.skip(1),
       ...List<String>.filled(
-        collectionCsvV1OwnedCellCount - cells.length + 1,
+        collectionCsvV1EntryCellCount - cells.length + 1,
         '',
       ),
     ];
-    if (grade == null && !_hasOwnedDetails(detailCells)) return null;
-    return _ComicCollectionCsvOwnedImportPayload(
+    if (grade == null && !_hasEntryDetails(detailCells)) return null;
+    return _ComicCollectionCsvEntryImportPayload(
       grade: grade,
-      details: ComicOwnedDetails(
+      details: ComicEntryDetails(
         coverPriceCents: int.tryParse(detailCells[0].trim()),
         rawOrSlabbed: _optionalCell(detailCells[1]),
         gradingCompany: _optionalCell(detailCells[2]),
@@ -115,9 +115,9 @@ final class ComicCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    final comic = catalog is ComicWorkspaceCatalogData ? catalog.comic : null;
+  List<String> catalogCells(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    final comic = catalog is ComicWorkspaceData ? catalog.comic : null;
     return [
       entry.itemId,
       CatalogMediaKind.comic.apiValue,
@@ -126,7 +126,7 @@ final class ComicCollectionCsvProjection
       comic?.variantDescription ?? comic?.variant ?? '',
       comic?.editionTitle ?? '',
       comic?.physicalFormat ?? '',
-      comic?.physicalFormatLabel ?? '',
+      comic?.physicalFormat ?? '',
       comic?.publisher ?? '',
       _formatDate(comic?.releaseDate ?? comic?.coverDate),
       comic?.barcode ?? '',
@@ -134,42 +134,49 @@ final class ComicCollectionCsvProjection
   }
 
   @override
-  String? ownedCollectionValue(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)?.grade;
+  String? entryCollectionValue(LibraryWorkspaceContext entry) =>
+      ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
+          ?.personal
+          .grade;
 
   @override
-  String? ownedCondition(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)?.condition;
+  String? entryCondition(LibraryWorkspaceContext entry) =>
+      ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
+          ?.personal
+          .condition;
 
   @override
-  int? ownedIndexNumber(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)
-          ?.indexNumber;
+  int? entryIndexNumber(LibraryWorkspaceContext entry) =>
+      ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
+          ?.personal
+          .indexNumber;
 
   @override
-  String? ownedTags(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)?.tags;
+  String? entryTags(LibraryWorkspaceContext entry) =>
+      ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
+          ?.personal
+          .tags;
 
   @override
-  List<String> ownedCellsBeforeQuantity(
-    LibraryWorkspaceSource entry, {
+  List<String> entryCellsBeforeLocation(
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
-    final owned =
-        ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    final details = owned?.details;
+    final personalState =
+        ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    final details = personalState?.personal.details;
     if (!clzFriendly) return const [];
     return [_formatMoney(details?.coverPriceCents, clzFriendly: true)];
   }
 
   @override
-  List<String> ownedCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+  List<String> entryCellsAfterIndex(
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
-    final owned =
-        ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    final details = owned?.details;
+    final personalState =
+        ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    final details = personalState?.personal.details;
     return [
       if (!clzFriendly)
         _formatMoney(details?.coverPriceCents, clzFriendly: false),
@@ -194,7 +201,7 @@ final class ComicCollectionCsvProjection
     return '$sign$whole.$fraction';
   }
 
-  bool _hasOwnedDetails(List<String> cells) {
+  bool _hasEntryDetails(List<String> cells) {
     return cells.asMap().entries.any((entry) {
       if (entry.key == 7) return _boolCell(entry.value);
       return entry.value.trim().isNotEmpty;
@@ -245,14 +252,14 @@ final class ComicCollectionCsvProjection
   }
 }
 
-final class _ComicCollectionCsvOwnedImportPayload implements JsonEncodable {
-  const _ComicCollectionCsvOwnedImportPayload({
+final class _ComicCollectionCsvEntryImportPayload implements JsonEncodable {
+  const _ComicCollectionCsvEntryImportPayload({
     required this.grade,
     required this.details,
   });
 
   final String? grade;
-  final ComicOwnedDetails details;
+  final ComicEntryDetails details;
 
   @override
   Map<String, dynamic> toJson() => {

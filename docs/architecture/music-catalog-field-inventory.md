@@ -1,32 +1,100 @@
-# Music Catalog Field Inventory
+# Music Catalog and Personal Entry Field Ledger
 
-> This document records the earlier Music catalog ownership audit. The
-> authoritative CLZ-visible Music v1 field ledger is now
-> [catalog-item-v1-field-ledgers/music.md](catalog-item-v1-field-ledgers/music.md);
-> the all-kind target is described in
-> [catalog-item-v1-cutover.md](catalog-item-v1-cutover.md).
+This ledger is grounded in the saved CLZ Music edit form, `C:\Users\saita\Desktop\tmp\My Albums - CLZ Music Web.html`. It defines the Music v1 field boundary for the flattened Catalog Item model. Core owns canonical catalog facts; App stores one complete local entry containing typed metadata and personal data, along with activity and personal images.
 
-The field ledger at
-[music-album-v1-field-ledger.md](music-album-v1-field-ledger.md) records each
-visible CLZ field, its type, its owner (`catalog` or `owned_copy`), and the
-proposed v1 name. Its source is one saved album page, so it covers every field
-visible in that page without claiming to enumerate unseen optional or
-user-configured CLZ fields.
+## Ownership and multiplicity
 
-The pinned canonical Core contract is
-[`tool/core_contracts/catalog-item-v1.json`](../../tool/core_contracts/catalog-item-v1.json),
-under its `MusicCatalogDetailsV1` definition. It describes one edition-level
-Music Catalog Item containing ordered tracks and disc-title values. Track
-position plus `disc_number` identifies a track within its album; neither discs
-nor tracks have independent catalog identities.
+| Target | Meaning |
+| --- | --- |
+| `CatalogItem` | One concrete album edition. Discs, tracks, identifiers, and canonical edition fields are part of this root document. |
+| `LibraryEntry` | One independently editable local album record containing `MusicAlbum` metadata and `MusicPersonalData`. A second owned copy is represented by duplicating the complete entry with a new local ID. `sourceCatalogRef` records optional Core provenance; it is not a parent relationship. |
+| `MusicDisc` and `MusicTrack` | Ordered catalog children of one Music Catalog Item. A disc contains ordered tracks; neither is a generic Work or Release. |
+| `MusicListeningEvent` | App activity attached to the local Music entry. It is not a catalog field. |
 
-The App-owned copy schema is separate from Core. Each owned-copy row targets
-one album and stores only that copy's collection status, index, location,
-owner, condition, purchase and value data, rating, notes, tags, and personal
-images. This prevents details for one copy from being applied to another.
+The local entry keeps metadata and personal values in distinct typed fields, but they share one record identity. There is no separate Collection Item entity or Quantity field. Core proposals contain only the `MusicAlbum` metadata.
 
-The unified Catalog Item API and workspace are connected for the nine kinds.
-The App Drift reset and removal of the legacy hierarchy are still in progress.
-Do not use this working branch to reset or deploy existing databases. The
-completed cutover will start App and Core from empty v1 databases and rebuild
-the Core search index.
+An exact CLZ form field is identified by the displayed label and tab below. “CLZ field set” does not include implementation IDs, storage keys, derived counts, or fields that appear only in the old Collectarr model. Each local entry represents one owned item; duplicating the entry creates another item. Quantity is not stored.
+
+## Catalog Item fields
+
+| CLZ tab | Displayed label | Type / repeats | v1 field | Decision |
+| --- | --- | --- | --- | --- |
+| Main | Title | string | `title` | Catalog Item title. |
+| Main | Sort Title | string | `sort_title` | Catalog Item sort value. |
+| Main | Subtitle | string | `subtitle` | Catalog Item subtitle. |
+| Main | Artist | ordered person list | `artist_credits[]` | Preserve order and credited display name. |
+| Main | Release Date | partial date | `release_date` | Preserve year/month/day precision. |
+| Main | Original Release Date | partial date | `original_release_date` | Preserve partial precision. |
+| Main | Label | string | `label` | Release-specific label. |
+| Main | Recording Date | partial date | `recording_date` | Preserve partial precision. |
+| Main | Format | string | `format` | Catalog Item format, such as CD or Vinyl. |
+| Main | Barcode | string | `barcode` | Exact identifier string; preserve leading zeroes. |
+| Main | Cat No | string | `catalog_number` | Exact catalog number. |
+| Main | Genre | ordered string list | `genres[]` | One item can have multiple genres. |
+| Details | Packaging | string | `packaging` | Catalog Item packaging description. |
+| Details | Studio | ordered managed name list | `studios[]` | Preserve multiple studio credits in the order entered. |
+| Details | Country | string | `country` | Full country name. |
+| Details | Is Live | boolean | `is_live` | Explicit Yes/No value. |
+| Details | Sound | ordered string list | `sound_types[]` | Preserve multiple selected values. |
+| Details | Vinyl Color | string | `vinyl_color` | Catalog Item pressing detail. |
+| Details | Vinyl Weight | string | `vinyl_weight` | Preserve the displayed value. |
+| Details | RPM | integer | `rpm` | Rotational speed when applicable. |
+| Details | Extra | string | `extra` | CLZ catalog field; do not conflate it with App annotations. |
+| Details | SPARS | string | `spars` | Catalog Item production code. |
+| Details | Box Set | string | `box_set` | One canonical text value shared by the Core contract and App model; there is no separate reference or position field. |
+| Classical | Composer | ordered person list | `composers[]` | Classical credit. |
+| Classical | Conductor | ordered person list | `conductors[]` | Classical credit. |
+| Classical | Chorus | ordered name list | `choruses[]` | Classical credit. |
+| Classical | Composition | ordered name list | `compositions[]` | Classical work credit. |
+| Classical | Orchestra | ordered name list | `orchestras[]` | Classical credit. |
+| People | Songwriter | ordered person list | `songwriters[]` | Person credit. |
+| People | Producer | ordered person list | `producers[]` | Person credit. |
+| People | Engineer | ordered person list | `engineers[]` | Person credit. |
+| People | Musician | ordered person list | `musicians[]` | Person credit; instrument data belongs to the credit when supplied. |
+| Tracks | Disc Title | string per disc | `discs[].title` | A disc is an ordered child; its title is shared catalog content. |
+| Tracks | Track Title | string per track | `discs[].tracks[].title` | Track order is represented by `position`. |
+| Tracks | Artist | string per track | `discs[].tracks[].artist` | Optional track-level credit. |
+| Tracks | Length | duration per track | `discs[].tracks[].duration_ms` | Store a normalized duration while preserving displayed time on presentation. |
+| Tracks | Matrix No. Side A | string per disc | `discs[].matrix_number_side_a` | Pressing identifier, shared by copies of the same Catalog Item. |
+| Tracks | Matrix No. Side B | string per disc | `discs[].matrix_number_side_b` | Pressing identifier, shared by copies of the same Catalog Item. |
+| Covers | Front Cover | image asset | `cover_image_url` | Core-owned Catalog Item artwork. |
+| Covers | Back Cover | image asset | `back_cover_image_url` | Core-owned Catalog Item artwork. |
+| Links | Links | ordered external-link list | `external_links[]` | Source-neutral links belong to the Catalog Item and may be proposed with its other catalog fields. |
+
+## Personal entry fields
+
+| CLZ tab | Displayed label | Type / repeats | v1 field | Decision |
+| --- | --- | --- | --- | --- |
+| Details | Package/Sleeve Condition | vocabulary value | `condition` | App-owned condition for this copy. |
+| Details | Media Condition | vocabulary value | `media_condition` | App-owned condition for this copy's media, not a Catalog Disc property. |
+| Personal | Collection Status | status | `collection_status` | Status of this copy. Wishlist is represented by its own personal record. |
+| Personal | Index | integer | `index_number` | Optional sequence number for sorting and organizing the user's copies; it is not a disc number. |
+| Personal | Location | location reference | `location_id` | App-owned location. |
+| Personal | Owner | string/reference | `owner_id` | App-owned owner value. |
+| Personal | Purchase Date | partial date | `purchase_date` | Copy-specific purchase date. |
+| Personal | Purchase Price | money | `purchase_price` | Copy-specific amount and currency. |
+| Personal | Purchase Store | string/reference | `purchase_store` | Copy-specific purchase source. |
+| Personal | Current Value | money | `current_value` | User valuation for this copy. |
+| Personal | Tags | string list | `tags[]` | Personal organization. |
+| Personal | Last Cleaned Date | date | `last_cleaned_date` | Copy-specific maintenance date. |
+| Personal | Signed by | ordered person/name list | `signed_by[]` | Copy-specific signatures. |
+| Personal | My Rating | rating | `rating` | User rating for this copy. |
+| Personal | Notes | text | `notes` | Private copy notes. |
+| Tracks | Storage Device | string/reference per disc | `disc_details[].storage_device` | App-owned storage placement for the physical copy. |
+| Tracks | Slot | string per disc | `disc_details[].slot` | App-owned position within the selected storage device. |
+| My Images | User images, maximum five | image list with description and image type | `personal_images[]` | App-owned images attached to this copy; local paths remain device cache data. |
+| Personal | Played History | ordered activity list | `MusicListeningEvent[]` | Activity targets the local entry; preserve each listen as a separate event. |
+| Any | Custom Fields | user-defined values | `custom_field_values[]` | App-owned values attach to the local entry and follow the field definition's metadata or personal ownership. |
+
+## Reset and legacy-only fields
+
+- The flattened v1 baseline starts from a fresh App database. Old Work/Release Music databases and backups are unsupported; the App must not decode them or include a compatibility conversion path.
+- Each local Music entry represents one owned item and contains its own complete metadata and personal values. Duplicating it creates another independently editable owned item.
+- Medium condition, Storage Device, and Slot belong to the local entry's personal data. Matrix numbers remain catalog fields on the matching disc.
+- `physical_format` is derived from the Catalog Item format and its ordered discs; do not persist a duplicate label.
+- Music `synopsis`, provider/source IDs (including MusicBrainz recording IDs), and Release Group/Release identities are not part of the v1 catalog contract. Track hashes, local file offsets, bitrates, file sizes, and device paths are local media/cache data only and must not be included in Core Catalog Item payloads.
+- The saved CLZ track list has Title, Artist, and Length. Collectarr's former `is_header`, `indent_level`, and `parent_header_id` fields are not part of that form and are excluded from the v1 canonical Music track contract. If a local playback/import feature still requires them, keep them outside the shared catalog contract.
+
+## Capture limits
+
+The saved HTML contains one populated Music edit form, including Main, Details, Classical, People, Tracks, Personal, Covers, My Images, and Links. This ledger records that form's displayed fields. It does not establish CLZ parity for any other kind.

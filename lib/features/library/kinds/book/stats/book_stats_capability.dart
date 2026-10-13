@@ -1,18 +1,17 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 class BookStatsCapability implements LibraryStatsCapability {
   const BookStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
-      LibraryWorkspaceSource entry) {
-    return LibraryOwnedFinancialSummary(
+  LibraryEntryFinancialSummary buildEntryFinancialSummary(
+      LibraryWorkspaceContext entry) {
+    return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
       currency: entry.currency,
@@ -21,25 +20,20 @@ class BookStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+      LibraryWorkspaceContext entry) {
     final metadata = _metadata(entry);
-    if (catalog == null || metadata == null) return null;
-    final primary =
-        (metadata.seriesTitle ?? metadata.series?.seriesTitle ?? catalog.title)
-            .trim();
-    final secondary =
-        (metadata.publisher ?? metadata.originalPublisher)?.trim();
+    if (metadata == null) return null;
+    final primary = (metadata.seriesTitle ?? metadata.title).trim();
+    final secondary = metadata.publisher?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: primary,
       secondaryGroup: secondary,
-      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
-      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
-          libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
+      hasCover: metadata.coverImageUrl?.trim().isNotEmpty == true,
+      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
-      hasReleaseDate: metadata.originalPublicationDate != null ||
-          catalog.releaseDate != null,
+      hasReleaseDate:
+          metadata.releaseDate != null || metadata.releaseDateParts != null,
       hasItemNumber: metadata.itemNumber?.trim().isNotEmpty == true,
     );
   }
@@ -73,22 +67,37 @@ class BookStatsCapability implements LibraryStatsCapability {
     ];
   }
 
-  static BookCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    return catalog is BookWorkspaceCatalogData ? catalog.metadata : null;
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  static BookCatalogMetadata? _metadata(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    return catalog is BookWorkspaceData ? catalog.metadata : null;
   }
 
   static _MissingNumberSummary? _numberedGapSummary(
-    List<LibraryWorkspaceSource> entries,
-    int? Function(LibraryWorkspaceSource entry) numberFor,
+    List<LibraryWorkspaceContext> entries,
+    int? Function(LibraryWorkspaceContext entry) numberFor,
   ) {
     _MissingNumberSummary? best;
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
-      if (!entry.isOwned) continue;
+      if (!entry.isEntry) continue;
       final metadata = _metadata(entry);
-      final seriesTitle =
-          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
+      final seriesTitle = metadata?.seriesTitle?.trim();
       final number = numberFor(entry);
       if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
         continue;
@@ -112,10 +121,10 @@ class BookStatsCapability implements LibraryStatsCapability {
     return best;
   }
 
-  static int? _volumeNumber(LibraryWorkspaceSource entry) {
+  static int? _volumeNumber(LibraryWorkspaceContext entry) {
     final metadata = _metadata(entry);
     if (metadata == null) return null;
-    final seriesNumber = metadata.series?.volumeNumber;
+    final seriesNumber = metadata.volumeNumber;
     final parsedSeries = int.tryParse(seriesNumber?.trim() ?? '');
     if (parsedSeries != null) return parsedSeries;
     return int.tryParse(metadata.itemNumber?.trim() ?? '');

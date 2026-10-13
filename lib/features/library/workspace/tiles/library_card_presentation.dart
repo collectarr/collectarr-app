@@ -20,7 +20,7 @@ class LibraryCardPresentation {
     this.compactBadges = const [],
   });
 
-  /// Kind-owned values projected for the shared card chrome. The card host
+  /// Kind-entry values projected for the shared card chrome. The card host
   /// renders these values but never reads semantic fields from an erased
   /// workspace DTO.
   final String? itemNumber;

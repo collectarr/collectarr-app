@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -50,7 +49,7 @@ void main() {
       '123456789012',
     ]);
     expect(
-      profile.importOwnedCells(
+      profile.importEntryCells(
         header: const ['Media Type'],
         values: const ['Anime'],
       ),
@@ -60,7 +59,7 @@ void main() {
 
   test('projects Anime catalog cells without video hierarchy erasure', () {
     final projection = const AnimeCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'anime-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(
@@ -71,15 +70,14 @@ void main() {
         publisher: 'Sunrise',
         releaseDate: DateTime.utc(1998, 4, 3),
         barcode: '123456789012',
-        variant: 'TV / Collector',
         editionTitle: 'Complete Series',
         physicalFormat: 'blu-ray',
         physicalFormatLabel: 'Blu-ray',
+        payload: const {'variant_name': 'TV / Collector'},
       )).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'anime-1',
-        quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
     );
@@ -98,8 +96,8 @@ void main() {
       '123456789012',
     ]);
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: true),
-      hasLength(8),
+      projection.entryCellsAfterIndex(entry, clzFriendly: true),
+      hasLength(9),
     );
   });
 }

@@ -12,13 +12,13 @@ class LibraryTitleMetadataSection extends StatelessWidget {
     super.key,
     required this.type,
     required this.item,
-    required this.ownedReleaseCount,
+    required this.entryReleaseCount,
     this.onFilterByValue,
   });
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final int ownedReleaseCount;
+  final int entryReleaseCount;
   final ValueChanged<String>? onFilterByValue;
 
   @override
@@ -56,12 +56,12 @@ class LibraryTitleMetadataSection extends StatelessWidget {
       children: [
         LibraryDetailFieldTable(
           fields: [
-            LibraryDetailField(label: 'Display title', value: dto.primaryLabel),
+            LibraryDetailField(label: 'Display Title', value: dto.primaryLabel),
             ...contextFacts,
-            if (ownedReleaseCount > 0)
+            if (entryReleaseCount > 0)
               LibraryDetailField(
                 label: 'Editions',
-                value: '$ownedReleaseCount in collection',
+                value: '$entryReleaseCount in collection',
               ),
           ],
         ),

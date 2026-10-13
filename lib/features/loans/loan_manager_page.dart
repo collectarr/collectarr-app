@@ -1,13 +1,26 @@
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/app_page_header.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/detail/library_workspace_detail_navigation.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -19,7 +32,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 enum _LoanFilter { all, active, overdue, returned }
 
 class LoanManagerPage extends ConsumerStatefulWidget {
-  const LoanManagerPage({super.key});
+  const LoanManagerPage({super.key, this.kind});
+  final CatalogMediaKind? kind;
 
   @override
   ConsumerState<LoanManagerPage> createState() => _LoanManagerPageState();
@@ -30,9 +44,13 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   final _queryController = TextEditingController();
   var _filter = _LoanFilter.active;
   var _loading = true;
+  int _loadGeneration = 0;
+  String? _borrower;
   List<Loan> _loans = const [];
-  Map<OwnedItemRef, OwnedItemSummary> _ownedByRef = const {};
-  Map<CatalogEntityRef, List<OwnedItemSummary>> _ownedByCatalogRef = const {};
+  Map<LibraryEntryRef, LibraryEntrySummary> _entryByRef = const {};
+  Map<LibraryEntryRef, LibraryWorkspaceKindData> _kindPresentationByEntryRef =
+      const {};
+  Map<CatalogItemRef, List<LibraryEntrySummary>> _entryByCatalogRef = const {};
 
   @override
   void initState() {
@@ -47,60 +65,76 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(covariant LoanManagerPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.kind != widget.kind) {
+      _borrower = null;
+      _load();
+    }
+  }
+
   Future<void> _load() async {
+    final generation = ++_loadGeneration;
     setState(() {
       _loading = true;
     });
-    final db = ref.read(localDatabaseProvider);
-    final loansRepo = LoanRepository(db);
-    final ownedRepo = OwnedItemsRepository(db);
-    final locationRepo = LocationRepository(db);
+    try {
+      final db = ref.read(localDatabaseProvider);
+      final loansRepo = LoanRepository(db);
+      final entryRepo = LibraryEntriesRepository(db);
+      final locationRepo = LocationRepository(db);
 
-    final loans = await loansRepo.getAllLoans();
-    final ownedItems = await ownedRepo.listActiveSummaries();
-    final catalogRefs =
-        ownedItems.map((item) => item.catalogRef).whereType<CatalogEntityRef>();
-    final catalogByRef =
-        await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
-    final locations = await locationRepo.getAll();
-    final locationLabelsById = {
-      for (final location in locations)
-        location.id: location.fullPath(locations),
-    };
-    final summaries = [
-      for (final item in ownedItems)
-        item.copyWith(
-          title: item.catalogRef == null
-              ? item.title
-              : catalogByRef[item.catalogRef!]?.primaryLabel ?? item.title,
-          imageUrl: item.catalogRef == null
-              ? null
-              : catalogByRef[item.catalogRef!]?.imageUrl,
-          locationLabel: item.locationLabel == null
-              ? null
-              : locationLabelsById[item.locationLabel!],
-        ),
-    ];
-    final ownedByCatalogRef = <CatalogEntityRef, List<OwnedItemSummary>>{};
-    for (final item in summaries) {
-      final catalogRef = item.catalogRef;
-      if (catalogRef != null) {
-        ownedByCatalogRef
-            .putIfAbsent(catalogRef, () => <OwnedItemSummary>[])
+      final loans = (await loansRepo.getAllLoans())
+          .where((loan) =>
+              widget.kind == null || loan.libraryEntryRef.kind == widget.kind)
+          .toList();
+      final libraryEntries = (await entryRepo.listActiveSummaries())
+          .where(
+              (entry) => widget.kind == null || entry.ref.kind == widget.kind)
+          .toList();
+      final kindPresentationByEntryRef =
+          await CatalogWorkspaceDataRepository(db)
+              .findEntries(libraryEntries.map((item) => item.ref));
+      final locations = await locationRepo.getAll();
+      final locationLabelsById = {
+        for (final location in locations)
+          location.id: location.fullPath(locations),
+      };
+      final summaries = [
+        for (final item in libraryEntries)
+          item.copyWith(
+            locationLabel: item.locationLabel == null
+                ? null
+                : locationLabelsById[item.locationLabel!],
+          ),
+      ];
+      final entryByCatalogRef = <CatalogItemRef, List<LibraryEntrySummary>>{};
+      for (final item in summaries) {
+        final localItemRef = item.sourceCatalogRef;
+        if (localItemRef == null) continue;
+        entryByCatalogRef
+            .putIfAbsent(localItemRef, () => <LibraryEntrySummary>[])
             .add(item);
       }
+      if (!mounted || generation != _loadGeneration) {
+        return;
+      }
+      setState(() {
+        _loans = loans;
+        _entryByRef = {
+          for (final item in summaries) item.ref: item,
+        };
+        _kindPresentationByEntryRef = kindPresentationByEntryRef;
+        _entryByCatalogRef = entryByCatalogRef;
+        _loading = false;
+      });
+    } catch (error) {
+      if (!mounted || generation != _loadGeneration) return;
+      setState(() => _loading = false);
+      showAppToast(context, 'Could not load loans: $error',
+          tone: AppToastTone.error);
     }
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      _loans = loans;
-      _ownedByRef = {
-        for (final item in summaries) item.ref: item,
-      };
-      _ownedByCatalogRef = ownedByCatalogRef;
-      _loading = false;
-    });
   }
 
   List<Loan> _filteredLoans() {
@@ -115,17 +149,18 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
         _LoanFilter.overdue => overdue,
         _LoanFilter.returned => !active,
       };
+      if (_borrower != null && loan.borrowerName != _borrower) return false;
       if (!matchesFilter) {
         return false;
       }
       if (query.isEmpty) {
         return true;
       }
-      final owned = _ownedByRef[loan.ownedRef];
-      final title = owned?.title ?? '';
+      final entry = _entryByRef[loan.libraryEntryRef];
+      final title = entry == null ? '' : _catalogTitleFor(entry);
       return loan.borrowerName.toLowerCase().contains(query) ||
           (loan.notes ?? '').toLowerCase().contains(query) ||
-          loan.ownedRef.id.value.toLowerCase().contains(query) ||
+          loan.libraryEntryRef.id.value.toLowerCase().contains(query) ||
           title.toLowerCase().contains(query);
     }).toList(growable: false);
     filtered.sort((a, b) {
@@ -157,85 +192,118 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     });
   }
 
-  Future<OwnedItemSummary?> _resolveOwnedItemFromBarcode(String barcode) async {
+  Future<LibraryEntrySummary?> _resolveLibraryEntryFromBarcode(
+      String barcode) async {
+    final workspace = await ref.read(shelfProvider.future);
+    final matching = <LibraryEntrySummary>[];
+    for (final source in workspace.entries) {
+      if (!source.isEntry ||
+          (widget.kind != null && source.mediaKind != widget.kind)) {
+        continue;
+      }
+      final card = libraryPresentationForKind(source.mediaKind)
+          .buildCardPresentation(
+              LibraryProjectionItem.fromShelf(
+                  source, libraryKindRegistrationForKind(source.mediaKind)),
+              coverFocused: false);
+      if (card.identifierCode == barcode) {
+        matching.add(source.libraryEntrySummary!);
+      }
+    }
+    if (matching.length == 1) return matching.single;
+    if (matching.length > 1) return _pickLibraryEntry(matching, barcode);
     final catalog = await CatalogLookupRepository(
       ref.read(localDatabaseProvider),
-    ).resolve(CatalogLookupQuery(value: barcode));
+    ).resolve(CatalogLookupQuery(value: barcode), kind: widget.kind);
     if (catalog == null) {
       return null;
     }
-    final ownedItems = _ownedByCatalogRef[catalog.ref] ?? const [];
-    if (ownedItems.isEmpty) {
+    final libraryEntries = _entryByCatalogRef[catalog.ref] ?? const [];
+    if (libraryEntries.isEmpty) {
       return null;
     }
-    if (ownedItems.length == 1) {
-      return ownedItems.single;
+    if (libraryEntries.length == 1) {
+      return libraryEntries.single;
     }
-    return _pickOwnedItem(ownedItems, catalog.title);
+    return _pickLibraryEntry(libraryEntries, catalog.title);
   }
 
-  Future<OwnedItemSummary?> _pickOwnedItem(
-      List<OwnedItemSummary> ownedItems, String title) async {
-    return showDialog<OwnedItemSummary>(
+  Future<LibraryEntrySummary?> _pickLibraryEntry(
+      List<LibraryEntrySummary> libraryEntries, String title) async {
+    return showDialog<LibraryEntrySummary>(
       context: context,
-      builder: (context) => _OwnedItemPickerDialog(
+      builder: (context) => _LibraryEntryPickerDialog(
         title: title,
-        ownedItems: ownedItems,
+        libraryEntries: libraryEntries,
       ),
     );
   }
 
   Future<void> _loanByBarcode() async {
-    final barcode = _barcodeController.text.trim();
-    if (barcode.isEmpty) {
-      showAppToast(context, 'Enter or scan a barcode first.',
-          tone: AppToastTone.info);
-      return;
+    try {
+      final barcode = _barcodeController.text.trim();
+      if (barcode.isEmpty) {
+        showAppToast(context, 'Enter or scan a barcode first.',
+            tone: AppToastTone.info);
+        return;
+      }
+      final libraryEntry = await _resolveLibraryEntryFromBarcode(barcode);
+      if (!mounted) {
+        return;
+      }
+      if (libraryEntry == null) {
+        showAppToast(context, 'No collection item found for barcode $barcode.',
+            tone: AppToastTone.error);
+        return;
+      }
+      await _createLoan(libraryEntry);
+    } catch (error) {
+      if (mounted) {
+        showAppToast(context, 'Could not lend this item: $error',
+            tone: AppToastTone.error);
+      }
     }
-    final ownedItem = await _resolveOwnedItemFromBarcode(barcode);
-    if (!mounted) {
-      return;
-    }
-    if (ownedItem == null) {
-      showAppToast(context, 'No owned item found for barcode $barcode.',
-          tone: AppToastTone.error);
-      return;
-    }
-    await _createLoan(ownedItem);
   }
 
   Future<void> _returnByBarcode() async {
-    final barcode = _barcodeController.text.trim();
-    if (barcode.isEmpty) {
-      showAppToast(context, 'Enter or scan a barcode first.',
-          tone: AppToastTone.info);
-      return;
+    try {
+      final barcode = _barcodeController.text.trim();
+      if (barcode.isEmpty) {
+        showAppToast(context, 'Enter or scan a barcode first.',
+            tone: AppToastTone.info);
+        return;
+      }
+      final libraryEntry = await _resolveLibraryEntryFromBarcode(barcode);
+      if (!mounted) {
+        return;
+      }
+      if (libraryEntry == null) {
+        showAppToast(context, 'No collection item found for barcode $barcode.',
+            tone: AppToastTone.error);
+        return;
+      }
+      final activeLoans = _loans
+          .where((loan) =>
+              loan.libraryEntryRef == libraryEntry.ref && loan.isActive)
+          .toList();
+      if (activeLoans.isEmpty) {
+        showAppToast(context, 'No active loan found for that item.',
+            tone: AppToastTone.info);
+        return;
+      }
+      final loan = activeLoans.length == 1
+          ? activeLoans.single
+          : await _pickLoan(activeLoans, _catalogTitleFor(libraryEntry));
+      if (loan == null || !mounted) {
+        return;
+      }
+      await _returnLoan(loan);
+    } catch (error) {
+      if (mounted) {
+        showAppToast(context, 'Could not return this item: $error',
+            tone: AppToastTone.error);
+      }
     }
-    final ownedItem = await _resolveOwnedItemFromBarcode(barcode);
-    if (!mounted) {
-      return;
-    }
-    if (ownedItem == null) {
-      showAppToast(context, 'No owned item found for barcode $barcode.',
-          tone: AppToastTone.error);
-      return;
-    }
-    final activeLoans = _loans
-        .where((loan) => loan.ownedRef == ownedItem.ref && loan.isActive)
-        .toList();
-    if (activeLoans.isEmpty) {
-      showAppToast(context, 'No active loan found for that item.',
-          tone: AppToastTone.info);
-      return;
-    }
-    final loan = activeLoans.length == 1
-        ? activeLoans.single
-        : await _pickLoan(activeLoans, ownedItem.title);
-    if (loan == null || !mounted) {
-      return;
-    }
-    await LoanRepository(ref.read(localDatabaseProvider)).markReturned(loan.id);
-    await _load();
   }
 
   Future<Loan?> _pickLoan(List<Loan> loans, String title) async {
@@ -248,183 +316,425 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     );
   }
 
-  Future<void> _createLoan(OwnedItemSummary ownedItem) async {
-    final catalogTitle = ownedItem.title;
-    final draft = await showDialog<_LoanDraft>(
-      context: context,
-      builder: (context) => _LoanCreateDialog(
-        title: catalogTitle,
-        accent: LibraryAccentScope.accentOf(context),
-      ),
-    );
-    if (draft == null || !mounted) {
-      return;
+  Future<void> _createLoan(LibraryEntrySummary libraryEntry) async {
+    try {
+      final catalogTitle = _catalogTitleFor(libraryEntry);
+      final draft = await showDialog<_LoanDraft>(
+        context: context,
+        builder: (context) => _LoanCreateDialog(
+          title: catalogTitle,
+          accent: LibraryAccentScope.accentOf(context),
+        ),
+      );
+      if (draft == null || !mounted) {
+        return;
+      }
+      final loan = Loan(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          libraryEntryRef: libraryEntry.ref,
+          borrowerName: draft.borrowerName,
+          lentDate: draft.lentDate,
+          dueDate: draft.dueDate,
+          notes: draft.notes);
+      await _writeLoan(loan, (repository) => repository.create(loan));
+      await _load();
+    } catch (error) {
+      if (mounted) {
+        showAppToast(context, 'Could not create loan: $error',
+            tone: AppToastTone.error);
+      }
     }
-    final repo = LoanRepository(ref.read(localDatabaseProvider));
-    await repo.create(
-      Loan(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        ownedRef: ownedItem.ref,
-        borrowerName: draft.borrowerName,
-        lentDate: draft.lentDate,
-        dueDate: draft.dueDate,
-        notes: draft.notes,
-      ),
-    );
-    await _load();
+  }
+
+  Future<void> _writeLoan(Loan loan,
+      Future<void> Function(LoanRepository repository) action) async {
+    final database = ref.read(localDatabaseProvider);
+    await database.transaction(() async {
+      await action(LoanRepository(database));
+      await enqueueLibraryEntrySnapshot(database, loan.libraryEntryRef);
+    });
+    ref.invalidate(shelfProvider);
   }
 
   Future<void> _returnLoan(Loan loan) async {
-    await LoanRepository(ref.read(localDatabaseProvider)).markReturned(loan.id);
-    await _load();
+    try {
+      await _writeLoan(loan, (repository) => repository.markReturned(loan.id));
+      await _load();
+    } catch (error) {
+      if (mounted) {
+        showAppToast(context, 'Could not update loan: $error',
+            tone: AppToastTone.error);
+      }
+    }
   }
 
   Future<void> _deleteLoan(Loan loan) async {
-    await LoanRepository(ref.read(localDatabaseProvider)).delete(loan.id);
-    await _load();
+    try {
+      await _writeLoan(loan, (repository) => repository.delete(loan.id));
+      await _load();
+    } catch (error) {
+      if (mounted) {
+        showAppToast(context, 'Could not update loan: $error',
+            tone: AppToastTone.error);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final accent = LibraryAccentScope.accentOf(context);
-    final animationDuration = LibraryAccentScope.animationDurationOf(context);
     final filteredLoans = _filteredLoans();
     final now = DateTime.now();
-    final activeCount = _loans.where((loan) => loan.isActive).length;
-    final overdueCount = _loans.where((loan) => loan.isOverdueAt(now)).length;
-    final returnedCount = _loans.where((loan) => !loan.isActive).length;
-
+    final borrowers = _loans.map((loan) => loan.borrowerName).toSet().toList()
+      ..sort();
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Loans'),
-        backgroundColor: libraryAccentChromeFallbackColor(accent),
-        surfaceTintColor: Colors.transparent,
-        flexibleSpace: LibraryAccentChrome(
-          accent: accent,
-          animationDuration: animationDuration,
-        ),
-        actions: [
-          IconButton(
-            tooltip: 'Refresh loans',
-            onPressed: _load,
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
+      backgroundColor: appManagementCanvasColor(context),
+      appBar: AppPageHeader(
+          icon: Icons.people_outline,
+          title: const Text('Loan Manager'),
+          actions: [
+            IconButton(
+              tooltip: 'Refresh loans',
+              onPressed: _load,
+              icon: const Icon(Icons.refresh),
+            ),
+          ]),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: ListView(
-                padding: const EdgeInsets.all(12),
-                children: [
-                  _LoanSummaryRow(
-                    total: _loans.length,
-                    active: activeCount,
-                    overdue: overdueCount,
-                    returned: returnedCount,
-                    accent: accent,
-                  ),
-                  const SizedBox(height: 12),
-                  _LoanActionStrip(
-                    barcodeController: _barcodeController,
-                    queryController: _queryController,
-                    filter: _filter,
-                    onFilterChanged: (value) => setState(() => _filter = value),
-                    onScanBarcode: _scanBarcode,
-                    onLoanByBarcode: _loanByBarcode,
-                    onReturnByBarcode: _returnByBarcode,
-                    onSearchChanged: () => setState(() {}),
-                  ),
-                  const SizedBox(height: 12),
-                  if (filteredLoans.isEmpty)
-                    const _EmptyLoansState()
-                  else
-                    for (final loan in filteredLoans)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: _LoanRow(
-                          loan: loan,
-                          title: _loanTitle(loan),
-                          accent: accent,
-                          isOverdue: loan.isOverdueAt(now),
-                          onReturn:
-                              loan.isActive ? () => _returnLoan(loan) : null,
-                          onDelete: () => _deleteLoan(loan),
-                        ),
-                      ),
-                ],
-              ),
+              child: Center(
+                  child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 960),
+                      child: ListView(
+                        padding: const EdgeInsets.all(12),
+                        children: [
+                          Wrap(
+                              spacing: 16,
+                              runSpacing: 10,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                for (final tab in [
+                                  (
+                                    label: 'Current Loans',
+                                    filter: _LoanFilter.active
+                                  ),
+                                  (
+                                    label: 'Loan History',
+                                    filter: _LoanFilter.returned
+                                  )
+                                ])
+                                  TextButton(
+                                      onPressed: () =>
+                                          setState(() => _filter = tab.filter),
+                                      style: TextButton.styleFrom(
+                                          foregroundColor: _filter == tab.filter
+                                              ? accent
+                                              : appPalette(context).textPrimary,
+                                          shape: const RoundedRectangleBorder(),
+                                          side: BorderSide(
+                                              color: _filter == tab.filter
+                                                  ? accent
+                                                  : Colors.transparent)),
+                                      child: Text(tab.label,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w700))),
+                                SizedBox(
+                                    width: 210,
+                                    child: DropdownButtonFormField<String>(
+                                        key: ValueKey(_borrower),
+                                        initialValue: _borrower ?? '',
+                                        isExpanded: true,
+                                        items: [
+                                          const DropdownMenuItem(
+                                              value: '',
+                                              child: Text('all loaners')),
+                                          for (final name in borrowers)
+                                            DropdownMenuItem(
+                                                value: name, child: Text(name))
+                                        ],
+                                        onChanged: (name) => setState(() =>
+                                            _borrower =
+                                                name == '' ? null : name))),
+                                SizedBox(
+                                    width: 210,
+                                    child: TextField(
+                                        controller: _queryController,
+                                        onChanged: (_) => setState(() {}),
+                                        decoration: const InputDecoration(
+                                            hintText: 'Search loans',
+                                            prefixIcon:
+                                                Icon(Icons.search, size: 18),
+                                            isDense: true))),
+                                TextButton.icon(
+                                    onPressed: filteredLoans.isEmpty
+                                        ? null
+                                        : () => _printLoans(filteredLoans),
+                                    icon: const Icon(
+                                        Icons.picture_as_pdf_outlined,
+                                        size: 16),
+                                    label: const Text('print to pdf')),
+                              ]),
+                          const Divider(height: 20),
+                          Text('${filteredLoans.length} items'),
+                          const SizedBox(height: 8),
+                          if (MediaQuery.sizeOf(context).width >= 650 &&
+                              filteredLoans.isNotEmpty)
+                            _loanTable(filteredLoans, accent)
+                          else if (filteredLoans.isEmpty)
+                            const _EmptyLoansState()
+                          else
+                            for (final loan in filteredLoans)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: _LoanRow(
+                                  loan: loan,
+                                  title: _loanTitle(loan),
+                                  accent: accent,
+                                  isOverdue: loan.isOverdueAt(now),
+                                  onReturn: loan.isActive
+                                      ? () => _returnLoan(loan)
+                                      : null,
+                                  onDelete: () => _deleteLoan(loan),
+                                ),
+                              ),
+                          const SizedBox(height: 16),
+                          ExpansionTile(
+                              title: const Text('Lend / return by barcode'),
+                              children: [
+                                _LoanActionStrip(
+                                  barcodeController: _barcodeController,
+                                  filter: _filter,
+                                  onFilterChanged: (value) =>
+                                      setState(() => _filter = value),
+                                  onScanBarcode: _scanBarcode,
+                                  onLoanByBarcode: _loanByBarcode,
+                                  onReturnByBarcode: _returnByBarcode,
+                                ),
+                              ]),
+                        ],
+                      ))),
             ),
     );
   }
 
+  Widget _loanTable(List<Loan> loans, Color accent) => LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+              child: DataTable(
+                headingRowHeight: 32,
+                headingRowColor: WidgetStatePropertyAll(
+                    appPalette(context).isDark
+                        ? const Color(0xFF44474F)
+                        : appPalette(context).toolbar),
+                dataRowColor: WidgetStatePropertyAll(appPalette(context).isDark
+                    ? const Color(0xFF2B2B2B)
+                    : appPalette(context).panel),
+                dataRowMinHeight: 100,
+                dataRowMaxHeight: 115,
+                columnSpacing: 24,
+                horizontalMargin: 8,
+                columns: [
+                  const DataColumn(label: Text('Album')),
+                  const DataColumn(label: Text('Loaned To')),
+                  DataColumn(
+                      label: Text(_filter == _LoanFilter.returned
+                          ? 'Returned Date'
+                          : 'Due Date')),
+                  const DataColumn(label: Text(''))
+                ],
+                rows: [
+                  for (final loan in loans)
+                    DataRow(cells: [
+                      DataCell(InkWell(
+                          onTap: () => _openLoanEntry(loan),
+                          child: SizedBox(
+                              width: 340,
+                              child: Row(children: [
+                                SizedBox(
+                                    width: 60,
+                                    height: 76,
+                                    child: LibraryCoverImage(
+                                        title: _loanTitle(loan),
+                                        libraryEntryRef: loan.libraryEntryRef)),
+                                const SizedBox(width: 10),
+                                Expanded(child: _loanAlbumFacts(loan, accent)),
+                              ])))),
+                      DataCell(Text(loan.borrowerName)),
+                      DataCell(Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                _filter == _LoanFilter.returned
+                                    ? (loan.returnedDate == null
+                                        ? '-'
+                                        : _fmt(loan.returnedDate!))
+                                    : (loan.dueDate == null
+                                        ? '-'
+                                        : _fmt(loan.dueDate!)),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: loan.isOverdueAt(DateTime.now())
+                                        ? Colors.orange
+                                        : null)),
+                            const SizedBox(height: 4),
+                            Row(mainAxisSize: MainAxisSize.min, children: [
+                              const Icon(Icons.send_outlined, size: 14),
+                              const SizedBox(width: 5),
+                              Text(_fmt(loan.lentDate))
+                            ]),
+                            if (loan.notes?.isNotEmpty == true)
+                              SizedBox(
+                                  width: 180,
+                                  child: Text(loan.notes!,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis)),
+                          ])),
+                      DataCell(Row(mainAxisSize: MainAxisSize.min, children: [
+                        if (loan.isActive)
+                          TextButton(
+                              onPressed: () => _returnLoan(loan),
+                              child: const Text('Return')),
+                        IconButton(
+                            tooltip: 'Delete loan record',
+                            onPressed: () => _deleteLoan(loan),
+                            icon: const Icon(Icons.delete_outline, size: 16))
+                      ])),
+                    ])
+                ],
+              ))));
+
+  Widget _loanAlbumFacts(Loan loan, Color accent) {
+    final source = ref
+        .watch(shelfProvider)
+        .asData
+        ?.value
+        .entries
+        .where((entry) => entry.libraryEntryRef == loan.libraryEntryRef)
+        .firstOrNull;
+    final card = source == null
+        ? null
+        : libraryPresentationForKind(source.mediaKind).buildCardPresentation(
+            LibraryProjectionItem.fromShelf(
+                source, libraryKindRegistrationForKind(source.mediaKind)),
+            coverFocused: false);
+    return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(_loanTitle(loan),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: accent, fontWeight: FontWeight.w700)),
+          if (card?.contextFacts.firstOrNull case final creator?)
+            Text(creator, style: const TextStyle(fontWeight: FontWeight.w700)),
+          if (card?.identifierCode case final identifier?)
+            Row(children: [
+              const Icon(Icons.view_week_outlined, size: 16),
+              const SizedBox(width: 4),
+              Flexible(
+                  child: Text(identifier,
+                      style: const TextStyle(fontWeight: FontWeight.w700))),
+            ]),
+        ]);
+  }
+
+  Future<void> _openLoanEntry(Loan loan) async {
+    try {
+      final state = await ref.read(shelfProvider.future);
+      final item = state.entries
+          .where((entry) => entry.libraryEntryRef == loan.libraryEntryRef)
+          .firstOrNull;
+      if (!mounted) return;
+      if (item == null) {
+        showAppToast(context, 'This collection item is unavailable.',
+            tone: AppToastTone.info);
+        return;
+      }
+      await openWorkspaceEntryDetails(context, item);
+    } catch (error) {
+      if (mounted) {
+        showAppToast(context, 'Could not open the album: $error',
+            tone: AppToastTone.error);
+      }
+    }
+  }
+
+  Future<void> _printLoans(List<Loan> loans) async {
+    try {
+      final regular = pw.Font.ttf(
+          await rootBundle.load('assets/fonts/PlusJakartaSans-Regular.ttf'));
+      final bold = pw.Font.ttf(
+          await rootBundle.load('assets/fonts/PlusJakartaSans-Bold.ttf'));
+      final document =
+          pw.Document(theme: pw.ThemeData.withFont(base: regular, bold: bold));
+      document.addPage(pw.MultiPage(
+          pageFormat: PdfPageFormat.a4.landscape,
+          build: (_) => [
+                pw.Text(
+                    _filter == _LoanFilter.returned
+                        ? 'Loan History'
+                        : 'Current Loans',
+                    style: pw.TextStyle(
+                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 16),
+                pw.TableHelper.fromTextArray(headers: [
+                  'Title',
+                  'Loaner',
+                  'Loan Date',
+                  'Due Date',
+                  'Returned Date',
+                  'Notes'
+                ], data: [
+                  for (final loan in loans)
+                    [
+                      _loanTitle(loan),
+                      loan.borrowerName,
+                      _fmt(loan.lentDate),
+                      loan.dueDate == null ? '' : _fmt(loan.dueDate!),
+                      loan.returnedDate == null ? '' : _fmt(loan.returnedDate!),
+                      loan.notes ?? ''
+                    ]
+                ]),
+              ]));
+      await Printing.sharePdf(
+          bytes: await document.save(), filename: 'collectarr-loans.pdf');
+    } catch (error) {
+      if (mounted) {
+        showAppToast(context, 'Could not export loans: $error',
+            tone: AppToastTone.error);
+      }
+    }
+  }
+
   String _loanTitle(Loan loan) {
-    final owned = _ownedByRef[loan.ownedRef];
-    return owned?.title ?? 'Unknown item';
+    final entry = _entryByRef[loan.libraryEntryRef];
+    return entry == null ? 'Unknown item' : _catalogTitleFor(entry);
   }
-}
 
-class _LoanSummaryRow extends StatelessWidget {
-  const _LoanSummaryRow({
-    required this.total,
-    required this.active,
-    required this.overdue,
-    required this.returned,
-    required this.accent,
-  });
-
-  final int total;
-  final int active;
-  final int overdue;
-  final int returned;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        _SummaryChip(
-            label: '$total total',
-            icon: Icons.inventory_2_outlined,
-            accent: accent),
-        _SummaryChip(
-            label: '$active active', icon: Icons.book_outlined, accent: accent),
-        _SummaryChip(
-            label: '$overdue overdue',
-            icon: Icons.warning_amber_outlined,
-            accent: Colors.orange),
-        _SummaryChip(
-            label: '$returned returned',
-            icon: Icons.assignment_return_outlined,
-            accent: Colors.green),
-      ],
-    );
-  }
+  String _catalogTitleFor(LibraryEntrySummary item) =>
+      _kindPresentationByEntryRef[item.ref]?.displayLabel ?? 'Unknown title';
 }
 
 class _LoanActionStrip extends StatelessWidget {
   const _LoanActionStrip({
     required this.barcodeController,
-    required this.queryController,
     required this.filter,
     required this.onFilterChanged,
     required this.onScanBarcode,
     required this.onLoanByBarcode,
     required this.onReturnByBarcode,
-    required this.onSearchChanged,
   });
 
   final TextEditingController barcodeController;
-  final TextEditingController queryController;
   final _LoanFilter filter;
   final ValueChanged<_LoanFilter> onFilterChanged;
   final VoidCallback onScanBarcode;
   final VoidCallback onLoanByBarcode;
   final VoidCallback onReturnByBarcode;
-  final VoidCallback onSearchChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -488,16 +798,6 @@ class _LoanActionStrip extends StatelessWidget {
             ],
           ),
         ],
-        const SizedBox(height: 10),
-        TextField(
-          controller: queryController,
-          decoration: const InputDecoration(
-            labelText: 'Search loans',
-            prefixIcon: Icon(Icons.search),
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (_) => onSearchChanged(),
-        ),
         const SizedBox(height: 10),
         Wrap(
           spacing: 8,
@@ -721,27 +1021,28 @@ class _LoanRow extends StatelessWidget {
   }
 }
 
-class _OwnedItemPickerDialog extends StatelessWidget {
-  const _OwnedItemPickerDialog({
+class _LibraryEntryPickerDialog extends StatelessWidget {
+  const _LibraryEntryPickerDialog({
     required this.title,
-    required this.ownedItems,
+    required this.libraryEntries,
   });
 
   final String title;
-  final List<OwnedItemSummary> ownedItems;
+  final List<LibraryEntrySummary> libraryEntries;
 
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.loans,
       title: Text('Choose copy for $title'),
       content: SizedBox(
         width: 520,
         child: ListView.separated(
           shrinkWrap: true,
-          itemCount: ownedItems.length,
+          itemCount: libraryEntries.length,
           separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
-            final item = ownedItems[index];
+            final item = libraryEntries[index];
             return ListTile(
               title: Text(item.ownerLabel ?? 'Copy ${item.ref.id.value}'),
               subtitle: Text([
@@ -769,6 +1070,7 @@ class _ActiveLoanPickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.loans,
       title: Text('Choose active loan for $title'),
       content: SizedBox(
         width: 520,
@@ -836,6 +1138,7 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.loans,
       title: Text('Loan out ${widget.title}'),
       content: SizedBox(
         width: 360,
@@ -928,26 +1231,6 @@ class _DatePickerField extends StatelessWidget {
       );
 }
 
-class _SummaryChip extends StatelessWidget {
-  const _SummaryChip({
-    required this.label,
-    required this.icon,
-    required this.accent,
-  });
-
-  final String label;
-  final IconData icon;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      avatar: Icon(icon, size: 16, color: accent),
-      label: Text(label),
-    );
-  }
-}
-
 class _MiniChip extends StatelessWidget {
   const _MiniChip({required this.label});
 
@@ -970,7 +1253,7 @@ class _EmptyLoansState extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 48),
-      child: Center(child: Text('No loans match the current filter.')),
+      child: Center(child: Text('No loans found.')),
     );
   }
 }

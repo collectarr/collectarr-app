@@ -266,8 +266,6 @@ class _AppLogViewerPanelState extends ConsumerState<AppLogViewerPanel> {
                               e.detail!,
                               style: TextStyle(
                                 fontSize: 12,
-                                fontFamily: kClzMonospaceFontFamily,
-                                fontFamilyFallback: kClzMonospaceFontFallback,
                                 color: appPalette(context).textMuted,
                               ),
                             ),

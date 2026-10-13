@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
 
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -16,30 +17,16 @@ import 'package:collectarr_app/features/library/add/library_add_collection_workf
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
-import 'package:collectarr_app/features/library/add/services/library_add_proposal_flow_service.dart';
-import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_hydration_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_submission_service.dart';
-import 'package:collectarr_app/features/library/add/services/library_provider_add_coordinator.dart';
-import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
-import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
-import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
-import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,21 +38,15 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   LibraryAddSessionController({
     required this.kind,
     LibraryKindRegistration? type,
-    required this.ownedMutations,
+    required this.entryMutations,
     required this.wishlistMutations,
     required this.trackingMutations,
     this.api,
     this.catalog,
-    this.providerRegistry,
     this.coverScanService = const LocalLibraryCoverScanService(),
-    this.providerAddCoordinator = const LibraryProviderAddCoordinator(),
-    this.providerActionService = const LibraryProviderActionService(),
-    this.providerOrchestrationService =
-        const LibraryProviderOrchestrationService(),
-    this.providerFlowService = const LibraryAddProviderFlowService(),
-    this.proposalFlowService = const LibraryAddProposalFlowService(),
     this.hydrationService = const LibraryAddHydrationService(),
-    this.submissionService = const LibraryAddSubmissionService(),
+    this.submissionService =
+        const LibraryAddSubmissionService(prefillLoader: PrefillDefaults.load),
     this.onAuthSessionExpired,
     LibraryAddSessionState? initialState,
   })  : _registration = type,
@@ -73,12 +54,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
           initialState ??
               LibraryAddSessionState(
                 mode: LibraryAddDialogMode.search,
-                target: LibraryAddTarget.owned,
+                target: LibraryAddTarget.entry,
                 search: LibraryAddSearchState.initial(
-                  selectedProvider: libraryMetadataForKind(type?.kind ?? kind)
-                          .defaultSupportedOption(kind)
-                          ?.id ??
-                      libraryMetadataForKind(kind).defaultProviderId,
                   advancedFilters: libraryAddForKind(kind)
                       .search
                       .input
@@ -102,7 +79,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   @override
   final CatalogMediaKind kind;
   final LibraryKindRegistration? _registration;
-  final OwnedItemMutations ownedMutations;
+  final LibraryEntryMutations entryMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
 
@@ -110,18 +87,15 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   final ApiClient? api;
   @override
   final CatalogTransportRepository? catalog;
-  @override
-  final ProviderConnectorRegistry? providerRegistry;
   final LibraryCoverScanService coverScanService;
-  final LibraryProviderAddCoordinator providerAddCoordinator;
-  final LibraryProviderActionService providerActionService;
-  final LibraryProviderOrchestrationService providerOrchestrationService;
-  final LibraryAddProviderFlowService providerFlowService;
-  final LibraryAddProposalFlowService proposalFlowService;
   final LibraryAddHydrationService hydrationService;
   final LibraryAddSubmissionService submissionService;
   final Future<bool> Function(Object error, String action)?
       onAuthSessionExpired;
+
+  List<String> _lastSubmittedItemIds = const [];
+
+  List<String> get lastSubmittedItemIds => _lastSubmittedItemIds;
 
   @override
   LibraryKindRegistration get type =>
@@ -132,48 +106,18 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   @override
   set state(LibraryAddSessionState newState) => value = newState;
 
-  CatalogEntityRef _selectedWishlistRef(CatalogSearchCandidate item) {
-    final selection = state.selection;
-    return libraryCatalogTargetForKind(item.summary.kind).resolve(
-      item.reference,
-      LibraryCatalogTargetSelection(
-        referenceType: selection.referenceType,
-        firstId: selection.selectedReferenceEditionId,
-        secondId: selection.selectedReferenceVariantId,
-        groupId: selection.selectedBundleReleaseId,
-      ),
-    );
-  }
-
-  CatalogEntityRef _selectedTargetRef(CatalogSearchCandidate item) {
-    final selection = state.selection;
-    final resolved = libraryCatalogTargetForKind(item.summary.kind).resolve(
-      item.reference,
-      LibraryCatalogTargetSelection(
-        referenceType: selection.referenceType,
-        firstId: selection.selectedReferenceEditionId,
-        secondId: selection.selectedReferenceVariantId,
-        groupId: selection.selectedBundleReleaseId,
-      ),
-    );
-    if (resolved == item.reference) {
-      return libraryAddForKind(item.summary.kind).mediaTargetRef(item) ??
-          resolved;
-    }
-    return resolved;
-  }
-
   LibraryAddSubmissionRequest _submissionRequest(
     List<CatalogSearchCandidate> candidates, {
     bool upsertCatalogItems = true,
+    FutureOr<void> Function(LibraryEntryRef libraryEntryRef)?
+        onLibraryEntryCreated,
+    FutureOr<void> Function()? onSubmissionCommitted,
   }) {
     return LibraryAddSubmissionRequest(
       items: [
         for (final candidate in candidates)
           LibraryAddSubmissionItem(
             candidate: candidate,
-            targetRef: _selectedTargetRef(candidate),
-            wishlistRef: _selectedWishlistRef(candidate),
           ),
       ],
       kind: kind,
@@ -182,10 +126,12 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       kindDraft: state.manualDraft,
       trackingDraft: state.trackingDraft,
       catalog: catalog,
-      ownedMutations: ownedMutations,
+      entryMutations: entryMutations,
       wishlistMutations: wishlistMutations,
       trackingMutations: trackingMutations,
       upsertCatalogItems: upsertCatalogItems,
+      onLibraryEntryCreated: onLibraryEntryCreated,
+      onSubmissionCommitted: onSubmissionCommitted,
     );
   }
 
@@ -215,29 +161,9 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     state = state.copyWith(
       selection: state.selection.copyWith(
         selectedResultId: id,
-        clearSelectedProviderCandidateId: true,
-        clearSelectedBundleReleaseId: true,
-        clearSelectedReferenceEditionId: true,
-        clearSelectedReferenceVariantId: true,
-        referenceType: LibraryAddReferenceType.media,
       ),
     );
     unawaited(_ensureSelectedResultLoaded(id));
-    unawaited(_ensureBundleReleasesLoaded(id));
-  }
-
-  void selectProviderCandidate(String id) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(
-        selectedProviderCandidateId: id,
-        clearSelectedResultId: true,
-        clearSelectedBundleReleaseId: true,
-        clearSelectedReferenceEditionId: true,
-        clearSelectedReferenceVariantId: true,
-        referenceType: LibraryAddReferenceType.media,
-      ),
-    );
-    unawaited(_ensureProviderPreviewLoaded(id));
   }
 
   void toggleCheckedResult(String id) {
@@ -247,88 +173,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     }
     state = state.copyWith(
       selection: state.selection.copyWith(checkedResultIds: updated),
-    );
-  }
-
-  void toggleCheckedProvider(String id) {
-    final updated = Set<String>.from(state.selection.checkedProviderIds);
-    if (!updated.remove(id)) {
-      updated.add(id);
-    }
-    state = state.copyWith(
-      selection: state.selection.copyWith(checkedProviderIds: updated),
-    );
-  }
-
-  void setReferenceType(LibraryAddReferenceType value) {
-    if (state.target == LibraryAddTarget.track) return;
-    final bundles = state.preview.bundleReleasesForItem(state.selectedItem);
-    String? firstBundleId;
-    if (value == LibraryAddReferenceType.bundleRelease) {
-      firstBundleId = state.selection.selectedBundleReleaseId ??
-          (bundles.isNotEmpty ? bundles.first.id : null);
-    }
-    state = state.copyWith(
-      selection: state.selection.copyWith(
-        referenceType: value,
-        selectedBundleReleaseId: firstBundleId,
-        clearSelectedBundleReleaseId:
-            value != LibraryAddReferenceType.bundleRelease,
-        clearSelectedReferenceEditionId:
-            value != LibraryAddReferenceType.edition,
-        clearSelectedReferenceVariantId:
-            value != LibraryAddReferenceType.edition,
-      ),
-    );
-    if (value == LibraryAddReferenceType.bundleRelease &&
-        firstBundleId != null) {
-      unawaited(_ensureBundleReleaseDetailLoaded(firstBundleId));
-    }
-  }
-
-  void selectReferenceEdition(String editionId) {
-    final item = state.selectedItem;
-    if (item == null) return;
-    final releases = libraryPresentationForKind(item.summary.kind)
-        .builder
-        .buildReleaseOptions(item: item);
-    final selectedRelease = previewReleaseForItem(releases, editionId);
-    state = state.copyWith(
-      selection: state.selection.copyWith(
-        selectedReferenceEditionId: selectedRelease?.id,
-        clearSelectedReferenceVariantId: true,
-      ),
-    );
-  }
-
-  void selectReferenceVariant(String variantId) {
-    final normalized = variantId.trim().isEmpty ? null : variantId.trim();
-    state = state.copyWith(
-      selection: state.selection.copyWith(
-        selectedReferenceVariantId: normalized,
-        clearSelectedReferenceVariantId: normalized == null,
-      ),
-    );
-  }
-
-  void selectBundleRelease(String bundleReleaseId) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(
-        selectedBundleReleaseId: bundleReleaseId,
-      ),
-    );
-    unawaited(_ensureBundleReleaseDetailLoaded(bundleReleaseId));
-  }
-
-  void setShowCoreResults(bool value) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(showCoreResults: value),
-    );
-  }
-
-  void setShowProviderResults(bool value) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(showProviderResults: value),
     );
   }
 
@@ -395,12 +239,9 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
           showAdvancedSearch: result.showAdvancedFields,
           coverScanPrefill: result,
           results: const [],
-          providerResults: const [],
-          searchedProvider: false,
         ),
         selection: state.selection.copyWith(
           clearSelectedResultId: true,
-          clearSelectedProviderCandidateId: true,
         ),
         preview: const LibraryAddPreviewState.initial(),
       );
@@ -411,61 +252,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         search: state.search.copyWith(isScanningCover: false),
       );
     }
-  }
-
-  Future<void> queueProviderIngest(
-    ProviderSearchCandidate candidate, {
-    required BuildContext context,
-  }) async {
-    if (api == null) return;
-    if (state.preview.isQueueingIngest ||
-        state.preview.queuedProviderIngests
-            .containsKey(candidate.localCatalogId)) {
-      return;
-    }
-
-    state = state.copyWith(
-      preview: state.preview.copyWith(isQueueingIngest: true),
-    );
-
-    final previewController = LibraryAddPreviewController();
-    for (final entry in state.preview.queuedProviderIngests.entries) {
-      previewController.setQueuedProviderIngest(entry.key, entry.value);
-    }
-
-    await providerFlowService.queueProviderIngest(
-      context: context,
-      api: api!,
-      candidate: candidate,
-      providerActionService: providerActionService,
-      mounted: true,
-      isQueueingIngest: false,
-      clearRejectedMetadataSession: _handleAuthExpiration,
-      rebuild: (fn) {},
-      setQueueingIngest: (val) {
-        state = state.copyWith(
-          preview: state.preview.copyWith(isQueueingIngest: val),
-        );
-      },
-      onQueued: (ingest) {
-        final updated = Map<String, LibraryQueuedProviderIngest>.from(
-          state.preview.queuedProviderIngests,
-        );
-        updated[candidate.localCatalogId] = ingest;
-        state = state.copyWith(
-          preview: state.preview.copyWith(
-            queuedProviderIngests: updated,
-            isQueueingIngest: false,
-          ),
-        );
-      },
-      setError: (msg) {
-        state = state.copyWith(
-          search: state.search.copyWith(error: msg),
-          preview: state.preview.copyWith(isQueueingIngest: false),
-        );
-      },
-    );
   }
 
   @override
@@ -486,7 +272,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     }
 
     final searchGen = state.search.coreSearchGeneration;
-    final pending = Set<CatalogEntityRef>.from(
+    final pending = Set<CatalogItemRef>.from(
       state.preview.pendingHydratedResultRefs,
     )..add(catalogRef);
     state = state.copyWith(
@@ -509,11 +295,11 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
                 fallback: selected,
               );
 
-      final hydratedMap = Map<CatalogEntityRef, CatalogSearchCandidate>.from(
+      final hydratedMap = Map<CatalogItemRef, CatalogSearchCandidate>.from(
         state.preview.hydratedResultsByRef,
       );
       hydratedMap[catalogRef] = mergedItem;
-      final pendingUpdated = Set<CatalogEntityRef>.from(
+      final pendingUpdated = Set<CatalogItemRef>.from(
         state.preview.pendingHydratedResultRefs,
       )..remove(catalogRef);
       state = state.copyWith(
@@ -529,226 +315,12 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         error: error,
         stackTrace: stackTrace,
       );
-      final pendingUpdated = Set<CatalogEntityRef>.from(
+      final pendingUpdated = Set<CatalogItemRef>.from(
         state.preview.pendingHydratedResultRefs,
       )..remove(catalogRef);
       state = state.copyWith(
         preview: state.preview.copyWith(
           pendingHydratedResultRefs: pendingUpdated,
-        ),
-      );
-    }
-  }
-
-  @override
-  Future<void> _ensureBundleReleasesLoaded(String itemId) async {
-    if (api == null) return;
-    final selected = state.search.results
-        .where((item) => item.reference.id == itemId)
-        .firstOrNull;
-    if (selected == null) return;
-    final catalogRef = selected.reference;
-    if (state.preview.bundleReleasesByCatalogRef.containsKey(catalogRef) ||
-        state.preview.isBundleReleasesPending(catalogRef)) {
-      return;
-    }
-
-    final searchGen = state.search.coreSearchGeneration;
-    final pending = Set<CatalogEntityRef>.from(
-      state.preview.pendingBundleReleaseCatalogRefs,
-    )..add(catalogRef);
-    state = state.copyWith(
-      preview: state.preview.copyWith(
-        pendingBundleReleaseCatalogRefs: pending,
-      ),
-    );
-
-    try {
-      final bundleReleases = await hydrationService.loadBundleReleases(
-        api: api!,
-        itemId: itemId,
-      );
-      if (searchGen != state.search.coreSearchGeneration) return;
-
-      final firstBundleId = state.selection.selectedBundleReleaseId ??
-          (bundleReleases.isNotEmpty ? bundleReleases.first.id : null);
-      final releasesMap =
-          Map<CatalogEntityRef, List<LibraryBundleSummary>>.from(
-        state.preview.bundleReleasesByCatalogRef,
-      );
-      releasesMap[catalogRef] = bundleReleases;
-      final pendingUpdated = Set<CatalogEntityRef>.from(
-        state.preview.pendingBundleReleaseCatalogRefs,
-      )..remove(catalogRef);
-
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          bundleReleasesByCatalogRef: releasesMap,
-          pendingBundleReleaseCatalogRefs: pendingUpdated,
-        ),
-        selection: state.selection.referenceType ==
-                LibraryAddReferenceType.bundleRelease
-            ? state.selection.copyWith(selectedBundleReleaseId: firstBundleId)
-            : null,
-      );
-
-      if (state.selection.referenceType ==
-              LibraryAddReferenceType.bundleRelease &&
-          firstBundleId != null) {
-        unawaited(_ensureBundleReleaseDetailLoaded(firstBundleId));
-      }
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_add',
-        message: 'Failed to load bundle releases for $itemId.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      final pendingUpdated = Set<CatalogEntityRef>.from(
-        state.preview.pendingBundleReleaseCatalogRefs,
-      )..remove(catalogRef);
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          pendingBundleReleaseCatalogRefs: pendingUpdated,
-        ),
-      );
-    }
-  }
-
-  Future<void> _ensureBundleReleaseDetailLoaded(String bundleReleaseId) async {
-    if (api == null) return;
-    if (state.preview.bundleReleaseDetailsById.containsKey(bundleReleaseId) ||
-        state.preview.isBundleReleaseDetailPending(bundleReleaseId)) {
-      return;
-    }
-
-    final searchGen = state.search.coreSearchGeneration;
-    final pending =
-        Set<String>.from(state.preview.pendingBundleReleaseDetailIds)
-          ..add(bundleReleaseId);
-    state = state.copyWith(
-      preview: state.preview.copyWith(pendingBundleReleaseDetailIds: pending),
-    );
-
-    try {
-      final bundleRelease = await hydrationService.loadBundleReleaseDetail(
-        api: api!,
-        bundleReleaseId: bundleReleaseId,
-      );
-      if (searchGen != state.search.coreSearchGeneration) return;
-
-      final detailsMap = Map<String, LibraryBundleDetail>.from(
-        state.preview.bundleReleaseDetailsById,
-      );
-      detailsMap[bundleReleaseId] = bundleRelease;
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingBundleReleaseDetailIds)
-            ..remove(bundleReleaseId);
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          bundleReleaseDetailsById: detailsMap,
-          pendingBundleReleaseDetailIds: pendingUpdated,
-        ),
-      );
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_add',
-        message: 'Failed to load bundle release detail for $bundleReleaseId.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingBundleReleaseDetailIds)
-            ..remove(bundleReleaseId);
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          pendingBundleReleaseDetailIds: pendingUpdated,
-        ),
-      );
-    }
-  }
-
-  @override
-  Future<void> _ensureProviderPreviewLoaded(String candidateId) async {
-    if (state.preview.providerPreviewFor(candidateId) != null ||
-        state.preview.isProviderPreviewPending(candidateId)) {
-      return;
-    }
-
-    ProviderSearchCandidate? candidate;
-    for (final value in state.search.providerResults) {
-      if (value.localCatalogId == candidateId) {
-        candidate = value;
-        break;
-      }
-    }
-    if (candidate == null || candidate.isStub) return;
-    final candidateKind = candidate.kind;
-
-    final searchGen = state.search.providerSearchGeneration;
-    final pending = Set<String>.from(state.preview.pendingProviderPreviewIds)
-      ..add(candidateId);
-    state = state.copyWith(
-      preview: state.preview.copyWith(pendingProviderPreviewIds: pending),
-    );
-
-    try {
-      final loaded = await hydrationService.loadProviderGroupPreview(
-        registry: providerRegistry,
-        capability: _searchCapability,
-        resultPolicy: libraryAddForKind(candidate.kind).resultPolicy,
-        candidate: candidate,
-        searchContext: _searchContext(),
-        currentResults: state.search.providerResults,
-        buildGroupChildren: ({
-          required groupCandidate,
-          required preview,
-        }) =>
-            libraryPresentationForKind(candidateKind)
-                .builder
-                .buildProviderGroupPreviewChildrenForSearchCandidate(
-                  groupCandidate: groupCandidate,
-                  preview: preview,
-                ),
-      );
-      final preview = loaded.preview;
-      final hydratedCandidate = loaded.candidate;
-
-      if (searchGen != state.search.providerSearchGeneration) return;
-
-      final previewsMap = Map<String, AdminProviderPreview>.from(
-        state.preview.providerPreviews,
-      );
-      final typedCandidatesMap = Map<String, ProviderSearchCandidate>.from(
-        state.preview.typedProviderCandidates,
-      );
-      previewsMap[candidateId] = preview;
-      typedCandidatesMap[candidateId] = hydratedCandidate;
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingProviderPreviewIds)
-            ..remove(candidateId);
-      state = state.copyWith(
-        search: state.search.copyWith(providerResults: loaded.searchResults),
-        preview: state.preview.copyWith(
-          providerPreviews: previewsMap,
-          typedProviderCandidates: typedCandidatesMap,
-          pendingProviderPreviewIds: pendingUpdated,
-        ),
-      );
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_add',
-        message:
-            'Failed to load provider preview for ${candidate.provider}:${candidate.providerItemId}.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingProviderPreviewIds)
-            ..remove(candidateId);
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          pendingProviderPreviewIds: pendingUpdated,
         ),
       );
     }
@@ -822,15 +394,27 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     );
   }
 
-  Future<bool> submitSelectedItem(CatalogSearchCandidate item) async {
+  Future<bool> submitSelectedItem(
+    CatalogSearchCandidate item, {
+    FutureOr<void> Function(LibraryEntryRef libraryEntryRef)?
+        onLibraryEntryCreated,
+    FutureOr<void> Function()? onSubmissionCommitted,
+  }) async {
     if (state.isAdding || state.submitState.isLoading) return false;
+    _lastSubmittedItemIds = const [];
     clearSubmissionError();
     state = state.copyWith(
       isAdding: true,
       submitState: const AsyncValue.loading(),
     );
     try {
-      final result = await submissionService.submit(_submissionRequest([item]));
+      final result = await submissionService.submit(
+        _submissionRequest(
+          [item],
+          onLibraryEntryCreated: onLibraryEntryCreated,
+          onSubmissionCommitted: onSubmissionCommitted,
+        ),
+      );
       if (result.submittedCount == 0) {
         state = state.copyWith(
           isAdding: false,
@@ -839,6 +423,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         reportSubmissionError('The item was not added. Please try again.');
         return false;
       }
+
+      _lastSubmittedItemIds = result.itemIds;
 
       state = state.copyWith(
         isAdding: false,
@@ -856,133 +442,55 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     }
   }
 
-  Future<int> _submitProviderCandidates({
-    required List<ProviderSearchCandidate> candidates,
-    required BuildContext? context,
-    required bool isAdmin,
-    required bool allowNavigation,
-  }) async {
-    if (candidates.isEmpty) return 0;
-
-    final candidatesToSubmit =
-        await _hydrateProviderCandidatesForSubmission(candidates);
-    if (candidatesToSubmit.isEmpty) return 0;
-
-    if (api != null && catalog != null && context != null && context.mounted) {
-      final previewController = LibraryAddPreviewController();
-      for (final entry in state.preview.providerPreviews.entries) {
-        previewController.setProviderPreview(entry.key, entry.value);
-      }
-      for (final entry in state.preview.typedProviderCandidates.entries) {
-        previewController.setTypedProviderCandidate(entry.key, entry.value);
-      }
-      final physicalFormats = physicalMediaFormatsForKind(
-        fallbackMediaCatalog,
-        kind,
-      );
-      final request = LibraryProviderAddRequest(
-        api: api!,
-        isAdmin: isAdmin,
-        type: type,
-        candidate: candidatesToSubmit.first,
-        target: state.target,
-        accent: LibraryAccentScope.accentOf(context),
-        dependencies: LibraryProviderAddDependencies(
-          catalog: catalog!,
-          ownedMutations: ownedMutations,
-          wishlistMutations: wishlistMutations,
-          trackingMutations: trackingMutations,
-          physicalFormats: physicalFormats,
-          previewState: previewController,
-          providerActionService: providerActionService,
-          providerOrchestrationService: providerOrchestrationService,
-          providerMapper: _providerCorrectionsForKind(type.kind),
-          visibleProviderResults: () => state.visibleProviderResults(
-            libraryAddForKind(type.kind).resultPolicy,
-          ),
-          showEditDialog: (req) =>
-              showLibraryEditDialog(context: context, request: req),
-          closeEditDialog: () => Navigator.of(context).pop(),
-          clearRejectedMetadataSession: _handleAuthExpiration,
-        ),
-        referenceType: state.selection.referenceType,
-        defaults: LibraryAddDefaults(
-          condition: state.defaultCondition,
-          purchaseDate: state.defaultPurchaseDate,
-          locationId: state.defaultLocationId,
-          readStatus: state.defaultReadStatus,
-          tags: state.defaultTags,
-        ),
-        allowNavigation: allowNavigation,
-        reportError: (message) => state = state.copyWith(
-          search: state.search.copyWith(error: message),
-        ),
-      );
-      if (candidatesToSubmit.length == 1 && allowNavigation) {
-        return await providerAddCoordinator.addProviderCandidate(request)
-            ? candidatesToSubmit.length
-            : 0;
-      }
-      return await providerAddCoordinator.addProviderCandidates(
-        request,
-        candidatesToSubmit,
-      );
-    }
-
-    final metadataItems = [
-      for (final candidate in candidatesToSubmit)
-        libraryAddForKind(type.kind)
-            .catalogCandidateFromProviderCandidate(candidate),
-    ];
-    final result =
-        await submissionService.submit(_submissionRequest(metadataItems));
-    return result.submittedCount;
-  }
-
-  Future<List<ProviderSearchCandidate>> _hydrateProviderCandidatesForSubmission(
-    List<ProviderSearchCandidate> candidates,
-  ) async {
-    final loaded =
-        await hydrationService.hydrateProviderCandidatesForSubmission(
-      registry: providerRegistry,
-      capability: libraryAddForKind(kind).search,
-      candidates: candidates,
-      existingCandidatesById: state.preview.typedProviderCandidates,
-    );
-    if (loaded.hydratedCandidates.isNotEmpty) {
-      final typedCandidates = Map<String, ProviderSearchCandidate>.from(
-        state.preview.typedProviderCandidates,
-      )..addAll(loaded.hydratedCandidates);
-      final previews = Map<String, AdminProviderPreview>.from(
-        state.preview.providerPreviews,
-      )..addAll(loaded.hydratedPreviews);
-      state = state.copyWith(
-        preview: state.preview.copyWith(
-          typedProviderCandidates: typedCandidates,
-          providerPreviews: previews,
-        ),
-      );
-    }
-    return loaded.candidates;
-  }
-
   Future<int> _submitCoreCandidates(Set<String> checkedResultIds) async {
     if (checkedResultIds.isEmpty) return 0;
 
-    final itemsToAdd = state.search.results
+    final searchItems = state.search.results
         .where((item) => checkedResultIds.contains(item.reference.id))
         .toList(growable: false);
-    if (itemsToAdd.isEmpty) return 0;
+    if (searchItems.isEmpty) return 0;
     final catalogRepository = catalog;
     if (catalogRepository == null) {
       throw StateError('Catalog storage is unavailable for Core results.');
+    }
+
+    final itemsToAdd = <CatalogSearchCandidate>[];
+    for (final fallback in searchItems) {
+      final hydrated = state.preview.hydratedResultFor(fallback.reference);
+      if (hydrated != null || api == null) {
+        itemsToAdd.add(hydrated ?? fallback);
+        continue;
+      }
+      try {
+        final response = await hydrationService.hydrateCatalogCandidate(
+          api: api!,
+          type: type,
+          fallback: fallback,
+          itemId: fallback.reference.id,
+        );
+        itemsToAdd.add(
+          libraryPresentationForKind(type.kind).builder.mergeHydratedAddItem(
+                hydrated: response,
+                fallback: fallback,
+              ),
+        );
+      } catch (error, stackTrace) {
+        logRecoverableError(
+          source: 'library_add',
+          message:
+              'Could not hydrate checked catalog result ${fallback.reference.id}; using its search payload.',
+          error: error,
+          stackTrace: stackTrace,
+        );
+        itemsToAdd.add(fallback);
+      }
     }
 
     final result = await submissionService.submitCoreBatch(
       LibraryAddBatchRequest(
         dependencies: LibraryAddMutationDependencies(
           catalog: catalogRepository,
-          ownedMutations: ownedMutations,
+          entryMutations: entryMutations,
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
         ),
@@ -994,7 +502,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
           startedAt: state.trackingDraft.startedAt,
           finishedAt: state.trackingDraft.finishedAt,
         ),
-        referenceType: state.selection.referenceType,
         defaults: LibraryAddDefaults(
           condition: state.defaultCondition,
           purchaseDate: state.defaultPurchaseDate,
@@ -1004,36 +511,22 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         ),
       ),
     );
+    _lastSubmittedItemIds = result.itemIds;
     return result.submittedCount;
   }
 
-  Future<bool> submitCurrentSelection({
-    BuildContext? context,
-    bool isAdmin = false,
-  }) async {
+  Future<bool> submitCurrentSelection() async {
     if (state.isAdding || state.submitState.isLoading) return false;
+    _lastSubmittedItemIds = const [];
 
-    final selectedCandidate = state.selectedCandidate;
     final selectedResult = state.selectedItem;
     final checkedResults = state.selection.checkedResultIds
         .where(
           (id) => state.search.results.any((item) => item.reference.id == id),
         )
         .toSet();
-    final checkedProviderCandidates = [
-      for (final candidate in state.search.providerResults)
-        if (state.selection.checkedProviderIds.contains(
-              candidate.localCatalogId,
-            ) &&
-            !candidate.previewOnly)
-          candidate,
-    ];
-
-    final hasBulkSelection =
-        checkedProviderCandidates.isNotEmpty || checkedResults.isNotEmpty;
-    if (!hasBulkSelection &&
-        selectedCandidate == null &&
-        selectedResult == null) {
+    final hasBulkSelection = checkedResults.isNotEmpty;
+    if (!hasBulkSelection && selectedResult == null) {
       reportSubmissionError('Select an item before adding it.');
       return false;
     }
@@ -1047,40 +540,16 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     try {
       var submittedCount = 0;
       if (hasBulkSelection) {
-        if (checkedProviderCandidates.isNotEmpty) {
-          submittedCount += await _submitProviderCandidates(
-            candidates: checkedProviderCandidates,
-            context: context,
-            isAdmin: isAdmin,
-            allowNavigation: false,
-          );
-        }
-        if (checkedResults.isNotEmpty) {
-          submittedCount += await _submitCoreCandidates(checkedResults);
-        }
-      } else if (selectedCandidate != null) {
-        final selectedContext = context;
-        if (selectedContext != null && !selectedContext.mounted) {
-          state = state.copyWith(
-            isAdding: false,
-            submitState: const AsyncValue.data(null),
-          );
-          return false;
-        }
-        submittedCount = await _submitProviderCandidates(
-          candidates: [selectedCandidate],
-          context: selectedContext,
-          isAdmin: isAdmin,
-          allowNavigation: true,
-        );
+        submittedCount = await _submitCoreCandidates(checkedResults);
       } else if (selectedResult != null) {
         final result = await submissionService.submit(
           _submissionRequest(
             [selectedResult],
-            upsertCatalogItems: false,
+            upsertCatalogItems: true,
           ),
         );
         submittedCount = result.submittedCount;
+        _lastSubmittedItemIds = result.itemIds;
       }
 
       if (submittedCount == 0) {
@@ -1120,7 +589,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         state = state.copyWith(
           search: state.search.copyWith(
             isSearching: false,
-            isSearchingProvider: false,
             isScanningCover: false,
             error:
                 'Saved metadata session was cleared after $action was rejected. '
@@ -1143,12 +611,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     cancelSearch();
     state = LibraryAddSessionState(
       mode: LibraryAddDialogMode.search,
-      target: LibraryAddTarget.owned,
+      target: LibraryAddTarget.entry,
       search: LibraryAddSearchState.initial(
-        selectedProvider: libraryMetadataForKind(type.kind)
-                .defaultSupportedOption(type.kind)
-                ?.id ??
-            libraryMetadataForKind(type.kind).defaultProviderId,
         advancedFilters: _searchCapability.input.initialAdvancedFilters,
       ),
       selection: LibraryAddSelectionState(
@@ -1169,23 +633,4 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     cancelSearch();
     super.dispose();
   }
-}
-
-ProviderCorrectionPatch _emptyProviderCorrections({
-  required CatalogSearchCandidate edited,
-  required CatalogSearchCandidate preview,
-}) =>
-    const EmptyProviderCorrectionPatch();
-
-BuildProviderCorrections _providerCorrectionsForKind(CatalogMediaKind kind) {
-  final builder = libraryKindProviderCorrectionBuilderForKind(kind);
-  if (builder == null) return _emptyProviderCorrections;
-  return ({
-    required CatalogSearchCandidate edited,
-    required CatalogSearchCandidate preview,
-  }) =>
-      builder(
-        preview: preview,
-        edited: edited,
-      );
 }

@@ -1,13 +1,15 @@
-/// Flutter independent catalog values shared by Board Game Add and Edit.
+import 'package:collectarr_app/core/models/partial_date.dart';
+
+/// Editable fields for one concrete Board Game Catalog Item.
 final class BoardGameCatalogFormValues {
   BoardGameCatalogFormValues({
     this.title = '',
     this.originalTitle = '',
+    this.localizedTitle = '',
     this.sortTitle = '',
     this.subtitle = '',
     this.description = '',
     this.originalLanguage = '',
-    this.workReleaseDate,
     this.publisher = '',
     this.platforms = const [],
     this.identifiers = const [],
@@ -37,9 +39,8 @@ final class BoardGameCatalogFormValues {
     this.bggRatingCount,
     this.bggRank,
     this.seriesTitle = '',
-    this.itemNumber = '',
-    this.releaseTitle = '',
     this.editionTitle = '',
+    this.itemNumber = '',
     this.variant = '',
     this.ageRating = '',
     this.audienceRating = '',
@@ -47,26 +48,21 @@ final class BoardGameCatalogFormValues {
     this.catalogNumber = '',
     this.country = '',
     this.coverImageUrl = '',
-    this.backCoverImageUrl = '',
-    this.editionDescription = '',
     this.format = '',
     this.language = '',
-    this.editionMaxPlayers,
-    this.editionMinAge,
-    this.editionMinPlayers,
     this.playingTimeMinutes,
-    this.editionPublisher = '',
     this.releaseDate,
+    this.releaseDateParts,
     this.releaseStatus = '',
   });
 
   String title;
   String originalTitle;
+  String localizedTitle;
   String sortTitle;
   String subtitle;
   String description;
   String originalLanguage;
-  DateTime? workReleaseDate;
   String publisher;
   List<String> platforms;
   List<String> identifiers;
@@ -96,10 +92,8 @@ final class BoardGameCatalogFormValues {
   int? bggRatingCount;
   int? bggRank;
   String seriesTitle;
-  String itemNumber;
-
-  String releaseTitle;
   String editionTitle;
+  String itemNumber;
   String variant;
   String ageRating;
   String audienceRating;
@@ -107,15 +101,10 @@ final class BoardGameCatalogFormValues {
   String catalogNumber;
   String country;
   String coverImageUrl;
-  String backCoverImageUrl;
-  String editionDescription;
   String format;
   String language;
-  int? editionMaxPlayers;
-  int? editionMinAge;
-  int? editionMinPlayers;
   int? playingTimeMinutes;
-  String editionPublisher;
   DateTime? releaseDate;
+  PartialDate? releaseDateParts;
   String releaseStatus;
 }

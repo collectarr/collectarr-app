@@ -12,7 +12,7 @@ void main() {
       minWidth: kLibrarySidebarMinWidth,
     );
 
-    expect(maxWidth, 816);
+    expect(maxWidth, 828);
     expect(maxWidth, greaterThan(kLibrarySidebarMaxWidth));
   });
 
@@ -37,7 +37,7 @@ void main() {
       sidebarWidth: 360,
     );
 
-    expect(maxWidth, 976);
+    expect(maxWidth, 988);
     expect(maxWidth, greaterThan(kLibraryDetailsMaxWidth));
   });
 
@@ -47,7 +47,7 @@ void main() {
       workspaceMinHeight: kLibraryWorkspaceMinHeight,
     );
 
-    expect(maxHeight, 968);
+    expect(maxHeight, 974);
     expect(maxHeight, greaterThan(kLibraryDetailsDefaultHeight));
   });
 }

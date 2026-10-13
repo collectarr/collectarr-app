@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,7 +29,7 @@ void main() {
     expect(source, isNot(contains('buildAdd')));
     expect(source, isNot(contains('openMediaEdit')));
     expect(source, isNot(contains('openReleaseEdit')));
-    expect(source, isNot(contains('openOwnedEdit')));
+    expect(source, isNot(contains('openEntryEdit')));
   });
 
   test('page dispatch has no concrete-kind switch or imports', () {
@@ -104,29 +103,41 @@ void main() {
     expect(libraryAdminContributorsByKind.keys, containsAll(activeKinds));
     expect(collectionCsvProfilesByKind.keys, containsAll(activeKinds));
     for (final kind in activeKinds) {
+      final search = libraryAddForKind(kind).search.core;
       expect(
-        libraryAddForKind(kind).search.provider.strategy,
-        anyOf(
-          isA<LibraryAddTypedProviderSearchStrategy>(),
-          isA<LibraryAddContextualProviderSearchStrategy>(),
-        ),
-        reason: '${kind.apiValue} must use its typed provider search boundary',
+        search.inputBuilder,
+        isNotNull,
+        reason: '${kind.apiValue} must define a Core search query',
+      );
+      expect(
+        search.ranking,
+        isNotNull,
+        reason: '${kind.apiValue} must define Core search ranking',
       );
     }
-    expect(libraryOwnedSummaryReadersByKind.keys, containsAll(activeKinds));
+    expect(
+        libraryLibraryEntrySummaryReadersByKind.keys, containsAll(activeKinds));
     expect(libraryCatalogTransportCodecs, hasLength(activeKinds.length));
   });
 
   test(
       'catalog transport registry stores behavior boundaries, not erased values',
       () {
-    final catalogRegistrySource =
-        File('lib/features/catalog/library_catalog_registry.dart')
-            .readAsStringSync();
+    final catalogRegistrySource = File(
+            'lib/features/catalog/transport/catalog_transport_summary_registry.dart')
+        .readAsStringSync();
 
     expect(
       catalogRegistrySource,
-      contains('const List<CatalogKindTransportBoundary>'),
+      contains('final List<CatalogKindTransportBoundary>'),
+    );
+    expect(
+      catalogRegistrySource,
+      contains('for (final capability in collectarrKindMetadata.values)'),
+    );
+    expect(
+      catalogRegistrySource,
+      contains('capability.catalogTransportCodec'),
     );
     expect(
       catalogRegistrySource,
@@ -157,22 +168,22 @@ void main() {
       expect(source, contains('CatalogMediaKind.${entry.key}'));
     }
 
-    final ownedSource = File(
-      'lib/features/library/owned/owned_kind_contributor_registry.dart',
+    final entrySource = File(
+      'lib/features/library/entries/entry_kind_contributor_registry.dart',
     ).readAsStringSync();
-    expect(ownedSource, contains('collectarrOwnedKindContributors'));
+    expect(entrySource, contains('collectarrEntryKindContributors'));
     for (final contributor in [
-      'animeOwnedContributor',
-      'boardGameOwnedContributor',
-      'bookOwnedContributor',
-      'comicOwnedContributor',
-      'gameOwnedContributor',
-      'mangaOwnedContributor',
-      'movieOwnedContributor',
-      'musicOwnedContributor',
-      'tvOwnedContributor',
+      'animeEntryContributor',
+      'boardGameEntryContributor',
+      'bookEntryContributor',
+      'comicEntryContributor',
+      'gameEntryContributor',
+      'mangaEntryContributor',
+      'movieEntryContributor',
+      'musicEntryContributor',
+      'tvEntryContributor',
     ]) {
-      expect(ownedSource, contains(contributor));
+      expect(entrySource, contains(contributor));
     }
   });
 
@@ -222,7 +233,10 @@ void main() {
     final erasedWorkspaceFiles = <String>[];
     final workspaceProperty = RegExp(r'\.\s*workspace\b');
     for (final file in productionFiles) {
-      if (workspaceProperty.hasMatch(file.readAsStringSync())) {
+      final codeWithoutStrings = file
+          .readAsStringSync()
+          .replaceAll(RegExp(r"'[^']*'|" r'"[^"]*"'), '');
+      if (workspaceProperty.hasMatch(codeWithoutStrings)) {
         erasedWorkspaceFiles.add(file.path);
       }
     }

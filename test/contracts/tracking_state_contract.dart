@@ -17,8 +17,7 @@ void defineTrackingStateContract({
       (entry) {
         final summary = TrackingSummary(
           id: entry.id,
-          catalogRef: entry.catalogRef,
-          ownedRef: entry.ownedRef,
+          libraryEntryRef: entry.libraryEntryRef,
           sourceType: entry.sourceType,
           status: entry.status ?? MediaTrackingStatus.none,
           rating: entry.rating,

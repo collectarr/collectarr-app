@@ -34,11 +34,11 @@ void main() {
         ),
       );
 
-      expect(theme.panelTitle.fontWeight, FontWeight.w800);
-      expect(theme.sectionTitle.fontWeight, FontWeight.w800);
+      expect(theme.panelTitle.fontWeight, FontWeight.w700);
+      expect(theme.sectionTitle.fontWeight, FontWeight.w700);
       expect(theme.metadataLabel.fontWeight, FontWeight.w700);
       expect(theme.supportingText, isNotNull);
-      expect(theme.tableHeader.fontWeight, FontWeight.w800);
+      expect(theme.tableHeader.fontWeight, FontWeight.w700);
     });
   });
 

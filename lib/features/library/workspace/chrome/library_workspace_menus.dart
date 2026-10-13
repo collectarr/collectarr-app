@@ -83,7 +83,8 @@ class LibraryWorkspaceMenuSectionDivider extends StatelessWidget {
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: libraryToolbarMenuMutedText(context),
                     fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
+                    fontSize: 14,
+                    letterSpacing: 0,
                   ),
             ),
           ),
@@ -188,18 +189,21 @@ class LibraryWorkspaceMenuTreeHeader extends StatelessWidget {
     required this.expanded,
     required this.highlighted,
     required this.onTap,
+    this.leading,
   });
 
   final String label;
   final bool expanded;
   final bool highlighted;
   final VoidCallback onTap;
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
     return LibraryWorkspaceMenuRow(
       label: label,
       onTap: onTap,
+      leading: leading,
       padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
       trailing: Icon(
         expanded ? Icons.expand_less : Icons.expand_more,
@@ -211,7 +215,7 @@ class LibraryWorkspaceMenuTreeHeader extends StatelessWidget {
           : Colors.transparent,
       textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
             color: libraryToolbarMenuText(context),
-            fontWeight: highlighted ? FontWeight.w700 : FontWeight.w600,
+            fontWeight: FontWeight.w700,
           ),
     );
   }

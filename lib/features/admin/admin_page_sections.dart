@@ -10,7 +10,7 @@ extension _AdminPageSections on _AdminPageState {
           kind: _catalogSearchController.kindFilter,
           kinds: _catalogKindOptions(),
           kindLabels: _catalogKindLabels(),
-          isLoadingKinds: _isLoadingKinds,
+          isLoadingKinds: _isLoadingMediaTypes,
           isSearching: _catalogSearchController.isSearching,
           statusMessage: _catalogSearchController.statusMessage,
           errorMessage: _catalogSearchController.errorMessage,
@@ -28,29 +28,73 @@ extension _AdminPageSections on _AdminPageState {
             onInspectCovers: _showCoverInspectionDialog,
           ),
         ),
-        const SizedBox(height: 12),
+        if (_inspectErrorMessage != null) ...[
+          const SizedBox(height: 12),
+          AdminMessageRow(
+            message: _inspectErrorMessage!,
+            isError: true,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildProposalsTab() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
         AdminPanel(
-          icon: Icons.join_inner_outlined,
-          title: 'Duplicate candidates',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (_duplicateStatusMessage != null ||
-                  _duplicateErrorMessage != null) ...[
-                AdminMessageRow(
-                  message: _duplicateErrorMessage ?? _duplicateStatusMessage!,
-                  isError: _duplicateErrorMessage != null,
-                ),
-                const SizedBox(height: 12),
-              ],
-              _DuplicateCandidateList(
-                candidates: _duplicates,
-                inspectingItemId: _inspectingItemId,
-                actionItemId: _duplicateActionItemId,
-                onInspect: _inspectDuplicateCandidate,
-                onIgnore: _ignoreDuplicateCandidate,
-              ),
-            ],
+          icon: Icons.pending_actions_outlined,
+          title: 'Metadata proposals',
+          trailing: IconButton(
+            tooltip: 'Refresh proposals',
+            onPressed:
+                _proposalsController.isLoading ? null : _loadProposalData,
+            icon: _proposalsController.isLoading
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh),
+          ),
+          child: AdminProposalsPanel(
+            summary: _proposalsController.summary,
+            statusFilter: _proposalsController.statusFilter,
+            isLoading: _proposalsController.isLoading,
+            statusMessage: _proposalStatusMessage,
+            errorMessage: _proposalErrorMessage,
+            onStatusChanged: _changeProposalStatusFilter,
+            content: _proposalsController.proposals.isEmpty
+                ? Text(
+                    'No ${_proposalsController.statusFilter.toLowerCase()} proposals found.')
+                : Column(
+                    children: [
+                      for (final proposal in _proposalsController.proposals)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: AdminProposalTile(
+                            proposal: proposal,
+                            isActing: _proposalActionId == proposal.id,
+                            kindLabel: _proposalKindLabel(
+                              proposal.kind,
+                            ),
+                            payloadPreview: proposal.catalogItem.isEmpty
+                                ? null
+                                : _ProposalPayloadPreview(
+                                    kind: catalogMediaKindFromValue(
+                                      proposal.kind,
+                                    ),
+                                    payload: Map<String, Object?>.from(
+                                      proposal.catalogItem,
+                                    ),
+                                  ),
+                            onEdit: () => _editProposalMetadata(proposal),
+                            onApprove: () => _approveProposal(proposal),
+                            onReject: () => _rejectProposal(proposal),
+                          ),
+                        ),
+                    ],
+                  ),
           ),
         ),
       ],
@@ -92,12 +136,6 @@ extension _AdminPageSections on _AdminPageState {
           icon: Icons.people_outline,
           title: 'User management',
           child: const AdminUsersPanel(),
-        ),
-        const SizedBox(height: 12),
-        AdminPanel(
-          icon: Icons.image_outlined,
-          title: 'Image cache',
-          child: const AdminImageCachePanel(),
         ),
         const SizedBox(height: 12),
         AdminPanel(

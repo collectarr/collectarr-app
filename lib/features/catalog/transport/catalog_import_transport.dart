@@ -1,16 +1,17 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 /// A schema-v1 catalog snapshot waiting to cross into catalog persistence.
 ///
 /// This is a transport value, not a catalog domain model or a search result.
-/// A kind-owned importer creates it; the catalog transport repository decodes
+/// A kind-entry importer creates it; the catalog transport repository decodes
 /// it into the generated catalog DTO at the persistence boundary.
 final class CatalogImportTransport {
   const CatalogImportTransport({
     required this.ref,
     required this.payload,
+    this.origin = CatalogItemOrigin.core,
   });
 
   /// Captures a generated catalog DTO at the explicit transport boundary.
@@ -19,8 +20,11 @@ final class CatalogImportTransport {
   /// rebuild a root reference from the DTO's naked id before dispatch.
   factory CatalogImportTransport.fromItem(CatalogItemDto item) {
     return CatalogImportTransport(
-      ref: item.catalogRef,
-      payload: item.toSyncPayload(),
+      ref: item.catalogItemRef,
+      payload: Map<String, dynamic>.unmodifiable(
+        item.toJson(),
+      ),
+      origin: item.origin,
     );
   }
 
@@ -37,17 +41,18 @@ final class CatalogImportTransport {
       );
     }
     return CatalogImportTransport(
-      ref: CatalogEntityRef(
+      ref: CatalogItemRef(
         kind: kind,
-        entityType: CatalogEntityTypeId.root,
         id: id,
       ),
       payload: Map<String, dynamic>.unmodifiable(payload),
+      origin: CatalogItemOrigin.core,
     );
   }
 
-  final CatalogEntityRef ref;
+  final CatalogItemRef ref;
   final JsonMap payload;
+  final CatalogItemOrigin origin;
 
   /// Returns the same schema-v1 transport with an updated serialized payload.
   ///
@@ -56,6 +61,7 @@ final class CatalogImportTransport {
   CatalogImportTransport withPayload(JsonMap nextPayload) {
     return CatalogImportTransport(
       ref: ref,
+      origin: origin,
       payload: Map<String, dynamic>.unmodifiable({
         ...nextPayload,
         'id': ref.id,
@@ -72,5 +78,5 @@ final class CatalogImportTransport {
         ...payload,
         'id': ref.id,
         'kind': ref.kind.apiValue,
-      });
+      }).withOrigin(origin);
 }

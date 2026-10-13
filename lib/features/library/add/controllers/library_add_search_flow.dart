@@ -7,23 +7,20 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
   LibraryKindRegistration get type;
   ApiClient? get api;
   CatalogTransportRepository? get catalog;
-  ProviderConnectorRegistry? get providerRegistry;
   LibraryAddSearchCapability get _searchCapability;
   LibraryAddSearchContext _searchContext({String? query});
   Future<bool> _handleAuthExpiration(Object error, String action);
   void selectResult(String id);
   Future<void> _ensureSelectedResultLoaded(String itemId);
-  Future<void> _ensureBundleReleasesLoaded(String itemId);
-  Future<void> _ensureProviderPreviewLoaded(String candidateId);
   Timer? _searchDebounceTimer;
   Timer? _autocompleteTimer;
   CancelToken? _coreSearchCancelToken;
+  CancelToken? _coreLoadMoreCancelToken;
   CancelToken? _suggestionsCancelToken;
   int _suggestionsGeneration = 0;
-  ProviderCancellationToken? _providerSearchCancellationToken;
 
-  static const _providerSearchDebounce = Duration(milliseconds: 450);
   static const _coreSearchTimeout = Duration(seconds: 35);
+  static const _coreSearchPageSize = 20;
   static const _autocompleteDebounce = Duration(milliseconds: 350);
   static const _autocompleteLimit = 8;
   void updateQuery(String query) {
@@ -91,12 +88,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     );
   }
 
-  void setSelectedProvider(String provider) {
-    state = state.copyWith(
-      search: state.search.copyWith(selectedProvider: provider),
-    );
-  }
-
   Future<void> fetchSuggestions(String query) async {
     if (api == null || catalog == null) return;
     _suggestionsCancelToken?.cancel('Superseded by a newer autocomplete');
@@ -113,7 +104,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
           searchContext,
           limit: _autocompleteLimit,
         ),
-        ranking: _searchCapability.provider.ranking,
+        ranking: _searchCapability.core.ranking,
         searchContext: searchContext,
         cancelToken: cancelToken,
       );
@@ -140,14 +131,16 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         showSuggestions: false,
         suggestions: const [],
         results: [item],
+        isLoadingMoreResults: false,
+        hasMoreResults: false,
+        nextOffset: 0,
+        clearLoadMoreError: true,
       ),
       selection: state.selection.copyWith(
         selectedResultId: item.reference.id,
-        clearSelectedProviderCandidateId: true,
       ),
     );
     _ensureSelectedResultLoaded(item.reference.id);
-    _ensureBundleReleasesLoaded(item.reference.id);
   }
 
   void dismissSuggestions() {
@@ -163,15 +156,17 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     _suggestionsCancelToken?.cancel('Autocomplete superseded by search');
     _suggestionsCancelToken = null;
     _coreSearchCancelToken?.cancel('Superseded by a newer search');
-    _providerSearchCancellationToken?.cancel();
     _coreSearchCancelToken = null;
-    _providerSearchCancellationToken = null;
+    _coreLoadMoreCancelToken?.cancel('Superseded by a newer search');
+    _coreLoadMoreCancelToken = null;
     state = state.copyWith(
       search: state.search.copyWith(
         coreSearchGeneration: state.search.coreSearchGeneration + 1,
-        providerSearchGeneration: state.search.providerSearchGeneration + 1,
         isSearching: false,
-        isSearchingProvider: false,
+        isLoadingMoreResults: false,
+        hasMoreResults: false,
+        nextOffset: 0,
+        clearLoadMoreError: true,
       ),
     );
     final searchContext = _searchContext();
@@ -192,15 +187,16 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     state = state.copyWith(
       search: state.search.copyWith(
         isSearching: true,
+        isLoadingMoreResults: false,
+        hasMoreResults: false,
+        nextOffset: 0,
         clearError: true,
+        clearLoadMoreError: true,
         coreSearchGeneration: searchGeneration,
         results: const [],
-        providerResults: const [],
-        searchedProvider: false,
       ),
       selection: state.selection.copyWith(
         clearSelectedResultId: true,
-        clearSelectedProviderCandidateId: true,
       ),
       preview: const LibraryAddPreviewState.initial(),
     );
@@ -212,14 +208,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
       state = state.copyWith(
         search: state.search.copyWith(isSearching: false),
       );
-      if (libraryMetadataForKind(type.kind)
-          .supportedProvidersForKind(type.kind)
-          .isNotEmpty) {
-        await searchProvider(
-          queryOverride: searchContext.query,
-          bypassDebounce: true,
-        );
-      }
       return;
     }
 
@@ -230,14 +218,11 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         catalog: catalog!,
         input: _searchCapability.core.inputBuilder(
           searchContext,
-          limit: 20,
+          limit: _coreSearchPageSize,
         ),
         timeout: _coreSearchTimeout,
-        ranking: _searchCapability.provider.ranking,
+        ranking: _searchCapability.core.ranking,
         searchContext: searchContext,
-        providerSearchAvailable: libraryMetadataForKind(type.kind)
-            .supportedProvidersForKind(type.kind)
-            .isNotEmpty,
         cancelToken: cancelToken,
       );
 
@@ -246,15 +231,9 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
           search: state.search.copyWith(
             results: searchResult.items,
             isSearching: false,
+            nextOffset: searchResult.nextOffset ?? searchResult.rawItemCount,
+            hasMoreResults: searchResult.hasMore,
           ),
-        );
-      }
-
-      if (searchGeneration == state.search.coreSearchGeneration &&
-          searchResult.shouldSearchProvider) {
-        await searchProvider(
-          queryOverride: searchContext.query,
-          bypassDebounce: true,
         );
       }
     } catch (error) {
@@ -262,24 +241,13 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         if (await _handleAuthExpiration(error, 'Core search')) {
           return;
         }
-        final canFallbackToProvider = libraryMetadataForKind(type.kind)
-            .supportedProvidersForKind(type.kind)
-            .isNotEmpty;
         state = state.copyWith(
           search: state.search.copyWith(
             isSearching: false,
-            error: canFallbackToProvider
-                ? null
-                : 'Core search failed: ${ConnectionDiagnostics.metadataError(error, api?.baseUrl ?? '')} Manual add still works.',
+            error:
+                'Core search failed: ${ConnectionDiagnostics.metadataError(error, api?.baseUrl ?? '')} Manual add and proposals still work.',
           ),
         );
-
-        if (canFallbackToProvider) {
-          await searchProvider(
-            queryOverride: searchContext.query,
-            bypassDebounce: true,
-          );
-        }
       }
     } finally {
       if (identical(_coreSearchCancelToken, cancelToken)) {
@@ -294,202 +262,81 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     }
   }
 
-  String get _activeProvider {
-    final providers =
-        libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
-    for (final provider in providers) {
-      if (provider.id == state.search.selectedProvider) {
-        return provider.id;
-      }
-    }
-    return libraryMetadataForKind(type.kind)
-            .defaultSupportedOption(type.kind)
-            ?.id ??
-        libraryMetadataForKind(type.kind).defaultProviderId;
-  }
-
-  Future<void> searchProvider({
-    String? queryOverride,
-    bool bypassDebounce = false,
-  }) async {
-    final searchContext = _searchContext(query: queryOverride);
-    final query = _searchCapability.provider.queryBuilder(searchContext);
-    if (query.isEmpty) {
-      state = state.copyWith(
-        search: state.search.copyWith(
-          error: 'Enter a title, barcode, or keyword.',
-        ),
-      );
+  Future<void> loadMoreResults() async {
+    if (api == null ||
+        catalog == null ||
+        state.search.isSearching ||
+        state.search.isLoadingMoreResults ||
+        !state.search.hasMoreResults) {
       return;
     }
 
-    final provider = _activeProvider;
-    final searchGeneration = state.search.providerSearchGeneration + 1;
-    final debounceDecision = evaluateLibraryAddProviderSearchDebounce(
-      provider: provider,
-      query: query,
-      debounce: _providerSearchDebounce,
-      now: DateTime.now(),
-      previousSignature: state.search.lastProviderSearchSignature,
-      previousAt: state.search.lastProviderSearchAt,
-    );
-
-    if (state.search.isSearchingProvider ||
-        (!bypassDebounce && debounceDecision.shouldSkip)) {
-      return;
-    }
-    _providerSearchCancellationToken?.cancel();
-    final cancellationToken = ProviderCancellationToken();
-    _providerSearchCancellationToken = cancellationToken;
-
+    _coreLoadMoreCancelToken?.cancel('Superseded by a newer page request');
+    final cancelToken = CancelToken();
+    _coreLoadMoreCancelToken = cancelToken;
+    final searchGeneration = state.search.coreSearchGeneration;
+    final offset = state.search.nextOffset;
+    final searchContext = _searchContext();
     state = state.copyWith(
       search: state.search.copyWith(
-        isSearchingProvider: true,
-        searchedProvider: true,
-        providerResults: const [],
-        clearError: true,
-        providerSearchGeneration: searchGeneration,
-        lastProviderSearchSignature: debounceDecision.signature,
-        lastProviderSearchAt: debounceDecision.at,
-      ),
-      selection: state.selection.copyWith(
-        clearSelectedProviderCandidateId: true,
+        isLoadingMoreResults: true,
+        clearLoadMoreError: true,
       ),
     );
 
-    if (api == null && providerRegistry == null) {
-      state = state.copyWith(
-        search: state.search.copyWith(isSearchingProvider: false),
-      );
-      return;
-    }
-
     try {
-      final kindsToSearch =
-          _searchCapability.provider.kindOverrides(searchContext).toList();
+      final baseInput = _searchCapability.core.inputBuilder(
+        searchContext,
+        limit: _coreSearchPageSize,
+      );
+      final page = await runLibraryAddCoreSearch(
+        api: api!,
+        type: type,
+        catalog: catalog!,
+        input: baseInput.withOffset(offset),
+        timeout: _coreSearchTimeout,
+        ranking: _searchCapability.core.ranking,
+        searchContext: searchContext,
+        cancelToken: cancelToken,
+      );
+      if (searchGeneration != state.search.coreSearchGeneration) return;
 
-      List<ProviderSearchCandidate> results;
-      final failures = <LibraryAddProviderSearchFailure>[];
-      if (kindsToSearch.length > 1) {
-        final outcomes = await Future.wait(
-          kindsToSearch.map((k) => runLibraryAddProviderSearch(
-                api: api,
-                type: type,
-                provider: provider,
-                query: query,
-                ranking: _searchCapability.provider.ranking,
-                searchContext: searchContext,
-                providerRegistry: providerRegistry,
-                kindOverride: k,
-                cancellationToken: cancellationToken,
-              )),
-        );
-        results = outcomes.expand((outcome) => outcome.candidates).toList();
-        failures.addAll(outcomes.expand((outcome) => outcome.failures));
-      } else if (kindsToSearch.length == 1) {
-        final outcome = await runLibraryAddProviderSearch(
-          api: api,
-          type: type,
-          provider: provider,
-          query: query,
-          ranking: _searchCapability.provider.ranking,
-          searchContext: searchContext,
-          providerRegistry: providerRegistry,
-          kindOverride: kindsToSearch.first,
-          cancellationToken: cancellationToken,
-        );
-        results = outcome.candidates;
-        failures.addAll(outcome.failures);
-      } else {
-        final outcome = await runLibraryAddProviderSearch(
-          api: api,
-          type: type,
-          provider: provider,
-          query: query,
-          ranking: _searchCapability.provider.ranking,
-          searchContext: searchContext,
-          providerRegistry: providerRegistry,
-          cancellationToken: cancellationToken,
-        );
-        results = outcome.candidates;
-        failures.addAll(outcome.failures);
-      }
-
-      if (searchGeneration == state.search.providerSearchGeneration) {
-        final failedSources = failures.map((failure) => failure.source).toSet();
-        state = state.copyWith(
-          search: state.search.copyWith(
-            providerResults: results,
-            isSearchingProvider: false,
-            error: failures.isEmpty
-                ? null
-                : results.isEmpty
-                    ? 'Provider search failed for: ${failedSources.join(', ')}.'
-                    : 'Some providers failed (${failedSources.join(', ')}); showing the available results.',
-            clearError: failures.isEmpty,
-          ),
-        );
-        if (_searchCapability.provider.resultPolicy
-            .shouldHydrateGroups(searchContext)) {
-          unawaited(
-            _hydrateProviderGroups(
-              results,
-              searchGeneration,
-            ),
-          );
-        }
-      }
+      final knownRefs =
+          state.search.results.map((item) => item.reference).toSet();
+      final nextItems = [
+        ...state.search.results,
+        for (final item in page.items)
+          if (knownRefs.add(item.reference)) item,
+      ];
+      state = state.copyWith(
+        search: state.search.copyWith(
+          results: nextItems,
+          isLoadingMoreResults: false,
+          nextOffset: page.nextOffset ?? offset + page.rawItemCount,
+          hasMoreResults: page.hasMore,
+        ),
+      );
     } catch (error) {
-      if (searchGeneration == state.search.providerSearchGeneration) {
-        if (cancellationToken.isCancelled ||
-            error is ProviderCancelledException) {
-          return;
-        }
-        if (_isMissingBearerTokenError(error)) {
-          state = state.copyWith(
-            search: state.search.copyWith(
-              isSearchingProvider: false,
-              clearError: true,
-            ),
-          );
-          return;
-        }
-        if (await _handleAuthExpiration(error, 'Provider search')) {
-          return;
-        }
+      if (searchGeneration == state.search.coreSearchGeneration) {
+        if (await _handleAuthExpiration(error, 'Core search')) return;
         state = state.copyWith(
           search: state.search.copyWith(
-            isSearchingProvider: false,
-            error:
-                'Provider search failed: ${ConnectionDiagnostics.metadataError(error, api?.baseUrl ?? '')}',
+            isLoadingMoreResults: false,
+            loadMoreError:
+                'Could not load more results: ${ConnectionDiagnostics.metadataError(error, api?.baseUrl ?? '')}',
           ),
         );
       }
     } finally {
-      if (identical(_providerSearchCancellationToken, cancellationToken)) {
-        _providerSearchCancellationToken = null;
+      if (identical(_coreLoadMoreCancelToken, cancelToken)) {
+        _coreLoadMoreCancelToken = null;
       }
-      if (searchGeneration == state.search.providerSearchGeneration &&
-          state.search.isSearchingProvider) {
+      if (searchGeneration == state.search.coreSearchGeneration &&
+          state.search.isLoadingMoreResults) {
         state = state.copyWith(
-          search: state.search.copyWith(isSearchingProvider: false),
+          search: state.search.copyWith(isLoadingMoreResults: false),
         );
       }
-    }
-  }
-
-  Future<void> _hydrateProviderGroups(
-    List<ProviderSearchCandidate> candidates,
-    int searchGeneration,
-  ) async {
-    for (final candidate in candidates) {
-      if (searchGeneration != state.search.providerSearchGeneration) return;
-      if (!libraryAddForKind(candidate.kind)
-          .resultPolicy
-          .isProviderGroupCandidate(candidate)) {
-        continue;
-      }
-      await _ensureProviderPreviewLoaded(candidate.localCatalogId);
     }
   }
 
@@ -498,17 +345,16 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     _autocompleteTimer?.cancel();
     _coreSearchCancelToken?.cancel('Add search cancelled');
     _coreSearchCancelToken = null;
+    _coreLoadMoreCancelToken?.cancel('Add search cancelled');
+    _coreLoadMoreCancelToken = null;
     _suggestionsGeneration++;
     _suggestionsCancelToken?.cancel('Add search cancelled');
     _suggestionsCancelToken = null;
-    _providerSearchCancellationToken?.cancel();
-    _providerSearchCancellationToken = null;
     state = state.copyWith(
       search: state.search.copyWith(
         coreSearchGeneration: state.search.coreSearchGeneration + 1,
-        providerSearchGeneration: state.search.providerSearchGeneration + 1,
         isSearching: false,
-        isSearchingProvider: false,
+        isLoadingMoreResults: false,
         isScanningCover: false,
       ),
     );
@@ -543,14 +389,11 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
 
     final searchGeneration = state.search.coreSearchGeneration + 1;
     _coreSearchCancelToken?.cancel('Superseded by identifier lookup');
-    _providerSearchCancellationToken?.cancel();
     _coreSearchCancelToken = null;
-    _providerSearchCancellationToken = null;
+    _coreLoadMoreCancelToken?.cancel('Superseded by identifier lookup');
+    _coreLoadMoreCancelToken = null;
     state = state.copyWith(
-      search: state.search.copyWith(
-        providerSearchGeneration: state.search.providerSearchGeneration + 1,
-        isSearchingProvider: false,
-      ),
+      search: state.search.copyWith(),
     );
     final cancelToken = CancelToken();
     _coreSearchCancelToken = cancelToken;
@@ -559,14 +402,15 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
       search: state.search.copyWith(
         identifierCode: code,
         isSearching: true,
+        isLoadingMoreResults: false,
+        hasMoreResults: false,
+        nextOffset: 0,
         clearError: true,
+        clearLoadMoreError: true,
         coreSearchGeneration: searchGeneration,
-        providerResults: const [],
-        searchedProvider: false,
       ),
       selection: state.selection.copyWith(
         clearSelectedResultId: true,
-        clearSelectedProviderCandidateId: true,
       ),
       preview: const LibraryAddPreviewState.initial(),
     );
@@ -578,11 +422,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
       state = state.copyWith(
         search: state.search.copyWith(isSearching: false),
       );
-      if (libraryMetadataForKind(type.kind)
-          .supportedProvidersForKind(type.kind)
-          .isNotEmpty) {
-        await searchProvider(queryOverride: code);
-      }
       return;
     }
 
@@ -593,9 +432,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         catalog: catalog!,
         identifierCode: code,
         timeout: _coreSearchTimeout,
-        providerSearchAvailable: libraryMetadataForKind(type.kind)
-            .supportedProvidersForKind(type.kind)
-            .isNotEmpty,
         cancelToken: cancelToken,
       );
 
@@ -604,11 +440,8 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
           search: state.search.copyWith(
             results: lookupResult.items,
             isSearching: false,
-            error: lookupResult.items.isEmpty &&
-                    libraryMetadataForKind(type.kind)
-                        .supportedProvidersForKind(type.kind)
-                        .isEmpty
-                ? 'No item found for barcode $code.'
+            error: lookupResult.items.isEmpty
+                ? 'No Core item found for barcode $code. You can add or propose it manually.'
                 : null,
           ),
         );
@@ -616,31 +449,18 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
           selectResult(lookupResult.items.first.reference.id);
         }
       }
-
-      if (searchGeneration == state.search.coreSearchGeneration &&
-          lookupResult.shouldSearchProvider) {
-        await searchProvider(queryOverride: code);
-      }
     } catch (error) {
       if (searchGeneration == state.search.coreSearchGeneration) {
         if (await _handleAuthExpiration(error, 'Barcode lookup')) {
           return;
         }
-        final canFallbackToProvider = libraryMetadataForKind(type.kind)
-            .supportedProvidersForKind(type.kind)
-            .isNotEmpty;
         state = state.copyWith(
           search: state.search.copyWith(
             isSearching: false,
-            error: canFallbackToProvider
-                ? null
-                : 'Barcode lookup failed: ${ConnectionDiagnostics.metadataError(error, api?.baseUrl ?? '')} Manual add keeps the scanned code.',
+            error:
+                'Barcode lookup failed: ${ConnectionDiagnostics.metadataError(error, api?.baseUrl ?? '')} Manual add keeps the scanned code.',
           ),
         );
-
-        if (canFallbackToProvider) {
-          await searchProvider(queryOverride: code);
-        }
       }
     } finally {
       if (identical(_coreSearchCancelToken, cancelToken)) {
@@ -653,13 +473,5 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         );
       }
     }
-  }
-
-  bool _isMissingBearerTokenError(Object error) {
-    if (error is! DioException) return false;
-    if (error.response?.statusCode != 401) return false;
-    final data = error.response?.data;
-    if (data is! Map) return false;
-    return data['code']?.toString().trim() == 'missing_bearer_token';
   }
 }

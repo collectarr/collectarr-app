@@ -64,58 +64,20 @@ void main() {
       expect(window.heightClass, WindowHeightClass.compact);
       expect(window.heightClass.isCompact, isTrue);
     });
-
-    test('computes from BoxConstraints', () {
-      final constraints = const BoxConstraints(maxWidth: 500, maxHeight: 800);
-      final window = AppWindowClass.fromConstraints(constraints);
-      expect(window.isCompact, isTrue);
-      expect(window.heightClass, WindowHeightClass.medium);
-    });
   });
 
-  group('AdaptiveLayout Widget', () {
-    testWidgets('provides correct windowClass to builder inside widget tree',
-        (tester) async {
-      tester.view.physicalSize = const Size(400, 800);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      AppWindowClass? observedClass;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: AdaptiveLayout(
-              builder: (context, windowClass) {
-                observedClass = windowClass;
-                return Text(windowClass.isCompact ? 'Mobile' : 'Desktop');
-              },
-            ),
-          ),
-        ),
-      );
-
-      expect(observedClass, isNotNull);
-      expect(observedClass!.isCompact, isTrue);
-      expect(find.text('Mobile'), findsOneWidget);
-
-      // Resize to desktop
-      tester.view.physicalSize = const Size(1400, 900);
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: AdaptiveLayout(
-              builder: (context, windowClass) {
-                observedClass = windowClass;
-                return Text(windowClass.isCompact ? 'Mobile' : 'Desktop');
-              },
-            ),
-          ),
-        ),
-      );
-
-      expect(observedClass!.isLarge, isTrue);
-      expect(find.text('Desktop'), findsOneWidget);
-    });
+  testWidgets('of responds to viewport changes', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+    for (final width in [400.0, 1400.0]) {
+      tester.view.physicalSize = Size(width, 800);
+      await tester.pumpWidget(MaterialApp(
+          home: Builder(
+              builder: (context) => Text(AppWindowClass.of(context).isCompact
+                  ? 'Mobile'
+                  : 'Desktop'))));
+      expect(find.text(width == 400 ? 'Mobile' : 'Desktop'), findsOneWidget);
+    }
   });
 }

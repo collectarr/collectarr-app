@@ -1,20 +1,20 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_data.dart';
 
 /// Anime's semantic contribution to the generic collection CSV host.
 ///
 /// Anime owns the meaning of its series, edition/format, studio and UPC
 /// values. Episode and season hierarchy stays in Anime's typed graph.
 final class AnimeCollectionCsvProjection
-    with CollectionCsvKindOwnedImportSupport
-    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
+    with CollectionCsvKindEntryImportSupport
+    implements CollectionCsvKindProfile, CollectionCsvEntryCellsDecoder {
   const AnimeCollectionCsvProjection();
 
   @override
@@ -71,11 +71,11 @@ final class AnimeCollectionCsvProjection
   }
 
   @override
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   }) {
-    return const AnimeCollectionCsvImportProfile().importOwnedCells(
+    return const AnimeCollectionCsvImportProfile().importEntryCells(
       header: header,
       values: values,
     );
@@ -86,11 +86,11 @@ final class AnimeCollectionCsvProjection
       AnimeCollectionCsvImportProfile.columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedCells(List<String> cells) {
+  JsonEncodable? decodeEntryCells(List<String> cells) {
     if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
-    return _AnimeCollectionCsvOwnedImportPayload(cells.first.trim());
+    return _AnimeCollectionCsvEntryImportPayload(cells.first.trim());
   }
 
   @override
@@ -115,73 +115,76 @@ final class AnimeCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    final metadata =
-        catalog is AnimeWorkspaceCatalogData ? catalog.metadata : null;
-    final video = catalog is AnimeWorkspaceCatalogData ? catalog.video : null;
+  List<String> catalogCells(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    final metadata = catalog is AnimeWorkspaceData ? catalog.metadata : null;
     return [
       entry.itemId,
       CatalogMediaKind.anime.apiValue,
-      metadata?.title ?? video?.title ?? entry.title,
+      metadata?.title ?? entry.title,
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',
       metadata?.editionTitle ?? '',
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? metadata?.studios.firstOrNull ?? '',
-      _formatDate(metadata?.startDate ??
-          video?.work.releaseDate ??
-          entry.catalogData?.releaseDate),
+      metadata?.releaseDateParts?.isoString ??
+          _formatDate(metadata?.releaseDate ?? metadata?.startDate),
       metadata?.barcode ?? '',
     ];
   }
 
   @override
-  String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned =
-        AnimeOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is AnimeOwnedItem ? owned.grade : null;
+  String? entryCollectionValue(LibraryWorkspaceContext entry) {
+    final personalState =
+        AnimeLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is AnimeLibraryEntry
+        ? personalState.personal.grade
+        : null;
   }
 
   @override
-  String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned =
-        AnimeOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is AnimeOwnedItem ? owned.condition : null;
+  String? entryCondition(LibraryWorkspaceContext entry) {
+    final personalState =
+        AnimeLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is AnimeLibraryEntry
+        ? personalState.personal.condition
+        : null;
   }
 
   @override
-  int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned =
-        AnimeOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is AnimeOwnedItem ? owned.indexNumber : null;
+  int? entryIndexNumber(LibraryWorkspaceContext entry) {
+    final personalState =
+        AnimeLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is AnimeLibraryEntry
+        ? personalState.personal.indexNumber
+        : null;
   }
 
   @override
-  String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned =
-        AnimeOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is AnimeOwnedItem ? owned.tags : null;
+  String? entryTags(LibraryWorkspaceContext entry) {
+    final personalState =
+        AnimeLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is AnimeLibraryEntry
+        ? personalState.personal.tags
+        : null;
   }
 
   @override
-  List<String> ownedCellsBeforeQuantity(
-    LibraryWorkspaceSource entry, {
+  List<String> entryCellsBeforeLocation(
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
-    return clzFriendly ? const [''] : const [];
+    return const [];
   }
 
   @override
-  List<String> ownedCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+  List<String> entryCellsAfterIndex(
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(
-      clzFriendly
-          ? collectionCsvV1OwnedCellCount - 1
-          : collectionCsvV1OwnedCellCount,
+      collectionCsvV1EntryCellCount,
       '',
     );
   }
@@ -195,8 +198,8 @@ final class AnimeCollectionCsvProjection
   }
 }
 
-final class _AnimeCollectionCsvOwnedImportPayload implements JsonEncodable {
-  const _AnimeCollectionCsvOwnedImportPayload(this.grade);
+final class _AnimeCollectionCsvEntryImportPayload implements JsonEncodable {
+  const _AnimeCollectionCsvEntryImportPayload(this.grade);
 
   final String grade;
 

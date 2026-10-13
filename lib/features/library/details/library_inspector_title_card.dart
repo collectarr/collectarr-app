@@ -12,7 +12,7 @@ class LibraryEntryStatusDescriptor {
 LibraryEntryStatusDescriptor libraryEntryStatusDescriptor(
   LibraryProjectionView item,
 ) {
-  if (item.source.isOwned) {
+  if (item.source.isEntry) {
     return const LibraryEntryStatusDescriptor(
       icon: Icons.inventory_2_outlined,
       label: 'In collection',

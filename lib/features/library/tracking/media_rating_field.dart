@@ -6,10 +6,14 @@ class MediaRatingField extends StatefulWidget {
     required this.controller,
     this.label = 'My Rating',
     this.maxRating = 10,
+    this.showLabel = true,
+    this.compact = false,
   });
 
   final TextEditingController controller;
   final String label;
+  final bool showLabel;
+  final bool compact;
   final int maxRating;
 
   @override
@@ -61,13 +65,15 @@ class _MediaRatingFieldState extends State<MediaRatingField> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isCompact = constraints.maxWidth < 220;
+        final isCompact = widget.compact || constraints.maxWidth < 220;
         final isVeryCompact = constraints.maxWidth < 150;
-        final starSize = isVeryCompact
+        final starSize = widget.compact
             ? 20.0
-            : isCompact
-                ? 22.0
-                : 28.0;
+            : isVeryCompact
+                ? 20.0
+                : isCompact
+                    ? 22.0
+                    : 28.0;
         final starPadding = isVeryCompact
             ? 0.0
             : isCompact
@@ -79,17 +85,26 @@ class _MediaRatingFieldState extends State<MediaRatingField> {
                 color: Theme.of(context)
                     .colorScheme
                     .onSurface
-                    .withValues(alpha: 0.5),
+                    .withValues(alpha: 0.75),
               ),
         );
 
         return InputDecorator(
           decoration: InputDecoration(
-            labelText: widget.label,
+            labelText: widget.showLabel ? widget.label : null,
+            floatingLabelBehavior: widget.showLabel
+                ? FloatingLabelBehavior.auto
+                : FloatingLabelBehavior.never,
+            constraints:
+                widget.compact ? const BoxConstraints(minHeight: 34) : null,
             border: const OutlineInputBorder(),
             contentPadding: EdgeInsets.symmetric(
               horizontal: isCompact ? 10 : 12,
-              vertical: isCompact ? 6 : 8,
+              vertical: widget.compact
+                  ? 4
+                  : isCompact
+                      ? 6
+                      : 8,
             ),
           ),
           child: isVeryCompact
@@ -240,7 +255,7 @@ class MediaRatingDisplay extends StatelessWidget {
                 color: Theme.of(context)
                     .colorScheme
                     .onSurface
-                    .withValues(alpha: 0.5),
+                    .withValues(alpha: 0.75),
               ),
         ),
       ],

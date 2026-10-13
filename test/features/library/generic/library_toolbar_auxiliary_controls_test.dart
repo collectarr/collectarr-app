@@ -1,9 +1,89 @@
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('status menu stays below its trigger for a late selected status',
+      (tester) async {
+    var selected = LibraryCollectionStatusScope.sold;
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+          body: Padding(
+        padding: const EdgeInsets.only(top: 120),
+        child: LibraryCollectionStatusScopeDropdown(
+          collectionStatusScope: selected,
+          onCollectionStatusScopeChanged: (value) => selected = value,
+        ),
+      )),
+    ));
+    final trigger = find.byKey(const Key('collection-status-scope-dropdown'));
+    final triggerBottom = tester.getRect(trigger).bottom;
+    await tester.tap(trigger);
+    await tester.pumpAndSettle();
+    expect(tester.getRect(find.text('All')).top,
+        greaterThanOrEqualTo(triggerBottom));
+    await tester.tapAt(const Offset(700, 550));
+    await tester.pumpAndSettle();
+    expect(find.text('All'), findsNothing);
+    expect(selected, LibraryCollectionStatusScope.sold);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('narrow alphabet keeps All on one line and scrolls to Z',
+      (tester) async {
+    String? selected;
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: SizedBox(
+                width: 240,
+                child: LibraryAlphaJumpBar(
+                    availableLetters: const {'Z'},
+                    selectedLetter: null,
+                    accent: Colors.orange,
+                    onLetterSelected: (value) => selected = value)))));
+    final all = tester.widget<Text>(find.text('All'));
+    expect(all.maxLines, 1);
+    expect(all.softWrap, isFalse);
+    await tester.drag(
+        find.byType(SingleChildScrollView), const Offset(-500, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Z'));
+    expect(selected, 'Z');
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets(
+      'alphabet exposes Z inline and switches to a complete compact menu',
+      (tester) async {
+    tester.view.physicalSize = const Size(1000, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    String? selected;
+    Widget subject(double width) => MaterialApp(
+        home: Scaffold(
+            body: SizedBox(
+                width: width,
+                child: LibraryToolbarAlphabetRow(
+                    letters: const {'A', 'Z'},
+                    selectedLetter: selected,
+                    accent: Colors.orange,
+                    onLetterSelected: (value) => selected = value))));
+    await tester.pumpWidget(subject(900));
+    expect(find.text('Z'), findsOneWidget);
+    expect(tester.getRect(find.text('Z')).right, lessThanOrEqualTo(900));
+    await tester.pumpWidget(subject(350));
+    expect(find.byTooltip('Filter A–Z'), findsOneWidget);
+    await tester.tap(find.byTooltip('Filter A–Z'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Z'), 200,
+        scrollable: find.byType(Scrollable).last);
+    await tester.tap(find.text('Z'));
+    await tester.pumpAndSettle();
+    expect(selected, 'Z');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('collection status scope dropdown opens and selects a scope', (
     tester,
   ) async {
@@ -25,9 +105,9 @@ void main() {
     await tester.tap(find.byKey(const Key('collection-status-scope-dropdown')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Wish List'), findsOneWidget);
+    expect(find.text('On Wish List'), findsOneWidget);
 
-    await tester.tap(find.text('Wish List').last);
+    await tester.tap(find.text('On Wish List').last);
     await tester.pumpAndSettle();
 
     expect(selected, LibraryCollectionStatusScope.wishList);

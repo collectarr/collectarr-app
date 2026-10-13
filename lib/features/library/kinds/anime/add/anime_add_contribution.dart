@@ -5,26 +5,23 @@ import 'anime_manual_candidate.dart';
 final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
   kind: CatalogMediaKind.anime,
   initialDraftBuilder: AnimeAddDraft.new,
-  typedProviderCandidateProjectionBuilder: (candidate) =>
-      animeCatalogTransportFromTypedCandidate(
-          candidate as AnimeProviderCandidate),
   coreCatalogProjectionBuilder: animeCatalogTransportFromCoreItem,
   manualDraftBuilder: AnimeAddManualDraft.new,
   manualCandidateBuilder: buildAnimeManualCandidate,
-  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      AnimeOwnedItemCreatePayload(
-    catalogRef: item.reference,
-    details: details as AnimeOwnedDetailsDraft,
+  manualProposalBuilder: buildAnimeManualProposalData,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      AnimeLibraryEntryCreatePayload(
+    details: details as AnimeEntryDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,
     personalNotes: common.personalNotes,
-    quantity: common.quantity,
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),
@@ -61,9 +58,6 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: buildAnimeCoreSearchInput,
-    ),
-    provider: LibraryAddProviderSearchCapability(
-      queryBuilder: buildAnimeProviderQuery,
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -71,72 +65,39 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
-              return metadata is AnimeMetadata
-                  ? [metadata.seriesTitle, metadata.series?.seriesTitle]
-                  : const <Object?>[];
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => AnimeMetadata.fromJson(transport.kindData));
+              return [metadata.seriesTitle];
             },
-            typedProviderValues: (candidate) =>
-                candidate is AnimeProviderCandidate
-                    ? [candidate.series?.seriesTitle]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: animeStudioFilterId,
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
-              return metadata is AnimeMetadata
-                  ? [...metadata.studios, ...metadata.producers]
-                  : const <Object?>[];
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => AnimeMetadata.fromJson(transport.kindData));
+              return [...metadata.studios, ...metadata.producers];
             },
-            typedProviderValues: (candidate) =>
-                candidate is AnimeProviderCandidate
-                    ? [candidate.publisher, candidate.summary]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: animeYearFilterId,
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
-              return metadata is AnimeMetadata
-                  ? [metadata.seasonYear, metadata.startDate?.year]
-                  : const <Object?>[];
+              final metadata = item.kindCapability.mapTransport(
+                  (transport) => AnimeMetadata.fromJson(transport.kindData));
+              return [metadata.seasonYear, metadata.startDate?.year];
             },
-            typedProviderValues: (candidate) =>
-                candidate is AnimeProviderCandidate
-                    ? [candidate.series?.volumeStartYear]
-                    : const <Object?>[],
           ),
         ],
       ),
-      strategy:
-          LibraryAddTypedProviderSearchStrategy(searchAnimeProviderCandidates),
-      candidatePreviewLoader: loadAnimeProviderCandidatePreview,
-      kindOverridesBuilder: (context) =>
-          libraryAddKindOverridesForChrome(animeAddChrome, context),
     ),
     presentation: LibraryAddSearchPresentationCapability(
       controlsBuilder: buildLibraryAddKindFilterRow,
     ),
   ),
-  resultPolicy: buildAnimeAddResultPolicy(
-    mediaLabel: 'Series',
-    supportsSeasonScope: true,
-    coreScopeForItem: animeAddResultScope,
-    providerScopeForCandidate: animeAddProviderResultScope,
-    coreGroupTitleBuilder: animeAddGroupTitle,
-    providerCandidateIsGroup: animeAddProviderCandidateIsGroup,
-  ),
+  resultPolicy: const LibraryAddResultPolicy(useGridResults: true),
   manualPaneBuilder: buildAnimeAddManualPane,
   chrome: animeAddChrome,
 );
@@ -147,11 +108,10 @@ Future<List<LibraryHierarchyNode>> fetchAnimeEpisodes({
   required ApiClient api,
   required String itemId,
 }) async {
-  final dto =
-      await api.getAnimeSeriesDto(itemId).timeout(const Duration(seconds: 60));
-  return AnimeHierarchyMapper.toLibraryNodes(
-    AnimeCoreMapper.fromSeriesDto(dto),
-  );
+  final item = await api
+      .getCatalogItemJson(kind: CatalogMediaKind.anime, id: itemId)
+      .timeout(const Duration(seconds: 60));
+  return AnimeHierarchyMapper.fromCatalogItemJson(item);
 }
 
 List<LibraryAddAdvancedFilterField<String>> buildAnimeAddAdvancedFilterFields(
@@ -196,61 +156,7 @@ MetadataSearchQuery buildAnimeCoreSearchInput(
   );
 }
 
-String buildAnimeProviderQuery(LibraryAddSearchContext context) {
-  return buildLibraryAddSearchQuery([
-    context.query,
-    context.textValueFor(animeSeriesFilterId),
-    context.textValueFor(animeStudioFilterId),
-    context.textValueFor(animeYearFilterId),
-    context.identifierCode,
-  ]);
-}
-
 String? optionalAnimeText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
-}
-
-AnimeAddResultScope animeAddResultScope(CatalogSearchCandidate item) {
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is AnimeMetadata) {
-    if (metadata.series?.seasonNumber != null) {
-      return AnimeAddResultScope.season;
-    }
-    if ([
-      metadata.itemNumber,
-      metadata.editionTitle,
-      metadata.physicalFormat,
-      metadata.physicalFormatLabel,
-      metadata.barcode,
-      metadata.variant,
-    ].any((value) => value?.trim().isNotEmpty == true)) {
-      return AnimeAddResultScope.release;
-    }
-  }
-  return AnimeAddResultScope.media;
-}
-
-AnimeAddResultScope animeAddProviderResultScope(
-  AnimeProviderCandidate candidate,
-) {
-  if (candidate.searchRole == ProviderSearchRole.season) {
-    return AnimeAddResultScope.season;
-  }
-  if (candidate.searchRole.isCatalogItem) {
-    return AnimeAddResultScope.release;
-  }
-  return AnimeAddResultScope.media;
-}
-
-String animeAddGroupTitle(CatalogSearchCandidate item) {
-  final metadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (metadata is AnimeMetadata) {
-    return metadata.seriesTitle?.trim() ??
-        metadata.series?.seriesTitle?.trim() ??
-        item.summary.primaryLabel;
-  }
-  return item.summary.primaryLabel;
 }

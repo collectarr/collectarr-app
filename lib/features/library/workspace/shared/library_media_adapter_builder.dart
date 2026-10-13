@@ -4,14 +4,17 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
 
 export 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
 
 LibraryWorkspaceViewProfile standardMediaWorkspaceViewProfile(
   CatalogMediaKind kind,
-  LibraryUiPolicy uiPolicy,
-) {
+  LibraryUiPolicy uiPolicy, {
+  LibraryDetailsLayout defaultDetailsLayout = LibraryDetailsLayout.bottom,
+  double? defaultDetailsWidth,
+}) {
   final coverGridHeightFactor = uiPolicy.coverAspectRatio;
   return LibraryWorkspaceViewProfile(
     registrationResolver: () => libraryKindRegistrationForKind(kind),
@@ -22,13 +25,18 @@ LibraryWorkspaceViewProfile standardMediaWorkspaceViewProfile(
     cardLayout: uiPolicy.coverAspectRatio == 1.0
         ? LibraryWorkspaceCardLayout.coverFocused
         : LibraryWorkspaceCardLayout.standard,
-    presetConfig: (preset) => standardMediaViewPresetConfig(kind, preset),
+    presetConfig: (preset) => standardMediaViewPresetConfig(
+      kind,
+      preset,
+      detailsLayout: defaultDetailsLayout,
+    ),
     clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
       libraryKindWorkspaceForKind(kind).fields,
       column,
       width,
     ),
-    defaultDetailsLayout: LibraryDetailsLayout.bottom,
+    defaultDetailsWidth: defaultDetailsWidth ?? kLibraryDetailsDefaultWidth,
+    defaultDetailsLayout: defaultDetailsLayout,
     sortAscendingForColumn: (column) =>
         libraryKindWorkspaceForKind(kind)
             .fields
@@ -42,32 +50,33 @@ LibraryWorkspaceViewProfile standardMediaWorkspaceViewProfile(
 
 LibraryWorkspaceViewPresetConfig standardMediaViewPresetConfig(
   CatalogMediaKind kind,
-  LibraryWorkspacePreset preset,
-) {
+  LibraryWorkspacePreset preset, {
+  LibraryDetailsLayout detailsLayout = LibraryDetailsLayout.bottom,
+}) {
   final defaultCols =
       libraryKindWorkspaceForKind(kind).fields.defaultVisibleColumns;
   return switch (preset) {
     LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
-        detailsLayout: LibraryDetailsLayout.bottom,
+        detailsLayout: detailsLayout,
         coverSize: kStandardMediaDefaultCoverSize,
         visibleColumns: defaultCols,
       ),
     LibraryWorkspacePreset.card => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.card,
-        detailsLayout: LibraryDetailsLayout.bottom,
+        detailsLayout: detailsLayout,
         coverSize: 150,
         visibleColumns: defaultCols,
       ),
     LibraryWorkspacePreset.details => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
-        detailsLayout: LibraryDetailsLayout.bottom,
+        detailsLayout: detailsLayout,
         coverSize: 144,
         visibleColumns: defaultCols,
       ),
     LibraryWorkspacePreset.list => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.list,
-        detailsLayout: LibraryDetailsLayout.bottom,
+        detailsLayout: detailsLayout,
         coverSize: 100,
         visibleColumns: defaultCols,
       ),

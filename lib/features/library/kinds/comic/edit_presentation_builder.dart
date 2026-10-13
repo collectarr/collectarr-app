@@ -29,57 +29,10 @@ const _comicMediaTabs = [
     sectionIds: ['comic_characters'],
   ),
   LibraryEditTabSpec(
-    id: 'links',
-    icon: Icons.public,
-    label: 'Links',
-    sectionIds: ['external_links'],
-  ),
-  LibraryEditTabSpec(
     id: 'cover',
     icon: Icons.image,
     label: 'Covers',
     sectionIds: ['cover_images'],
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.photo_library,
-    label: 'My Images',
-    sectionIds: ['photos'],
-  ),
-];
-
-const _comicReleaseTabs = [
-  LibraryEditTabSpec(
-    id: 'custom',
-    icon: Icons.tune,
-    label: 'Custom Fields',
-    sectionIds: ['custom_fields'],
-  ),
-  LibraryEditTabSpec(
-    id: 'value',
-    icon: Icons.attach_money,
-    label: 'Value',
-    sectionIds: ['purchase', 'value_summary'],
-  ),
-  LibraryEditTabSpec(
-    id: 'synopsis',
-    icon: Icons.notes,
-    label: 'Plot',
-    sectionIds: ['synopsis'],
-  ),
-  LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person,
-    label: 'Personal',
-    sectionIds: [
-      'tracking_personal',
-      'ownership_fields',
-      'purchase_fields',
-      'sold_fields',
-      'wishlist_reference',
-      'owned_notes',
-      'collection_fields_info',
-    ],
   ),
 ];
 
@@ -115,28 +68,10 @@ const _comicCombinedTabs = [
     sectionIds: ['comic_characters'],
   ),
   LibraryEditTabSpec(
-    id: 'links',
-    icon: Icons.public,
-    label: 'Links',
-    sectionIds: ['external_links'],
-  ),
-  LibraryEditTabSpec(
     id: 'cover',
     icon: Icons.image,
     label: 'Covers',
     sectionIds: ['cover_images'],
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.photo_library,
-    label: 'My Images',
-    sectionIds: ['photos'],
-  ),
-  LibraryEditTabSpec(
-    id: 'custom',
-    icon: Icons.tune,
-    label: 'Custom Fields',
-    sectionIds: ['custom_fields'],
   ),
   LibraryEditTabSpec(
     id: 'value',
@@ -144,29 +79,15 @@ const _comicCombinedTabs = [
     label: 'Value',
     sectionIds: ['purchase', 'value_summary'],
   ),
-  LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person,
-    label: 'Personal',
-    sectionIds: [
-      'tracking_personal',
-      'ownership_fields',
-      'purchase_fields',
-      'sold_fields',
-      'wishlist_reference',
-      'owned_notes',
-      'collection_fields_info',
-    ],
-  ),
 ];
 
-const _comicOwnedTabs = [
+const _comicEntryTabs = [
   ..._comicCombinedTabs,
   LibraryEditTabSpec(
-    id: 'owned',
+    id: 'entry',
     icon: Icons.inventory_2,
-    label: 'Owned',
-    sectionIds: ['comic_owned'],
+    label: 'Entry',
+    sectionIds: ['comic_entry'],
   ),
 ];
 
@@ -174,70 +95,89 @@ class ComicLibraryCombinedEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const ComicLibraryCombinedEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: true,
+          useEntryMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
           trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
-          ownedTabs: _comicOwnedTabs,
+          entryDigitalTrackingSectionTitle: 'Digital Entry Details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _comicEntryTabs,
           trackedTabs: _comicCombinedTabs,
           catalogTabs: _comicCombinedTabs,
           customTabBuilder: buildComicCustomTabView,
         );
 }
 
-class ComicLibraryMediaEditPresentationBuilder
+class ComicLibraryCatalogItemEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
-  const ComicLibraryMediaEditPresentationBuilder()
+  const ComicLibraryCatalogItemEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: true,
+          useEntryMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
           trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
-          ownedTabs: _comicMediaTabs,
+          entryDigitalTrackingSectionTitle: 'Digital Entry Details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _comicMediaTabs,
           trackedTabs: _comicMediaTabs,
           catalogTabs: _comicMediaTabs,
           customTabBuilder: buildComicCustomTabView,
         );
 }
 
-class ComicLibraryReleaseEditPresentationBuilder
-    extends LibraryEditPresentationBuilderBase {
-  const ComicLibraryReleaseEditPresentationBuilder()
-      : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: true,
-          useDetailsTab: true,
-          useArtworkCoverTab: true,
-          useArtworkPhotosTab: true,
-          trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
-          ownedTabs: _comicReleaseTabs,
-          trackedTabs: _comicReleaseTabs,
-          catalogTabs: _comicReleaseTabs,
-          customTabBuilder: buildComicCustomTabView,
-        );
-}
-
 const comicsLibraryEditPresentation = LibraryEditPresentation(
   builder: ComicLibraryCombinedEditPresentationBuilder(),
-  workBuilder: ComicLibraryMediaEditPresentationBuilder(),
-  releaseBuilder: ComicLibraryReleaseEditPresentationBuilder(),
+  catalogItemBuilder: ComicLibraryCatalogItemEditPresentationBuilder(),
+  sharedTabs: [
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'links',
+        icon: Icons.public,
+        label: 'Links',
+        sectionIds: ['external_links'],
+      ),
+      afterTabId: 'characters',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'photos',
+        icon: Icons.photo_library,
+        label: 'My Images',
+        sectionIds: ['photos'],
+      ),
+      afterTabId: 'cover',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'custom',
+        icon: Icons.tune,
+        label: 'Custom Fields',
+        sectionIds: ['custom_fields'],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'photos',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person,
+        label: 'Personal',
+        sectionIds: [
+          'tracking_personal',
+          'entries_fields',
+          'purchase_fields',
+          'sold_fields',
+          'wishlist_reference',
+          'entry_notes',
+          'collection_fields_info',
+        ],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'value',
+    ),
+  ],
 );

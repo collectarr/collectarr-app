@@ -1,6 +1,7 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -12,12 +13,12 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 class InspectorLocationSection extends StatefulWidget {
   const InspectorLocationSection({
     super.key,
-    required this.ownedRef,
+    required this.libraryEntryRef,
     required this.db,
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final LibraryEntryRef libraryEntryRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -40,7 +41,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
   Future<void> _load() async {
     final repo = LocationRepository(widget.db);
     final all = await repo.getAll();
-    final currentId = await repo.getItemLocationId(widget.ownedRef);
+    final currentId = await repo.getItemLocationId(widget.libraryEntryRef);
     if (mounted) {
       setState(() {
         _allLocations = all;
@@ -68,7 +69,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
     if (newId == _currentLocationId) {
       return;
     }
-    await repo.assignItemToLocation(widget.ownedRef, newId);
+    await repo.assignItemToLocation(widget.libraryEntryRef, newId);
     unawaited(_load());
   }
 
@@ -204,6 +205,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.location,
         backgroundColor: appPalette(ctx).panel,
         title: const Text('New Location'),
         content: TextField(
@@ -288,7 +290,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
                               'No locations yet',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),

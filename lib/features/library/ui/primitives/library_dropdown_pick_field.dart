@@ -1,4 +1,5 @@
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:flutter/material.dart';
 
@@ -24,8 +25,12 @@ class LibraryDropdownPickField<TValue> extends StatefulWidget {
     this.helperText,
     this.allowCustomValue = false,
     this.openPicker,
+    this.onManage,
+    this.manageTooltip,
     this.clearOptionLabel,
     this.enabled = true,
+    this.focusNode,
+    this.showFieldLabel = true,
   });
 
   final String label;
@@ -36,8 +41,12 @@ class LibraryDropdownPickField<TValue> extends StatefulWidget {
   final String? helperText;
   final bool allowCustomValue;
   final LibraryDropdownPickHandler? openPicker;
+  final VoidCallback? onManage;
+  final String? manageTooltip;
   final String? clearOptionLabel;
   final bool enabled;
+  final FocusNode? focusNode;
+  final bool showFieldLabel;
 
   @override
   State<LibraryDropdownPickField<TValue>> createState() =>
@@ -87,7 +96,20 @@ class _LibraryDropdownPickFieldState<TValue>
     if (oldWidget.value != widget.value ||
         oldWidget.options != widget.options) {
       final next = _currentLabel ?? '';
-      if (_controller.text != next) _controller.text = next;
+      if (_controller.text != next) {
+        // TextFormField notifies its enclosing Form when this controller changes.
+        // Synchronize after the parent's build and use the latest widget value.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          final current = _currentLabel ?? '';
+          if (_controller.text != current) {
+            _controller.value = TextEditingValue(
+              text: current,
+              selection: TextSelection.collapsed(offset: current.length),
+            );
+          }
+        });
+      }
     }
   }
 
@@ -135,18 +157,27 @@ class _LibraryDropdownPickFieldState<TValue>
 
   @override
   Widget build(BuildContext context) {
-    return SingleValuePickField(
+    final field = SingleValuePickField(
       controller: _controller,
+      focusNode: widget.focusNode,
       label: widget.label,
+      showInlineLabel: false,
       options: _labels,
       validator: (_) => widget.errorText,
       helperText: widget.helperText,
       errorText: widget.errorText,
-      showPickerListAction: true,
-      manageTooltip: 'Select ${widget.label}',
+      showPickerListAction:
+          widget.openPicker != null || widget.onManage != null,
+      manageTooltip: widget.manageTooltip ??
+          (widget.onManage == null
+              ? 'Select ${widget.label}'
+              : 'Manage ${widget.label}'),
       enabled: widget.enabled,
       onChanged: _selectLabel,
-      onManage: _openPicker,
+      onManage: widget.onManage ?? _openPicker,
     );
+    return widget.showFieldLabel
+        ? LibraryFormField(label: widget.label, child: field)
+        : field;
   }
 }

@@ -1,7 +1,13 @@
-/// Flutter independent catalog values shared by Game Add and catalog Edit.
+/// Editable fields for one concrete Game Catalog Item.
+///
+/// Release-specific fields are kept on this item; the form does not model a
+/// separate Work or Release record.
 final class GameCatalogFormValues {
   GameCatalogFormValues({
     this.title = '',
+    this.displayTitle = '',
+    this.originalTitle = '',
+    this.localizedTitle = '',
     this.sortTitle = '',
     this.subtitle = '',
     this.description = '',
@@ -14,17 +20,17 @@ final class GameCatalogFormValues {
     this.genres = const [],
     this.searchAliases = const [],
     this.originalLanguage = '',
-    this.workReleaseDate,
     this.franchise = '',
+    this.toySubtype = '',
+    this.toyType = '',
     this.series = '',
     this.languages = const [],
     this.country = 'US',
-    this.releaseTitle = '',
-    this.platform = '',
+    this.editionTitle = '',
     this.region = '',
     this.format = '',
+    this.physicalFormatId,
     this.releaseDate,
-    this.releasePublisher = '',
     this.catalogNumber = '',
     this.releaseStatus = '',
     this.language = '',
@@ -32,10 +38,13 @@ final class GameCatalogFormValues {
     this.coverImageUrl = '',
     this.releaseYear,
     this.variant = '',
-    this.backCoverImageUrl = '',
+    this.thumbnailImageUrl = '',
   });
 
   String title;
+  String displayTitle;
+  String originalTitle;
+  String localizedTitle;
   String sortTitle;
   String subtitle;
   String description;
@@ -48,18 +57,18 @@ final class GameCatalogFormValues {
   List<String> genres;
   List<String> searchAliases;
   String originalLanguage;
-  DateTime? workReleaseDate;
   String franchise;
+  String toySubtype;
+  String toyType;
   String series;
   List<String> languages;
   String country;
 
-  String releaseTitle;
-  String platform;
+  String editionTitle;
   String region;
   String format;
+  String? physicalFormatId;
   DateTime? releaseDate;
-  String releasePublisher;
   String catalogNumber;
   String releaseStatus;
   String language;
@@ -67,5 +76,5 @@ final class GameCatalogFormValues {
   String coverImageUrl;
   int? releaseYear;
   String variant;
-  String backCoverImageUrl;
+  String thumbnailImageUrl;
 }

@@ -1,6 +1,6 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/ui/theme/theme_primitives.dart';
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:flutter/material.dart';
 
 ThemeData buildLibraryTheme({
@@ -29,7 +29,7 @@ ThemeData buildLibraryDialogTheme({
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
     ).copyWith(
       constraints: const BoxConstraints(
-        minHeight: kLibraryFormControlHeight,
+        minHeight: LibraryMetrics.defaultFieldHeight,
       ),
     ),
   );

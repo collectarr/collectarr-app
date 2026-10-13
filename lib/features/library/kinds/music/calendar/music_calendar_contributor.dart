@@ -1,15 +1,14 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
 /// Music owns the mapping from a selected release's date to calendar time.
 final class MusicCalendarContributor implements LibraryCalendarContributor {
-  const MusicCalendarContributor({this.loadRelease});
+  const MusicCalendarContributor({this.loadAlbum});
 
-  final Future<MusicRelease?> Function(String id)? loadRelease;
+  final Future<MusicAlbum?> Function(String id)? loadAlbum;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;
@@ -19,26 +18,27 @@ final class MusicCalendarContributor implements LibraryCalendarContributor {
     LibraryCalendarContext context,
   ) async {
     final events = <CalendarEvent>[];
-    for (final ref in context.catalogRefs) {
-      final id = ref.id;
-      final release = loadRelease != null
-          ? await loadRelease!(id)
-          : await _loadRelease(context, id);
-      if (release == null) continue;
-      final date = release.releaseDate;
+    for (final ref in context.libraryEntryRefs) {
+      if (ref.kind != kind) continue;
+      final id = ref.id.value;
+      final album = loadAlbum != null
+          ? await loadAlbum!(id)
+          : await _loadAlbum(context, id);
+      if (album == null) continue;
+      final date = album.releaseDate;
       if (date == null) continue;
       events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
         date: DateTime.utc(date.year, date.month, date.day),
-        title: release.title,
-        eventId: 'music-release:${release.id.value}',
-        catalogRef: ref,
+        title: album.title,
+        eventId: 'music-album:$id',
+        libraryEntryRef: ref,
       ));
     }
     return events;
   }
 
-  Future<MusicRelease?> _loadRelease(
+  Future<MusicAlbum?> _loadAlbum(
     LibraryCalendarContext context,
     String id,
   ) {
@@ -46,6 +46,7 @@ final class MusicCalendarContributor implements LibraryCalendarContributor {
     if (database == null) {
       throw StateError('Music calendar contribution requires a database');
     }
-    return MusicRepository(database).getRelease(MusicReleaseId(id));
+    return LibraryEntryStore(database).find(kind, id).then((entry) =>
+        entry == null ? null : MusicAlbum.fromJson(entry.catalogData));
   }
 }

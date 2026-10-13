@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config/tv_field_identities.dart';
 
 abstract final class TvFieldIds {
   static const status = LibraryFieldId<TvKind, String?>('tv.status');
@@ -12,7 +13,8 @@ abstract final class TvFieldIds {
   static const releaseYear = LibraryFieldId<TvKind, int?>('tv.release_year');
   static const seasonCount = LibraryFieldId<TvKind, int?>('tv.season_count');
   static const episodeCount = LibraryFieldId<TvKind, int?>('tv.episode_count');
-  static const barcode = LibraryFieldId<TvKind, String?>('tv.barcode');
+  static const barcode =
+      LibraryFieldId<TvKind, String?>(TvFieldIdentities.barcodeId);
   static const rating = LibraryFieldId<TvKind, int?>('tv.rating');
   static const condition = LibraryFieldId<TvKind, String?>('tv.condition');
   static const pricePaid = LibraryFieldId<TvKind, int?>('tv.price_paid');

@@ -1,0 +1,4299 @@
+{
+  "contractVersion": "2.2.0",
+  "fields": [
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
+      "kind": "anime",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
+      "kind": "boardgame",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
+      "kind": "book",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
+      "kind": "comic",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
+      "kind": "game",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
+      "kind": "manga",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
+      "kind": "movie",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
+      "kind": "music",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
+      "kind": "tv",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "anime",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "boardgame",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "book",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "comic",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "game",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "manga",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "movie",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "music",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "tv",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
+      "kind": "anime",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
+      "kind": "boardgame",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
+      "kind": "book",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
+      "kind": "comic",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
+      "kind": "game",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
+      "kind": "manga",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
+      "kind": "movie",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
+      "kind": "music",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
+      "kind": "tv",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "anime",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "boardgame",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "book",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "comic",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "game",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "manga",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "movie",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "music",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "tv",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
+      "kind": "anime",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
+      "kind": "boardgame",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
+      "kind": "book",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
+      "kind": "comic",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
+      "kind": "game",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
+      "kind": "manga",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
+      "kind": "movie",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
+      "kind": "music",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
+      "kind": "tv",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "anime",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "boardgame",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "book",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "comic",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "game",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "manga",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "movie",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "music",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "tv",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
+      "kind": "anime",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
+      "kind": "boardgame",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
+      "kind": "book",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
+      "kind": "comic",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
+      "kind": "game",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
+      "kind": "manga",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
+      "kind": "movie",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
+      "kind": "music",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
+      "kind": "tv",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "anime",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "boardgame",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "book",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "comic",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "game",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "manga",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "movie",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "music",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "tv",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
+      "kind": "anime",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
+      "kind": "boardgame",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
+      "kind": "book",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
+      "kind": "comic",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
+      "kind": "game",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
+      "kind": "manga",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
+      "kind": "movie",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
+      "kind": "music",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
+      "kind": "tv",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "anime",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "boardgame",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "book",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "comic",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "game",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "manga",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "movie",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "music",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "tv",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
+      "kind": "anime",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
+      "kind": "boardgame",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
+      "kind": "book",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
+      "kind": "comic",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
+      "kind": "game",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
+      "kind": "manga",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
+      "kind": "movie",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
+      "kind": "music",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
+      "kind": "tv",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "anime",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "boardgame",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "book",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "comic",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "game",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "manga",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "movie",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "music",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "tv",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
+      "kind": "anime",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
+      "kind": "boardgame",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
+      "kind": "book",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
+      "kind": "comic",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
+      "kind": "game",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
+      "kind": "manga",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
+      "kind": "movie",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
+      "kind": "music",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
+      "kind": "tv",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "anime",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "boardgame",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "book",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "comic",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "game",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "manga",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "movie",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "music",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "tv",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
+      "kind": "anime",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
+      "kind": "boardgame",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
+      "kind": "book",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
+      "kind": "comic",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
+      "kind": "game",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
+      "kind": "manga",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
+      "kind": "movie",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
+      "kind": "music",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
+      "kind": "tv",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "anime",
+      "label": "Cover storage",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "boardgame",
+      "label": "Cover storage",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "book",
+      "label": "Cover storage",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "comic",
+      "label": "Cover storage",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "game",
+      "label": "Cover storage",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "manga",
+      "label": "Cover storage",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "movie",
+      "label": "Cover storage",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "music",
+      "label": "Cover storage",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "tv",
+      "label": "Cover storage",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
+      "kind": "anime",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
+      "kind": "boardgame",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
+      "kind": "book",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
+      "kind": "comic",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
+      "kind": "game",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
+      "kind": "manga",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
+      "kind": "movie",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
+      "kind": "tv",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "anime",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "boardgame",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "book",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "comic",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "game",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "manga",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "movie",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "music",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "tv",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "color",
+      "kind": "anime",
+      "label": "Color",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "color",
+      "kind": "movie",
+      "label": "Color",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "color",
+      "kind": "tv",
+      "label": "Color",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "runtime_minutes",
+      "kind": "anime",
+      "label": "Runtime minutes",
+      "section": "publishing",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "runtime_minutes",
+      "kind": "movie",
+      "label": "Runtime minutes",
+      "section": "publishing",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "runtime_minutes",
+      "kind": "tv",
+      "label": "Runtime minutes",
+      "section": "publishing",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "nr_discs",
+      "kind": "anime",
+      "label": "Number of discs",
+      "section": "technical",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "nr_discs",
+      "kind": "movie",
+      "label": "Number of discs",
+      "section": "technical",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "nr_discs",
+      "kind": "tv",
+      "label": "Number of discs",
+      "section": "technical",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "screen_ratio",
+      "kind": "anime",
+      "label": "Screen ratio",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "screen_ratio",
+      "kind": "movie",
+      "label": "Screen ratio",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "screen_ratio",
+      "kind": "tv",
+      "label": "Screen ratio",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audio_tracks",
+      "kind": "anime",
+      "label": "Audio tracks",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audio_tracks",
+      "kind": "movie",
+      "label": "Audio tracks",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audio_tracks",
+      "kind": "tv",
+      "label": "Audio tracks",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitles",
+      "kind": "anime",
+      "label": "Subtitles",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitles",
+      "kind": "movie",
+      "label": "Subtitles",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitles",
+      "kind": "tv",
+      "label": "Subtitles",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "layers",
+      "kind": "anime",
+      "label": "Layers",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "layers",
+      "kind": "movie",
+      "label": "Layers",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "layers",
+      "kind": "tv",
+      "label": "Layers",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "platforms",
+      "kind": "boardgame",
+      "label": "Platforms",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "platforms",
+      "kind": "game",
+      "label": "Platforms",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "identifiers",
+      "kind": "boardgame",
+      "label": "Identifiers",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "identifiers",
+      "kind": "game",
+      "label": "Identifiers",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "contributors",
+      "kind": "boardgame",
+      "label": "Contributors",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "mechanics",
+      "kind": "boardgame",
+      "label": "Mechanics",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "categories",
+      "kind": "boardgame",
+      "label": "Categories",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "families",
+      "kind": "boardgame",
+      "label": "Families",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "expansions",
+      "kind": "boardgame",
+      "label": "Expansions",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "rankings",
+      "kind": "boardgame",
+      "label": "Rankings",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "designers",
+      "kind": "boardgame",
+      "label": "Designers",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "artists",
+      "kind": "boardgame",
+      "label": "Artists",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "publishers",
+      "kind": "boardgame",
+      "label": "Publishers",
+      "section": "publishing",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "themes",
+      "kind": "boardgame",
+      "label": "Themes",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "languages",
+      "kind": "boardgame",
+      "label": "Languages",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "languages",
+      "kind": "game",
+      "label": "Languages",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "characters",
+      "kind": "boardgame",
+      "label": "Characters",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_language",
+      "kind": "boardgame",
+      "label": "Original language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_language",
+      "kind": "book",
+      "label": "Original language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_language",
+      "kind": "game",
+      "label": "Original language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_language",
+      "kind": "movie",
+      "label": "Original language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "expansion_for",
+      "kind": "boardgame",
+      "label": "Expansion for",
+      "section": "relations",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "recommended_players",
+      "kind": "boardgame",
+      "label": "Recommended players",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "best_players",
+      "kind": "boardgame",
+      "label": "Best with players",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "min_playtime_minutes",
+      "kind": "boardgame",
+      "label": "Minimum play time",
+      "section": "item",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "max_playtime_minutes",
+      "kind": "boardgame",
+      "label": "Maximum play time",
+      "section": "item",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "complexity_weight",
+      "kind": "boardgame",
+      "label": "Complexity weight",
+      "section": "item",
+      "valueType": "number"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "bgg_rating",
+      "kind": "boardgame",
+      "label": "BoardGameGeek rating",
+      "section": "item",
+      "valueType": "number"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "bgg_rating_count",
+      "kind": "boardgame",
+      "label": "BoardGameGeek rating count",
+      "section": "item",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "bgg_rank",
+      "kind": "boardgame",
+      "label": "BoardGameGeek rank",
+      "section": "item",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "imprint",
+      "kind": "book",
+      "label": "Imprint",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "imprint",
+      "kind": "comic",
+      "label": "Imprint",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "imprint",
+      "kind": "manga",
+      "label": "Imprint",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_group",
+      "kind": "book",
+      "label": "Series group",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_group",
+      "kind": "comic",
+      "label": "Series group",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_group",
+      "kind": "manga",
+      "label": "Series group",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "page_count",
+      "kind": "book",
+      "label": "Page count",
+      "section": "publishing",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "page_count",
+      "kind": "comic",
+      "label": "Page count",
+      "section": "publishing",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "page_count",
+      "kind": "manga",
+      "label": "Page count",
+      "section": "publishing",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "first_publication_date",
+      "kind": "book",
+      "label": "First publication date",
+      "section": "publishing",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "original_publication_date",
+      "kind": "book",
+      "label": "Original publication date",
+      "section": "publishing",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "subjects",
+      "kind": "book",
+      "label": "Subjects",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "distributor",
+      "kind": "book",
+      "label": "Distributor",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "region",
+      "kind": "book",
+      "label": "Region",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_statement",
+      "kind": "book",
+      "label": "Edition statement",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "dimensions",
+      "kind": "book",
+      "label": "Dimensions",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "first_edition",
+      "kind": "book",
+      "label": "First edition",
+      "section": "item",
+      "valueType": "boolean"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "audio_length_minutes",
+      "kind": "book",
+      "label": "Audio length (minutes)",
+      "section": "technical",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "binding",
+      "kind": "book",
+      "label": "Binding",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "back_cover_image_url",
+      "kind": "book",
+      "label": "Back cover image URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "crossover",
+      "kind": "comic",
+      "label": "Crossover",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "crossover",
+      "kind": "manga",
+      "label": "Crossover",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "toy_subtype",
+      "kind": "game",
+      "label": "Toy subtype",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "toy_type",
+      "kind": "game",
+      "label": "Toy type",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "company_roles",
+      "kind": "game",
+      "label": "Company roles",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "franchise",
+      "kind": "game",
+      "label": "Franchise",
+      "section": "relations",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "display_title",
+      "kind": "movie",
+      "label": "Display title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "studio",
+      "kind": "movie",
+      "label": "Studio",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "production_companies",
+      "kind": "movie",
+      "label": "Production companies",
+      "section": "publishing",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "artist",
+      "kind": "music",
+      "label": "Artist",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_title",
+      "kind": "music",
+      "label": "Sort title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "label",
+      "kind": "music",
+      "label": "Label",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "original_release_date",
+      "kind": "music",
+      "label": "Original release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "packaging",
+      "kind": "music",
+      "label": "Packaging",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "extra",
+      "kind": "music",
+      "label": "Extra",
+      "section": "technical",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "box_set",
+      "kind": "music",
+      "label": "Box set",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
+      "kind": "anime",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
+      "kind": "boardgame",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
+      "kind": "book",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
+      "kind": "comic",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
+      "kind": "game",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
+      "kind": "manga",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
+      "kind": "movie",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
+      "kind": "music",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
+      "kind": "tv",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
+      "kind": "anime",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
+      "kind": "boardgame",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
+      "kind": "book",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
+      "kind": "comic",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
+      "kind": "game",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
+      "kind": "manga",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
+      "kind": "movie",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
+      "kind": "tv",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
+      "kind": "anime",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
+      "kind": "boardgame",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
+      "kind": "book",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
+      "kind": "comic",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
+      "kind": "game",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
+      "kind": "manga",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
+      "kind": "movie",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
+      "kind": "tv",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
+      "kind": "anime",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
+      "kind": "boardgame",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
+      "kind": "book",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
+      "kind": "comic",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
+      "kind": "game",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
+      "kind": "manga",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
+      "kind": "movie",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
+      "kind": "tv",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
+      "kind": "anime",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
+      "kind": "boardgame",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
+      "kind": "book",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
+      "kind": "comic",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
+      "kind": "game",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
+      "kind": "manga",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
+      "kind": "movie",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
+      "kind": "tv",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "anime",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "boardgame",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "book",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "comic",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "game",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "manga",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "movie",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "tv",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
+      "kind": "anime",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
+      "kind": "boardgame",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
+      "kind": "book",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
+      "kind": "comic",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
+      "kind": "game",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
+      "kind": "manga",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
+      "kind": "movie",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
+      "kind": "tv",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "anime",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "boardgame",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "book",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "comic",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "game",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "manga",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "movie",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "tv",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
+      "kind": "anime",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
+      "kind": "boardgame",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
+      "kind": "book",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
+      "kind": "comic",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
+      "kind": "game",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
+      "kind": "manga",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
+      "kind": "movie",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
+      "kind": "tv",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "anime",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "boardgame",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "book",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "comic",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "game",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "manga",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "movie",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "music",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "tv",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
+      "kind": "anime",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
+      "kind": "boardgame",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
+      "kind": "book",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
+      "kind": "comic",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
+      "kind": "game",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
+      "kind": "manga",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
+      "kind": "movie",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
+      "kind": "tv",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "anime",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "boardgame",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "book",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "comic",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "game",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "manga",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "movie",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "music",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "tv",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "anime",
+      "label": "Barcode",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "boardgame",
+      "label": "Barcode",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "book",
+      "label": "Barcode",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "comic",
+      "label": "Barcode",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "game",
+      "label": "Barcode",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "manga",
+      "label": "Barcode",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "movie",
+      "label": "Barcode",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "music",
+      "label": "Barcode",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "tv",
+      "label": "Barcode",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
+      "kind": "anime",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
+      "kind": "boardgame",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
+      "kind": "book",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
+      "kind": "comic",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
+      "kind": "game",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
+      "kind": "manga",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
+      "kind": "movie",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
+      "kind": "tv",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "anime",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "boardgame",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "book",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "comic",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "game",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "manga",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "movie",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "music",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "tv",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
+      "kind": "anime",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
+      "kind": "boardgame",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
+      "kind": "book",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
+      "kind": "comic",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
+      "kind": "game",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
+      "kind": "manga",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
+      "kind": "movie",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
+      "kind": "tv",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "anime",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "boardgame",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "book",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "comic",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "game",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "manga",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "movie",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "music",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "tv",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
+      "kind": "anime",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
+      "kind": "boardgame",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
+      "kind": "book",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
+      "kind": "comic",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
+      "kind": "game",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
+      "kind": "manga",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
+      "kind": "movie",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
+      "kind": "tv",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
+      "kind": "anime",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
+      "kind": "boardgame",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
+      "kind": "book",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
+      "kind": "comic",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
+      "kind": "game",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
+      "kind": "manga",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
+      "kind": "movie",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
+      "kind": "tv",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
+      "kind": "anime",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
+      "kind": "boardgame",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
+      "kind": "book",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
+      "kind": "comic",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
+      "kind": "game",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
+      "kind": "manga",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
+      "kind": "movie",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
+      "kind": "tv",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
+      "kind": "anime",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
+      "kind": "boardgame",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
+      "kind": "book",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
+      "kind": "comic",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
+      "kind": "game",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
+      "kind": "manga",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
+      "kind": "movie",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
+      "kind": "tv",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "anime",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "boardgame",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "book",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "comic",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "game",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "manga",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "movie",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "music",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "tv",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "anime",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "boardgame",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "book",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "comic",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "game",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "manga",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "movie",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "music",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "tv",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
+      "kind": "anime",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
+      "kind": "boardgame",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
+      "kind": "book",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
+      "kind": "comic",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
+      "kind": "game",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
+      "kind": "manga",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
+      "kind": "movie",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
+      "kind": "tv",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
+      "kind": "anime",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
+      "kind": "boardgame",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
+      "kind": "book",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
+      "kind": "comic",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
+      "kind": "game",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
+      "kind": "manga",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
+      "kind": "movie",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
+      "kind": "tv",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "anime",
+      "label": "Plot description",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "boardgame",
+      "label": "Plot description",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "book",
+      "label": "Plot description",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "comic",
+      "label": "Plot description",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "game",
+      "label": "Plot description",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "manga",
+      "label": "Plot description",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "movie",
+      "label": "Plot description",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "tv",
+      "label": "Plot description",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "trailer_urls",
+      "kind": "anime",
+      "label": "Trailer URLs",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "trailer_urls",
+      "kind": "game",
+      "label": "Trailer URLs",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "trailer_urls",
+      "kind": "movie",
+      "label": "Trailer URLs",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "trailer_urls",
+      "kind": "tv",
+      "label": "Trailer URLs",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "anime",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "boardgame",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "book",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "comic",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "game",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "manga",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "movie",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "music",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "tv",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
+    }
+  ],
+  "generatedAt": "2026-10-09T17:50:51.410583Z"
+}

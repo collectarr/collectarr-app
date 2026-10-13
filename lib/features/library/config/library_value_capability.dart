@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 class LibraryCollectionValueSummary {
   const LibraryCollectionValueSummary({
@@ -16,10 +15,8 @@ class LibraryCollectionValueSummary {
 }
 
 abstract interface class LibraryValueCapability {
-  int? resolveProviderValueCents(LibraryProjectionView item);
-
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
   );
 }
 
@@ -27,11 +24,8 @@ class DefaultLibraryValueCapability implements LibraryValueCapability {
   const DefaultLibraryValueCapability();
 
   @override
-  int? resolveProviderValueCents(LibraryProjectionView item) => null;
-
-  @override
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
   ) =>
       null;
 }

@@ -1,46 +1,34 @@
 import '../tv_module_dependencies.dart';
-import '../ownership/tv_transfer_owned_item.dart';
+import '../entries/tv_transfer_library_entry.dart';
 
 final tvKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.work,
-      builder: buildTvLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.release,
-      builder: buildTvReleaseLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.copy,
-      builder: buildTvMediaLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildTvLibraryEditDialog,
+      libraryEntry: buildTvLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
   presentation: tvLibraryEditPresentation,
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: TvVocabularies.condition.builtIns,
-  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
-    TvOwnedItem item => item.grade,
+  entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
+    TvLibraryEntry item => item.personal.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   createSession: createTvEditDraft,
-  ownedDigitalFlagResolver: resolveTvOwnedDigitalFlag,
-  ownedFormatHintResolver: resolveTvOwnedFormatHint,
-  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      TvOwnedItemUpdatePayload.partial(
+  entryDigitalFlagResolver: resolveTvEntryDigitalFlag,
+  entryFormatHintResolver: resolveTvEntryFormatHint,
+  entryIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      TvLibraryEntryUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
-  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      TvOwnedItemUpdatePayload.partial(
+  entryConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      TvLibraryEntryUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
-  ownedBulkUpdatePayloadBuilder:
+  entryBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          TvOwnedItemUpdatePayload.partial(
+          TvLibraryEntryUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -50,7 +38,7 @@ final tvKindEditCapabilities = LibraryEditCapabilitySet(
         locationId == null ? const Patch.unchanged() : Patch.set(locationId),
     tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
   ),
-  ownedPersonalDetailsUpdatePayloadBuilder: (
+  entryPersonalDetailsUpdatePayloadBuilder: (
     _,
     purchaseDate,
     pricePaidCents,
@@ -60,7 +48,7 @@ final tvKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      TvOwnedItemUpdatePayload.partial(
+      TvLibraryEntryUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -69,30 +57,29 @@ final tvKindEditCapabilities = LibraryEditCapabilitySet(
     locationId:
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
-  ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = tvTransferOwnedItem(updated);
-    return TvOwnedItemUpdatePayload.partial(
-      condition: Patch.set(typed.condition),
-      grade: Patch.set(typed.grade),
-      personalNotes: Patch.set(typed.personalNotes),
-      locationId: Patch.set(typed.locationId),
-      tags: Patch.set(typed.tags),
-      currency: Patch.set(typed.currency),
-      soldTo: Patch.set(typed.soldTo),
-      purchaseStore: Patch.set(typed.purchaseStore),
-      pricePaidCents: Patch.set(typed.pricePaidCents),
-      sellPriceCents: Patch.set(typed.sellPriceCents),
-      quantity: Patch.set(typed.quantity),
-      indexNumber: Patch.set(typed.indexNumber),
-      purchaseDate: Patch.set(typed.purchaseDate),
-      soldAt: Patch.set(typed.soldAt),
+  entryTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = tvTransferLibraryEntry(updated);
+    return TvLibraryEntryUpdatePayload.partial(
+      condition: Patch.set(typed.personal.condition),
+      grade: Patch.set(typed.personal.grade),
+      personalNotes: Patch.set(typed.personal.personalNotes),
+      locationId: Patch.set(typed.personal.locationId),
+      tags: Patch.set(typed.personal.tags),
+      currency: Patch.set(typed.personal.currency),
+      soldTo: Patch.set(typed.personal.soldTo),
+      purchaseStore: Patch.set(typed.personal.purchaseStore),
+      pricePaidCents: Patch.set(typed.personal.pricePaidCents),
+      sellPriceCents: Patch.set(typed.personal.sellPriceCents),
+      indexNumber: Patch.set(typed.personal.indexNumber),
+      purchaseDate: Patch.set(typed.personal.purchaseDate),
+      soldAt: Patch.set(typed.personal.soldAt),
       details: Patch.set(
-        const TvOwnedDetailsCodec().draftFromDetails(
-          typed.details,
+        const TvEntryDetailsCodec().draftFromDetails(
+          typed.personal.details,
         ),
       ),
     );
   },
-  ownedDetailsResetPayloadBuilder: () =>
-      TvOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+  entryDetailsResetPayloadBuilder: () =>
+      TvLibraryEntryUpdatePayload.partial(details: const Patch.clear()),
 );

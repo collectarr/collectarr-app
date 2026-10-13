@@ -1,18 +1,19 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
 
-final movieDevSeedContributor = TypedDevSeedKindContributor<MovieOwnedItem>(
+final movieDevSeedContributor = TypedDevSeedKindContributor<MovieLibraryEntry>(
   kind: CatalogMediaKind.movie,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -30,11 +31,9 @@ final movieDevSeedContributor = TypedDevSeedKindContributor<MovieOwnedItem>(
   validateCatalog: validateMovieSeedCatalog,
   validateCatalogGraph: validateMovieSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: movieSeedOwnedItems,
-  ownedSummaryTyped: MovieOwnedItemProjection.toSummary,
-  validateOwnedTyped: validateMovieSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      MovieOwnedRepository(db).upsertAll(movieSeedOwnedItems(now)),
+  libraryEntriesTyped: movieSeedLibraryEntries,
+  libraryEntrySummaryTyped: MovieLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateMovieSeedEntry,
   trackingRecords: movieSeedTrackingStates,
 );
 
@@ -54,103 +53,114 @@ List<String> validateMovieSeedCatalog(CatalogItemDto item) {
 List<String> validateMovieSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  seedValidateReleases(
-    issues,
-    prefix,
-    item,
-    item.payload['releases'],
-    kind: CatalogMediaKind.movie,
-    parentKey: 'work_id',
-    titleKey: 'release_title',
-  );
+  if (item.payload.containsKey('editions') ||
+      item.payload.containsKey('releases') ||
+      item.kindData.containsKey('editions')) {
+    issues.add('$prefix must be a flat Movie Catalog Item.');
+  }
+  final media = item.payload['media'];
+  if (media is! List || media.isEmpty) {
+    issues.add('$prefix must contain its media/disc rows directly.');
+  } else {
+    final mediaIds = <String>{};
+    for (var index = 0; index < media.length; index++) {
+      final row = media[index];
+      if (row is! Map) {
+        issues.add('$prefix media[$index] must be an object.');
+        continue;
+      }
+      final id = row['id']?.toString().trim() ?? '';
+      if (id.isEmpty || !mediaIds.add(id)) {
+        issues.add('$prefix media[$index] has a missing or duplicate id.');
+      }
+      seedRequirePositiveInt(
+        issues,
+        prefix,
+        'media[$index].media_number',
+        row['media_number'],
+      );
+    }
+  }
   return issues;
 }
 
-List<String> validateMovieSeedOwned(MovieOwnedItem item) {
+List<String> validateMovieSeedEntry(MovieLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
-  final details = item.details;
+  final prefix = 'movie/${item.id}';
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'movie.region', details.region);
   seedRequireText(issues, prefix, 'movie.packaging', details.packaging);
   seedRequireText(issues, prefix, 'movie.distributor', details.distributor);
   return issues;
 }
 
-CatalogItemDto enrichMovieSeedItem(CatalogItemDto item) {
-  final releases = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-release-01',
-        'kind': 'movie',
-        'work_id': item.id,
-        'release_title': edition['title'] ?? item.editionTitle ?? item.title,
-        'format': edition['format'] ?? item.physicalFormat,
-        'language': edition['language'] ?? item.payload['language'],
-        'region': edition['region'] ?? item.payload['country'],
-        'release_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'distributor': edition['distributor'] ?? item.publisher,
-        'media': _movieSeedMedia(item, edition),
-      },
-  ];
-  return withSeedPayload(item, {'releases': releases});
-}
+CatalogItemDto enrichMovieSeedItem(CatalogItemDto item) => item;
 
-List<Map<String, dynamic>> _movieSeedMedia(
-  CatalogItemDto item,
-  Map<String, dynamic> edition,
-) {
-  final releaseId = edition['id']?.toString() ?? '${item.id}-release-01';
-  final discs = edition['discs'];
-  if (discs is List && discs.isNotEmpty) {
+List<Map<String, dynamic>> _movieSeedMedia(CatalogItemDto item) {
+  final metadata = MovieCatalogMetadata.fromJson(item.kindData);
+  final rawMedia = item.payload['media'];
+  if (rawMedia is List) {
     return [
-      for (var index = 0; index < discs.length; index++)
-        {
-          'id': '$releaseId-media-${index + 1}',
-          'release_id': releaseId,
-          'media_number': index + 1,
-          'media_type': item.physicalFormat,
-          'title': discs[index] is Map
-              ? (discs[index] as Map)['name']?.toString()
-              : 'Disc ${index + 1}',
-          'num_discs': 1,
-          'screen_ratio': item.payload['screen_ratio'],
-          'color': item.payload['color'],
-          'audio_tracks': item.payload['audio_tracks'],
-          'subtitles': item.payload['subtitles'],
-          'layers': item.payload['layers'],
-        },
+      for (var index = 0; index < rawMedia.length; index++)
+        if (rawMedia[index] is Map)
+          {
+            ...Map<String, dynamic>.from(rawMedia[index] as Map),
+            'id': (rawMedia[index] as Map)['id']?.toString() ??
+                '${item.id}-media-${index + 1}',
+          },
     ];
   }
+  final video = item.payload['video'];
+  final videoPayload = video is Map
+      ? Map<String, dynamic>.from(video)
+      : const <String, dynamic>{};
   return [
     {
-      'id': '$releaseId-media-01',
-      'release_id': releaseId,
+      'id': '${item.id}-media-01',
       'media_number': 1,
-      'media_type': item.physicalFormat,
-      'title': item.title,
-      'num_discs': item.payload['nr_discs'] ?? 1,
-      'screen_ratio': item.payload['screen_ratio'],
-      'color': item.payload['color'],
-      'audio_tracks': item.payload['audio_tracks'],
-      'subtitles': item.payload['subtitles'],
-      'layers': item.payload['layers'],
+      'media_type': metadata.physicalFormat,
+      'title': metadata.editionTitle ?? metadata.title,
+      'num_discs': videoPayload['nr_discs'] ?? item.payload['nr_discs'] ?? 1,
+      'screen_ratio': videoPayload['screen_ratio'],
+      'color': videoPayload['color'],
+      'audio_tracks': videoPayload['audio_tracks'],
+      'subtitles': videoPayload['subtitles'],
+      'layers': videoPayload['layers'],
     },
   ];
 }
 
 List<CatalogItemDto> movieSeedCatalogItems() => [
+      for (final item in _movieSeedSourceItems()) _movieSeedItemWithMedia(item),
+    ];
+
+CatalogItemDto _movieSeedItemWithMedia(CatalogItemDto item) {
+  if (item.kindData.containsKey('editions') ||
+      item.payload.containsKey('releases')) {
+    throw StateError(
+      'Movie seed ${item.id} must define one flat Catalog Item per edition.',
+    );
+  }
+  final kindData = Map<String, dynamic>.from(item.kindData);
+  kindData['media'] = _movieSeedMedia(item);
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.movie,
+    kindData: kindData,
+  );
+}
+
+List<CatalogItemDto> _movieSeedSourceItems() => [
       seedCatalogItem(
         id: 'seed-movie-01',
         kind: CatalogMediaKind.movie,
         title: 'Batman Begins',
-        displayTitle: 'Batman Begins (2005)',
+        displayTitle: 'Batman Begins (4K UHD, 2017)',
         synopsis:
             'After witnessing his parents\' murder, Bruce Wayne trains with the League of Shadows before returning to Gotham to fight crime as Batman.',
         publisher: 'Warner Bros.',
-        releaseYear: 2005,
-        releaseDate: DateTime.utc(2005, 6, 15),
+        releaseYear: 2017,
+        releaseDate: DateTime.utc(2017, 12, 19),
         coverImageUrl:
             'https://upload.wikimedia.org/wikipedia/en/a/af/Batman_Begins_Poster.jpg',
         thumbnailImageUrl:
@@ -158,14 +168,14 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         editionTitle: '4K Ultra HD + Blu-ray',
         physicalFormat: '4K UHD',
         physicalFormatLabel: '4K Ultra HD Blu-ray',
-        barcode: '012569593763',
+        barcode: '883929621415',
         variant: 'Steelbook 4K',
         country: 'US',
         language: 'en',
         ageRating: 'PG-13',
         sortKey: 'dark-knight-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
           volumeName: 'The Dark Knight Trilogy',
@@ -173,7 +183,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
           volumeStartYear: 2005,
           tags: 'superhero, action, thriller, dc comics',
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 140,
           color: 'Color',
           nrDiscs: 2,
@@ -182,7 +192,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
           subtitles: 'English SDH, French, Spanish',
           layers: 'Dual Layer (BD-66 + BD-50)',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 2999,
           currency: 'USD',
           imprint: 'DC Films',
@@ -201,54 +211,67 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         ],
         storyArcs: ['Batman Origin'],
         genres: ['superhero', 'action', 'thriller', 'crime'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-bb-4k',
-            title: '4K Ultra HD + Blu-ray',
-            format: '4K UHD',
-            publisher: 'Warner Bros.',
-            releaseDate: DateTime.utc(2017, 12, 19),
-            region: 'Region Free',
-            discs: const [
-              CatalogDiscDto(discNumber: 1, name: '4K Feature Film'),
-              CatalogDiscDto(discNumber: 2, name: 'Blu-ray Feature + Extras'),
-            ],
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-bb-4k',
-                name: 'Steelbook 4K UHD',
-                variantType: 'physical',
-                coverPriceCents: 3499,
-                currency: 'USD',
-                isPrimary: true,
-                barcode: '883929621415',
-              ),
-            ],
-          ),
-          CatalogEditionDto(
-            id: 'seed-ed-bb-bluray',
-            title: 'Standard Blu-ray Edition',
-            format: 'Blu-ray',
-            publisher: 'Warner Bros.',
-            releaseDate: DateTime.utc(2008, 7, 8),
-            region: 'Region A',
-            discs: const [
-              CatalogDiscDto(
-                  discNumber: 1, name: 'Feature Film + Genesis of the Bat'),
-            ],
-          ),
-        ],
+        payload: {
+          'media': [
+            {
+              'id': 'seed-movie-01-media-1',
+              'media_number': 1,
+              'media_type': '4K UHD',
+              'title': '4K Feature Film',
+              'num_discs': 1,
+            },
+            {
+              'id': 'seed-movie-01-media-2',
+              'media_number': 2,
+              'media_type': 'Blu-ray',
+              'title': 'Blu-ray Feature + Extras',
+              'num_discs': 1,
+            },
+          ],
+        },
+      ),
+      seedCatalogItem(
+        id: 'seed-movie-16',
+        kind: CatalogMediaKind.movie,
+        title: 'Batman Begins',
+        displayTitle: 'Batman Begins (Standard Blu-ray, 2008)',
+        synopsis:
+            'After witnessing his parents\' murder, Bruce Wayne trains with the League of Shadows before returning to Gotham to fight crime as Batman.',
+        publisher: 'Warner Bros.',
+        releaseYear: 2008,
+        releaseDate: DateTime.utc(2008, 7, 8),
+        coverImageUrl:
+            'https://upload.wikimedia.org/wikipedia/en/a/af/Batman_Begins_Poster.jpg',
+        thumbnailImageUrl:
+            'https://upload.wikimedia.org/wikipedia/en/a/af/Batman_Begins_Poster.jpg',
+        editionTitle: 'Standard Blu-ray Edition',
+        physicalFormat: 'Blu-ray',
+        physicalFormatLabel: 'Blu-ray',
+        country: 'US',
+        language: 'en',
+        ageRating: 'PG-13',
+        payload: {
+          'media': [
+            {
+              'id': 'seed-movie-16-media-1',
+              'media_number': 1,
+              'media_type': 'Blu-ray',
+              'title': 'Feature Film + Genesis of the Bat',
+              'num_discs': 1,
+            },
+          ],
+        },
       ),
       seedCatalogItem(
         id: 'seed-movie-02',
         kind: CatalogMediaKind.movie,
         title: 'The Dark Knight',
-        displayTitle: 'The Dark Knight (2008)',
+        displayTitle: 'The Dark Knight (4K UHD, 2017)',
         synopsis:
             'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
         publisher: 'Warner Bros.',
-        releaseYear: 2008,
-        releaseDate: DateTime.utc(2008, 7, 18),
+        releaseYear: 2017,
+        releaseDate: DateTime.utc(2017, 12, 19),
         coverImageUrl:
             'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
         thumbnailImageUrl:
@@ -263,7 +286,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         ageRating: 'PG-13',
         sortKey: 'dark-knight-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
           volumeName: 'The Dark Knight Trilogy',
@@ -271,7 +294,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
           volumeStartYear: 2005,
           tags: 'superhero, action, thriller, dc comics',
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 152,
           color: 'Color',
           nrDiscs: 3,
@@ -280,7 +303,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
           subtitles: 'English SDH, French, Spanish',
           layers: 'BD-66 + 2x BD-50',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 3299,
           currency: 'USD',
           imprint: 'DC Films',
@@ -294,23 +317,31 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         characters: ['Bruce Wayne', 'The Joker', 'Harvey Dent', 'Jim Gordon'],
         storyArcs: ['Fall of Harvey Dent'],
         genres: ['superhero', 'crime', 'thriller', 'drama'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-tdk-4k',
-            title: '4K Ultra HD 3-Disc Set',
-            format: '4K UHD',
-            publisher: 'Warner Bros.',
-            releaseDate: DateTime.utc(2017, 12, 19),
-            region: 'Region Free',
-            discs: const [
-              CatalogDiscDto(
-                  discNumber: 1, name: '4K Feature Film (IMAX Sequences)'),
-              CatalogDiscDto(discNumber: 2, name: 'Blu-ray Feature Film'),
-              CatalogDiscDto(
-                  discNumber: 3, name: 'Bonus Features & Gotham Tonight'),
-            ],
-          ),
-        ],
+        payload: {
+          'media': [
+            {
+              'id': 'seed-movie-02-media-1',
+              'media_number': 1,
+              'media_type': '4K UHD',
+              'title': '4K Feature Film (IMAX Sequences)',
+              'num_discs': 1,
+            },
+            {
+              'id': 'seed-movie-02-media-2',
+              'media_number': 2,
+              'media_type': 'Blu-ray',
+              'title': 'Blu-ray Feature Film',
+              'num_discs': 1,
+            },
+            {
+              'id': 'seed-movie-02-media-3',
+              'media_number': 3,
+              'media_type': 'Blu-ray',
+              'title': 'Bonus Features & Gotham Tonight',
+              'num_discs': 1,
+            },
+          ],
+        },
       ),
       seedCatalogItem(
         id: 'seed-movie-03',
@@ -335,14 +366,14 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         ageRating: 'PG-13',
         sortKey: 'dark-knight-0003',
         itemNumber: '3',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
           volumeName: 'The Dark Knight Trilogy',
           volumeNumber: '3',
           volumeStartYear: 2005,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 165,
           color: 'Color',
           nrDiscs: 3,
@@ -380,7 +411,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         language: 'en',
         ageRating: 'PG-13',
         sortKey: 'inception-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 148,
           color: 'Color',
           nrDiscs: 2,
@@ -418,7 +449,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         language: 'en',
         ageRating: 'PG-13',
         sortKey: 'interstellar-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 169,
           color: 'Color',
           nrDiscs: 3,
@@ -459,14 +490,14 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         ageRating: 'R',
         sortKey: 'blade-runner-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-blade-runner',
           seriesTitle: 'Blade Runner',
           volumeName: 'Blade Runner',
           volumeNumber: '1',
           volumeStartYear: 1982,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 117,
           color: 'Color',
           nrDiscs: 4,
@@ -506,14 +537,14 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         ageRating: 'R',
         sortKey: 'blade-runner-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-blade-runner',
           seriesTitle: 'Blade Runner',
           volumeName: 'Blade Runner',
           volumeNumber: '2',
           volumeStartYear: 1982,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 164,
           color: 'Color',
           nrDiscs: 2,
@@ -558,7 +589,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         language: 'en',
         ageRating: 'R',
         sortKey: 'pulp-fiction-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 154,
           color: 'Color',
           nrDiscs: 2,
@@ -603,14 +634,14 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         ageRating: 'R',
         sortKey: 'matrix-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-matrix',
           seriesTitle: 'The Matrix Franchise',
           volumeName: 'The Matrix',
           volumeNumber: '1',
           volumeStartYear: 1999,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 136,
           color: 'Color',
           nrDiscs: 2,
@@ -632,25 +663,25 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         id: 'seed-movie-10',
         kind: CatalogMediaKind.movie,
         title: 'Parasite',
-        displayTitle: 'Parasite (2019)',
+        displayTitle: 'Parasite (Criterion Blu-ray, 2020)',
         synopsis:
             'Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.',
         publisher: 'Criterion Collection / Neon',
-        releaseYear: 2019,
-        releaseDate: DateTime.utc(2019, 5, 30),
+        releaseYear: 2020,
+        releaseDate: DateTime.utc(2020, 10, 27),
         coverImageUrl:
             'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
         thumbnailImageUrl:
             'https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
-        editionTitle: 'The Criterion Collection Edition',
+        editionTitle: 'The Criterion Collection #1052',
         physicalFormat: 'Blu-ray',
         barcode: '715515250412',
-        variant: 'Criterion #1052',
+        variant: 'The Criterion Collection #1052',
         country: 'KR',
         language: 'ko',
         ageRating: 'R',
         sortKey: 'parasite-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 132,
           color: 'Color & B/W',
           nrDiscs: 2,
@@ -671,23 +702,24 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
           'Park Dong-ik'
         ],
         genres: ['drama', 'thriller', 'black comedy'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-parasite-criterion',
-            title: 'The Criterion Collection #1052',
-            format: 'Blu-ray',
-            publisher: 'The Criterion Collection',
-            releaseDate: DateTime.utc(2020, 10, 27),
-            region: 'Region A',
-            discs: const [
-              CatalogDiscDto(
-                  discNumber: 1, name: 'Color Feature Film + Commentary'),
-              CatalogDiscDto(
-                  discNumber: 2,
-                  name: 'Black-and-White Edition + Cannes Masterclass'),
-            ],
-          ),
-        ],
+        payload: {
+          'media': [
+            {
+              'id': 'seed-movie-10-media-1',
+              'media_number': 1,
+              'media_type': 'Blu-ray',
+              'title': 'Color Feature Film + Commentary',
+              'num_discs': 1,
+            },
+            {
+              'id': 'seed-movie-10-media-2',
+              'media_number': 2,
+              'media_type': 'Blu-ray',
+              'title': 'Black-and-White Edition + Cannes Masterclass',
+              'num_discs': 1,
+            },
+          ],
+        },
       ),
       seedCatalogItem(
         id: 'seed-movie-11',
@@ -710,7 +742,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'PG',
         sortKey: 'spirited-away-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 125,
           color: 'Color',
           nrDiscs: 2,
@@ -748,14 +780,14 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         ageRating: 'PG-13',
         sortKey: 'dune-movie-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dune-films',
           seriesTitle: 'Dune Film Saga',
           volumeName: 'Dune',
           volumeNumber: '1',
           volumeStartYear: 2021,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 155,
           color: 'Color',
           nrDiscs: 2,
@@ -802,14 +834,14 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         ageRating: 'PG-13',
         sortKey: 'dune-movie-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dune-films',
           seriesTitle: 'Dune Film Saga',
           volumeName: 'Dune',
           volumeNumber: '2',
           volumeStartYear: 2021,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 166,
           color: 'Color',
           nrDiscs: 2,
@@ -854,7 +886,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         language: 'en',
         ageRating: 'R',
         sortKey: 'oppenheimer-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 180,
           color: 'Color & B/W',
           nrDiscs: 3,
@@ -899,14 +931,14 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
         ageRating: 'PG',
         sortKey: 'spider-verse-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-spider-verse',
           seriesTitle: 'Spider-Verse Saga',
           volumeName: 'Spider-Verse',
           volumeNumber: '1',
           volumeStartYear: 2018,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 117,
           color: 'Color',
           nrDiscs: 2,
@@ -931,32 +963,43 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
       ),
     ];
 
-List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-01'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01'),
-        createdAt: now.subtract(const Duration(days: 420)),
-        updatedAt: now,
+List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in movieSeedCatalogItems())
+      item.id: MovieCatalogMetadata.fromJson(item.kindData),
+  };
+  return [
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-01'),
+      metadata: metadataById['seed-movie-01'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-01')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01'),
+      createdAt: now.subtract(const Duration(days: 420)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Near Mint',
         purchaseDate: DateTime.utc(2018, 6, 1),
         pricePaidCents: 3499,
         currency: 'USD',
         personalNotes: 'Steelbook 4K UHD release. Flawless condition.',
-        quantity: 1,
         purchaseStore: 'Best Buy',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           region: 'Region Free',
           packaging: 'Steelbook',
           distributor: 'Warner Bros.',
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-02'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02'),
-        createdAt: now.subtract(const Duration(days: 380)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-02'),
+      metadata: metadataById['seed-movie-02'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-02')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02'),
+      createdAt: now.subtract(const Duration(days: 380)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Mint',
         purchaseDate: DateTime.utc(2018, 7, 10),
@@ -964,27 +1007,30 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Incredible IMAX aspect ratio shifting presentation.',
         purchaseStore: 'Amazon',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           region: 'Region Free',
           packaging: 'Keep Case',
           distributor: 'Warner Bros.',
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-03'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03'),
-        createdAt: now.subtract(const Duration(days: 350)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-03'),
+      metadata: metadataById['seed-movie-03'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-03')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03'),
+      createdAt: now.subtract(const Duration(days: 350)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Near Mint',
         purchaseDate: DateTime.utc(2018, 8, 14),
         pricePaidCents: 3299,
         currency: 'USD',
         personalNotes: 'Final chapter of the trilogy in a 4K keep case.',
-        quantity: 1,
         purchaseStore: 'Amazon',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Theatrical and extended cuts',
           hdrFormats: ['HDR10'],
           region: 'Region Free',
@@ -993,11 +1039,15 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-04'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-04'),
-        createdAt: now.subtract(const Duration(days: 280)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-04'),
+      metadata: metadataById['seed-movie-04'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-04')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-04'),
+      createdAt: now.subtract(const Duration(days: 280)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Near Mint',
         purchaseDate: DateTime.utc(2020, 11, 15),
@@ -1005,7 +1055,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: '10th Anniversary slipcover edition.',
         purchaseStore: 'Zavvi',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: '10th anniversary commentary and deleted scenes',
           hdrFormats: ['Dolby Vision'],
           boxSetName: 'Anniversary Collector Edition',
@@ -1015,11 +1065,15 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-05'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05'),
-        createdAt: now.subtract(const Duration(days: 200)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-05'),
+      metadata: metadataById['seed-movie-05'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-05')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05'),
+      createdAt: now.subtract(const Duration(days: 200)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Mint',
         purchaseDate: DateTime.utc(2021, 3, 22),
@@ -1028,7 +1082,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         personalNotes:
             'Hans Zimmer pipe organ score sounds breathtaking on 5.1.',
         purchaseStore: 'Target',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Original score isolated track',
           hdrFormats: ['Dolby Vision', 'HDR10'],
           region: 'Region A',
@@ -1037,11 +1091,15 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-06'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06'),
-        createdAt: now.subtract(const Duration(days: 500)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-06'),
+      metadata: metadataById['seed-movie-06'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-06')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06'),
+      createdAt: now.subtract(const Duration(days: 500)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Near Mint',
         purchaseDate: DateTime.utc(2019, 1, 10),
@@ -1049,7 +1107,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Final Cut Dolby Atmos mix is reference tier.',
         purchaseStore: 'Barnes & Noble',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Final Cut with Dolby Atmos mix',
           hdrFormats: ['HDR10'],
           region: 'Region A',
@@ -1058,11 +1116,15 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-07'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-07'),
-        createdAt: now.subtract(const Duration(days: 340)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-07'),
+      metadata: metadataById['seed-movie-07'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-07')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-07'),
+      createdAt: now.subtract(const Duration(days: 340)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Mint',
         purchaseDate: DateTime.utc(2020, 5, 4),
@@ -1070,7 +1132,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Mondo steelbook with embossed typography.',
         purchaseStore: 'Zavvi',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Embossed steelbook and art cards',
           hdrFormats: ['Dolby Vision'],
           region: 'Region B',
@@ -1079,40 +1141,46 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-08'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08'),
-        createdAt: now.subtract(const Duration(days: 240)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-08'),
+      metadata: metadataById['seed-movie-08'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-08')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08'),
+      createdAt: now.subtract(const Duration(days: 240)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Very Good',
         purchaseDate: DateTime.utc(2019, 10, 1),
         pricePaidCents: 2499,
         currency: 'USD',
         personalNotes: 'Special edition with the original mono soundtrack.',
-        quantity: 1,
         purchaseStore: 'Criterion Store',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           region: 'Region A',
           packaging: 'Digipak',
           distributor: 'The Criterion Collection',
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-09'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09'),
-        createdAt: now.subtract(const Duration(days: 230)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-09'),
+      metadata: metadataById['seed-movie-09'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-09')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09'),
+      createdAt: now.subtract(const Duration(days: 230)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Near Mint',
         purchaseDate: DateTime.utc(2020, 2, 14),
         pricePaidCents: 2799,
         currency: 'USD',
         personalNotes: '4K restoration with both theatrical cuts.',
-        quantity: 1,
         purchaseStore: 'Best Buy',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Theatrical and alternate cuts',
           hdrFormats: ['HDR10'],
           region: 'Region A',
@@ -1121,11 +1189,15 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-10'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-10'),
-        createdAt: now.subtract(const Duration(days: 150)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-10'),
+      metadata: metadataById['seed-movie-10'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-10')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-10'),
+      createdAt: now.subtract(const Duration(days: 150)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Mint',
         purchaseDate: DateTime.utc(2022, 11, 25),
@@ -1134,18 +1206,22 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         personalNotes:
             'Criterion 50% off flash sale copy. Includes Black & White cut.',
         purchaseStore: 'Criterion Channel Store',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           region: 'Region A',
           packaging: 'Digipak',
           distributor: 'The Criterion Collection',
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-11'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11'),
-        createdAt: now.subtract(const Duration(days: 90)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-11'),
+      metadata: metadataById['seed-movie-11'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-11')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11'),
+      createdAt: now.subtract(const Duration(days: 90)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Mint',
         purchaseDate: DateTime.utc(2023, 8, 12),
@@ -1153,7 +1229,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'GKIDS steelbook with original theatrical poster art.',
         purchaseStore: 'Amazon',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Original theatrical poster and booklet',
           hdrFormats: ['HDR10'],
           region: 'Region A',
@@ -1162,11 +1238,15 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-12'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12'),
-        createdAt: now.subtract(const Duration(days: 60)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-12'),
+      metadata: metadataById['seed-movie-12'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-12')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12'),
+      createdAt: now.subtract(const Duration(days: 60)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Mint',
         purchaseDate: DateTime.utc(2023, 12, 1),
@@ -1174,7 +1254,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Reference Dolby Vision demo disc.',
         purchaseStore: 'Best Buy',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Dolby Vision reference transfer',
           hdrFormats: ['Dolby Vision'],
           region: 'Region Free',
@@ -1183,11 +1263,15 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-13'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-13'),
-        createdAt: now.subtract(const Duration(days: 30)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-13'),
+      metadata: metadataById['seed-movie-13'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-13')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-13'),
+      createdAt: now.subtract(const Duration(days: 30)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Mint',
         purchaseDate: DateTime.utc(2024, 5, 14),
@@ -1195,7 +1279,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: 'Day 1 preorder steelbook.',
         purchaseStore: 'Walmart',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Day-one preorder bonus disc',
           hdrFormats: ['HDR10'],
           region: 'Region A',
@@ -1204,11 +1288,15 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-14'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14'),
-        createdAt: now.subtract(const Duration(days: 45)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-14'),
+      metadata: metadataById['seed-movie-14'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-14')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14'),
+      createdAt: now.subtract(const Duration(days: 45)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Near Mint',
         purchaseDate: DateTime.utc(2024, 2, 20),
@@ -1216,7 +1304,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         currency: 'USD',
         personalNotes: '3-disc set with over 3 hours of special features.',
         purchaseStore: 'Target',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Three-disc special features set',
           hdrFormats: ['HDR10'],
           region: 'Region A',
@@ -1225,20 +1313,23 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-      MovieOwnedItem(
-        id: MovieOwnedItemId('seed-owned-movie-15'),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15'),
-        createdAt: now.subtract(const Duration(days: 20)),
-        updatedAt: now,
+    ),
+    MovieLibraryEntry(
+      id: LibraryEntryId('seed-entry-movie-15'),
+      metadata: metadataById['seed-movie-15'] ??
+          (throw StateError('Missing Movie seed catalog item: seed-movie-15')),
+      sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15'),
+      createdAt: now.subtract(const Duration(days: 20)),
+      updatedAt: now,
+      personal: MoviePersonalData(
         isDigital: false,
         condition: 'Mint',
         purchaseDate: DateTime.utc(2024, 6, 18),
         pricePaidCents: 2999,
         currency: 'USD',
         personalNotes: 'Animated 4K collector edition with art cards.',
-        quantity: 1,
         purchaseStore: 'Sony Pictures Store',
-        details: const MovieOwnedDetails(
+        details: const MovieEntryDetails(
           features: 'Art cards and animated shorts',
           hdrFormats: ['Dolby Vision'],
           region: 'Region Free',
@@ -1247,15 +1338,16 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
         ),
         collectionStatus: 'collected',
       ),
-    ];
+    ),
+  ];
+}
 
 List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       MovieTrackingState(
         id: 'seed-track-movie-01',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01'),
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-01',
+          'seed-entry-movie-01',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1268,10 +1360,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-02',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02'),
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-02',
+          'seed-entry-movie-02',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1284,10 +1375,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-03',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03'),
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-03',
+          'seed-entry-movie-03',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1299,11 +1389,10 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-04',
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-04',
+          'seed-entry-movie-04',
         ),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-04'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1314,11 +1403,10 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-07',
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-07',
+          'seed-entry-movie-07',
         ),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-07'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1330,10 +1418,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-05',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05'),
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-05',
+          'seed-entry-movie-05',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1345,10 +1432,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-06',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06'),
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-06',
+          'seed-entry-movie-06',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1360,10 +1446,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-08',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08'),
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-08',
+          'seed-entry-movie-08',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1375,10 +1460,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-09',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09'),
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-09',
+          'seed-entry-movie-09',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1390,11 +1474,10 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-10',
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-10',
+          'seed-entry-movie-10',
         ),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-10'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1405,11 +1488,10 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-13',
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-13',
+          'seed-entry-movie-13',
         ),
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-13'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1421,10 +1503,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-11',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11'),
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-11',
+          'seed-entry-movie-11',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1436,10 +1517,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-12',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12'),
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-12',
+          'seed-entry-movie-12',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1451,10 +1531,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-14',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14'),
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-14',
+          'seed-entry-movie-14',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1466,10 +1545,9 @@ List<TrackingStorageRecord> movieSeedTrackingStates(DateTime now) => [
       ),
       MovieTrackingState(
         id: 'seed-track-movie-15',
-        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15'),
-        ownedRef: seedOwnedRef(
+        libraryEntryRef: seedLibraryEntryRef(
           CatalogMediaKind.movie,
-          'seed-owned-movie-15',
+          'seed-entry-movie-15',
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,

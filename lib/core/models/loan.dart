@@ -1,10 +1,10 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 class Loan {
   const Loan({
     required this.id,
-    required this.ownedRef,
+    required this.libraryEntryRef,
     required this.borrowerName,
     required this.lentDate,
     this.dueDate,
@@ -16,7 +16,7 @@ class Loan {
 
   /// Structural reference to the lent copy. Loan code never interprets the
   /// referenced kind's domain details.
-  final OwnedItemRef ownedRef;
+  final LibraryEntryRef libraryEntryRef;
   final String borrowerName;
   final DateTime lentDate;
   final DateTime? dueDate;
@@ -30,17 +30,17 @@ class Loan {
   }
 
   factory Loan.fromJson(Map<String, Object?> json) {
-    final ownedPayload = json['owned_ref'];
-    if (ownedPayload is! Map) {
-      throw const FormatException('Loan.owned_ref is required');
+    final entryPayload = json['library_entry_ref'];
+    if (entryPayload is! Map) {
+      throw const FormatException('Loan.library_entry_ref is required');
     }
-    final ownedRef = OwnedItemRef.fromJson(
-      Map<String, Object?>.from(ownedPayload),
+    final libraryEntryRef = LibraryEntryRef.fromJson(
+      Map<String, Object?>.from(entryPayload),
     );
-    requireKnownOwnedRef(ownedRef, 'loan.ownedRef');
+    requireKnownLibraryEntryRef(libraryEntryRef, 'loan.libraryEntryRef');
     return Loan(
       id: _requiredString(json, 'id'),
-      ownedRef: ownedRef,
+      libraryEntryRef: libraryEntryRef,
       borrowerName: _requiredString(json, 'borrower_name'),
       lentDate: _requiredDate(json, 'lent_date'),
       dueDate: _optionalDate(json, 'due_date'),
@@ -75,19 +75,23 @@ class Loan {
 
   Map<String, Object?> toJson() {
     return {
-      'owned_ref': ownedRef.toJson(),
+      'id': id,
+      'library_entry_ref': libraryEntryRef.toJson(),
       'borrower_name': borrowerName,
       'lent_date':
           '${lentDate.year}-${lentDate.month.toString().padLeft(2, '0')}-${lentDate.day.toString().padLeft(2, '0')}',
       if (dueDate != null)
         'due_date':
             '${dueDate!.year}-${dueDate!.month.toString().padLeft(2, '0')}-${dueDate!.day.toString().padLeft(2, '0')}',
+      if (returnedDate != null)
+        'returned_date':
+            '${returnedDate!.year}-${returnedDate!.month.toString().padLeft(2, '0')}-${returnedDate!.day.toString().padLeft(2, '0')}',
       if (notes != null) 'notes': notes,
     };
   }
 
   Loan copyWith({
-    OwnedItemRef? ownedRef,
+    LibraryEntryRef? libraryEntryRef,
     String? borrowerName,
     DateTime? dueDate,
     DateTime? returnedDate,
@@ -95,7 +99,7 @@ class Loan {
   }) {
     return Loan(
       id: id,
-      ownedRef: ownedRef ?? this.ownedRef,
+      libraryEntryRef: libraryEntryRef ?? this.libraryEntryRef,
       borrowerName: borrowerName ?? this.borrowerName,
       lentDate: lentDate,
       dueDate: dueDate ?? this.dueDate,

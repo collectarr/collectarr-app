@@ -1,8 +1,9 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/catalog_replacement_value_repository.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -42,10 +43,10 @@ class InsuranceValueRepository {
 
   Future<InsuranceValueSummary> getSummary(
       {CatalogMediaKind? mediaKind}) async {
-    final ownedRows = await OwnedItemsRepository(_db).listActiveSummaries();
+    final entryRows = await LibraryEntriesRepository(_db).listActiveSummaries();
     final filteredRows = mediaKind == null
-        ? ownedRows
-        : ownedRows.where((row) => row.ref.kind == mediaKind).toList();
+        ? entryRows
+        : entryRows.where((row) => row.ref.kind == mediaKind).toList();
     final totalItems = filteredRows.length;
     final pricedRows = filteredRows
         .where((row) => row.pricePaidCents != null)
@@ -58,10 +59,10 @@ class InsuranceValueRepository {
 
     final replacementValues = await CatalogReplacementValueRepository(_db)
         .findByRefs(filteredRows
-            .map((row) => row.catalogRef)
-            .whereType<CatalogEntityRef>());
+            .map((row) => row.sourceCatalogRef)
+            .whereType<CatalogItemRef>());
     final totalCoverPrice = filteredRows.fold<int>(0, (total, row) {
-      final catalogRef = row.catalogRef;
+      final catalogRef = row.sourceCatalogRef;
       return total +
           (catalogRef == null ? 0 : replacementValues[catalogRef] ?? 0);
     });
@@ -102,7 +103,7 @@ class _InsuranceValueDialog extends StatelessWidget {
       backgroundColor: palette.panel,
       title: const Row(
         children: [
-          Icon(Icons.shield_outlined, size: 22),
+          Icon(AppIcons.statistics, size: 22),
           SizedBox(width: 8),
           Text('Collection Value'),
         ],

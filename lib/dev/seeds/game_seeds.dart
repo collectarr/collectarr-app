@@ -1,18 +1,19 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 
-final gameDevSeedContributor = TypedDevSeedKindContributor<GameOwnedItem>(
+final gameDevSeedContributor = TypedDevSeedKindContributor<GameLibraryEntry>(
   kind: CatalogMediaKind.game,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
@@ -30,11 +31,9 @@ final gameDevSeedContributor = TypedDevSeedKindContributor<GameOwnedItem>(
   validateCatalog: validateGameSeedCatalog,
   validateCatalogGraph: validateGameSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: gameSeedOwnedItems,
-  ownedSummaryTyped: GameOwnedItemProjection.toSummary,
-  validateOwnedTyped: validateGameSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      GameOwnedRepository(db).upsertAll(gameSeedOwnedItems(now)),
+  libraryEntriesTyped: gameSeedLibraryEntries,
+  libraryEntrySummaryTyped: GameLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateGameSeedEntry,
   trackingRecords: gameSeedTrackingStates,
 );
 
@@ -57,37 +56,18 @@ List<String> validateGameSeedCatalog(CatalogItemDto item) {
 List<String> validateGameSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final releases = seedRequireObjectList(
-    issues,
-    prefix,
-    'releases',
-    item.payload['releases'],
-  );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'releases',
-    releases,
-    kind: CatalogMediaKind.game,
-    parentId: item.id,
-    parentKey: 'work_id',
-    titleKey: 'release_title',
-  );
-  for (var index = 0; index < releases.length; index++) {
-    seedRequireText(
-      issues,
-      prefix,
-      'releases[$index].platform',
-      releases[index]['platform'],
-    );
+  seedRequireTextList(issues, prefix, 'platforms', item.kindData['platforms']);
+  if (item.kindData.containsKey('releases') ||
+      item.kindData.containsKey('editions')) {
+    issues.add('$prefix must be a flat Game Catalog Item.');
   }
   return issues;
 }
 
-List<String> validateGameSeedOwned(GameOwnedItem item) {
+List<String> validateGameSeedEntry(GameLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
-  final details = item.details;
+  final prefix = 'game/${item.id}';
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'game.completeness', details.completeness);
   seedRequireText(issues, prefix, 'game.core_region', details.coreRegion);
   seedRequireText(
@@ -98,36 +78,7 @@ List<String> validateGameSeedOwned(GameOwnedItem item) {
   return issues;
 }
 
-CatalogItemDto enrichGameSeedItem(CatalogItemDto item) {
-  final platforms = item.payload['platforms'];
-  final primaryPlatform = platforms is List && platforms.isNotEmpty
-      ? platforms.first.toString()
-      : item.physicalFormat ?? 'PC';
-  final releases = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-release-01',
-        'kind': 'game',
-        'work_id': item.id,
-        'release_title': edition['title'] ?? item.editionTitle ?? item.title,
-        'platform': edition['platform'] ?? primaryPlatform,
-        'release_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'region_code': edition['region_code'] ??
-            edition['region'] ??
-            item.payload['country'],
-        'format': edition['format'] ?? item.physicalFormat,
-        'publisher': edition['publisher'] ?? item.publisher,
-        'catalog_number': edition['catalog_number'] ?? 'SEED-${item.id}',
-        'release_status': edition['release_status'] ?? 'released',
-        'language': edition['language'] ?? item.payload['language'],
-        'barcode': edition['barcode'] ?? item.barcode,
-        'cover_image_url': edition['cover_image_url'] ?? item.coverImageUrl,
-      },
-  ];
-  return withSeedPayload(item, {'releases': releases});
-}
+CatalogItemDto enrichGameSeedItem(CatalogItemDto item) => item;
 
 List<CatalogItemDto> gameSeedCatalogItems() => [
       seedCatalogItem(
@@ -159,7 +110,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
           'Xbox Series X',
           'Nintendo Switch'
         ],
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-witcher',
           seriesTitle: 'The Witcher Series',
           volumeName: 'The Witcher 3',
@@ -167,7 +118,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
           volumeStartYear: 2007,
           tags: 'rpg, open world, dark fantasy',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 4999,
           currency: 'USD',
           imprint: 'CD Projekt',
@@ -185,26 +136,6 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
           'Dandelion'
         ],
         genres: ['action RPG', 'open world', 'dark fantasy'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-witcher-ps5',
-            title: 'Complete Edition PS5',
-            format: 'PlayStation 5',
-            publisher: 'CD Projekt Red',
-            releaseDate: DateTime.utc(2022, 12, 14),
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-witcher-ps5',
-                name: 'Physical Disc Edition',
-                variantType: 'physical',
-                barcode: '850024479326',
-                coverPriceCents: 3999,
-                currency: 'USD',
-                isPrimary: true,
-              ),
-            ],
-          ),
-        ],
       ),
       seedCatalogItem(
         id: 'seed-game-02',
@@ -740,16 +671,24 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
       ),
     ];
 
-List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.game, 15))
-        GameOwnedItem(
-          id: GameOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.game, itemId),
-          createdAt: now.subtract(const Duration(days: 200)),
-          updatedAt: now,
+List<GameLibraryEntry> gameSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in gameSeedCatalogItems())
+      item.id: GameCatalogMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.game, 15))
+      GameLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing Game seed catalog item: $itemId')),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.game, itemId),
+        createdAt: now.subtract(const Duration(days: 200)),
+        updatedAt: now,
+        personal: GamePersonalData(
           isDigital: false,
           condition: 'Mint',
-          details: GameOwnedDetails(
+          details: GameEntryDetails(
             completeness: 'Complete',
             hasBox: true,
             hasManual: true,
@@ -761,23 +700,20 @@ List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
           pricePaidCents: 5999,
           currency: 'USD',
           personalNotes: 'Physical launch edition on disc.',
-          quantity: 1,
           purchaseStore: 'PlayStation Direct / Steam',
           collectionStatus: 'collected',
         ),
-    ];
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> gameSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         GameTrackingState(
           id: 'seed-track-game-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.game,
-            'seed-game-${seedOrdinal2(i)}',
-          ),
-          ownedRef: seedOwnedRef(
-            CatalogMediaKind.game,
-            'seed-owned-seed-game-${seedOrdinal2(i)}',
+            'seed-entry-seed-game-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i <= 10

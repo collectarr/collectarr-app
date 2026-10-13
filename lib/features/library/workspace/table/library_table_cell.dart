@@ -4,7 +4,7 @@ class LibraryTableCellText extends StatelessWidget {
   const LibraryTableCellText(
     this.value, {
     this.emptyText = '-',
-    this.fontSize = 12,
+    this.fontSize = 14,
     super.key,
   });
 
@@ -17,11 +17,31 @@ class LibraryTableCellText extends StatelessWidget {
     final isEmpty = value == null || value!.isEmpty;
     return Text(
       isEmpty ? emptyText : value!,
-      maxLines: 1,
+      maxLines: LibraryTableCellDisplayScope.wraps(context) ? null : 1,
       overflow: TextOverflow.ellipsis,
-      style: isEmpty
-          ? TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)
-          : TextStyle(fontSize: fontSize),
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w400,
+            color:
+                isEmpty ? Theme.of(context).colorScheme.onSurfaceVariant : null,
+          ),
     );
   }
+}
+
+class LibraryTableCellDisplayScope extends InheritedWidget {
+  const LibraryTableCellDisplayScope({
+    super.key,
+    required this.wrap,
+    required super.child,
+  });
+  final bool wrap;
+  static bool wraps(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<LibraryTableCellDisplayScope>()
+          ?.wrap ??
+      false;
+  @override
+  bool updateShouldNotify(LibraryTableCellDisplayScope oldWidget) =>
+      wrap != oldWidget.wrap;
 }

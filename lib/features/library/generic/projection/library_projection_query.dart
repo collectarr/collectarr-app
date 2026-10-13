@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_filter_state.dart';
@@ -21,6 +21,7 @@ final class LibraryProjectionQuery {
     this.filterSelection = LibraryFilterSelection.none,
     this.linkedMetadataFilter,
     this.constrainedItemIds,
+    this.collectionEntryIds,
   });
 
   final String searchQuery;
@@ -36,4 +37,5 @@ final class LibraryProjectionQuery {
   final LibraryFilterSelection filterSelection;
   final LibraryLinkedMetadataFilter? linkedMetadataFilter;
   final Set<String>? constrainedItemIds;
+  final Set<String>? collectionEntryIds;
 }

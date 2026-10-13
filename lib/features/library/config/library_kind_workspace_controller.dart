@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
@@ -7,12 +7,8 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
-class LibraryKindWorkspaceController
-    extends LibraryReleaseFolderBrowserDelegate {
-  LibraryKindWorkspaceController({super.initialReleaseFolderTitleItemId});
-
+class LibraryKindWorkspaceController extends LibraryNoopBrowserDelegate {
   void closeAllKindDrilldowns() {
-    closeReleaseFolder();
     closeItemDrilldown();
   }
 
@@ -32,7 +28,7 @@ class LibraryKindWorkspaceController
     if (!canOpenItemDetailDrilldown(type, item)) {
       return;
     }
-    openItemDrilldown(item.node.workId);
+    openItemDrilldown(item.target.id);
   }
 
   @override
@@ -45,7 +41,7 @@ class LibraryKindWorkspaceController
     required Color accent,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedItemSummary> allOwnedCopies,
+    required List<LibraryEntrySummary> allLibraryEntries,
     required List<WishlistItem> allWishlistItems,
   }) {
     if (!canOpenKindDrilldown(type, selectedItem)) {
@@ -53,7 +49,7 @@ class LibraryKindWorkspaceController
     }
     final drilldownState = itemDrilldownState;
     if (drilldownState == null ||
-        drilldownState.rootItemId != selectedItem.node.workId) {
+        drilldownState.rootItemId != selectedItem.target.id) {
       return null;
     }
     return buildLibraryKindDrilldown(
@@ -65,13 +61,8 @@ class LibraryKindWorkspaceController
       onBack: closeItemDrilldown,
       onRefreshFromCore: onRefreshFromCore,
       onOpenTitleDetails: onOpenTitleDetails,
-      ownedCopies: allOwnedCopies,
+      libraryEntries: allLibraryEntries,
       wishlistItems: allWishlistItems,
-      selectedReleaseId: drilldownState.selectedReleaseId,
-      onSelectRelease: (releaseId) => openItemDrilldown(
-        drilldownState.rootItemId,
-        selectedReleaseId: releaseId,
-      ),
     );
   }
 }

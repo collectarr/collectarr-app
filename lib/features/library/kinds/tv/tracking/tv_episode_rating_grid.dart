@@ -143,7 +143,7 @@ class _HeaderRow<TSeason> extends StatelessWidget {
         TextStyle(
           color: palette.textMuted,
           fontSize: fontSize,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
         );
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -206,7 +206,7 @@ class _EpisodeRow<TSeason> extends StatelessWidget {
                 style: TextStyle(
                   color: palette.textMuted,
                   fontSize: fontSize,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -276,7 +276,7 @@ class _RatingCell extends StatelessWidget {
                 style: TextStyle(
                   color: textColor,
                   fontSize: fontSize,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),

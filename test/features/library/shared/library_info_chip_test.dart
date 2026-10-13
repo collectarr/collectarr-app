@@ -8,7 +8,7 @@ void main() {
       const MaterialApp(
         home: Material(
           child: LibraryInfoChip(
-            label: 'Owned',
+            label: 'Entry',
             icon: Icons.check_circle_outline,
           ),
         ),
@@ -21,6 +21,6 @@ void main() {
     final decoration = decoratedBox.decoration as BoxDecoration;
 
     expect(decoration.borderRadius, BorderRadius.zero);
-    expect(find.text('Owned'), findsOneWidget);
+    expect(find.text('Entry'), findsOneWidget);
   });
 }

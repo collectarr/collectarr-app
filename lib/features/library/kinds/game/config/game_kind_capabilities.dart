@@ -1,21 +1,13 @@
 import '../game_module_dependencies.dart';
 import 'game_kind_configuration.dart';
-import 'package:collectarr_app/features/library/kinds/game/release/game_release_projection_capability.dart'
-    as game_release;
+import '../data/game_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final gameKindPresentation = gamesLibraryMediaPresentation;
 
 final gameKindPhysicalMediaFormats = gamePhysicalMediaFormats;
 
 final gameKindTrackingProfile = gameTrackingProfile;
-
-final gameKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final gameKindReleaseCapability = game_release.gameKindReleaseCapability;
-
-final gameKindReleaseDetailSource = game_release.gameKindReleaseDetailSource;
-
-final gameKindCatalogTarget = const GameCatalogTargetCapability();
 
 final gameKindUiPolicy = const LibraryUiPolicy();
 
@@ -45,31 +37,26 @@ final gameKindIdentity = const LibraryKindIdentity(
 );
 
 final gameKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'igdb',
   catalogMetadataDecoder: GameCatalogMetadata.fromJson,
+  catalogTransportCodec: GameCatalogTransportCodec(),
   searchQueryBuilder: gameMetadataSearchQuery,
-  providers: [igdbMetadataProvider],
 );
 
-final gameKindHierarchy = const LibraryHierarchyCapability(
-  browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
-);
-
-final gameKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Game', plural: 'Games'),
-  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+final gameKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem: LibraryTargetLabel(singular: 'Game', plural: 'Games'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final gameKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.play,
-  writableTargets: {LibraryTrackingTargetScope.release},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  writableTargets: {LibraryTrackingTarget.libraryEntry},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
 );
 
 final gameKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.game,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'game_completeness',
       label: 'Game completeness',
@@ -86,7 +73,7 @@ final gameKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
       group: 'Games',
     ),
     PersonalLibraryFieldSpec(
-      key: 'game_price_charting_id',
+      key: 'game_pricecharting_id',
       label: 'Game PriceCharting ID',
       group: 'Games',
     ),
@@ -103,31 +90,21 @@ final gameKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   ],
 );
 
-final gameKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
-  copy: LibraryEntityActionSet.copy,
+final gameKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final gameKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
-        heroBuilder: buildGameWorkInspectorHero,
-        sectionsBuilder: buildGameWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildGameReleaseInspectorHero,
-        sectionsBuilder: buildGameReleaseInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
-        heroBuilder: buildGameCopyInspectorHero,
-        sectionsBuilder: buildGameCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildGameCatalogItemInspectorHero,
+      sectionsBuilder: buildGameCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildGameLibraryEntryInspectorHero,
+      sectionsBuilder: buildGameLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
 );

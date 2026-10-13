@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'library_add_pane_dependencies.dart';
 
 class LibraryAddIdentifierPrefillBanner extends StatelessWidget {
@@ -54,7 +55,6 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.queryController,
     required this.identifierController,
     required this.isSearching,
-    required this.isSearchingProvider,
     required this.onModeChanged,
     required this.onSearch,
     required this.onQueryChanged,
@@ -82,7 +82,6 @@ class LibraryAddModeBar extends StatefulWidget {
   final TextEditingController queryController;
   final TextEditingController identifierController;
   final bool isSearching;
-  final bool isSearchingProvider;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
@@ -110,17 +109,55 @@ class LibraryAddModeBar extends StatefulWidget {
 class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   final Map<LibraryAddFilterId, TextEditingController> _advancedControllers =
       {};
+  final OverlayPortalController _suggestionsOverlayController =
+      OverlayPortalController();
+  final LayerLink _searchLayerLink = LayerLink();
+  final GlobalKey _searchBarKey = GlobalKey();
+  bool _dismissed = false;
 
   @override
   void initState() {
     super.initState();
     _syncAdvancedControllers(_resolveAdvancedFields());
+    if (widget.showSuggestions && widget.suggestions.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            !_suggestionsOverlayController.isShowing &&
+            !_dismissed &&
+            widget.showSuggestions &&
+            widget.suggestions.isNotEmpty) {
+          _suggestionsOverlayController.show();
+        }
+      });
+    }
   }
 
   @override
   void didUpdateWidget(covariant LibraryAddModeBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     _syncAdvancedControllers(_resolveAdvancedFields());
+    if (widget.suggestions != oldWidget.suggestions) {
+      _dismissed = false;
+    }
+    final canShow =
+        widget.showSuggestions && widget.suggestions.isNotEmpty && !_dismissed;
+    if (canShow && !_suggestionsOverlayController.isShowing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            !_suggestionsOverlayController.isShowing &&
+            !_dismissed &&
+            widget.showSuggestions &&
+            widget.suggestions.isNotEmpty) {
+          _suggestionsOverlayController.show();
+        }
+      });
+    } else if (!canShow && _suggestionsOverlayController.isShowing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _suggestionsOverlayController.isShowing) {
+          _suggestionsOverlayController.hide();
+        }
+      });
+    }
   }
 
   @override
@@ -170,6 +207,84 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
     }
   }
 
+  Widget _buildSuggestionsOverlay(BuildContext overlayContext) {
+    if (_dismissed || !widget.showSuggestions || widget.suggestions.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final renderBox =
+        _searchBarKey.currentContext?.findRenderObject() as RenderBox?;
+    final targetWidth =
+        renderBox?.hasSize == true ? renderBox!.size.width : 540.0;
+    final palette = appPalette(overlayContext);
+    final borderColor = Color.alphaBlend(
+      widget.accent.withValues(alpha: palette.isDark ? 0.34 : 0.22),
+      palette.divider,
+    );
+    return TapRegion(
+      groupId: this,
+      onTapOutside: (_) {
+        if (_suggestionsOverlayController.isShowing) {
+          _suggestionsOverlayController.hide();
+        }
+        if (mounted) {
+          setState(() {
+            _dismissed = true;
+          });
+        }
+        widget.onDismissSuggestions();
+      },
+      child: CompositedTransformFollower(
+        link: _searchLayerLink,
+        showWhenUnlinked: false,
+        targetAnchor: Alignment.bottomLeft,
+        followerAnchor: Alignment.topLeft,
+        offset: const Offset(0, 4),
+        child: SizedBox(
+          width: targetWidth,
+          child: Material(
+            color: palette.panel,
+            elevation: 12,
+            shadowColor: Colors.black.withValues(alpha: 0.5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+              side: BorderSide(color: borderColor),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 280),
+              child: ListView.separated(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: widget.suggestions.length,
+                separatorBuilder: (_, __) =>
+                    Divider(height: 1, color: palette.divider),
+                itemBuilder: (context, index) {
+                  final item = widget.suggestions[index];
+                  return _SuggestionTile(
+                    type: widget.type,
+                    item: item,
+                    accent: widget.accent,
+                    onTap: () {
+                      if (_suggestionsOverlayController.isShowing) {
+                        _suggestionsOverlayController.hide();
+                      }
+                      if (mounted) {
+                        setState(() {
+                          _dismissed = true;
+                        });
+                      }
+                      widget.onSelectSuggestion(item);
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   LibraryAddModeBarRequest _buildRequest() {
     return LibraryAddModeBarRequest(
       type: widget.type,
@@ -179,7 +294,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
       queryController: widget.queryController,
       identifierController: widget.identifierController,
       isSearching: widget.isSearching,
-      isSearchingProvider: widget.isSearchingProvider,
       onModeChanged: widget.onModeChanged,
       onSearch: _handleSearch,
       onQueryChanged: widget.onQueryChanged,
@@ -207,7 +321,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
 
   @override
   Widget build(BuildContext context) {
-    final isBusy = widget.isSearching || widget.isSearchingProvider;
+    final isBusy = widget.isSearching;
     final searchLabels =
         libraryPresentationForKind(widget.type.kind).searchFieldLabels;
     final palette = appPalette(context);
@@ -248,19 +362,30 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerRight,
-                        child: LibraryToolbarSearch(
-                          textFieldKey:
-                              const ValueKey('library-add-query-field'),
-                          controller: widget.queryController,
-                          hintText: searchLabels.queryHint,
-                          onSearch: (_) => _handleSearch(),
-                          onChanged: widget.onQueryChanged,
-                          onScanBarcode: () => widget
-                              .onModeChanged(LibraryAddDialogMode.identifier),
-                          onScanCover:
-                              widget.canScanCover ? widget.onScanCover : null,
-                          selectionColor: widget.accent,
-                          maxWidth: 620,
+                        child: OverlayPortal(
+                          controller: _suggestionsOverlayController,
+                          overlayChildBuilder: _buildSuggestionsOverlay,
+                          child: CompositedTransformTarget(
+                            link: _searchLayerLink,
+                            child: KeyedSubtree(
+                              key: _searchBarKey,
+                              child: LibraryToolbarSearch(
+                                textFieldKey:
+                                    const ValueKey('library-add-query-field'),
+                                controller: widget.queryController,
+                                hintText: searchLabels.queryHint,
+                                onSearch: (_) => _handleSearch(),
+                                onChanged: widget.onQueryChanged,
+                                onScanBarcode: () => widget.onModeChanged(
+                                    LibraryAddDialogMode.identifier),
+                                onScanCover: widget.canScanCover
+                                    ? widget.onScanCover
+                                    : null,
+                                selectionColor: widget.accent,
+                                maxWidth: 620,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -345,16 +470,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
               if (widget.mode == LibraryAddDialogMode.search &&
                   widget.kindSpecificPaneBuilder != null)
                 widget.kindSpecificPaneBuilder!(context, _buildRequest()),
-              if (widget.mode == LibraryAddDialogMode.search &&
-                  widget.showSuggestions &&
-                  widget.suggestions.isNotEmpty)
-                _SuggestionDropdown(
-                  type: widget.type,
-                  suggestions: widget.suggestions,
-                  accent: widget.accent,
-                  onSelect: widget.onSelectSuggestion,
-                  onDismiss: widget.onDismissSuggestions,
-                ),
             ],
           ),
         ),
@@ -392,19 +507,30 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: LibraryToolbarSearch(
-                            textFieldKey:
-                                const ValueKey('library-add-query-field'),
-                            controller: widget.queryController,
-                            hintText: searchLabels.queryHint,
-                            onSearch: (_) => _handleSearch(),
-                            onChanged: widget.onQueryChanged,
-                            onScanBarcode: () => widget
-                                .onModeChanged(LibraryAddDialogMode.identifier),
-                            onScanCover:
-                                widget.canScanCover ? widget.onScanCover : null,
-                            selectionColor: widget.accent,
-                            maxWidth: 620,
+                          child: OverlayPortal(
+                            controller: _suggestionsOverlayController,
+                            overlayChildBuilder: _buildSuggestionsOverlay,
+                            child: CompositedTransformTarget(
+                              link: _searchLayerLink,
+                              child: KeyedSubtree(
+                                key: _searchBarKey,
+                                child: LibraryToolbarSearch(
+                                  textFieldKey:
+                                      const ValueKey('library-add-query-field'),
+                                  controller: widget.queryController,
+                                  hintText: searchLabels.queryHint,
+                                  onSearch: (_) => _handleSearch(),
+                                  onChanged: widget.onQueryChanged,
+                                  onScanBarcode: () => widget.onModeChanged(
+                                      LibraryAddDialogMode.identifier),
+                                  onScanCover: widget.canScanCover
+                                      ? widget.onScanCover
+                                      : null,
+                                  selectionColor: widget.accent,
+                                  maxWidth: 620,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -427,14 +553,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                     ],
                     if (widget.kindSpecificPaneBuilder != null)
                       widget.kindSpecificPaneBuilder!(context, _buildRequest()),
-                    if (widget.showSuggestions && widget.suggestions.isNotEmpty)
-                      _SuggestionDropdown(
-                        type: widget.type,
-                        suggestions: widget.suggestions,
-                        accent: widget.accent,
-                        onSelect: widget.onSelectSuggestion,
-                        onDismiss: widget.onDismissSuggestions,
-                      ),
                   ],
                 ),
               LibraryAddDialogMode.identifier => Row(
@@ -456,32 +574,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                       accent: widget.accent,
                       isBusy: widget.isSearching,
                       onPressed: isBusy ? null : widget.onLookupIdentifier,
-                    ),
-                  ],
-                ),
-              LibraryAddDialogMode.manual => Row(
-                  children: [
-                    Icon(Icons.edit_note, size: 18, color: widget.accent),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Start a manual draft here, then review the full editor before saving.',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: palette.textMuted,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    _LibraryAddModeButton(
-                      label: 'Manual draft',
-                      icon: Icons.edit_note,
-                      accent: widget.accent,
-                      outlined: true,
-                      onPressed: widget.onManual,
                     ),
                   ],
                 ),
@@ -704,7 +796,6 @@ class _LibraryAddModeButton extends StatelessWidget {
     required this.accent,
     required this.onPressed,
     this.isBusy = false,
-    this.outlined = false,
   });
 
   final String label;
@@ -712,7 +803,6 @@ class _LibraryAddModeButton extends StatelessWidget {
   final Color accent;
   final VoidCallback? onPressed;
   final bool isBusy;
-  final bool outlined;
 
   @override
   Widget build(BuildContext context) {
@@ -729,22 +819,13 @@ class _LibraryAddModeButton extends StatelessWidget {
               Text(label),
             ],
           );
-    final style = outlined
-        ? libraryAddOutlinedButtonStyle(accent)
-        : libraryAddFilledButtonStyle(accent);
     return SizedBox(
       height: kLibraryAddModeControlHeight,
-      child: outlined
-          ? OutlinedButton(
-              onPressed: onPressed,
-              style: style,
-              child: child,
-            )
-          : FilledButton(
-              onPressed: onPressed,
-              style: style,
-              child: child,
-            ),
+      child: FilledButton(
+        onPressed: onPressed,
+        style: libraryAddFilledButtonStyle(accent),
+        child: child,
+      ),
     );
   }
 }
@@ -865,6 +946,8 @@ class _AdvancedField extends StatelessWidget {
         child: TextField(
           key: fieldKey,
           controller: controller,
+          cursorColor: LibraryAccentScope.maybeOf(context)?.accent ??
+              appPalette(context).accent,
           keyboardType: keyboardType ?? TextInputType.text,
           inputFormatters: [noNewlineFormatter],
           textInputAction: TextInputAction.search,
@@ -892,51 +975,6 @@ class _AdvancedField extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SuggestionDropdown extends StatelessWidget {
-  const _SuggestionDropdown({
-    required this.type,
-    required this.suggestions,
-    required this.accent,
-    required this.onSelect,
-    required this.onDismiss,
-  });
-
-  final LibraryKindRegistration type;
-  final List<CatalogSearchCandidate> suggestions;
-  final Color accent;
-  final ValueChanged<CatalogSearchCandidate> onSelect;
-  final VoidCallback onDismiss;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Container(
-      margin: const EdgeInsets.only(top: 4),
-      constraints: const BoxConstraints(maxHeight: 260),
-      decoration: BoxDecoration(
-        color: palette.field,
-        border: Border.all(color: accent.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: ListView.separated(
-        padding: EdgeInsets.zero,
-        shrinkWrap: true,
-        itemCount: suggestions.length,
-        separatorBuilder: (_, __) => Divider(height: 1, color: palette.divider),
-        itemBuilder: (context, index) {
-          final item = suggestions[index];
-          return _SuggestionTile(
-            type: type,
-            item: item,
-            accent: accent,
-            onTap: () => onSelect(item),
-          );
-        },
       ),
     );
   }
@@ -971,7 +1009,9 @@ class _SuggestionTile extends StatelessWidget {
     final subtitleText =
         subtitle.isEmpty ? item.summary.kind.apiValue : subtitle.join(' / ');
     return InkWell(
-      mouseCursor: WidgetStateMouseCursor.clickable,
+      mouseCursor: SystemMouseCursors.click,
+      hoverColor:
+          palette.isDark ? const Color(0xFF464950) : palette.surfaceBright,
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),

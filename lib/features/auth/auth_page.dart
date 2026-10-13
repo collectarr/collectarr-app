@@ -556,7 +556,7 @@ class _PreviewCoverGrid extends StatelessWidget {
             _PreviewComic(
               index: index,
               selected: index == 7,
-              owned: index == 2 || index == 7 || index == 11,
+              entry: index == 2 || index == 7 || index == 11,
             ),
         ],
       ),
@@ -588,12 +588,12 @@ class _PreviewInspector extends StatelessWidget {
             const SizedBox(
               width: 52,
               height: 72,
-              child: _PreviewComic(index: 7, selected: false, owned: true),
+              child: _PreviewComic(index: 7, selected: false, entry: true),
             ),
             const SizedBox(height: 8),
             const _TinyMeta(label: 'Release', value: 'Oct 05, 2016'),
             const _TinyMeta(label: 'Grade', value: '5.0'),
-            const _TinyMeta(label: 'Status', value: 'Owned'),
+            const _TinyMeta(label: 'Status', value: 'Entry'),
           ],
         ),
       ),
@@ -605,12 +605,12 @@ class _PreviewComic extends StatelessWidget {
   const _PreviewComic({
     required this.index,
     this.selected = false,
-    this.owned = false,
+    this.entry = false,
   });
 
   final int index;
   final bool selected;
-  final bool owned;
+  final bool entry;
 
   static const colors = [
     Color(0xFFE53935),
@@ -669,7 +669,7 @@ class _PreviewComic extends StatelessWidget {
               ),
             ),
           ),
-          if (owned)
+          if (entry)
             const Positioned(
               right: 3,
               bottom: 3,

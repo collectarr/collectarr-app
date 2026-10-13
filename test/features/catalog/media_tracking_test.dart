@@ -1,9 +1,8 @@
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_state.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('maps media tracking status aliases from storage strings', () {
@@ -28,8 +27,7 @@ void main() {
   test('tracking entry exposes reusable media tracking view', () {
     final trackingRecord = ComicTrackingState(
       id: 'tracking-1',
-      catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-      ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
+      libraryEntryRef: LibraryEntryRef.fromKey('comic:entry-1'),
       rating: 5,
       status: MediaTrackingStatus.completed,
       notes: 'Great issue.',
@@ -40,7 +38,7 @@ void main() {
 
     final tracking = TrackingSummary(
       id: trackingRecord.id,
-      catalogRef: trackingRecord.catalogRef,
+      libraryEntryRef: trackingRecord.libraryEntryRef,
       status: trackingRecord.status ?? MediaTrackingStatus.none,
       rating: trackingRecord.rating,
       startedAt: trackingRecord.startedAt,

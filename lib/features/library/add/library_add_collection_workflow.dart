@@ -1,10 +1,11 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'dart:async';
+
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -39,26 +40,16 @@ class LibraryAddDefaults {
   }
 }
 
-class LibraryAddEditionSelection {
-  const LibraryAddEditionSelection({
-    required this.editionId,
-    this.variantId,
-  });
-
-  final String editionId;
-  final String? variantId;
-}
-
 final class LibraryAddMutationDependencies {
   const LibraryAddMutationDependencies({
-    required this.catalog,
-    required this.ownedMutations,
+    this.catalog,
+    required this.entryMutations,
     required this.wishlistMutations,
     required this.trackingMutations,
   });
 
-  final CatalogTransportRepository catalog;
-  final OwnedItemMutations ownedMutations;
+  final CatalogTransportRepository? catalog;
+  final LibraryEntryMutations entryMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
 }
@@ -68,195 +59,173 @@ final class LibraryAddBatchRequest {
     required this.dependencies,
     required this.items,
     required this.target,
-    this.referenceType = LibraryAddReferenceType.media,
     this.defaults = const LibraryAddDefaults(),
     this.commonDraft,
     this.trackingDraft,
     this.kindDraftsByCatalogRef = const {},
-    this.editionSelectionsByCatalogRef = const {},
-    this.bundleReleaseIdsByCatalogRef = const {},
+    this.upsertCatalogItems = true,
+    this.onLibraryEntryCreated,
+    this.onSubmissionCommitted,
   });
 
   final LibraryAddMutationDependencies dependencies;
   final Iterable<CatalogSearchCandidate> items;
   final LibraryAddTarget target;
-  final LibraryAddReferenceType referenceType;
   final LibraryAddDefaults defaults;
   final LibraryAddCommonDraft? commonDraft;
   final LibraryAddTrackingDraft? trackingDraft;
-  final Map<CatalogEntityRef, LibraryAddKindDraft> kindDraftsByCatalogRef;
-  final Map<CatalogEntityRef, LibraryAddEditionSelection>
-      editionSelectionsByCatalogRef;
-  final Map<CatalogEntityRef, String> bundleReleaseIdsByCatalogRef;
+  final Map<CatalogItemRef, LibraryAddKindDraft> kindDraftsByCatalogRef;
+  final bool upsertCatalogItems;
+  final FutureOr<void> Function(LibraryEntryRef libraryEntryRef)?
+      onLibraryEntryCreated;
+  final FutureOr<void> Function()? onSubmissionCommitted;
 }
 
 /// Pure application orchestration for already-selected catalog results.
 final class LibraryAddCoordinator {
   const LibraryAddCoordinator();
 
-  Future<void> add(LibraryAddBatchRequest request) async {
+  Future<List<String>> add(LibraryAddBatchRequest request) async {
     final catalog = request.dependencies.catalog;
-    final ownedMutations = request.dependencies.ownedMutations;
+    final entryMutations = request.dependencies.entryMutations;
     final wishlistMutations = request.dependencies.wishlistMutations;
-    final trackingMutations = request.dependencies.trackingMutations;
     final items = request.items;
     final target = request.target;
-    final referenceType = request.referenceType;
     final defaults = request.defaults;
     final commonDraft = request.commonDraft;
     final trackingDraft = request.trackingDraft;
     final kindDraftsByCatalogRef = request.kindDraftsByCatalogRef;
-    final editionSelectionsByCatalogRef = request.editionSelectionsByCatalogRef;
-    final bundleReleaseIdsByCatalogRef = request.bundleReleaseIdsByCatalogRef;
 
     final values = items.toList(growable: false);
     if (values.isEmpty) {
-      return;
+      return const [];
     }
-
-    await catalog.upsertTransports(
-      values.map((item) => item.kindCapability.toImportTransport()),
-    );
 
     final baseCommon = commonDraft ?? defaults.toCommonDraft();
     final baseTracking = trackingDraft ?? defaults.toTrackingDraft();
 
-    for (final item in values) {
-      final digitalOwnedItem =
-          libraryAddForKind(item.summary.kind).digitalCopyFlag(item);
-      final isDigitalOwnedItem = digitalOwnedItem == true;
-      final reference = _resolveReferenceForItem(
-        item,
-        mediaTargetRef: target == LibraryAddTarget.wishlist
-            ? null
-            : libraryAddForKind(item.summary.kind).mediaTargetRef(item),
-        referenceType: target == LibraryAddTarget.track
-            ? LibraryAddReferenceType.media
-            : referenceType,
-        editionSelection: editionSelectionsByCatalogRef[item.reference],
-        bundleReleaseId: bundleReleaseIdsByCatalogRef[item.reference],
-      );
-
-      final itemCommon = LibraryAddCommonDraft(
-        condition: isDigitalOwnedItem ? null : baseCommon.condition,
-        purchaseDate: baseCommon.purchaseDate,
-        pricePaidCents: baseCommon.pricePaidCents,
-        currency: baseCommon.currency,
-        personalNotes: baseCommon.personalNotes,
-        quantity: baseCommon.quantity,
-        tags: baseCommon.tags,
-        locationId: isDigitalOwnedItem ? null : baseCommon.locationId,
-        purchaseStore: baseCommon.purchaseStore,
-        collectionStatus: baseCommon.collectionStatus,
-        isDigital: digitalOwnedItem ?? baseCommon.isDigital,
-      );
-      switch (target) {
-        case LibraryAddTarget.owned:
-          final itemKind = item.summary.kind;
-          final capability = libraryAddForKind(itemKind);
-          final addCmd = capability.buildCommand(
-            item,
-            itemCommon,
-            kindDraftsByCatalogRef[item.reference] ??
-                capability.createInitialDraft(),
-            targetRef: reference.catalogRef,
-            tracking: baseTracking,
-          );
-          final ownedItem = await ownedMutations.addOwnedItem(addCmd);
-          final tracking = addCmd.tracking;
-          if (tracking != null) {
-            await trackingMutations.syncOwnedTrackingState(
-              ownedItem,
-              targetRef: reference.catalogRef,
-              status: tracking.status,
-              rating: tracking.rating,
-              startedAt: tracking.startedAt,
-              finishedAt: tracking.finishedAt,
-              notes: tracking.notes,
-            );
-          }
-          break;
-        case LibraryAddTarget.wishlist:
-          await wishlistMutations.addToWishlist(
-            reference.catalogRef,
-          );
-          break;
-        case LibraryAddTarget.track:
-          await trackingMutations.addLocalOnlyTrackingState(
-            item.reference,
-            targetRef: reference.catalogRef,
-            status: baseTracking.readStatus == null
-                ? null
-                : mediaTrackingStatusFromValue(baseTracking.readStatus),
-            allowEmpty: true,
-          );
-          break;
-      }
-    }
-  }
-}
-
-_ResolvedAddReference _resolveReferenceForItem(
-  CatalogSearchCandidate item, {
-  CatalogEntityRef? mediaTargetRef,
-  required LibraryAddReferenceType referenceType,
-  LibraryAddEditionSelection? editionSelection,
-  String? bundleReleaseId,
-}) {
-  switch (referenceType) {
-    case LibraryAddReferenceType.media:
-      return _ResolvedAddReference(
-        catalogRef: mediaTargetRef ?? item.reference,
-      );
-    case LibraryAddReferenceType.bundleRelease:
-      return _ResolvedAddReference(
-        catalogRef: libraryCatalogTargetForKind(item.summary.kind).resolve(
-          item.reference,
-          LibraryCatalogTargetSelection(
-            referenceType: referenceType,
-            groupId: bundleReleaseId,
-          ),
-        ),
-      );
-    case LibraryAddReferenceType.edition:
-      final explicitEditionId = editionSelection?.editionId.trim();
-      if (explicitEditionId != null && explicitEditionId.isNotEmpty) {
-        final variantId = editionSelection?.variantId?.trim();
-        return _ResolvedAddReference(
-          catalogRef: libraryCatalogTargetForKind(item.summary.kind).resolve(
-            item.reference,
-            LibraryCatalogTargetSelection(
-              referenceType: referenceType,
-              firstId: explicitEditionId,
-              secondId: variantId?.isEmpty == true ? null : variantId,
-            ),
-          ),
+    return entryMutations.mutationRunner.run(action: () async {
+      final submittedItemIds = <String>[];
+      if (request.upsertCatalogItems && catalog != null) {
+        await catalog.upsertTransports(
+          values.map((item) => item.toImportTransport()),
         );
+      } else if (request.upsertCatalogItems) {
+        throw StateError('Catalog storage is unavailable for Add.');
       }
-      final releases = libraryPresentationForKind(item.summary.kind)
-          .builder
-          .buildReleaseOptions(item: item);
-      if (releases.isEmpty) {
-        return _ResolvedAddReference(catalogRef: item.reference);
+
+      for (final item in values) {
+        final digitalLibraryEntry =
+            libraryAddForKind(item.summary.kind).digitalCopyFlag(item);
+        final isDigitalLibraryEntry = digitalLibraryEntry == true;
+        final reference = item.reference;
+
+        final itemCommon = LibraryAddCommonDraft(
+          condition: isDigitalLibraryEntry ? null : baseCommon.condition,
+          purchaseDate: baseCommon.purchaseDate,
+          pricePaidCents: baseCommon.pricePaidCents,
+          currency: baseCommon.currency,
+          personalNotes: baseCommon.personalNotes,
+          tags: baseCommon.tags,
+          locationId: isDigitalLibraryEntry ? null : baseCommon.locationId,
+          purchaseStore: baseCommon.purchaseStore,
+          ownerLabel: baseCommon.ownerLabel,
+          collectionStatus: baseCommon.collectionStatus,
+          isDigital: digitalLibraryEntry ?? baseCommon.isDigital,
+        );
+        switch (target) {
+          case LibraryAddTarget.entry:
+            final libraryEntry = await _createLibraryEntry(
+              request: request,
+              item: item,
+              common: itemCommon,
+              tracking: baseTracking,
+              kindDraft: kindDraftsByCatalogRef[item.reference],
+              catalog: catalog,
+            );
+            submittedItemIds.add(libraryEntry.id.value);
+            break;
+          case LibraryAddTarget.wishlist:
+            await wishlistMutations.addToWishlist(
+              reference,
+            );
+            submittedItemIds.add(reference.id);
+            break;
+          case LibraryAddTarget.track:
+            // Tracking is personal state and must always have a local entry
+            // owner. A track-only Add therefore creates an independently
+            // editable local entry before writing its tracking lifecycle.
+            final trackDraft = baseTracking.readStatus == null
+                ? baseTracking.copyWith(readStatus: 'planned')
+                : baseTracking;
+            final libraryEntry = await _createLibraryEntry(
+              request: request,
+              item: item,
+              common: LibraryAddCommonDraft(
+                personalNotes: itemCommon.personalNotes,
+                tags: itemCommon.tags,
+                collectionStatus: 'Not in Collection',
+              ),
+              tracking: trackDraft,
+              kindDraft: kindDraftsByCatalogRef[item.reference],
+              catalog: catalog,
+            );
+            submittedItemIds.add(libraryEntry.id.value);
+            break;
+        }
+        await request.onSubmissionCommitted?.call();
       }
-      final firstRelease = releases.first;
-      final explicitVariantId = editionSelection?.variantId?.trim();
-      return _ResolvedAddReference(
-        catalogRef: libraryCatalogTargetForKind(item.summary.kind).resolve(
-          item.reference,
-          LibraryCatalogTargetSelection(
-            referenceType: referenceType,
-            firstId: firstRelease.id,
-            secondId:
-                explicitVariantId?.isEmpty == true ? null : explicitVariantId,
-          ),
-        ),
-      );
+      return submittedItemIds;
+    });
   }
-}
 
-class _ResolvedAddReference {
-  const _ResolvedAddReference({required this.catalogRef});
+  Future<LibraryEntryRef> _createLibraryEntry({
+    required LibraryAddBatchRequest request,
+    required CatalogSearchCandidate item,
+    required LibraryAddCommonDraft common,
+    required LibraryAddTrackingDraft tracking,
+    required LibraryAddKindDraft? kindDraft,
+    required CatalogTransportRepository? catalog,
+  }) async {
+    final entryMutations = request.dependencies.entryMutations;
+    final itemKind = item.summary.kind;
+    final capability = libraryAddForKind(itemKind);
+    final command = capability.buildCommand(
+      item,
+      common,
+      kindDraft ?? capability.createInitialDraft(),
+      tracking: tracking,
+    );
+    final libraryEntry = await entryMutations.addLibraryEntry(
+      command,
+      enqueueSync: false,
+    );
+    await request.onLibraryEntryCreated?.call(libraryEntry);
+    if (catalog != null && item.kindCapability.isPrivateLocal) {
+      await catalog.removePrivateCandidate(item.reference);
+    }
 
-  final CatalogEntityRef catalogRef;
+    // Attachments and custom fields are written before the one authoritative
+    // entry snapshot. A failed callback rolls the enclosing Add transaction
+    // back instead of leaving a partial row to retry.
+    await entryMutations.syncQueue.enqueue(
+      await entryMutations.libraryEntries.syncChangeForCurrentEntry(
+        libraryEntry,
+        action: 'upsert',
+        changedAt: DateTime.now().toUtc(),
+      ),
+    );
+    final trackingState = command.tracking;
+    if (trackingState != null && trackingState.hasValues) {
+      await request.dependencies.trackingMutations.syncEntryTrackingState(
+        libraryEntry,
+        status: trackingState.status,
+        rating: trackingState.rating,
+        startedAt: trackingState.startedAt,
+        finishedAt: trackingState.finishedAt,
+        notes: trackingState.notes,
+      );
+    }
+    return libraryEntry;
+  }
 }

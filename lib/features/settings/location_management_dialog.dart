@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -194,6 +195,7 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         backgroundColor: appPalette(context).panel,
         title: const Text('Delete location'),
         content: Text(
@@ -244,6 +246,7 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
     ];
 
     return AccentAlertDialog(
+      headerIcon: AppIcons.location,
       backgroundColor: appPalette(context).panel,
       title: const Text('Manage locations'),
       content: SizedBox(

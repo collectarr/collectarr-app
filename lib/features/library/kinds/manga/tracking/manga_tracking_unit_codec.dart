@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
@@ -29,9 +27,8 @@ final class MangaTrackingUnitCodec implements TrackingUnitStorageCodec {
         fromStorageRow(
           trackingUnitStorageRowFromColumns(
             id: row.id,
-            targetRefJson: row.targetRefJson,
             trackingEntryId: row.trackingEntryId,
-            ownedRefKey: row.ownedRefKey,
+            libraryEntryRefKey: row.libraryEntryRefKey,
             completedAt: row.completedAt,
             updatedAt: row.updatedAt,
             deletedAt: row.deletedAt,
@@ -55,9 +52,8 @@ final class MangaTrackingUnitCodec implements TrackingUnitStorageCodec {
     return fromStorageRow(
       trackingUnitStorageRowFromColumns(
         id: row.id,
-        targetRefJson: row.targetRefJson,
         trackingEntryId: row.trackingEntryId,
-        ownedRefKey: row.ownedRefKey,
+        libraryEntryRefKey: row.libraryEntryRefKey,
         completedAt: row.completedAt,
         updatedAt: row.updatedAt,
         deletedAt: row.deletedAt,
@@ -93,9 +89,8 @@ final class MangaTrackingUnitCodec implements TrackingUnitStorageCodec {
       await db.into(db.mangaTrackingUnitRows).insertOnConflictUpdate(
             MangaTrackingUnitRowsCompanion.insert(
               id: unit.id,
-              targetRefJson: jsonEncode(unit.targetRef.toJson()),
               trackingEntryId: Value(unit.trackingEntryId),
-              ownedRefKey: Value(unit.ownedRef?.key),
+              libraryEntryRefKey: unit.libraryEntryRef.key,
               completedAt: unit.completedAt,
               updatedAt: unit.updatedAt,
               deletedAt: Value(unit.deletedAt),
@@ -139,14 +134,39 @@ final class MangaTrackingUnitCodec implements TrackingUnitStorageCodec {
         : const _MangaCoordinates();
     return MangaTrackingUnit(
       id: row.id,
-      targetRef: row.targetRef,
       trackingEntryId: row.trackingEntryId,
-      ownedRef: row.ownedRef,
+      libraryEntryRef: row.libraryEntryRef,
       volumeNumber: typedCoordinates.volumeNumber,
       chapterNumber: typedCoordinates.chapterNumber,
       completedAt: row.completedAt,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
+    );
+  }
+
+  @override
+  TrackingUnitSummary fromSyncPayload({
+    required String id,
+    required Map<String, Object?> payload,
+    required DateTime updatedAt,
+    required DateTime? deletedAt,
+  }) {
+    requireTrackingUnitType(payload, MangaTrackingUnit.type);
+    final row = trackingUnitStorageRowFromSyncPayload(
+      id: id,
+      payload: payload,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+    if (row.libraryEntryRef.kind != kind) {
+      throw const FormatException('Manga tracking unit has a non-Manga ref');
+    }
+    return fromStorageRow(
+      row,
+      _MangaCoordinates(
+        volumeNumber: trackingUnitSyncInt(payload['volume_number']),
+        chapterNumber: trackingUnitSyncInt(payload['chapter_number']),
+      ),
     );
   }
 

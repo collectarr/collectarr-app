@@ -1,20 +1,17 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_value_capability.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 
 class MovieValueCapability implements LibraryValueCapability {
   const MovieValueCapability();
 
   @override
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
   ) {
     final valuedEntries = entries
         .where(
           (entry) =>
-              entry.isOwned &&
+              entry.isEntry &&
               entry.marketValueCents != null &&
               entry.currency?.trim().isNotEmpty == true,
         )
@@ -35,18 +32,5 @@ class MovieValueCapability implements LibraryValueCapability {
       currency: currencies.length == 1 ? currencies.single : null,
       hasMixedCurrencies: currencies.length > 1,
     );
-  }
-
-  @override
-  int? resolveProviderValueCents(LibraryProjectionView item) {
-    if (item.dto case MovieWorkspaceDto dto) {
-      return dto.media.providerValueCents ?? dto.metadata?.providerValueCents;
-    }
-    final catalog = item.source.catalogData;
-    if (catalog is MovieWorkspaceCatalogData) {
-      return catalog.metadata?.providerValueCents ??
-          catalog.media.providerValueCents;
-    }
-    return null;
   }
 }

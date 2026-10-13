@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ class TvUpcomingEpisodesSection extends ConsumerWidget {
     this.maxVisible = 5,
   });
 
-  final CatalogEntityRef seriesRef;
+  final CatalogItemRef seriesRef;
   final Color accent;
   final String title;
   final int maxVisible;
@@ -29,15 +29,15 @@ class TvUpcomingEpisodesSection extends ConsumerWidget {
         final upcoming = <_UpcomingEpisodeItem>[];
         for (final season in seasons) {
           for (final episode in season.episodes) {
-            final airDate = episode.airDate;
+            final airDate = episode.airDate?.asDateTime;
             if (airDate == null || !airDate.isAfter(now)) {
               continue;
             }
             upcoming.add(
               _UpcomingEpisodeItem(
-                seasonNumber: season.seasonNumber ?? 0,
-                episodeNumber: episode.episodeNumber?.toInt() ?? 0,
-                title: episode.title,
+                seasonNumber: season.seasonNumber,
+                episodeNumber: episode.episodeNumber ?? episode.position,
+                title: episode.episodeTitle ?? episode.title,
                 airDate: airDate,
               ),
             );

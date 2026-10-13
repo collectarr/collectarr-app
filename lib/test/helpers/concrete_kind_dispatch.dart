@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_work
 
 /// Test-only explicit dispatch for all production kinds.
 ///
-/// Contract tests intentionally use concrete kind-owned implementations rather
+/// Contract tests intentionally use concrete kind-entry implementations rather
 /// than exercising the erased registry lookup they are meant to validate.
 LibraryKindRegistration testKindRegistration(CatalogMediaKind kind) {
   return switch (kind) {

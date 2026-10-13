@@ -1,25 +1,21 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/foundation.dart';
 
-/// Identifies one canonical, collectible catalog edition for a library kind.
+import 'catalog_media_kind.dart';
+
+export 'catalog_media_kind.dart';
+
+/// Identity of one concrete canonical Catalog Item.
 ///
-/// This reference intentionally has no parent chain or generic entity type.
-/// Series membership and repeated contents are catalog relationships, not
-/// additional workspace roots.
+/// This reference intentionally has no Work, Release, parent, or fallback
+/// identity.
 @immutable
 final class CatalogItemRef {
-  CatalogItemRef({required this.kind, required String id}) : id = id.trim() {
-    if (kind.isUnknown) {
-      throw ArgumentError.value(
-          kind, 'kind', 'A known catalog kind is required.');
-    }
-    if (this.id.isEmpty) {
-      throw ArgumentError.value(id, 'id', 'A catalog item ID is required.');
-    }
-  }
+  const CatalogItemRef({required this.kind, required this.id});
 
   final CatalogMediaKind kind;
   final String id;
+
+  String get key => '${kind.apiValue}:$id';
 
   Map<String, Object?> toJson() => {
         'kind': kind.apiValue,
@@ -27,23 +23,20 @@ final class CatalogItemRef {
       };
 
   factory CatalogItemRef.fromJson(Map<String, Object?> json) {
-    final unknownFields =
-        json.keys.where((key) => key != 'kind' && key != 'id');
-    if (unknownFields.isNotEmpty) {
+    final unexpected = json.keys.where((key) => key != 'kind' && key != 'id');
+    if (unexpected.isNotEmpty) {
       throw FormatException(
-        'Unsupported Catalog Item reference field(s): ${unknownFields.join(', ')}.',
+        'CatalogItemRef contains unsupported fields: ${unexpected.join(', ')}',
       );
     }
     final rawKind = json['kind'];
-    final kind =
-        catalogMediaKindFromApiValue(rawKind is String ? rawKind : null);
-    if (kind.isUnknown) {
-      throw FormatException('Unsupported catalog item kind: $rawKind');
-    }
     final rawId = json['id'];
-    if (rawId is! String || rawId.trim().isEmpty) {
-      throw const FormatException(
-          'Catalog item ID must be a non-empty string.');
+    if (rawKind is! String || rawId is! String || rawId.trim().isEmpty) {
+      throw const FormatException('CatalogItemRef requires kind and id');
+    }
+    final kind = catalogMediaKindFromApiValue(rawKind);
+    if (kind.isUnknown) {
+      throw FormatException('CatalogItemRef requires a known kind: $rawKind');
     }
     return CatalogItemRef(kind: kind, id: rawId);
   }
@@ -51,11 +44,8 @@ final class CatalogItemRef {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CatalogItemRef && other.kind == kind && other.id == id;
+      other is CatalogItemRef && kind == other.kind && id == other.id;
 
   @override
   int get hashCode => Object.hash(kind, id);
-
-  @override
-  String toString() => 'CatalogItemRef(${kind.apiValue}, $id)';
 }

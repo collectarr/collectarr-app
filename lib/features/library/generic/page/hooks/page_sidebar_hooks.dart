@@ -77,12 +77,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
           LibraryCollectionStatusScope.all ||
       _session.facets.quickView != null ||
       _session.preferences.activeSmartListId != null ||
-      activeReleaseFolderTitleItemId != null ||
       _session.selection.filterSelection.hasActiveFilters;
-
-  void _setGroupMode(String mode) {
-    _setFolderPreset(LibraryFolderPreset.single(mode));
-  }
 
   void _setFolderPreset(LibraryFolderPreset preset) {
     final sanitized = sanitizeLibraryFolderPreset(
@@ -95,6 +90,9 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     _mutateState(() {
       _session.preferences.folderPreset = sanitized;
       _session.preferences.groupMode = sanitized.primaryMode;
+      _session.preferences.folderDisplayMode = sanitized.modes.length > 1
+          ? LibraryFolderDisplayMode.tree
+          : LibraryFolderDisplayMode.drilldown;
       if (_session.preferences.groupMode == null ||
           !libraryGroupModeSupportsCompletion(
               widget.type, _session.preferences.groupMode!)) {

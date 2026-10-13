@@ -1,13 +1,12 @@
 import '../manga_module_dependencies.dart';
 import 'manga_kind_configuration.dart';
-import '../workspace/manga_hierarchy_contract_diagnostics.dart';
-import 'package:collectarr_app/features/library/kinds/manga/release/manga_release_projection_capability.dart'
-    as manga_release;
-import '../add/manga_add_contribution.dart';
+import '../data/manga_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final mangaKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.manga,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'raw_or_slabbed',
       label: 'Raw or slabbed',
@@ -60,14 +59,6 @@ final mangaKindPhysicalMediaFormats = mangaPhysicalMediaFormats;
 
 final mangaKindTrackingProfile = mangaTrackingProfile;
 
-final mangaKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final mangaKindReleaseCapability = manga_release.mangaKindReleaseCapability;
-
-final mangaKindReleaseDetailSource = manga_release.mangaKindReleaseDetailSource;
-
-final mangaKindCatalogTarget = const MangaCatalogTargetCapability();
-
 final mangaKindUiPolicy = const LibraryUiPolicy();
 
 final LibraryRelationCapability? mangaKindRelations = null;
@@ -100,62 +91,39 @@ final mangaKindIdentity = const LibraryKindIdentity(
 );
 
 final mangaKindMetadata = LibraryMetadataCapability(
-  defaultProviderId: 'hardcover',
   catalogMetadataDecoder: MangaMetadata.fromJson,
+  catalogTransportCodec: MangaCatalogTransportCodec(),
   searchQueryBuilder: mangaMetadataSearchQuery,
-  usesTreeProviderCandidates: true,
-  providers: [
-    hardcoverMetadataProvider,
-    comicVineMetadataProvider,
-    anilistMetadataProvider,
-    mangadexMetadataProvider,
-  ],
 );
 
-final mangaKindHierarchy = const LibraryHierarchyCapability(
-  fetchChildrenCallback: fetchMangaVolumes,
-  childrenTitleBuilder: mangaChildrenTitle,
-  contractDiagnosticLabelBuilder: mangaHierarchyContractDiagnosticLabel,
-);
-
-final mangaKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Volume', plural: 'Volumes'),
-  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+final mangaKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem:
+      LibraryTargetLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final mangaKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.read,
-  writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
-  contentTargets: {LibraryTrackingTargetScope.content},
+  writableTargets: {LibraryTrackingTarget.content},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
+  contentTargets: {LibraryTrackingTarget.content},
 );
 
-final mangaKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
-  copy: LibraryEntityActionSet.copy,
+final mangaKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final mangaKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
-        heroBuilder: buildMangaWorkInspectorHero,
-        sectionsBuilder: buildMangaWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildMangaReleaseInspectorHero,
-        sectionsBuilder: buildMangaReleaseInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
-        heroBuilder: buildMangaCopyInspectorHero,
-        sectionsBuilder: buildMangaCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildMangaCatalogItemInspectorHero,
+      sectionsBuilder: buildMangaCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildMangaLibraryEntryInspectorHero,
+      sectionsBuilder: buildMangaLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
 );

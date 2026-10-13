@@ -1,21 +1,21 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 
 /// Music's semantic contribution to the generic collection CSV host.
 ///
-/// Music exports release-level values. Track hierarchy and listening state
-/// remain owned by Music and are intentionally not flattened into the
+/// Music exports album-level values. Track hierarchy and listening state
+/// remain personalState by Music and are intentionally not flattened into the
 /// generic collection row.
 final class MusicCollectionCsvProjection
-    with CollectionCsvKindOwnedImportSupport
-    implements CollectionCsvKindProfile, CollectionCsvOwnedCellsDecoder {
+    with CollectionCsvKindEntryImportSupport
+    implements CollectionCsvKindProfile, CollectionCsvEntryCellsDecoder {
   const MusicCollectionCsvProjection();
 
   @override
@@ -72,11 +72,11 @@ final class MusicCollectionCsvProjection
   }
 
   @override
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   }) {
-    return const MusicCollectionCsvImportProfile().importOwnedCells(
+    return const MusicCollectionCsvImportProfile().importEntryCells(
       header: header,
       values: values,
     );
@@ -87,11 +87,11 @@ final class MusicCollectionCsvProjection
       MusicCollectionCsvImportProfile.columnAliases;
 
   @override
-  JsonEncodable? decodeOwnedCells(List<String> cells) {
+  JsonEncodable? decodeEntryCells(List<String> cells) {
     if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
-    return _MusicCollectionCsvOwnedImportPayload(cells.first.trim());
+    return _MusicCollectionCsvEntryImportPayload(cells.first.trim());
   }
 
   @override
@@ -104,90 +104,104 @@ final class MusicCollectionCsvProjection
       'id': cells[0],
       'kind': kind.apiValue,
       'title': cells[2],
-      if (cells[3].trim().isNotEmpty) 'item_number': cells[3],
-      if (cells[4].trim().isNotEmpty) 'variant': cells[4],
-      if (cells[5].trim().isNotEmpty) 'edition_title': cells[5],
-      if (cells[6].trim().isNotEmpty) 'physical_format': cells[6],
-      if (cells[7].trim().isNotEmpty) 'physical_format_label': cells[7],
-      if (cells[8].trim().isNotEmpty) 'publisher': cells[8],
+      if (cells[3].trim().isNotEmpty) 'catalog_number': cells[3],
+      if (cells[5].trim().isNotEmpty) 'subtitle': cells[5],
+      if (cells[6].trim().isNotEmpty)
+        'discs': [
+          {
+            'id': 'csv-disc-${cells[0]}',
+            'disc_number': 1,
+            'format': cells[6].trim(),
+            'tracks': <Map<String, dynamic>>[],
+          }
+        ],
+      if (cells[8].trim().isNotEmpty) 'label': cells[8],
       if (cells[9].trim().isNotEmpty) 'release_date': cells[9],
       if (cells[10].trim().isNotEmpty) 'barcode': cells[10],
     });
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    final music = catalog is MusicWorkspaceCatalogData ? catalog.music : null;
-    final release =
-        catalog is MusicWorkspaceCatalogData ? catalog.release : null;
-    final physicalFormat = release?.physicalFormat ?? release?.packaging ?? '';
-    final physicalFormatLabel = release?.physicalFormatLabel ?? physicalFormat;
+  List<String> catalogCells(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    final music = catalog is MusicWorkspaceData ? catalog.music : null;
+    final release = catalog is MusicWorkspaceData ? catalog.music : null;
+    final format = release?.formatSummary ?? '';
     return [
       entry.itemId,
       CatalogMediaKind.music.apiValue,
       music?.title ?? entry.title,
       release?.catalogNumber ?? '',
-      release?.releaseType ?? '',
-      release?.title ?? '',
-      physicalFormat.toString(),
-      physicalFormatLabel.toString(),
-      release?.publisher ?? music?.studio ?? '',
+      '',
+      release?.subtitle ?? '',
+      format,
+      format,
+      release?.publisher ??
+          music?.discs
+              .expand((disc) => disc.recordingLocations)
+              .toSet()
+              .join(', ') ??
+          '',
       _formatDate(
         music?.originalReleaseDate ??
             release?.releaseDate ??
-            music?.releaseDate ??
-            entry.catalogData?.releaseDate,
+            music?.releaseDate,
       ),
-      release?.barcode ?? release?.upc ?? '',
+      release?.barcode ?? '',
     ];
   }
 
   @override
-  String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned =
-        MusicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MusicOwnedItem ? owned.grade : null;
+  String? entryCollectionValue(LibraryWorkspaceContext entry) {
+    final personalState =
+        MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MusicLibraryEntry
+        ? personalState.personal.grade
+        : null;
   }
 
   @override
-  String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned =
-        MusicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MusicOwnedItem ? owned.condition : null;
+  String? entryCondition(LibraryWorkspaceContext entry) {
+    final personalState =
+        MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MusicLibraryEntry
+        ? personalState.personal.condition
+        : null;
   }
 
   @override
-  int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned =
-        MusicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MusicOwnedItem ? owned.indexNumber : null;
+  int? entryIndexNumber(LibraryWorkspaceContext entry) {
+    final personalState =
+        MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MusicLibraryEntry
+        ? personalState.personal.indexNumber
+        : null;
   }
 
   @override
-  String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned =
-        MusicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
-    return owned is MusicOwnedItem ? owned.tags : null;
+  String? entryTags(LibraryWorkspaceContext entry) {
+    final personalState =
+        MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
+    return personalState is MusicLibraryEntry
+        ? personalState.personal.tags
+        : null;
   }
 
   @override
-  List<String> ownedCellsBeforeQuantity(
-    LibraryWorkspaceSource entry, {
+  List<String> entryCellsBeforeLocation(
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
-    return clzFriendly ? const [''] : const [];
+    return const [];
   }
 
   @override
-  List<String> ownedCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+  List<String> entryCellsAfterIndex(
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(
-      clzFriendly
-          ? collectionCsvV1OwnedCellCount - 1
-          : collectionCsvV1OwnedCellCount,
+      collectionCsvV1EntryCellCount,
       '',
     );
   }
@@ -201,8 +215,8 @@ final class MusicCollectionCsvProjection
   }
 }
 
-final class _MusicCollectionCsvOwnedImportPayload implements JsonEncodable {
-  const _MusicCollectionCsvOwnedImportPayload(this.grade);
+final class _MusicCollectionCsvEntryImportPayload implements JsonEncodable {
+  const _MusicCollectionCsvEntryImportPayload(this.grade);
 
   final String grade;
 

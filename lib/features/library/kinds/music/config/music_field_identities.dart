@@ -1,0 +1,226 @@
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
+
+/// Canonical Music field facts shared by forms, workspace, filters, and reports.
+abstract final class MusicFieldIdentities {
+  static const titleId = 'music.title';
+  static const titleLabel = 'Title';
+  static const title = LibraryKindFieldMetadata(
+    id: titleId,
+    label: titleLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'title',
+    searchable: true,
+    sortable: true,
+    exportable: true,
+    editable: true,
+  );
+
+  static const artistId = 'music.artist';
+  static const artistLabel = 'Artist';
+  static const artistVocabulary = VocabularyId<String>('music.artist');
+  static const artist = LibraryKindFieldMetadata(
+    id: artistId,
+    label: artistLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'artist_credits',
+    searchable: true,
+    filterable: true,
+    groupable: true,
+    exportable: true,
+    editable: true,
+    vocabulary: artistVocabulary,
+  );
+
+  static const artistSummaryId = 'music.artist_summary';
+  static const artistSummary = LibraryKindFieldMetadata(
+    id: artistSummaryId,
+    label: artistLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'artist_credits',
+    searchable: true,
+    sortable: true,
+    exportable: true,
+  );
+
+  static const publisherId = 'music.publisher';
+  static const publisherLabel = 'Label';
+  static const publisherVocabulary = VocabularyId<String>('music.record_label');
+  static const publisher = LibraryKindFieldMetadata(
+    id: publisherId,
+    label: publisherLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'label',
+    searchable: true,
+    filterable: true,
+    sortable: true,
+    groupable: true,
+    exportable: true,
+    editable: true,
+    vocabulary: publisherVocabulary,
+  );
+
+  static const genreId = 'music.genre';
+  static const genreLabel = 'Genre';
+  static const genreVocabulary = VocabularyId<String>('music.genre');
+  static const genre = LibraryKindFieldMetadata(
+    id: genreId,
+    label: genreLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'genres',
+    searchable: true,
+    filterable: true,
+    groupable: true,
+    exportable: true,
+    editable: true,
+    vocabulary: genreVocabulary,
+  );
+
+  static const formatSummaryId = 'music.format_summary';
+  static const formatSummaryLabel = 'Format Summary';
+  static const formatVocabulary = VocabularyId<String>('music.format');
+  static const formatSummary = LibraryKindFieldMetadata(
+    id: formatSummaryId,
+    label: formatSummaryLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'format_summary',
+    exportable: true,
+  );
+
+  static const discFormatId = 'music.disc.format';
+  static const discFormatLabel = 'Disc Format';
+  static const discFormat = LibraryKindFieldMetadata(
+    id: discFormatId,
+    label: discFormatLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'discs[].format',
+    searchable: true,
+    filterable: true,
+    groupable: true,
+    exportable: true,
+    editable: true,
+    vocabulary: formatVocabulary,
+  );
+
+  static const packagingId = 'music.packaging';
+  static const packagingLabel = 'Packaging';
+  static const packagingVocabulary = VocabularyId<String>('music.packaging');
+  static const packaging = LibraryKindFieldMetadata(
+    id: packagingId,
+    label: packagingLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'packaging',
+    filterable: true,
+    groupable: true,
+    editable: true,
+    vocabulary: packagingVocabulary,
+  );
+
+  static const boxSetId = 'music.box_set';
+  static const boxSetLabel = 'Box Set';
+  static const boxSetVocabulary = VocabularyId<String>('music.box_set');
+  static const boxSet = LibraryKindFieldMetadata(
+    id: boxSetId,
+    label: boxSetLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'box_set',
+    groupable: true,
+    editable: true,
+    vocabulary: boxSetVocabulary,
+  );
+
+  static const releaseDateId = 'music.release_date';
+  static const releaseDateLabel = 'Release Date';
+  static const releaseDate = LibraryKindFieldMetadata(
+    id: releaseDateId,
+    label: releaseDateLabel,
+    valueType: LibraryFieldValueType.partialDate,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'release_date',
+    sortable: true,
+    groupable: true,
+    exportable: true,
+    editable: true,
+  );
+
+  static const barcodeId = 'music.barcode';
+  static const barcodeLabel = 'Barcode';
+  static const barcode = LibraryKindFieldMetadata(
+    id: barcodeId,
+    label: barcodeLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'barcode',
+    searchable: true,
+    sortable: true,
+    exportable: true,
+    editable: true,
+  );
+
+  static const catalogNumberId = 'music.catalog_number';
+  static const catalogNumberLabel = 'Catalog Number';
+  static const catalogNumber = LibraryKindFieldMetadata(
+    id: catalogNumberId,
+    label: catalogNumberLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'catalog_number',
+    searchable: true,
+    sortable: true,
+    exportable: true,
+    editable: true,
+  );
+
+  static const countryId = 'music.country';
+  static const countryLabel = 'Country';
+  static const countryVocabulary = VocabularyId<String>('music.country');
+  static const country = LibraryKindFieldMetadata(
+    id: countryId,
+    label: countryLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'country',
+    filterable: true,
+    groupable: true,
+    editable: true,
+    vocabulary: countryVocabulary,
+  );
+
+  static const all = <LibraryKindFieldMetadata>[
+    title,
+    artist,
+    artistSummary,
+    publisher,
+    genre,
+    formatSummary,
+    discFormat,
+    packaging,
+    boxSet,
+    releaseDate,
+    barcode,
+    catalogNumber,
+    country,
+  ];
+}

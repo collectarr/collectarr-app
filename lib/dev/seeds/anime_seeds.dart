@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -10,16 +10,17 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_custom_episode_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
 
-final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeOwnedItem>(
+final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeLibraryEntry>(
   kind: CatalogMediaKind.anime,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -37,11 +38,9 @@ final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeOwnedItem>(
   validateCatalog: validateAnimeSeedCatalog,
   validateCatalogGraph: validateAnimeSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: animeSeedOwnedItems,
-  ownedSummaryTyped: AnimeOwnedItemProjection.toSummary,
-  validateOwnedTyped: validateAnimeSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      AnimeOwnedRepository(db).upsertAll(animeSeedOwnedItems(now)),
+  libraryEntriesTyped: animeSeedLibraryEntries,
+  libraryEntrySummaryTyped: AnimeLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateAnimeSeedEntry,
   trackingRecords: animeSeedTrackingStates,
   trackingUnits: animeSeedTrackingUnits,
   watchSessions: animeSeedWatchSessions,
@@ -70,16 +69,7 @@ List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
     'episodes',
     item.payload['episodes'],
   );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'episodes',
-    episodes,
-    kind: CatalogMediaKind.anime,
-    parentId: item.id,
-    parentKey: 'series_id',
-    titleKey: 'title',
-  );
+  _validateContainedIds(issues, prefix, 'episodes', episodes);
   for (var index = 0; index < episodes.length; index++) {
     seedRequirePositiveInt(
       issues,
@@ -88,29 +78,28 @@ List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
       episodes[index]['episode_number'],
     );
   }
-  final releases = seedRequireObjectList(
+  final media = seedRequireObjectList(
     issues,
     prefix,
-    'releases',
-    item.payload['releases'],
+    'media',
+    item.kindData['media'],
   );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'releases',
-    releases,
-    kind: CatalogMediaKind.anime,
-    parentId: item.id,
-    parentKey: 'series_id',
-    titleKey: 'release_title',
-  );
+  _validateContainedIds(issues, prefix, 'media', media);
+  for (var index = 0; index < media.length; index++) {
+    seedRequirePositiveInt(
+        issues, prefix, 'media[$index].position', media[index]['position']);
+  }
+  if (item.kindData.containsKey('editions') ||
+      item.kindData.containsKey('releases')) {
+    issues.add('$prefix must not contain an edition/release graph.');
+  }
   return issues;
 }
 
-List<String> validateAnimeSeedOwned(AnimeOwnedItem item) {
+List<String> validateAnimeSeedEntry(AnimeLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
-  final details = item.details;
+  final prefix = 'anime/${item.id}';
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'anime.region', details.region);
   seedRequireText(issues, prefix, 'anime.packaging', details.packaging);
   seedRequireText(issues, prefix, 'anime.distributor', details.distributor);
@@ -122,39 +111,10 @@ Future<void> seedAnimeDatabase(
   Iterable<CatalogItemDto> items,
   DateTime now,
 ) async {
-  final repository = AnimeRepository(db);
-  for (final item in items.where(
-    (item) => item.mediaKind == CatalogMediaKind.anime,
-  )) {
-    final mediaId = AnimeMediaId(item.id);
-    final episodes = await repository.episodesFor(mediaId);
-    for (final episode in episodes) {
-      final completed = episode.episodeNumber == 1;
-      await repository.updateTracking(
-        AnimeTracking(
-          id: 'seed-anime-tracking-${item.id}-${episode.id.value}',
-          mediaId: mediaId,
-          episodeId: episode.id,
-          status: completed ? 'Completed' : 'In progress',
-          sourceType: TrackingSourceType.physical,
-          rating: completed ? 9 : null,
-          notes: completed ? 'Seed episode replay history.' : null,
-          startedAt: now.subtract(const Duration(days: 30)),
-          finishedAt: completed ? now : null,
-          progressCurrent: completed ? 1 : 0,
-          progressTotal: 1,
-          timesCompleted: completed ? 2 : 0,
-          seasonNumber: 1,
-          episodeNumber: episode.episodeNumber,
-          episodeRatings: completed ? {episode.id.value: 9} : const {},
-          updatedAt: now,
-        ),
-      );
-    }
-  }
+  final repository = AnimeCustomEpisodeRepository(db);
   final customEpisodes = animeSeedCustomEpisodes(now);
   for (final episode in customEpisodes) {
-    await repository.upsertCustomEpisode(episode);
+    await repository.upsert(episode);
   }
 }
 
@@ -175,10 +135,9 @@ Iterable<AnimeTrackingUnit> animeSeedTrackingUnits(
           'episode-${episodeNumber.toString().padLeft(2, '0')}';
       yield AnimeTrackingUnit(
         id: 'seed-unit-anime-${item.id}-$episodeId',
-        targetRef: CatalogEntityRef(
-          kind: item.mediaKind,
-          entityType: CatalogEntityTypeId.root,
-          id: item.id,
+        libraryEntryRef: seedLibraryEntryRef(
+          item.mediaKind,
+          'seed-entry-${item.id}',
         ),
         seasonNumber: 1,
         episodeNumber: episodeNumber,
@@ -196,47 +155,70 @@ int? _seedAnimeInt(Object? value) {
 }
 
 CatalogItemDto enrichAnimeSeedItem(CatalogItemDto item) {
+  final metadata = AnimeMetadata.fromJson(item.kindData);
   final episodes = [
     for (var number = 1; number <= 2; number++)
       {
         'id': '${item.id}-episode-${number.toString().padLeft(2, '0')}',
-        'kind': 'anime',
-        'series_id': item.id,
+        'season_number': 1,
         'episode_number': number,
-        'title': '${item.title} — Episode $number',
-        'description': 'Seed episode $number for ${item.title}.',
-        'air_date': item.releaseDate
+        'title': '${metadata.title} — Episode $number',
+        'description': 'Seed episode $number for ${metadata.title}.',
+        'air_date': metadata.releaseDate
             ?.add(Duration(days: number * 7))
             .toUtc()
             .toIso8601String(),
         'runtime_minutes': item.payload['runtime_minutes'] ?? 24,
-        'cover_image_url': item.coverImageUrl,
+        'cover_image_url': metadata.coverImageUrl,
       },
   ];
-  final releases = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-release-01',
-        'kind': 'anime',
-        'series_id': item.id,
-        'release_title': edition['title'] ?? item.editionTitle ?? item.title,
-        'format': edition['format'] ?? item.physicalFormat,
-        'language': edition['language'] ?? item.payload['language'],
-        'region_code': edition['region'] ?? item.payload['country'],
-        'release_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'publisher': edition['publisher'] ?? item.publisher,
-        'barcode': edition['barcode'] ?? item.barcode,
-        'media_count': item.payload['nr_discs'] ?? 1,
-        'audio_tracks': [item.payload['audio_tracks'] ?? 'Japanese'],
-        'subtitles': [item.payload['subtitles'] ?? 'English'],
-      },
-  ];
-  return withSeedPayload(item, {
-    'episodes': episodes,
-    'releases': releases,
-  });
+  final rawMedia = item.kindData['media'];
+  final media = rawMedia is List && rawMedia.isNotEmpty
+      ? [
+          for (var index = 0; index < rawMedia.length; index++)
+            if (rawMedia[index] is Map)
+              {
+                ...Map<String, dynamic>.from(rawMedia[index] as Map),
+                'position': index + 1,
+              },
+        ]
+      : [
+          {
+            'position': 1,
+            'media_number': 1,
+            'media_type': metadata.physicalFormat ?? 'Digital',
+            'title': metadata.editionTitle ?? metadata.title,
+            'episode_count': item.payload['episode_count'] ?? 1,
+            'runtime_minutes': item.payload['runtime_minutes'] ?? 24,
+            'region_code': item.payload['country'] ?? 'JP',
+            'audio_tracks': item.payload['audio_tracks'] ?? 'Japanese',
+            'subtitles': item.payload['subtitles'] ?? 'English',
+          },
+        ];
+  final data = Map<String, dynamic>.from(item.kindData)
+    ..remove('editions')
+    ..remove('releases');
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.anime,
+    kindData: {...data, 'episodes': episodes, 'media': media},
+    origin: item.origin,
+  );
+}
+
+void _validateContainedIds(
+  List<String> issues,
+  String prefix,
+  String field,
+  List<Map<String, dynamic>> values,
+) {
+  final ids = <String>{};
+  for (var index = 0; index < values.length; index++) {
+    final id = values[index]['id']?.toString().trim() ?? '';
+    if (id.isEmpty || !ids.add(id)) {
+      issues.add('$prefix: $field[$index] needs a unique non-empty id');
+    }
+  }
 }
 
 List<CatalogItemDto> animeSeedCatalogItems() => [
@@ -262,14 +244,14 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'cowboy-bebop-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 5,
           screenRatio: '1.33:1 (4:3 Original)',
           audioTracks: 'Japanese LPCM 2.0, English Dolby TrueHD 5.1',
           subtitles: 'English, French',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 6999,
           currency: 'USD',
           imprint: 'Funimation / Crunchyroll',
@@ -289,23 +271,45 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         ],
         storyArcs: ['Vicious & Julia Saga'],
         genres: ['space western', 'sci-fi', 'neo-noir', 'action'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-bebop-bd',
-            title: 'Complete Series 25th Anniversary Blu-ray',
-            format: 'Blu-ray',
-            publisher: 'Crunchyroll',
-            releaseDate: DateTime.utc(2023, 4, 4),
-            discs: const [
-              CatalogDiscDto(discNumber: 1, name: 'Sessions 1-7'),
-              CatalogDiscDto(discNumber: 2, name: 'Sessions 8-14'),
-              CatalogDiscDto(discNumber: 3, name: 'Sessions 15-20'),
-              CatalogDiscDto(
-                  discNumber: 4, name: 'Sessions 21-26 (The Real Folk Blues)'),
-              CatalogDiscDto(discNumber: 5, name: 'Bonus Features & Session 0'),
-            ],
-          ),
-        ],
+        payload: {
+          'media': [
+            {
+              'id': 'seed-anime-01-media-01',
+              'position': 1,
+              'media_number': 1,
+              'media_type': 'Blu-ray',
+              'title': 'Sessions 1-7'
+            },
+            {
+              'id': 'seed-anime-01-media-02',
+              'position': 2,
+              'media_number': 2,
+              'media_type': 'Blu-ray',
+              'title': 'Sessions 8-14'
+            },
+            {
+              'id': 'seed-anime-01-media-03',
+              'position': 3,
+              'media_number': 3,
+              'media_type': 'Blu-ray',
+              'title': 'Sessions 15-20'
+            },
+            {
+              'id': 'seed-anime-01-media-04',
+              'position': 4,
+              'media_number': 4,
+              'media_type': 'Blu-ray',
+              'title': 'Sessions 21-26 (The Real Folk Blues)'
+            },
+            {
+              'id': 'seed-anime-01-media-05',
+              'position': 5,
+              'media_number': 5,
+              'media_type': 'Blu-ray',
+              'title': 'Bonus Features & Session 0'
+            },
+          ],
+        },
       ),
       seedCatalogItem(
         id: 'seed-anime-02',
@@ -328,7 +332,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'fma-brotherhood-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 10,
           screenRatio: '1.78:1',
@@ -370,7 +374,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'steins-gate-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 4,
           screenRatio: '1.78:1',
@@ -412,7 +416,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '18+',
         sortKey: 'attack-on-titan-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 8,
           screenRatio: '1.78:1',
@@ -454,7 +458,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'mob-psycho-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -496,7 +500,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-MA',
         sortKey: 'vinland-saga-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 4,
           screenRatio: '1.78:1',
@@ -532,7 +536,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'jujutsu-kaisen-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -574,7 +578,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'frieren-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 7,
           screenRatio: '1.78:1',
@@ -612,7 +616,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'evangelion-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 8,
           screenRatio: '1.33:1',
@@ -654,7 +658,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'death-note-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 23,
           nrDiscs: 5,
           screenRatio: '1.78:1',
@@ -696,7 +700,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-MA',
         sortKey: 'cyberpunk-edgerunners-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 2,
           screenRatio: '1.78:1',
@@ -732,7 +736,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '16+',
         sortKey: 'demon-slayer-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -775,7 +779,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: 'TV-14',
         sortKey: 'hunter-x-hunter-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 23,
           nrDiscs: 14,
           screenRatio: '1.78:1',
@@ -818,7 +822,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '18+',
         sortKey: 'monster-anime-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 8,
           screenRatio: '1.33:1',
@@ -859,7 +863,7 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
         language: 'ja',
         ageRating: '18+',
         sortKey: 'chainsaw-man-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 24,
           nrDiscs: 2,
           screenRatio: '1.78:1',
@@ -876,16 +880,24 @@ List<CatalogItemDto> animeSeedCatalogItems() => [
       ),
     ];
 
-List<AnimeOwnedItem> animeSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.anime, 15))
-        AnimeOwnedItem(
-          id: AnimeOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.anime, itemId),
-          createdAt: now.subtract(const Duration(days: 180)),
-          updatedAt: now,
+List<AnimeLibraryEntry> animeSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in animeSeedCatalogItems())
+      item.id: AnimeMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.anime, 15))
+      AnimeLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing Anime seed catalog item: $itemId')),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.anime, itemId),
+        createdAt: now.subtract(const Duration(days: 180)),
+        updatedAt: now,
+        personal: AnimePersonalData(
           isDigital: false,
           condition: 'Mint',
-          details: const AnimeOwnedDetails(
+          details: AnimeEntryDetails(
             features: 'Artbook, soundtrack CD, bonus episodes',
             hdrFormats: ['HDR10'],
             boxSetName: 'Collector Edition Box',
@@ -898,20 +910,17 @@ List<AnimeOwnedItem> animeSeedOwnedItems(DateTime now) => [
           currency: 'USD',
           personalNotes:
               'Import Japanese/English collector\'s edition with artbook.',
-          quantity: 1,
           purchaseStore: 'RightStuf / Crunchyroll Store',
           collectionStatus: 'collected',
         ),
-    ];
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> animeSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         AnimeTrackingState(
           id: 'seed-track-anime-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
-            CatalogMediaKind.anime,
-            'seed-anime-${seedOrdinal2(i)}',
-          ),
           coordinates: AnimeTrackingCoordinates(
             seasonNumber: 1,
             episodeNumber: i.isEven ? 2 : 1,
@@ -919,9 +928,9 @@ List<TrackingStorageRecord> animeSeedTrackingStates(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          ownedRef: seedOwnedRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.anime,
-            'seed-owned-seed-anime-${seedOrdinal2(i)}',
+            'seed-entry-seed-anime-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i <= 12
@@ -940,9 +949,9 @@ List<WatchSession> animeSeedWatchSessions(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         AnimeWatchSession(
           id: 'seed-watch-anime-${seedOrdinal2(i)}',
-          targetRef: seedCatalogRef(
-            CatalogMediaKind.anime,
-            'seed-anime-${seedOrdinal2(i)}',
+          libraryEntryRef: LibraryEntryRef(
+            kind: CatalogMediaKind.anime,
+            id: LibraryEntryId('seed-entry-seed-anime-${seedOrdinal2(i)}'),
           ),
           seasonNumber: 1,
           episodeNumber: i.isEven ? 2 : 1,
@@ -959,7 +968,10 @@ List<AnimeCustomEpisode> animeSeedCustomEpisodes(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         AnimeCustomEpisode(
           id: AnimeEpisodeId('seed-custom-anime-${seedOrdinal2(i)}'),
-          seriesId: AnimeMediaId('seed-anime-${seedOrdinal2(i)}'),
+          libraryEntryRef: seedLibraryEntryRef(
+            CatalogMediaKind.anime,
+            'seed-entry-seed-anime-${seedOrdinal2(i)}',
+          ),
           seasonNumber: 1,
           episodeNumber: 3,
           title: 'Seed special episode ${seedOrdinal2(i)}',

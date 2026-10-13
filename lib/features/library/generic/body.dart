@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
+
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -17,7 +19,6 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_ctrl_scroll_zoom.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_resizable_pane.dart';
@@ -55,23 +56,31 @@ double resolveLibrarySidebarMinWidth(
   BuildContext context, {
   required String selectedBucketLabel,
   required int ancestorScopeDepth,
+  Iterable<int> counts = const [],
 }) {
-  final labelStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w800,
-          ) ??
-      const TextStyle(fontSize: 12, fontWeight: FontWeight.w800);
+  final labelStyle = libraryFolderTextStyle(context);
   final textPainter = TextPainter(
     text: TextSpan(text: selectedBucketLabel, style: labelStyle),
     maxLines: 1,
     textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
   )..layout();
   final leadingInset =
       ancestorScopeDepth == 0 ? 0.0 : 14.0 + ancestorScopeDepth * 12.0;
-  final rowWidth = 6.0 + leadingInset + 20.0 + 6.0 + textPainter.width + 8.0;
+  final rowWidth = 5.0 +
+      leadingInset +
+      libraryFolderCountWidth(context, counts) +
+      4.0 +
+      textPainter.width +
+      5.0;
+  textPainter.dispose();
   return rowWidth
       .clamp(kLibrarySidebarMinWidth, kLibraryPaneStoredMaxWidth)
       .toDouble();
 }
+
+// Minimum available content width for the workspace side-by-side layout.
+const double _workspaceSplitMinWidth = 860;
 
 class LibraryBody extends StatelessWidget {
   const LibraryBody({
@@ -89,7 +98,6 @@ class LibraryBody extends StatelessWidget {
     required this.hasActiveFilter,
     required this.onAdd,
     required this.onClearFilters,
-    required this.onEditFilters,
     required this.selectionEnabled,
     required this.selectedItemIds,
     required this.onApplySelection,
@@ -120,7 +128,6 @@ class LibraryBody extends StatelessWidget {
     this.onBucketCompletionScopeChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
-    required this.onColumnReordered,
     required this.onCoverSizeChanged,
     required this.onSidebarWidthChanged,
     required this.onSidebarVisibilityChanged,
@@ -128,8 +135,8 @@ class LibraryBody extends StatelessWidget {
     required this.onDetailsWidthChanged,
     required this.onDetailsHeightChanged,
     this.onLayoutSnapshotChanged,
-    required this.onAddOwned,
-    required this.onRemoveOwned,
+    required this.onAddEntry,
+    required this.onRemoveEntry,
     required this.onAddWishlist,
     required this.onRemoveWishlist,
     required this.onEditItem,
@@ -171,7 +178,6 @@ class LibraryBody extends StatelessWidget {
   final bool hasActiveFilter;
   final VoidCallback onAdd;
   final VoidCallback onClearFilters;
-  final VoidCallback onEditFilters;
   final bool selectionEnabled;
   final Set<String> selectedItemIds;
   final void Function(Set<String> ids, String focusedId) onApplySelection;
@@ -180,7 +186,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<LibraryProjectionItem> onOpenItem;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<String?> onBucketChanged;
-  final ValueChanged<String> onGroupModeChanged;
+  final ValueChanged<LibraryFolderPreset> onGroupModeChanged;
   final List<String> sidebarBreadcrumbs;
   final List<String> sidebarAncestorScopeLabels;
   final VoidCallback? onSidebarNavigateBack;
@@ -204,7 +210,6 @@ class LibraryBody extends StatelessWidget {
       onBucketCompletionScopeChanged;
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
-  final void Function(String column, String? beforeColumn) onColumnReordered;
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<double> onSidebarWidthChanged;
   final ValueChanged<bool> onSidebarVisibilityChanged;
@@ -212,12 +217,12 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<double> onDetailsWidthChanged;
   final ValueChanged<double> onDetailsHeightChanged;
   final ValueChanged<LibraryLayoutSnapshot>? onLayoutSnapshotChanged;
-  final ValueChanged<LibraryProjectionItem> onAddOwned;
-  final ValueChanged<LibraryProjectionItem> onRemoveOwned;
+  final ValueChanged<LibraryProjectionItem> onAddEntry;
+  final ValueChanged<LibraryProjectionItem> onRemoveEntry;
   final ValueChanged<LibraryProjectionItem> onAddWishlist;
   final ValueChanged<LibraryProjectionItem> onRemoveWishlist;
-  final void Function(LibraryProjectionItem item, OwnedItemSummary? ownedItem)
-      onEditItem;
+  final void Function(
+      LibraryProjectionItem item, LibraryEntrySummary? libraryEntry) onEditItem;
   final Widget? workspaceOverride;
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final ValueChanged<String>? onFilterByValue;
@@ -244,77 +249,74 @@ class LibraryBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final selected = projection.selectedItem;
-        final compact = constraints.maxWidth < kAppSpacedBreakpoint;
-        final canShowSidebar = constraints.maxWidth >= kAppCompactBreakpoint;
-        final showSidebar = canShowSidebar && viewState.isSidebarVisible;
-        final workspaceMinWidth = resolveLibraryWorkspaceMinWidth(
-          viewState: viewState,
-        );
-        final resolvedSelectedBucket =
-            selectedBucket ?? genericAllBucketLabel(type);
-        final sidebarMinWidth = resolveLibrarySidebarMinWidth(
-          context,
-          selectedBucketLabel: resolvedSelectedBucket,
-          ancestorScopeDepth: sidebarAncestorScopeLabels.length,
-        );
-        final registration = type;
-        final detailsLayout = resolveEffectiveLibraryDetailsLayout(
-          preferredLayout: viewState.detailsLayout,
-          compact: compact,
-          hasSelection: selected != null,
-          hideWhenSelectionEmpty: libraryViewProfileForKind(registration.kind)
-              .hideDetailsWhenSelectionEmpty,
-        );
-        final requestedDetailsWidth = clampLibraryPaneWidth(
-          viewState.detailsWidth,
-          minWidth: kLibraryDetailsMinWidth,
-          maxWidth: kLibraryPaneStoredMaxWidth,
-        );
-        final maxSidebarWidth = resolveLibrarySidebarMaxWidth(
-          viewportWidth: constraints.maxWidth,
-          workspaceMinWidth: workspaceMinWidth,
-          hasRightDetails: detailsLayout == LibraryDetailsLayout.right,
-          rightDetailsWidth: requestedDetailsWidth,
-          minWidth: sidebarMinWidth,
-        );
-        final sidebarWidth = clampLibraryPaneWidth(
-          viewState.sidebarWidth,
-          minWidth: sidebarMinWidth,
-          maxWidth: maxSidebarWidth,
-        );
-        final maxDetailsWidth = resolveLibraryDetailsMaxWidth(
-          viewportWidth: constraints.maxWidth,
-          workspaceMinWidth: workspaceMinWidth,
-          hasSidebar: canShowSidebar,
-          sidebarWidth: sidebarWidth,
-        );
-        final maxDetailsHeight = resolveLibraryDetailsMaxHeight(
-          viewportHeight:
-              constraints.maxHeight.isFinite ? constraints.maxHeight : 800,
-          workspaceMinHeight: kLibraryWorkspaceMinHeight,
-        );
-        final letterFilteredItems = selectedLetter == null
-            ? projection.filteredItems
-            : projection.filteredItems
-                .where((item) => LibraryAlphaJumpBar.matchesLetter(
-                      item.dto.primaryLabel,
-                      selectedLetter!,
-                    ))
-                .toList();
-        final workspace = workspaceOverride ??
-            LibraryCtrlScrollZoom(
-              viewMode: viewState.viewMode,
-              coverSize: viewState.coverSize,
-              minCoverSize:
-                  libraryViewProfileForKind(registration.kind).minCoverSize,
-              maxCoverSize:
-                  libraryViewProfileForKind(registration.kind).maxCoverSize,
-              onCoverSizeChanged: onCoverSizeChanged,
-              child: LibraryWorkspace(
+    return _LibraryResponsivePaneState(
+      builder: (context, showingInspector, showInspector) => LayoutBuilder(
+        builder: (context, constraints) {
+          final narrow = constraints.maxWidth < 1100;
+          final selected = projection.selectedItem;
+          final compact = constraints.maxWidth < _workspaceSplitMinWidth;
+          final canShowSidebar = constraints.maxWidth >= 1000;
+          final showSidebar = canShowSidebar && viewState.isSidebarVisible;
+          final workspaceMinWidth = resolveLibraryWorkspaceMinWidth(
+            viewState: viewState,
+          );
+          final resolvedSelectedBucket =
+              selectedBucket ?? genericAllBucketLabel(type);
+          final sidebarMinWidth = resolveLibrarySidebarMinWidth(
+            context,
+            selectedBucketLabel: resolvedSelectedBucket,
+            ancestorScopeDepth: sidebarAncestorScopeLabels.length,
+            counts: projection.buckets.map((bucket) => bucket.count),
+          );
+          final registration = type;
+          final detailsLayout = narrow
+              ? LibraryDetailsLayout.hidden
+              : resolveEffectiveLibraryDetailsLayout(
+                  preferredLayout: viewState.detailsLayout,
+                  compact: compact,
+                  hasSelection: selected != null,
+                  hideWhenSelectionEmpty:
+                      libraryViewProfileForKind(registration.kind)
+                          .hideDetailsWhenSelectionEmpty,
+                );
+          final requestedDetailsWidth = clampLibraryPaneWidth(
+            viewState.detailsWidth,
+            minWidth: kLibraryDetailsMinWidth,
+            maxWidth: kLibraryPaneStoredMaxWidth,
+          );
+          final maxSidebarWidth = resolveLibrarySidebarMaxWidth(
+            viewportWidth: constraints.maxWidth,
+            workspaceMinWidth: workspaceMinWidth,
+            hasRightDetails: detailsLayout == LibraryDetailsLayout.right,
+            rightDetailsWidth: requestedDetailsWidth,
+            minWidth: sidebarMinWidth,
+          );
+          final sidebarWidth = clampLibraryPaneWidth(
+            viewState.sidebarWidth,
+            minWidth: sidebarMinWidth,
+            maxWidth: maxSidebarWidth,
+          );
+          final maxDetailsWidth = resolveLibraryDetailsMaxWidth(
+            viewportWidth: constraints.maxWidth,
+            workspaceMinWidth: workspaceMinWidth,
+            hasSidebar: canShowSidebar,
+            sidebarWidth: sidebarWidth,
+          );
+          final maxDetailsHeight = resolveLibraryDetailsMaxHeight(
+            viewportHeight:
+                constraints.maxHeight.isFinite ? constraints.maxHeight : 800,
+            workspaceMinHeight: kLibraryWorkspaceMinHeight,
+          );
+          final letterFilteredItems = selectedLetter == null
+              ? projection.filteredItems
+              : projection.filteredItems
+                  .where((item) => LibraryAlphaJumpBar.matchesLetter(
+                        item.dto.primaryLabel,
+                        selectedLetter!,
+                      ))
+                  .toList();
+          final workspace = workspaceOverride ??
+              LibraryWorkspace(
                 type: type,
                 items: letterFilteredItems,
                 viewState: viewState,
@@ -331,7 +333,10 @@ class LibraryBody extends StatelessWidget {
                 onClearFilters: onClearFilters,
                 selectedAnchorId: selectedAnchorId,
                 onApplySelection: onApplySelection,
-                onActivateItem: onActivateItem,
+                onActivateItem: (id) {
+                  onActivateItem(id);
+                  if (narrow && !selectionEnabled) showInspector(true);
+                },
                 onToggleSelectionItem: onToggleSelectionItem,
                 onOpenItem: onOpenItem,
                 onEditItem: (item) => onEditItem(item, null),
@@ -342,174 +347,223 @@ class LibraryBody extends StatelessWidget {
                 onSetCollapsedGroupBuckets: onSetCollapsedGroupBuckets,
                 onSortChanged: onSortChanged,
                 onColumnWidthChanged: onColumnWidthChanged,
-                onColumnReordered: onColumnReordered,
                 onItemContextMenu: onItemContextMenu,
-              ),
-            );
-        final details = LibraryInspector(
-          type: type,
-          projection: projection,
-          item: selected,
-          ownedItem: null,
-          ownedItemDispatch: selected?.source.ownedItemDispatch,
-          detailsLayout: viewState.detailsLayout,
-          densityPreset: viewState.densityPreset,
-          accent: accent,
-          contextLabel: inspectorContextLabel,
-          onAddOwned: selected == null ? null : () => onAddOwned(selected),
-          onRemoveOwned: selected?.source.isOwned != true
-              ? null
-              : () => onRemoveOwned(selected!),
-          onAddWishlist:
-              selected == null ? null : () => onAddWishlist(selected),
-          onRemoveWishlist: selected?.source.isWishlisted != true
-              ? null
-              : () => onRemoveWishlist(selected!),
-          onEdit: selected == null ? null : (_) => onEditItem(selected, null),
-          onDetailsLayoutChanged: onDetailsLayoutChanged,
-          onFilterByValue: onFilterByValue,
-          searchQuery: searchQuery,
-          searchTarget: searchTarget,
-          db: db,
-        );
+              );
+          final details = LibraryInspector(
+            type: type,
+            projection: projection,
+            item: selected,
+            libraryEntry: selected?.source.libraryEntrySummary,
+            libraryEntryDispatch: selected?.source.libraryEntryDispatch,
+            detailsLayout: viewState.detailsLayout,
+            densityPreset: viewState.densityPreset,
+            accent: accent,
+            contextLabel: inspectorContextLabel,
+            onAddEntry: selected == null ? null : () => onAddEntry(selected),
+            onRemoveEntry: selected?.source.isEntry != true
+                ? null
+                : () => onRemoveEntry(selected!),
+            onAddWishlist:
+                selected == null ? null : () => onAddWishlist(selected),
+            onRemoveWishlist: selected?.source.isWishlisted != true
+                ? null
+                : () => onRemoveWishlist(selected!),
+            onEdit: selected == null ? null : (_) => onEditItem(selected, null),
+            onDetailsLayoutChanged: onDetailsLayoutChanged,
+            onFilterByValue: onFilterByValue,
+            searchQuery: searchQuery,
+            searchTarget: searchTarget,
+            db: db,
+          );
 
-        final workspaceContent = Column(
-          children: [
-            if (!compact && desktopToolbarBand != null) desktopToolbarBand!,
-            if (workspaceOverride == null &&
-                !showSidebar &&
-                !canShowSidebar &&
-                projection.buckets.length > 1)
-              LibraryCompactBucketBar(
-                type: type,
-                accent: accent,
-                buckets: projection.buckets,
-                selectedBucket: selectedBucket ?? genericAllBucketLabel(type),
-                onSelected: (bucket) => onBucketChanged(
-                  bucket == genericAllBucketLabel(type) ? null : bucket,
-                ),
-              ),
-            if (workspaceOverride == null &&
-                onLetterSelected != null &&
-                (!preferToolbarAlphabet || compact))
-              LibraryAlphaJumpBar(
-                availableLetters: availableLetters,
-                selectedLetter: selectedLetter,
-                accent: accent,
-                onLetterSelected: onLetterSelected!,
-              ),
-            Expanded(
-              child: workspaceOverride == null
-                  ? workspace
-                  : IndexedStack(
-                      index: 1,
-                      children: [
-                        workspace,
-                        workspaceOverride!,
+          if (narrow &&
+              showingInspector &&
+              selected != null &&
+              !selectionEnabled) {
+            return Column(children: [
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                      onPressed: () => showInspector(false),
+                      icon: const Icon(Icons.arrow_back_ios_new, size: 14),
+                      label: const Text('Back'))),
+              Expanded(child: details),
+            ]);
+          }
+          final workspaceContent = Column(
+            children: [
+              if (desktopToolbarBand != null)
+                Row(children: [
+                  if (!canShowSidebar)
+                    PopupMenuButton<String>(
+                      tooltip: 'Folders',
+                      onSelected: (bucket) => onBucketChanged(
+                          bucket == genericAllBucketLabel(type)
+                              ? null
+                              : bucket),
+                      itemBuilder: (context) => [
+                        for (final bucket in projection.buckets)
+                          PopupMenuItem(
+                              value: bucket.title,
+                              child: Text('${bucket.title} (${bucket.count})'))
                       ],
+                      child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Row(children: [
+                            const Icon(Icons.folder_outlined, size: 16),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.keyboard_arrow_down, size: 16)
+                          ])),
                     ),
-            ),
-          ],
-        );
-
-        final sidebar = LibrarySidebar(
-          type: type,
-          accent: accent,
-          buckets: projection.buckets,
-          groupMode: groupMode,
-          groupLoading: groupLoading,
-          selectedBucket: resolvedSelectedBucket,
-          onSelected: (bucket) => onBucketChanged(
-            bucket == genericAllBucketLabel(type) ? null : bucket,
-          ),
-          onGroupModeChanged: onGroupModeChanged,
-          availableGroupModes: availableGroupModes,
-          breadcrumbs: sidebarBreadcrumbs,
-          ancestorScopeLabels: sidebarAncestorScopeLabels,
-          onNavigateBack: onSidebarNavigateBack,
-          onNavigateToBreadcrumb: onSidebarNavigateToBreadcrumb,
-          onNavigateToAncestorScope: onSidebarNavigateToAncestorScope,
-          searchQuery: searchQuery,
-          activeSmartListName: activeSmartListName,
-          quickView: quickView,
-          collectionStatusScope: collectionStatusScope,
-          bucketCompletionScope: bucketCompletionScope,
-          collectionStatusScopeLabel: collectionStatusScopeLabel,
-          linkedMetadataFilterLabel: linkedMetadataFilterLabel,
-          selectedLetter: sidebarSelectedLetter,
-          bucketStatusSummary: bucketStatusSummary,
-          filterSelection: filterSelection,
-          hasActiveFilters: hasActiveFilter,
-          onEditFilters: onEditFilters,
-          onClearFilters: onClearFilters,
-          onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
-          onBucketCompletionScopeChanged: onBucketCompletionScopeChanged,
-          onClearFilter:
-              selectedBucket == null ? null : () => onBucketChanged(null),
-          onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-          onManageBuckets: onManageBuckets,
-          pinnedFolderPresets: pinnedFolderPresets,
-          onPinnedFolderPresetsChanged: onPinnedFolderPresetsChanged,
-          folderDisplayMode: folderDisplayMode,
-          treeRoots: folderPreset == null
-              ? const <LibraryFolderTreeNode>[]
-              : libraryFolderTreeNodesForItems(
-                  projection.allItems,
-                  type,
-                  folderPreset!,
-                  expandedNodeIds: folderTreeExpandedNodeIds,
-                  selectedNodeId: folderTreeSelectedNodeId,
+                  Expanded(child: desktopToolbarBand!),
+                ]),
+              if (workspaceOverride == null &&
+                  !showSidebar &&
+                  constraints.maxWidth < 600 &&
+                  projection.buckets.length > 1)
+                LibraryCompactBucketBar(
+                  type: type,
+                  accent: accent,
+                  buckets: projection.buckets,
+                  selectedBucket: selectedBucket ?? genericAllBucketLabel(type),
+                  onSelected: (bucket) => onBucketChanged(
+                    bucket == genericAllBucketLabel(type) ? null : bucket,
+                  ),
                 ),
-          selectedTreeNodeId: folderTreeSelectedNodeId,
-          expandedTreeNodeIds: folderTreeExpandedNodeIds,
-          onFolderDisplayModeChanged: onFolderDisplayModeChanged,
-          onSelectTreeNodePath: onFolderTreeNodeSelected,
-          onToggleTreeNodeExpanded: onFolderTreeNodeExpandedToggled,
-        );
-        final detailsLayoutWidget = LibraryDetailsAwareLayout(
-          content: workspaceContent,
-          detailsLayout: detailsLayout,
-          inspector: details,
-          frameInspector: false,
-          rightWidth: viewState.detailsWidth,
-          bottomHeight: viewState.detailsHeight,
-          maxRightWidth: maxDetailsWidth,
-          maxBottomHeight: maxDetailsHeight,
-          onRightWidthChanged: onDetailsWidthChanged,
-          onBottomHeightChanged: onDetailsHeightChanged,
-          accentColor: accent,
-          transitionDuration: kAppAnimNormal,
-        );
-        _postLayoutSnapshotIfNeeded(
-          context,
-          snapshot: LibraryLayoutSnapshot(
-            sidebarWidth: sidebarWidth,
-            inspectorWidth: requestedDetailsWidth,
-            detailsHeight: viewState.detailsHeight,
-            coverSize: viewState.coverSize,
-            isSidebarVisible: showSidebar,
+              if (workspaceOverride == null &&
+                  onLetterSelected != null &&
+                  !preferToolbarAlphabet)
+                LibraryAlphaJumpBar(
+                  availableLetters: availableLetters,
+                  selectedLetter: selectedLetter,
+                  accent: accent,
+                  onLetterSelected: onLetterSelected!,
+                ),
+              Expanded(
+                child: workspaceOverride == null
+                    ? workspace
+                    : IndexedStack(
+                        index: 1,
+                        children: [
+                          workspace,
+                          workspaceOverride!,
+                        ],
+                      ),
+              ),
+            ],
+          );
+
+          final sidebar = LibrarySidebar(
+            type: type,
+            accent: accent,
+            buckets: projection.buckets,
+            groupMode: groupMode,
+            groupLoading: groupLoading,
+            selectedBucket: resolvedSelectedBucket,
+            onSelected: (bucket) => onBucketChanged(
+              bucket == genericAllBucketLabel(type) ? null : bucket,
+            ),
+            onGroupModeChanged: onGroupModeChanged,
+            availableGroupModes: availableGroupModes,
+            breadcrumbs: sidebarBreadcrumbs,
+            ancestorScopeLabels: sidebarAncestorScopeLabels,
+            onNavigateBack: onSidebarNavigateBack,
+            onNavigateToBreadcrumb: onSidebarNavigateToBreadcrumb,
+            onNavigateToAncestorScope: onSidebarNavigateToAncestorScope,
+            searchQuery: searchQuery,
+            activeSmartListName: activeSmartListName,
+            quickView: quickView,
+            collectionStatusScope: collectionStatusScope,
+            bucketCompletionScope: bucketCompletionScope,
+            collectionStatusScopeLabel: collectionStatusScopeLabel,
+            linkedMetadataFilterLabel: linkedMetadataFilterLabel,
+            selectedLetter: sidebarSelectedLetter,
+            bucketStatusSummary: bucketStatusSummary,
+            onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
+            onBucketCompletionScopeChanged: onBucketCompletionScopeChanged,
+            onClearFilter:
+                selectedBucket == null ? null : () => onBucketChanged(null),
+            onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+            onManageBuckets: onManageBuckets,
+            pinnedFolderPresets: pinnedFolderPresets,
+            onPinnedFolderPresetsChanged: onPinnedFolderPresetsChanged,
+            folderDisplayMode: folderDisplayMode,
+            treeRoots: folderPreset == null
+                ? const <LibraryFolderTreeNode>[]
+                : libraryFolderTreeNodesForItems(
+                    projection.allItems,
+                    type,
+                    folderPreset!,
+                    expandedNodeIds: folderTreeExpandedNodeIds,
+                    selectedNodeId: folderTreeSelectedNodeId,
+                  ),
+            selectedTreeNodeId: folderTreeSelectedNodeId,
+            expandedTreeNodeIds: folderTreeExpandedNodeIds,
+            onFolderDisplayModeChanged: onFolderDisplayModeChanged,
+            onSelectTreeNodePath: onFolderTreeNodeSelected,
+            onToggleTreeNodeExpanded: onFolderTreeNodeExpandedToggled,
+          );
+          final detailsLayoutWidget = LibraryDetailsAwareLayout(
+            content: workspaceContent,
             detailsLayout: detailsLayout,
-          ),
-          onLayoutSnapshotChanged: onLayoutSnapshotChanged,
-        );
-        return ColoredBox(
-          color: palette.canvas,
-          child: canShowSidebar
-              ? _LibrarySidebarResizableLayout(
-                  sidebar: sidebar,
-                  content: detailsLayoutWidget,
-                  initialWidth: sidebarWidth,
-                  minWidth: sidebarMinWidth,
-                  maxWidth: maxSidebarWidth,
-                  accentColor: accent,
-                  onSidebarWidthChanged: onSidebarWidthChanged,
-                  visible: viewState.isSidebarVisible,
-                )
-              : detailsLayoutWidget,
-        );
-      },
+            inspector: details,
+            frameInspector: false,
+            rightWidth: viewState.detailsWidth,
+            bottomHeight: viewState.detailsHeight,
+            maxRightWidth: maxDetailsWidth,
+            maxBottomHeight: maxDetailsHeight,
+            onRightWidthChanged: onDetailsWidthChanged,
+            onBottomHeightChanged: onDetailsHeightChanged,
+            accentColor: accent,
+            transitionDuration: kAppAnimNormal,
+          );
+          _postLayoutSnapshotIfNeeded(
+            context,
+            snapshot: LibraryLayoutSnapshot(
+              sidebarWidth: sidebarWidth,
+              inspectorWidth: requestedDetailsWidth,
+              detailsHeight: viewState.detailsHeight,
+              coverSize: viewState.coverSize,
+              isSidebarVisible: showSidebar,
+              detailsLayout: detailsLayout,
+            ),
+            onLayoutSnapshotChanged: onLayoutSnapshotChanged,
+          );
+          return ColoredBox(
+            color: libraryWorkspaceBackgroundColor(context),
+            child: canShowSidebar
+                ? _LibrarySidebarResizableLayout(
+                    sidebar: sidebar,
+                    content: detailsLayoutWidget,
+                    initialWidth: sidebarWidth,
+                    minWidth: sidebarMinWidth,
+                    maxWidth: maxSidebarWidth,
+                    accentColor: accent,
+                    onSidebarWidthChanged: onSidebarWidthChanged,
+                    visible: viewState.isSidebarVisible,
+                  )
+                : detailsLayoutWidget,
+          );
+        },
+      ),
     );
   }
+}
+
+class _LibraryResponsivePaneState extends StatefulWidget {
+  const _LibraryResponsivePaneState({required this.builder});
+  final Widget Function(BuildContext, bool, ValueChanged<bool>) builder;
+  @override
+  State<_LibraryResponsivePaneState> createState() =>
+      _LibraryResponsivePaneStateState();
+}
+
+class _LibraryResponsivePaneStateState
+    extends State<_LibraryResponsivePaneState> {
+  bool _showInspector = false;
+  @override
+  Widget build(BuildContext context) => widget.builder(context, _showInspector,
+      (value) => setState(() => _showInspector = value));
 }
 
 void _postLayoutSnapshotIfNeeded(

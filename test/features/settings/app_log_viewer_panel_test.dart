@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,7 +49,7 @@ void main() {
     expect(find.text('catalog warmed'), findsNothing);
     expect(find.text('retry scheduled'), findsNothing);
 
-    await tester.tap(find.byType(DropdownButton<String?>));
+    await tester.tap(find.byType(CompactSearchDropdown<String?>));
     await pumpUntilSettled(tester);
     await tester.tap(find.text('api').last);
     await pumpUntilSettled(tester);

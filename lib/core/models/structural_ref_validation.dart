@@ -1,49 +1,49 @@
-import 'catalog_entity_ref.dart';
-import 'owned_item_projection.dart';
+import 'catalog_item_ref.dart';
+import 'library_entry_projection.dart';
 
 /// Validates a structural catalog target before it crosses a persistence or
-/// feature boundary. The target's entity semantics remain owned by its kind.
-void requireKnownCatalogRef(
-  CatalogEntityRef ref, [
-  String name = 'catalogRef',
+/// feature boundary. The target's entity semantics remain entry by its kind.
+void requireKnownCatalogItemRef(
+  CatalogItemRef ref, [
+  String name = 'catalogItemRef',
 ]) {
-  if (!ref.isKnown) {
+  if (ref.kind.isUnknown || ref.id.trim().isEmpty) {
     throw ArgumentError.value(
       ref,
       name,
-      'Expected a known catalog reference with a non-empty id.',
+      'Expected a known Catalog Item reference with a non-empty id.',
     );
   }
 }
 
-/// Validates an owned-copy reference before it is persisted by a global
+/// Validates a personal collection entry before it is persisted by a global
 /// feature. A bare string id is never a valid cross-kind target.
-void requireKnownOwnedRef(
-  OwnedItemRef ref, [
-  String name = 'ownedRef',
+void requireKnownLibraryEntryRef(
+  LibraryEntryRef ref, [
+  String name = 'libraryEntryRef',
 ]) {
   if (ref.kind.isUnknown || ref.id.value.trim().isEmpty) {
     throw ArgumentError.value(
       ref,
       name,
-      'Expected a known owned reference with a non-empty id.',
+      'Expected a known collection item with a kind and ID.',
     );
   }
 }
 
-/// Ensures an owned copy and its optional catalog target belong to the same
+/// Ensures a collection item and its optional catalog target belong to the same
 /// kind before a global feature stores both references together.
-void requireMatchingOwnedCatalogKinds(
-  CatalogEntityRef catalogRef,
-  OwnedItemRef ownedRef, {
+void requireMatchingCatalogAndLibraryEntryKinds(
+  CatalogItemRef catalogRef,
+  LibraryEntryRef libraryEntryRef, {
   String catalogName = 'catalogRef',
-  String ownedName = 'ownedRef',
+  String libraryEntryName = 'libraryEntryRef',
 }) {
-  requireKnownCatalogRef(catalogRef, catalogName);
-  requireKnownOwnedRef(ownedRef, ownedName);
-  if (catalogRef.kind != ownedRef.kind) {
+  requireKnownCatalogItemRef(catalogRef, catalogName);
+  requireKnownLibraryEntryRef(libraryEntryRef, libraryEntryName);
+  if (catalogRef.kind != libraryEntryRef.kind) {
     throw ArgumentError(
-      'The $ownedName kind (${ownedRef.kind.apiValue}) must match '
+      'The $libraryEntryName kind (${libraryEntryRef.kind.apiValue}) must match '
       'the $catalogName kind (${catalogRef.kind.apiValue}).',
     );
   }

@@ -1,15 +1,15 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:convert';
-import 'dart:io';
+import 'package:collectarr_app/core/platform/save_export_file.dart';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
-import 'package:file_selector/file_selector.dart';
 
 /// Shows a dialog to share the current collection view.
 /// Offers: copy as text list, copy as CSV, export as CSV file.
@@ -17,10 +17,13 @@ Future<void> showCollectionShareDialog({
   required BuildContext context,
   required String title,
   required List<LibraryProjectionView> items,
+  Color? accent,
 }) {
   return showDialog<void>(
     context: context,
-    builder: (_) => _CollectionShareDialog(title: title, items: items),
+    builder: (context) => Theme(
+        data: libraryAccentTheme(context, accent ?? appPalette(context).accent),
+        child: _CollectionShareDialog(title: title, items: items)),
   );
 }
 
@@ -40,7 +43,9 @@ class _CollectionShareDialog extends StatelessWidget {
       backgroundColor: palette.panel,
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
+        icon: AppIcons.collections,
         title: 'Share collection',
+        accent: Theme.of(context).colorScheme.primary,
       ),
       content: SizedBox(
         width: 360,
@@ -105,12 +110,10 @@ class _CollectionShareDialog extends StatelessWidget {
   void _copyAsText(BuildContext context) {
     final buffer = StringBuffer();
     buffer.writeln(title);
-    buffer.writeln('─' * title.length);
+    buffer.writeln('-' * title.length);
     for (final item in items) {
-      final ref = item.source.catalogRef;
-      final reference = ref == null ? item.node.id : _referenceLabel(ref);
       buffer.writeln(
-        '${item.dto.primaryLabel} [${item.source.mediaKind.apiValue}: $reference]',
+        '${item.dto.primaryLabel} [${item.target.stableKey}]',
       );
     }
     Clipboard.setData(ClipboardData(text: buffer.toString()));
@@ -163,18 +166,15 @@ class _CollectionShareDialog extends StatelessWidget {
     try {
       final safeTitle = title.replaceAll(RegExp(r'[^\w\s]'), '').trim();
       final fileName = '${safeTitle}_collection.$ext';
-      final location = await getSaveLocation(
-        suggestedName: fileName,
-        acceptedTypeGroups: [
-          XTypeGroup(label: ext.toUpperCase(), extensions: [ext]),
-        ],
-      );
-      if (location == null) return;
-      final file = File(location.path);
-      await file.writeAsString(content);
+      if (!await saveExportText(
+          filename: fileName,
+          content: content,
+          mimeType: ext == 'json' ? 'application/json' : 'text/csv')) {
+        return;
+      }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Saved to ${file.path}')),
+          SnackBar(content: Text('Saved $fileName')),
         );
         Navigator.pop(context);
       }
@@ -220,7 +220,7 @@ class _CollectionShareDialog extends StatelessWidget {
 <h1>$escapedTitle</h1>
 <p class="count">${items.length} items</p>
 <table>
-<thead><tr><th>#</th><th>Title</th><th>Kind</th><th>Reference</th><th>Owned</th><th>Wishlist</th><th>Quantity</th><th>Location</th></tr></thead>
+<thead><tr><th>#</th><th>Title</th><th>Kind</th><th>Reference</th><th>Entry</th><th>Wishlist</th><th>Location</th></tr></thead>
 <tbody>
 ${rows.toString()}</tbody>
 </table>
@@ -231,18 +231,13 @@ ${rows.toString()}</tbody>
     try {
       final safeTitle = title.replaceAll(RegExp(r'[^\w\s]'), '').trim();
       final fileName = '${safeTitle}_collection.html';
-      final location = await getSaveLocation(
-        suggestedName: fileName,
-        acceptedTypeGroups: [
-          const XTypeGroup(label: 'HTML', extensions: ['html']),
-        ],
-      );
-      if (location == null) return;
-      final file = File(location.path);
-      await file.writeAsString(html);
+      if (!await saveExportText(
+          filename: fileName, content: html, mimeType: 'text/html')) {
+        return;
+      }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Saved to ${file.path}')),
+          SnackBar(content: Text('Saved $fileName')),
         );
         Navigator.pop(context);
       }
@@ -259,40 +254,32 @@ ${rows.toString()}</tbody>
     'Title',
     'Kind',
     'Reference',
-    'Owned',
+    'Entry',
     'Wishlist',
-    'Quantity',
     'Location',
   ];
 
   List<String> _structuralRow(LibraryProjectionView item) {
-    final ref = item.source.catalogRef;
     return [
       item.dto.primaryLabel,
       item.source.mediaKind.apiValue,
-      ref == null ? item.node.id : _referenceLabel(ref),
-      item.source.isOwned.toString(),
+      item.target.stableKey,
+      item.source.isEntry.toString(),
       item.source.isWishlisted.toString(),
-      item.source.quantity.toString(),
       item.source.locationPath ?? '',
     ];
   }
 
   Map<String, Object?> _structuralJson(LibraryProjectionView item) {
-    final ref = item.source.catalogRef;
     return {
       'title': item.dto.primaryLabel,
       'kind': item.source.mediaKind.apiValue,
-      'reference': ref?.toJson() ?? item.node.id,
-      'owned': item.source.isOwned,
+      'reference': item.target.stableKey,
+      'entry': item.source.isEntry,
       'wishlist': item.source.isWishlisted,
-      'quantity': item.source.quantity,
       if (item.source.locationPath case final location?) 'location': location,
     };
   }
-
-  static String _referenceLabel(CatalogEntityRef ref) =>
-      '${ref.kind.apiValue}:${ref.entityType.apiValue}:${ref.id}';
 
   static String _htmlEscape(String text) {
     return text
@@ -328,7 +315,8 @@ class _ShareOption extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              Icon(icon, size: 20, color: kAppAccent),
+              Icon(icon,
+                  size: 20, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 12),
               Text(
                 label,

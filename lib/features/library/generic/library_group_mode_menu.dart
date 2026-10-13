@@ -1,13 +1,18 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 
+import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
+
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/library_folder_reorder_row.dart';
+import 'package:collectarr_app/features/library/generic/library_folder_reorder_list.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/ui/dialog_action_buttons.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -27,10 +32,13 @@ Future<List<LibraryFolderPreset>?> showLibraryFolderFavoritesDialog({
 }) {
   return showDialog<List<LibraryFolderPreset>>(
     context: context,
-    builder: (dialogContext) => _GroupModeFavoritesDialog(
-      type: type,
-      availableModes: availableModes,
-      initialFavorites: initialFavorites,
+    builder: (dialogContext) => Theme(
+      data: libraryAccentTheme(context, type.identity.accent),
+      child: _GroupModeFavoritesDialog(
+        type: type,
+        availableModes: availableModes,
+        initialFavorites: initialFavorites,
+      ),
     ),
   );
 }
@@ -141,32 +149,32 @@ class _LibraryGroupModeMenuButtonState
         final child = widget.iconOnly
             ? LibraryToolbarCompactDropdownTrigger(icon: widget.icon)
             : Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-                constraints: const BoxConstraints(minHeight: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                constraints: const BoxConstraints(minHeight: 30),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.folder_open_outlined,
-                      size: 16,
+                      AppIcons.folderOpen,
+                      size: 14,
                       color: triggerColor,
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 4),
                     Flexible(
                       child: Text(
                         label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               color: triggerColor,
                             ),
                       ),
                     ),
                     const SizedBox(width: 2),
                     Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 18,
+                      AppIcons.chevronDown,
+                      size: 14,
                       color: triggerColor,
                     ),
                   ],
@@ -186,8 +194,9 @@ class _LibraryGroupModeMenuButtonState
                   _showGroupModeMenu(context);
                 }
               },
-              borderRadius: BorderRadius.zero,
-              child: child,
+              borderRadius: BorderRadius.circular(5),
+              hoverColor: libraryToolbarControlHover(context),
+              child: LibraryToolbarHoverSurface(child: child),
             ),
           ),
         );
@@ -260,7 +269,7 @@ class _LibraryGroupModeMenuButtonState
     final textScaler = MediaQuery.textScalerOf(context);
     final textDirection = Directionality.of(context);
     final textStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
         );
     final categories = libraryGroupModeCategories(widget.type, modes);
     final labels = <String>[
@@ -427,12 +436,13 @@ class _LibraryGroupModeDropdownMenuState
                           style: Theme.of(context)
                               .textTheme
                               .titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w800),
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                       ),
                       const SizedBox(width: 8),
                       IconButton(
                         key: const ValueKey('manageGroupFavoritesButton'),
+                        tooltip: 'Manage folder favorites',
                         onPressed: widget.onPinnedPresetsChanged == null
                             ? null
                             : () => _emitSelection(
@@ -466,7 +476,7 @@ class _LibraryGroupModeDropdownMenuState
                       'No favorites',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: libraryToolbarMenuMutedText(context),
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                           ),
                     ),
                   )
@@ -613,7 +623,8 @@ class _LibraryGroupModeDropdownMenuState
         padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
         backgroundColor: selectedBackground,
         textStyle: TextStyle(
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          fontWeight: FontWeight.w400,
+          fontSize: 14,
           color: libraryToolbarMenuText(context),
         ),
       ),
@@ -633,7 +644,8 @@ class _LibraryGroupModeDropdownMenuState
         padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
         backgroundColor: selectedBackground,
         textStyle: TextStyle(
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          fontWeight: FontWeight.w400,
+          fontSize: 14,
           color: libraryToolbarMenuText(context),
         ),
       ),
@@ -691,7 +703,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
         widget.type,
         widget.availableModes,
       ))
-        category.label: category.label == 'Main',
+        category.label: true,
     };
   }
 
@@ -706,12 +718,10 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
 
   bool get _hasDraft => _draftModes.isNotEmpty;
 
-  String get _draftTitle {
-    if (_isCreatingFavorite) {
-      return 'Select one or more fields';
-    }
-    return 'Edit folder favorite';
-  }
+  String get _draftTitle => _draftModes.isEmpty
+      ? 'Select fields'
+      : genericFolderPresetLabel(
+          LibraryFolderPreset(modes: _draftModes), widget.type);
 
   bool get _hasDuplicateDraft {
     if (_draftModes.isEmpty) {
@@ -779,32 +789,6 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     });
   }
 
-  void _toggleCategoryModes(LibraryGroupModeCategory category) {
-    final visibleModes = [
-      for (final mode in category.modes.cast<String>())
-        if (_matchesFieldSearch(mode)) mode,
-    ];
-    if (visibleModes.isEmpty) {
-      return;
-    }
-    final allSelected = visibleModes.every(_draftModes.contains);
-    setState(() {
-      if (allSelected) {
-        _draftModes.removeWhere(visibleModes.contains);
-        return;
-      }
-      for (final mode in visibleModes) {
-        if (_draftModes.contains(mode)) {
-          continue;
-        }
-        if (_draftModes.length >= 3) {
-          break;
-        }
-        _draftModes = [..._draftModes, mode];
-      }
-    });
-  }
-
   bool _matchesFieldSearch(String mode) {
     final query = _fieldSearch.trim().toLowerCase();
     if (query.isEmpty) {
@@ -816,26 +800,6 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
         genericGroupModeSidebarTitle(mode, widget.type)
             .toLowerCase()
             .contains(query);
-  }
-
-  _FolderGroupSelectionState _selectionStateForCategory(
-    LibraryGroupModeCategory category,
-  ) {
-    final visibleModes = [
-      for (final mode in category.modes.cast<String>())
-        if (_matchesFieldSearch(mode)) mode,
-    ];
-    if (visibleModes.isEmpty) {
-      return _FolderGroupSelectionState.none;
-    }
-    final selectedCount = visibleModes.where(_draftModes.contains).length;
-    if (selectedCount == 0) {
-      return _FolderGroupSelectionState.none;
-    }
-    if (selectedCount == visibleModes.length) {
-      return _FolderGroupSelectionState.all;
-    }
-    return _FolderGroupSelectionState.partial;
   }
 
   void _saveDraft() {
@@ -884,757 +848,325 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     ].where((category) => category.modes.isNotEmpty).toList(growable: false);
   }
 
+  void _close() => Navigator.of(context).pop(
+        List<LibraryFolderPreset>.from(_favoritePresets),
+      );
+
+  Color _insetColor(BuildContext context) => appPalette(context).isDark
+      ? const Color(0xff1d1d1d)
+      : appPalette(context).panel;
+
+  Color _fieldColor(BuildContext context) => appPalette(context).isDark
+      ? const Color(0xff444444)
+      : libraryToolbarControlSurface(context);
+
+  Color _fieldBorder(BuildContext context) => appPalette(context).isDark
+      ? const Color(0xff666666)
+      : libraryToolbarMenuBorder(context);
+
+  static TextStyle get _headingStyle => TextStyle(
+        fontFamily: appFontFamily,
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        height: 26 / 18,
+      );
+  static TextStyle get _fieldStyle => TextStyle(
+        fontFamily: appFontFamily,
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        height: 1,
+      );
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final panelColor = libraryToolbarMenuSurface(context);
+    final availableHeight = MediaQuery.sizeOf(context).height - 60;
+    final listHeight =
+        (167.0 + _favoritePresets.length * 49).clamp(200.0, double.infinity);
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+      alignment: Alignment.topCenter,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
+      backgroundColor: pickListSurface(context),
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-        side: BorderSide(color: libraryToolbarMenuBorder(context)),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final maxWidth = constraints.maxWidth.clamp(920.0, 1320.0);
-          final maxHeight = constraints.maxHeight.clamp(620.0, 980.0);
-          return SizedBox(
-            width: maxWidth,
-            height: maxHeight,
-            child: ColoredBox(
-              color: panelColor,
-              child: Column(
-                children: [
-                  AccentDialogHeader(
-                    title: 'Manage Folder Favorites',
-                    icon: Icons.folder_special_outlined,
-                    onClose: () => Navigator.of(context).pop(
-                      List<LibraryFolderPreset>.from(_favoritePresets),
-                    ),
-                  ),
-                  Divider(height: 1, color: libraryToolbarMenuBorder(context)),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          SizedBox(
-                            width: 350,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: libraryToolbarMenuBorder(context),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        14, 10, 12, 10),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            'Folder Favorites',
-                                            style: theme.textTheme.titleSmall
-                                                ?.copyWith(
-                                              fontWeight: FontWeight.w800,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 34,
-                                          height: 34,
-                                          child: FilledButton(
-                                            key: const ValueKey(
-                                                'folderFavoritesAddButton'),
-                                            onPressed: _startAddFavorite,
-                                            style: FilledButton.styleFrom(
-                                              padding: EdgeInsets.zero,
-                                              shape:
-                                                  const RoundedRectangleBorder(),
-                                              minimumSize:
-                                                  const Size.square(34),
-                                            ),
-                                            child:
-                                                const Icon(Icons.add, size: 16),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Divider(
-                                    height: 1,
-                                    color: libraryToolbarMenuBorder(context),
-                                  ),
-                                  Expanded(
-                                    child: _favoritePresets.isEmpty
-                                        ? Center(
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(24),
-                                              child: Text(
-                                                'No folder favorites yet.',
-                                                textAlign: TextAlign.center,
-                                                style: theme
-                                                    .textTheme.bodyMedium
-                                                    ?.copyWith(
-                                                  color:
-                                                      libraryToolbarMenuMutedText(
-                                                          context),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        : ReorderableListView.builder(
-                                            padding: const EdgeInsets.all(8),
-                                            buildDefaultDragHandles: false,
-                                            itemCount: _favoritePresets.length,
-                                            onReorderItem:
-                                                (oldIndex, newIndex) {
-                                              setState(() {
-                                                final item = _favoritePresets
-                                                    .removeAt(oldIndex);
-                                                _favoritePresets.insert(
-                                                    newIndex, item);
-                                              });
-                                            },
-                                            itemBuilder: (context, index) {
-                                              final preset =
-                                                  _favoritePresets[index];
-                                              final isEditing =
-                                                  _editingIndex == index;
-                                              return Container(
-                                                key: ValueKey(
-                                                  'groupFavorite_${preset.storageValue.replaceAll('>', '_')}',
-                                                ),
-                                                margin:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 4),
-                                                decoration: BoxDecoration(
-                                                  color: isEditing
-                                                      ? libraryToolbarMenuHover(
-                                                          context)
-                                                      : Colors.transparent,
-                                                  border: Border.all(
-                                                    color:
-                                                        libraryToolbarMenuBorder(
-                                                            context),
-                                                  ),
-                                                ),
-                                                child: Row(
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 36,
-                                                      child: Center(
-                                                        child:
-                                                            ReorderableDragStartListener(
-                                                          index: index,
-                                                          child: Icon(
-                                                            Icons
-                                                                .drag_indicator,
-                                                            size: 18,
-                                                            color:
-                                                                libraryToolbarMenuMutedText(
-                                                                    context),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 24,
-                                                      child: Center(
-                                                        child: Container(
-                                                          width: 8,
-                                                          height: 8,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: isEditing
-                                                                ? theme
-                                                                    .colorScheme
-                                                                    .primary
-                                                                : Colors
-                                                                    .transparent,
-                                                            shape:
-                                                                BoxShape.circle,
-                                                            border: Border.all(
-                                                              color:
-                                                                  libraryToolbarMenuBorder(
-                                                                      context),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                          vertical: 12,
-                                                        ),
-                                                        child: Text(
-                                                          genericFolderPresetLabel(
-                                                              preset,
-                                                              widget.type),
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style: theme.textTheme
-                                                              .bodyMedium
-                                                              ?.copyWith(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding: const EdgeInsets
-                                                          .fromLTRB(
-                                                          8, 8, 10, 8),
-                                                      child: Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          OutlinedButton.icon(
-                                                            onPressed: () =>
-                                                                _startEditFavorite(
-                                                                    index),
-                                                            icon: const Icon(
-                                                                Icons
-                                                                    .edit_outlined,
-                                                                size: 14),
-                                                            label: const Text(
-                                                                'Edit'),
-                                                            style:
-                                                                OutlinedButton
-                                                                    .styleFrom(
-                                                              visualDensity:
-                                                                  VisualDensity
-                                                                      .compact,
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .symmetric(
-                                                                horizontal: 9,
-                                                                vertical: 7,
-                                                              ),
-                                                              shape:
-                                                                  const RoundedRectangleBorder(),
-                                                              minimumSize:
-                                                                  const Size(
-                                                                      0, 30),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                              width: 8),
-                                                          FilledButton.tonal(
-                                                            onPressed: () {
-                                                              setState(() {
-                                                                _favoritePresets
-                                                                    .removeAt(
-                                                                        index);
-                                                                if (_editingIndex ==
-                                                                    index) {
-                                                                  _isCreatingFavorite =
-                                                                      false;
-                                                                  _editingIndex =
-                                                                      null;
-                                                                  _draftModes =
-                                                                      [];
-                                                                  _fieldSearch =
-                                                                      '';
-                                                                  _fieldSearchController
-                                                                      .clear();
-                                                                } else if (_editingIndex !=
-                                                                        null &&
-                                                                    index <
-                                                                        _editingIndex!) {
-                                                                  _editingIndex =
-                                                                      _editingIndex! -
-                                                                          1;
-                                                                }
-                                                              });
-                                                            },
-                                                            style: FilledButton
-                                                                .styleFrom(
-                                                              backgroundColor: theme
-                                                                  .colorScheme
-                                                                  .errorContainer,
-                                                              foregroundColor: theme
-                                                                  .colorScheme
-                                                                  .onErrorContainer,
-                                                              visualDensity:
-                                                                  VisualDensity
-                                                                      .compact,
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .symmetric(
-                                                                horizontal: 9,
-                                                                vertical: 7,
-                                                              ),
-                                                              shape:
-                                                                  const RoundedRectangleBorder(),
-                                                              minimumSize:
-                                                                  const Size(
-                                                                      30, 30),
-                                                            ),
-                                                            child: const Icon(
-                                                                Icons
-                                                                    .delete_outline,
-                                                                size: 16),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: libraryToolbarMenuBorder(context),
-                                ),
-                              ),
-                              child: _isEditorVisible
-                                  ? Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              18, 14, 18, 10),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                _draftTitle,
-                                                style: theme.textTheme.bodySmall
-                                                    ?.copyWith(
-                                                  color:
-                                                      libraryToolbarMenuMutedText(
-                                                          context),
-                                                  fontWeight: FontWeight.w700,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 6),
-                                              Text(
-                                                'Select one or more fields',
-                                                style: theme
-                                                    .textTheme.titleMedium
-                                                    ?.copyWith(
-                                                  fontWeight: FontWeight.w800,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              18, 0, 18, 12),
-                                          child: TextField(
-                                            controller: _fieldSearchController,
-                                            onChanged: (value) => setState(
-                                                () => _fieldSearch = value),
-                                            decoration: InputDecoration(
-                                              isDense: true,
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 10,
-                                              ),
-                                              prefixIcon: const Icon(
-                                                  Icons.search,
-                                                  size: 18),
-                                              suffixIcon: _fieldSearch.isEmpty
-                                                  ? null
-                                                  : IconButton(
-                                                      tooltip: 'Clear search',
-                                                      onPressed: () {
-                                                        _fieldSearchController
-                                                            .clear();
-                                                        setState(() =>
-                                                            _fieldSearch = '');
-                                                      },
-                                                      icon: const Icon(
-                                                          Icons.cancel,
-                                                          size: 18),
-                                                    ),
-                                              hintText: 'Search fields',
-                                              border:
-                                                  const OutlineInputBorder(),
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                18, 0, 18, 18),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  flex: 3,
-                                                  child: DecoratedBox(
-                                                    decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                        color:
-                                                            libraryToolbarMenuBorder(
-                                                                context),
-                                                      ),
-                                                    ),
-                                                    child: ListView(
-                                                      padding: EdgeInsets.zero,
-                                                      children: [
-                                                        for (final category
-                                                            in _filteredCategories)
-                                                          _buildEditorCategorySection(
-                                                            context,
-                                                            category,
-                                                          ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 12),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: DecoratedBox(
-                                                    decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                        color:
-                                                            libraryToolbarMenuBorder(
-                                                                context),
-                                                      ),
-                                                    ),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .stretch,
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .fromLTRB(12,
-                                                                  10, 12, 8),
-                                                          child: Text(
-                                                            'Selected Fields',
-                                                            style: theme
-                                                                .textTheme
-                                                                .titleSmall
-                                                                ?.copyWith(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w800,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Divider(
-                                                          height: 1,
-                                                          color:
-                                                              libraryToolbarMenuBorder(
-                                                                  context),
-                                                        ),
-                                                        Expanded(
-                                                          child: _draftModes
-                                                                  .isEmpty
-                                                              ? Center(
-                                                                  child:
-                                                                      Padding(
-                                                                    padding:
-                                                                        const EdgeInsets
-                                                                            .all(
-                                                                            16),
-                                                                    child: Text(
-                                                                      'Selected fields will appear here.',
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .center,
-                                                                      style: theme
-                                                                          .textTheme
-                                                                          .bodySmall
-                                                                          ?.copyWith(
-                                                                        color: libraryToolbarMenuMutedText(
-                                                                            context),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                )
-                                                              : ReorderableListView
-                                                                  .builder(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .all(
-                                                                          8),
-                                                                  buildDefaultDragHandles:
-                                                                      false,
-                                                                  itemCount:
-                                                                      _draftModes
-                                                                          .length,
-                                                                  onReorderItem:
-                                                                      (oldIndex,
-                                                                          newIndex) {
-                                                                    setState(
-                                                                        () {
-                                                                      final mode =
-                                                                          _draftModes
-                                                                              .removeAt(oldIndex);
-                                                                      _draftModes.insert(
-                                                                          newIndex,
-                                                                          mode);
-                                                                    });
-                                                                  },
-                                                                  itemBuilder:
-                                                                      (context,
-                                                                          index) {
-                                                                    final mode =
-                                                                        _draftModes[
-                                                                            index];
-                                                                    return Container(
-                                                                      key: ValueKey(
-                                                                          'draftFolderMode_$mode'),
-                                                                      margin: const EdgeInsets
-                                                                          .symmetric(
-                                                                          vertical:
-                                                                              4),
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                        color: libraryToolbarMenuHover(
-                                                                            context),
-                                                                        border:
-                                                                            Border.all(
-                                                                          color:
-                                                                              libraryToolbarMenuBorder(context),
-                                                                        ),
-                                                                      ),
-                                                                      child:
-                                                                          Row(
-                                                                        children: [
-                                                                          SizedBox(
-                                                                            width:
-                                                                                34,
-                                                                            child:
-                                                                                Center(
-                                                                              child: ReorderableDragStartListener(
-                                                                                index: index,
-                                                                                child: Icon(
-                                                                                  Icons.drag_indicator,
-                                                                                  size: 18,
-                                                                                  color: libraryToolbarMenuMutedText(context),
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                          Expanded(
-                                                                            child:
-                                                                                Padding(
-                                                                              padding: const EdgeInsets.symmetric(vertical: 10),
-                                                                              child: Text(
-                                                                                genericGroupModeLabel(mode, widget.type),
-                                                                                maxLines: 2,
-                                                                                overflow: TextOverflow.ellipsis,
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                          IconButton(
-                                                                            tooltip:
-                                                                                'Remove field',
-                                                                            onPressed: () =>
-                                                                                _toggleDraftMode(mode),
-                                                                            visualDensity:
-                                                                                VisualDensity.compact,
-                                                                            icon:
-                                                                                const Icon(Icons.close, size: 16),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    );
-                                                                  },
-                                                                ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        if (_hasDuplicateDraft)
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                18, 0, 18, 12),
-                                            child: Text(
-                                              'This folder favorite already exists.',
-                                              style: theme.textTheme.bodySmall
-                                                  ?.copyWith(
-                                                color: theme.colorScheme.error,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    )
-                                  : Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(28),
-                                        child: Text(
-                                          'Select a favorite to edit it, or press + to create a new folder preset.',
-                                          textAlign: TextAlign.center,
-                                          style: theme.textTheme.bodyMedium
-                                              ?.copyWith(
-                                            color: libraryToolbarMenuMutedText(
-                                                context),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Divider(height: 1, color: libraryToolbarMenuBorder(context)),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          key: const ValueKey(
-                              'folderFavoritesManagerSaveButton'),
-                          onPressed: () => Navigator.of(context).pop(
-                            List<LibraryFolderPreset>.from(_favoritePresets),
-                          ),
-                          child: const Text('Close'),
-                        ),
-                        if (_isEditorVisible) ...[
-                          const SizedBox(width: 8),
-                          DialogActionButtons.cancel(
-                            onPressed: _cancelEditor,
-                          ),
-                          const SizedBox(width: 8),
-                          DialogActionButtons.save(
-                            key: const ValueKey(
-                                'folderFavoritesDraftSaveButton'),
-                            onPressed: _hasDraft && !_hasDuplicateDraft
-                                ? _saveDraft
-                                : null,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      child: SizedBox(
+        width: 600,
+        height: (_isEditorVisible ? availableHeight : listHeight)
+            .clamp(0.0, availableHeight.clamp(0.0, double.infinity)),
+        child: DefaultTextStyle.merge(
+          style: _fieldStyle.copyWith(color: appPalette(context).textPrimary),
+          child: Column(children: [
+            PickListHeader(
+              icon: AppIcons.folderOpen,
+              title: 'Manage Folder Favorites',
+              onClose: () => Navigator.of(context).pop(),
             ),
-          );
-        },
+            Expanded(
+              child: _isEditorVisible
+                  ? _buildEditor(context)
+                  : _buildFavorites(context),
+            ),
+            _buildFooter(context),
+          ]),
+        ),
       ),
     );
   }
 
-  Widget _buildEditorCategorySection(
-    BuildContext context,
-    LibraryGroupModeCategory category,
-  ) {
-    final expanded = _expandedEditorSections[category.label] ?? true;
-    final selectionState = _selectionStateForCategory(category);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        InkWell(
-          mouseCursor: WidgetStateMouseCursor.clickable,
-          onTap: () => _toggleEditorSection(category.label),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-            decoration: BoxDecoration(
-              color: libraryToolbarControlSurface(context),
-              border: Border(
-                bottom: BorderSide(color: libraryToolbarMenuBorder(context)),
-              ),
-            ),
-            child: Row(
-              children: [
-                InkWell(
-                  mouseCursor: WidgetStateMouseCursor.clickable,
-                  onTap: () => _toggleCategoryModes(category),
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Icon(
-                      switch (selectionState) {
-                        _FolderGroupSelectionState.all => Icons.check_box,
-                        _FolderGroupSelectionState.partial =>
-                          Icons.indeterminate_check_box,
-                        _FolderGroupSelectionState.none =>
-                          Icons.check_box_outline_blank,
-                      },
-                      size: 18,
-                      color: selectionState == _FolderGroupSelectionState.none
-                          ? libraryToolbarMenuMutedText(context)
-                          : Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
+  Widget _buildFavorites(BuildContext context) => ColoredBox(
+        color: _insetColor(context),
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Row(children: [
                 Expanded(
-                  child: Text(
-                    category.label,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                  child: Text('Folder Favorites', style: _headingStyle),
+                ),
+                Tooltip(
+                  message: 'Add folder favorite',
+                  child: FilledButton(
+                    key: const ValueKey('folderFavoritesAddButton'),
+                    onPressed: _startAddFavorite,
+                    style: pickListButtonStyle(context),
+                    child: const Icon(Icons.add, size: 16),
                   ),
                 ),
-                Icon(
-                  expanded ? Icons.expand_less : Icons.expand_more,
-                  size: 18,
-                  color: libraryToolbarMenuMutedText(context),
-                ),
-              ],
+              ]),
             ),
+            const SizedBox(height: 15),
+            Expanded(
+              child: _favoritePresets.isEmpty
+                  ? Align(
+                      alignment: Alignment.topCenter,
+                      child: Container(
+                        height: 44,
+                        alignment: Alignment.center,
+                        child: Text('No folder favorites yet.',
+                            style: _fieldStyle.copyWith(
+                                color: libraryToolbarMenuMutedText(context))),
+                      ),
+                    )
+                  : LibraryFolderReorderList(
+                      padding: EdgeInsets.zero,
+                      placeholderColor: const Color(0xff808080),
+                      rowSpacing: 5,
+                      itemCount: _favoritePresets.length,
+                      onReorder: (oldIndex, newIndex) => setState(() {
+                        final preset = _favoritePresets.removeAt(oldIndex);
+                        _favoritePresets.insert(newIndex, preset);
+                      }),
+                      itemBuilder: (context, index) =>
+                          _buildFavorite(context, index),
+                    ),
+            ),
+          ]),
+        ),
+      );
+
+  Widget _buildFavorite(BuildContext context, int index) {
+    final preset = _favoritePresets[index];
+    return LibraryFolderReorderRow(
+      color: _fieldColor(context),
+      hoverColor: _fieldColor(context),
+      borderColor: _fieldBorder(context),
+      minHeight: 44,
+      padding: const EdgeInsets.all(5),
+      bottomSpacing: 5,
+      child: Row(children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 5),
+          child: Icon(Icons.menu,
+              size: 16, color: libraryToolbarMenuMutedText(context)),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: Text(genericFolderPresetLabel(preset, widget.type)),
           ),
         ),
-        if (expanded)
-          for (final mode in category.modes.cast<String>())
-            if (_matchesFieldSearch(mode))
-              InkWell(
-                mouseCursor: WidgetStateMouseCursor.clickable,
-                onTap: () => _toggleDraftMode(mode),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 7, 12, 7),
-                  child: Row(
-                    children: [
-                      Icon(
-                        _draftModes.contains(mode)
-                            ? Icons.check_box
-                            : Icons.check_box_outline_blank,
-                        size: 18,
-                        color: _draftModes.contains(mode)
-                            ? Theme.of(context).colorScheme.primary
-                            : libraryToolbarMenuMutedText(context),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(genericGroupModeLabel(mode, widget.type)),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-      ],
+        FilledButton.icon(
+          onPressed: () => _startEditFavorite(index),
+          style: pickListButtonStyle(context, primary: false),
+          icon: const Icon(Icons.edit, size: 14),
+          label: const Text('Edit'),
+        ),
+        const SizedBox(width: 5),
+        Tooltip(
+          message: 'Delete favorite',
+          child: FilledButton(
+            onPressed: () => setState(() => _favoritePresets.removeAt(index)),
+            style: pickListButtonStyle(context).copyWith(
+              backgroundColor:
+                  WidgetStatePropertyAll(Theme.of(context).colorScheme.error),
+              foregroundColor:
+                  WidgetStatePropertyAll(Theme.of(context).colorScheme.onError),
+            ),
+            child: const Icon(Icons.delete, size: 16),
+          ),
+        ),
+      ]),
     );
   }
-}
 
-enum _FolderGroupSelectionState { none, partial, all }
+  Widget _buildEditor(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(_draftTitle, style: _headingStyle),
+          const SizedBox(height: 15),
+          Expanded(child: LayoutBuilder(builder: (context, constraints) {
+            // Keep both lists usable on narrow windows.
+            if (constraints.maxWidth < 380) {
+              return Column(children: [
+                Expanded(child: _buildAvailableFields(context)),
+                const SizedBox(height: 10),
+                SizedBox(height: 120, child: _buildSelectedFields(context)),
+              ]);
+            }
+            return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: _buildAvailableFields(context),
+                  )),
+                  Expanded(child: _buildSelectedFields(context)),
+                ]);
+          })),
+          if (_hasDuplicateDraft) ...[
+            const SizedBox(height: 10),
+            Text('This folder favorite already exists.',
+                style: _fieldStyle.copyWith(
+                    color: Theme.of(context).colorScheme.error)),
+          ],
+        ]),
+      );
+
+  Widget _buildAvailableFields(BuildContext context) => Column(children: [
+        LibraryFieldSelectionSearch(
+            key: const ValueKey('folderFavoritesFieldSearch'),
+            controller: _fieldSearchController,
+            onChanged: (value) => setState(() => _fieldSearch = value)),
+        const SizedBox(height: 10),
+        Expanded(
+            child: ListView(children: [
+          for (final category in _filteredCategories)
+            _buildEditorCategorySection(context, category),
+        ])),
+      ]);
+
+  Widget _buildSelectedFields(BuildContext context) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: _insetColor(context),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: _draftModes.isEmpty
+            ? Center(
+                child: Text(
+                  'Select one or more fields',
+                  style: _fieldStyle.copyWith(
+                      color: libraryToolbarMenuMutedText(context)),
+                ),
+              )
+            : LibraryFolderReorderList(
+                padding: const EdgeInsets.all(10),
+                placeholderColor: const Color(0xff808080),
+                itemCount: _draftModes.length,
+                onReorder: (oldIndex, newIndex) => setState(() {
+                  final mode = _draftModes.removeAt(oldIndex);
+                  _draftModes.insert(newIndex, mode);
+                }),
+                itemBuilder: (context, index) {
+                  final mode = _draftModes[index];
+                  return LibraryFolderReorderRow(
+                    selectedField: true,
+                    height: 28,
+                    color: _fieldColor(context),
+                    hoverColor: _fieldColor(context),
+                    borderColor: _fieldBorder(context),
+                    child: Row(children: [
+                      const SizedBox(
+                          width: 26, child: Icon(Icons.menu, size: 16)),
+                      Expanded(
+                          child: Text(genericGroupModeLabel(mode, widget.type),
+                              maxLines: 1, overflow: TextOverflow.ellipsis)),
+                      IconButton(
+                        tooltip: 'Remove field',
+                        onPressed: () => _toggleDraftMode(mode),
+                        style: IconButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          backgroundColor: Colors.transparent,
+                          disabledBackgroundColor: Colors.transparent,
+                          overlayColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          surfaceTintColor: Colors.transparent,
+                          side: BorderSide.none,
+                          elevation: 0,
+                          minimumSize: const Size(28, 26),
+                          maximumSize: const Size(28, 26),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ).copyWith(
+                          foregroundColor: WidgetStateProperty.resolveWith(
+                              (states) => states.contains(WidgetState.hovered)
+                                  ? Theme.of(context).colorScheme.error
+                                  : appPalette(context).textPrimary),
+                        ),
+                        icon: const Icon(Icons.close, size: 16),
+                      ),
+                    ]),
+                  );
+                },
+              ),
+      );
+
+  Widget _buildEditorCategorySection(
+          BuildContext context, LibraryGroupModeCategory category) =>
+      LibraryFieldSelectionCategory(
+          title: category.label,
+          expanded: _fieldSearch.isNotEmpty ||
+              (_expandedEditorSections[category.label] ?? true),
+          onToggle: () => _toggleEditorSection(category.label),
+          children: [
+            for (final mode in category.modes.cast<String>())
+              if (_matchesFieldSearch(mode))
+                LibraryFieldSelectionCheckbox(
+                    label: genericGroupModeLabel(mode, widget.type),
+                    selected: _draftModes.contains(mode),
+                    onTap: _draftModes.contains(mode) || _draftModes.length < 3
+                        ? () => _toggleDraftMode(mode)
+                        : null),
+          ]);
+
+  Widget _buildFooter(BuildContext context) => Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: appPalette(context).isDark
+              ? const Color(0xff383838)
+              : libraryToolbarControlSurface(context),
+          border: Border(top: BorderSide(color: pickListDivider(context))),
+        ),
+        child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+          FilledButton(
+            onPressed: _isEditorVisible
+                ? _cancelEditor
+                : () => Navigator.of(context).pop(),
+            style: pickListButtonStyle(context, primary: false, footer: true),
+            child: const Text('Cancel'),
+          ),
+          const SizedBox(width: 5),
+          FilledButton(
+            key: ValueKey(_isEditorVisible
+                ? 'folderFavoritesDraftSaveButton'
+                : 'folderFavoritesManagerSaveButton'),
+            onPressed: _isEditorVisible
+                ? (_hasDraft && !_hasDuplicateDraft ? _saveDraft : null)
+                : _close,
+            style: pickListButtonStyle(context, footer: true),
+            child: const Text('Save'),
+          ),
+        ]),
+      );
+}

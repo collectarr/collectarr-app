@@ -1,48 +1,39 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/config/library_edit_tab_order.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/library_section_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _editContexts = <LibraryEditPresentationContext>[
   LibraryEditPresentationContext(
-    isOwned: true,
+    isEntry: true,
     isTrackingOnly: false,
     hasTrackingContext: true,
     hasWishlistContext: true,
     isDigitalFormat: false,
     hasPhysicalFormats: true,
-    hasOwnedTargetOptions: true,
-    hasAdditionalTargetOptions: true,
     hasCustomFields: true,
-    scope: LibraryEntityScope.work,
   ),
   LibraryEditPresentationContext(
-    isOwned: false,
+    isEntry: false,
     isTrackingOnly: true,
     hasTrackingContext: true,
     hasWishlistContext: false,
     isDigitalFormat: true,
     hasPhysicalFormats: false,
-    hasOwnedTargetOptions: false,
-    hasAdditionalTargetOptions: false,
     hasCustomFields: false,
-    scope: LibraryEntityScope.work,
   ),
   LibraryEditPresentationContext(
-    isOwned: false,
+    isEntry: false,
     isTrackingOnly: false,
     hasTrackingContext: false,
     hasWishlistContext: false,
     isDigitalFormat: false,
     hasPhysicalFormats: true,
-    hasOwnedTargetOptions: false,
-    hasAdditionalTargetOptions: false,
     hasCustomFields: true,
-    scope: LibraryEntityScope.work,
   ),
 ];
 
@@ -57,12 +48,15 @@ void main() {
       // not participate in the retired generic edit-tab renderer.
       if (runtime.kind == CatalogMediaKind.music) continue;
       for (final context in _editContexts) {
-        final builder = libraryEditPresentationForKind(runtime.kind)
-            .presentation
-            .builderForScope(
-              context.scope,
-            );
-        final tabs = builder.buildTabs(context: context);
+        final presentation =
+            libraryEditPresentationForKind(runtime.kind).presentation;
+        final builder = presentation.builderForTarget(context.isEntry);
+        final tabs = LibraryEditTabOrder.instance.orderTabs(
+          presentation.buildTabs(
+            context: context,
+            isEntry: context.isEntry,
+          ),
+        );
         final state = builder.build(context: context);
 
         expect(tabs, isNotEmpty, reason: '${runtime.kind} has no edit tabs');
@@ -84,11 +78,12 @@ void main() {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                for (final sectionId
-                                    in builder.buildTabSectionIds(
-                                  context: context,
-                                  tabId: tab.id,
-                                ))
+                                for (final sectionId in tab.sectionIds.isEmpty
+                                    ? builder.buildTabSectionIds(
+                                        context: context,
+                                        tabId: tab.id,
+                                      )
+                                    : tab.sectionIds)
                                   Text(sectionId),
                               ],
                             ),

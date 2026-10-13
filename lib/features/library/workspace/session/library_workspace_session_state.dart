@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -20,7 +20,6 @@ final class LibrarySessionFilterState {
     this.sortId,
     this.sortAscending = true,
     this.visibleColumnIds = const {},
-    this.presentationLevelId,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.bucketCompletionScope = LibraryBucketCompletionScope.all,
     this.selectedLetter,
@@ -36,7 +35,6 @@ final class LibrarySessionFilterState {
   final LibrarySortIdRuntime? sortId;
   final bool sortAscending;
   final Set<LibraryFieldIdRuntime> visibleColumnIds;
-  final String? presentationLevelId;
   final LibraryCollectionStatusScope collectionStatusScope;
   final LibraryBucketCompletionScope bucketCompletionScope;
   final String? selectedLetter;
@@ -52,7 +50,6 @@ final class LibrarySessionFilterState {
     LibrarySortIdRuntime? Function()? sortId,
     bool? sortAscending,
     Set<LibraryFieldIdRuntime>? visibleColumnIds,
-    String? Function()? presentationLevelId,
     LibraryCollectionStatusScope? collectionStatusScope,
     LibraryBucketCompletionScope? bucketCompletionScope,
     String? Function()? selectedLetter,
@@ -68,9 +65,6 @@ final class LibrarySessionFilterState {
       sortId: sortId != null ? sortId() : this.sortId,
       sortAscending: sortAscending ?? this.sortAscending,
       visibleColumnIds: visibleColumnIds ?? this.visibleColumnIds,
-      presentationLevelId: presentationLevelId != null
-          ? presentationLevelId()
-          : this.presentationLevelId,
       collectionStatusScope:
           collectionStatusScope ?? this.collectionStatusScope,
       bucketCompletionScope:
@@ -97,7 +91,6 @@ final class LibrarySessionFilterState {
           sortId == other.sortId &&
           sortAscending == other.sortAscending &&
           setEquals(visibleColumnIds, other.visibleColumnIds) &&
-          presentationLevelId == other.presentationLevelId &&
           collectionStatusScope == other.collectionStatusScope &&
           bucketCompletionScope == other.bucketCompletionScope &&
           selectedLetter == other.selectedLetter &&
@@ -115,7 +108,6 @@ final class LibrarySessionFilterState {
         sortId,
         sortAscending,
         Object.hashAll(visibleColumnIds),
-        presentationLevelId,
         collectionStatusScope,
         bucketCompletionScope,
         selectedLetter,
@@ -411,27 +403,27 @@ final class LibrarySessionAsyncState {
     this.isLoading = false,
     this.error,
     this.detailHydrationInFlight = const {},
-    this.activeLoanOwnedItemIds = const {},
+    this.activeLoanLibraryEntryIds = const {},
   });
 
   final bool isLoading;
   final Object? error;
   final Set<String> detailHydrationInFlight;
-  final Set<OwnedItemRef> activeLoanOwnedItemIds;
+  final Set<LibraryEntryRef> activeLoanLibraryEntryIds;
 
   LibrarySessionAsyncState copyWith({
     bool? isLoading,
     Object? Function()? error,
     Set<String>? detailHydrationInFlight,
-    Set<OwnedItemRef>? activeLoanOwnedItemIds,
+    Set<LibraryEntryRef>? activeLoanLibraryEntryIds,
   }) {
     return LibrarySessionAsyncState(
       isLoading: isLoading ?? this.isLoading,
       error: error != null ? error() : this.error,
       detailHydrationInFlight:
           detailHydrationInFlight ?? this.detailHydrationInFlight,
-      activeLoanOwnedItemIds:
-          activeLoanOwnedItemIds ?? this.activeLoanOwnedItemIds,
+      activeLoanLibraryEntryIds:
+          activeLoanLibraryEntryIds ?? this.activeLoanLibraryEntryIds,
     );
   }
 
@@ -443,14 +435,14 @@ final class LibrarySessionAsyncState {
           isLoading == other.isLoading &&
           error == other.error &&
           setEquals(detailHydrationInFlight, other.detailHydrationInFlight) &&
-          setEquals(activeLoanOwnedItemIds, other.activeLoanOwnedItemIds);
+          setEquals(activeLoanLibraryEntryIds, other.activeLoanLibraryEntryIds);
 
   @override
   int get hashCode => Object.hash(
         isLoading,
         error,
         Object.hashAll(detailHydrationInFlight),
-        Object.hashAll(activeLoanOwnedItemIds),
+        Object.hashAll(activeLoanLibraryEntryIds),
       );
 }
 

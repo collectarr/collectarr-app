@@ -22,8 +22,6 @@ class LibraryToolbarActions {
     this.onEditSort,
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
-    this.onBrowserModeChanged,
-    this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
     required this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
@@ -41,7 +39,6 @@ class LibraryToolbarActions {
     this.onTogglePinnedColumnFavorite,
     this.onJumpToNumberSubmitted,
     required this.onClearFilters,
-    this.onEditFilters,
     this.onRandomPick,
     this.onScanCover,
     this.onDownloadAllCovers,
@@ -54,6 +51,7 @@ class LibraryToolbarActions {
     this.onTransferFieldData,
     this.onReassignIndex,
     this.onPrintReport,
+    this.onExportCsvTxt,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.onPinnedFolderPresetsChanged,
@@ -75,8 +73,6 @@ class LibraryToolbarActions {
   final VoidCallback? onEditSort;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
-  final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
@@ -95,7 +91,6 @@ class LibraryToolbarActions {
   final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedColumnFavorite;
   final ValueChanged<String>? onJumpToNumberSubmitted;
   final VoidCallback onClearFilters;
-  final VoidCallback? onEditFilters;
   final VoidCallback? onRandomPick;
   final VoidCallback? onScanCover;
   final VoidCallback? onDownloadAllCovers;
@@ -108,6 +103,7 @@ class LibraryToolbarActions {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
+  final VoidCallback? onExportCsvTxt;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;

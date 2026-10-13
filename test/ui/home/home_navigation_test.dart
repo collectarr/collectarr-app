@@ -34,6 +34,13 @@ void main() {
 
   test('library nav labels use catalog kind defaults', () {
     expect(
+        libraryNavLabel(const CatalogMediaType(
+          kind: 'music',
+          singularLabel: 'Album',
+          pluralLabel: 'Albums',
+        )),
+        'Music');
+    expect(
       libraryNavLabel(
         const CatalogMediaType(
           kind: 'movie',

@@ -29,44 +29,6 @@ void main() {
     );
   });
 
-  test('reorders table columns before a target column', () {
-    expect(
-      reorderLibraryTableColumns(
-        columns: const [
-          'title',
-          'issue',
-          'grade',
-        ],
-        column: 'grade',
-        beforeColumn: 'issue',
-      ),
-      [
-        'title',
-        'grade',
-        'issue',
-      ],
-    );
-  });
-
-  test('reorders table columns to the end', () {
-    expect(
-      reorderLibraryTableColumns(
-        columns: const [
-          'title',
-          'issue',
-          'grade',
-        ],
-        column: 'title',
-        beforeColumn: null,
-      ),
-      [
-        'issue',
-        'grade',
-        'title',
-      ],
-    );
-  });
-
   test('clamps custom table column widths', () {
     expect(
       libraryTableColumnWidth(

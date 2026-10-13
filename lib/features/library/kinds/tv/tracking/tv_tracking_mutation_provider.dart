@@ -1,8 +1,8 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_custom_episode_mutations.dart';
@@ -12,7 +12,7 @@ final tvTrackingRepositoryProvider = Provider<TvTrackingRepository>((ref) {
   return TvTrackingRepository(ref.watch(localDatabaseProvider));
 });
 
-/// TV-owned provider for episode progress mutations.
+/// TV-entry provider for episode progress mutations.
 ///
 /// The shared collection provider owns only the repositories and mutation
 /// runner. The semantic TV mutation is composed at the TV boundary.
@@ -25,15 +25,15 @@ final tvTrackingUnitMutationsProvider =
   );
 });
 
-final tvCustomEpisodesByCatalogRefProvider =
-    FutureProvider.family<Map<int, List<TvCustomEpisode>>, CatalogEntityRef>(
-        (ref, catalogRef) async {
-  if (catalogRef.mediaKind != CatalogMediaKind.tv) {
+final tvCustomEpisodesByLibraryEntryRefProvider =
+    FutureProvider.family<Map<int, List<TvCustomEpisode>>, LibraryEntryRef>(
+        (ref, libraryEntryRef) async {
+  if (libraryEntryRef.kind != CatalogMediaKind.tv) {
     return const <int, List<TvCustomEpisode>>{};
   }
   final episodes = await ref
       .watch(tvTrackingRepositoryProvider)
-      .listCustomEpisodes(TvSeriesId(catalogRef.id));
+      .listCustomEpisodes(libraryEntryRef);
   final grouped = <int, List<TvCustomEpisode>>{};
   for (final episode in episodes) {
     grouped.putIfAbsent(episode.seasonNumber, () => <TvCustomEpisode>[]).add(

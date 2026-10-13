@@ -7,6 +7,7 @@ class PickListDefinition {
     required this.listName,
     required this.label,
     this.mediaKind,
+    this.optionLabel,
     required this.scope,
     required this.valueMode,
     this.controlType = PickListControlType.dropdown,
@@ -28,6 +29,7 @@ class PickListDefinition {
       id: vocabulary.key,
       listName: vocabulary.key,
       label: vocabulary.label ?? vocabulary.key,
+      optionLabel: vocabulary.optionLabel,
       mediaKind: mediaKind,
       scope: PickListScope.all,
       valueMode: vocabulary.multiValue
@@ -46,6 +48,7 @@ class PickListDefinition {
   final String id;
   final String listName;
   final String label;
+  final String Function(String value)? optionLabel;
   final String? mediaKind;
   final PickListScope scope;
   final PickListValueMode valueMode;

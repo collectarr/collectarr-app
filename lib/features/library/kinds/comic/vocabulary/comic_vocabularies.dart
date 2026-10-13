@@ -1,15 +1,16 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 
 abstract final class ComicVocabularyIds {
   static const publisher = VocabularyId<String>('comic.publisher');
-  static const imprint = VocabularyId<String>('comic.imprint');
+  static const imprint = ComicFieldIdentities.imprintVocabulary;
   static const seriesGroup = VocabularyId<String>('comic.series_group');
   static const physicalFormat = VocabularyId<String>('comic.physical_format');
   static const condition = VocabularyId<String>('comic.condition');
@@ -21,81 +22,93 @@ abstract final class ComicVocabularyIds {
 }
 
 abstract final class ComicVocabularies {
-  static Future<int> countOwnedValue(
-    LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
-  ) {
-    return countPickListOwnedValues(
-      items: ComicOwnedRepository(db).listActive(),
-      normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
-    );
+  static Future<List<String>> entryOptions(
+      LocalDatabase db, String semanticName) async {
+    return [
+      for (final item in await ComicEntryRepository(db).listActive())
+        ..._entryValues(item, semanticName)
+            .whereType<String>()
+            .where((value) => value.trim().isNotEmpty)
+    ];
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: ComicEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
+
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: ComicOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: ComicEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: ComicOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: ComicEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: ComicOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: ComicEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static ComicOwnedItem _replaceOwnedValue(
-    ComicOwnedItem item,
+  static ComicLibraryEntry _replaceEntryValue(
+    ComicLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
     switch (semanticName) {
       case 'condition':
-        return item.copyWith(condition: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(condition: targetValue));
       case 'grade':
-        return item.copyWith(grade: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(grade: targetValue));
       case 'purchase_store':
-        return item.copyWith(purchaseStore: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(purchaseStore: targetValue));
       case 'sold_to':
-        return item.copyWith(soldTo: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(soldTo: targetValue));
       case 'collection_status':
-        return item.copyWith(collectionStatus: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(collectionStatus: targetValue));
       case 'tags':
         return item.copyWith(
+            personal: item.personal.copyWith(
           tags: replacePickListDelimitedValue(
-            item.tags,
+            item.personal.tags,
             normalizedSourceValues,
             targetValue,
           ),
-        );
+        ));
     }
-    final key = _ownedDetailsKey(semanticName);
+    final key = _entryDetailsKey(semanticName);
     if (key == null) return item;
-    final details = item.details.toJson()..[key] = targetValue;
-    return item.copyWith(details: ComicOwnedDetails.fromJson(details));
+    final details = item.personal.details.toJson()..[key] = targetValue;
+    return item.copyWith(
+        personal: item.personal
+            .copyWith(details: ComicEntryDetails.fromJson(details)));
   }
 
-  static String? _ownedDetailsKey(String semanticName) =>
+  static String? _entryDetailsKey(String semanticName) =>
       switch (semanticName) {
         'raw_or_slabbed' => 'raw_or_slabbed',
         'grading_company' => 'grading_company',
@@ -110,16 +123,16 @@ abstract final class ComicVocabularies {
         _ => null,
       };
 
-  static Iterable<String?> _ownedValues(
-    ComicOwnedItem item,
+  static Iterable<String?> _entryValues(
+    ComicLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {
-      'condition' => item.condition,
-      'grade' => item.grade,
-      'purchase_store' => item.purchaseStore,
-      'sold_to' => item.soldTo,
-      'collection_status' => item.collectionStatus,
+      'condition' => item.personal.condition,
+      'grade' => item.personal.grade,
+      'purchase_store' => item.personal.purchaseStore,
+      'sold_to' => item.personal.soldTo,
+      'collection_status' => item.personal.collectionStatus,
       _ => null,
     };
     if (standard != null) {
@@ -127,7 +140,7 @@ abstract final class ComicVocabularies {
       return;
     }
     if (semanticName == 'tags') {
-      yield* item.tags?.split(',') ?? const <String>[];
+      yield* item.personal.tags?.split(',') ?? const <String>[];
       return;
     }
     final key = switch (semanticName) {
@@ -144,14 +157,20 @@ abstract final class ComicVocabularies {
       _ => null,
     };
     if (key != null) {
-      yield* pickListTextValues(item.details.toJson()[key]);
+      yield* pickListTextValues(item.personal.details.toJson()[key]);
+    }
+    for (final vocabulary in all) {
+      if (vocabulary.key.split('.').last == semanticName) {
+        yield* vocabulary.valuesFrom?.call(item.metadata) ?? const <String>[];
+      }
     }
   }
 
   static const publisher = VocabularyDefinition<String>(
     id: ComicVocabularyIds.publisher,
     label: 'Publisher',
-    valuesFrom: TypedVocabularyProjector<ComicMedia>(_publisherCatalogValues),
+    valuesFrom:
+        TypedVocabularyProjector<ComicCatalogItem>(_publisherCatalogValues),
     builtIns: [
       'Marvel Comics',
       'DC Comics',
@@ -167,7 +186,8 @@ abstract final class ComicVocabularies {
   static const imprint = VocabularyDefinition<String>(
     id: ComicVocabularyIds.imprint,
     label: 'Imprint',
-    valuesFrom: TypedVocabularyProjector<ComicMedia>(_imprintCatalogValues),
+    valuesFrom:
+        TypedVocabularyProjector<ComicCatalogItem>(_imprintCatalogValues),
     builtIns: [
       'Vertigo',
       'Black Label',
@@ -182,7 +202,7 @@ abstract final class ComicVocabularies {
   static const seriesGroup = VocabularyDefinition<String>(
     id: ComicVocabularyIds.seriesGroup,
     label: 'Series Group',
-    valuesFrom: TypedVocabularyProjector<ComicMedia>(
+    valuesFrom: TypedVocabularyProjector<ComicCatalogItem>(
       _seriesGroupCatalogValues,
     ),
     builtIns: [
@@ -199,7 +219,7 @@ abstract final class ComicVocabularies {
   static const physicalFormat = VocabularyDefinition<String>(
     id: ComicVocabularyIds.physicalFormat,
     label: 'Format',
-    valuesFrom: TypedVocabularyProjector<ComicMedia>(
+    valuesFrom: TypedVocabularyProjector<ComicCatalogItem>(
       _physicalFormatCatalogValues,
     ),
     builtIns: [
@@ -299,14 +319,16 @@ abstract final class ComicVocabularies {
     id: ComicVocabularyIds.storyArc,
     label: 'Story Arc',
     multiValue: true,
-    valuesFrom: TypedVocabularyProjector<ComicMedia>(_storyArcCatalogValues),
+    valuesFrom:
+        TypedVocabularyProjector<ComicCatalogItem>(_storyArcCatalogValues),
   );
 
   static const crossover = VocabularyDefinition<String>(
     id: ComicVocabularyIds.crossover,
     label: 'Crossover',
     multiValue: true,
-    valuesFrom: TypedVocabularyProjector<ComicMedia>(_crossoverCatalogValues),
+    valuesFrom:
+        TypedVocabularyProjector<ComicCatalogItem>(_crossoverCatalogValues),
   );
 
   static const all = <VocabularyDefinition<dynamic>>[
@@ -323,34 +345,32 @@ abstract final class ComicVocabularies {
   ];
 }
 
-Iterable<String?> _publisherCatalogValues(ComicMedia metadata) sync* {
-  yield* vocabularyValues([
-    metadata.publisher,
-    metadata.publishing?.originalPublisher,
-  ]);
+Iterable<String?> _publisherCatalogValues(ComicCatalogItem metadata) sync* {
+  yield* vocabularyValues([metadata.publisher]);
 }
 
-Iterable<String?> _imprintCatalogValues(ComicMedia metadata) {
-  return vocabularyValues([metadata.imprint, metadata.publishing?.imprint]);
+Iterable<String?> _imprintCatalogValues(ComicCatalogItem metadata) {
+  return vocabularyValues([metadata.imprint]);
 }
 
-Iterable<String?> _seriesGroupCatalogValues(ComicMedia metadata) {
-  return vocabularyValues([metadata.publishing?.seriesGroup]);
+Iterable<String?> _seriesGroupCatalogValues(ComicCatalogItem metadata) {
+  return vocabularyValues([metadata.seriesGroup]);
 }
 
 Iterable<String?> _physicalFormatCatalogValues(
-  ComicMedia metadata,
+  ComicCatalogItem metadata,
 ) sync* {
   yield* vocabularyValues([
-    metadata.physicalFormatLabel,
     metadata.physicalFormat,
   ]);
 }
 
-Iterable<String?> _storyArcCatalogValues(ComicMedia metadata) {
-  return vocabularyValues([metadata.storyArcs]);
+Iterable<String?> _storyArcCatalogValues(ComicCatalogItem metadata) {
+  return vocabularyValues(
+    metadata.storyArcs.map((arc) => arc.name).whereType<String>(),
+  );
 }
 
-Iterable<String?> _crossoverCatalogValues(ComicMedia metadata) {
+Iterable<String?> _crossoverCatalogValues(ComicCatalogItem metadata) {
   return vocabularyValues([metadata.crossover]);
 }

@@ -1,6 +1,7 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
@@ -12,31 +13,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef _InspectorItemImagesRequest = ({
   LocalDatabase db,
-  OwnedItemRef ownedRef,
+  LibraryEntryRef libraryEntryRef,
 });
 
 final _inspectorItemImagesProvider = FutureProvider.autoDispose
     .family<List<ItemImage>, _InspectorItemImagesRequest>(
   (ref, request) async {
-    return ItemImageRepository(request.db).listForOwnedRef(request.ownedRef);
+    return ItemImageRepository(request.db)
+        .listForLibraryEntryRef(request.libraryEntryRef);
   },
 );
 
 class InspectorItemImagesSection extends ConsumerWidget {
   const InspectorItemImagesSection({
     super.key,
-    required this.ownedRef,
+    required this.libraryEntryRef,
     required this.db,
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final LibraryEntryRef libraryEntryRef;
   final LocalDatabase db;
   final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final request = (db: db, ownedRef: ownedRef);
+    final request = (db: db, libraryEntryRef: libraryEntryRef);
     final imagesAsync = ref.watch(_inspectorItemImagesProvider(request));
     final images = imagesAsync.value ?? const <ItemImage>[];
     final visibleImages = images
@@ -64,7 +66,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
       children: [
         if (groups.isEmpty)
           Text(
-            'No extra owned-item images yet. Add signatures, labels, or other supporting photos here.',
+            'No extra entry-item images yet. Add signatures, labels, or other supporting photos here.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: appPalette(context).textMuted,
                 ),
@@ -78,7 +80,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
                   itemImageTypeLabels[entry.key] ?? entry.key,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: accent.withValues(alpha: 0.8),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: 0.2,
                       ),
                 ),
@@ -110,14 +112,14 @@ class InspectorItemImagesSection extends ConsumerWidget {
   }
 
   Future<void> _pickAndAddImage(BuildContext context, WidgetRef ref) async {
-    final savedType = await pickAndStoreOwnedItemImage(
+    final savedType = await pickAndStoreLibraryEntryImage(
       context: context,
       db: db,
-      ownedRef: ownedRef,
+      libraryEntryRef: libraryEntryRef,
     );
     if (savedType != null && context.mounted) {
-      ref.invalidate(
-          _inspectorItemImagesProvider((db: db, ownedRef: ownedRef)));
+      ref.invalidate(_inspectorItemImagesProvider(
+          (db: db, libraryEntryRef: libraryEntryRef)));
     }
   }
 
@@ -129,6 +131,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         title: const Text('Delete image?'),
         content: const Text('This image will be removed from your collection.'),
         actions: [
@@ -147,7 +150,8 @@ class InspectorItemImagesSection extends ConsumerWidget {
 
     final repo = ItemImagesCacheRepository(db);
     await repo.deleteById(imageId);
-    ref.invalidate(_inspectorItemImagesProvider((db: db, ownedRef: ownedRef)));
+    ref.invalidate(_inspectorItemImagesProvider(
+        (db: db, libraryEntryRef: libraryEntryRef)));
   }
 }
 

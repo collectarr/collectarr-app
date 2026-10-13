@@ -5,13 +5,12 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/auth_session.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_search_hit.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.client.dart';
+import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -109,6 +108,7 @@ class ApiClient {
     int? year,
     String? barcode,
     int? limit,
+    int? offset,
   }) async {
     return _catalogApi.search(
       query,
@@ -119,6 +119,7 @@ class ApiClient {
       year: year,
       barcode: barcode,
       limit: limit,
+      offset: offset,
     );
   }
 
@@ -132,6 +133,7 @@ class ApiClient {
     int? year,
     String? barcode,
     int? limit,
+    int? offset,
   }) async {
     final rows = await search(
       query,
@@ -142,6 +144,7 @@ class ApiClient {
       year: year,
       barcode: barcode,
       limit: limit,
+      offset: offset,
     );
     return [
       for (final row in rows) CatalogSearchHit.fromJson(row),
@@ -153,115 +156,61 @@ class ApiClient {
     return _catalogApi.searchMetadata(query, cancelToken: cancelToken);
   }
 
-  Future<TypedMetadataResponse> getTypedMetadataItem({
+  Future<CatalogSearchPage> searchMetadataPage(
+    MetadataSearchQuery query, {
+    CancelToken? cancelToken,
+  }) async {
+    return _catalogApi.searchMetadataPage(query, cancelToken: cancelToken);
+  }
+
+  /// Fetches an untyped JSON object for a kind-entry remote data source.
+  ///
+  /// The owning feature is responsible for decoding the response into its
+  /// typed transport model.
+  Future<Map<String, dynamic>> getJsonObject(
+    String path, {
+    Map<String, Object?>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      path,
+      queryParameters: queryParameters,
+      cancelToken: cancelToken,
+    );
+    final data = response.data;
+    if (data == null) {
+      throw StateError('Core returned an empty JSON object for $path.');
+    }
+    return data;
+  }
+
+  /// Fetches a JSON list for a kind-entry remote data source.
+  Future<List<Map<String, dynamic>>> getJsonList(
+    String path, {
+    Map<String, Object?>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
+    final response = await _dio.get<List<dynamic>>(
+      path,
+      queryParameters: queryParameters,
+      cancelToken: cancelToken,
+    );
+    return [
+      for (final value in response.data ?? const <dynamic>[])
+        if (value is Map) Map<String, dynamic>.from(value),
+    ];
+  }
+
+  Future<Map<String, dynamic>> getCatalogItemJson({
     required CatalogMediaKind kind,
     required String id,
-  }) async {
-    final item = await _catalogApi.getCatalogItem(
-      CatalogItemRef(kind: kind, id: id),
-    );
-    return CatalogItemV1MetadataResponse(item);
-  }
-
-  Future<List<CatalogItemSummaryV1Dto>> searchCatalogItems({
-    CatalogMediaKind? kind,
-    String? query,
-    String? identifier,
-    int limit = 50,
+    CancelToken? cancelToken,
   }) {
-    return _catalogApi.searchCatalogItems(
+    return _catalogApi.getCatalogItemJson(
       kind: kind,
-      query: query,
-      identifier: identifier,
-      limit: limit,
+      id: id,
+      cancelToken: cancelToken,
     );
-  }
-
-  Future<CatalogItemV1Dto> getCatalogItem(CatalogItemRef reference) {
-    return _catalogApi.getCatalogItem(reference);
-  }
-
-  Future<CatalogItemV1Dto> createCatalogItem(CatalogItemWriteV1Dto payload) {
-    return _catalogApi.createCatalogItem(payload);
-  }
-
-  Future<CatalogItemV1Dto> updateCatalogItem(
-    CatalogItemRef reference,
-    CatalogItemWriteV1Dto payload,
-  ) {
-    return _catalogApi.updateCatalogItem(reference, payload);
-  }
-
-  Future<ComicWorkDto> getComicWorkDto(String id) {
-    return _catalogApi.getComicWorkDto(id);
-  }
-
-  Future<MangaWorkDto> getMangaWorkDto(String id) {
-    return _catalogApi.getMangaWorkDto(id);
-  }
-
-  Future<AnimeSeriesDto> getAnimeSeriesDto(String id) {
-    return _catalogApi.getAnimeSeriesDto(id);
-  }
-
-  Future<MovieWorkDto> getMovieWorkDto(String id) {
-    return _catalogApi.getMovieWorkDto(id);
-  }
-
-  Future<TvSeriesDto> getTvSeriesDto(String id) {
-    return _catalogApi.getTvSeriesDto(id);
-  }
-
-  Future<List<TvSeasonDto>> getTvSeriesSeasonsDto(String id) {
-    return _catalogApi.getTvSeriesSeasonsDto(id);
-  }
-
-  Future<List<TvReleaseDto>> getTvSeriesReleasesDto(String id) {
-    return _catalogApi.getTvSeriesReleasesDto(id);
-  }
-
-  Future<TvSeasonDto> getTvSeasonDto(String id) {
-    return _catalogApi.getTvSeasonDto(id);
-  }
-
-  Future<List<TvEpisodeDto>> getTvSeasonEpisodesDto(String id) {
-    return _catalogApi.getTvSeasonEpisodesDto(id);
-  }
-
-  Future<TvReleaseDto> getTvReleaseDto(String id) {
-    return _catalogApi.getTvReleaseDto(id);
-  }
-
-  Future<List<TvReleaseMediaDto>> getTvReleaseMediaDto(String id) {
-    return _catalogApi.getTvReleaseMediaDto(id);
-  }
-
-  Future<List<TvReleaseEpisodeMapDto>> getTvReleaseEpisodeMapDto(String id) {
-    return _catalogApi.getTvReleaseEpisodeMapDto(id);
-  }
-
-  Future<TvReleaseMediaDto> getTvReleaseMediaItemDto(String id) {
-    return _catalogApi.getTvReleaseMediaItemDto(id);
-  }
-
-  Future<BookWorkDto> getBookWorkDto(String id) {
-    return _catalogApi.getBookWorkDto(id);
-  }
-
-  Future<GameWorkDto> getGameWorkDto(String id) {
-    return _catalogApi.getGameWorkDto(id);
-  }
-
-  Future<GameReleaseDto> getGameReleaseDto(String id) {
-    return _catalogApi.getGameReleaseDto(id);
-  }
-
-  Future<BoardGameWorkDto> getBoardGameWorkDto(String id) {
-    return _catalogApi.getBoardGameWorkDto(id);
-  }
-
-  Future<BoardGameEditionDto> getBoardGameEditionDto(String id) {
-    return _catalogApi.getBoardGameEditionDto(id);
   }
 
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
@@ -277,9 +226,17 @@ class ApiClient {
     return _catalogApi.metadataMediaTypes();
   }
 
-  /// Creates a provider-independent proposal against one exact canonical
-  /// Core entity. This intentionally uses the versioned endpoint directly;
-  /// it must not be routed through the legacy provider proposal transport.
+  Future<MetadataNormalizedManifest> metadataNormalizedManifest() async {
+    return _catalogApi.metadataNormalizedManifest();
+  }
+
+  Future<MetadataFieldSchema> metadataFieldSchema({
+    bool editableOnly = true,
+  }) async {
+    return _catalogApi.metadataFieldSchema(editableOnly: editableOnly);
+  }
+
+  /// Creates a proposal against one exact canonical Core entity.
   Future<CanonicalCorrectionProposal> proposeCanonicalCorrection({
     required CatalogMediaKind kind,
     required String entityType,
@@ -334,9 +291,9 @@ class ApiClient {
     return _adminApi.adminCatalogSummary();
   }
 
-  Future<AdminCatalogItemIntegrityReport> adminCatalogItemIntegrity(
+  Future<AdminNormalizedMetadataDriftReport> adminNormalizedMetadataDrift(
       {int sampleLimit = 100}) async {
-    return _adminApi.adminCatalogItemIntegrity(sampleLimit: sampleLimit);
+    return _adminApi.adminNormalizedMetadataDrift(sampleLimit: sampleLimit);
   }
 
   Future<List<AdminMetadataItem>> adminCatalogItems({
@@ -351,7 +308,7 @@ class ApiClient {
     );
   }
 
-  /// Sends a kind-owned correction patch without interpreting its fields in
+  /// Sends a kind-entry correction patch without interpreting its fields in
   /// the generic Library orchestration layer.
   Future<AdminMetadataItem> adminUpdateCatalogItemFields({
     required String kind,
@@ -362,6 +319,26 @@ class ApiClient {
       kind: kind,
       id: id,
       fields: fields,
+    );
+  }
+
+  Future<Map<String, dynamic>> adminUpdateSeriesFields({
+    required String seriesId,
+    required Map<String, Object?> fields,
+  }) {
+    return _adminApi.adminUpdateSeriesFields(
+      seriesId: seriesId,
+      fields: fields,
+    );
+  }
+
+  Future<BundleReleaseDetail> adminUpdateBundleRelease({
+    required String bundleReleaseId,
+    required AdminBundleReleaseCorrection correction,
+  }) async {
+    return _adminApi.adminUpdateBundleRelease(
+      bundleReleaseId: bundleReleaseId,
+      correction: correction,
     );
   }
 
@@ -391,18 +368,6 @@ class ApiClient {
     );
   }
 
-  Future<List<AdminDuplicateCandidate>> adminDuplicateCandidates({
-    int limit = 10,
-  }) async {
-    return _adminApi.adminDuplicateCandidates(limit: limit);
-  }
-
-  Future<AdminDuplicateActionResult> adminIgnoreDuplicateCandidate({
-    required List<String> itemIds,
-  }) async {
-    return _adminApi.adminIgnoreDuplicateCandidate(itemIds: itemIds);
-  }
-
   Future<AdminMetadataItem> adminGetMetadataItem({
     required String kind,
     required String id,
@@ -410,47 +375,47 @@ class ApiClient {
     return _adminApi.adminGetMetadataItem(kind: kind, id: id);
   }
 
-  Future<AdminProviderIngestResult> adminProviderIngest({
-    required String provider,
-    required String providerItemId,
-    String? kind,
+  Future<AdminMetadataProposalSummary> adminMetadataProposalSummary() async {
+    return _adminApi.adminMetadataProposalSummary();
+  }
+
+  Future<List<AdminMetadataProposal>> adminMetadataProposals({
+    String status = 'pending',
   }) async {
-    return _adminApi.adminProviderIngest(
-      provider: provider,
-      providerItemId: providerItemId,
+    return _adminApi.adminMetadataProposals(status: status);
+  }
+
+  Future<AdminMetadataProposal> adminApproveMetadataProposal({
+    required String proposalId,
+  }) async {
+    return _adminApi.adminApproveMetadataProposal(proposalId: proposalId);
+  }
+
+  Future<AdminMetadataProposal> adminUpdateMetadataProposal({
+    required String proposalId,
+    required Map<String, dynamic> catalogItem,
+    String? reviewNote,
+  }) async {
+    return _adminApi.adminUpdateMetadataProposal(
+      proposalId: proposalId,
+      catalogItem: catalogItem,
+      reviewNote: reviewNote,
+    );
+  }
+
+  Future<AdminMetadataProposal> adminRejectMetadataProposal({
+    required String proposalId,
+  }) async {
+    return _adminApi.adminRejectMetadataProposal(proposalId: proposalId);
+  }
+
+  Future<Map<String, dynamic>> createCatalogItemProposal({
+    required String kind,
+    required Map<String, dynamic> catalogItem,
+  }) async {
+    return _catalogApi.createCatalogItemProposal(
       kind: kind,
-    );
-  }
-
-  Future<AdminProviderIngestJob> adminCreateProviderIngestJob({
-    required String provider,
-    required String providerItemId,
-    int maxAttempts = 3,
-  }) async {
-    return _adminApi.adminCreateProviderIngestJob(
-      provider: provider,
-      providerItemId: providerItemId,
-      maxAttempts: maxAttempts,
-    );
-  }
-
-  Future<Map<String, dynamic>> createMetadataProposal({
-    required String provider,
-    required String query,
-    String? providerItemId,
-    String? title,
-    String? summary,
-    String? imageUrl,
-    Map<String, dynamic>? metadataPayload,
-  }) async {
-    return _catalogApi.createMetadataProposal(
-      provider: provider,
-      query: query,
-      providerItemId: providerItemId,
-      title: title,
-      summary: summary,
-      imageUrl: imageUrl,
-      metadataPayload: metadataPayload,
+      catalogItem: catalogItem,
     );
   }
 
@@ -466,22 +431,8 @@ class ApiClient {
     return _catalogApi.getSeriesItems(seriesId);
   }
 
-  Future<BookEditionDto> createBookEdition(
-    String workId, {
-    required String title,
-  }) {
-    return _catalogApi.createBookEdition(workId, title: title);
-  }
-
-  Future<BoardGameEditionDto> createBoardGameEdition(
-    String workId, {
-    required String title,
-  }) {
-    return _catalogApi.createBoardGameEdition(workId, title: title);
-  }
-
   /// Sends a GET request for a JSON list without assigning domain meaning to
-  /// its fields. Kind-owned repositories map the returned rows.
+  /// its fields. Kind-entry repositories map the returned rows.
   Future<List<Map<String, dynamic>>> getJsonRows(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -494,7 +445,7 @@ class ApiClient {
   }
 
   /// Sends a POST request for a JSON list without assigning domain meaning to
-  /// its fields. Kind-owned repositories map the returned rows.
+  /// its fields. Kind-entry repositories map the returned rows.
   Future<List<Map<String, dynamic>>> postJsonRows(
     String path, {
     required Object data,
@@ -532,14 +483,6 @@ class ApiClient {
     return _assetsApi.adminListUsers();
   }
 
-  Future<AdminImageCacheStats> adminImageCacheStats() async {
-    return _assetsApi.adminImageCacheStats();
-  }
-
-  Future<AdminImageCachePurgeResult> adminPurgeImageCache() async {
-    return _assetsApi.adminPurgeImageCache();
-  }
-
   Future<AdminUser> adminUpdateUser(
     String userId, {
     String? role,
@@ -570,25 +513,29 @@ class ApiClient {
     return _assetsApi.batchDownloadImages(objectKeys);
   }
 
-  /// List image assets for a Catalog Item.
-  Future<List<Map<String, dynamic>>> listCatalogItemImages({
-    required String catalogItemId,
+  /// List all image assets for an entity.
+  Future<List<Map<String, dynamic>>> listEntityImages({
+    required String entityType,
+    required String entityId,
   }) async {
-    return _assetsApi.listCatalogItemImages(
-      catalogItemId: catalogItemId,
+    return _assetsApi.listEntityImages(
+      entityType: entityType,
+      entityId: entityId,
     );
   }
 
-  /// Upload a new image for a Catalog Item.
-  Future<Map<String, dynamic>> addCatalogItemImage({
-    required String catalogItemId,
+  /// Upload a new image for an entity.
+  Future<Map<String, dynamic>> addEntityImage({
+    required String entityType,
+    required String entityId,
     required String imageType,
     required String imageDataBase64,
     String? sourceUrl,
     bool isPrimary = false,
   }) async {
-    return _assetsApi.addCatalogItemImage(
-      catalogItemId: catalogItemId,
+    return _assetsApi.addEntityImage(
+      entityType: entityType,
+      entityId: entityId,
       imageType: imageType,
       imageDataBase64: imageDataBase64,
       sourceUrl: sourceUrl,
@@ -596,15 +543,14 @@ class ApiClient {
     );
   }
 
-  /// Delete a Catalog Item image asset.
-  Future<void> deleteCatalogItemImage(String imageId) async {
-    await _assetsApi.deleteCatalogItemImage(imageId);
+  /// Delete an image asset.
+  Future<void> deleteEntityImage(String imageId) async {
+    await _assetsApi.deleteEntityImage(imageId);
   }
 
-  /// Set a Catalog Item image as primary for its type.
-  Future<Map<String, dynamic>> setCatalogItemImagePrimary(
-      String imageId) async {
-    return _assetsApi.setCatalogItemImagePrimary(imageId);
+  /// Set an image as primary for its type.
+  Future<Map<String, dynamic>> setImagePrimary(String imageId) async {
+    return _assetsApi.setImagePrimary(imageId);
   }
 
   /// Search for visually similar covers by uploading an image.
@@ -660,38 +606,13 @@ class ApiClient {
       return raw;
     }
     if (parsed.hasScheme) {
-      return _rewriteKnownProviderImageUrl(parsed) ?? raw;
+      return raw;
     }
     if (!raw.startsWith('/')) {
       return raw;
     }
     final base = Uri.tryParse(baseUrl);
     return base?.resolve(raw).toString() ?? raw;
-  }
-
-  String? _rewriteKnownProviderImageUrl(Uri uri) {
-    final host = uri.host.toLowerCase();
-    if (!host.endsWith('mangadex.org')) {
-      return null;
-    }
-    final segments = uri.pathSegments;
-    if (segments.length < 2 || segments.first != 'covers') {
-      return null;
-    }
-    final providerItemId = segments[1].trim();
-    if (providerItemId.isEmpty) {
-      return null;
-    }
-    final base = Uri.tryParse(baseUrl);
-    if (base == null) {
-      return null;
-    }
-    return base
-        .resolve(
-          '/api/v1/metadata/providers/mangadex/images/'
-          '${Uri.encodeComponent(providerItemId)}',
-        )
-        .toString();
   }
 }
 

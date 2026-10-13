@@ -19,6 +19,7 @@ class LibraryToolbarState {
     this.searchActive = false,
     this.searchSuggestions = const <LibraryToolbarSearchSuggestion>[],
     this.selectedBucket,
+    this.linkedMetadataFilterLabel,
     required this.collectionStatusScope,
     required this.quickView,
     this.availableLetters = const <String>{},
@@ -33,7 +34,6 @@ class LibraryToolbarState {
     this.pinnedColumnFavoriteKeys = const <String>{},
     this.canJumpToNumber = false,
     required this.hasActiveFilters,
-    this.activeFilterCount = 0,
     this.shelfState,
     this.groupMode,
     this.folderPreset,
@@ -44,8 +44,6 @@ class LibraryToolbarState {
     this.selectionEnabled = false,
     this.selectedCount = 0,
     this.totalSelectableCount = 0,
-    this.showReleaseFolderBack = false,
-    this.releaseFolderLabel,
   });
 
   final TextEditingController searchController;
@@ -56,6 +54,7 @@ class LibraryToolbarState {
   final bool searchActive;
   final List<LibraryToolbarSearchSuggestion> searchSuggestions;
   final String? selectedBucket;
+  final String? linkedMetadataFilterLabel;
   final LibraryCollectionStatusScope collectionStatusScope;
   final LibraryQuickView? quickView;
   final Set<String> availableLetters;
@@ -70,7 +69,6 @@ class LibraryToolbarState {
   final Set<String> pinnedColumnFavoriteKeys;
   final bool canJumpToNumber;
   final bool hasActiveFilters;
-  final int activeFilterCount;
   final ShelfState? shelfState;
   final String? groupMode;
   final LibraryFolderPreset? folderPreset;
@@ -81,6 +79,4 @@ class LibraryToolbarState {
   final bool selectionEnabled;
   final int selectedCount;
   final int totalSelectableCount;
-  final bool showReleaseFolderBack;
-  final String? releaseFolderLabel;
 }

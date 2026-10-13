@@ -63,26 +63,32 @@ void main() {
     final values = LibraryMetadataCorrectionValues.fromSerialized({
       'tracks': [
         {
+          'id': 'track-1',
+          'disc_id': 'disc-1',
           'title': 'Intro',
           'artist': 'Band',
           'disc_number': 1,
           'position': 2,
-          'duration_seconds': 90,
+          'position_order': 0,
+          'duration_ms': 90000,
+          'is_header': false,
+          'parent_header_id': null,
+          'indent_level': 0,
         },
       ],
     });
 
-    expect(field.read(values), 'Intro | Band | 1 | 2 | 90');
+    expect(field.read(values), 'Intro | Band | 1 | 2 | 90 | false');
     field.write(values, 'Outro | Band | 1 | 3 | 120');
-    expect(values.read('tracks'), [
-      {
-        'title': 'Outro',
-        'artist': 'Band',
-        'disc_number': 1,
-        'position': 3,
-        'duration_seconds': 120,
-      },
-    ]);
+    final track = (values.read('tracks') as List).single as Map;
+    expect(track, containsPair('title', 'Outro'));
+    expect(track, containsPair('artist', 'Band'));
+    expect(track, containsPair('disc_id', 'disc-1'));
+    expect(track, containsPair('disc_number', 1));
+    expect(track, containsPair('position', '3'));
+    expect(track, containsPair('duration_ms', 120000));
+    expect(track, containsPair('is_header', false));
+    expect(track, contains('id'));
     expect(
       () => field.write(values, 'Broken | Band | one'),
       throwsA(isA<FormatException>()),

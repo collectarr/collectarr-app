@@ -1,237 +1,431 @@
-import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:flutter/foundation.dart';
 
-import 'music_ids.dart';
+import 'music_disc.dart';
+import 'music_credit.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'music_external_link.dart';
+import 'music_artist_credit.dart';
+import 'music_track.dart';
 
+/// One concrete Music Catalog Item representing an album edition.
+///
+/// Discs and tracks are contained children. Physical / format metadata belongs
+/// exclusively to [MusicDisc].
 @immutable
-final class MusicAlbumArtist {
-  const MusicAlbumArtist({required this.name, this.sortName});
-  final String name;
-  final String? sortName;
-
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        if (sortName != null) 'sort_name': sortName,
-      };
-}
-
-@immutable
-final class MusicAlbumLabel {
-  const MusicAlbumLabel({required this.name, this.catalogNumber});
-  final String name;
-  final String? catalogNumber;
-
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        if (catalogNumber != null) 'catalog_number': catalogNumber,
-      };
-}
-
-@immutable
-final class MusicAlbumDiscTitle {
-  const MusicAlbumDiscTitle({required this.discNumber, required this.title})
-      : assert(discNumber > 0);
-  final int discNumber;
-  final String title;
-
-  Map<String, dynamic> toJson() => {'disc_number': discNumber, 'title': title};
-}
-
-@immutable
-final class MusicAlbumCredit {
-  const MusicAlbumCredit({
-    required this.role,
-    required this.sequence,
-    required this.creditedName,
-    this.joinPhrase,
-    this.instrument,
-  });
-  final String role;
-  final int sequence;
-  final String creditedName;
-  final String? joinPhrase;
-  final String? instrument;
-
-  Map<String, dynamic> toJson() => {
-        'role': role,
-        'sequence': sequence,
-        'credited_name': creditedName,
-        if (joinPhrase != null) 'join_phrase': joinPhrase,
-        if (instrument != null) 'instrument': instrument,
-      };
-}
-
-@immutable
-final class MusicAlbumLink {
-  const MusicAlbumLink({
-    required this.position,
-    required this.url,
-    this.title,
-    this.description,
-  });
-  final int position;
-  final String url;
-  final String? title;
-  final String? description;
-
-  Map<String, dynamic> toJson() => {
-        'position': position,
-        'url': url,
-        if (title != null) 'title': title,
-        if (description != null) 'description': description,
-      };
-}
-
-/// One CLZ-style Music edition with its ordered disc titles and tracks.
-/// Discs and tracks are contained values and have no separately addressable ID.
-@immutable
-final class MusicAlbum {
-  const MusicAlbum({
-    required this.id,
+final class MusicAlbum implements JsonEncodable {
+  MusicAlbum({
+    this.id,
     required this.title,
     this.sortTitle,
     this.subtitle,
-    this.artists = const [],
-    this.releaseDate,
-    this.originalReleaseDate,
-    this.recordingDate,
-    this.labels = const [],
-    this.format,
+    this.artist,
+    this.originalReleaseDateParts,
+    List<String> genres = const [],
+    this.releaseDateParts,
+    this.publisher,
+    this.countryCode,
     this.barcode,
     this.catalogNumber,
-    this.genres = const [],
     this.packaging,
-    this.studio = const [],
-    this.country,
-    this.isLive,
-    this.soundTypes = const [],
-    this.vinylColor,
-    this.vinylWeight,
-    this.rpm,
-    this.extras = const [],
-    this.sparsCode,
-    this.boxSet,
-    this.matrixNumberSideA,
-    this.matrixNumberSideB,
     this.coverImageUrl,
+    this.coverImageKey,
     this.backCoverImageUrl,
-    this.discTitles = const [],
-    this.tracks = const [],
-    this.credits = const [],
-    this.links = const [],
-    this.createdAt,
-    this.updatedAt,
-  });
+    this.thumbnailImageUrl,
+    this.localCoverImagePath,
+    this.localBackImagePath,
+    this.localThumbnailImagePath,
+    List<String> extra = const [],
+    this.externalLinks = const [],
+    this.boxSet,
+    List<MusicCredit> credits = const [],
+    this.artistCredits = const [],
+    this.discs = const [],
+    this.revision = 1,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  })  : genres = List<String>.unmodifiable(genres),
+        extra = List<String>.unmodifiable(extra),
+        credits = List<MusicCredit>.unmodifiable(credits),
+        createdAt =
+            createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+        updatedAt =
+            updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
-  final MusicAlbumId id;
+  /// Core identity is carried by [CatalogItemDto], not kind-owned metadata.
+  /// This is present only while decoding a canonical transport item.
+  final CatalogItemRef? id;
   final String title;
   final String? sortTitle;
   final String? subtitle;
-  final List<MusicAlbumArtist> artists;
-  final PartialDate? releaseDate;
-  final PartialDate? originalReleaseDate;
-  final PartialDate? recordingDate;
-  final List<MusicAlbumLabel> labels;
-  final String? format;
+  final String? artist;
+  final PartialDate? originalReleaseDateParts;
+  final List<String> genres;
+
+  /// Preserves year/month precision from partial catalog dates.
+  final PartialDate? releaseDateParts;
+  final String? publisher;
+  final String? countryCode;
   final String? barcode;
   final String? catalogNumber;
-  final List<String> genres;
   final String? packaging;
-  final List<String> studio;
-  final String? country;
-  final bool? isLive;
-  final List<String> soundTypes;
-  final String? vinylColor;
-  final double? vinylWeight;
-  final int? rpm;
-  final List<String> extras;
-  final String? sparsCode;
-  final String? boxSet;
-  final String? matrixNumberSideA;
-  final String? matrixNumberSideB;
+
+  /// Derived presentation summary computed directly from contained discs.
+  String? get formatSummary => formatAlbumDiscsSummary(discs);
+
   final String? coverImageUrl;
+  final String? coverImageKey;
   final String? backCoverImageUrl;
-  final List<MusicAlbumDiscTitle> discTitles;
-  final List<MusicAlbumTrack> tracks;
-  final List<MusicAlbumCredit> credits;
-  final List<MusicAlbumLink> links;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
+  final String? thumbnailImageUrl;
+  final String? localCoverImagePath;
+  final String? localBackImagePath;
+  final String? localThumbnailImagePath;
+  final List<String> extra;
+  final List<MusicExternalLink> externalLinks;
+  final String? boxSet;
+  final List<MusicCredit> credits;
+  final List<MusicArtistCredit> artistCredits;
+  final List<MusicDisc> discs;
+  final int revision;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  DateTime? get releaseDateTime => releaseDate?.asDateTime;
-  String? get artistDisplay => artists.map((artist) => artist.name).join(', ');
-  CatalogItemRef get catalogItemRef =>
-      CatalogItemRef(kind: CatalogMediaKind.music, id: id.value);
+  DateTime? get originalReleaseDate => originalReleaseDateParts?.asDateTime;
+  DateTime? get releaseDate => releaseDateParts?.asDateTime;
 
+  int get trackCount =>
+      discs.fold<int>(0, (total, disc) => total + disc.effectiveTrackCount);
+  List<MusicTrack> get tracks => [
+        for (final disc in discs)
+          for (final track in disc.tracks)
+            if (!track.isHeader) track,
+      ];
+
+  factory MusicAlbum.fromJson(Map<String, dynamic> json) {
+    const fields = {
+      'id',
+      'kind',
+      'revision',
+      'created_at',
+      'updated_at',
+      'title',
+      'sort_title',
+      'subtitle',
+      'artist',
+      'original_release_date',
+      'genres',
+      'release_date',
+      'publisher',
+      'country_code',
+      'barcode',
+      'catalog_number',
+      'packaging',
+      'cover_image_url',
+      'cover_image_key',
+      'back_cover_image_url',
+      'thumbnail_image_url',
+      'local_cover_image_path',
+      'local_back_image_path',
+      'local_thumbnail_image_path',
+      'extra',
+      'external_links',
+      'box_set',
+      'credits',
+      'artist_credits',
+      'discs',
+    };
+    final unsupported = json.keys.where((key) => !fields.contains(key));
+    if (unsupported.isNotEmpty) {
+      throw FormatException(
+        'Unrecognized local Music field "${unsupported.first}".',
+      );
+    }
+    if (json['kind'] != null && json['kind'] != 'music') {
+      throw FormatException(
+          'Expected local Music data, received ${json['kind']}.');
+    }
+    final discs = _maps(json['discs'], 'discs')
+        .map(MusicDisc.fromJson)
+        .toList(growable: false);
+    final credits = _credits(json['credits']);
+    final artistCredits = _artistCredits(json['artist_credits']);
+    _validateContainedIdentity(discs, credits, artistCredits);
+    return MusicAlbum(
+      id: _catalogItemRef(json['id']),
+      title: _requiredText(json['title'], 'title'),
+      sortTitle: _optionalText(json['sort_title'], 'sort_title'),
+      subtitle: _optionalText(json['subtitle'], 'subtitle'),
+      artist: _optionalText(json['artist'], 'artist'),
+      originalReleaseDateParts: _partialDate(
+        json['original_release_date'],
+      ),
+      genres: _strings(json['genres'], 'genres'),
+      releaseDateParts: _partialDate(
+        json['release_date'],
+      ),
+      publisher: _optionalText(json['publisher'], 'publisher'),
+      countryCode: _optionalText(json['country_code'], 'country_code'),
+      barcode: _optionalText(json['barcode'], 'barcode'),
+      catalogNumber: _optionalText(json['catalog_number'], 'catalog_number'),
+      packaging: _optionalText(json['packaging'], 'packaging'),
+      coverImageUrl: _optionalText(json['cover_image_url'], 'cover_image_url'),
+      coverImageKey: _optionalText(json['cover_image_key'], 'cover_image_key'),
+      backCoverImageUrl:
+          _optionalText(json['back_cover_image_url'], 'back_cover_image_url'),
+      thumbnailImageUrl: _optionalText(
+        json['thumbnail_image_url'],
+        'thumbnail_image_url',
+      ),
+      localCoverImagePath: _optionalText(
+          json['local_cover_image_path'], 'local_cover_image_path'),
+      localBackImagePath:
+          _optionalText(json['local_back_image_path'], 'local_back_image_path'),
+      localThumbnailImagePath: _optionalText(
+        json['local_thumbnail_image_path'],
+        'local_thumbnail_image_path',
+      ),
+      extra: _strictStringList(json['extra']),
+      externalLinks: _externalLinks(json),
+      boxSet: _optionalText(json['box_set'], 'box_set'),
+      credits: credits,
+      artistCredits: artistCredits,
+      discs: discs,
+      revision: _requiredInt(json['revision'], 'revision', minimum: 1),
+      createdAt: _optionalDateTime(json['created_at'], 'created_at'),
+      updatedAt: _optionalDateTime(json['updated_at'], 'updated_at'),
+    );
+  }
+
+  @override
   Map<String, dynamic> toJson() => {
-        'id': id.value,
+        if (id != null) 'id': id!.id,
+        if (id != null) 'kind': id!.kind.apiValue,
+        'revision': revision,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
         'title': title,
         if (sortTitle != null) 'sort_title': sortTitle,
         if (subtitle != null) 'subtitle': subtitle,
-        'artists': artists.map((value) => value.toJson()).toList(),
-        if (releaseDate != null) 'release_date': releaseDate!.toJson(),
-        if (originalReleaseDate != null)
-          'original_release_date': originalReleaseDate!.toJson(),
-        if (recordingDate != null) 'recording_date': recordingDate!.toJson(),
-        'labels': labels.map((value) => value.toJson()).toList(),
-        if (format != null) 'format': format,
+        if (artist != null) 'artist': artist,
+        if (originalReleaseDateParts != null)
+          'original_release_date': originalReleaseDateParts!.toJson(),
+        if (genres.isNotEmpty) 'genres': genres,
+        if (releaseDateParts != null)
+          'release_date': releaseDateParts!.toJson(),
+        if (publisher != null) 'publisher': publisher,
+        if (countryCode != null) 'country_code': countryCode,
         if (barcode != null) 'barcode': barcode,
         if (catalogNumber != null) 'catalog_number': catalogNumber,
-        'genres': genres,
         if (packaging != null) 'packaging': packaging,
-        'studio': studio,
-        if (country != null) 'country': country,
-        if (isLive != null) 'is_live': isLive,
-        'sound_types': soundTypes,
-        if (vinylColor != null) 'vinyl_color': vinylColor,
-        if (vinylWeight != null) 'vinyl_weight': vinylWeight,
-        if (rpm != null) 'rpm': rpm,
-        'extras': extras,
-        if (sparsCode != null) 'spars_code': sparsCode,
-        if (boxSet != null) 'box_set': boxSet,
-        if (matrixNumberSideA != null)
-          'matrix_number_side_a': matrixNumberSideA,
-        if (matrixNumberSideB != null)
-          'matrix_number_side_b': matrixNumberSideB,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+        if (coverImageKey != null) 'cover_image_key': coverImageKey,
         if (backCoverImageUrl != null)
           'back_cover_image_url': backCoverImageUrl,
-        'disc_titles': discTitles.map((value) => value.toJson()).toList(),
-        'tracks': tracks.map((value) => value.toJson()).toList(),
+        if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+        if (localCoverImagePath != null)
+          'local_cover_image_path': localCoverImagePath,
+        if (localBackImagePath != null)
+          'local_back_image_path': localBackImagePath,
+        if (localThumbnailImagePath != null)
+          'local_thumbnail_image_path': localThumbnailImagePath,
+        'extra': extra,
+        if (externalLinks.isNotEmpty)
+          'external_links': externalLinks.map((link) => link.toJson()).toList(),
+        if (boxSet != null) 'box_set': boxSet,
         'credits': credits.map((value) => value.toJson()).toList(),
-        'links': links.map((value) => value.toJson()).toList(),
-        if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
-        if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
+        if (artistCredits.isNotEmpty)
+          'artist_credits':
+              artistCredits.map((value) => value.toJson()).toList(),
+        'discs': discs.map((disc) => disc.toJson()).toList(),
       };
 }
 
-@immutable
-final class MusicAlbumTrack {
-  const MusicAlbumTrack({
-    required this.albumId,
-    required this.discNumber,
-    required this.position,
-    required this.title,
-    this.artist,
-    this.durationMs,
-  })  : assert(discNumber > 0),
-        assert(position > 0);
+void _validateContainedIdentity(
+  List<MusicDisc> discs,
+  List<MusicCredit> albumCredits,
+  List<MusicArtistCredit> artistCredits,
+) {
+  final discIds = <String>{};
+  final trackIds = <String>{};
+  final creditIds = <String>{};
+  final artistCreditIds = <String>{};
+  final discNumbers = <int>{};
 
-  final MusicAlbumId albumId;
-  final int discNumber;
-  final int position;
-  final String title;
-  final String? artist;
-  final int? durationMs;
+  for (final credit in artistCredits) {
+    if (!artistCreditIds.add(credit.id)) {
+      throw const FormatException('Music artist credit IDs must be unique.');
+    }
+  }
+  void checkCredits(List<MusicCredit> credits, String scope) {
+    final sequences = <int>{};
+    for (final credit in credits) {
+      if (!creditIds.add(credit.id.value) || !sequences.add(credit.sequence)) {
+        throw FormatException(
+          'Music $scope credit IDs and sequences must be unique.',
+        );
+      }
+    }
+  }
 
-  Map<String, dynamic> toJson() => {
-        'album_id': albumId.value,
-        'disc_number': discNumber,
-        'position': position,
-        'title': title,
-        if (artist != null) 'artist': artist,
-        if (durationMs != null) 'duration_ms': durationMs,
-      };
+  checkCredits(albumCredits, 'album');
+  for (final disc in discs) {
+    if (!discIds.add(disc.id.value) || !discNumbers.add(disc.discNumber)) {
+      throw const FormatException('Music disc IDs and numbers must be unique.');
+    }
+    checkCredits(disc.credits, 'disc');
+    for (final track in disc.tracks) {
+      if (!trackIds.add(track.id.value)) {
+        throw const FormatException('Music track IDs must be unique.');
+      }
+    }
+  }
+}
+
+CatalogItemRef? _catalogItemRef(Object? value) {
+  if (value == null) return null;
+  return CatalogItemRef(
+    kind: CatalogMediaKind.music,
+    id: _requiredText(value, 'id'),
+  );
+}
+
+String _requiredText(Object? value, String field) {
+  if (value is! String || value.isEmpty || value != value.trim()) {
+    throw FormatException('Local Music $field must be non-empty trimmed text.');
+  }
+  return value;
+}
+
+String? _optionalText(Object? value, String field) {
+  if (value == null) return null;
+  return _requiredText(value, field);
+}
+
+int _requiredInt(Object? value, String field, {required int minimum}) {
+  if (value is! int || value < minimum) {
+    throw FormatException('Local Music $field must be an integer >= $minimum.');
+  }
+  return value;
+}
+
+PartialDate? _partialDate(Object? value) {
+  if (value == null) return null;
+  if (value is! Map ||
+      value.isEmpty ||
+      value.keys.any((key) => !{'year', 'month', 'day'}.contains(key)) ||
+      value.values.any(
+        (part) => part != null && part is! int,
+      ) ||
+      !value.values.any((part) => part is int)) {
+    throw const FormatException('Music dates must use PartialDate objects.');
+  }
+  final parsed = PartialDate.fromJson(Map<String, dynamic>.from(value));
+  if ((parsed.year != null && (parsed.year! < 1 || parsed.year! > 9999)) ||
+      (parsed.month != null && (parsed.month! < 1 || parsed.month! > 12)) ||
+      (parsed.day != null && (parsed.day! < 1 || parsed.day! > 31)) ||
+      (parsed.isFullDate && parsed.asDateTime == null)) {
+    throw const FormatException(
+        'Music dates must contain valid calendar values.');
+  }
+  return parsed;
+}
+
+DateTime? _optionalDateTime(Object? value, String field) {
+  if (value == null) return null;
+  if (value is! String) {
+    throw FormatException('Local Music $field must be an ISO date-time.');
+  }
+  final parsed = DateTime.tryParse(value);
+  if (parsed == null || !value.contains('T') || value != value.trim()) {
+    throw FormatException('Local Music $field must be an ISO date-time.');
+  }
+  return parsed.toUtc();
+}
+
+List<String> _strings(Object? value, String field) {
+  if (value == null) return const [];
+  if (value is! List) {
+    throw FormatException('Local Music $field must be a list of strings.');
+  }
+  return [
+    for (final (index, entry) in value.indexed)
+      _requiredText(entry, '$field entry ${index + 1}'),
+  ];
+}
+
+List<String> _strictStringList(Object? value) {
+  if (value == null) return const [];
+  if (value is! List) {
+    throw const FormatException('Local Music extra must be a list of strings.');
+  }
+  return List<String>.unmodifiable([
+    for (final (index, entry) in value.indexed)
+      _requiredText(entry, 'extra entry ${index + 1}'),
+  ]);
+}
+
+List<Map<String, dynamic>> _maps(Object? value, String field) {
+  if (value == null) return const [];
+  if (value is! List) {
+    throw FormatException('Local Music $field must be a list.');
+  }
+  return [
+    for (final (index, entry) in value.indexed)
+      if (entry is Map)
+        Map<String, dynamic>.from(entry)
+      else
+        throw FormatException(
+          'Local Music $field entry ${index + 1} must be an object.',
+        ),
+  ];
+}
+
+List<MusicArtistCredit> _artistCredits(Object? value) {
+  if (value == null) return const [];
+  if (value is! List) {
+    throw const FormatException('Music artist_credits must be a list.');
+  }
+  return [
+    for (final (index, entry) in value.indexed)
+      if (entry is Map)
+        MusicArtistCredit.fromJson(Map<String, dynamic>.from(entry))
+      else
+        throw FormatException(
+          'Music artist_credits entry ${index + 1} must be an object.',
+        ),
+  ];
+}
+
+List<MusicCredit> _credits(Object? value) {
+  if (value == null) return const [];
+  if (value is! List) {
+    throw const FormatException('Music credits must be a list.');
+  }
+  return [
+    for (final (index, entry) in value.indexed)
+      if (entry is Map)
+        MusicCredit.fromJson(Map<String, dynamic>.from(entry))
+      else
+        throw FormatException(
+          'Music credit ${index + 1} must be an object.',
+        ),
+  ];
+}
+
+List<MusicExternalLink> _externalLinks(Map<String, dynamic> json) {
+  final raw = json['external_links'];
+  if (raw == null) return const [];
+  if (raw is! List) {
+    throw const FormatException('Music external_links must be a list.');
+  }
+  return [
+    for (final (index, value) in raw.indexed)
+      if (value is Map)
+        MusicExternalLink.fromJson(Map<String, dynamic>.from(value))
+      else
+        throw FormatException(
+          'Music external_links entry ${index + 1} must be an object.',
+        ),
+  ];
 }

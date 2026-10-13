@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 abstract interface class LibraryLinkedMetadataCapability {
   const LibraryLinkedMetadataCapability();
 
-  Iterable<String> candidatesForEntry(LibraryWorkspaceSource source);
+  Iterable<String> candidatesForEntry(LibraryWorkspaceContext source);
 }
 
 class DefaultLibraryLinkedMetadataCapability
@@ -11,7 +11,7 @@ class DefaultLibraryLinkedMetadataCapability
   const DefaultLibraryLinkedMetadataCapability();
 
   @override
-  Iterable<String> candidatesForEntry(LibraryWorkspaceSource source) sync* {
+  Iterable<String> candidatesForEntry(LibraryWorkspaceContext source) sync* {
     yield* _commonCandidates(source);
   }
 }
@@ -23,11 +23,11 @@ class TypedLibraryLinkedMetadataCapability<TMetadata>
     this._metadataValues,
   );
 
-  final TMetadata? Function(LibraryWorkspaceSource source) _metadataReader;
+  final TMetadata? Function(LibraryWorkspaceContext source) _metadataReader;
   final Iterable<String?> Function(TMetadata metadata) _metadataValues;
 
   @override
-  Iterable<String> candidatesForEntry(LibraryWorkspaceSource source) sync* {
+  Iterable<String> candidatesForEntry(LibraryWorkspaceContext source) sync* {
     yield* _commonCandidates(source);
     final metadata = _metadataReader(source);
     if (metadata != null) {
@@ -36,7 +36,7 @@ class TypedLibraryLinkedMetadataCapability<TMetadata>
   }
 }
 
-Iterable<String> _commonCandidates(LibraryWorkspaceSource source) sync* {
+Iterable<String> _commonCandidates(LibraryWorkspaceContext source) sync* {
   final summaryTitle = source.catalogSummary?.primaryLabel;
   if (summaryTitle != null) {
     yield* _nonEmptyStrings([summaryTitle]);

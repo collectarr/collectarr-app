@@ -1,12 +1,12 @@
 import '../book_module_dependencies.dart';
 import 'book_kind_configuration.dart';
-import 'package:collectarr_app/features/library/kinds/book/release/book_release_projection_capability.dart'
-    as book_release;
-import '../add/book_add_contribution.dart';
+import '../data/book_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final bookKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.book,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'signed_by',
       label: 'Signed by',
@@ -21,14 +21,6 @@ final bookKindPresentation = bookLibraryMediaPresentation;
 final bookKindPhysicalMediaFormats = bookPhysicalMediaFormats;
 
 final bookKindTrackingProfile = bookTrackingProfile;
-
-final bookKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final bookKindReleaseCapability = book_release.bookKindReleaseCapability;
-
-final bookKindReleaseDetailSource = book_release.bookKindReleaseDetailSource;
-
-final bookKindCatalogTarget = const BookCatalogTargetCapability();
 
 final bookKindUiPolicy = const LibraryUiPolicy();
 
@@ -62,62 +54,40 @@ final bookKindIdentity = const LibraryKindIdentity(
 );
 
 final bookKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'hardcover',
   catalogMetadataDecoder: BookCatalogMetadata.fromJson,
+  catalogTransportCodec: BookCatalogTransportCodec(),
   searchQueryBuilder: bookMetadataSearchQuery,
-  providers: [
-    hardcoverMetadataProvider,
-    openLibraryMetadataProvider,
-  ],
 );
 
-final bookKindHierarchy = LibraryHierarchyCapability(
-  browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
-  fetchChildrenCallback: fetchBookVolumes,
-  childrenTitleBuilder: bookChildrenTitle,
-);
-
-final bookKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Book', plural: 'Books'),
-  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+final bookKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem: LibraryTargetLabel(singular: 'Book', plural: 'Books'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final bookKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.read,
-  writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
-  contentTargets: {LibraryTrackingTargetScope.content},
+  writableTargets: {LibraryTrackingTarget.libraryEntry},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
 );
 
-final bookKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
-  copy: LibraryEntityActionSet.copy,
+final bookKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final bookKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
-        heroBuilder: buildBookWorkInspectorHero,
-        sectionsBuilder: buildBookWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildBookReleaseInspectorHero,
-        sectionsBuilder: buildBookReleaseInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
-        heroBuilder: buildBookCopyInspectorHero,
-        sectionsBuilder: buildBookCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildBookCatalogItemInspectorHero,
+      sectionsBuilder: buildBookCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildBookLibraryEntryInspectorHero,
+      sectionsBuilder: buildBookLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: true,
-  supportsOwnedItemImages: false,
+  supportsLibraryEntryImages: false,
 );
 
 final bookKindLinkedMetadata =

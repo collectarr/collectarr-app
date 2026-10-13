@@ -11,9 +11,9 @@ void main() {
       'release_date': DateTime.utc(2018, 1, 6).toIso8601String(),
     });
 
-    expect(item.catalogRef.kind, CatalogMediaKind.anime);
-    expect(item.catalogRef.id, 'anilist-local:42');
-    expect(item.title, 'A Place Further Than the Universe');
+    expect(item.catalogItemRef.kind, CatalogMediaKind.anime);
+    expect(item.catalogItemRef.id, 'anilist-local:42');
+    expect(item.kindData['title'], 'A Place Further Than the Universe');
     expect(item.mediaKind, CatalogMediaKind.anime);
   });
 }

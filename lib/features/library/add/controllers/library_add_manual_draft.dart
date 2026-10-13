@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 /// Generic personal and session state for the manual Add dialog flow.
 ///
-/// Kind-specific fields are owned by [kindDraft] implementing [LibraryKindAddDraft].
+/// Kind-specific fields are entry by [kindDraft] implementing [LibraryKindAddDraft].
 class LibraryAddManualDraft {
   LibraryAddManualDraft({
     required List<CustomFieldValue> customFieldValues,
@@ -17,11 +17,12 @@ class LibraryAddManualDraft {
             (value) => MapEntry(value.fieldDefinitionId, value.value),
           ),
         ),
-        itemImages = List<ItemImage>.of(itemImages);
+        itemImages = [
+          for (final image in itemImages) ItemImageDraft.fromImage(image)
+        ];
 
   final LibraryKindAddDraft kindDraft;
 
-  final titleController = TextEditingController();
   final tagsController = TextEditingController();
   final personalNotesController = TextEditingController();
   final coverPriceController = TextEditingController();
@@ -31,15 +32,13 @@ class LibraryAddManualDraft {
   final sellPriceController = TextEditingController();
   final soldDateController = TextEditingController();
   final ownerLabelController = TextEditingController();
-  final linksController = TextEditingController();
 
   Map<String, String?> customFieldValues;
-  List<ItemImage> itemImages;
+  List<ItemImageDraft> itemImages;
   LibraryCoverScanResult? coverScanPrefill;
   DateTime? soldAt;
 
   void dispose() {
-    titleController.dispose();
     tagsController.dispose();
     personalNotesController.dispose();
     coverPriceController.dispose();
@@ -49,7 +48,6 @@ class LibraryAddManualDraft {
     sellPriceController.dispose();
     soldDateController.dispose();
     ownerLabelController.dispose();
-    linksController.dispose();
-    kindDraft.dispose();
+    disposeLibraryKindAddDraft(kindDraft);
   }
 }

@@ -1,17 +1,28 @@
+import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
 import 'dart:async';
+import 'package:collectarr_app/features/library/edit/session/library_edit_navigation_guard.dart';
 
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_contributions.dart';
+import 'package:collectarr_app/features/library/edit/session/library_vocabulary_edit_accumulator.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
+import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
+
+export 'package:collectarr_app/features/library/edit/schema/library_edit_schema_contributions.dart';
 
 /// Mounts a typed schema renderer in the same dialog chrome used by the
 /// regular Library edit flow.
 ///
 /// The schema remains responsible for typed fields and validation. This
-/// widget only owns the shared dialog shell and forwards the shell's Save
-/// action to the renderer.
+/// widget owns the shared dialog shell, composes standard tabs from kind
+/// contributions, and forwards the shell's Save action to the renderer.
 final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   const LibraryEditSchemaDialog({
     super.key,
@@ -27,10 +38,15 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     this.badges = const <Widget>[],
     this.onPrevious,
     this.onNext,
+    this.hasUnsavedChanges,
     this.chromeVariant = LibraryEditChromeVariant.standard,
+    this.maxDialogWidth,
+    this.insetPadding,
     this.mediaKind,
+    this.vocabularyAccumulator,
     required this.tabOrderKey,
     this.extraTabs = const [],
+    this.contributions = const LibraryEditSchemaContributions(),
   });
 
   final EditSchema<TModel, TDraft> schema;
@@ -45,10 +61,15 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final LibraryCoreCorrectionSource Function()? coreCorrectionSourceBuilder;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
+  final bool Function()? hasUnsavedChanges;
   final LibraryEditChromeVariant chromeVariant;
+  final double? maxDialogWidth;
+  final EdgeInsets? insetPadding;
   final String? mediaKind;
+  final LibraryVocabularyEditAccumulator? vocabularyAccumulator;
   final String tabOrderKey;
   final List<EditSchemaExtraTab> extraTabs;
+  final LibraryEditSchemaContributions contributions;
 
   @override
   State<LibraryEditSchemaDialog<TModel, TDraft>> createState() =>
@@ -59,24 +80,164 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
     extends State<LibraryEditSchemaDialog<TModel, TDraft>> {
   final _formKey = GlobalKey<FormState>();
   final _rendererKey = GlobalKey<EditSchemaRendererState<TModel, TDraft>>();
+  bool _saving = false;
+  CustomFieldsDisplaySettings _customDisplay =
+      const CustomFieldsDisplaySettings();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.contributions.customFields != null) {
+      unawaited(_loadCustomDisplay());
+    }
+  }
+
+  Future<void> _loadCustomDisplay() async {
+    final display = await CustomFieldsDisplaySettings.read(widget.mediaKind);
+    if (mounted) setState(() => _customDisplay = display);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final entry = LibraryEntryEditScope.maybeOf(context);
+    final extraTabs = [...widget.extraTabs];
+    final personalContribution = widget.contributions.personal;
+    final hasPersonal = widget.schema.tabs.any((tab) => tab.id == 'personal') ||
+        extraTabs.any((tab) => tab.id == 'personal');
+    if (!hasPersonal && (entry != null || personalContribution != null)) {
+      if (entry != null) entry.used = true;
+      final contribution = personalContribution;
+      _insertExtraTab(
+        extraTabs,
+        EditSchemaExtraTab(
+          id: contribution?.id ?? 'personal',
+          label: contribution?.label ?? 'Personal',
+          icon: contribution?.icon ?? Icons.person_outline,
+          svgAsset: contribution?.svgAsset,
+          content: entry == null
+              ? const Text(
+                  'Personal fields belong to your local library entry.',
+                )
+              : LibraryEntryPersonalSection(
+                  draft: entry,
+                  layoutBuilder: contribution?.layoutBuilder,
+                  additionalFields:
+                      contribution?.additionalFieldsBuilder?.call(entry) ??
+                          const {},
+                  history: contribution?.historyBuilder?.call(entry),
+                ),
+        ),
+        afterTabId: contribution?.afterTabId,
+      );
+    }
+    final customFields = widget.contributions.customFields;
+    if (customFields != null &&
+        _customDisplay.showEditTab &&
+        !extraTabs.any((tab) => tab.id == customFields.id) &&
+        !widget.schema.tabs.any((tab) => tab.id == customFields.id)) {
+      _insertExtraTab(
+        extraTabs,
+        EditSchemaExtraTab(
+          id: customFields.id,
+          label: _customDisplay.tabName,
+          icon: customFields.icon,
+          svgAsset: customFields.svgAsset,
+          content: CustomFieldsEditSection(
+            definitions: customFields.definitions,
+            values: customFields.values,
+            accent: widget.accent,
+            mediaKind: widget.mediaKind,
+            onChanged: customFields.onChanged,
+            onCustomValueChanged: customFields.onCustomValueChanged,
+          ),
+        ),
+        afterTabId: customFields.afterTabId,
+      );
+    }
+    final images = widget.contributions.images;
+    if (images != null &&
+        !extraTabs.any((tab) => tab.id == images.id) &&
+        !widget.schema.tabs.any((tab) => tab.id == images.id)) {
+      _insertExtraTab(
+        extraTabs,
+        EditSchemaExtraTab(
+          id: images.id,
+          label: images.label,
+          icon: images.icon,
+          svgAsset: images.svgAsset,
+          content: ItemImagesEditSection(
+            images: images.images,
+            accent: widget.accent,
+            onChanged: images.onChanged,
+            helperText: images.helperText,
+            maximumImages: images.maximumImages,
+            defaultImageType: images.defaultImageType,
+            uniqueImageTypes: images.uniqueImageTypes,
+            imageTypeFieldBuilder: images.imageTypeFieldBuilder,
+          ),
+        ),
+        afterTabId: images.afterTabId,
+      );
+    }
+    final links = widget.contributions.links;
+    if (links != null &&
+        !extraTabs.any((tab) => tab.id == links.id) &&
+        !widget.schema.tabs.any((tab) => tab.id == links.id)) {
+      _insertExtraTab(
+        extraTabs,
+        EditSchemaExtraTab(
+          id: links.id,
+          label: links.label,
+          icon: links.icon,
+          svgAsset: links.svgAsset,
+          content: LibraryExternalLinksEditSection(
+            links: links.links,
+            accent: widget.accent,
+            onChanged: links.onChanged,
+            addLabel: links.addLabel,
+            showTitleColumn: links.showTitleColumn,
+            emptyMessage: links.emptyMessage,
+          ),
+        ),
+        afterTabId: links.afterTabId,
+      );
+    }
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: widget.accent,
       icon: widget.icon,
       title: widget.title,
       badges: widget.badges,
-      onClose: widget.onCancel,
-      onCancel: widget.onCancel,
-      onSave: () => _rendererKey.currentState?.save(),
-      onProposeToCore: widget.coreCorrectionSourceBuilder == null
+      footerContent:
+          entry == null ? null : LibraryEntryStatusStrip(draft: entry),
+      isBusy: _saving,
+      onClose: _cancelIfIdle,
+      onCancel: _cancelIfIdle,
+      onSave: _saving
+          ? null
+          : () async {
+              if (!_formKey.currentState!.validate()) return;
+              setState(() => _saving = true);
+              try {
+                await _rendererKey.currentState?.save();
+              } finally {
+                if (mounted) setState(() => _saving = false);
+              }
+            },
+      onProposeToCore: _saving ||
+              (entry != null && entry.record.sourceCatalogRef == null) ||
+              widget.coreCorrectionSourceBuilder == null
           ? null
           : () => unawaited(_proposeToCore()),
-      onPrevious: widget.onPrevious,
-      onNext: widget.onNext,
+      onPrevious: _saving || widget.onPrevious == null
+          ? null
+          : () => unawaited(_leave(widget.onPrevious!)),
+      onNext: _saving || widget.onNext == null
+          ? null
+          : () => unawaited(_leave(widget.onNext!)),
       chromeVariant: widget.chromeVariant,
+      maxDialogWidth: widget.maxDialogWidth,
+      insetPadding: widget.insetPadding,
       body: EditSchemaRenderer<TModel, TDraft>(
         key: _rendererKey,
         schema: widget.schema,
@@ -84,14 +245,45 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
         draft: widget.draft,
         showTitle: false,
         showFooter: false,
+        fillAvailableHeight: true,
         tabAccent: widget.accent,
+        tabNavigationEnabled: !_saving,
         tabOrderKey: widget.tabOrderKey,
-        extraTabs: widget.extraTabs,
+        extraTabs: extraTabs,
         mediaKind: widget.mediaKind,
-        onCancel: widget.onCancel,
+        vocabularyAccumulator: widget.vocabularyAccumulator,
+        onCancel: _saving ? null : widget.onCancel,
         onSave: widget.onSave,
       ),
     );
+  }
+
+  void _insertExtraTab(
+    List<EditSchemaExtraTab> tabs,
+    EditSchemaExtraTab tab, {
+    String? afterTabId,
+  }) {
+    final anchorIndex = afterTabId == null
+        ? -1
+        : tabs.indexWhere((candidate) => candidate.id == afterTabId);
+    tabs.insert(anchorIndex < 0 ? tabs.length : anchorIndex + 1, tab);
+  }
+
+  void _cancelIfIdle() {
+    if (_saving) return;
+    unawaited(_leave(widget.onCancel));
+  }
+
+  Future<void> _leave(VoidCallback action) async {
+    if (_saving) return;
+    final dirty = (widget.hasUnsavedChanges?.call() ??
+            widget.schema.isDirty?.call(widget.model, widget.draft) ??
+            false) ||
+        (LibraryEntryEditScope.maybeOf(context)?.changes.isNotEmpty ?? false);
+    if (await confirmLeaveLibraryEdit(context, hasUnsavedChanges: dirty) &&
+        mounted) {
+      action();
+    }
   }
 
   Future<void> _proposeToCore() async {

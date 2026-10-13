@@ -1,78 +1,114 @@
-import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/core/models/user_external_link.dart';
+import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_entry_persistence.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+export 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 export 'package:collectarr_app/core/models/tracking_summary.dart';
 
 final shelfProvider = FutureProvider<ShelfState>((ref) async {
-  final ownedSummaries = await ref.watch(collectionSummariesProvider.future);
+  final entrySummaries = await ref.watch(collectionSummariesProvider.future);
   final wishlist = await ref.watch(wishlistProvider.future);
   final trackingSummaries = await ref.watch(trackingSummariesProvider.future);
   final auth = ref.watch(authControllerProvider);
   final db = ref.watch(localDatabaseProvider);
-  final ownedRepository = CollectarrOwnedItemPersistence(db);
-  final typedOwnedResults = await Future.wait(
-    ownedSummaries.map(
-      (summary) => ownedRepository.ownedItemForLibraryByRef(summary.ref),
-    ),
-  );
-  final ownedItemDispatchesByRef = <OwnedItemRef, LibraryOwnedItemDispatch>{};
-  for (var index = 0; index < typedOwnedResults.length; index++) {
-    final result = typedOwnedResults[index];
-    if (result != null) {
-      ownedItemDispatchesByRef[ownedSummaries[index].ref] = result;
-    }
+  final entryRepository = CollectarrLibraryEntryPersistence(db);
+  final typedEntryResults = await entryRepository.listActiveDispatches();
+  final libraryEntryDispatchesByRef = <LibraryEntryRef, LibraryEntryDispatch>{};
+  for (final result in typedEntryResults) {
+    libraryEntryDispatchesByRef[result.ref] = result;
   }
-  final catalogRefs = <CatalogEntityRef>{
-    for (final item in ownedSummaries)
-      if (item.catalogRef != null) item.catalogRef!.rootScope,
-    for (final item in wishlist) item.catalogRef.rootScope,
-    for (final item in trackingSummaries) item.catalogRef.rootScope,
+  final entryRefs = entrySummaries.map((entry) => entry.ref).toSet();
+  final imageTypesByEntry =
+      await ItemImageRepository(db).typesForLibraryEntryRefs(entryRefs);
+  final catalogRefs = <CatalogItemRef>{
+    for (final entry in entrySummaries)
+      if (entry.sourceCatalogRef case final ref?) ref,
+    for (final item in wishlist) item.catalogRef,
   };
   final catalogSummaries =
       await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
+  final dataRepository = CatalogWorkspaceDataRepository(db);
+  final kindPresentationByEntryRef =
+      await dataRepository.findEntries(entryRefs);
+  final catalogPresentationByRef = await dataRepository.findCatalogItems(
+    wishlist.map((item) => item.catalogRef),
+  );
   // Read transport only at the repository boundary, then immediately
-  // dispatch into structural kind-owned workspace data. Shelf never carries
+  // dispatch into structural kind-entry workspace data. Shelf never carries
   // a generic catalog snapshot.
-  final catalogDataByRef =
-      await CatalogWorkspaceDataRepository(db).findByRefs(catalogRefs);
   final locations = await LocationRepository(db).getAll();
+  final userExternalLinksByEntry =
+      await UserExternalLinksCacheRepository(db).listGroupedByEntry(
+    entrySummaries.map((entry) => entry.ref),
+  );
+  final loanRepository = LoanRepository(db);
+  final loansByEntry = <LibraryEntryRef, List<Loan>>{};
+  for (final loan in await loanRepository.getAllLoans()) {
+    loansByEntry.putIfAbsent(loan.libraryEntryRef, () => []).add(loan);
+  }
+  final folderRepository = UserFolderRepository(db);
+  final folderMembershipsByEntry =
+      <LibraryEntryRef, List<({String folderId, int sortOrder})>>{};
+  for (final entry in entrySummaries) {
+    folderMembershipsByEntry[entry.ref] =
+        await folderRepository.getMembershipSnapshotForItem(entry.ref);
+  }
+  final folderDefinitions = await folderRepository.getAll();
+  final readingQueue = await ReadingQueueRepository(db).getQueue();
+  final readingQueuePositionByEntry = <LibraryEntryRef, int>{
+    for (var index = 0; index < readingQueue.length; index++)
+      readingQueue[index]: index,
+  };
   final watchSessions = await WatchSessionsRepository(
     db,
     codecs: libraryWatchSessionCodecs,
-  ).listActiveByCatalogRefs(catalogRefs);
-  final itemImagesByOwnedItem = await ItemImageRepository(db).listForOwnedRefs(
-    ownedSummaries.map((item) => item.ref),
+  ).listActiveByLibraryEntryRefs(
+    entrySummaries.map((entry) => entry.ref),
   );
   return ShelfState.from(
-    ownedSummaries: ownedSummaries,
+    entrySummaries: entrySummaries,
     wishlistItems: wishlist,
     trackingSummaries: trackingSummaries,
     watchSessions: watchSessions,
     catalogSummariesByRef: catalogSummaries,
-    catalogDataByRef: catalogDataByRef,
+    kindPresentationByEntryRef: kindPresentationByEntryRef,
+    catalogPresentationByRef: catalogPresentationByRef,
     locations: locations,
-    itemImagesByOwnedItem: itemImagesByOwnedItem,
-    ownedItemDispatchesByRef: ownedItemDispatchesByRef,
+    imageTypesByLibraryEntry: imageTypesByEntry,
+    userExternalLinksByEntry: userExternalLinksByEntry,
+    loansByEntry: loansByEntry,
+    folderMembershipsByEntry: folderMembershipsByEntry,
+    folderDefinitions: folderDefinitions,
+    readingQueuePositionByEntry: readingQueuePositionByEntry,
+    libraryEntryDispatchesByRef: libraryEntryDispatchesByRef,
     fallbackOwnerLabel: auth.email,
   );
 });
@@ -80,186 +116,218 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
 class ShelfState {
   const ShelfState({
     required this.entries,
-    required this.ownedCount,
+    required this.entryCount,
     required this.wishlistCount,
     required this.pricedCount,
     required this.totalPaidCents,
     required this.primaryCurrency,
     required this.hasMixedCurrencies,
-    this.totalQuantity = 0,
+    this.wishlistItemCountByKind = const <String, int>{},
     this.missingMetadataCount = 0,
     this.locationCounts = const {},
     this.soldCount = 0,
     this.totalSellCents,
     this.marketValuedCount = 0,
     this.totalMarketValueCents,
-    this.ownedQuantityByKind = const <String, int>{},
+    this.libraryEntryCountByKind = const <String, int>{},
   });
 
   factory ShelfState.from({
-    Iterable<OwnedItemSummary>? ownedSummaries,
+    Iterable<LibraryEntrySummary>? entrySummaries,
     required List<WishlistItem> wishlistItems,
     Iterable<TrackingSummary>? trackingSummaries,
-    Map<OwnedItemRef, LibraryOwnedItemDispatch> ownedItemDispatchesByRef =
-        const <OwnedItemRef, LibraryOwnedItemDispatch>{},
+    Map<LibraryEntryRef, LibraryEntryDispatch> libraryEntryDispatchesByRef =
+        const <LibraryEntryRef, LibraryEntryDispatch>{},
     List<WatchSession> watchSessions = const [],
-    Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
-    Map<CatalogEntityRef, LibraryWorkspaceCatalogData>? catalogDataByRef,
+    Map<CatalogItemRef, CatalogDisplaySummary>? catalogSummariesByRef,
+    Map<LibraryEntryRef, LibraryWorkspaceKindData> kindPresentationByEntryRef =
+        const <LibraryEntryRef, LibraryWorkspaceKindData>{},
+    Map<CatalogItemRef, LibraryWorkspaceKindData> catalogPresentationByRef =
+        const <CatalogItemRef, LibraryWorkspaceKindData>{},
     List<StorageLocation> locations = const [],
-    Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
-        const <OwnedItemRef, List<ItemImage>>{},
+    Map<LibraryEntryRef, List<ItemImage>> itemImagesByLibraryEntry =
+        const <LibraryEntryRef, List<ItemImage>>{},
+    Map<LibraryEntryRef, Set<String>> imageTypesByLibraryEntry = const {},
+    Map<LibraryEntryRef, List<UserExternalLink>> userExternalLinksByEntry =
+        const <LibraryEntryRef, List<UserExternalLink>>{},
+    Map<LibraryEntryRef, List<Loan>> loansByEntry =
+        const <LibraryEntryRef, List<Loan>>{},
+    Map<LibraryEntryRef, List<({String folderId, int sortOrder})>> folderMembershipsByEntry =
+        const <LibraryEntryRef, List<({String folderId, int sortOrder})>>{},
+    List<UserFolder> folderDefinitions = const <UserFolder>[],
+    Map<LibraryEntryRef, int> readingQueuePositionByEntry =
+        const <LibraryEntryRef, int>{},
     String? fallbackOwnerLabel,
   }) {
-    final workspaceCatalogByRef =
-        <CatalogEntityRef, LibraryWorkspaceCatalogData>{
-      ...?catalogDataByRef,
-    };
     final resolvedCatalogSummariesByRef =
-        Map<CatalogEntityRef, CatalogDisplaySummary>.unmodifiable(
-      catalogSummariesByRef ??
-          const <CatalogEntityRef, CatalogDisplaySummary>{},
+        Map<CatalogItemRef, CatalogDisplaySummary>.unmodifiable(
+      catalogSummariesByRef ?? const <CatalogItemRef, CatalogDisplaySummary>{},
     );
-    final resolvedOwnedSummaries =
-        ownedSummaries?.toList(growable: false) ?? const <OwnedItemSummary>[];
+    final resolvedEntrySummaries = entrySummaries?.toList(growable: false) ??
+        const <LibraryEntrySummary>[];
     final resolvedTrackingSummaries =
         trackingSummaries?.toList(growable: false) ?? const <TrackingSummary>[];
     final locationPathsById = {
       for (final location in locations)
         location.id: location.fullPath(locations),
     };
-    final ownedByCatalogRef = <CatalogEntityRef, OwnedItemSummary>{
-      for (final item in resolvedOwnedSummaries)
-        if (!item.isDeleted && item.catalogRef != null)
-          item.catalogRef!.rootScope: item,
-    };
-    final wishlistByCatalogRef = <CatalogEntityRef, WishlistItem>{
+    final wishlistByCatalogRef = <CatalogItemRef, WishlistItem>{
       for (final item in wishlistItems)
-        if (!item.isDeleted) item.catalogRef.rootScope: item,
+        if (!item.isDeleted) item.catalogRef: item,
     };
-    final trackingByCatalogRef = <CatalogEntityRef, List<TrackingSummary>>{};
+    final trackingByEntryRef = <LibraryEntryRef, List<TrackingSummary>>{};
     for (final entry in resolvedTrackingSummaries) {
-      final catalogRef = entry.catalogRef.rootScope;
       if (entry.isDeleted) {
         continue;
       }
-      trackingByCatalogRef
-          .putIfAbsent(catalogRef, () => <TrackingSummary>[])
+      trackingByEntryRef
+          .putIfAbsent(entry.libraryEntryRef, () => <TrackingSummary>[])
           .add(entry);
     }
-    for (final entries in trackingByCatalogRef.values) {
+    for (final entries in trackingByEntryRef.values) {
       entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     }
-    final watchSessionsByCatalogRef = <CatalogEntityRef, List<WatchSession>>{};
+    final watchSessionsByEntryRef = <LibraryEntryRef, List<WatchSession>>{};
     for (final session in watchSessions) {
       if (session.isDeleted) {
         continue;
       }
-      final catalogRef = session.targetRef.rootScope;
-      watchSessionsByCatalogRef
-          .putIfAbsent(catalogRef, () => <WatchSession>[])
+      watchSessionsByEntryRef
+          .putIfAbsent(session.libraryEntryRef, () => <WatchSession>[])
           .add(session);
     }
-    for (final sessions in watchSessionsByCatalogRef.values) {
+    for (final sessions in watchSessionsByEntryRef.values) {
       sessions.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
     }
-    final refs = <CatalogEntityRef>{
-      ...ownedByCatalogRef.keys,
-      ...wishlistByCatalogRef.keys,
-      ...trackingByCatalogRef.keys,
-    };
-    final entries = [
-      for (final ref in refs) ...[
-        LibraryWorkspaceSource(
-          itemId: ref.id,
-          // Mixed/global Shelf rendering is summary-only. The transport
-          // snapshot below is retained solely for the owning kind's typed
-          // workspace projector.
-          catalogSummary: resolvedCatalogSummariesByRef[ref],
-          catalogSearchTokens: [
-            if (resolvedCatalogSummariesByRef[ref]?.primaryLabel
-                case final title?)
-              title,
+    LibraryWorkspaceContext buildLibraryEntry(LibraryEntrySummary entry) {
+      final sourceRef = entry.sourceCatalogRef;
+      final catalogSummary =
+          sourceRef == null ? null : resolvedCatalogSummariesByRef[sourceRef];
+      return LibraryWorkspaceContext(
+        item: WorkspaceItem(
+          target: EntryTargetRef(entry.ref),
+          presentation: catalogSummary,
+          entrySummary: entry,
+          libraryEntryDispatch: libraryEntryDispatchesByRef[entry.ref],
+          searchTokens: [
+            if (catalogSummary?.primaryLabel case final title?) title,
           ],
-          ownedSummary: ownedByCatalogRef[ref],
-          trackingSummary: trackingByCatalogRef[ref]?.firstOrNull,
+          kindPresentationData: kindPresentationByEntryRef[entry.ref],
+        ),
+        personal: PersonalOverlay(
+          tracking: trackingByEntryRef[entry.ref]?.firstOrNull,
           trackingSummaries:
-              trackingByCatalogRef[ref] ?? const <TrackingSummary>[],
-          catalogData: workspaceCatalogByRef[ref],
-          ownedItemDispatch: ownedByCatalogRef[ref] == null
-              ? null
-              : ownedItemDispatchesByRef[ownedByCatalogRef[ref]!.ref],
-          wishlistItem: wishlistByCatalogRef[ref],
-          locationPath: locationPathsById[ownedByCatalogRef[ref]?.locationId],
+              trackingByEntryRef[entry.ref] ?? const <TrackingSummary>[],
+          wishlist: sourceRef == null ? null : wishlistByCatalogRef[sourceRef],
+          locationPath: locationPathsById[entry.locationId],
+          images: itemImagesByLibraryEntry[entry.ref] ?? const <ItemImage>[],
+          imageTypes: imageTypesByLibraryEntry[entry.ref] ?? const {},
+          externalLinks:
+              userExternalLinksByEntry[entry.ref] ?? const <UserExternalLink>[],
+          loans: loansByEntry[entry.ref] ?? const <Loan>[],
+          folderMemberships: folderMembershipsByEntry[entry.ref] ??
+              const <({String folderId, int sortOrder})>[],
+          folderDefinitions: folderDefinitions,
+          readingQueuePosition: readingQueuePositionByEntry[entry.ref],
           watchSessions:
-              watchSessionsByCatalogRef[ref] ?? const <WatchSession>[],
-          itemImages: itemImagesByOwnedItem[ownedByCatalogRef[ref]?.ref] ??
-              const <ItemImage>[],
+              watchSessionsByEntryRef[entry.ref] ?? const <WatchSession>[],
           fallbackOwnerLabel: fallbackOwnerLabel,
         ),
-      ],
+      );
+    }
+
+    LibraryWorkspaceContext buildWishlistItem(CatalogItemRef ref) =>
+        LibraryWorkspaceContext(
+          item: WorkspaceItem(
+            target: CatalogTargetRef(ref),
+            presentation: resolvedCatalogSummariesByRef[ref],
+            searchTokens: [
+              if (resolvedCatalogSummariesByRef[ref]?.primaryLabel
+                  case final title?)
+                title,
+            ],
+            kindPresentationData: catalogPresentationByRef[ref],
+          ),
+          personal: PersonalOverlay(
+            wishlist: wishlistByCatalogRef[ref],
+            folderDefinitions: folderDefinitions,
+            fallbackOwnerLabel: fallbackOwnerLabel,
+          ),
+        );
+
+    final entries = <LibraryWorkspaceContext>[
+      for (final entry in resolvedEntrySummaries)
+        if (!entry.isDeleted) buildLibraryEntry(entry),
+      for (final ref in wishlistByCatalogRef.keys)
+        if (!resolvedEntrySummaries.any(
+          (entry) => !entry.isDeleted && entry.sourceCatalogRef == ref,
+        ))
+          buildWishlistItem(ref),
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    final pricedOwned = resolvedOwnedSummaries
+    final pricedEntry = resolvedEntrySummaries
         .where((item) => item.pricePaidCents != null && item.currency != null)
         .toList(growable: false);
     final currencies = {
-      for (final item in pricedOwned) item.currency!,
+      for (final item in pricedEntry) item.currency!,
     };
     final hasMixedCurrencies = currencies.length > 1;
-    final activeOwned = ownedByCatalogRef.values.toList(growable: false);
-    final ownedQuantityByKind = <String, int>{};
-    for (final item in resolvedOwnedSummaries) {
-      if (item.isDeleted || item.catalogRef == null) continue;
-      final kind = item.catalogRef!.mediaKind.apiValue;
-      ownedQuantityByKind[kind] =
-          (ownedQuantityByKind[kind] ?? 0) + item.quantity;
+    final activeEntry = resolvedEntrySummaries
+        .where((item) => !item.isDeleted)
+        .toList(growable: false);
+    final libraryEntryCountByKind = <String, int>{};
+    for (final item in resolvedEntrySummaries) {
+      if (item.isDeleted) continue;
+      final kind = item.ref.kind.apiValue;
+      libraryEntryCountByKind[kind] = (libraryEntryCountByKind[kind] ?? 0) + 1;
+    }
+    final wishlistItemCountByKind = <String, int>{};
+    for (final item in wishlistByCatalogRef.values) {
+      final kind = item.catalogRef.kind.apiValue;
+      wishlistItemCountByKind[kind] = (wishlistItemCountByKind[kind] ?? 0) + 1;
     }
     return ShelfState(
       entries: entries,
-      ownedCount: ownedByCatalogRef.length,
+      entryCount: activeEntry.length,
       wishlistCount: wishlistByCatalogRef.length,
-      pricedCount: pricedOwned.length,
+      pricedCount: pricedEntry.length,
       totalPaidCents: hasMixedCurrencies
           ? null
-          : pricedOwned.fold<int>(
+          : pricedEntry.fold<int>(
               0,
               (total, item) => total + (item.pricePaidCents ?? 0),
             ),
       primaryCurrency: currencies.length == 1 ? currencies.single : null,
       hasMixedCurrencies: hasMixedCurrencies,
-      totalQuantity:
-          resolvedOwnedSummaries.where((item) => !item.isDeleted).fold<int>(
-                0,
-                (total, item) => total + item.quantity,
-              ),
+      wishlistItemCountByKind: wishlistItemCountByKind,
       missingMetadataCount:
-          entries.where((entry) => entry.catalogSummary == null).length,
+          entries.where((entry) => entry.kindPresentationData == null).length,
       locationCounts: _counts(
         entries
-            .where((entry) => entry.isOwned)
+            .where((entry) => entry.isEntry)
             .map((entry) => entry.locationPath ?? 'No location'),
       ),
-      soldCount: activeOwned.where((item) => item.soldAt != null).length,
+      soldCount: activeEntry.where((item) => item.soldAt != null).length,
       totalSellCents: hasMixedCurrencies
           ? null
-          : activeOwned
+          : activeEntry
               .where((item) => item.sellPriceCents != null)
               .fold<int>(0, (total, item) => total + item.sellPriceCents!),
       marketValuedCount:
-          activeOwned.where((item) => item.marketValueCents != null).length,
+          activeEntry.where((item) => item.marketValueCents != null).length,
       totalMarketValueCents: hasMixedCurrencies
           ? null
-          : activeOwned
+          : activeEntry
               .where((item) => item.marketValueCents != null)
               .fold<int>(0, (total, item) => total + item.marketValueCents!),
-      ownedQuantityByKind: ownedQuantityByKind,
+      libraryEntryCountByKind: libraryEntryCountByKind,
     );
   }
 
-  final int ownedCount;
+  final int entryCount;
 
   /// Structural workspace sources used by mixed Shelf hosts and by the
   /// kind-specific Library projection pipeline.
-  final List<LibraryWorkspaceSource> entries;
+  final List<LibraryWorkspaceContext> entries;
 
   /// Aggregate projection for the Stats dashboard. Keep kind semantics in
   /// their contributors rather than exposing them as universal Shelf filters.
@@ -268,14 +336,14 @@ class ShelfState {
   final int? totalPaidCents;
   final String? primaryCurrency;
   final bool hasMixedCurrencies;
-  final int totalQuantity;
+  final Map<String, int> wishlistItemCountByKind;
   final int missingMetadataCount;
   final Map<String, int> locationCounts;
   final int soldCount;
   final int? totalSellCents;
   final int marketValuedCount;
   final int? totalMarketValueCents;
-  final Map<String, int> ownedQuantityByKind;
+  final Map<String, int> libraryEntryCountByKind;
 
   static Map<String, int> _counts(Iterable<String> values) {
     final counts = <String, int>{};

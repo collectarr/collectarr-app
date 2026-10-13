@@ -1,12 +1,11 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_providers.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,9 +13,9 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
   const BoardGameStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
-      LibraryWorkspaceSource entry) {
-    return LibraryOwnedFinancialSummary(
+  LibraryEntryFinancialSummary buildEntryFinancialSummary(
+      LibraryWorkspaceContext entry) {
+    return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
       currency: entry.currency,
@@ -25,22 +24,20 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+      LibraryWorkspaceContext entry) {
     final metadata = _metadata(entry);
-    if (catalog == null || metadata == null) return null;
+    if (metadata == null) return null;
     final secondary =
         (metadata.publisher ?? metadata.publishers.firstOrNull)?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: (metadata.seriesTitle ?? metadata.title).trim(),
       secondaryGroup: secondary,
-      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
-      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
-          libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
+      hasCover: metadata.coverImageUrl?.trim().isNotEmpty == true,
+      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
       hasReleaseDate:
-          metadata.yearPublished != null || catalog.releaseDate != null,
+          metadata.yearPublished != null || metadata.releaseDate != null,
       hasItemNumber: metadata.itemNumber?.trim().isNotEmpty == true,
     );
   }
@@ -89,13 +86,32 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
       ),
       BoardGamePlayStatsCard(
         mediaIds: [
-          for (final entry in state.entries) BoardGameMediaId(entry.itemId),
+          for (final entry in state.entries)
+            if ((entry.sourceCatalogRef ?? entry.target.catalogItemRef)
+                case final ref? when ref.kind == CatalogMediaKind.boardgame)
+              ref,
         ],
       ),
     ];
   }
 
-  static double? averageBggRating(Iterable<LibraryWorkspaceSource> entries) {
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  static double? averageBggRating(Iterable<LibraryWorkspaceContext> entries) {
     var total = 0.0;
     var count = 0;
     for (final entry in entries) {
@@ -107,7 +123,7 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
     return count == 0 ? null : total / count;
   }
 
-  static int? bestBggRank(Iterable<LibraryWorkspaceSource> entries) {
+  static int? bestBggRank(Iterable<LibraryWorkspaceContext> entries) {
     int? best;
     for (final entry in entries) {
       final rank = _metadata(entry)?.bggRank;
@@ -118,27 +134,27 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> countMechanics(
-      Iterable<LibraryWorkspaceSource> entries) {
+      Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(entries, (metadata) => metadata.mechanics);
   }
 
   static Map<String, int> countCategories(
-      Iterable<LibraryWorkspaceSource> entries) {
+      Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(entries, (metadata) => metadata.categories);
   }
 
   static Map<String, int> countDesigners(
-      Iterable<LibraryWorkspaceSource> entries) {
+      Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(entries, (metadata) => metadata.designers);
   }
 
-  static BoardGameMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    return catalog is BoardGameWorkspaceCatalogData ? catalog.metadata : null;
+  static BoardGameMetadata? _metadata(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    return catalog is BoardGameWorkspaceData ? catalog.metadata : null;
   }
 
   static Map<String, int> _countMany(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
     Iterable<String> Function(BoardGameMetadata metadata) valuesFor,
   ) {
     final counts = <String, int>{};
@@ -164,7 +180,7 @@ class BoardGamePlayStatsCard extends ConsumerWidget {
     required this.mediaIds,
   });
 
-  final List<BoardGameMediaId> mediaIds;
+  final List<CatalogItemRef> mediaIds;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -175,8 +191,10 @@ class BoardGamePlayStatsCard extends ConsumerWidget {
       data: (allSessions) {
         final ids = mediaIds.toSet();
         final scopedSessions = allSessions
-            .where((session) =>
-                ids.contains(BoardGameMediaId(session.boardGameId)))
+            .where((session) => ids.contains(CatalogItemRef(
+                  kind: CatalogMediaKind.boardgame,
+                  id: session.boardGameId,
+                )))
             .toList(growable: false);
         if (scopedSessions.isEmpty) return const SizedBox.shrink();
 

@@ -3,65 +3,44 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:flutter/material.dart';
 
-Widget buildBookWorkInspectorHero(
+Widget buildBookCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    ownedItem: request.ownedItem,
-    ownedCopies: request.ownedCopies,
+    libraryEntry: request.libraryEntry,
     accent: request.accent,
-    kindOwnedContent: buildBookAuthorSpotlight(
+    kindEntryContent: buildBookAuthorSpotlight(
       item: request.item,
       accent: request.accent,
     ),
   );
 }
 
-Widget buildBookReleaseInspectorHero(
+Widget buildBookLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    ownedItem: request.ownedItem,
-    ownedCopies: request.ownedCopies,
+    libraryEntry: request.libraryEntry,
     accent: request.accent,
-    kindOwnedContent: buildBookAuthorSpotlight(
+    kindEntryContent: buildBookAuthorSpotlight(
       item: request.item,
       accent: request.accent,
     ),
   );
 }
 
-Widget buildBookCopyInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return LibraryDetailHero(
-    type: request.type,
-    item: request.item,
-    ownedItem: request.ownedItem,
-    ownedCopies: [
-      if (request.ownedItem != null) request.ownedItem!,
-    ],
-    accent: request.accent,
-    kindOwnedContent: buildBookAuthorSpotlight(
-      item: request.item,
-      accent: request.accent,
-    ),
-  );
-}
-
-List<Widget> buildBookWorkInspectorSections(
+List<Widget> buildBookCatalogItemInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -77,21 +56,7 @@ List<Widget> buildBookWorkInspectorSections(
   );
 }
 
-List<Widget> buildBookReleaseInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return const BookLibraryMediaPresentationBuilder(
-    showPersonalDetails: false,
-  ).buildInspectorSections(
-    context: context,
-    item: request.item,
-    accent: request.accent,
-    onFilterByValue: request.onFilterByValue,
-  );
-}
-
-List<Widget> buildBookCopyInspectorSections(
+List<Widget> buildBookLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -103,9 +68,10 @@ List<Widget> buildBookCopyInspectorSections(
     accent: request.accent,
     onFilterByValue: request.onFilterByValue,
   );
-  final owned = BookOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
-  if (owned == null) return sections;
-  final details = owned.details;
+  final entry =
+      BookLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
+  if (entry == null) return sections;
+  final details = entry.personal.details;
   final facts = <LibraryDetailField>[
     if (details.signedBy?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Signed by', value: details.signedBy!.trim()),
@@ -121,7 +87,7 @@ List<Widget> buildBookCopyInspectorSections(
   return [
     ...sections,
     LibraryDetailSection(
-      title: 'Owned copy details',
+      title: 'Collection item details',
       accentColor: request.accent,
       children: [LibraryDetailFieldTable(fields: facts)],
     ),

@@ -1,16 +1,31 @@
 import 'package:flutter/widgets.dart';
+import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/config/library_metadata_provider_models.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
+import 'package:dio/dio.dart';
+
+typedef LibraryMetadataCatalogSearchBuilder = Future<CatalogSearchPage>
+    Function({
+  required ApiClient api,
+  required MetadataSearchQuery query,
+  CancelToken? cancelToken,
+});
 
 typedef LibraryMetadataSearchQueryBuilder = MetadataSearchQuery Function({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 });
 
 typedef LibraryMetadataCatalogDecoder = JsonEncodable Function(
+  JsonMap payload,
+);
+
+typedef LibraryMetadataCatalogDetailCandidateBuilder = CatalogSearchCandidate
+    Function(
   JsonMap payload,
 );
 
@@ -21,66 +36,34 @@ typedef MetadataCompareBuilder = List<Widget> Function(
   required Color accent,
 });
 
-/// Encapsulates metadata provider configuration and behavior for a media kind.
+/// Defines how a kind searches and decodes canonical catalog metadata.
 class LibraryMetadataCapability {
   const LibraryMetadataCapability({
-    required this.defaultProviderId,
-    required this.providers,
     required this.catalogMetadataDecoder,
+    required this.catalogTransportCodec,
     this.supportsServerCompare = false,
-    this.usesTreeProviderCandidates = false,
     this.compareBuilder,
     this.searchQueryBuilder,
+    this.catalogSearchBuilder,
+    this.catalogSearchResultsAreDetailed = false,
+    this.catalogDetailCandidateBuilder,
   });
 
-  final String defaultProviderId;
-  final List<LibraryMetadataProviderOption> providers;
   final LibraryMetadataCatalogDecoder catalogMetadataDecoder;
+  final CatalogKindTransportBoundary catalogTransportCodec;
   final bool supportsServerCompare;
-  final bool usesTreeProviderCandidates;
   final MetadataCompareBuilder? compareBuilder;
   final LibraryMetadataSearchQueryBuilder? searchQueryBuilder;
+  final LibraryMetadataCatalogSearchBuilder? catalogSearchBuilder;
+  final bool catalogSearchResultsAreDetailed;
+  final LibraryMetadataCatalogDetailCandidateBuilder?
+      catalogDetailCandidateBuilder;
 
   MetadataSearchQuery searchQueryFor({
-    required LibraryWorkspaceSource source,
+    required LibraryWorkspaceContext source,
     required String title,
   }) {
     return searchQueryBuilder?.call(source: source, title: title) ??
         MetadataSearchQuery(query: title, limit: 5);
-  }
-
-  List<LibraryMetadataProviderOption> supportedProvidersForKind(
-      CatalogMediaKind kind) {
-    if (kind.isUnknown) {
-      return providers;
-    }
-    return [
-      for (final option in providers)
-        if (option.supportsKind(kind)) option,
-    ];
-  }
-
-  LibraryMetadataProviderOption? defaultSupportedOption(CatalogMediaKind kind) {
-    final supported = supportedProvidersForKind(kind);
-    for (final option in supported) {
-      if (option.id == defaultProviderId) {
-        return option;
-      }
-    }
-    return supported.isEmpty ? null : supported.first;
-  }
-
-  bool supportsProvider(String providerId, [CatalogMediaKind? kind]) {
-    final list = kind != null ? supportedProvidersForKind(kind) : providers;
-    return list.any((option) => option.id == providerId);
-  }
-
-  String providerLabel(String providerId) {
-    for (final option in providers) {
-      if (option.id == providerId) {
-        return option.label;
-      }
-    }
-    return providerId;
   }
 }

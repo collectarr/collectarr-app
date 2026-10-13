@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 class LibraryValueHistoryEntry {
   const LibraryValueHistoryEntry({
@@ -20,11 +19,8 @@ class LibraryValueSnapshot {
     this.purchasePriceCents,
     this.soldPriceCents,
     this.manualEstimatedValueCents,
-    this.providerValueCents,
     this.insuranceValueCents,
     this.currency,
-    this.providerName,
-    this.providerUpdatedAt,
   });
 
   factory LibraryValueSnapshot.fromItem(
@@ -32,49 +28,33 @@ class LibraryValueSnapshot {
     int? purchasePriceCents,
     int? soldPriceCents,
     int? manualEstimatedValueCents,
-    String? ownedCurrency,
-    String? providerName,
-    DateTime? providerUpdatedAt,
-    int? providerValueCents,
+    String? entryCurrency,
   }) {
-    final currency = ownedCurrency?.trim().isNotEmpty == true
-        ? ownedCurrency!.trim()
+    final currency = entryCurrency?.trim().isNotEmpty == true
+        ? entryCurrency!.trim()
         : item.source.currency?.trim().isNotEmpty == true
             ? item.source.currency!.trim()
             : null;
-    final providerVal = providerValueCents ??
-        libraryValueForKind(item.source.mediaKind)
-            ?.resolveProviderValueCents(item);
     final manualValue = manualEstimatedValueCents;
-    final currentValue = providerVal ?? manualValue;
     return LibraryValueSnapshot(
       purchasePriceCents: purchasePriceCents,
       soldPriceCents: soldPriceCents,
       manualEstimatedValueCents: manualValue,
-      providerValueCents: providerVal,
-      insuranceValueCents: currentValue ?? manualValue ?? purchasePriceCents,
+      insuranceValueCents: manualValue ?? purchasePriceCents,
       currency: currency,
-      providerName: providerName,
-      providerUpdatedAt: providerUpdatedAt,
     );
   }
 
   final int? purchasePriceCents;
   final int? soldPriceCents;
   final int? manualEstimatedValueCents;
-  final int? providerValueCents;
   final int? insuranceValueCents;
   final String? currency;
-  final String? providerName;
-  final DateTime? providerUpdatedAt;
 
   int? get displayPrimaryValueCents =>
-      providerValueCents ??
-      manualEstimatedValueCents ??
-      purchasePriceCents ??
-      soldPriceCents;
+      manualEstimatedValueCents ?? purchasePriceCents ?? soldPriceCents;
 
-  int? get totalOwnedCostBasisCents => purchasePriceCents;
+  int? get totalEntryCostBasisCents => purchasePriceCents;
 
   int? get unrealizedGainLossCents {
     final current = displayPrimaryValueCents;
@@ -106,13 +86,6 @@ class LibraryValueSnapshot {
             label: 'Manual estimate',
             valueCents: manualEstimatedValueCents,
             currency: currency,
-          ),
-        if (providerValueCents != null)
-          LibraryValueHistoryEntry(
-            label: providerName ?? 'Provider value',
-            valueCents: providerValueCents,
-            currency: currency,
-            timestamp: providerUpdatedAt,
           ),
         if (soldPriceCents != null)
           LibraryValueHistoryEntry(

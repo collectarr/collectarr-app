@@ -1,18 +1,18 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 
-/// Anime-owned watch history session.
+/// Anime-entry watch history session.
 ///
 /// Episode coordinates are intentionally absent from the shared watch model.
 /// Anime owns their interpretation and persistence here, alongside its codec.
 final class AnimeWatchSession extends WatchSession {
   AnimeWatchSession({
     required super.id,
-    required super.targetRef,
+    required super.libraryEntryRef,
     required super.watchedAt,
     required super.updatedAt,
-    this.seasonNumber,
-    this.episodeNumber,
+    super.seasonNumber,
+    super.episodeNumber,
     super.trackingEntryId,
     super.sourceType,
     super.seenWhere,
@@ -21,14 +21,13 @@ final class AnimeWatchSession extends WatchSession {
     super.deletedAt,
   });
 
-  final int? seasonNumber;
-  final int? episodeNumber;
-
   @override
   AnimeWatchSession copyWith({
     String? id,
-    CatalogEntityRef? targetRef,
+    LibraryEntryRef? libraryEntryRef,
     String? trackingEntryId,
+    int? seasonNumber,
+    int? episodeNumber,
     Object? sourceType,
     String? seenWhere,
     DateTime? watchedAt,
@@ -39,11 +38,11 @@ final class AnimeWatchSession extends WatchSession {
   }) {
     return AnimeWatchSession(
       id: id ?? this.id,
-      targetRef: targetRef ?? this.targetRef,
+      libraryEntryRef: libraryEntryRef ?? this.libraryEntryRef,
       watchedAt: watchedAt ?? this.watchedAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      seasonNumber: seasonNumber,
-      episodeNumber: episodeNumber,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
       sourceType: sourceType ?? this.sourceType,
       seenWhere: seenWhere ?? this.seenWhere,

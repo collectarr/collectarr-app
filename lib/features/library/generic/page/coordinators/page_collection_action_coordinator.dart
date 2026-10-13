@@ -1,5 +1,11 @@
+import 'package:collectarr_app/features/library/ui/library_item_confirmation.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 // ignore_for_file: use_build_context_synchronously
 import 'dart:async';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
+import 'package:collectarr_app/features/library/collections/library_collections_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
@@ -13,8 +19,7 @@ import 'package:collectarr_app/features/library/generic/page/coordinators/page_c
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_item_context_menu.dart';
-import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -39,16 +44,14 @@ class LibraryPageCollectionActionCoordinator {
 
   bool _isNonServerMetadataId(String id) {
     final normalized = id.trim().toLowerCase();
-    return normalized.startsWith('preview-') ||
-        normalized.startsWith('local-') ||
-        normalized.startsWith('provider:');
+    return normalized.startsWith('preview-') || normalized.startsWith('local-');
   }
 
   bool canCompareMetadataWithServerItem(LibraryProjectionItem item) {
     if (!libraryMetadataForKind(_page.type.kind).supportsServerCompare) {
       return false;
     }
-    final catalogId = item.source.catalogRef?.id ?? item.node.id;
+    final catalogId = item.target.id;
     if (_isNonServerMetadataId(catalogId)) {
       return false;
     }
@@ -64,7 +67,7 @@ class LibraryPageCollectionActionCoordinator {
     }
   }
 
-  Future<void> confirmAndRemoveOwned(LibraryProjectionItem item) async {
+  Future<void> confirmAndRemoveEntry(LibraryProjectionItem item) async {
     final confirmed = await _page.confirmSingleRemove(
       _page.context,
       title: item.dto.primaryLabel,
@@ -73,7 +76,7 @@ class LibraryPageCollectionActionCoordinator {
     if (!confirmed || !_page.mounted) {
       return;
     }
-    await runCollectionAction((actions) => actions.removeOwned(item));
+    await runCollectionAction((actions) => actions.removeEntry(item));
   }
 
   LibraryProjectionItem? selectedProjectionItemFor(
@@ -84,7 +87,7 @@ class LibraryPageCollectionActionCoordinator {
       return null;
     }
     for (final item in projection.filteredItems) {
-      if (item.node.id == selectedId) {
+      if (item.target.id == selectedId) {
         return item;
       }
     }
@@ -96,17 +99,19 @@ class LibraryPageCollectionActionCoordinator {
     LibraryProjectionItem item,
     Offset position,
   ) async {
-    final contextSelectionIds = <String>{item.node.id};
+    final contextSelectionIds = _page.selection.itemIds.contains(item.target.id)
+        ? _page.selection.itemIds
+        : <String>{item.target.id};
     final selectionChanged =
         contextSelectionIds.length != _page.selection.itemIds.length ||
             !contextSelectionIds.containsAll(_page.selection.itemIds);
-    if (selectionChanged || _page.selectedId != item.node.id) {
+    if (selectionChanged || _page.selectedId != item.target.id) {
       _page.rebuild(() {
         _page.selection = _page.selection.replace(contextSelectionIds);
-        _page.selectedId = item.node.id;
+        _page.selectedId = item.target.id;
         if (_page.selectionAnchorId == null ||
             !_page.selection.itemIds.contains(_page.selectionAnchorId)) {
-          _page.selectionAnchorId = item.node.id;
+          _page.selectionAnchorId = item.target.id;
         }
       });
     }
@@ -121,6 +126,8 @@ class LibraryPageCollectionActionCoordinator {
     );
     if (result == null || !_page.mounted) return;
     switch (result.action) {
+      case LibraryItemContextAction.moveToCollection:
+        await _moveToCollection(projection, contextSelectionIds);
       case LibraryItemContextAction.edit:
         if (isBatchSelection) {
           await bulkEditFlow(projection);
@@ -141,18 +148,18 @@ class LibraryPageCollectionActionCoordinator {
           return;
         }
         await singleDuplicateFlow(item);
-      case LibraryItemContextAction.addToOwned:
+      case LibraryItemContextAction.addToEntry:
         if (isBatchSelection) {
-          await bulkMoveToOwnedFlow(projection);
+          await bulkMoveToEntryFlow(projection);
           return;
         }
-        await runCollectionAction((a) => a.addOwned(item));
-      case LibraryItemContextAction.removeFromOwned:
+        await runCollectionAction((a) => a.addEntry(item));
+      case LibraryItemContextAction.removeFromEntry:
         if (isBatchSelection) {
           await bulkRemoveFlow(projection);
           return;
         }
-        await confirmAndRemoveOwned(item);
+        await confirmAndRemoveEntry(item);
       case LibraryItemContextAction.addToWishlist:
         if (isBatchSelection) {
           await bulkMoveToWishlistFlow(projection);
@@ -164,12 +171,11 @@ class LibraryPageCollectionActionCoordinator {
       case LibraryItemContextAction.removeTracking:
         final active = resolveActiveTrackingSummary(
           libraryTrackingSummariesForItem(
-            _page.type,
             item,
-            _page.ref.read(trackingSummariesByCatalogRefProvider),
-            ownedItem: item.source.ownedSummary,
+            _page.ref.read(trackingSummariesByLibraryEntryRefProvider),
+            libraryEntry: item.source.libraryEntrySummary,
           ),
-          item.source.ownedSummary,
+          item.source.libraryEntrySummary,
         );
         if (active != null) {
           await _page.ref
@@ -243,7 +249,7 @@ class LibraryPageCollectionActionCoordinator {
       return;
     }
     final random = items[_random.nextInt(items.length)];
-    _page.selectItem(random.node.id);
+    _page.selectItem(random.target.id);
   }
 
   Future<void> bulkEditFlow(LibraryProjection? projection) async {
@@ -265,20 +271,87 @@ class LibraryPageCollectionActionCoordinator {
     _page.invalidateShelf();
   }
 
-  Future<void> bulkMoveToOwnedFlow(LibraryProjection? projection) async {
+  bool canMergeSelection(LibraryProjection? projection) {
+    if (projection == null ||
+        libraryEntryPolicyForKind(_page.type.kind).mergeEntries == null) {
+      return false;
+    }
+    final selected = projection.filteredItems
+        .where((item) => _page.selection.itemIds.contains(item.target.id))
+        .toList();
+    return selected.length >= 2 &&
+        selected.every((item) => item.source.libraryEntryRef != null);
+  }
+
+  Future<void> mergeSelectionFlow(LibraryProjection? projection) async {
+    if (!canMergeSelection(projection)) return;
+    final refs = [
+      for (final item in projection!.filteredItems)
+        if (_page.selection.itemIds.contains(item.target.id))
+          item.source.libraryEntryRef!
+    ];
+    try {
+      final kept =
+          await libraryEntryPolicyForKind(_page.type.kind).mergeEntries!(
+              _page.context, _page.ref.read(localDatabaseProvider), refs);
+      if (kept == null || !_page.mounted) return;
+      _page.rebuild(() {
+        _page.clearSelection();
+        _page.selectedId = kept.id.value;
+      });
+      _page.invalidateShelf();
+    } catch (error) {
+      if (_page.mounted) {
+        ScaffoldMessenger.of(_page.context)
+            .showSnackBar(SnackBar(content: Text('Merge failed: $error')));
+      }
+    }
+  }
+
+  Future<void> bulkMoveToEntryFlow(LibraryProjection? projection) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
       _page.selection.itemIds,
     );
     final prefill = await PrefillDefaults.load();
-    await _page.bulkActions().moveSelectedToOwned(
+    await _page.bulkActions().moveSelectedToEntry(
           entries,
           defaultCondition:
               libraryEditPresentationForKind(_page.type.kind).defaultCondition,
           defaultLocationId: prefill.locationId,
           defaultTags: prefill.tags,
         );
+    _page.rebuild(_page.clearSelection);
+    _page.invalidateShelf();
+  }
+
+  Future<void> moveSelectionToCollectionFlow(
+      LibraryProjection? projection) async {
+    if (projection == null || _page.selection.itemIds.isEmpty) return;
+    await _moveToCollection(projection, _page.selection.itemIds);
+  }
+
+  Future<void> _moveToCollection(
+      LibraryProjection projection, Set<String> selectedIds) async {
+    final refs = projection.filteredItems
+        .where((item) => selectedIds.contains(item.target.id))
+        .map((item) => item.source.libraryEntryRef)
+        .whereType<LibraryEntryRef>()
+        .toList(growable: false);
+    if (refs.isEmpty) return;
+    final db = _page.ref.read(localDatabaseProvider);
+    final collections = await LibraryCollectionRepository(db)
+        .watch(_page.type.kind.apiValue)
+        .first;
+    if (!_page.mounted) return;
+    final destination = await chooseLibraryCollection(_page.context,
+        db: db,
+        kind: _page.type.kind.apiValue,
+        excluding: activeLibraryCollectionId(collections));
+    if (destination == null || !_page.mounted) return;
+    await LibraryCollectionRepository(db).move(refs, destination);
+    if (!_page.mounted) return;
     _page.rebuild(_page.clearSelection);
     _page.invalidateShelf();
   }
@@ -312,7 +385,12 @@ class LibraryPageCollectionActionCoordinator {
   }
 
   Future<void> singleDuplicateFlow(LibraryProjectionItem item) async {
-    if (!item.source.isOwned) return;
+    if (!item.source.isEntry) return;
+    if (_page.ref.read(uiPreferencesProvider).confirmDuplication &&
+        !await confirmLibraryDuplication(_page.context, 1)) {
+      return;
+    }
+    if (!_page.mounted) return;
     await _page.bulkActions().duplicateSelected([item.source]);
     if (_page.mounted) {
       _page.invalidateShelf();
@@ -328,26 +406,9 @@ class LibraryPageCollectionActionCoordinator {
       projection.filteredItems,
       _page.selection.itemIds,
     );
-    final confirmed = await showDialog<bool>(
-      context: _page.context,
-      builder: (ctx) => AccentAlertDialog(
-        title: const Text('Duplicate items'),
-        content: Text(
-          'Create a copy of ${entries.length} '
-          'item${entries.length == 1 ? '' : 's'}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Duplicate'),
-          ),
-        ],
-      ),
-    );
+    final confirmed =
+        !_page.ref.read(uiPreferencesProvider).confirmDuplication ||
+            await confirmLibraryDuplication(_page.context, entries.length);
     if (confirmed != true || !_page.mounted) return;
     final count = await _page.bulkActions().duplicateSelected(entries);
     _page.rebuild(_page.clearSelection);

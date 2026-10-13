@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-const libraryAddKindFilterId = LibraryAddFilterId('provider-kinds');
+const libraryAddKindFilterId = LibraryAddFilterId('catalog-search-scopes');
 
 Map<LibraryAddFilterId, LibraryAddFilterValue> buildLibraryAddInitialFilters(
   LibraryKindRegistration type,

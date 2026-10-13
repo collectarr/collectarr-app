@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
@@ -27,19 +27,19 @@ final class MetadataOverrideMutations {
   final IdGenerator idGenerator;
 
   Future<UserMetadataOverride> setMetadataOverride(
-    CatalogEntityRef targetRef, {
+    LibraryEntryRef libraryEntryRef, {
     required MetadataFieldId fieldId,
     required String overrideValue,
     String? originalValue,
   }) async {
     final now = DateTime.now().toUtc();
-    requireKnownCatalogRef(targetRef, 'targetRef');
-    if (!fieldId.appliesTo(targetRef)) {
+    requireKnownLibraryEntryRef(libraryEntryRef, 'libraryEntryRef');
+    if (!fieldId.appliesTo(libraryEntryRef.kind)) {
       throw ArgumentError.value(
         fieldId,
         'fieldId',
         'Metadata field belongs to ${fieldId.kind.apiValue}, '
-            'not ${targetRef.mediaKind.apiValue}',
+            'not ${libraryEntryRef.kind.apiValue}',
       );
     }
     if (fieldId.value.trim().isEmpty) {
@@ -56,11 +56,11 @@ final class MetadataOverrideMutations {
         'Metadata override value must not be empty.',
       );
     }
-    final existing = await overrides.findByField(targetRef, fieldId);
+    final existing = await overrides.findByField(libraryEntryRef, fieldId);
 
     final override = UserMetadataOverride(
       id: existing?.id ?? idGenerator(),
-      targetRef: targetRef,
+      libraryEntryRef: libraryEntryRef,
       fieldId: fieldId,
       originalValue: originalValue ?? existing?.originalValue,
       overrideValue: overrideValue,
@@ -73,7 +73,7 @@ final class MetadataOverrideMutations {
         await syncQueue
             .enqueue(_syncChangeForMetadataOverride(override, 'upsert', now));
       },
-      eventsToEmit: [MetadataOverrideChanged(targetRef)],
+      eventsToEmit: [MetadataOverrideChanged(libraryEntryRef)],
     );
 
     return override;
@@ -89,7 +89,7 @@ final class MetadataOverrideMutations {
         await syncQueue
             .enqueue(_syncChangeForMetadataOverride(deleted, 'delete', now));
       },
-      eventsToEmit: [MetadataOverrideChanged(override.targetRef)],
+      eventsToEmit: [MetadataOverrideChanged(override.libraryEntryRef)],
     );
   }
 
@@ -100,7 +100,7 @@ final class MetadataOverrideMutations {
   ) {
     return SyncChange(
       id: 'metadata_override:${override.id}:$action:${now.millisecondsSinceEpoch}',
-      entityType: 'user_metadata_override',
+      entityType: 'metadata_override',
       entityId: override.id,
       action: action,
       payload: override.toSyncPayload(),

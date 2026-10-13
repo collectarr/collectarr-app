@@ -7,8 +7,8 @@ class InspectorPrimaryActions extends StatelessWidget {
     super.key,
     required this.item,
     required this.type,
-    required this.onAddOwned,
-    required this.onRemoveOwned,
+    required this.onAddEntry,
+    required this.onRemoveEntry,
     required this.onAddWishlist,
     required this.onRemoveWishlist,
     required this.onEdit,
@@ -16,15 +16,15 @@ class InspectorPrimaryActions extends StatelessWidget {
 
   final LibraryProjectionView item;
   final LibraryKindRegistration type;
-  final VoidCallback? onAddOwned;
-  final VoidCallback? onRemoveOwned;
+  final VoidCallback? onAddEntry;
+  final VoidCallback? onRemoveEntry;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
   final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
-    if (item.source.isOwned) {
+    if (item.source.isEntry) {
       return Wrap(
         spacing: 6,
         runSpacing: 6,
@@ -46,7 +46,7 @@ class InspectorPrimaryActions extends StatelessWidget {
             label: const Text('Edit'),
           ),
           FilledButton.icon(
-            onPressed: onRemoveOwned,
+            onPressed: onRemoveEntry,
             icon: const Icon(Icons.remove_circle_outline),
             label: Text('Remove ${type.identity.singularLabel.toLowerCase()}'),
           ),
@@ -57,7 +57,7 @@ class InspectorPrimaryActions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         FilledButton.icon(
-          onPressed: onAddOwned,
+          onPressed: onAddEntry,
           icon: const Icon(Icons.add_circle_outline),
           label: Text(
             item.source.isWishlisted

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('cover badges shows ownership state when item has no local state',
+  testWidgets('cover badges shows entries state when item has no local state',
       (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: LibraryCoverBadges(
-          isOwned: false,
+          isEntry: false,
           isTracked: false,
           isWishlisted: false,
         ),
@@ -19,12 +19,12 @@ void main() {
     expect(find.byIcon(Icons.check_box_outline_blank), findsOneWidget);
   });
 
-  testWidgets('cover badges renders owned and wishlist markers',
+  testWidgets('cover badges renders entry and wishlist markers',
       (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: LibraryCoverBadges(
-          isOwned: true,
+          isEntry: true,
           isTracked: false,
           isWishlisted: true,
         ),
@@ -41,7 +41,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: LibraryCoverBadges(
-          isOwned: false,
+          isEntry: false,
           isTracked: false,
           isWishlisted: false,
           hasMissingCover: true,
@@ -60,7 +60,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: LibraryCoverBadges(
-          isOwned: true,
+          isEntry: true,
           isTracked: false,
           isWishlisted: false,
           keyLabel: 'Key item: First appearance',
@@ -80,7 +80,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: LibraryCoverBadges(
-          isOwned: true,
+          isEntry: true,
           isTracked: false,
           isWishlisted: false,
           gradeLabel: 'Grade 9.8',
@@ -100,7 +100,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: LibraryItemStatusIcons(
-          isOwned: true,
+          isEntry: true,
           isTracked: false,
           isWishlisted: false,
         ),
@@ -115,7 +115,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: LibraryItemStatusIcons(
-          isOwned: true,
+          isEntry: true,
           isTracked: false,
           isWishlisted: false,
           hasMissingCover: true,
@@ -133,7 +133,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: LibraryItemStatusIcons(
-          isOwned: true,
+          isEntry: true,
           isTracked: false,
           isWishlisted: false,
           hasKeyMarker: true,
@@ -155,7 +155,7 @@ void main() {
           body: SizedBox(
             width: 52,
             child: LibraryItemStatusIcons(
-              isOwned: true,
+              isEntry: true,
               isTracked: true,
               isWishlisted: true,
               hasMissingCover: true,
@@ -178,7 +178,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: LibraryCoverBadges(
-          isOwned: false,
+          isEntry: false,
           isTracked: true,
           isWishlisted: false,
         ),

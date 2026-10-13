@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -9,9 +9,9 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -26,7 +26,7 @@ Widget buildGameInspectorPanel(
   return GameInspectorPanel(request: request);
 }
 
-List<Widget> buildGameWorkInspectorSections(
+List<Widget> buildGameCatalogItemInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
@@ -37,18 +37,7 @@ List<Widget> buildGameWorkInspectorSections(
   );
 }
 
-List<Widget> buildGameReleaseInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest inspector,
-) {
-  return _buildGameEntitySections(
-    context,
-    inspector,
-    includeCopyDetails: false,
-  );
-}
-
-List<Widget> buildGameCopyInspectorSections(
+List<Widget> buildGameLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
@@ -74,41 +63,25 @@ List<Widget> _buildGameEntitySections(
   ];
 }
 
-Widget buildGameWorkInspectorHero(
+Widget buildGameCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: request.ownedCopies,
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
-Widget buildGameReleaseInspectorHero(
+Widget buildGameLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: request.ownedCopies,
-      accent: request.accent,
-    );
-
-Widget buildGameCopyInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) =>
-    LibraryDetailHero(
-      type: request.type,
-      item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: [
-        if (request.ownedItem != null) request.ownedItem!,
-      ],
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
@@ -130,7 +103,7 @@ class GameInspectorPanel extends StatelessWidget {
         onEdit: request.onEdit,
         onShare: request.onShare,
         onDuplicate: request.onDuplicate,
-        onToggleOwned: request.onToggleOwned,
+        onToggleEntry: request.onToggleEntry,
         onLoan: request.onLoan,
         onRefreshMetadata: request.onRefreshMetadata,
         onUnlinkFromCore: request.onUnlinkFromCore,
@@ -164,7 +137,10 @@ List<LibraryDetailSectionSpec> _buildGameSectionSpecs(
     BuildContext context, LibraryInspectorRequest inspector,
     {required bool includeCopyDetails}) {
   final creditRows = libraryCreatorsGroupedByRole(
-    _gameMetadata(inspector.item)?.creators,
+    _gameMetadata(inspector.item)
+        ?.creators
+        .map((credit) => credit.toJson())
+        .toList(),
   );
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
@@ -265,7 +241,7 @@ class _GameInspectorMain extends StatelessWidget {
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   if (genreText != null) ...[
@@ -363,9 +339,9 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
     final adapter = dto is GameWorkspaceDto ? dto : null;
     final gameDto = dto is GameWorkspaceDto ? dto : null;
     final metadata = _gameMetadata(item);
-    final typedOwned =
-        GameOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch);
-    final owned = typedOwned is GameOwnedItem ? typedOwned : null;
+    final typedEntry = GameLibraryEntryProjection.fromDispatch(
+        item.source.libraryEntryDispatch);
+    final entry = typedEntry is GameLibraryEntry ? typedEntry : null;
     final releaseYear = adapter?.releaseDate?.year;
     final detailRows = <(String, String)>[
       if (gameDto?.publisher?.trim().isNotEmpty == true)
@@ -394,29 +370,38 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Barcode', gameDto!.barcode!),
       if (metadata?.genres.isNotEmpty == true)
         ('Genres', metadata!.genres.join(', ')),
-      if (owned?.tags?.trim().isNotEmpty == true) ('Tags', owned!.tags!),
+      if (entry?.personal.tags?.trim().isNotEmpty == true)
+        ('Tags', entry!.personal.tags!),
     ];
     final personalRows = <(String, String)>[
-      if (owned?.condition?.trim().isNotEmpty == true)
-        ('Condition', owned!.condition!),
-      if (owned?.collectionStatus?.trim().isNotEmpty == true)
-        ('Collection status', owned!.collectionStatus!),
+      if (entry?.personal.condition?.trim().isNotEmpty == true)
+        ('Condition', entry!.personal.condition!),
+      if (entry?.personal.collectionStatus?.trim().isNotEmpty == true)
+        ('Collection status', entry!.personal.collectionStatus!),
       if (item.source.locationPath?.trim().isNotEmpty == true)
         ('Location', item.source.locationPath!),
-      if (owned?.ownerLabel?.trim().isNotEmpty == true)
-        ('Owner', owned!.ownerLabel!),
-      if (owned?.pricePaidCents != null)
-        ('Price paid', formatMoney(owned!.pricePaidCents, owned.currency)),
-      if (owned?.marketValueCents != null)
-        ('Current value', formatMoney(owned!.marketValueCents, owned.currency)),
-      if (owned?.purchaseDate != null)
-        ('Purchase date', formatDate(owned!.purchaseDate!)),
-      if (owned?.purchaseStore?.trim().isNotEmpty == true)
-        ('Purchase store', owned!.purchaseStore!),
-      if (owned?.createdAt != null) ('Added', formatDate(owned!.createdAt!)),
+      if (entry?.personal.ownerLabel?.trim().isNotEmpty == true)
+        ('Owner', entry!.personal.ownerLabel!),
+      if (entry?.personal.pricePaidCents != null)
+        (
+          'Price paid',
+          formatMoney(entry!.personal.pricePaidCents, entry.personal.currency)
+        ),
+      if (entry?.personal.marketValueCents != null)
+        (
+          'Current value',
+          formatMoney(entry!.personal.marketValueCents, entry.personal.currency)
+        ),
+      if (entry?.personal.purchaseDate != null)
+        ('Purchase date', formatDate(entry!.personal.purchaseDate!)),
+      if (entry?.personal.purchaseStore?.trim().isNotEmpty == true)
+        ('Purchase store', entry!.personal.purchaseStore!),
+      if (entry?.createdAt != null) ('Added', formatDate(entry!.createdAt!)),
       ('Modified', formatDate(item.source.updatedAt)),
     ];
-    final creditRows = libraryCreatorsGroupedByRole(metadata?.creators);
+    final creditRows = libraryCreatorsGroupedByRole(
+      metadata?.creators.map((credit) => credit.toJson()).toList(),
+    );
 
     return Column(
       children: [
@@ -447,8 +432,8 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
 }
 
 GameCatalogMetadata? _gameMetadata(LibraryProjectionView item) {
-  final catalog = item.source.catalogData;
-  return catalog is GameWorkspaceCatalogData ? catalog.metadata : null;
+  final catalog = item.source.kindPresentationData;
+  return catalog is GameWorkspaceData ? catalog.metadata : null;
 }
 
 class _GameInspectorFactRows extends StatelessWidget {

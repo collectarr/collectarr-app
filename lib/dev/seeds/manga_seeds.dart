@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -8,15 +8,15 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_grading_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_signature_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
 
-final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaOwnedItem>(
+final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaLibraryEntry>(
   kind: CatalogMediaKind.manga,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -34,11 +34,9 @@ final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaOwnedItem>(
   validateCatalog: validateMangaSeedCatalog,
   validateCatalogGraph: validateMangaSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: mangaSeedOwnedItems,
-  ownedSummaryTyped: MangaOwnedItemProjection.toSummary,
-  validateOwnedTyped: validateMangaSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      MangaOwnedRepository(db).upsertAll(mangaSeedOwnedItems(now)),
+  libraryEntriesTyped: mangaSeedLibraryEntries,
+  libraryEntrySummaryTyped: MangaLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateMangaSeedEntry,
   trackingRecords: mangaSeedTrackingStates,
   trackingUnits: mangaSeedTrackingUnits,
 );
@@ -47,7 +45,12 @@ List<String> validateMangaSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   seedRequirePublishingQuality(issues, prefix, item);
-  seedRequireText(issues, prefix, 'publisher', item.publisher);
+  seedRequireText(
+    issues,
+    prefix,
+    'publisher',
+    MangaMetadata.fromJson(item.kindData).publisher,
+  );
   return issues;
 }
 
@@ -60,16 +63,7 @@ List<String> validateMangaSeedCatalogGraph(CatalogItemDto item) {
     'chapters',
     item.payload['chapters'],
   );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'chapters',
-    chapters,
-    kind: CatalogMediaKind.manga,
-    parentId: item.id,
-    parentKey: 'series_id',
-    titleKey: 'title',
-  );
+  _validateContainedChapterIds(issues, prefix, chapters);
   for (var index = 0; index < chapters.length; index++) {
     seedRequirePositiveNumber(
       issues,
@@ -81,10 +75,10 @@ List<String> validateMangaSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateMangaSeedOwned(MangaOwnedItem item) {
+List<String> validateMangaSeedEntry(MangaLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
-  final details = item.details;
+  final prefix = 'manga/${item.id}';
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'manga.printing', details.printing);
   seedRequireText(
       issues, prefix, 'manga.localized_edition', details.localizedEdition);
@@ -112,10 +106,9 @@ Iterable<MangaTrackingUnit> mangaSeedTrackingUnits(
     final chapterId = chapterMap['id']?.toString() ?? 'chapter-01';
     yield MangaTrackingUnit(
       id: 'seed-unit-manga-${item.id}-$chapterId',
-      targetRef: CatalogEntityRef(
-        kind: item.mediaKind,
-        entityType: CatalogEntityTypeId.root,
-        id: item.id,
+      libraryEntryRef: seedLibraryEntryRef(
+        item.mediaKind,
+        'seed-entry-${item.id}',
       ),
       volumeNumber: volumeNumber,
       chapterNumber: chapterNumber,
@@ -132,19 +125,50 @@ int? _seedMangaInt(Object? value) {
 }
 
 CatalogItemDto enrichMangaSeedItem(CatalogItemDto item) {
-  return withSeedPayload(item, {
-    'chapters': [
-      {
-        'id': '${item.id}-chapter-01',
-        'kind': 'manga',
-        'series_id': item.id,
-        'volume_number': int.tryParse(item.itemNumber ?? '') ?? 1,
-        'chapter_number': 1,
-        'title': '${item.title} — Chapter 1',
-        'release_date': item.releaseDate?.toUtc().toIso8601String(),
-      },
-    ],
-  });
+  final metadata = MangaMetadata.fromJson(item.kindData);
+  final data = Map<String, dynamic>.from(item.kindData)
+    ..remove('editions')
+    ..remove('releases');
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.manga,
+    origin: item.origin,
+    kindData: {
+      ...data,
+      'chapters': [
+        {
+          'id': '${item.id}-chapter-01',
+          'volume_number': metadata.volumeNumber ?? 1,
+          'chapter_number': 1,
+          'title': '${metadata.title} — Chapter 1',
+          'release_date': (metadata.localizedReleaseDate ??
+                  metadata.originalPublicationDate)
+              ?.toUtc()
+              .toIso8601String(),
+        },
+      ],
+    },
+  );
+}
+
+void _validateContainedChapterIds(
+  List<String> issues,
+  String prefix,
+  List<Map<String, dynamic>> chapters,
+) {
+  final ids = <String>{};
+  for (var index = 0; index < chapters.length; index++) {
+    final id = chapters[index]['id']?.toString().trim() ?? '';
+    if (id.isEmpty || !ids.add(id)) {
+      issues.add('$prefix: chapters[$index] needs a unique non-empty id');
+    }
+    seedRequireText(
+      issues,
+      prefix,
+      'chapters[$index].title',
+      chapters[index]['title'],
+    );
+  }
 }
 
 List<CatalogItemDto> mangaSeedCatalogItems() => [
@@ -172,7 +196,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: '18+',
         sortKey: 'berserk-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-berserk',
           seriesTitle: 'Berserk',
           volumeName: 'Berserk Deluxe',
@@ -180,7 +204,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
           volumeStartYear: 1989,
           tags: 'dark fantasy, epic, seinen, grimdark',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 696,
           coverPriceCents: 4999,
           currency: 'USD',
@@ -192,27 +216,6 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         characters: ['Guts', 'Griffith', 'Casca', 'Puck', 'Nosferatu Zodd'],
         storyArcs: ['The Black Swordsman Arc', 'Golden Age Arc'],
         genres: ['dark fantasy', 'sword and sorcery', 'action', 'tragedy'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-berserk-deluxe-01',
-            title: 'Berserk Deluxe Volume 1',
-            format: 'Hardcover',
-            publisher: 'Dark Horse Manga',
-            isbn: '9781506711980',
-            releaseDate: DateTime.utc(2019, 3, 26),
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-berserk-deluxe-01',
-                name: 'Leatherette Foil Stamped',
-                variantType: 'physical',
-                isbn: '9781506711980',
-                coverPriceCents: 4999,
-                currency: 'USD',
-                isPrimary: true,
-              ),
-            ],
-          ),
-        ],
       ),
       seedCatalogItem(
         id: 'seed-manga-02',
@@ -220,7 +223,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         title: 'Monster',
         displayTitle: 'Monster: The Perfect Edition Vol. 1',
         synopsis:
-            'Dr. Kenzo Tenma is a renowned Japanese brain surgeon working in Düsseldorf. When he disobeys his hospital director\'s orders to operate on a critically wounded boy rather than the city\'s mayor, his career unravels.',
+            'Dr. Kenzo Tenma is a renentry Japanese brain surgeon working in Düsseldorf. When he disobeys his hospital director\'s orders to operate on a critically wounded boy rather than the city\'s mayor, his career unravels.',
         publisher: 'Shogakukan / Viz Media',
         releaseYear: 1994,
         releaseDate: DateTime.utc(1994, 12, 1),
@@ -236,14 +239,14 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'monster-manga-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-monster',
           seriesTitle: 'Monster',
           volumeName: 'The Perfect Edition',
           volumeNumber: '1',
           volumeStartYear: 1994,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 424,
           coverPriceCents: 1999,
           currency: 'USD',
@@ -283,14 +286,14 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'vagabond-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-vagabond',
           seriesTitle: 'Vagabond',
           volumeName: 'VIZBIG Edition',
           volumeNumber: '1',
           volumeStartYear: 1998,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 728,
           coverPriceCents: 1999,
           currency: 'USD',
@@ -330,7 +333,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen+',
         sortKey: '20th-century-boys-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 416,
           coverPriceCents: 1999,
           currency: 'USD',
@@ -370,7 +373,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen+',
         sortKey: 'pluto-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 200, coverPriceCents: 1299, currency: 'USD'),
         creators: [
           {'name': 'Naoki Urasawa', 'role': 'artist'},
@@ -401,7 +404,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'chainsaw-man-manga-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 192, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'Tatsuki Fujimoto', 'role': 'writer & illustrator'},
@@ -431,7 +434,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen',
         sortKey: 'one-piece-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 208, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'Eiichiro Oda', 'role': 'writer & illustrator'},
@@ -461,7 +464,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen',
         sortKey: 'fullmetal-alchemist-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 280, coverPriceCents: 1999, currency: 'USD'),
         creators: [
           {'name': 'Hiromu Arakawa', 'role': 'writer & illustrator'},
@@ -491,7 +494,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen+',
         sortKey: 'death-note-manga-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 384, coverPriceCents: 1499, currency: 'USD'),
         creators: [
           {'name': 'Tsugumi Ohba', 'role': 'writer'},
@@ -522,7 +525,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'vinland-saga-manga-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 464, coverPriceCents: 2299, currency: 'USD'),
         creators: [
           {'name': 'Makoto Yukimura', 'role': 'writer & illustrator'},
@@ -552,7 +555,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'tokyo-ghoul-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 224, coverPriceCents: 1299, currency: 'USD'),
         creators: [
           {'name': 'Sui Ishida', 'role': 'writer & illustrator'},
@@ -582,7 +585,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen+',
         sortKey: 'jujutsu-kaisen-manga-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 192, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'Gege Akutami', 'role': 'writer & illustrator'},
@@ -612,7 +615,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen',
         sortKey: 'spy-family-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 216, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'Tatsuya Endo', 'role': 'writer & illustrator'},
@@ -646,7 +649,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'dorohedoro-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 224, coverPriceCents: 1299, currency: 'USD'),
         creators: [
           {'name': 'Q Hayashida', 'role': 'writer & illustrator'},
@@ -676,7 +679,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
         ageRating: 'Teen+',
         sortKey: 'blue-lock-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 208, coverPriceCents: 1299, currency: 'USD'),
         creators: [
           {'name': 'Muneyuki Kaneshiro', 'role': 'writer'},
@@ -693,16 +696,24 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
       ),
     ];
 
-List<MangaOwnedItem> mangaSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.manga, 15))
-        MangaOwnedItem(
-          id: MangaOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.manga, itemId),
-          createdAt: now.subtract(const Duration(days: 210)),
-          updatedAt: now,
+List<MangaLibraryEntry> mangaSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in mangaSeedCatalogItems())
+      item.id: MangaMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.manga, 15))
+      MangaLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing Manga seed catalog item: $itemId')),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.manga, itemId),
+        createdAt: now.subtract(const Duration(days: 210)),
+        updatedAt: now,
+        personal: MangaPersonalData(
           isDigital: false,
           condition: 'Mint',
-          details: const MangaOwnedDetails(
+          details: MangaEntryDetails(
             grading: MangaGradingDetails(
               rawOrSlabbed: 'Slabbed',
               gradingCompany: 'CGC',
@@ -726,23 +737,20 @@ List<MangaOwnedItem> mangaSeedOwnedItems(DateTime now) => [
           pricePaidCents: 1999,
           currency: 'USD',
           personalNotes: 'Physical volume with dust jacket.',
-          quantity: 1,
           purchaseStore: 'Barnes & Noble',
           collectionStatus: 'collected',
         ),
-    ];
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> mangaSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MangaTrackingState(
           id: 'seed-track-manga-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.manga,
-            'seed-manga-${seedOrdinal2(i)}',
-          ),
-          ownedRef: seedOwnedRef(
-            CatalogMediaKind.manga,
-            'seed-owned-seed-manga-${seedOrdinal2(i)}',
+            'seed-entry-seed-manga-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i <= 11

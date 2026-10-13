@@ -7,5 +7,5 @@ abstract class LibraryAddKindDraft {
   const LibraryAddKindDraft();
 
   CatalogMediaKind get kind;
-  JsonEncodable toOwnedDetailsDraft();
+  JsonEncodable toEntryDetailsDraft();
 }

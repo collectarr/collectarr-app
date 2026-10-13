@@ -10,15 +10,15 @@ const _gameMainTab = LibraryEditTabSpec(
   sectionIds: [
     'catalog_snapshot',
     'tracking_context',
-    'ownership_reference',
-    'owned_grading',
+    'entries_reference',
+    'entry_grading',
   ],
 );
 
-const _gameOwnedTab = LibraryEditTabSpec(
-  id: 'owned',
+const _gameEntryTab = LibraryEditTabSpec(
+  id: 'entry',
   icon: Icons.inventory_2,
-  label: 'Owned',
+  label: 'Personal',
   sectionIds: [],
 );
 
@@ -41,140 +41,85 @@ const _gameMediaSecondaryTabs = [
     label: 'Covers',
     sectionIds: ['cover_images'],
   ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.image_outlined,
-    label: 'My Images',
-    sectionIds: ['photos'],
-  ),
 ];
 
-const _gameMediaTabs = [
-  _gameMainTab,
-  ..._gameMediaSecondaryTabs,
-];
-
-const _gameReleaseTabs = [
+const _gamePersonalAndValueTabs = [
   LibraryEditTabSpec(
     id: 'value',
     icon: Icons.attach_money,
     label: 'Value',
     sectionIds: ['purchase', 'value_summary', 'sold_status', 'profit_loss'],
   ),
-  LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person_outline,
-    label: 'Personal',
-    sectionIds: [
-      'tracking_personal',
-      'wishlist_reference',
-      'owned_notes',
-      'collection_fields_info',
-    ],
-  ),
-  LibraryEditTabSpec(
-    id: 'custom',
-    icon: Icons.edit_note,
-    label: 'Custom Fields',
-    sectionIds: ['custom_fields'],
-  ),
-  LibraryEditTabSpec(
-    id: 'cover',
-    icon: Icons.photo_camera_outlined,
-    label: 'Covers',
-    sectionIds: ['cover_images'],
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.image_outlined,
-    label: 'My Images',
-    sectionIds: ['photos'],
-  ),
 ];
 
-const _gameReleaseIdentityTab = LibraryEditTabSpec(
-  id: 'release',
+const _gameEditionDetailsTab = LibraryEditTabSpec(
+  id: 'edition',
   icon: Icons.album_outlined,
-  label: 'Release',
+  label: 'Edition Details',
   sectionIds: ['release_identity'],
 );
 
 const _gameCombinedTabs = [
   _gameMainTab,
-  _gameOwnedTab,
-  _gameReleaseIdentityTab,
+  _gameEntryTab,
+  _gameEditionDetailsTab,
   ..._gameMediaSecondaryTabs,
-  ..._gameReleaseTabs,
+  ..._gamePersonalAndValueTabs,
 ];
 
 class GameLibraryCombinedEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const GameLibraryCombinedEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
-          ownedTabs: _gameCombinedTabs,
+          entryDigitalTrackingSectionTitle: 'Digital Entry Details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _gameCombinedTabs,
           trackedTabs: _gameCombinedTabs,
           catalogTabs: _gameCombinedTabs,
           customTabBuilder: buildGameCustomTabView,
         );
 }
 
-class GameLibraryMediaEditPresentationBuilder
-    extends LibraryEditPresentationBuilderBase {
-  const GameLibraryMediaEditPresentationBuilder()
-      : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: false,
-          useDetailsTab: false,
-          useArtworkCoverTab: false,
-          useArtworkPhotosTab: false,
-          trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
-          ownedTabs: _gameMediaTabs,
-          trackedTabs: _gameMediaTabs,
-          catalogTabs: _gameMediaTabs,
-          customTabBuilder: buildGameCustomTabView,
-        );
-}
-
-class GameLibraryReleaseEditPresentationBuilder
-    extends LibraryEditPresentationBuilderBase {
-  const GameLibraryReleaseEditPresentationBuilder()
-      : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: false,
-          useDetailsTab: false,
-          useArtworkCoverTab: false,
-          useArtworkPhotosTab: false,
-          trackingSectionTitle: 'Tracking edition',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Ownership reference',
-          ownedBundleLabel: 'Owned bundle',
-          ownedTabs: _gameReleaseTabs,
-          trackedTabs: _gameReleaseTabs,
-          catalogTabs: _gameReleaseTabs,
-          customTabBuilder: buildGameCustomTabView,
-        );
-}
-
 const gameLibraryEditPresentation = LibraryEditPresentation(
   builder: GameLibraryCombinedEditPresentationBuilder(),
-  workBuilder: GameLibraryMediaEditPresentationBuilder(),
-  releaseBuilder: GameLibraryReleaseEditPresentationBuilder(),
+  sharedTabs: [
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'photos',
+        icon: Icons.image_outlined,
+        label: 'My Images',
+        sectionIds: ['photos'],
+      ),
+      afterTabId: 'cover',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person_outline,
+        label: 'Personal',
+        sectionIds: [
+          'tracking_personal',
+          'wishlist_reference',
+          'entry_notes',
+          'collection_fields_info',
+        ],
+      ),
+      afterTabId: 'value',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'custom',
+        icon: Icons.edit_note,
+        label: 'Custom Fields',
+        sectionIds: ['custom_fields'],
+      ),
+      afterTabId: 'personal',
+    ),
+  ],
 );

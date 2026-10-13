@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_edit
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
-const _animeOwnedTabs = [
+const _animeEntryTabs = [
   LibraryEditTabSpec(
     id: 'main',
     icon: Icons.article,
@@ -11,8 +11,8 @@ const _animeOwnedTabs = [
     sectionIds: [
       'catalog_snapshot',
       'tracking_context',
-      'ownership_reference',
-      'owned_grading',
+      'entries_reference',
+      'entry_grading',
     ],
   ),
   LibraryEditTabSpec(
@@ -22,33 +22,35 @@ const _animeOwnedTabs = [
     sectionIds: ['purchase', 'value_summary'],
   ),
   LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person,
-    label: 'Personal',
-    sectionIds: [
-      'tracking_personal',
-      'wishlist_reference',
-      'owned_notes',
-      'collection_fields_info',
-    ],
+    id: 'media',
+    icon: Icons.article_outlined,
+    label: 'Details',
+  ),
+  LibraryEditTabSpec(
+    id: 'edition',
+    icon: Icons.inventory_2_outlined,
+    label: 'Edition',
+  ),
+  LibraryEditTabSpec(
+    id: 'cast',
+    icon: Icons.people_outline,
+    label: 'Cast',
+  ),
+  LibraryEditTabSpec(
+    id: 'crew',
+    icon: Icons.work_outline,
+    label: 'Crew',
+  ),
+  LibraryEditTabSpec(
+    id: 'specs',
+    icon: Icons.tune_outlined,
+    label: 'Specs',
   ),
   LibraryEditTabSpec(
     id: 'sold',
     icon: Icons.sell,
     label: 'Sold',
     sectionIds: ['sold_status', 'profit_loss'],
-  ),
-  LibraryEditTabSpec(
-    id: 'custom',
-    icon: Icons.tune,
-    label: 'Custom',
-    sectionIds: ['custom_fields'],
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.photo_library,
-    label: 'Photos',
-    sectionIds: ['photos'],
   ),
   LibraryEditTabSpec(
     id: 'cover',
@@ -72,10 +74,29 @@ const _animeTrackedTabs = [
     sectionIds: ['catalog_snapshot', 'tracking_context'],
   ),
   LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person,
-    label: 'Personal',
-    sectionIds: ['tracking_personal', 'wishlist_reference'],
+    id: 'media',
+    icon: Icons.article_outlined,
+    label: 'Details',
+  ),
+  LibraryEditTabSpec(
+    id: 'edition',
+    icon: Icons.inventory_2_outlined,
+    label: 'Edition',
+  ),
+  LibraryEditTabSpec(
+    id: 'cast',
+    icon: Icons.people_outline,
+    label: 'Cast',
+  ),
+  LibraryEditTabSpec(
+    id: 'crew',
+    icon: Icons.work_outline,
+    label: 'Crew',
+  ),
+  LibraryEditTabSpec(
+    id: 'specs',
+    icon: Icons.tune_outlined,
+    label: 'Specs',
   ),
   LibraryEditTabSpec(
     id: 'cover',
@@ -99,6 +120,31 @@ const _animeCatalogTabs = [
     sectionIds: ['catalog_snapshot'],
   ),
   LibraryEditTabSpec(
+    id: 'media',
+    icon: Icons.article_outlined,
+    label: 'Details',
+  ),
+  LibraryEditTabSpec(
+    id: 'edition',
+    icon: Icons.inventory_2_outlined,
+    label: 'Edition',
+  ),
+  LibraryEditTabSpec(
+    id: 'cast',
+    icon: Icons.people_outline,
+    label: 'Cast',
+  ),
+  LibraryEditTabSpec(
+    id: 'crew',
+    icon: Icons.work_outline,
+    label: 'Crew',
+  ),
+  LibraryEditTabSpec(
+    id: 'specs',
+    icon: Icons.tune_outlined,
+    label: 'Specs',
+  ),
+  LibraryEditTabSpec(
     id: 'cover',
     icon: Icons.image,
     label: 'Cover',
@@ -116,18 +162,15 @@ class AnimeLibraryEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
   const AnimeLibraryEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Release / copy reference',
-          ownedBundleLabel: 'Owned release bundle',
-          ownedTabs: _animeOwnedTabs,
+          entryDigitalTrackingSectionTitle: 'Digital Entry Details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _animeEntryTabs,
           trackedTabs: _animeTrackedTabs,
           catalogTabs: _animeCatalogTabs,
           customTabBuilder: buildAnimeMediaCustomTabView,
@@ -136,4 +179,59 @@ class AnimeLibraryEditPresentationBuilder
 
 const animeLibraryEditPresentation = LibraryEditPresentation(
   builder: AnimeLibraryEditPresentationBuilder(),
+  sharedTabs: [
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'links',
+        icon: Icons.public,
+        label: 'Links',
+      ),
+      afterTabId: 'specs',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person,
+        label: 'Personal',
+        sectionIds: ['tracking_personal', 'wishlist_reference'],
+      ),
+      scope: LibraryEditTabTargetScope.tracked,
+      afterTabId: 'main',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person,
+        label: 'Personal',
+        sectionIds: [
+          'tracking_personal',
+          'wishlist_reference',
+          'entry_notes',
+          'collection_fields_info',
+        ],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'links',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'custom',
+        icon: Icons.tune,
+        label: 'Custom',
+        sectionIds: ['custom_fields'],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'sold',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'photos',
+        icon: Icons.photo_library,
+        label: 'Photos',
+        sectionIds: ['photos'],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'custom',
+    ),
+  ],
 );

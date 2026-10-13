@@ -1,15 +1,14 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_repository.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 
 /// Game owns the mapping from game releases to calendar dates.
 final class GameCalendarContributor implements LibraryCalendarContributor {
-  const GameCalendarContributor({this.loadMedia});
+  const GameCalendarContributor({this.loadItem});
 
-  final Future<GameMedia?> Function(String id)? loadMedia;
+  final Future<CatalogItemDto?> Function(String id)? loadItem;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.game;
@@ -19,26 +18,33 @@ final class GameCalendarContributor implements LibraryCalendarContributor {
     LibraryCalendarContext context,
   ) async {
     final events = <CalendarEvent>[];
-    for (final ref in context.catalogRefs) {
-      final id = ref.id;
-      final game = loadMedia != null
-          ? await loadMedia!(id)
-          : await _loadMedia(context, id);
-      if (game == null) continue;
-      final date = game.releaseDate;
+    for (final ref in context.libraryEntryRefs) {
+      if (ref.kind != kind) continue;
+      final id = ref.id.value;
+      final Map<String, dynamic>? catalogData;
+      if (loadItem case final loader?) {
+        final item = await loader(id);
+        if (item == null) continue;
+        catalogData = item.kindData;
+      } else {
+        catalogData = await _loadCatalogData(context, id);
+      }
+      if (catalogData == null) continue;
+      final metadata = GameCatalogMetadata.fromJson(catalogData);
+      final date = metadata.releaseDate;
       if (date == null) continue;
       events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
         date: DateTime.utc(date.year, date.month, date.day),
-        title: game.title,
-        eventId: 'game-release:${game.releases.firstOrNull?.id ?? id}',
-        catalogRef: ref,
+        title: metadata.title,
+        eventId: 'game-item:$id',
+        libraryEntryRef: ref,
       ));
     }
     return events;
   }
 
-  Future<GameMedia?> _loadMedia(
+  Future<Map<String, dynamic>?> _loadCatalogData(
     LibraryCalendarContext context,
     String id,
   ) {
@@ -46,6 +52,8 @@ final class GameCalendarContributor implements LibraryCalendarContributor {
     if (database == null) {
       throw StateError('Game calendar contribution requires a database');
     }
-    return GameRepository(database).getMedia(GameMediaId(id));
+    return LibraryEntryStore(database)
+        .find(kind, id)
+        .then((entry) => entry?.catalogData);
   }
 }

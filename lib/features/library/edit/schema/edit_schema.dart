@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 import 'package:flutter/widgets.dart';
 
-export 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+export 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 
 final class EditSchema<TModel, TDraft> {
   const EditSchema({
@@ -23,29 +23,15 @@ final class EditTabSpec<TDraft> {
     required this.label,
     required this.sections,
     this.icon,
+    this.svgAsset,
     this.visibleWhen,
   });
 
   final String id;
   final String label;
   final IconData? icon;
-  final List<EditSectionSpec<TDraft>> sections;
-  final LibraryFieldVisibility<TDraft>? visibleWhen;
-
-  bool isVisible(TDraft draft) => visibleWhen?.call(draft) ?? true;
-}
-
-final class EditSectionSpec<TDraft> {
-  const EditSectionSpec({
-    required this.id,
-    required this.label,
-    required this.fields,
-    this.visibleWhen,
-  });
-
-  final String id;
-  final String label;
-  final List<LibraryFieldSpec<TDraft>> fields;
+  final String? svgAsset;
+  final List<LibraryFormSectionSpec<TDraft>> sections;
   final LibraryFieldVisibility<TDraft>? visibleWhen;
 
   bool isVisible(TDraft draft) => visibleWhen?.call(draft) ?? true;

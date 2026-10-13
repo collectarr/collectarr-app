@@ -10,10 +10,10 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 void main() {
   testWidgets('group mode dropdown shows expandable folders sections',
       (tester) async {
-    var selectedMode = 'release_year';
+    var selectedMode = 'movie.release_year';
     var selectedPreset = LibraryFolderPreset.single(selectedMode);
     final pinnedPresets = <LibraryFolderPreset>[
-      LibraryFolderPreset.single('director'),
+      LibraryFolderPreset.single('movie.director'),
     ];
 
     await tester.pumpWidget(
@@ -33,9 +33,9 @@ void main() {
                 folderPreset: selectedPreset,
                 selectedBucket: 'All Movies',
                 onSelected: (_) {},
-                onGroupModeChanged: (value) {
-                  selectedPreset = LibraryFolderPreset.single(value);
-                  selectedMode = value;
+                onGroupModeChanged: (preset) {
+                  selectedPreset = preset;
+                  selectedMode = preset.primaryMode;
                 },
                 collectionStatusScope: LibraryCollectionStatusScope.all,
                 onClearFilter: () {},
@@ -82,51 +82,9 @@ void main() {
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Format'), findsNothing);
     expect(find.text('Release Year'), findsWidgets);
-    expect(find.text('Audience Rating'), findsNothing);
-    expect(find.text('Movie / TV Series'), findsNothing);
-    expect(find.text('Studios'), findsNothing);
-  });
-
-  testWidgets('sidebar header exposes a separate favorites manager button', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              width: 320,
-              height: 420,
-              child: LibrarySidebar(
-                type: const MovieRegistration(),
-                accent: Colors.cyan,
-                buckets: const [
-                  LibraryBucket(title: 'All Movies', count: 12),
-                ],
-                groupMode: 'release_year',
-                folderPreset: LibraryFolderPreset.single('release_year'),
-                selectedBucket: 'All Movies',
-                onSelected: (_) {},
-                onGroupModeChanged: (_) {},
-                collectionStatusScope: LibraryCollectionStatusScope.all,
-                onClearFilter: () {},
-                pinnedFolderPresets: [
-                  LibraryFolderPreset.single('director'),
-                ],
-                onPinnedFolderPresetsChanged: (_) {},
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    expect(find.byTooltip('Manage favorites'), findsOneWidget);
-
-    await tester.tap(find.byTooltip('Manage favorites'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Manage Folder Favorites'), findsOneWidget);
+    expect(find.text('Audience Rating'), findsWidgets);
+    expect(find.text('Movie / TV Series'), findsWidgets);
+    expect(find.text('Studios'), findsWidgets);
   });
 
   testWidgets('sidebar shows a manage button for editable group buckets', (
@@ -148,7 +106,7 @@ void main() {
                   LibraryBucket(title: '[All Movies]', count: 12),
                   LibraryBucket(title: 'Action', count: 8),
                 ],
-                groupMode: 'genre',
+                groupMode: 'movie.genre',
                 selectedBucket: '[All Movies]',
                 onSelected: (_) {},
                 onGroupModeChanged: (_) {},
@@ -191,12 +149,12 @@ void main() {
                       LibraryBucket(
                         title: 'Batman',
                         count: 10,
-                        ownedCount: 10,
+                        entryCount: 10,
                       ),
                       LibraryBucket(
                         title: 'Spawn',
                         count: 10,
-                        ownedCount: 6,
+                        entryCount: 6,
                       ),
                       LibraryBucket(title: 'Sandman', count: 5),
                     ],

@@ -1,6 +1,7 @@
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -8,17 +9,14 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 abstract interface class LibraryItemActionRunner {
-  Future<void> addCopy();
   Future<void> openDetails();
-  Future<void> selectOwnedItem(OwnedItemRef ref);
-  Future<void> toggleOwned();
+  Future<void> toggleEntry();
   Future<void> toggleWishlist();
   Future<void> edit();
   Future<void> duplicate();
@@ -26,11 +24,11 @@ abstract interface class LibraryItemActionRunner {
   Future<void> refreshMetadata();
   Future<void> share();
   Future<void> unlinkFromCore();
-  List<LibraryEntitySemanticAction> get semanticActions;
+  List<LibraryTargetSemanticAction> get semanticActions;
 }
 
-final class LibraryEntitySemanticAction {
-  const LibraryEntitySemanticAction({
+final class LibraryTargetSemanticAction {
+  const LibraryTargetSemanticAction({
     required this.id,
     required this.label,
     required this.icon,
@@ -45,39 +43,10 @@ final class LibraryEntitySemanticAction {
 
 /// Entity actions are separate from workspace actions such as sorting,
 /// grouping, printing, and column management.
-final class LibraryEntityActionContributor {
-  const LibraryEntityActionContributor({
-    required this.scope,
-    required this.actions,
-  });
-
-  final LibraryEntityScope scope;
-  final LibraryItemActions actions;
-}
-
-final class LibraryEntityActionRegistry {
-  const LibraryEntityActionRegistry({
-    this.contributors = const [],
-  });
-
-  final List<LibraryEntityActionContributor> contributors;
-
-  LibraryItemActions actionsForScope(LibraryEntityScope scope) {
-    for (final contributor in contributors) {
-      if (contributor.scope == scope) return contributor.actions;
-    }
-    throw StateError(
-      'Missing entity action contributor for ${scope.apiValue}.',
-    );
-  }
-}
-
 class LibraryItemActions implements LibraryItemActionRunner {
   const LibraryItemActions({
-    this.onAddCopy,
     this.onOpenDetails,
-    this.onSelectOwnedItem,
-    this.onToggleOwned,
+    this.onToggleEntry,
     this.onToggleWishlist,
     this.onEdit,
     this.onDuplicate,
@@ -88,10 +57,8 @@ class LibraryItemActions implements LibraryItemActionRunner {
     this.semanticActions = const [],
   });
 
-  final VoidCallback? onAddCopy;
   final VoidCallback? onOpenDetails;
-  final ValueChanged<OwnedItemRef>? onSelectOwnedItem;
-  final VoidCallback? onToggleOwned;
+  final VoidCallback? onToggleEntry;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
   final VoidCallback? onDuplicate;
@@ -100,20 +67,13 @@ class LibraryItemActions implements LibraryItemActionRunner {
   final VoidCallback? onShare;
   final VoidCallback? onUnlinkFromCore;
   @override
-  final List<LibraryEntitySemanticAction> semanticActions;
-
-  @override
-  Future<void> addCopy() async => onAddCopy?.call();
+  final List<LibraryTargetSemanticAction> semanticActions;
 
   @override
   Future<void> openDetails() async => onOpenDetails?.call();
 
   @override
-  Future<void> selectOwnedItem(OwnedItemRef ref) async =>
-      onSelectOwnedItem?.call(ref);
-
-  @override
-  Future<void> toggleOwned() async => onToggleOwned?.call();
+  Future<void> toggleEntry() async => onToggleEntry?.call();
 
   @override
   Future<void> toggleWishlist() async => onToggleWishlist?.call();
@@ -165,11 +125,10 @@ class LibraryEditDialogRequest {
   LibraryEditDialogRequest({
     required this.type,
     required CatalogSearchCandidate item,
-    this.node,
-    required this.ownedItem,
-    this.ownedItemDispatch,
+    this.target,
+    required this.libraryEntry,
+    this.libraryEntryDispatch,
     required this.accent,
-    this.scope,
     this.wishlistItem,
     this.trackingSummary,
     this.wishlistTargetOptions = const [],
@@ -180,7 +139,6 @@ class LibraryEditDialogRequest {
     this.onPrevious,
     this.onNext,
     this.openMetadataCompareOnOpen = false,
-    this.editPrimaryRelease = false,
   }) : kindItem = item;
 
   final LibraryKindRegistration type;
@@ -188,23 +146,16 @@ class LibraryEditDialogRequest {
   /// Full candidate retained for the concrete kind edit contribution.
   final CatalogSearchCandidate kindItem;
 
-  /// Structural node being edited. Kind-owned dialogs use this to select a
-  /// concrete release/copy without teaching the generic host Music semantics.
-  final LibraryEntityRef? node;
-  final OwnedItemSummary? ownedItem;
+  /// Catalog or local entry identity selected for editing.
+  final LibraryTargetRef? target;
+  final LibraryEntrySummary? libraryEntry;
 
-  /// Concrete kind-owned aggregate, present only after kind dispatch.
+  bool get isLibraryEntry => target is EntryTargetRef || libraryEntry != null;
+
+  /// Concrete kind-entry aggregate, present only after kind dispatch.
   /// Generic edit infrastructure must not decode or inspect this value.
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  final LibraryEntryDispatch? libraryEntryDispatch;
   final Color accent;
-  final LibraryEntityScope? scope;
-
-  /// A concrete node is authoritative. Explicit scope is used for actions
-  /// without a node (for example provider-candidate editing), and Work is
-  /// the final structural default only when neither is available.
-  LibraryEntityScope get resolvedScope =>
-      node?.scope ?? scope ?? LibraryEntityScope.work;
-
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;
   final List<CatalogTargetOption> wishlistTargetOptions;
@@ -216,19 +167,13 @@ class LibraryEditDialogRequest {
   final VoidCallback? onNext;
   final bool openMetadataCompareOnOpen;
 
-  /// Allows a kind-owned release editor to intentionally choose the primary
-  /// release when no concrete release node was selected. A stale or explicit
-  /// release reference must never use this fallback.
-  final bool editPrimaryRelease;
-
   LibraryEditDialogRequest copyWith({
     LibraryKindRegistration? type,
     CatalogSearchCandidate? item,
-    LibraryEntityRef? node,
-    OwnedItemSummary? ownedItem,
-    LibraryOwnedItemDispatch? ownedItemDispatch,
+    LibraryTargetRef? target,
+    LibraryEntrySummary? libraryEntry,
+    LibraryEntryDispatch? libraryEntryDispatch,
     Color? accent,
-    LibraryEntityScope? scope,
     WishlistItem? wishlistItem,
     TrackingSummary? trackingSummary,
     List<CatalogTargetOption>? wishlistTargetOptions,
@@ -239,16 +184,14 @@ class LibraryEditDialogRequest {
     VoidCallback? onPrevious,
     VoidCallback? onNext,
     bool? openMetadataCompareOnOpen,
-    bool? editPrimaryRelease,
   }) {
     return LibraryEditDialogRequest(
       type: type ?? this.type,
       item: item ?? kindItem,
-      node: node ?? this.node,
-      ownedItem: ownedItem ?? this.ownedItem,
-      ownedItemDispatch: ownedItemDispatch ?? this.ownedItemDispatch,
+      target: target ?? this.target,
+      libraryEntry: libraryEntry ?? this.libraryEntry,
+      libraryEntryDispatch: libraryEntryDispatch ?? this.libraryEntryDispatch,
       accent: accent ?? this.accent,
-      scope: scope ?? this.scope,
       wishlistItem: wishlistItem ?? this.wishlistItem,
       trackingSummary: trackingSummary ?? this.trackingSummary,
       wishlistTargetOptions:
@@ -262,7 +205,6 @@ class LibraryEditDialogRequest {
       onNext: onNext ?? this.onNext,
       openMetadataCompareOnOpen:
           openMetadataCompareOnOpen ?? this.openMetadataCompareOnOpen,
-      editPrimaryRelease: editPrimaryRelease ?? this.editPrimaryRelease,
     );
   }
 }
@@ -276,53 +218,56 @@ class LibraryDetailPageRequest {
   const LibraryDetailPageRequest({
     required this.type,
     required this.item,
-    required this.ownedSummary,
-    this.ownedItemDispatch,
+    required this.libraryEntrySummary,
+    this.libraryEntryDispatch,
+    this.projection,
+    this.searchQuery,
+    this.searchTarget = LibrarySearchTarget.all,
+    this.onDetailsLayoutChanged,
     required this.accent,
     this.actions = const LibraryItemActions(),
-    VoidCallback? onAddOwned,
-    VoidCallback? onRemoveOwned,
+    VoidCallback? onAddEntry,
+    VoidCallback? onRemoveEntry,
     VoidCallback? onAddWishlist,
     VoidCallback? onRemoveWishlist,
-    void Function(OwnedItemSummary? ownedItem)? onEdit,
+    void Function(LibraryEntrySummary? libraryEntry)? onEdit,
     this.onFilterByValue,
-  })  : _onAddOwned = onAddOwned,
-        _onRemoveOwned = onRemoveOwned,
+  })  : _onAddEntry = onAddEntry,
+        _onRemoveEntry = onRemoveEntry,
         _onAddWishlist = onAddWishlist,
         _onRemoveWishlist = onRemoveWishlist,
         _onEdit = onEdit;
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedItemSummary? ownedSummary;
+  final LibraryEntrySummary? libraryEntrySummary;
 
-  /// Concrete kind-owned aggregate available after Library kind dispatch.
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  /// Concrete kind-entry aggregate available after Library kind dispatch.
+  final LibraryEntryDispatch? libraryEntryDispatch;
+  final LibraryProjection? projection;
+  final String? searchQuery;
+  final LibrarySearchTarget searchTarget;
+  final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final Color accent;
   final LibraryItemActions actions;
   final ValueChanged<String>? onFilterByValue;
 
-  final VoidCallback? _onAddOwned;
-  final VoidCallback? _onRemoveOwned;
+  final VoidCallback? _onAddEntry;
+  final VoidCallback? _onRemoveEntry;
   final VoidCallback? _onAddWishlist;
   final VoidCallback? _onRemoveWishlist;
-  final void Function(OwnedItemSummary? ownedItem)? _onEdit;
+  final void Function(LibraryEntrySummary? libraryEntry)? _onEdit;
 
-  VoidCallback? get onAddOwned => _onAddOwned ?? actions.onToggleOwned;
-  VoidCallback? get onRemoveOwned => _onRemoveOwned ?? actions.onToggleOwned;
+  VoidCallback? get onAddEntry => _onAddEntry ?? actions.onToggleEntry;
+  VoidCallback? get onRemoveEntry => _onRemoveEntry ?? actions.onToggleEntry;
   VoidCallback? get onAddWishlist => _onAddWishlist ?? actions.onToggleWishlist;
   VoidCallback? get onRemoveWishlist =>
       _onRemoveWishlist ?? actions.onToggleWishlist;
-  void Function(OwnedItemSummary? ownedItem)? get onEdit =>
+  void Function(LibraryEntrySummary? libraryEntry)? get onEdit =>
       _onEdit ?? (actions.onEdit != null ? (_) => actions.onEdit!() : null);
 }
 
-typedef LibraryDetailPageBuilder = Widget Function(
-  BuildContext context,
-  LibraryDetailPageRequest request,
-);
-
-/// Optional kind-owned contribution rendered inside a media detail host.
+/// Optional kind-entry contribution rendered inside a media detail host.
 ///
 /// The host owns page chrome and layout; the kind owns its semantic sections
 /// and any provider-backed state needed to render them.
@@ -335,10 +280,10 @@ class LibraryInspectorRequest {
   const LibraryInspectorRequest({
     required this.type,
     required this.item,
-    required this.ownedItem,
-    this.ownedItemDispatch,
+    required this.libraryEntry,
+    this.libraryEntryDispatch,
     this.onEdit,
-    this.ownedCopies = const [],
+    this.libraryEntries = const [],
     this.trackingSummary,
     required this.accent,
     this.detailsLayout = LibraryDetailsLayout.hidden,
@@ -349,12 +294,12 @@ class LibraryInspectorRequest {
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedItemSummary? ownedItem;
+  final LibraryEntrySummary? libraryEntry;
 
-  /// Concrete kind-owned aggregate for kind-owned inspector contributions.
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  /// Concrete kind-entry aggregate for kind-entry inspector contributions.
+  final LibraryEntryDispatch? libraryEntryDispatch;
   final VoidCallback? onEdit;
-  final List<OwnedItemSummary> ownedCopies;
+  final List<LibraryEntrySummary> libraryEntries;
   final TrackingSummary? trackingSummary;
   final Color accent;
   final LibraryDetailsLayout detailsLayout;
@@ -379,18 +324,14 @@ class LibraryInspectorPanelRequest {
     required this.hero,
     required this.primarySections,
     required this.trailingSections,
-    required this.ownedCopies,
-    required this.selectedOwnedItemRef,
+    required this.libraryEntries,
     required this.extraActions,
     this.actions = const LibraryItemActions(),
     this.onDetailsLayoutChanged,
-    this.ownedCopiesSection,
     this.bundleSection,
     this.conditionGradeSection,
-    VoidCallback? onAddCopy,
     VoidCallback? onOpenDetails,
-    ValueChanged<OwnedItemRef>? onSelectOwnedItem,
-    VoidCallback? onToggleOwned,
+    VoidCallback? onToggleEntry,
     VoidCallback? onToggleWishlist,
     VoidCallback? onEdit,
     VoidCallback? onDuplicate,
@@ -398,10 +339,8 @@ class LibraryInspectorPanelRequest {
     VoidCallback? onRefreshMetadata,
     VoidCallback? onShare,
     VoidCallback? onUnlinkFromCore,
-  })  : _onAddCopy = onAddCopy,
-        _onOpenDetails = onOpenDetails,
-        _onSelectOwnedItem = onSelectOwnedItem,
-        _onToggleOwned = onToggleOwned,
+  })  : _onOpenDetails = onOpenDetails,
+        _onToggleEntry = onToggleEntry,
         _onToggleWishlist = onToggleWishlist,
         _onEdit = onEdit,
         _onDuplicate = onDuplicate,
@@ -414,19 +353,15 @@ class LibraryInspectorPanelRequest {
   final Widget hero;
   final List<Widget> primarySections;
   final List<Widget> trailingSections;
-  final List<OwnedItemSummary> ownedCopies;
-  final OwnedItemRef? selectedOwnedItemRef;
+  final List<LibraryEntrySummary> libraryEntries;
   final List<Widget> extraActions;
   final LibraryItemActions actions;
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
-  final Widget? ownedCopiesSection;
   final Widget? bundleSection;
   final Widget? conditionGradeSection;
 
-  final VoidCallback? _onAddCopy;
   final VoidCallback? _onOpenDetails;
-  final ValueChanged<OwnedItemRef>? _onSelectOwnedItem;
-  final VoidCallback? _onToggleOwned;
+  final VoidCallback? _onToggleEntry;
   final VoidCallback? _onToggleWishlist;
   final VoidCallback? _onEdit;
   final VoidCallback? _onDuplicate;
@@ -435,12 +370,9 @@ class LibraryInspectorPanelRequest {
   final VoidCallback? _onShare;
   final VoidCallback? _onUnlinkFromCore;
 
-  VoidCallback get onAddCopy => _onAddCopy ?? actions.onAddCopy ?? () {};
   VoidCallback get onOpenDetails =>
       _onOpenDetails ?? actions.onOpenDetails ?? () {};
-  ValueChanged<OwnedItemRef>? get onSelectOwnedItem =>
-      _onSelectOwnedItem ?? actions.onSelectOwnedItem;
-  VoidCallback? get onToggleOwned => _onToggleOwned ?? actions.onToggleOwned;
+  VoidCallback? get onToggleEntry => _onToggleEntry ?? actions.onToggleEntry;
   VoidCallback? get onToggleWishlist =>
       _onToggleWishlist ?? actions.onToggleWishlist;
   VoidCallback? get onEdit => _onEdit ?? actions.onEdit;

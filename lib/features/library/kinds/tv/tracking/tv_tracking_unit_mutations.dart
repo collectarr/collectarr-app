@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_r
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 
-/// TV-owned episode progress mutations.
+/// TV-entry episode progress mutations.
 ///
 /// Episode coordinates and the generated tracking-unit identity belong to TV;
 /// the collection layer only provides persistence, sync, and event mechanics.
@@ -24,7 +24,7 @@ final class TvTrackingUnitMutations {
   final CollectionMutationRunner mutationRunner;
 
   Future<void> setEpisodeCompleted(
-    CatalogEntityRef seriesRef, {
+    LibraryEntryRef libraryEntryRef, {
     required int seasonNumber,
     required int episodeNumber,
     bool isCompleted = true,
@@ -32,16 +32,17 @@ final class TvTrackingUnitMutations {
   }) async {
     final resolvedIsCompleted = completed ?? isCompleted;
     final now = DateTime.now().toUtc();
-    final unitId = 'ep:${seriesRef.id}:$seasonNumber:$episodeNumber';
+    final unitId =
+        'ep:${libraryEntryRef.id.value}:$seasonNumber:$episodeNumber';
     await mutationRunner.run(
       action: () async {
         final existing = await trackingUnits.findByRef(
-          TrackingUnitRef(kind: seriesRef.mediaKind, id: unitId),
+          TrackingUnitRef(kind: libraryEntryRef.kind, id: unitId),
         );
         if (resolvedIsCompleted) {
           final unit = TvTrackingUnit(
             id: unitId,
-            targetRef: seriesRef,
+            libraryEntryRef: libraryEntryRef,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             completedAt: now,
@@ -65,7 +66,7 @@ final class TvTrackingUnitMutations {
   }
 
   Future<void> setSeasonEpisodesCompleted(
-    CatalogEntityRef seriesRef, {
+    LibraryEntryRef libraryEntryRef, {
     required int seasonNumber,
     int? episodeCount,
     Iterable<int>? episodeNumbers,
@@ -79,7 +80,7 @@ final class TvTrackingUnitMutations {
             : const <int>[]);
     for (final episodeNumber in episodes) {
       await setEpisodeCompleted(
-        seriesRef,
+        libraryEntryRef,
         seasonNumber: seasonNumber,
         episodeNumber: episodeNumber,
         isCompleted: resolvedIsCompleted,

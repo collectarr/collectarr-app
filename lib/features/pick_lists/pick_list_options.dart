@@ -1,3 +1,4 @@
+import 'models/pick_list_value.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/pick_lists/models/universal_vocabularies.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -36,8 +37,11 @@ Future<List<String>> loadMultiValuePickListOptions(
 }) async {
   final repo = PickListRepository(db);
   final values = await repo.getValues(listName, mediaKind: mediaKind);
+  final hidden = await repo.hiddenValues(listName, mediaKind: mediaKind);
   return mergePickListValues(
-    builtInValues: builtInValues,
+    builtInValues: builtInValues
+        .where((value) => !hidden.contains(normalizePickListValue(value)))
+        .toList(),
     customValues: values,
     selectedValues: selectedValues,
   );
@@ -71,8 +75,11 @@ Future<List<String>> loadSingleValuePickListOptions(
 }) async {
   final repo = PickListRepository(db);
   final values = await repo.getValues(listName, mediaKind: mediaKind);
+  final hidden = await repo.hiddenValues(listName, mediaKind: mediaKind);
   return mergePickListValues(
-    builtInValues: builtInValues,
+    builtInValues: builtInValues
+        .where((value) => !hidden.contains(normalizePickListValue(value)))
+        .toList(),
     customValues: values,
     selectedValues: [selectedValue],
   );
@@ -88,27 +95,27 @@ Future<PickListConditionGradeOptions> loadConditionGradePickListOptions(
   String? selectedCondition,
   String? selectedGrade,
 }) async {
-  final repo = PickListRepository(db);
   final results = await Future.wait([
     conditionListName == null
-        ? Future.value(const <String>[])
-        : repo.getValues(conditionListName, mediaKind: mediaKind),
+        ? Future.value(mergePickListValues(
+            builtInValues: builtInConditions,
+            selectedValues: [selectedCondition]))
+        : loadSingleValuePickListOptions(db,
+            listName: conditionListName,
+            mediaKind: mediaKind,
+            builtInValues: builtInConditions,
+            selectedValue: selectedCondition),
     gradeListName == null
-        ? Future.value(const <String>[])
-        : repo.getValues(gradeListName, mediaKind: mediaKind),
+        ? Future.value(mergePickListValues(
+            builtInValues: builtInGrades, selectedValues: [selectedGrade]))
+        : loadSingleValuePickListOptions(db,
+            listName: gradeListName,
+            mediaKind: mediaKind,
+            builtInValues: builtInGrades,
+            selectedValue: selectedGrade),
   ]);
   return PickListConditionGradeOptions(
-    conditions: mergePickListValues(
-      builtInValues: builtInConditions,
-      customValues: results[0],
-      selectedValues: [selectedCondition],
-    ),
-    grades: mergePickListValues(
-      builtInValues: builtInGrades,
-      customValues: results[1],
-      selectedValues: [selectedGrade],
-    ),
-  );
+      conditions: results[0], grades: results[1]);
 }
 
 List<String> mergePickListValues({
@@ -124,7 +131,7 @@ List<String> mergePickListValues({
     if (trimmed == null || trimmed.isEmpty) {
       return;
     }
-    if (seen.add(trimmed.toLowerCase())) {
+    if (seen.add(normalizePickListValue(trimmed))) {
       merged.add(trimmed);
     }
   }

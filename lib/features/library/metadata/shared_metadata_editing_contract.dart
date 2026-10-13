@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_fields.g.dart';
 
 enum SharedMetadataEditTab {
@@ -65,6 +66,8 @@ SharedMetadataEditTab _tabFromSection(String section) {
 SharedMetadataFieldValueType _valueTypeFromName(String name) {
   return switch (name) {
     'integer' => SharedMetadataFieldValueType.integer,
+    'number' => SharedMetadataFieldValueType.number,
+    'boolean' => SharedMetadataFieldValueType.boolean,
     'partialDate' => SharedMetadataFieldValueType.partialDate,
     'stringList' => SharedMetadataFieldValueType.stringList,
     _ => SharedMetadataFieldValueType.text,
@@ -79,7 +82,7 @@ SharedMetadataFieldInputType _inputTypeFromName(String name) {
   };
 }
 
-/// App-owned presentation nuances overlaid on the generated field set. Keyed by
+/// App-entry presentation nuances overlaid on the generated field set. Keyed by
 /// field key; fields not listed render as single-line inputs with no hint.
 const Map<String, ({String? hint, int minLines, int maxLines})>
     _kFieldPresentation = {
@@ -96,26 +99,34 @@ const Map<String, ({String? hint, int minLines, int maxLines})>
 };
 
 /// The admin/edit scalar fields, projected from the core registry
-/// ([kGeneratedMetadataFields]) plus the app-owned presentation overlay above.
+/// ([kGeneratedMetadataFields]) plus the app-entry presentation overlay above.
 /// This is the single source of truth shared by the app edit dialog and the
 /// admin metadata correction panel; re-run
 /// `python -m scripts.export_app_edit_fields` in collectarr-core to refresh.
-final List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
-  for (final field in kGeneratedMetadataFields)
-    SharedMetadataFieldDescriptor(
-      key: field.key,
-      label: field.label,
-      tab: _tabFromSection(field.section),
-      inputType: _inputTypeFromName(field.inputType),
-      valueType: _valueTypeFromName(field.valueType),
-      normalizedValueType: field.normalizedValueType,
-      hintText: _kFieldPresentation[field.key]?.hint,
-      minLines: _kFieldPresentation[field.key]?.minLines ?? 1,
-      maxLines: _kFieldPresentation[field.key]?.maxLines ?? 1,
-    ),
-];
+final List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = () {
+  final seen = <String>{};
+  final result = <SharedMetadataFieldDescriptor>[];
+  for (final field in kGeneratedMetadataFields) {
+    if (seen.add(field.key)) {
+      result.add(
+        SharedMetadataFieldDescriptor(
+          key: field.key,
+          label: field.label,
+          tab: _tabFromSection(field.section),
+          inputType: _inputTypeFromName(field.inputType),
+          valueType: _valueTypeFromName(field.valueType),
+          normalizedValueType: field.normalizedValueType,
+          hintText: _kFieldPresentation[field.key]?.hint,
+          minLines: _kFieldPresentation[field.key]?.minLines ?? 1,
+          maxLines: _kFieldPresentation[field.key]?.maxLines ?? 1,
+        ),
+      );
+    }
+  }
+  return List<SharedMetadataFieldDescriptor>.unmodifiable(result);
+}();
 
-/// Canonical metadata fields owned by Core.
+/// Canonical metadata fields entry by Core.
 final List<SharedMetadataFieldDescriptor> kCanonicalMetadataFields =
     kAdminMetadataScalarFields;
 
@@ -131,6 +142,8 @@ final List<String> kLibraryEditableFieldKeys = [
   ..._kAdminMetadataScalarFieldKeys,
   // App-rendered physical format control that still maps to a Core field.
   'physical_format',
+  // App-rendered structured tracks/discs control that maps to a Core field.
+  'tracks',
 ];
 
 final List<String> _kAdminMetadataScalarFieldKeys = [
@@ -173,4 +186,52 @@ TextInputType? sharedFieldKeyboardType(SharedMetadataFieldDescriptor field) {
     SharedMetadataFieldInputType.number => TextInputType.number,
     _ => null,
   };
+}
+
+@immutable
+class SharedMetadataContractDrift {
+  const SharedMetadataContractDrift({
+    required this.missingInCore,
+    required this.extraInCore,
+    required this.typeMismatches,
+  });
+
+  final Set<String> missingInCore;
+  final Set<String> extraInCore;
+  final Set<String> typeMismatches;
+
+  bool get isInSync =>
+      missingInCore.isEmpty && extraInCore.isEmpty && typeMismatches.isEmpty;
+
+  int get mismatchCount =>
+      missingInCore.length + extraInCore.length + typeMismatches.length;
+}
+
+SharedMetadataContractDrift compareSharedContractWithManifest(
+  MetadataNormalizedManifest manifest,
+) {
+  final expectedTypes = <String, String>{
+    for (final field in kAdminMetadataScalarFields)
+      if (field.normalizedValueType != null)
+        field.key: field.normalizedValueType!,
+  };
+  final expectedKeys = expectedTypes.keys.toSet();
+  final manifestKeys = <String>{
+    ...manifest.commonFields,
+    ...manifest.kindFields.values.expand((fields) => fields),
+  };
+  final missingInCore = expectedKeys.difference(manifestKeys);
+  final extraInCore = manifest.valueTypes.keys.toSet().difference(expectedKeys);
+  final typeMismatches = <String>{};
+  for (final entry in expectedTypes.entries) {
+    final actual = manifest.valueTypes[entry.key];
+    if (actual != null && actual != entry.value) {
+      typeMismatches.add(entry.key);
+    }
+  }
+  return SharedMetadataContractDrift(
+    missingInCore: missingInCore,
+    extraInCore: extraInCore,
+    typeMismatches: typeMismatches,
+  );
 }

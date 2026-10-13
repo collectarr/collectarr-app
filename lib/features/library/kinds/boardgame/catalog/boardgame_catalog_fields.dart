@@ -1,26 +1,29 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 
-/// Catalog fields consumed by the BoardGame kind.
+/// Structural candidate data used by Board Game Add presentation.
 final class BoardGameCatalogFields {
-  const BoardGameCatalogFields._(this._candidate, this._common);
+  const BoardGameCatalogFields._(this.summary, this.metadata);
 
-  final CatalogSearchCandidate _candidate;
-  final CatalogCommonDto? _common;
+  final CatalogCandidateSummary summary;
+  final BoardGameMetadata? metadata;
 
-  String get title => _candidate.summary.primaryLabel;
-  String? get displayTitle => _common?.displayTitle;
-  String? get localizedTitle => _common?.localizedTitle;
-  String? get originalTitle => _common?.originalTitle;
-  String? get titleExtension => _common?.titleExtension;
-  List<String> get searchAliases => _common?.searchAliases ?? const [];
-  String? get sortKey => _common?.sortKey;
-  String? get synopsis => _common?.synopsis;
-  String? get coverImageUrl => _common?.coverImageUrl ?? _candidate.summary.imageUrl;
-  String? get thumbnailImageUrl => _common?.thumbnailImageUrl;
-  String? get coverImageData => _common?.coverImageData;
-  DateTime? get releaseDate => _common?.releaseDate;
-  int? get releaseYear => _common?.releaseYear;
+  String get title => metadata?.title ?? summary.primaryLabel;
+  String? get displayTitle => metadata?.titleExtension;
+  String? get localizedTitle => metadata?.localizedTitle;
+  String? get originalTitle => metadata?.originalTitle;
+  String? get titleExtension => metadata?.titleExtension;
+  List<String> get searchAliases => metadata?.searchAliases ?? const [];
+  String? get sortKey => metadata?.sortKey;
+  String? get itemNumber => metadata?.itemNumber;
+  String? get synopsis => metadata?.synopsis;
+  String? get coverImageUrl => metadata?.coverImageUrl ?? summary.imageUrl;
+  String? get thumbnailImageUrl =>
+      metadata?.thumbnailImageUrl ?? summary.imageUrl;
+  DateTime? get releaseDate =>
+      metadata?.releaseDate?.asDateTime ??
+      metadata?.releaseDateParts?.asDateTime;
+  int? get releaseYear => releaseDate?.year ?? metadata?.yearPublished;
 
   bool get hasReleaseDate => releaseDate != null || releaseYear != null;
 }
@@ -28,12 +31,13 @@ final class BoardGameCatalogFields {
 extension BoardGameCatalogCandidateFields on CatalogSearchCandidate {
   BoardGameCatalogFields get boardGameCatalogFields {
     try {
-      final common = kindCapability.mapTransport(
-        (item) => item.common,
+      final item = kindCapability.mapTransport((item) => item);
+      return BoardGameCatalogFields._(
+        summary,
+        BoardGameMetadata.fromJson(item.kindData),
       );
-      return BoardGameCatalogFields._(this, common);
     } on StateError {
-      return BoardGameCatalogFields._(this, null);
+      return BoardGameCatalogFields._(summary, null);
     }
   }
 }

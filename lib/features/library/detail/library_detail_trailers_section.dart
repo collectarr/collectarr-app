@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_link_summary.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,7 +16,7 @@ class LibraryDetailTrailersSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveTrailers =
-        links.where((link) => link.isTrailer).toList(growable: false);
+        links.where((link) => link.isTrailer == true).toList(growable: false);
     if (effectiveTrailers.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -32,7 +32,7 @@ class LibraryDetailTrailersSection extends StatelessWidget {
               Text(
                 'Trailers',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: accent,
                     ),
               ),

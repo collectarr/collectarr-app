@@ -1,201 +1,301 @@
-import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
-
-BookCatalogFormValues bookCatalogFormValuesFromMedia(BookMedia media) =>
-    BookCatalogFormValues(
-      title: media.title,
-      sortTitle: media.sortTitle ?? '',
-      subtitle: media.subtitle ?? '',
-      description: media.description ?? '',
-      originalLanguage: media.originalLanguage ?? '',
-      firstPublicationDate: media.firstPublicationDate,
-      originalPublicationDate: media.originalPublicationDate,
-      genres: media.genres,
-      searchAliases: media.searchAliases,
-    );
-
-BookCatalogFormValues bookCatalogFormValuesFromRelease(BookRelease release) =>
-    BookCatalogFormValues(
-      editionTitle: release.title,
-      binding: release.binding ?? '',
-      format: release.physicalFormat ?? release.physicalFormatLabel ?? '',
-      isbn: release.isbn ?? '',
-      upc: release.upc ?? '',
-      publisher: release.publisher ?? '',
-      distributor: release.distributor ?? '',
-      imprint: release.imprint ?? '',
-      releaseDate: release.releaseDate,
-      pageCount: release.pageCount,
-      language: release.language ?? '',
-      region: release.region ?? '',
-      releaseStatus: release.releaseStatus ?? '',
-      editionStatement: release.editionStatement ?? '',
-      description: release.description ?? '',
-      dimensions: release.dimensions ?? '',
-      firstEdition: release.firstEdition ?? false,
-      audioLengthMinutes: release.audioLengthMinutes,
-      ageRating: release.ageRating ?? '',
-      coverImageUrl: release.coverImageUrl ?? '',
-      thumbnailImageUrl: release.thumbnailImageUrl ?? '',
-    );
-
-BookMedia bookMediaFromCatalogFormValues({
-  required BookMedia original,
-  required BookCatalogFormValues values,
-}) {
-  final raw = Map<String, dynamic>.from(original.rawPayload);
-  _write(raw, 'title', values.title.trim());
-  _write(raw, 'sort_title', _optional(values.sortTitle));
-  _write(raw, 'subtitle', _optional(values.subtitle));
-  _write(raw, 'description', _optional(values.description));
-  _write(raw, 'original_language', _optional(values.originalLanguage));
-  _write(raw, 'first_publication_date',
-      values.firstPublicationDate?.toIso8601String());
-  _write(raw, 'original_publication_date',
-      values.originalPublicationDate?.toIso8601String());
-  raw['genres'] = List<String>.unmodifiable(values.genres);
-  raw['search_aliases'] = List<String>.unmodifiable(values.searchAliases);
-  return BookMedia(
-    id: original.id,
-    title: values.title.trim(),
-    sortTitle: _optional(values.sortTitle),
-    description: _optional(values.description),
-    firstPublicationDate: values.firstPublicationDate,
-    originalLanguage: _optional(values.originalLanguage),
-    originalPublicationDate: values.originalPublicationDate,
-    subtitle: _optional(values.subtitle),
-    searchAliases: List<String>.unmodifiable(values.searchAliases),
-    genres: List<String>.unmodifiable(values.genres),
-    contributors: original.contributors,
-    editions: original.editions,
-    series: original.series,
-    rawPayload: raw,
-  );
-}
-
-BookRelease bookReleaseFromCatalogFormValues({
-  required BookRelease original,
-  required BookCatalogFormValues values,
-}) {
-  final date = values.releaseDate;
-  return BookRelease(
-    id: original.id,
-    title: _optional(values.editionTitle) ?? original.title,
-    workId: original.workId,
-    titleValue: _optional(values.editionTitle),
-    displayTitle: _optional(values.editionTitle),
-    ageRating: _optional(values.ageRating),
-    audioLengthMinutes: values.audioLengthMinutes,
-    binding: _optional(values.binding),
-    contributors: original.contributors,
-    coverImageKey: original.coverImageKey,
-    publisher: _optional(values.publisher),
-    distributor: _optional(values.distributor),
-    description: _optional(values.description),
-    editionStatement: _optional(values.editionStatement),
-    isbn: _optional(values.isbn),
-    identifiers: original.identifiers,
-    imprint: _optional(values.imprint),
-    upc: _optional(values.upc),
-    pageCount: values.pageCount,
-    language: _optional(values.language),
-    region: _optional(values.region),
-    releaseDate: date,
-    releaseStatus: _optional(values.releaseStatus),
-    physicalFormat: _optional(values.format),
-    physicalFormatLabel: _optional(values.binding) ?? _optional(values.format),
-    coverImageUrl: _optional(values.coverImageUrl),
-    thumbnailImageUrl: _optional(values.thumbnailImageUrl),
-    dimensions: _optional(values.dimensions),
-    firstEdition: values.firstEdition,
-    variants: original.variants,
-  );
-}
-
-BookMedia bookMediaWithRelease(BookMedia original, BookRelease release) {
-  final editions = [
-    for (final existing in original.editions)
-      existing.id == release.id ? release : existing,
-  ];
-  return BookMedia(
-    id: original.id,
-    title: original.title,
-    sortTitle: original.sortTitle,
-    description: original.description,
-    firstPublicationDate: original.firstPublicationDate,
-    originalLanguage: original.originalLanguage,
-    originalPublicationDate: original.originalPublicationDate,
-    subtitle: original.subtitle,
-    searchAliases: original.searchAliases,
-    genres: original.genres,
-    contributors: original.contributors,
-    editions: editions,
-    series: original.series,
-    rawPayload: {
-      ...original.rawPayload,
-      'editions': editions.map((edition) => edition.toJson()).toList(),
-    },
-  );
-}
+import 'package:collectarr_app/core/models/partial_date.dart';
 
 BookCatalogMetadata bookMetadataFromManualFormValues({
   required BookCatalogFormValues values,
   required String id,
   required String title,
 }) {
-  final year = values.publicationYear;
-  return BookCatalogMetadata.fromJson({
-    'id': id,
-    'title': title.trim(),
-    'subtitle': _optional(values.editionTitle),
-    'edition_title': _optional(values.editionTitle),
-    'series_title':
-        _optional(values.seriesTitle) ?? _optional(values.seriesGroup),
-    'item_number': _optional(values.number),
-    'original_publisher': _optional(values.publisher),
-    'publisher': _optional(values.publisher),
-    'distributor': _optional(values.distributor),
-    'imprint': _optional(values.imprint),
-    'page_count': values.pageCount,
-    'authors': _split(values.authors),
-    'characters': _split(values.characters),
-    'synopsis': _optional(values.description),
-    'genres': values.genres,
-    'age_rating': _optional(values.ageRating),
-    'language': _optional(values.language),
-    'country': _optional(values.country),
-    'original_publication_date':
-        year == null ? null : DateTime.utc(year).toIso8601String(),
-    'publication_date': values.releaseDate?.toIso8601String(),
-    'isbn': _optional(values.isbn) ?? _optional(values.upc),
-    'barcode': _optional(values.upc) ?? _optional(values.isbn),
-    'variant': _optional(values.variant),
-    'physical_format_label': _optional(values.format),
-    'physical_format': _optional(values.format),
-    'cover_image_url': _optional(values.coverImageUrl),
-    'back_cover_image_url': _optional(values.backCoverImageUrl),
-    'contributors': _split(values.authors),
-  });
+  final releaseDate = values.releaseDate ??
+      (values.publicationYear == null
+          ? null
+          : DateTime.utc(values.publicationYear!));
+  return BookCatalogMetadata(
+    transportId: id,
+    title: title.trim(),
+    sortTitle: _optional(values.sortTitle),
+    subtitle: _optional(values.subtitle),
+    editionTitle: _optional(values.editionTitle),
+    editionStatement: _optional(values.editionStatement),
+    seriesTitle: _optional(values.seriesTitle),
+    seriesGroup: _optional(values.seriesGroup),
+    itemNumber: _optional(values.number),
+    publisher: _optional(values.publisher),
+    distributor: _optional(values.distributor),
+    imprint: _optional(values.imprint),
+    pageCount: values.pageCount,
+    creators: values.authors,
+    contributors: values.translators,
+    characters: [
+      for (final name in _split(values.characters))
+        BookCatalogCharacter(name: name),
+    ],
+    synopsis: _optional(values.description),
+    genres: values.genres,
+    subjects: values.subjects,
+    ageRating: _optional(values.ageRating),
+    language: _optional(values.language),
+    originalLanguage: _optional(values.originalLanguage),
+    country: _optional(values.country),
+    region: _optional(values.region),
+    firstPublicationDate: values.firstPublicationDate,
+    firstPublicationDateParts: values.firstPublicationDate == null
+        ? null
+        : PartialDate.fromDateTime(values.firstPublicationDate!),
+    originalPublicationDate: values.originalPublicationDate,
+    originalPublicationDateParts: values.originalPublicationDate == null
+        ? null
+        : PartialDate.fromDateTime(values.originalPublicationDate!),
+    releaseDate: releaseDate,
+    releaseDateParts: releaseDate == null
+        ? null
+        : values.releaseDate == null && values.publicationYear != null
+            ? PartialDate(year: values.publicationYear)
+            : PartialDate.fromDateTime(releaseDate),
+    isbn: _optional(values.isbn),
+    barcode: _optional(values.upc),
+    variant: _optional(values.variant),
+    binding: _optional(values.binding),
+    physicalFormat: _optional(values.format),
+    coverImageUrl: _optional(values.coverImageUrl),
+    backCoverImageUrl: _optional(values.backCoverImageUrl),
+    thumbnailImageUrl: _optional(values.thumbnailImageUrl),
+    searchAliases: values.searchAliases,
+    originalTitle: _optional(values.originalTitle),
+    localizedTitle: _optional(values.localizedTitle),
+    releaseStatus: _optional(values.releaseStatus),
+    dimensions: _optional(values.dimensions),
+    firstEdition: values.firstEdition,
+    audioLengthMinutes: values.audioLengthMinutes,
+  );
 }
+
+BookCatalogFormValues bookCatalogFormValuesFromMetadata(
+  BookCatalogMetadata metadata,
+) {
+  final authors = [...metadata.creators, ...metadata.contributors]
+      .where((credit) => _isBookCreditRole(credit.role, 'author'))
+      .toList(growable: false);
+  final translators = [...metadata.creators, ...metadata.contributors]
+      .where((credit) => _isBookCreditRole(credit.role, 'translator'))
+      .toList(growable: false);
+  return BookCatalogFormValues(
+    title: metadata.title,
+    sortTitle: metadata.sortTitle ?? '',
+    subtitle: metadata.subtitle ?? '',
+    originalTitle: metadata.originalTitle ?? '',
+    localizedTitle: metadata.localizedTitle ?? '',
+    description: metadata.synopsis ?? metadata.description ?? '',
+    originalLanguage: metadata.originalLanguage ?? '',
+    firstPublicationDate: metadata.firstPublicationDate ??
+        metadata.firstPublicationDateParts?.asDateTime,
+    originalPublicationDate: metadata.originalPublicationDate ??
+        metadata.originalPublicationDateParts?.asDateTime,
+    genres: List.of(metadata.genres),
+    subjects: List.of(metadata.subjects),
+    searchAliases: List.of(metadata.searchAliases),
+    number: metadata.itemNumber ?? '',
+    variant: metadata.variant ?? '',
+    seriesTitle: metadata.seriesTitle ?? '',
+    seriesGroup: metadata.seriesGroup ?? '',
+    authors: authors.isEmpty ? List.of(metadata.creators) : authors,
+    translators: translators,
+    characters: metadata.characters.map((value) => value.name).join(', '),
+    ageRating: metadata.ageRating ?? '',
+    country: metadata.country ?? '',
+    publicationYear:
+        metadata.releaseDate?.year ?? metadata.releaseDateParts?.year,
+    editionTitle: metadata.editionTitle ?? '',
+    binding: metadata.binding ?? '',
+    format: metadata.physicalFormat ?? '',
+    isbn: metadata.isbn ?? metadata.isbn13 ?? metadata.isbn10 ?? '',
+    upc: metadata.barcode ?? '',
+    publisher: metadata.publisher ?? '',
+    distributor: metadata.distributor ?? '',
+    imprint: metadata.imprint ?? '',
+    releaseDate: metadata.releaseDate ?? metadata.releaseDateParts?.asDateTime,
+    pageCount: metadata.pageCount,
+    language: metadata.language ?? '',
+    region: metadata.region ?? '',
+    releaseStatus: metadata.releaseStatus ?? '',
+    editionStatement: metadata.editionStatement ?? '',
+    dimensions: metadata.dimensions ?? '',
+    firstEdition: metadata.firstEdition ?? false,
+    audioLengthMinutes: metadata.audioLengthMinutes,
+    coverImageUrl: metadata.coverImageUrl ?? '',
+    thumbnailImageUrl: metadata.thumbnailImageUrl ?? '',
+    backCoverImageUrl: metadata.backCoverImageUrl ?? '',
+  );
+}
+
+BookCatalogMetadata applyBookCatalogFormValues({
+  required BookCatalogMetadata current,
+  required BookCatalogFormValues values,
+  required String title,
+}) {
+  final displayedIsbn = current.isbn ?? current.isbn13 ?? current.isbn10 ?? '';
+  final isbnChanged = values.isbn.trim() != displayedIsbn.trim();
+  final originalPlotText = current.synopsis ?? current.description ?? '';
+  final plotTextChanged = values.description != originalPlotText;
+  final releaseDate = _editedDate(
+    values.releaseDate,
+    current.releaseDate,
+    current.releaseDateParts,
+    yearOverride: values.publicationYear,
+  );
+  final firstPublicationDate = _editedDate(
+    values.firstPublicationDate,
+    current.firstPublicationDate,
+    current.firstPublicationDateParts,
+  );
+  final originalPublicationDate = _editedDate(
+    values.originalPublicationDate,
+    current.originalPublicationDate,
+    current.originalPublicationDateParts,
+  );
+  final hasExplicitAuthors = current.creators.any(
+    (credit) => _isBookCreditRole(credit.role, 'author'),
+  );
+  final currentCharacters = {
+    for (final character in current.characters)
+      character.name.trim().toLowerCase(): character,
+  };
+  return current.copyWith(
+    title: title.trim(),
+    sortTitle: _optional(values.sortTitle),
+    subtitle: _optional(values.subtitle),
+    originalTitle: _optional(values.originalTitle),
+    localizedTitle: _optional(values.localizedTitle),
+    searchAliases: List.of(values.searchAliases),
+    subjects: List.of(values.subjects),
+    synopsis:
+        plotTextChanged ? _optional(values.description) : current.synopsis,
+    coverImageUrl: _optional(values.coverImageUrl),
+    backCoverImageUrl: _optional(values.backCoverImageUrl),
+    thumbnailImageUrl: _optional(values.thumbnailImageUrl),
+    description:
+        plotTextChanged ? _optional(values.description) : current.description,
+    itemNumber: _optional(values.number),
+    variant: _optional(values.variant),
+    seriesTitle: _optional(values.seriesTitle),
+    seriesGroup: _optional(values.seriesGroup),
+    pageCount: values.pageCount,
+    imprint: _optional(values.imprint),
+    publisher: _optional(values.publisher),
+    distributor: _optional(values.distributor),
+    isbn: isbnChanged ? _optional(values.isbn) : current.isbn,
+    isbn10: isbnChanged ? null : current.isbn10,
+    isbn13: isbnChanged ? null : current.isbn13,
+    barcode: _optional(values.upc),
+    editionTitle: _optional(values.editionTitle),
+    editionStatement: _optional(values.editionStatement),
+    dimensions: _optional(values.dimensions),
+    physicalFormat: _optional(values.format),
+    binding: _optional(values.binding),
+    language: _optional(values.language),
+    originalLanguage: _optional(values.originalLanguage),
+    country: _optional(values.country),
+    region: _optional(values.region),
+    releaseStatus: _optional(values.releaseStatus),
+    firstEdition: values.firstEdition,
+    audioLengthMinutes: values.audioLengthMinutes,
+    genres: List.of(values.genres),
+    firstPublicationDate: firstPublicationDate.date,
+    firstPublicationDateParts: firstPublicationDate.parts,
+    originalPublicationDate: originalPublicationDate.date,
+    originalPublicationDateParts: originalPublicationDate.parts,
+    releaseDate: releaseDate.date,
+    releaseDateParts: releaseDate.parts,
+    characters: [
+      for (final name in _split(values.characters))
+        currentCharacters[name.trim().toLowerCase()] ??
+            BookCatalogCharacter(name: name),
+    ],
+    creators: [
+      for (final credit in current.creators)
+        if (!_isBookCreditRole(credit.role, 'author') &&
+            !_isBookCreditRole(credit.role, 'translator') &&
+            hasExplicitAuthors)
+          credit,
+      ..._withBookRole(values.authors, 'Author'),
+    ],
+    contributors: [
+      for (final credit in current.contributors)
+        if (!_isBookCreditRole(credit.role, 'author') &&
+            !_isBookCreditRole(credit.role, 'translator'))
+          credit,
+      ..._withBookRole(values.translators, 'Translator'),
+    ],
+  );
+}
+
+({DateTime? date, PartialDate? parts}) _editedDate(
+  DateTime? selected,
+  DateTime? original,
+  PartialDate? originalParts, {
+  int? yearOverride,
+}) {
+  if (selected == null && yearOverride == null) {
+    return (date: null, parts: null);
+  }
+  final DateTime next;
+  if (yearOverride != null && selected == null) {
+    next = DateTime.utc(yearOverride);
+  } else if (yearOverride != null && selected!.year != yearOverride) {
+    next = DateTime.utc(yearOverride);
+  } else {
+    next = selected!;
+  }
+  if (original != null && _sameCalendarDate(next, original)) {
+    return (date: original, parts: originalParts);
+  }
+  if (original == null &&
+      originalParts != null &&
+      originalParts.asDateTime != null &&
+      _sameCalendarDate(next, originalParts.asDateTime!)) {
+    return (date: null, parts: originalParts);
+  }
+  return (date: next, parts: PartialDate.fromDateTime(next));
+}
+
+bool _sameCalendarDate(DateTime first, DateTime second) =>
+    first.year == second.year &&
+    first.month == second.month &&
+    first.day == second.day;
+
+List<BookCatalogCredit> _withBookRole(
+  List<BookCatalogCredit> credits,
+  String role,
+) =>
+    [
+      for (var index = 0; index < credits.length; index++)
+        BookCatalogCredit(
+          name: credits[index].name,
+          id: credits[index].id,
+          artistId: credits[index].artistId,
+          personId: credits[index].personId,
+          creditedName: credits[index].creditedName,
+          imageUrl: credits[index].imageUrl,
+          instrument: credits[index].instrument,
+          joinPhrase: credits[index].joinPhrase,
+          role: role,
+          roleId: credits[index].roleId,
+          sequence: index,
+          sortName: credits[index].sortName,
+        ),
+    ];
+
+bool _isBookCreditRole(String? role, String expected) =>
+    role?.trim().toLowerCase() == expected.toLowerCase();
 
 String? _optional(String value) {
   final text = value.trim();
   return text.isEmpty ? null : text;
 }
 
-void _write(Map<String, dynamic> target, String key, Object? value) {
-  if (value == null || value is String && value.trim().isEmpty) {
-    target.remove(key);
-  } else {
-    target[key] = value;
-  }
-}
-
 List<String> _split(String value) => value
     .split(RegExp(r'[,\r\n]+'))
     .map((entry) => entry.trim())
     .where((entry) => entry.isNotEmpty)
-    .toSet()
     .toList(growable: false);

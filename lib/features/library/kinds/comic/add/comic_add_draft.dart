@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_kind_draf
 import 'comic_grading_draft.dart';
 import 'package:collectarr_app/features/library/add/models/signature_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_key_draft.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -79,7 +79,7 @@ final class ComicAddDraft extends LibraryAddKindDraft {
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  JsonEncodable toOwnedDetailsDraft() => ComicOwnedDetailsDraft(
+  JsonEncodable toEntryDetailsDraft() => ComicEntryDetailsDraft(
         rawOrSlabbed: rawOrSlabbed,
         gradingCompany: gradingCompany,
         graderNotes: graderNotes,

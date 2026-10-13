@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -9,16 +10,14 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_grouped_shelf_view.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_shelf_view.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_shelf_backdrop.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_workspace_table.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -65,7 +64,6 @@ class LibraryWorkspace extends ConsumerWidget {
     this.onBoxSelectionChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
-    required this.onColumnReordered,
     this.onItemContextMenu,
     this.initialCrossAxisCount,
   });
@@ -96,33 +94,13 @@ class LibraryWorkspace extends ConsumerWidget {
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
-  final void Function(String column, String? beforeColumn) onColumnReordered;
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final int? initialCrossAxisCount;
 
-  bool get _showGrouped =>
-      viewState.viewMode != LibraryViewMode.horizontalCards &&
-      viewState.viewMode != LibraryViewMode.cardFlow &&
-      viewState.viewMode != LibraryViewMode.shelves &&
-      selectedBucket == null &&
-      (() {
-        final workspace = libraryKindWorkspaceForKind(type.kind);
-        final semantic = workspace
-            .fieldsForScope(
-              viewState.browserMode == LibraryWorkspaceBrowserMode.release
-                  ? LibraryEntityScope.release
-                  : LibraryEntityScope.work,
-            )
-            .decodeGroupId(groupMode)
-            .semantic;
-        return semantic != LibraryGroupSemantic.title &&
-            semantic != LibraryGroupSemantic.ownership;
-      })();
-
-  bool _isActive(LibraryProjectionItem item) => item.node.id == selectedId;
+  bool _isActive(LibraryProjectionItem item) => item.target.id == selectedId;
 
   bool _isSelectionSelected(LibraryProjectionItem item) =>
-      selectedIds.contains(item.node.id);
+      selectedIds.contains(item.target.id);
 
   bool _isHighlighted(LibraryProjectionItem item) =>
       selectionEnabled ? _isSelectionSelected(item) : _isActive(item);
@@ -132,29 +110,29 @@ class LibraryWorkspace extends ConsumerWidget {
       final isRangeSelection = isLibraryRangeModifierPressed();
       final isToggleSelection = isLibraryToggleModifierPressed();
       if (isRangeSelection) {
-        final anchorId = selectedAnchorId ?? selectedId ?? item.node.id;
+        final anchorId = selectedAnchorId ?? selectedId ?? item.target.id;
         final orderedIds = <String>[
-          for (final candidate in items) candidate.node.id
+          for (final candidate in items) candidate.target.id
         ];
         final rangeIds = selectionRangeItemIds(
           orderedIds,
           anchorId: anchorId,
-          targetId: item.node.id,
+          targetId: item.target.id,
         );
         onApplySelection(
           isToggleSelection ? {...selectedIds, ...rangeIds} : rangeIds,
-          item.node.id,
+          item.target.id,
         );
         return;
       }
       if (isToggleSelection) {
-        onToggleSelectionItem(item.node.id);
+        onToggleSelectionItem(item.target.id);
         return;
       }
       if (_isActive(item) && !selectionEnabled) {
         return;
       }
-      onActivateItem(item.node.id);
+      onActivateItem(item.target.id);
     };
   }
 
@@ -163,7 +141,7 @@ class LibraryWorkspace extends ConsumerWidget {
     final uiPrefs = ref.watch(uiPreferencesProvider);
     final palette = appPalette(context);
     final gridSpacing = uiPrefs.gridSpacing;
-    final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
+    const gridPadding = EdgeInsets.all(10);
     final registration = type;
     final defaultCoverSize =
         libraryViewProfileForKind(registration.kind).defaultCoverSize;
@@ -201,35 +179,7 @@ class LibraryWorkspace extends ConsumerWidget {
       type: type,
       coverSize: viewState.coverSize,
     );
-    if (_showGrouped && items.isNotEmpty) {
-      final groups = libraryGroupEntriesForItems(
-        items,
-        type,
-        groupMode,
-        presentationOverride: groupPresentation,
-      );
-      return LibraryGroupedShelfView(
-        type: type,
-        groups: groups,
-        viewState: viewState,
-        selectedId: selectedId,
-        selectionEnabled: selectionEnabled,
-        selectedIds: selectedIds,
-        accent: accent,
-        onSelectGroupBucket: onBucketChanged,
-        collapsedGroupBuckets: collapsedGroupBuckets,
-        onGroupBucketCollapsedToggled: onGroupBucketCollapsedToggled,
-        onSetCollapsedGroupBuckets: onSetCollapsedGroupBuckets,
-        onOpenGroupDetails: (group) => onOpenItem(group.representativeItem),
-        onTapItem: (item) => _selectionTap(item)(),
-        onToggleSelectionItem: onToggleSelectionItem,
-        onOpenItem: onOpenItem,
-        onEditItem: onEditItem,
-        emptyBuilder: _emptyBuilder,
-        onItemContextMenu: onItemContextMenu,
-        onBoxSelectionChanged: onBoxSelectionChanged,
-      );
-    }
+
     return switch (viewState.viewMode) {
       LibraryViewMode.grid => LibraryWorkspaceGrid<LibraryProjectionItem>(
           items: items,
@@ -242,18 +192,18 @@ class LibraryWorkspace extends ConsumerWidget {
           padding: gridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
-          itemIdOf: (item) => item.node.id,
+          itemIdOf: (item) => item.target.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: palette.gridCanvas,
+          backgroundColor: libraryWorkspaceBackgroundColor(context),
           itemBuilder: (context, item) => LibraryCoverTile(
-            key: ValueKey(item.node.id),
+            key: ValueKey(item.target.id),
             item: item,
             customFieldBadges: item.customFieldBadges,
             active: _isActive(item),
             selected: _isSelectionSelected(item),
             selectionMode: selectionEnabled,
             onTap: _selectionTap(item),
-            onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),
+            onSelectionToggleTap: () => onToggleSelectionItem(item.target.id),
             onDoubleTap: () => onOpenItem(item),
             onEditTap: () => onEditItem(item),
             onSecondaryTapUp: onItemContextMenu == null
@@ -281,11 +231,11 @@ class LibraryWorkspace extends ConsumerWidget {
           padding: gridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
-          itemIdOf: (item) => item.node.id,
+          itemIdOf: (item) => item.target.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: palette.gridCanvas,
+          backgroundColor: libraryWorkspaceBackgroundColor(context),
           itemBuilder: (context, item) => LibraryWorkspaceCard(
-            key: ValueKey(item.node.id),
+            key: ValueKey(item.target.id),
             item: item,
             customFieldBadges: item.customFieldBadges,
             selected: _isHighlighted(item),
@@ -303,7 +253,7 @@ class LibraryWorkspace extends ConsumerWidget {
                 usesCoverFocusedCards ? viewState.coverSize : cardCoverWidth,
             cardLayout: LibraryCardLayout.vertical,
             selectionMode: selectionEnabled,
-            onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),
+            onSelectionToggleTap: () => onToggleSelectionItem(item.target.id),
             onEditTap: () => onEditItem(item),
           ),
         ),
@@ -312,7 +262,7 @@ class LibraryWorkspace extends ConsumerWidget {
           cardTileHeight: cardTileHeight,
           cardCoverWidth: cardCoverWidth,
           spacing: gridSpacing,
-          backgroundColor: palette.gridCanvas,
+          backgroundColor: libraryWorkspaceBackgroundColor(context),
         ),
       LibraryViewMode.cardFlow => LibraryFlowCarousel(
           items: items,
@@ -329,7 +279,7 @@ class LibraryWorkspace extends ConsumerWidget {
           onEditItem: onEditItem,
           onItemContextMenu: onItemContextMenu,
         ),
-      LibraryViewMode.list => _buildTable(),
+      LibraryViewMode.list => _buildTable(uiPrefs),
       LibraryViewMode.shelves => LibraryShelfView<LibraryProjectionItem>(
           items: items,
           entryOf: (item) => item,
@@ -337,7 +287,8 @@ class LibraryWorkspace extends ConsumerWidget {
           isSelected: _isSelectionSelected,
           selectionEnabled: selectionEnabled,
           onTap: (item) => _selectionTap(item)(),
-          onToggleSelectionItem: (item) => onToggleSelectionItem(item.node.id),
+          onToggleSelectionItem: (item) =>
+              onToggleSelectionItem(item.target.id),
           onDoubleTap: onOpenItem,
           onSecondaryTapUp: onItemContextMenu == null
               ? null
@@ -346,7 +297,10 @@ class LibraryWorkspace extends ConsumerWidget {
           shelfHeight: coverMainAxisExtent,
           bookWidth: viewState.coverSize,
           fallbackCoverAspectRatio: fallbackCoverAspectRatio,
+          backgroundColor: libraryShelfBackColor,
           emptyBuilder: _emptyBuilder,
+          bookHorizontalPadding: 1.5,
+          itemSpacing: gridSpacing,
         ),
     };
   }
@@ -362,7 +316,7 @@ class LibraryWorkspace extends ConsumerWidget {
     );
   }
 
-  Widget _buildTable() {
+  Widget _buildTable(UiPreferences preferences) {
     if (items.isEmpty) {
       return Builder(builder: _emptyBuilder);
     }
@@ -372,91 +326,222 @@ class LibraryWorkspace extends ConsumerWidget {
         final density = viewState.densityPreset;
         final registration = type;
         final workspace = libraryKindWorkspaceForKind(registration.kind);
-        final schemaNode = items.first.node;
+        final schemaNode = items.first.target;
         final visibleColumns = workspace.orderedTableColumns(
           viewState.visibleColumnIds,
-          node: schemaNode,
+          target: schemaNode,
         );
+        final widths = Map.of(viewState.columnWidths);
+        String cellText(LibraryProjectionItem item, String id) {
+          final cell = _tableCell(item, id);
+          return switch (cell) {
+            LibraryTableCellText(:final value) => value ?? '-',
+            Text(:final data) => data ?? '',
+            _ => '',
+          };
+        }
+
+        final painter = TextPainter(
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+          maxLines: null,
+        );
+        final style = Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400) ??
+            const TextStyle(fontSize: 14, fontWeight: FontWeight.w400);
+        if (preferences.autoSizeColumns) {
+          for (final column in visibleColumns) {
+            if (widths.containsKey(column)) continue;
+            var width =
+                workspace.defaultTableColumnWidth(column, target: schemaNode);
+            for (final text in [
+              workspace.columnLabel(column, target: schemaNode),
+              ...items.map((item) => cellText(item, column.value))
+            ]) {
+              painter.text = TextSpan(text: text, style: style);
+              painter.layout();
+              width =
+                  math.max(width, painter.width + 24).clamp(60, 480).toDouble();
+            }
+            widths[column] = width;
+          }
+        }
+        double widthFor(String id) => workspace.tableColumnWidth(
+              workspace.fieldsForTarget(schemaNode).decodeColumnId(id),
+              widths,
+              target: schemaNode,
+            );
+        final heights = <String, double>{};
+        final effectiveRowHeight = math.max(
+          22.0,
+          density.tableRowHeight + (preferences.gridSpacing - 10.0) * 1.5,
+        );
+        double heightFor(LibraryProjectionItem item) =>
+            heights.putIfAbsent(item.target.id, () {
+              final measure = TextPainter(
+                textDirection: Directionality.of(context),
+                textScaler: MediaQuery.textScalerOf(context),
+                maxLines: null,
+              );
+              var height = effectiveRowHeight;
+              for (final column in visibleColumns) {
+                measure.text =
+                    TextSpan(text: cellText(item, column.value), style: style);
+                measure.layout(
+                    maxWidth: math.max(1, widthFor(column.value) - 10));
+                height = math.max(height, measure.height + 8);
+              }
+              measure.dispose();
+              return height;
+            });
+        painter.dispose();
         final tableWidth = workspace.tableWidthForColumns(
           viewState.visibleColumnIds,
-          viewState.columnWidths,
-          node: schemaNode,
+          widths,
+          target: schemaNode,
         );
-        final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
+        final leadingActionsWidth = kLibraryTableCheckboxWidth +
+            (preferences.showCollectionIndicators
+                ? kLibraryTableStatusWidth
+                : 0) +
+            (preferences.showEditIcons ? kLibraryTableEditWidth : 0);
+        final contentWidth =
+            math.max(tableWidth + leadingActionsWidth, constraints.maxWidth);
+        final allSelected = items.isNotEmpty &&
+            items.every((item) => selectedIds.contains(item.target.id));
+        final hasPartialSelection =
+            items.any((item) => selectedIds.contains(item.target.id));
         return ColoredBox(
-          color: palette.panel,
+          color: libraryWorkspaceBackgroundColor(context),
           child: _LibraryHorizontalScrollbar(
             child: SizedBox(
               width: contentWidth,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: LibraryWorkspaceTable<LibraryProjectionItem>(
-                  entries: items,
-                  columns: [for (final column in visibleColumns) column.value],
-                  sortColumn: viewState.sortId.value,
-                  sortAscending: viewState.sortAscending,
-                  sortRules: [
-                    for (final rule in viewState.sortRules)
-                      LibrarySortRule(
-                        column: rule.sortId.value,
-                        ascending: rule.ascending,
-                      ),
-                  ],
-                  columnWidthFor: (column) => workspace.tableColumnWidth(
-                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
-                    viewState.columnWidths,
-                    node: schemaNode,
+                padding: EdgeInsets.zero,
+                child: LibraryTableCellDisplayScope(
+                  wrap: preferences.wrapColumnContent,
+                  child: LibraryWorkspaceTable<LibraryProjectionItem>(
+                    entries: items,
+                    columns: [
+                      for (final column in visibleColumns) column.value
+                    ],
+                    sortColumn: viewState.sortId.value,
+                    sortAscending: viewState.sortAscending,
+                    sortRules: [
+                      for (final rule in viewState.sortRules)
+                        LibrarySortRule(
+                          column: rule.sortId.value,
+                          ascending: rule.ascending,
+                        ),
+                    ],
+                    columnWidthFor: widthFor,
+                    defaultColumnWidthFor: (column) =>
+                        workspace.defaultTableColumnWidth(
+                      workspace
+                          .fieldsForTarget(schemaNode)
+                          .decodeColumnId(column),
+                      target: schemaNode,
+                    ),
+                    columnSortFor: (column) => workspace
+                        .columnSort(
+                            workspace
+                                .fieldsForTarget(schemaNode)
+                                .decodeColumnId(column),
+                            target: schemaNode)
+                        ?.value,
+                    columnLabelFor: (column) => workspace.columnLabel(
+                      workspace
+                          .fieldsForTarget(schemaNode)
+                          .decodeColumnId(column),
+                      target: schemaNode,
+                    ),
+                    columnIsNumeric: (column) => workspace.columnIsNumeric(
+                      workspace
+                          .fieldsForTarget(schemaNode)
+                          .decodeColumnId(column),
+                      target: schemaNode,
+                    ),
+                    cellBuilder: (entry, column) => _tableCell(entry, column),
+                    isSelected: _isHighlighted,
+                    onEntryTap: (item) => _selectionTap(item)(),
+                    onEntryDoubleTap: onOpenItem,
+                    onEntrySecondaryTapUp: onItemContextMenu == null
+                        ? null
+                        : (item, details) =>
+                            onItemContextMenu!(item, details.globalPosition),
+                    onSortChanged: (column) => onSortChanged(column),
+                    onColumnWidthChanged: (column, width) =>
+                        onColumnWidthChanged(column, width),
+                    onColumnAutoSize: (column) {
+                      final measure = TextPainter(
+                          textDirection: Directionality.of(context),
+                          textScaler: MediaQuery.textScalerOf(context));
+                      final fieldRegistry =
+                          workspace.fieldsForTarget(schemaNode);
+                      final label = workspace.columnLabel(
+                          fieldRegistry.decodeColumnId(column),
+                          target: schemaNode);
+                      measure.text = TextSpan(
+                          text: label,
+                          style: style.copyWith(fontWeight: FontWeight.w700));
+                      measure.layout();
+                      var width = math.max(50.0, measure.width + 24);
+                      for (final item in items) {
+                        measure.text = TextSpan(
+                            text: cellText(item, column), style: style);
+                        measure.layout();
+                        width = math.max(width, measure.width + 10);
+                      }
+                      measure.dispose();
+                      onColumnWidthChanged(column, width);
+                    },
+                    showCheckbox: true,
+                    showHeaderCheckbox: false,
+                    isEntryChecked: (item) =>
+                        selectedIds.contains(item.target.id),
+                    onToggleEntryCheck: (item) =>
+                        onToggleSelectionItem(item.target.id),
+                    allChecked: allSelected,
+                    hasPartialCheck: hasPartialSelection,
+                    onToggleAllChecked: (selectAll) {
+                      if (onBoxSelectionChanged != null) {
+                        onBoxSelectionChanged!(
+                          selectAll
+                              ? {for (final item in items) item.target.id}
+                              : <String>{},
+                        );
+                      } else if (items.isNotEmpty) {
+                        onApplySelection(
+                          selectAll
+                              ? {for (final item in items) item.target.id}
+                              : <String>{},
+                          items.first.target.id,
+                        );
+                      }
+                    },
+                    showStatus: preferences.showCollectionIndicators,
+                    statusBuilder: (item) => _buildCollectionStatusIcon(item),
+                    showEdit: preferences.showEditIcons,
+                    onEditEntry: onEditItem,
+                    headerHeight: density.tableHeaderHeight,
+                    rowHeight: effectiveRowHeight,
+                    rowHeightFor:
+                        preferences.wrapColumnContent ? heightFor : null,
+                    columnSpacing: 0,
+                    horizontalMargin: 0,
+                    selectionRailWidth: 2,
+                    headerColor: libraryWorkspaceTableHeaderColor(context),
+                    dividerColor: libraryWorkspacePaneDividerColor(context),
+                    selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+                    oddColor: palette.tableOddRow,
+                    evenColor: palette.tableEvenRow,
+                    selectionRailColor: accent,
+                    bottomBorderColor: palette.tableBottomBorder,
+                    hoverColor: palette.tableHover,
+                    accentColor: accent,
                   ),
-                  defaultColumnWidthFor: (column) =>
-                      workspace.defaultTableColumnWidth(
-                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
-                    node: schemaNode,
-                  ),
-                  columnSortFor: (column) => workspace
-                      .columnSort(
-                          workspace
-                              .fieldsForNode(schemaNode)
-                              .decodeColumnId(column),
-                          node: schemaNode)
-                      ?.value,
-                  columnLabelFor: (column) => workspace.columnLabel(
-                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
-                    node: schemaNode,
-                  ),
-                  columnIsNumeric: (column) => workspace.columnIsNumeric(
-                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
-                    node: schemaNode,
-                  ),
-                  cellBuilder: (entry, column) => _tableCell(entry, column),
-                  isSelected: _isHighlighted,
-                  onEntryTap: (item) => _selectionTap(item)(),
-                  onEntryDoubleTap: onOpenItem,
-                  onEntrySecondaryTapUp: onItemContextMenu == null
-                      ? null
-                      : (item, details) =>
-                          onItemContextMenu!(item, details.globalPosition),
-                  onSortChanged: (column) => onSortChanged(column),
-                  onColumnWidthChanged: (column, width) =>
-                      onColumnWidthChanged(column, width),
-                  onColumnReordered: (column, beforeColumn) =>
-                      onColumnReordered(
-                    column,
-                    beforeColumn,
-                  ),
-                  headerHeight: density.tableHeaderHeight,
-                  rowHeight: density.tableRowHeight,
-                  columnSpacing: 8,
-                  horizontalMargin: 6,
-                  selectionRailWidth: 2,
-                  headerColor: palette.surface,
-                  dividerColor: palette.divider,
-                  selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
-                  oddColor: palette.tableOddRow,
-                  evenColor: palette.tableEvenRow,
-                  selectionRailColor: accent,
-                  bottomBorderColor: palette.tableBottomBorder,
-                  hoverColor: palette.tableHover,
-                  accentColor: accent,
                 ),
               ),
             ),
@@ -500,13 +585,13 @@ class LibraryWorkspace extends ConsumerWidget {
           padding: EdgeInsets.all(spacing),
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
-          itemIdOf: (item) => item.node.id,
+          itemIdOf: (item) => item.target.id,
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: backgroundColor,
           itemBuilder: (context, item) {
             final palette = appPalette(context);
             return LibraryWorkspaceCard(
-              key: ValueKey(item.node.id),
+              key: ValueKey(item.target.id),
               item: item,
               customFieldBadges: item.customFieldBadges,
               selected: _isHighlighted(item),
@@ -523,7 +608,7 @@ class LibraryWorkspace extends ConsumerWidget {
               coverWidth: tileCoverWidth,
               cardLayout: LibraryCardLayout.horizontal,
               selectionMode: selectionEnabled,
-              onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),
+              onSelectionToggleTap: () => onToggleSelectionItem(item.target.id),
               onEditTap: () => onEditItem(item),
             );
           },
@@ -537,8 +622,42 @@ class LibraryWorkspace extends ConsumerWidget {
     final workspace = libraryKindWorkspaceForKind(registration.kind);
     return workspace.buildTableCell(
       item,
-      workspace.fieldsForNode(item.node).decodeColumnId(column),
+      workspace.fieldsForTarget(item.target).decodeColumnId(column),
     );
+  }
+
+  Widget _buildCollectionStatusIcon(LibraryProjectionItem item) {
+    if (item.source.loans.isNotEmpty) {
+      return const Tooltip(
+        message: 'On Loan',
+        child: Icon(
+          Icons.schedule_rounded,
+          size: 15,
+          color: Colors.amber,
+        ),
+      );
+    }
+    if (item.source.isWishlisted) {
+      return const Tooltip(
+        message: 'Wishlist',
+        child: Icon(
+          Icons.bookmark_outline_rounded,
+          size: 15,
+          color: Colors.orangeAccent,
+        ),
+      );
+    }
+    if (item.source.isEntry) {
+      return const Tooltip(
+        message: 'In Collection',
+        child: Icon(
+          Icons.check,
+          size: 15,
+          color: Color(0xFF2A9FD6),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 }
 
@@ -564,13 +683,31 @@ class _LibraryHorizontalScrollbarState
 
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-      controller: _scrollController,
-      child: SingleChildScrollView(
+    final palette = appPalette(context);
+    return ScrollbarTheme(
+      data: ScrollbarThemeData(
+        thickness: const WidgetStatePropertyAll<double>(6.0),
+        radius: const Radius.circular(3.0),
+        thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.dragged)) {
+            return palette.accent.withValues(alpha: 0.85);
+          }
+          if (states.contains(WidgetState.hovered)) {
+            return palette.accent.withValues(alpha: 0.65);
+          }
+          return Colors.white24;
+        }),
+        trackVisibility: const WidgetStatePropertyAll<bool>(false),
+        thumbVisibility: const WidgetStatePropertyAll<bool>(true),
+      ),
+      child: Scrollbar(
         controller: _scrollController,
-        primary: false,
-        scrollDirection: Axis.horizontal,
-        child: widget.child,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          primary: false,
+          scrollDirection: Axis.horizontal,
+          child: widget.child,
+        ),
       ),
     );
   }

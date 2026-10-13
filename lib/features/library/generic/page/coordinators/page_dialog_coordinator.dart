@@ -1,39 +1,40 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
 import 'package:collectarr_app/features/library/generic/column_chooser.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/dialogs/batch_loan_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/v1/catalog_item_v1_workspace_page.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
-/// Dialog launchers for the library page: add, filters, smart lists, sort,
+/// Dialog launchers for the library page: add, smart lists, sort,
 /// reading queue, pick-list editors, column chooser, user folders, transfer,
 /// loans, and index reassignment.
 class LibraryPageDialogCoordinator {
@@ -41,90 +42,80 @@ class LibraryPageDialogCoordinator {
 
   final LibraryPageCoordinatorContext _page;
 
-  TransferableOwnedItem? _transferItem(LibraryProjectionItem item) {
-    final source = item.source;
-    final value = source.ownedItemDispatch;
-    final ref = source.ownedRef;
-    final catalogRef = source.catalogRef;
-    if (value == null || ref == null || catalogRef == null) {
-      return null;
-    }
-    return TransferableOwnedItem(
-      ref: ref,
-      catalogRef: catalogRef,
-      value: value,
-    );
-  }
-
   // ---------------------------------------------------------------------------
   // Add / reveal
   // ---------------------------------------------------------------------------
 
   Future<void> showAddDialogFlow({String? identifierCode}) async {
     final context = _page.context;
-    final added = await showCatalogItemV1AddDialog(
+    final added = await showLibraryAddDialog(
       context: context,
-      kind: _page.type.kind,
-      singularLabel: _page.type.identity.singularLabel,
+      type: _page.type,
       accent: _page.accent,
-      initialQuery: identifierCode == null ? _page.searchQuery : null,
+      initialQuery: _page.searchQuery,
       initialIdentifier: identifierCode,
     );
-    if (added == true && _page.mounted && context.mounted) {
+    if (added != null && _page.mounted && context.mounted) {
+      _page.invalidateShelf();
+      await _revealAddedItems(added.itemIds);
+      if (!_page.mounted || !context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${_page.type.identity.singularLabel} added'),
+          content: Text(
+            added.target == LibraryAddTarget.track
+                ? '${_page.type.identity.singularLabel} added to tracking'
+                : '${_page.type.identity.singularLabel} added',
+          ),
         ),
       );
     }
+  }
+
+  Future<void> _revealAddedItems(List<String> itemIds) async {
+    if (itemIds.isEmpty) {
+      return;
+    }
+    final catalogItemId = itemIds.first;
+    var selectedEntryId = catalogItemId;
+    try {
+      final shelf = await _page.ref.read(shelfProvider.future);
+      for (final entry in shelf.entries) {
+        if (entry.itemId != catalogItemId || !entry.isEntry) continue;
+        final libraryEntryRef = entry.libraryEntryRef;
+        if (libraryEntryRef != null) {
+          selectedEntryId = libraryEntryRef.id.value;
+        }
+        break;
+      }
+    } catch (_) {
+      // Keep the catalog ID as a useful fallback if the refreshed local shelf
+      // cannot be read immediately after adding.
+    }
+    if (!_page.mounted) return;
+    _page.rebuild(() {
+      _page.selectedId = selectedEntryId;
+      _page.selectedBucket = null;
+      _page.selectedLetter = null;
+      _page.linkedMetadataFilter = null;
+      _page.collectionStatusScope = LibraryCollectionStatusScope.all;
+      _page.bucketCompletionScope = LibraryBucketCompletionScope.all;
+      _page.quickView = null;
+      _page.filterSelection = LibraryFilterSelection.none;
+      _page.activeSmartListId = null;
+      _page.activeSmartListName = null;
+      _page.scopeHistory = const [];
+    });
+    _page.clearSearchQuery();
+    _page.syncRouteState();
   }
 
   // ---------------------------------------------------------------------------
   // Filter / smart lists / sort
   // ---------------------------------------------------------------------------
 
-  Future<void> showFilterDialogFlow(
-    LibraryProjection? projection,
+  Future<void> showSmartListsFlow(
+    ShelfState? ignoredShelfState,
   ) async {
-    final context = _page.context;
-    await _page.loadActiveLoanIds();
-    if (!_page.mounted) {
-      return;
-    }
-    final customFieldCache = await _page.ref.read(
-      libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
-    );
-    if (!_page.mounted) {
-      return;
-    }
-    final allEntries = projection?.allItems ?? const [];
-    final options = LibraryFilterOptions.fromEntries(
-      allEntries,
-      filterDefinitions:
-          libraryPresentationForKind(_page.type.kind).filterDefinitions,
-      customFieldDefinitions: customFieldCache.definitions,
-      customFieldValuesByDefinitionByItem:
-          customFieldCache.valuesByDefinitionByItem,
-    );
-    if (!context.mounted) {
-      return;
-    }
-    final result = await showLibraryFilterDialog(
-      context: context,
-      type: _page.type,
-      current: _page.filterSelection,
-      options: options,
-    );
-    if (result != null && _page.mounted && context.mounted) {
-      _page.mutateSidebarScope(() {
-        _page.filterSelection = result;
-        _page.activeSmartListId = null;
-        _page.activeSmartListName = null;
-      });
-    }
-  }
-
-  Future<void> showSmartListsFlow(ShelfState? ignoredShelfState) async {
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final customFieldCache = await _page.ref.read(
@@ -156,7 +147,7 @@ class LibraryPageDialogCoordinator {
       currentSortAscending: _page.viewState?.sortAscending,
       currentSearchQuery:
           _page.searchQuery.isNotEmpty ? _page.searchQuery : null,
-      currentEntityScope: _page.activeEntityScope,
+      currentTarget: SmartListCriteriaTarget.catalog,
       customFieldDefinitions: customFieldCache.definitions,
     );
     if (result != null && _page.mounted && context.mounted) {
@@ -170,20 +161,21 @@ class LibraryPageDialogCoordinator {
         }
         final viewState = _page.viewState;
         if (viewState != null) {
+          final target = result.target ?? SmartListCriteriaTarget.catalog;
           if (result.sortRules != null && result.sortRules!.isNotEmpty) {
             _page.viewState = viewState.withSortRules(
-              _page.viewProfile.decodeSortRules(
-                result.sortRules!,
-                scope: result.entityScope ?? _page.activeEntityScope,
-              ),
+              target == SmartListCriteriaTarget.catalog
+                  ? _page.viewProfile.decodeSortRules(result.sortRules!)
+                  : _page.viewProfile
+                      .decodeLibraryEntrySortRules(result.sortRules!),
               _page.viewProfile,
             );
           } else if (result.sortColumn != null) {
+            final workspace = libraryKindWorkspaceForKind(registration.kind);
             _page.viewState = viewState.copyWith(
-              sortId: libraryKindWorkspaceForKind(registration.kind)
-                  .fieldsForScope(
-                    result.entityScope ?? _page.activeEntityScope,
-                  )
+              sortId: (target == SmartListCriteriaTarget.catalog
+                      ? workspace.fields
+                      : workspace.libraryEntryFields)
                   .decodeSortId(result.sortColumn!),
               sortAscending: result.sortAscending ?? true,
             );
@@ -213,11 +205,10 @@ class LibraryPageDialogCoordinator {
       defaultAscendingForColumn: (column) =>
           _page.viewProfile.initialSortAscending(
         libraryKindWorkspaceForKind(registration.kind)
-            .fieldsForScope(_page.activeEntityScope)
+            .fields
             .decodeSortId(column),
       ),
       availableColumns: _page.scopeAvailableSortColumns,
-      scope: _page.activeEntityScope,
     );
     if (sortRules != null && _page.mounted) {
       final allowed = _page.scopeAvailableSortColumns.toSet();
@@ -259,18 +250,15 @@ class LibraryPageDialogCoordinator {
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final queueRefs = await ReadingQueueRepository(db).getQueue();
-    final ownedItems = await OwnedItemsRepository(db).listActiveSummaries();
+    final libraryEntries =
+        await LibraryEntriesRepository(db).listActiveSummaries();
     final trackingSummaries =
         await _page.ref.read(trackingSummariesProvider.future);
-    final queuedOwnedItems = ownedItems
+    final queuedLibraryEntries = libraryEntries
         .where((item) => queueRefs.contains(item.ref))
         .toList(growable: false);
-    final catalogSummariesByRef =
-        await CatalogDisplaySummaryRepository(db).findByRefs(
-      queuedOwnedItems
-          .map((item) => item.catalogRef)
-          .whereType<CatalogEntityRef>(),
-    );
+    final kindPresentationByEntryRef = await CatalogWorkspaceDataRepository(db)
+        .findEntries(queuedLibraryEntries.map((item) => item.ref));
     if (!_page.mounted) {
       return;
     }
@@ -281,9 +269,9 @@ class LibraryPageDialogCoordinator {
       context: context,
       db: db,
       mediaKind: _page.type.kind.apiValue,
-      ownedItems: queuedOwnedItems,
+      libraryEntries: queuedLibraryEntries,
       trackingSummaries: trackingSummaries,
-      catalogSummariesByRef: catalogSummariesByRef,
+      kindPresentationByEntryRef: kindPresentationByEntryRef,
       onSelectItem: _page.selectItem,
     );
   }
@@ -388,13 +376,15 @@ class LibraryPageDialogCoordinator {
     final customFieldCache = await _page.ref.read(
       libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
-    final items = <TransferableOwnedItem>{
-      for (final item in projection.filteredItems)
-        if (_transferItem(item) case final owned?) owned,
+    final items = <TransferableLibraryEntry>{
+      for (final item in projection.allItems)
+        if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+            case final entry?)
+          entry,
     }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
-    final mutations = _page.ref.read(ownedItemMutationsProvider);
+    final mutations = _page.ref.read(libraryEntryMutationsProvider);
     if (!context.mounted) {
       return;
     }
@@ -402,7 +392,26 @@ class LibraryPageDialogCoordinator {
       context: context,
       db: db,
       type: _page.type,
-      items: items,
+      allItems: [
+        for (final item in projection.allItems)
+          if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+              case final entry?)
+            entry
+      ],
+      currentItems: [
+        for (final item in projection.filteredItems)
+          if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+              case final entry?)
+            entry
+      ],
+      selectedItems: [
+        for (final item in projection.filteredItems)
+          if (_page.selection.itemIds.contains(item.target.id))
+            if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+                case final entry?)
+              entry
+      ],
+      initialScope: TransferItemScope.currentList,
       mutations: mutations,
       customFieldDefinitions: customFieldCache.definitions,
     );
@@ -431,14 +440,16 @@ class LibraryPageDialogCoordinator {
     final customFieldCache = await _page.ref.read(
       libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
-    final items = <TransferableOwnedItem>{
+    final items = <TransferableLibraryEntry>{
       for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.node.id))
-          if (_transferItem(item) case final owned?) owned,
+        if (_page.selection.itemIds.contains(item.target.id))
+          if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+              case final entry?)
+            entry,
     }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
-    final mutations = _page.ref.read(ownedItemMutationsProvider);
+    final mutations = _page.ref.read(libraryEntryMutationsProvider);
     if (!context.mounted) {
       return;
     }
@@ -446,7 +457,20 @@ class LibraryPageDialogCoordinator {
       context: context,
       db: db,
       type: _page.type,
-      items: items,
+      allItems: [
+        for (final item in projection.allItems)
+          if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+              case final entry?)
+            entry
+      ],
+      currentItems: [
+        for (final item in projection.filteredItems)
+          if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+              case final entry?)
+            entry
+      ],
+      selectedItems: items,
+      initialScope: TransferItemScope.checkboxed,
       mutations: mutations,
       customFieldDefinitions: customFieldCache.definitions,
     );
@@ -471,38 +495,42 @@ class LibraryPageDialogCoordinator {
   ) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final context = _page.context;
-    final ownedItemsByRef = <OwnedItemRef, OwnedItemSummary>{};
+    final libraryEntriesByRef = <LibraryEntryRef, LibraryEntrySummary>{};
     for (final item in projection.filteredItems) {
-      final ownedItem = item.source.ownedSummary;
-      if (_page.selection.itemIds.contains(item.node.id) &&
-          ownedItem != null &&
-          !_page.activeLoanOwnedItemIds.contains(ownedItem.ref)) {
-        ownedItemsByRef[ownedItem.ref] = ownedItem;
+      final libraryEntry = item.source.libraryEntrySummary;
+      if (_page.selection.itemIds.contains(item.target.id) &&
+          libraryEntry != null &&
+          !_page.activeLoanLibraryEntryIds.contains(libraryEntry.ref)) {
+        libraryEntriesByRef[libraryEntry.ref] = libraryEntry;
       }
     }
-    final ownedItems = ownedItemsByRef.values.toList(growable: false);
-    if (ownedItems.isEmpty || !_page.mounted) return;
+    final libraryEntries = libraryEntriesByRef.values.toList(growable: false);
+    if (libraryEntries.isEmpty || !_page.mounted) return;
 
     final draft = await showDialog<BatchLoanDraft>(
       context: context,
       builder: (context) => BatchLoanDialog(
         accent: _page.accent,
-        itemCount: ownedItems.length,
+        itemCount: libraryEntries.length,
       ),
     );
     if (draft == null || !_page.mounted || !context.mounted) return;
 
     final repo = LoanRepository(_page.ref.read(localDatabaseProvider));
-    for (final ownedItem in ownedItems) {
+    for (final libraryEntry in libraryEntries) {
       await repo.create(
         Loan(
           id: const Uuid().v4(),
-          ownedRef: ownedItem.ref,
+          libraryEntryRef: libraryEntry.ref,
           borrowerName: draft.borrowerName,
           lentDate: draft.lentDate,
           dueDate: draft.dueDate,
           notes: draft.notes,
         ),
+      );
+      await enqueueLibraryEntrySnapshot(
+        _page.ref.read(localDatabaseProvider),
+        libraryEntry.ref,
       );
     }
 
@@ -512,7 +540,7 @@ class LibraryPageDialogCoordinator {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Created ${ownedItems.length} loan record${ownedItems.length == 1 ? '' : 's'}.',
+            'Created ${libraryEntries.length} loan record${libraryEntries.length == 1 ? '' : 's'}.',
           ),
         ),
       );
@@ -521,43 +549,55 @@ class LibraryPageDialogCoordinator {
 
   Future<void> reassignIndexFlow(LibraryProjection projection) async {
     final context = _page.context;
-    final items = projection.filteredItems;
+    final items =
+        projection.allItems.where((item) => item.source.isEntry).toList();
     if (items.isEmpty) return;
-    final confirmed = await showDialog<bool>(
+    final workspace = libraryKindWorkspaceForKind(_page.type.kind);
+    final rules = await showLibrarySortDialog(
       context: context,
-      builder: (ctx) => AccentAlertDialog(
-        title: const Text('Re-assign index values'),
-        content: Text(
-          'Assign sequential index numbers (1–${items.length}) '
-          'to ${items.length} item${items.length == 1 ? '' : 's'} '
-          'in their current display order?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Re-assign'),
-          ),
-        ],
-      ),
+      type: _page.type,
+      title: 'Re-Assign Index Values',
+      confirmLabel: 'Re-assign',
+      description:
+          'Re-assign the Index field for all ${items.length} entries, based on the sort order selected below.',
+      currentRules: _page.viewState == null
+          ? const <LibrarySortRule>[]
+          : [
+              for (final rule in _page.viewState!.sortRules)
+                LibrarySortRule(
+                    column: rule.sortId.value, ascending: rule.ascending)
+            ],
+      availableColumns: [
+        for (final sort in workspace.fields.sorts) sort.id.value
+      ],
     );
-    if (confirmed != true || !_page.mounted || !context.mounted) return;
+    if (rules == null || !_page.mounted || !context.mounted) return;
+    final decodedRules = _page.viewProfile.decodeSortRules(rules);
+    items.sort((a, b) => workspace.compareEntriesByRules(a, b, decodedRules));
 
     final coordinator = _page.ref.read(collectionCommandCoordinatorProvider);
     var count = 0;
-    for (var i = 0; i < items.length; i++) {
-      final ownedItem = items[i].source.ownedSummary;
-      if (ownedItem == null) continue;
-      await coordinator.updateOwnedItem(
-        libraryOwnedEditForKind(_page.type.kind).buildIndexUpdateCommand(
-          ownedRef: ownedItem.ref,
-          indexNumber: i + 1,
-        ),
-      );
-      count++;
+    try {
+      await coordinator.mutationRunner.run(action: () async {
+        for (var i = 0; i < items.length; i++) {
+          final libraryEntry = items[i].source.libraryEntrySummary;
+          if (libraryEntry == null) continue;
+          await coordinator.updateLibraryEntry(
+            libraryEntryEditForKind(_page.type.kind).buildIndexUpdateCommand(
+              libraryEntryRef: libraryEntry.ref,
+              indexNumber: i + 1,
+            ),
+          );
+          count++;
+        }
+      });
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text("Reassignment failed; indexes were not changed: $error")));
+      }
+      return;
     }
     _page.ref.invalidate(shelfProvider);
     if (_page.mounted && context.mounted) {

@@ -1,7 +1,5 @@
 part of 'admin_page.dart';
 
-// Catalog and audit widgets.
-
 class _SearchHistoryList extends StatelessWidget {
   const _SearchHistoryList({required this.history});
 
@@ -134,120 +132,6 @@ class _AdminAuditLogList extends StatelessWidget {
             ),
           ),
       ],
-    );
-  }
-}
-
-class _DuplicateCandidateList extends StatelessWidget {
-  const _DuplicateCandidateList({
-    required this.candidates,
-    required this.inspectingItemId,
-    required this.actionItemId,
-    required this.onInspect,
-    required this.onIgnore,
-  });
-
-  final List<AdminDuplicateCandidate> candidates;
-  final String? inspectingItemId;
-  final String? actionItemId;
-  final ValueChanged<AdminDuplicateCandidate> onInspect;
-  final ValueChanged<AdminDuplicateCandidate> onIgnore;
-
-  @override
-  Widget build(BuildContext context) {
-    if (candidates.isEmpty) {
-      return const AdminMessageRow(
-        message: 'No duplicate candidates detected.',
-        isError: false,
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final candidate in candidates)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: _DuplicateCandidateTile(
-              candidate: candidate,
-              isInspecting: candidate.itemIds.contains(inspectingItemId),
-              isActing: candidate.itemIds.contains(actionItemId),
-              onInspect: () => onInspect(candidate),
-              onIgnore: () => onIgnore(candidate),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _DuplicateCandidateTile extends StatelessWidget {
-  const _DuplicateCandidateTile({
-    required this.candidate,
-    required this.isInspecting,
-    required this.isActing,
-    required this.onInspect,
-    required this.onIgnore,
-  });
-
-  final AdminDuplicateCandidate candidate;
-  final bool isInspecting;
-  final bool isActing;
-  final VoidCallback onInspect;
-  final VoidCallback onIgnore;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Icon(Icons.join_inner_outlined, color: colorScheme.primary),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 340),
-              child: Text(
-                candidate.displayTitle,
-                style: Theme.of(context).textTheme.titleSmall,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            _MiniChip(label: candidate.kind),
-            _MiniChip(label: '${candidate.count} items'),
-            _MiniChip(label: '${candidate.duplicateScore}% match'),
-            _MiniChip(label: candidate.reason),
-            if (candidate.hasCoverConflicts)
-              const _MiniChip(label: 'cover conflict'),
-            OutlinedButton.icon(
-              onPressed: isInspecting || isActing || candidate.itemIds.isEmpty
-                  ? null
-                  : onInspect,
-              icon: isInspecting
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.visibility_outlined),
-              label: const Text('Inspect'),
-            ),
-            OutlinedButton.icon(
-              onPressed:
-                  isActing || candidate.itemIds.length < 2 ? null : onIgnore,
-              icon: const Icon(Icons.visibility_off_outlined),
-              label: const Text('Ignore'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

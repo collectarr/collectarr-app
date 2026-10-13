@@ -36,7 +36,7 @@ class LibraryDetailTitleStatusCard extends StatelessWidget {
                 eyebrow!,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: accent,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
               ),
             if (eyebrow != null && eyebrow!.isNotEmpty)
@@ -47,7 +47,7 @@ class LibraryDetailTitleStatusCard extends StatelessWidget {
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                           height: 1.05,
                         ),
                   ),
@@ -71,7 +71,7 @@ class LibraryDetailTitleStatusCard extends StatelessWidget {
                           statusLabel,
                           style:
                               Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                   ),
                         ),
                       ],

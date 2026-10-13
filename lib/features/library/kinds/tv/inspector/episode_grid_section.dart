@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_tracking_section.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +12,7 @@ class InspectorEpisodeGridSection extends StatelessWidget {
     required this.itemId,
   });
 
-  final CatalogEntityRef seriesRef;
+  final CatalogItemRef seriesRef;
   final String kind;
   final Color accent;
   final String itemId;

@@ -1,9 +1,7 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
@@ -59,13 +57,41 @@ class CustomFieldRepository {
   }
 
   Future<void> deleteDefinition(String id) async {
-    await (_db.delete(_db.customFieldValuesCache)
-          ..where((row) => row.fieldDefinitionId.equals(id)))
-        .go();
-    await (_db.delete(_db.customFieldDefinitionsCache)
-          ..where((row) => row.id.equals(id)))
-        .go();
+    await _db.transaction(() async {
+      await (_db.delete(_db.customFieldValuesCache)
+            ..where((row) => row.fieldDefinitionId.equals(id)))
+          .go();
+      await (_db.delete(_db.customFieldDefinitionsCache)
+            ..where((row) => row.id.equals(id)))
+          .go();
+    });
   }
+
+  /// Reorders the visible definitions without moving fields from other kinds.
+  Future<void> reorderDefinitions(List<String> ids) =>
+      _db.transaction(() async {
+        if (ids.toSet().length != ids.length) {
+          throw ArgumentError('Custom field order contains duplicate ids.');
+        }
+        final all = await listDefinitions();
+        final byId = {for (final definition in all) definition.id: definition};
+        if (ids.any((id) => !byId.containsKey(id))) {
+          throw ArgumentError('Custom field order contains unknown ids.');
+        }
+        final visible = ids.toSet();
+        final ordered = ids.iterator;
+        for (var index = 0; index < all.length; index++) {
+          var definition = all[index];
+          if (visible.contains(definition.id)) {
+            ordered.moveNext();
+            definition = byId[ordered.current]!;
+          }
+          await (_db.update(_db.customFieldDefinitionsCache)
+                ..where((row) => row.id.equals(definition.id)))
+              .write(CustomFieldDefinitionsCacheCompanion(
+                  sortOrder: Value(index)));
+        }
+      });
 
   // --- Values ---
 
@@ -104,9 +130,6 @@ class CustomFieldRepository {
             id: fieldValue.id,
             targetId: fieldValue.targetId,
             targetScope: fieldValue.targetScope.apiValue,
-            catalogRefJson: Value(fieldValue.catalogRef == null
-                ? null
-                : jsonEncode(fieldValue.catalogRef!.toJson())),
             fieldDefinitionId: fieldValue.fieldDefinitionId,
             value: Value(fieldValue.value),
             updatedAt: fieldValue.updatedAt,
@@ -128,9 +151,6 @@ class CustomFieldRepository {
             id: v.id,
             targetId: v.targetId,
             targetScope: v.targetScope.apiValue,
-            catalogRefJson: Value(v.catalogRef == null
-                ? null
-                : jsonEncode(v.catalogRef!.toJson())),
             fieldDefinitionId: v.fieldDefinitionId,
             value: Value(v.value),
             updatedAt: v.updatedAt,
@@ -170,24 +190,10 @@ class CustomFieldRepository {
   CustomFieldValue _valueFromRow(CustomFieldValuesCacheData row) {
     final targetScope = CustomFieldTargetScope.fromApiValue(row.targetScope);
     _requireTarget(row.targetId, targetScope);
-    final catalogRefJson = row.catalogRefJson;
-    CatalogEntityRef? catalogRef;
-    if (catalogRefJson != null) {
-      final decoded = jsonDecode(catalogRefJson);
-      if (decoded is! Map) {
-        throw const FormatException(
-            'catalogRefJson must contain a JSON object');
-      }
-      catalogRef = CatalogEntityRef.fromJson(
-        Map<String, dynamic>.from(decoded),
-      );
-      requireKnownCatalogRef(catalogRef, 'customField.catalogRef');
-    }
     return CustomFieldValue(
       id: row.id,
       targetId: row.targetId,
       targetScope: targetScope,
-      catalogRef: catalogRef,
       fieldDefinitionId: row.fieldDefinitionId,
       value: row.value,
       updatedAt: row.updatedAt,
@@ -200,9 +206,10 @@ class CustomFieldRepository {
         'Custom field target requires a non-empty id and an explicit scope.',
       );
     }
-    if (targetScope == CustomFieldTargetScope.ownedCopy) {
-      final ownedRef = OwnedItemRef.fromKey(targetId);
-      requireKnownOwnedRef(ownedRef, 'customField.ownedRef');
+    if (targetScope == CustomFieldTargetScope.libraryEntry) {
+      final libraryEntryRef = LibraryEntryRef.fromKey(targetId);
+      requireKnownLibraryEntryRef(
+          libraryEntryRef, 'customField.libraryEntryRef');
     }
   }
 
@@ -211,6 +218,21 @@ class CustomFieldRepository {
       throw ArgumentError(
         'Custom field definitions require non-empty id and name.',
       );
+    }
+    if (definition.valueType.isFixedChoice) {
+      final values = definition.optionValues;
+      if (values.isEmpty ||
+          values.length > definition.valueType.maximumOptions! ||
+          values.toSet().length != values.length) {
+        throw ArgumentError(
+            'Fixed choices require unique values within their limit.');
+      }
+    }
+    if (definition.valueType.hasUnit) {
+      final allowed = definition.valueType.allowedUnits;
+      if (!allowed.contains(definition.unit)) {
+        throw ArgumentError('Measured custom fields require a supported unit.');
+      }
     }
     final rawKind = definition.mediaKind?.trim();
     if (rawKind != null && rawKind.isNotEmpty) {
@@ -239,9 +261,6 @@ class CustomFieldRepository {
         'fieldValue.fieldDefinitionId',
         'Custom field definition id must not be empty.',
       );
-    }
-    if (value.catalogRef != null) {
-      requireKnownCatalogRef(value.catalogRef!, 'fieldValue.catalogRef');
     }
   }
 }

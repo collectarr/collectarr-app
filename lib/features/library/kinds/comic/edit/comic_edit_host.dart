@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,15 +12,11 @@ abstract class ComicEditHost {
   ProviderContainer get comicRef;
   Color get comicAccent;
   LibraryKindRegistration get comicLibraryType;
-  ComicMedia get comicMedia;
+  ComicCatalogItem get comicCatalogItem;
   List<ItemImage> get comicItemImages;
-  LibraryEditPresentationState get comicEditPresentation;
-
   List<EditableComicCreator> get comicCreators;
   List<EditableComicCharacter> get comicCharacters;
-  List<Map<String, TextEditingController>> get comicLinks;
-  TextEditingController get comicCharacterDraftController;
-
+  List<LibraryExternalLinkDraftRow> get comicLinks;
   TextEditingController get comicTitleController;
   TextEditingController get comicOriginalTitleController;
   TextEditingController get comicEditionTitleController;
@@ -38,8 +35,6 @@ abstract class ComicEditHost {
   TextEditingController get comicLanguageController;
   TextEditingController get comicOwnerLabelController;
   TextEditingController get comicTagsController;
-  TextEditingController get comicStorageDeviceController;
-  TextEditingController get comicStorageSlotController;
   TextEditingController get comicTrackingNotesController;
   TextEditingController get comicNotesController;
   TextEditingController get comicTrackingController;
@@ -65,7 +60,6 @@ abstract class ComicEditHost {
   TextEditingController get comicCoverController;
   TextEditingController get comicThumbnailController;
   TextEditingController get comicIndexNumberController;
-  TextEditingController get comicQuantityController;
   String? get comicCollectionStatus;
   set comicCollectionStatus(String? value);
   String? get comicSelectedLocationId;
@@ -81,10 +75,7 @@ abstract class ComicEditHost {
   set comicFinishedAt(DateTime? value);
   DateTime? get comicSoldAt;
   set comicSoldAt(DateTime? value);
-  String? get comicSelectedBundleReleaseId;
-  set comicSelectedBundleReleaseId(String? value);
-  bool get comicShowPhysicalOwnedFields;
-  String get comicSelectedOwnedAnchorType;
+  bool get comicShowPhysicalEntryFields;
   List<ItemImageEdit> get comicItemImageEdits;
   set comicItemImageEdits(List<ItemImageEdit> value);
 
@@ -94,10 +85,6 @@ abstract class ComicEditHost {
 
   void comicMutateState(VoidCallback fn);
   void comicOpenEditTab(String id);
-  Map<String, TextEditingController> comicCreateLinkControllers({
-    String title = '',
-    String url = '',
-  });
 
   Widget buildComicCrossoverPickField({String label = 'Crossover'});
   Widget buildComicStoryArcPickField({String label = 'Story Arc'});
@@ -114,16 +101,6 @@ abstract class ComicEditHost {
   Widget buildComicCollectionStatusPickField(
       {String label = 'Collection Status'});
   Widget buildComicLocationPickerField({String label = 'Location'});
-
-  Widget buildComicOwnershipAnchorSelectionField();
-  Widget buildComicEditionSelectionField();
-  Widget buildComicVariantSelectionField();
-  Widget buildComicBundleReleaseSelectionField({
-    Key? fieldKey,
-    required String label,
-    required String? selectedBundleReleaseId,
-    required ValueChanged<String?> onChanged,
-  });
 
   Widget buildComicFlexRow(
     List<Widget> children, {

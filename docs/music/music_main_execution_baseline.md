@@ -1,69 +1,50 @@
-# Music main execution baseline
+# Music Catalog Item Cutover Status
 
-Updated after the Music implementation checkpoint and the final parity pass.
+This document records the current App Music implementation. It does not claim
+that the nine-kind Catalog Item cutover is complete.
 
-- Branch: `main`
-- HEAD: see the commits in this branch; implementation work is split into a
-  checkpoint and focused follow-up commits.
-- Working tree: Music changes are committed in the checkpoint and follow-up
-  commits; unrelated repository test failures are documented below.
-- Dependencies: `flutter pub get --enforce-lockfile` passed.
-- Analyzer: `flutter analyze --fatal-warnings --fatal-infos` passed with no issues.
-- Targeted Music tests: latest combined Music/domain/config/UI run passed
-  (`115` tests, `3` skips).
-- Full test suite: not green; the latest full run reported `30` failures and
-  `5` skips, mainly broad UI/fixture failures outside the Music slice. The
-  Music-targeted run remains green.
+## Active Music path
 
-## Current boundaries
+- Core exposes one flat Music Catalog Item per concrete album edition. Discs,
+  ordered tracks, credits, covers, and links are contained catalog data.
+- App search and manual Add use the flat kind-owned Music payload. Manual Add
+  and Edit share the edit dialog scaffold, and proposals use the same Music
+  catalog fields.
+- App maps one Music Catalog Item to its root workspace row. The Music Release
+  Group model, serializer, dialog, workspace schema, preference codec, and
+  Release projection have been removed. The Music scope selector is not shown.
+- App-collection items target the concrete Music Catalog Item. Copy condition,
+  location, purchase data, notes, personal images, per-copy storage placement,
+  and listening activity stay in App-owned storage and Sync.
+- Listening events target one Music Catalog Item and may optionally identify
+  the Collection Item used.
 
-- Catalog model: `MusicReleaseGroup -> MusicRelease -> MusicMedium -> MusicTrack`.
-- Owned model: typed Music copies require a concrete Release target rooted in
-  the Release Group; root-only and cross-group targets are rejected.
-- Tracking model: `MusicTrackingState` is Release-scoped and unowned; storage
-  and sync reject Group/copy targets and preserve separate releases.
-- Listening model: typed Music listen events require `releaseId`, retain
-  optional owned-copy provenance, support multiple events, and are persisted
-  separately from lifecycle tracking.
-- Edit flows: Release Group and concrete Release dialogs are separate. Release
-  Edit includes tracking and an Owned Copies tab with independent copy CRUD.
-- Workspace: Group, Release and Owned Copy schemas are selected structurally by
-  node/browser scope; Music Group also exposes genre and release count.
-- DTO/projection: Music workspace projection remains concrete and artist,
-  barcode/catalog-number and metadata-readiness presentation bugs are fixed.
-- Copy integrity: per-disc storage and matrix edits preserve unrelated or
-  unknown entries instead of dropping them during save.
-- Export: Music inspector track copy/print output includes group, release,
-  disc/header, track artist, duration and catalog-number context.
-- Box sets: Release membership is typed as an opaque Music relationship with
-  position, provider/Core/local round-trip, Release edit, inspector and
-  Release workspace grouping.
-- Artwork: generic owned-item image storage exposes front/back, booklet, disc,
-  label and other roles while preserving captions and order.
-- Stats: Music cards include artists, labels, genres, formats, signed-copy
-  aggregates and derived listening summaries without moving Music semantics
-  into generic infrastructure.
+## Remaining boundaries
 
-## Remaining work
+- The domain model and Drift table still use some historical `Release` names.
+  Each row is the root Catalog Item; there is no separate editable Release
+  entity in the Music catalog graph. Rename those symbols only as part of a
+  coherent persistence/API update, not as compatibility aliases.
+- The generic App workspace still represents root items with its `work` scope
+  type because the other eight kinds have not completed the shared cutover.
+  Music has no separate Release scope or selector.
+- The other eight kinds still have active Work/Release paths in App. Their
+  field ledgers remain provisional where CLZ Edit-form captures are missing.
 
-- Group listening aggregates are derived read-only from Release-scoped events
-  and are injected into Music workspace rows and Music stats.
-- The shared `music_fields.dart` definitions now back the three typed Music
-  workspace schemas; they do not contain edit or copy semantics.
-- The previous monolithic Music edit runtime has been removed. The unscoped
-  catalog editor is an explicit typed composition of Group, Release and Links;
-  structural Group/Release nodes still dispatch to their dedicated dialogs.
+## Field confidence and reset
 
-## Implementation progress
+- The Music field ledger is grounded in the saved CLZ Music Edit form.
+- Exact CLZ parity for Anime, Board Game, Book, Comic, Game, Manga, Movie, and
+  TV remains unverified pending their Edit-form captures.
+- App's final schema is a fresh Drift v1 baseline. Old Work/Release databases
+  and backups are unsupported; do not add compatibility decoding or upgrade
+  paths.
+- Personal Sync carries Collection Items and personal activity only. Core Catalog
+  Item data never enters Sync.
 
-Current implementation status: the Tier 1 Music graph, ownership, tracking,
-listening, per-disc copy integrity, inspector/export and scope-specific
-workspace work is represented in the checkout. Tier 2 box-set and artwork
-roles are also implemented. The capability matrix and parity review record
-the remaining structural limitations explicitly.
+## Verification policy
 
-M1 enforces the Music Copy-to-Release invariant at typed creation, update and
-persistence boundaries, then adds regression coverage. The old generic Music
-editor and compatibility runtime are removed. The Owned model now stores
-per-medium storage and matrix data together; the local schema intentionally
-uses the new shape without a legacy migration path.
+Do not report the coordinated nine-kind cutover complete until every active
+Add/Edit, persistence, workspace, Collection Item, backup, export, and Sync path uses
+Catalog Item and Collection Item references, and the old graph has no reachable
+consumer.

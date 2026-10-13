@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -46,35 +45,32 @@ void main() {
     expect(parsed.keyReason, 'First appearance');
   });
 
-  test('projects Comic catalog and owned cells at the CSV boundary', () {
+  test('projects Comic catalog and entry cells at the CSV boundary', () {
     final projection = const ComicCollectionCsvProjection();
-    final owned = testOwnedItem(
-      id: 'owned-1',
-      itemId: 'comic-1',
-      coverPriceCents: 399,
-      rawOrSlabbed: 'Raw',
-      keyComic: true,
-      updatedAt: DateTime.utc(2026, 5, 12),
-    );
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Spider-Man',
-        itemNumber: '1',
-        variant: 'Newsstand',
         editionTitle: 'Direct market edition',
-        physicalFormat: 'single-issue',
-        physicalFormatLabel: 'Single Issue',
+        physicalFormat: 'Single Issue',
         publisher: 'Marvel',
         releaseDate: DateTime.utc(1963, 3, 1),
         barcode: '071486024576',
+        payload: const {
+          'issue_number': '1',
+          'variant_name': 'Newsstand',
+        },
       )).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(owned),
-      ownedItemDispatch: testComicOwnedItemDispatchFrom(
-        testComicOwnedItemFrom(owned),
+      libraryEntry: testLibraryEntry(
+        id: 'entry-1',
+        itemId: 'comic-1',
+        coverPriceCents: 399,
+        rawOrSlabbed: 'Raw',
+        keyComic: true,
+        updatedAt: DateTime.utc(2026, 5, 12),
       ),
     );
 
@@ -85,26 +81,26 @@ void main() {
       '1',
       'Newsstand',
       'Direct market edition',
-      'single-issue',
+      'Single Issue',
       'Single Issue',
       'Marvel',
       '1963-03-01',
       '071486024576',
     ]);
     expect(
-      projection.ownedCellsBeforeQuantity(entry, clzFriendly: false),
+      projection.entryCellsBeforeLocation(entry, clzFriendly: false),
       isEmpty,
     );
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: false),
+      projection.entryCellsAfterIndex(entry, clzFriendly: false),
       ['399', 'Raw', '', '', '', '', '', 'true', ''],
     );
     expect(
-      projection.ownedCellsBeforeQuantity(entry, clzFriendly: true),
+      projection.entryCellsBeforeLocation(entry, clzFriendly: true),
       ['3.99'],
     );
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: true),
+      projection.entryCellsAfterIndex(entry, clzFriendly: true),
       ['Raw', '', '', '', '', '', 'true', ''],
     );
   });

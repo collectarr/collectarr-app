@@ -1,10 +1,13 @@
 import '../tv_module_dependencies.dart';
 import 'tv_kind_configuration.dart';
 import '../add/tv_add_contribution.dart';
+import '../data/tv_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final tvKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.tv,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'features',
       label: 'Features',
@@ -51,15 +54,6 @@ final tvKindPhysicalMediaFormats = tvPhysicalMediaFormats;
 
 final tvKindTrackingProfile = tvTrackingProfile;
 
-final tvKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final tvKindReleaseCapability =
-    const TvReleaseProjectionCapability<LibraryWorkspaceDto>();
-
-final tvKindReleaseDetailSource = const TvReleaseDetailSource();
-
-final tvKindCatalogTarget = const TvCatalogTargetCapability();
-
 final LibraryRelationCapability? tvKindRelations = null;
 
 final LibraryValueCapability? tvKindValue = null;
@@ -89,10 +83,9 @@ final tvKindIdentity = const LibraryKindIdentity(
 );
 
 final tvKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'tmdb',
-  catalogMetadataDecoder: TvSeriesMetadata.fromJson,
+  catalogMetadataDecoder: TvMetadata.fromJson,
+  catalogTransportCodec: TvCatalogTransportCodec(),
   searchQueryBuilder: tvMetadataSearchQuery,
-  providers: [tmdbMetadataProvider],
 );
 
 final tvKindUiPolicy = const LibraryUiPolicy(
@@ -104,46 +97,34 @@ final tvKindHierarchy = const LibraryHierarchyCapability(
   childrenTitleBuilder: tvChildrenTitle,
 );
 
-final tvKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Series', plural: 'Series'),
-  release: LibraryEntityLabel(singular: 'Release', plural: 'Releases'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+final tvKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem:
+      LibraryTargetLabel(singular: 'Season release', plural: 'Season releases'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final tvKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.watch,
-  writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
-  contentTargets: {LibraryTrackingTargetScope.content},
+  writableTargets: {LibraryTrackingTarget.content},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
+  contentTargets: {LibraryTrackingTarget.content},
 );
 
-final tvKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
-  copy: LibraryEntityActionSet.copy,
+final tvKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final tvKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
-        heroBuilder: buildTvWorkInspectorHero,
-        sectionsBuilder: buildTvWorkInspectorSections,
-        detailPageBuilder: buildLibraryReleaseDetailPage,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildTvReleaseInspectorHero,
-        sectionsBuilder: buildTvReleaseInspectorSections,
-        detailPageBuilder: buildLibraryReleaseDetailPage,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
-        heroBuilder: buildTvCopyInspectorHero,
-        sectionsBuilder: buildTvCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildTvCatalogItemInspectorHero,
+      sectionsBuilder: buildTvCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildTvLibraryEntryInspectorHero,
+      sectionsBuilder: buildTvLibraryEntryInspectorSections,
+    ),
   ),
   mediaDetailContributionBuilder: buildTvVideoDetailContribution,
   showsDefaultPersonalSection: false,
@@ -152,8 +133,7 @@ final tvKindInspector = LibraryInspectorCapability(
   ),
 );
 
-final tvKindLinkedMetadata =
-    TypedLibraryLinkedMetadataCapability<TvSeriesMetadata>(
+final tvKindLinkedMetadata = TypedLibraryLinkedMetadataCapability<TvMetadata>(
   tvLinkedMetadata,
   tvLinkedMetadataValues,
 );

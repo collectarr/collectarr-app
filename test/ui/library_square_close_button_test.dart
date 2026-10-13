@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,7 +21,7 @@ void main() {
     );
 
     expect(find.byType(OutlinedButton), findsOneWidget);
-    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(find.byIcon(AppIcons.close), findsOneWidget);
 
     final size = tester.getSize(find.byType(LibrarySquareCloseButton));
     expect(size.width, 32);

@@ -1,12 +1,17 @@
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/library/ui/library_form_layout.dart';
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_responsive_field_layout.dart';
 import 'package:collectarr_app/features/library/ui/library_section_state_message.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 // ---------------------------------------------------------------------------
 // Shared edit-dialog building blocks used across library edit dialogs.
@@ -23,19 +28,37 @@ const Color kEditValueChip = kAppPanel;
 const Color kEditValueChipBorder = kAppSurfaceBright;
 const BorderRadius kEditMenuBorderRadius = kAppMenuBorderRadius;
 
+/// Saved CLZ editor surfaces, scoped to dialogs rather than the workspace.
+AppThemePalette libraryEditPalette(AppThemePalette palette) => palette.isDark
+    ? palette.copyWith(
+        panel: const Color(0xFF262626),
+        panelRaised: const Color(0xFF383838),
+        surfaceBright: const Color(0xFF383838),
+        surface: const Color(0xFF444444),
+        field: const Color(0xFF444444),
+        toolbar: const Color(0xFF383838),
+        divider: const Color(0xFF606060),
+      )
+    : palette;
+
 /// Theme preset for edit dialogs – resolves from [palette] for light/dark.
 ThemeData editDialogTheme({
   Color? seedColor,
   AppThemePalette palette = kDefaultAppThemePalette,
   bool compactDesktop = false,
 }) {
+  palette = libraryEditPalette(palette);
   final accent = seedColor ?? palette.accent;
+  palette = palette.copyWith(
+      accent: accent,
+      selection:
+          Color.alphaBlend(accent.withValues(alpha: 0.22), palette.panel));
   final base = palette.isDark
       ? ThemeData.dark(useMaterial3: true)
       : ThemeData.light(useMaterial3: true);
   return base.copyWith(
     extensions: [palette],
-    visualDensity: VisualDensity.compact,
+    visualDensity: VisualDensity.standard,
     canvasColor: palette.panel,
     colorScheme: ColorScheme.fromSeed(
       seedColor: accent,
@@ -45,12 +68,17 @@ ThemeData editDialogTheme({
       primary: accent,
       onPrimary: appContrastingTextColor(accent),
     ),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: accent,
+      selectionColor: accent.withValues(alpha: 0.35),
+      selectionHandleColor: accent,
+    ),
     dialogTheme: DialogThemeData(
       backgroundColor: palette.panel,
       surfaceTintColor: Colors.transparent,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-        side: BorderSide(color: palette.divider),
+        borderRadius: BorderRadius.circular(6),
       ),
     ),
     popupMenuTheme: PopupMenuThemeData(
@@ -77,26 +105,27 @@ ThemeData editDialogTheme({
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: palette.surface,
+      fillColor: palette.isDark ? const Color(0xFF444444) : palette.surface,
       isDense: true,
       contentPadding: EdgeInsets.symmetric(
-        horizontal: compactDesktop ? 8 : 9,
-        vertical: compactDesktop ? 6 : 7,
+        horizontal: 7,
+        vertical: 6,
       ),
       constraints: const BoxConstraints(
-        minHeight: kLibraryFormControlHeight,
+        minHeight: LibraryMetrics.defaultFieldHeight,
       ),
       floatingLabelBehavior: compactDesktop
           ? FloatingLabelBehavior.always
           : FloatingLabelBehavior.auto,
       labelStyle: TextStyle(
         color: palette.textMuted,
-        fontSize: compactDesktop ? 13 : null,
+        fontSize: compactDesktop ? 12 : null,
+        fontWeight: kAppBoldFontWeight,
       ),
       floatingLabelStyle: TextStyle(
         color: accent,
-        fontSize: compactDesktop ? 13 : null,
-        fontWeight: compactDesktop ? FontWeight.w600 : null,
+        fontSize: compactDesktop ? 12 : null,
+        fontWeight: kAppBoldFontWeight,
       ),
       hintStyle: TextStyle(
         color: palette.textMuted.withValues(alpha: 0.7),
@@ -104,44 +133,64 @@ ThemeData editDialogTheme({
       ),
       border: OutlineInputBorder(
         borderSide: BorderSide(color: palette.divider),
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: palette.divider),
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(color: accent),
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     iconButtonTheme: const IconButtonThemeData(
       style: ButtonStyle(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
-    textTheme: base.textTheme.apply(
-      bodyColor: palette.textPrimary,
-      displayColor: palette.textPrimary,
-    ),
+    textTheme: base.textTheme
+        .copyWith(
+          bodyLarge: base.textTheme.bodyLarge?.copyWith(
+              fontSize: 14,
+              height: 20 / 14,
+              fontWeight: kAppNormalFontWeight,
+              letterSpacing: 0),
+          bodyMedium: base.textTheme.bodyMedium?.copyWith(
+              fontSize: 14,
+              height: 20 / 14,
+              fontWeight: kAppNormalFontWeight,
+              letterSpacing: 0),
+          labelLarge: base.textTheme.labelLarge?.copyWith(
+              fontSize: 14,
+              height: 20 / 14,
+              fontWeight: kAppBoldFontWeight,
+              letterSpacing: 0),
+        )
+        .apply(
+          fontFamily: appFontFamily,
+          fontFamilyFallback: kAppFontFamilyFallback,
+          bodyColor: palette.textPrimary,
+          displayColor: palette.textPrimary,
+        ),
     datePickerTheme: buildAppDatePickerTheme(
       palette: palette,
       accent: accent,
@@ -155,39 +204,44 @@ ThemeData editDialogTheme({
 // ---------------------------------------------------------------------------
 
 class EditTabShell extends StatelessWidget {
-  const EditTabShell({super.key, required this.children, this.cover});
+  const EditTabShell({
+    super.key,
+    required this.children,
+    this.cover,
+    this.scrollable = true,
+  });
 
   final List<Widget> children;
   final Widget? cover;
+
+  /// Set false when this shell is embedded inside a parent-owned scroll view.
+  final bool scrollable;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final palette = appPalette(context);
+        final content = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: children,
+        );
         final scrollContent = DecoratedBox(
           decoration: BoxDecoration(
             color: palette.panelRaised,
-            border: Border(
-              top: const BorderSide(color: Colors.transparent),
-              left: BorderSide(color: palette.divider),
-              right: BorderSide(color: palette.divider),
-              bottom: BorderSide(color: palette.divider),
-            ),
           ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(10, 16, 10, 10),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: children,
-            ),
-          ),
+          child: scrollable
+              ? SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(15, 16, 15, 16),
+                  child: content,
+                )
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 16, 15, 16),
+                  child: content,
+                ),
         );
         if (cover == null || constraints.maxWidth < 720) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-            child: scrollContent,
-          );
+          return scrollContent;
         }
         return Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -301,7 +355,7 @@ class EditSectionLoadingState extends StatelessWidget {
                 style: TextStyle(
                   color: palette.textMuted,
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
@@ -317,17 +371,40 @@ class EditSectionLoadingState extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class EditTab extends StatelessWidget {
-  const EditTab({super.key, required this.icon, required this.label});
+  const EditTab({
+    super.key,
+    this.icon,
+    this.svgAsset,
+    required this.label,
+  }) : assert(icon != null || svgAsset != null,
+            'Either icon or svgAsset must be provided.');
 
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
   final String label;
 
   @override
   Widget build(BuildContext context) {
+    final iconWidget = svgAsset != null
+        ? Builder(
+            builder: (context) {
+              final iconTheme = IconTheme.of(context);
+              return SvgPicture.asset(
+                svgAsset!,
+                width: iconTheme.size ?? 16,
+                height: iconTheme.size ?? 16,
+                colorFilter: iconTheme.color != null
+                    ? ColorFilter.mode(iconTheme.color!, BlendMode.srcIn)
+                    : null,
+              );
+            },
+          )
+        : Icon(icon, size: 16);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14),
+        iconWidget,
         const SizedBox(width: 3),
         Text(label),
       ],
@@ -351,33 +428,48 @@ class LibraryEditTextField extends StatelessWidget {
     required this.label,
     this.hint,
     this.validator,
+    this.onChanged,
     this.maxLines = 1,
+    this.minLines,
+    this.expands = false,
     this.keyboardType,
+    this.autofocus = false,
   });
 
   final TextEditingController controller;
   final String label;
   final String? hint;
   final String? Function(String?)? validator;
-  final int maxLines;
+  final ValueChanged<String>? onChanged;
+  final int? maxLines;
+  final int? minLines;
+  final bool expands;
   final TextInputType? keyboardType;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      validator: validator,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(labelText: label, hintText: hint),
+    return LibraryFormField(
+      label: label,
+      child: LibraryTextFormControl(
+        controller: controller,
+        validator: validator,
+        onChanged: onChanged,
+        minLines: minLines,
+        maxLines: maxLines,
+        expands: expands,
+        keyboardType: keyboardType,
+        autofocus: autofocus,
+        decoration: InputDecoration(
+          hintText: hint,
+        ),
+      ),
     );
   }
 }
 
-/// A responsive form row that stacks its [children] into a single column on
-/// narrow layouts and lays them out as equal-width [Expanded] columns once the
-/// available width reaches [breakpoint]. Consolidates the identical private
-/// `_responsiveFields` helpers that several edit dialogs used to declare.
+/// A responsive form row that stacks its [children] on narrow layouts and uses
+/// equal-width columns above [breakpoint]. Geometry is shared with schema forms.
 class LibraryEditResponsiveRow extends StatelessWidget {
   const LibraryEditResponsiveRow({
     super.key,
@@ -390,29 +482,14 @@ class LibraryEditResponsiveRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final twoColumns = constraints.maxWidth >= breakpoint;
-        if (!twoColumns) {
-          return Column(
-            children: [
-              for (var index = 0; index < children.length; index++) ...[
-                if (index > 0) const SizedBox(height: 10),
-                children[index],
-              ],
-            ],
-          );
-        }
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (var index = 0; index < children.length; index++) ...[
-              if (index > 0) const SizedBox(width: 10),
-              Expanded(child: children[index]),
-            ],
-          ],
-        );
+    return LibraryResponsiveFieldLayout(
+      maxColumns: children.length,
+      columnBreakpoints: {
+        if (children.length > 1) children.length: breakpoint,
       },
+      spacing: 10,
+      runSpacing: 10,
+      children: children,
     );
   }
 }
@@ -427,8 +504,8 @@ class LibraryEditDenseFields extends StatelessWidget {
     required this.children,
     this.wideColumns = 2,
     this.ultraWideColumns = 3,
-    this.wideBreakpoint = kAppStackedBreakpoint,
-    this.ultraWideBreakpoint = kAppSpacedBreakpoint,
+    this.wideBreakpoint = kLibraryFormTwoColumnMinWidth,
+    this.ultraWideBreakpoint = kLibraryFormThreeColumnMinWidth,
     this.spacing = 10,
   });
 
@@ -441,58 +518,17 @@ class LibraryEditDenseFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = constraints.maxWidth >= ultraWideBreakpoint
-            ? ultraWideColumns
-            : constraints.maxWidth >= wideBreakpoint
-                ? wideColumns
-                : 1;
-        final fieldWidth = columns == 1
-            ? constraints.maxWidth
-            : (constraints.maxWidth - (spacing * (columns - 1))) / columns;
-        return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
-          children: [
-            for (final child in children)
-              SizedBox(width: fieldWidth, child: child),
-          ],
-        );
+    return LibraryResponsiveFieldLayout(
+      maxColumns: ultraWideColumns,
+      columnBreakpoints: {
+        if (wideColumns > 1) wideColumns: wideBreakpoint,
+        if (ultraWideColumns > wideColumns)
+          ultraWideColumns: ultraWideBreakpoint,
       },
+      spacing: spacing,
+      runSpacing: spacing,
+      children: children,
     );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Two-column grid for form fields
-// ---------------------------------------------------------------------------
-
-class EditGrid extends StatelessWidget {
-  const EditGrid({super.key, required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final rows = <Widget>[];
-    for (var i = 0; i < children.length; i += 2) {
-      rows.add(
-        Row(
-          children: [
-            children[i],
-            if (i + 1 < children.length) ...[
-              const SizedBox(width: 6),
-              children[i + 1],
-            ],
-          ],
-        ),
-      );
-      if (i + 2 < children.length) {
-        rows.add(const SizedBox(height: 6));
-      }
-    }
-    return Column(children: rows);
   }
 }
 
@@ -578,7 +614,7 @@ class ValueContextChip extends StatelessWidget {
             value,
             style: Theme.of(context).textTheme.controlText.copyWith(
                   color: p.textPrimary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
           ),
         ],
@@ -589,6 +625,7 @@ class ValueContextChip extends StatelessWidget {
 
 const List<String> kLibraryCurrencyCodes = <String>[
   'USD',
+  'SGD',
   'EUR',
   'GBP',
   'RON',
@@ -613,6 +650,7 @@ String libraryCurrencySymbol(String? currency) {
   final normalized = currency?.trim().toUpperCase() ?? '';
   return switch (normalized) {
     'USD' => r'$',
+    'SGD' => r'S$',
     'EUR' => '€',
     'GBP' => '£',
     'RON' => 'lei',
@@ -668,7 +706,10 @@ class LibraryCurrencyField extends StatelessWidget {
           enabled: enabled,
           options: [
             for (final code in items)
-              LibraryFieldOption<String>(value: code, label: code),
+              LibraryFieldOption<String>(
+                value: code,
+                label: '${libraryCurrencySymbol(code)} $code',
+              ),
           ],
           openPicker: (
                   {required label, required selectedValue, required options}) =>
@@ -697,15 +738,19 @@ class LibraryDateFieldButton extends StatefulWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.showLabel = true,
     this.errorText,
     this.fieldKeyPrefix,
+    this.focusNode,
   });
 
   final String label;
   final DateTime? value;
   final ValueChanged<DateTime?> onChanged;
+  final bool showLabel;
   final String? errorText;
   final String? fieldKeyPrefix;
+  final FocusNode? focusNode;
 
   @override
   State<LibraryDateFieldButton> createState() => _LibraryDateFieldButtonState();
@@ -757,8 +802,8 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
         Theme.of(context).inputDecorationTheme.floatingLabelStyle ??
             TextStyle(
               color: palette.accent,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              fontWeight: kAppBoldFontWeight,
             );
     final scaledLabelHeight =
         MediaQuery.textScalerOf(context).scale(labelStyle.fontSize ?? 13) * 1.2;
@@ -770,23 +815,28 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
           clipBehavior: Clip.none,
           children: [
             Padding(
-              padding: EdgeInsets.only(top: fieldTopPadding),
+              padding: EdgeInsets.only(
+                top: widget.showLabel ? fieldTopPadding : 0,
+              ),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
-                  minHeight: kLibraryFormControlHeight,
+                  minHeight: LibraryMetrics.defaultFieldHeight,
                 ),
                 child: Row(
                   children: [
                     Expanded(
+                      flex: 3,
                       child: _datePartField(
                         palette: palette,
                         key: _partKey('year'),
                         controller: _yearController,
                         hintText: 'YYYY',
+                        focusNode: widget.focusNode,
                       ),
                     ),
                     _dateConnector(palette),
                     Expanded(
+                      flex: 2,
                       child: _datePartField(
                         palette: palette,
                         key: _partKey('month'),
@@ -796,6 +846,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                     ),
                     _dateConnector(palette),
                     Expanded(
+                      flex: 2,
                       child: _datePartField(
                         palette: palette,
                         key: _partKey('day'),
@@ -809,25 +860,26 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                       onPressed: _pickWithCalendar,
                       icon: const Icon(Icons.calendar_today, size: 18),
                       constraints: const BoxConstraints.tightFor(
-                        width: 36,
-                        height: 36,
+                        width: LibraryMetrics.defaultFieldHeight,
+                        height: LibraryMetrics.defaultFieldHeight,
                       ),
                       padding: EdgeInsets.zero,
                       visualDensity: VisualDensity.compact,
-                      splashRadius: 18,
+                      splashRadius: LibraryMetrics.defaultFieldHeight / 2,
                     ),
                   ],
                 ),
               ),
             ),
-            Positioned(
-              left: 10,
-              top: 0,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 3),
-                child: Text(widget.label, style: labelStyle),
+            if (widget.showLabel)
+              Positioned(
+                left: 10,
+                top: 0,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  child: Text(widget.label, style: labelStyle),
+                ),
               ),
-            ),
           ],
         ),
         if (widget.errorText != null) ...[
@@ -852,17 +904,22 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
     required AppThemePalette palette,
     required TextEditingController controller,
     required String hintText,
+    FocusNode? focusNode,
   }) {
     final outline = OutlineInputBorder(
       borderSide: BorderSide(color: palette.divider),
-      borderRadius: BorderRadius.circular(4),
+      borderRadius: BorderRadius.circular(kAppInputBorderRadius),
     );
-    return TextField(
+    return LibraryTextFormControl(
       key: key,
       controller: controller,
+      focusNode: focusNode,
       keyboardType: TextInputType.number,
       textAlign: TextAlign.center,
-      maxLength: hintText.length,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(hintText.length),
+      ],
       decoration: InputDecoration(
         hintText: hintText,
         counterText: '',
@@ -872,14 +929,11 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
         enabledBorder: outline,
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: palette.accent, width: 1.5),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(kAppInputBorderRadius),
         ),
         isDense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
       ),
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-      ],
       onChanged: (_) {
         _emitValueIfPossible();
       },
@@ -974,6 +1028,7 @@ Future<DateTime?> showLibraryDateEntryDialog(
       var selectedDate = initialDate;
       return StatefulBuilder(
         builder: (context, setDialogState) => AccentAlertDialog(
+          headerIcon: AppIcons.inlineEdit,
           title: Text(label),
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 360),
@@ -1155,45 +1210,10 @@ class FooterReadonlyField extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.controlText.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                     ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class FooterTextField extends StatelessWidget {
-  const FooterTextField({
-    super.key,
-    required this.label,
-    required this.controller,
-    required this.width,
-    this.keyboardType,
-  });
-
-  final String label;
-  final TextEditingController controller;
-  final double width;
-  final TextInputType? keyboardType;
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 0, minHeight: 48),
-      child: SizedBox(
-        width: width,
-        child: TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          style: Theme.of(context).textTheme.controlText,
-          decoration: InputDecoration(
-            labelText: label,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
           ),
         ),
       ),
@@ -1251,7 +1271,7 @@ class EditSummaryPill extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.controlText.copyWith(
                         color: appPalette(context).textPrimary,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                       ),
                 ),
               ],
@@ -1264,131 +1284,6 @@ class EditSummaryPill extends StatelessWidget {
       return body;
     }
     return SizedBox(width: width, child: body);
-  }
-}
-
-class EditTokenListField extends StatefulWidget {
-  const EditTokenListField({
-    super.key,
-    required this.label,
-    required this.controller,
-    this.hint,
-  });
-
-  final String label;
-  final TextEditingController controller;
-  final String? hint;
-
-  @override
-  State<EditTokenListField> createState() => _EditTokenListFieldState();
-}
-
-class _EditTokenListFieldState extends State<EditTokenListField> {
-  late final TextEditingController _entryController;
-
-  @override
-  void initState() {
-    super.initState();
-    _entryController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _entryController.dispose();
-    super.dispose();
-  }
-
-  List<String> get _tokens => widget.controller.text
-      .split(',')
-      .map((entry) => entry.trim())
-      .where((entry) => entry.isNotEmpty)
-      .toList(growable: false);
-
-  void _setTokens(List<String> values) {
-    widget.controller.text = values.join(', ');
-    setState(() {});
-  }
-
-  void _addCurrentToken() {
-    final token = _entryController.text.trim();
-    if (token.isEmpty) {
-      return;
-    }
-    final values = _tokens.toList(growable: true);
-    final exists = values.any(
-      (value) => value.toLowerCase() == token.toLowerCase(),
-    );
-    if (!exists) {
-      values.add(token);
-      _setTokens(values);
-    }
-    _entryController.clear();
-  }
-
-  void _removeToken(String token) {
-    final values = _tokens
-        .where((value) => value.toLowerCase() != token.toLowerCase())
-        .toList(growable: false);
-    _setTokens(values);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = _tokens;
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelText: widget.label,
-        alignLabelWithHint: true,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              for (final token in tokens)
-                InputChip(
-                  label: Text(token),
-                  onDeleted: () => _removeToken(token),
-                  visualDensity: VisualDensity.compact,
-                  backgroundColor: kAppPanel,
-                  side: const BorderSide(color: kEditDivider),
-                  deleteIconColor: kEditTextMuted,
-                  labelStyle: Theme.of(context).textTheme.fieldLabel,
-                ),
-              if (tokens.isEmpty)
-                Text(
-                  'No values yet',
-                  style: Theme.of(context).textTheme.informationalText.copyWith(
-                        color: kEditTextMuted,
-                      ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _entryController,
-                  onSubmitted: (_) => _addCurrentToken(),
-                  decoration: InputDecoration(
-                    hintText: widget.hint ?? 'Add value',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              FilledButton.tonalIcon(
-                onPressed: _addCurrentToken,
-                icon: const Icon(Icons.add),
-                label: const Text('Add'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -1416,7 +1311,7 @@ class IssuePill extends StatelessWidget {
           label,
           style: Theme.of(context).textTheme.controlText.copyWith(
                 color: foreground,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
               ),
         ),
       ),
