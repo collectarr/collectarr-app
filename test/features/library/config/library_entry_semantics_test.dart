@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../helpers/test_data_factories.dart';
+import '../../../support/builders/library_entry_builder.dart';
 
 void main() {
   test('every kind owns explicit digital-copy resolution', () {

@@ -19,7 +19,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(collectarrKindRegistrationsList, hasLength(9));
+    expect(collectarrKindRegistrationsList, hasLength(1));
     for (final runtime in collectarrKindRegistrationsList) {
       final manualDraft = LibraryAddManualDraft(
         customFieldValues: const [],

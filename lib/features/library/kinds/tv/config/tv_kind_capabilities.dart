@@ -83,7 +83,6 @@ final tvKindIdentity = const LibraryKindIdentity(
 );
 
 final tvKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: TvMetadata.fromJson,
   catalogTransportCodec: TvCatalogTransportCodec(),
   searchQueryBuilder: tvMetadataSearchQuery,
 );

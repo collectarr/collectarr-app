@@ -1,0 +1,80 @@
+import 'package:collectarr_app/features/library/home/home_top_nav.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
+import 'package:collectarr_app/features/library/home/home_nav_button.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/sync/state/sync_controller.dart';
+import 'package:collectarr_app/features/sync/presentation/sync_action_button.dart';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('library nav strip centers its buttons when they fit', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1600, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const types = [
+      CatalogMediaType(
+          kind: 'music', singularLabel: 'Album', pluralLabel: 'Albums')
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 1200,
+            height: 42,
+            child: MediaLibraryNavStrip(
+              types: types,
+              counts: const {},
+              registry: defaultLibraryKindRegistry,
+              selectedKind: 'music',
+              onSelected: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final strip = find.byType(MediaLibraryNavStrip);
+    expect(strip, findsOneWidget);
+
+    final navButtons = find.byType(MediaLibraryNavButton);
+    expect(navButtons, findsNWidgets(types.length));
+    final stripRect = tester.getRect(strip);
+    final firstRect = tester.getRect(navButtons.at(0));
+    final lastRect = tester.getRect(navButtons.at(types.length - 1));
+
+    expect(firstRect.left, greaterThanOrEqualTo(stripRect.left));
+    expect(lastRect.right, lessThanOrEqualTo(stripRect.right));
+  });
+
+  testWidgets('home sync button is icon only', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          syncControllerProvider.overrideWith(
+            () => _FakeSyncController(),
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: SyncActionButton(style: ButtonStyle()),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Sync'), findsNothing);
+    expect(find.byIcon(Icons.sync_outlined), findsOneWidget);
+  });
+}
+
+class _FakeSyncController extends SyncController {
+  _FakeSyncController();
+}

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
@@ -12,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final Map<CatalogMediaKind, LibraryEditCapabilitySet>
     collectarrKindEditCapabilities =
-    Map.unmodifiable(<CatalogMediaKind, LibraryEditCapabilitySet>{
+    releasedKindContributions(<CatalogMediaKind, LibraryEditCapabilitySet>{
   CatalogMediaKind.anime: animeKindEditCapabilities,
   CatalogMediaKind.boardgame: boardGameKindEditCapabilities,
   CatalogMediaKind.book: bookKindEditCapabilities,

@@ -111,7 +111,6 @@ final musicKindIdentity = const LibraryKindIdentity(
 );
 
 final musicKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: MusicCatalogMapper.fromCatalogPayload,
   catalogTransportCodec: MusicCatalogTransportCodec(),
   catalogDetailCandidateBuilder: _musicCatalogDetailCandidateBuilder,
   searchQueryBuilder: musicMetadataSearchQuery,

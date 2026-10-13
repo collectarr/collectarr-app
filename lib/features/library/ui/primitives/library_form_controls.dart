@@ -233,6 +233,7 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
         for (var i = 0; i < 3; i++) ...[
           if (i > 0)
             Container(
+              key: ValueKey('partial-date-separator-$i'),
               width: 8,
               height: 1,
               color: appPalette(context).divider,

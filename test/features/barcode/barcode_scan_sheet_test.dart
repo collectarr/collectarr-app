@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../helpers/test_constants.dart';
+import '../../support/fixtures/test_constants.dart';
 
 void main() {
   testWidgets('manual-only barcode sheet returns normalized input',

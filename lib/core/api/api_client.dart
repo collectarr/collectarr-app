@@ -20,15 +20,16 @@ part 'api_client_assets.dart';
 class ApiClient {
   static const requestTimeout = Duration(seconds: 30);
 
-  ApiClient({String baseUrl = 'http://127.0.0.1:8010'})
-      : _dio = Dio(
-          BaseOptions(
-            baseUrl: baseUrl.trim(),
-            connectTimeout: requestTimeout,
-            receiveTimeout: requestTimeout,
-            sendTimeout: requestTimeout,
-          ),
-        );
+  ApiClient({String baseUrl = 'http://127.0.0.1:8010', Dio? dio})
+      : _dio = dio ??
+            Dio(
+              BaseOptions(
+                baseUrl: baseUrl.trim(),
+                connectTimeout: requestTimeout,
+                receiveTimeout: requestTimeout,
+                sendTimeout: requestTimeout,
+              ),
+            );
 
   final Dio _dio;
   late final _AdminApiClient _adminApi = _AdminApiClient(this);

@@ -11,8 +11,8 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../helpers/test_constants.dart';
-import '../../../helpers/test_data_factories.dart';
+import '../../../support/fixtures/test_constants.dart';
+import '../../../support/builders/catalog_item_builder.dart';
 
 void main() {
   late LocalDatabase db;
@@ -28,11 +28,11 @@ void main() {
     tester,
   ) async {
     const libraryEntryRef1 = LibraryEntryRef(
-      kind: CatalogMediaKind.book,
+      kind: CatalogMediaKind.music,
       id: LibraryEntryId('entry-1'),
     );
     const libraryEntryRef2 = LibraryEntryRef(
-      kind: CatalogMediaKind.book,
+      kind: CatalogMediaKind.music,
       id: LibraryEntryId('entry-2'),
     );
     await ReadingQueueRepository(db).addToQueue(libraryEntryRef1);
@@ -53,17 +53,17 @@ void main() {
                   libraryEntries: [
                     LibraryEntrySummary(
                       ref: const LibraryEntryRef(
-                        kind: CatalogMediaKind.book,
+                        kind: CatalogMediaKind.music,
                         id: LibraryEntryId('entry-1'),
                       ),
-                      sourceCatalogRef: testCatalogRef('book-1', kind: 'book'),
+                      sourceCatalogRef: testCatalogRef('book-1', kind: 'music'),
                     ),
                     LibraryEntrySummary(
                       ref: const LibraryEntryRef(
-                        kind: CatalogMediaKind.book,
+                        kind: CatalogMediaKind.music,
                         id: LibraryEntryId('entry-2'),
                       ),
-                      sourceCatalogRef: testCatalogRef('book-2', kind: 'book'),
+                      sourceCatalogRef: testCatalogRef('book-2', kind: 'music'),
                       notes: 'Signed copy',
                       hasNotes: true,
                     ),
@@ -78,13 +78,13 @@ void main() {
                   ],
                   kindPresentationByEntryRef: {
                     const LibraryEntryRef(
-                      kind: CatalogMediaKind.book,
+                      kind: CatalogMediaKind.music,
                       id: LibraryEntryId('entry-1'),
                     ): BookWorkspaceData(
                       metadata: const BookCatalogMetadata(title: 'Dune'),
                     ),
                     const LibraryEntryRef(
-                      kind: CatalogMediaKind.book,
+                      kind: CatalogMediaKind.music,
                       id: LibraryEntryId('entry-2'),
                     ): BookWorkspaceData(
                       metadata: const BookCatalogMetadata(title: 'Foundation'),

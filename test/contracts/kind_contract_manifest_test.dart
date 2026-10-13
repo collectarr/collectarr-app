@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'kind_contract_manifest.dart';
+import 'support/kind_contract_manifest.dart';
 
 void main() {
   test('manifest lists exactly the active catalog kinds', () {

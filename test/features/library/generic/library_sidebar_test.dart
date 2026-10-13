@@ -10,10 +10,10 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 void main() {
   testWidgets('group mode dropdown shows expandable folders sections',
       (tester) async {
-    var selectedMode = 'movie.release_year';
+    var selectedMode = 'music.release_year';
     var selectedPreset = LibraryFolderPreset.single(selectedMode);
     final pinnedPresets = <LibraryFolderPreset>[
-      LibraryFolderPreset.single('movie.director'),
+      LibraryFolderPreset.single('music.artist'),
     ];
 
     await tester.pumpWidget(
@@ -24,14 +24,14 @@ void main() {
               width: 320,
               height: 420,
               child: LibrarySidebar(
-                type: const MovieRegistration(),
+                type: const MusicRegistration(),
                 accent: Colors.cyan,
                 buckets: const [
-                  LibraryBucket(title: 'All Movies', count: 12),
+                  LibraryBucket(title: 'All Albums', count: 12),
                 ],
                 groupMode: selectedMode,
                 folderPreset: selectedPreset,
-                selectedBucket: 'All Movies',
+                selectedBucket: 'All Albums',
                 onSelected: (_) {},
                 onGroupModeChanged: (preset) {
                   selectedPreset = preset;
@@ -55,7 +55,7 @@ void main() {
     expect(
       find.text(genericGroupModeFolderSetLabel(
         selectedMode,
-        const MovieRegistration(),
+        const MusicRegistration(),
       )),
       findsOneWidget,
     );
@@ -65,7 +65,7 @@ void main() {
     await tester.tap(find
         .text(genericGroupModeFolderSetLabel(
           selectedMode,
-          const MovieRegistration(),
+          const MusicRegistration(),
         ))
         .first);
     await tester.pumpAndSettle();
@@ -76,15 +76,15 @@ void main() {
     expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Edition'), findsOneWidget);
-    expect(find.text('Cast & Crew'), findsOneWidget);
+    expect(find.text('Details'), findsOneWidget);
+    expect(find.text('Credits'), findsOneWidget);
     expect(find.text('Personal'), findsOneWidget);
-    expect(find.text('Director'), findsWidgets);
+    expect(find.text('Artist'), findsWidgets);
     expect(find.text('Format'), findsNothing);
     expect(find.text('Release Year'), findsWidgets);
-    expect(find.text('Audience Rating'), findsWidgets);
-    expect(find.text('Movie / TV Series'), findsWidgets);
-    expect(find.text('Studios'), findsWidgets);
+    expect(find.text('Audience Rating'), findsNothing);
+    expect(find.text('Artist'), findsWidgets);
+    expect(find.text('Label'), findsWidgets);
   });
 
   testWidgets('sidebar shows a manage button for editable group buckets', (
@@ -100,14 +100,14 @@ void main() {
               width: 320,
               height: 420,
               child: LibrarySidebar(
-                type: const MovieRegistration(),
+                type: const MusicRegistration(),
                 accent: Colors.cyan,
                 buckets: const [
-                  LibraryBucket(title: '[All Movies]', count: 12),
+                  LibraryBucket(title: '[All Albums]', count: 12),
                   LibraryBucket(title: 'Action', count: 8),
                 ],
-                groupMode: 'movie.genre',
-                selectedBucket: '[All Movies]',
+                groupMode: 'music.genre',
+                selectedBucket: '[All Albums]',
                 onSelected: (_) {},
                 onGroupModeChanged: (_) {},
                 collectionStatusScope: LibraryCollectionStatusScope.all,
@@ -120,9 +120,9 @@ void main() {
       ),
     );
 
-    expect(find.byTooltip('Manage genres'), findsOneWidget);
+    expect(find.byTooltip('Manage genre'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Manage genres'));
+    await tester.tap(find.byTooltip('Manage genre'));
     await tester.pumpAndSettle();
 
     expect(manageTapped, isTrue);
@@ -143,7 +143,7 @@ void main() {
                   width: 320,
                   height: 420,
                   child: LibrarySidebar(
-                    type: const MovieRegistration(),
+                    type: const MusicRegistration(),
                     accent: Colors.cyan,
                     buckets: const [
                       LibraryBucket(

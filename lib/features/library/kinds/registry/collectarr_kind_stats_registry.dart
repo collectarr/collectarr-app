@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
@@ -15,7 +16,7 @@ import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final Map<CatalogMediaKind, LibraryStatsCapability> collectarrKindStats =
-    Map.unmodifiable(<CatalogMediaKind, LibraryStatsCapability>{
+    releasedKindContributions(<CatalogMediaKind, LibraryStatsCapability>{
   CatalogMediaKind.anime: animeKindStats,
   CatalogMediaKind.boardgame: boardGameKindStats,
   CatalogMediaKind.book: bookKindStats,
@@ -28,7 +29,7 @@ final Map<CatalogMediaKind, LibraryStatsCapability> collectarrKindStats =
 });
 
 final Map<CatalogMediaKind, LibraryValueCapability?> collectarrKindValues =
-    Map.unmodifiable(<CatalogMediaKind, LibraryValueCapability?>{
+    releasedKindContributions(<CatalogMediaKind, LibraryValueCapability?>{
   CatalogMediaKind.anime: animeKindValue,
   CatalogMediaKind.boardgame: boardGameKindValue,
   CatalogMediaKind.book: bookKindValue,
@@ -42,7 +43,7 @@ final Map<CatalogMediaKind, LibraryValueCapability?> collectarrKindValues =
 
 final Map<CatalogMediaKind, LibraryRelationCapability?>
     collectarrKindRelations =
-    Map.unmodifiable(<CatalogMediaKind, LibraryRelationCapability?>{
+    releasedKindContributions(<CatalogMediaKind, LibraryRelationCapability?>{
   CatalogMediaKind.anime: animeKindRelations,
   CatalogMediaKind.boardgame: boardGameKindRelations,
   CatalogMediaKind.book: bookKindRelations,
@@ -55,7 +56,7 @@ final Map<CatalogMediaKind, LibraryRelationCapability?>
 });
 
 final Map<CatalogMediaKind, LibraryUiPolicy> collectarrKindUiPolicies =
-    Map.unmodifiable(<CatalogMediaKind, LibraryUiPolicy>{
+    releasedKindContributions(<CatalogMediaKind, LibraryUiPolicy>{
   CatalogMediaKind.anime: animeKindUiPolicy,
   CatalogMediaKind.boardgame: boardGameKindUiPolicy,
   CatalogMediaKind.book: bookKindUiPolicy,
@@ -68,8 +69,8 @@ final Map<CatalogMediaKind, LibraryUiPolicy> collectarrKindUiPolicies =
 });
 
 final Map<CatalogMediaKind, LibraryLinkedMetadataCapability>
-    collectarrKindLinkedMetadata =
-    Map.unmodifiable(<CatalogMediaKind, LibraryLinkedMetadataCapability>{
+    collectarrKindLinkedMetadata = releasedKindContributions(<CatalogMediaKind,
+        LibraryLinkedMetadataCapability>{
   CatalogMediaKind.anime: animeKindLinkedMetadata,
   CatalogMediaKind.boardgame: boardGameKindLinkedMetadata,
   CatalogMediaKind.book: bookKindLinkedMetadata,

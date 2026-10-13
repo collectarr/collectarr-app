@@ -20,10 +20,6 @@ typedef LibraryMetadataSearchQueryBuilder = MetadataSearchQuery Function({
   required String title,
 });
 
-typedef LibraryMetadataCatalogDecoder = JsonEncodable Function(
-  JsonMap payload,
-);
-
 typedef LibraryMetadataCatalogDetailCandidateBuilder = CatalogSearchCandidate
     Function(
   JsonMap payload,
@@ -39,7 +35,6 @@ typedef MetadataCompareBuilder = List<Widget> Function(
 /// Defines how a kind searches and decodes canonical catalog metadata.
 class LibraryMetadataCapability {
   const LibraryMetadataCapability({
-    required this.catalogMetadataDecoder,
     required this.catalogTransportCodec,
     this.supportsServerCompare = false,
     this.compareBuilder,
@@ -49,7 +44,6 @@ class LibraryMetadataCapability {
     this.catalogDetailCandidateBuilder,
   });
 
-  final LibraryMetadataCatalogDecoder catalogMetadataDecoder;
   final CatalogKindTransportBoundary catalogTransportCodec;
   final bool supportsServerCompare;
   final MetadataCompareBuilder? compareBuilder;

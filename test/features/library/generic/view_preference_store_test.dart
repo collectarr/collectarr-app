@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  const movieStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
+  const movieStore = LibraryViewPreferenceStore(CatalogMediaKind.music);
 
   setUp(() {
     LibraryViewPreferenceStore.resetCachedPreferencesForTesting();
@@ -21,22 +21,22 @@ void main() {
       LibraryFolderPreset.single('publisher'),
     );
 
-    const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
+    const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.music);
     expect(reloadedStore.cachedQuickView, LibraryQuickView.wishlist);
     expect(reloadedStore.cachedFolderPreset,
         LibraryFolderPreset.single('publisher'));
 
     final prefs = await SharedPreferences.getInstance();
     expect(
-      prefs.getString('library.v1.movie.folderPreset'),
+      prefs.getString('library.v1.music.folderPreset'),
       'group.publisher',
     );
   });
 
   test('read populates cache and clearing removes cached values', () async {
     SharedPreferences.setMockInitialValues({
-      'library.v1.movie.quickView': LibraryQuickView.entry.name,
-      'library.v1.movie.folderPreset': 'year',
+      'library.v1.music.quickView': LibraryQuickView.entry.name,
+      'library.v1.music.folderPreset': 'year',
     });
 
     expect(await movieStore.readQuickView(), LibraryQuickView.entry);
@@ -65,7 +65,7 @@ void main() {
 
     await movieStore.writeFolderPreset(preset);
 
-    const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
+    const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.music);
     expect(reloadedStore.cachedFolderPreset, preset);
     expect(await reloadedStore.readFolderPreset(), preset);
   });
@@ -108,7 +108,7 @@ void main() {
       'root|series=Batman',
     );
 
-    const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
+    const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.music);
     expect(
       reloadedStore.cachedFolderDisplayMode(preset),
       LibraryFolderDisplayMode.tree,
@@ -149,7 +149,7 @@ void main() {
       <String>{'Batman', 'Superman'},
     );
 
-    const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
+    const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.music);
     expect(
       reloadedStore.cachedGroupPresentationOverride(preset),
       LibraryGroupPresentation.folderGrid,

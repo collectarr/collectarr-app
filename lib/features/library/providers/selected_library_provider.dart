@@ -6,7 +6,7 @@ final selectedLibraryKindProvider =
 
 class SelectedLibraryKind extends Notifier<String> {
   @override
-  String build() => 'comic';
+  String build() => 'music';
 
-  void select(String kind) => state = canonicalLibraryNavKind(kind) ?? 'comic';
+  void select(String kind) => state = canonicalLibraryNavKind(kind) ?? 'music';
 }

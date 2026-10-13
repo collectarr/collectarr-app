@@ -38,7 +38,7 @@ void main() {
   });
 
   test('core field schema fixture parses into the app model', () {
-    expect(schema.schemaVersion, 2);
+    expect(schema.schemaVersion, 1);
     expect(schema.fields, isNotEmpty);
     expect(schema.sections, contains('item'));
     expect(schema.sections, isNot(contains('internal')));
@@ -107,106 +107,22 @@ void main() {
     // reorder the admin/edit panel.
     const expectedOrder = <SharedMetadataEditTab, List<String>>{
       SharedMetadataEditTab.item: [
-        'recommended_players',
-        'best_players',
-        'min_playtime_minutes',
-        'max_playtime_minutes',
-        'complexity_weight',
-        'bgg_rating',
-        'bgg_rating_count',
-        'bgg_rank',
-        'first_edition',
-        'toy_subtype',
-        'toy_type',
-        'display_title',
         'artist',
         'sort_title',
         'original_release_date',
         'title',
-        'original_title',
-        'localized_title',
-        'title_extension',
-        'sort_key',
-        'search_aliases',
-        'item_number',
-        'series_title',
-        'edition_title',
-        'release_date',
+        'release_date'
       ],
       SharedMetadataEditTab.publishing: [
-        'runtime_minutes',
-        'publishers',
-        'imprint',
-        'series_group',
-        'page_count',
-        'first_publication_date',
-        'original_publication_date',
-        'distributor',
-        'edition_statement',
-        'binding',
-        'studio',
-        'production_companies',
         'label',
         'packaging',
-        'publisher',
         'subtitle',
-        'barcode',
-        'variant_name',
+        'barcode'
       ],
-      SharedMetadataEditTab.technical: [
-        'color',
-        'nr_discs',
-        'screen_ratio',
-        'audio_tracks',
-        'subtitles',
-        'layers',
-        'dimensions',
-        'audio_length_minutes',
-        'extra',
-        'box_set',
-        'catalog_number',
-        'release_status',
-      ],
-      SharedMetadataEditTab.regional: [
-        'languages',
-        'original_language',
-        'region',
-        'country',
-        'language',
-        'age_rating',
-        'audience_rating',
-        'series_tags',
-      ],
-      SharedMetadataEditTab.artwork: [
-        'back_cover_image_url',
-        'crossover',
-        'cover_image_url',
-        'thumbnail_image_url',
-        'synopsis',
-        'plot_summary',
-        'plot_description',
-      ],
-      SharedMetadataEditTab.relations: [
-        'genres',
-        'platforms',
-        'identifiers',
-        'contributors',
-        'mechanics',
-        'categories',
-        'families',
-        'expansions',
-        'rankings',
-        'designers',
-        'artists',
-        'themes',
-        'characters',
-        'expansion_for',
-        'subjects',
-        'company_roles',
-        'franchise',
-        'trailer_urls',
-        'external_links',
-      ],
+      SharedMetadataEditTab.technical: ['extra', 'box_set', 'catalog_number'],
+      SharedMetadataEditTab.regional: ['country'],
+      SharedMetadataEditTab.artwork: ['cover_image_url', 'thumbnail_image_url'],
+      SharedMetadataEditTab.relations: ['genres', 'external_links'],
     };
     for (final entry in expectedOrder.entries) {
       final actual = kAdminMetadataScalarFields
@@ -224,9 +140,6 @@ void main() {
       byKey('release_date').hintText,
       'YYYY, YYYY-MM, YYYY-MM-DD, or {"month": 5}',
     );
-    expect(byKey('synopsis').inputType, SharedMetadataFieldInputType.multiline);
-    expect(byKey('synopsis').minLines, 3);
-    expect(byKey('synopsis').maxLines, 5);
     expect(byKey('external_links').maxLines, 6);
     expect(byKey('title').minLines, 1);
   });

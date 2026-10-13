@@ -110,7 +110,7 @@ Future<List<_DevSeedDescriptor>> _discoverDevSeeds() async {
       'found $discoveredKinds',
     );
   }
-  return descriptors;
+  return descriptors.where((descriptor) => descriptor.kind == 'music').toList();
 }
 
 String _renderDatabaseTables(List<_KindTableFile> files) {

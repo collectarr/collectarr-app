@@ -39,17 +39,17 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
-            type: const MovieRegistration(),
+            type: const MusicRegistration(),
             selectedPreset: LibraryFolderPreset.single(
-              'movie.director',
+              'music.artist',
             ),
-            availableModes: libraryGroupModesForType(const MovieRegistration()),
+            availableModes: libraryGroupModesForType(const MusicRegistration()),
             initialPinnedPresets: [
-              LibraryFolderPreset.single('movie.director'),
+              LibraryFolderPreset.single('music.artist'),
             ],
             sidebarVisible: true,
             hasSidebarVisibilityToggle: true,
-            triggerLabel: 'Director',
+            triggerLabel: 'Artist',
           ),
         ),
       ),
@@ -63,14 +63,14 @@ void main() {
     expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
     expect(find.text('Manage Favorites'), findsOneWidget);
     expect(find.text('Favorites'), findsOneWidget);
-    expect(find.text('Cast & Crew'), findsOneWidget);
+    expect(find.text('Credits'), findsOneWidget);
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Personal'), findsOneWidget);
-    expect(find.text('Director'), findsWidgets);
-    expect(find.text('Studios'), findsNothing);
+    expect(find.text('Artist'), findsWidgets);
+    expect(find.text('Labels'), findsNothing);
 
     final selectedRow = tester.widget<LibraryWorkspaceMenuRow>(
-      find.byKey(const ValueKey('groupModeItemRow_movie.director')),
+      find.byKey(const ValueKey('groupModeItemRow_music.artist')),
     );
     expect(selectedRow.backgroundColor, isNot(Colors.transparent));
 
@@ -79,11 +79,8 @@ void main() {
     await tester.tap(mainHeader);
     await tester.pumpAndSettle();
 
-    expect(
-      find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
-      findsOneWidget,
-    );
-    expect(find.text('Studios'), findsOneWidget);
+    expect(find.byKey(const ValueKey('groupModeItemRow_music.artist')),
+        findsNothing);
   });
 
   testWidgets('hidden grouping menu does not offer a show folders toggle', (
@@ -93,9 +90,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
-            type: const MovieRegistration(),
+            type: const MusicRegistration(),
             selectedPreset: null,
-            availableModes: libraryGroupModesForType(const MovieRegistration()),
+            availableModes: libraryGroupModesForType(const MusicRegistration()),
             initialPinnedPresets: const [],
             sidebarVisible: false,
             hasSidebarVisibilityToggle: true,
@@ -106,7 +103,7 @@ void main() {
 
     expect(find.text('No folders'), findsNothing);
     expect(find.text('Show folders'), findsNothing);
-    expect(find.text('Cast & Crew'), findsOneWidget);
+    expect(find.text('Credits'), findsOneWidget);
     expect(find.byIcon(Icons.check), findsNothing);
   });
 
@@ -119,15 +116,15 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: const MovieRegistration(),
+            type: const MusicRegistration(),
             folderPreset: LibraryFolderPreset.single(
-              'movie.director',
+              'music.artist',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
             onChanged: (_) {},
             pinnedFolderPresets: [
-              LibraryFolderPreset.single('movie.director'),
+              LibraryFolderPreset.single('music.artist'),
             ],
             onPinnedPresetsChanged: (value) => savedPresets = value,
           ),
@@ -142,7 +139,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Manage Folder Favorites'), findsOneWidget);
-    expect(find.text('Director'), findsWidgets);
+    expect(find.text('Artist'), findsWidgets);
 
     await tester
         .tap(find.byKey(const ValueKey('folderFavoritesManagerSaveButton')));
@@ -151,7 +148,7 @@ void main() {
     expect(savedPresets, isNotNull);
     expect(
       savedPresets,
-      [LibraryFolderPreset.single('movie.director')],
+      [LibraryFolderPreset.single('music.artist')],
     );
   });
 
@@ -165,9 +162,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: const MovieRegistration(),
+            type: const MusicRegistration(),
             folderPreset: LibraryFolderPreset.single(
-              'movie.director',
+              'music.artist',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -194,9 +191,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: const MovieRegistration(),
+            type: const MusicRegistration(),
             folderPreset: LibraryFolderPreset.single(
-              'movie.director',
+              'music.artist',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -229,9 +226,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: const MovieRegistration(),
+            type: const MusicRegistration(),
             folderPreset: LibraryFolderPreset(
-              modes: ['movie.director', 'movie.publisher'],
+              modes: ['music.artist', 'music.publisher'],
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -241,7 +238,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Director / Studios'), findsOneWidget);
+    expect(find.text('Artist / Label'), findsOneWidget);
   });
 
   testWidgets('group mode button stays quiet when its slot is too narrow', (
@@ -253,8 +250,8 @@ void main() {
           body: SizedBox(
             width: 20,
             child: LibraryGroupModeMenuButton(
-              type: const MovieRegistration(),
-              folderPreset: LibraryFolderPreset.single('movie.director'),
+              type: const MusicRegistration(),
+              folderPreset: LibraryFolderPreset.single('music.artist'),
               accent: Colors.cyan,
               icon: Icons.account_tree_outlined,
               onChanged: (_) {},
@@ -265,7 +262,7 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Director'), findsNothing);
+    expect(find.text('Artist'), findsNothing);
   });
 
   testWidgets('group mode button opens menu on hover', (tester) async {
@@ -273,9 +270,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: const MovieRegistration(),
+            type: const MusicRegistration(),
             folderPreset: LibraryFolderPreset.single(
-              'movie.director',
+              'music.artist',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -288,8 +285,8 @@ void main() {
     await tester.tap(find.byTooltip('Group by'));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('groupModeSectionLevelBar_Cast & Crew')),
-        findsOneWidget);
+    expect(find.text('Credits'), findsOneWidget);
+    expect(find.text('Manage Favorites'), findsOneWidget);
   });
 
   testWidgets(
@@ -302,9 +299,9 @@ void main() {
           body: Align(
             alignment: Alignment.topLeft,
             child: LibraryGroupModeMenuButton(
-              type: const MovieRegistration(),
+              type: const MusicRegistration(),
               folderPreset: LibraryFolderPreset.single(
-                'movie.director',
+                'music.artist',
               ),
               accent: Colors.cyan,
               icon: Icons.account_tree_outlined,
@@ -318,7 +315,7 @@ void main() {
     await tester.tap(find.byTooltip('Group by'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Cast & Crew'), findsOneWidget);
+    expect(find.text('Credits'), findsOneWidget);
 
     await tester.tapAt(const Offset(700, 500));
     await tester.pumpAndSettle();
@@ -327,18 +324,18 @@ void main() {
         find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsNothing);
   });
 
-  testWidgets('comic group mode dropdown uses CLZ-like section taxonomy', (
+  testWidgets('Music grouping offers catalog, credits and personal sections', (
     tester,
   ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
-            type: const ComicRegistration(),
-            selectedPreset: LibraryFolderPreset.single('comic.publisher'),
-            availableModes: libraryGroupModesForType(const ComicRegistration()),
+            type: const MusicRegistration(),
+            selectedPreset: LibraryFolderPreset.single('music.publisher'),
+            availableModes: libraryGroupModesForType(const MusicRegistration()),
             initialPinnedPresets: [
-              LibraryFolderPreset.single('comic.series'),
+              LibraryFolderPreset.single('music.artist'),
             ],
           ),
         ),
@@ -347,8 +344,8 @@ void main() {
 
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Personal'), findsOneWidget);
-    expect(find.text('Publisher'), findsWidgets);
-    expect(find.text('Series'), findsWidgets);
+    expect(find.text('Label'), findsWidgets);
+    expect(find.text('Credits'), findsOneWidget);
 
     expect(find.text('Locations'), findsNothing);
   });

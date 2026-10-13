@@ -37,7 +37,6 @@ final gameKindIdentity = const LibraryKindIdentity(
 );
 
 final gameKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: GameCatalogMetadata.fromJson,
   catalogTransportCodec: GameCatalogTransportCodec(),
   searchQueryBuilder: gameMetadataSearchQuery,
 );

@@ -38,7 +38,6 @@ final comicKindIdentity = const LibraryKindIdentity(
 );
 
 final comicKindMetadata = LibraryMetadataCapability(
-  catalogMetadataDecoder: ComicCatalogItem.fromJson,
   catalogTransportCodec: ComicCatalogTransportCodec(),
   searchQueryBuilder: comicMetadataSearchQuery,
   supportsServerCompare: true,

@@ -6,7 +6,7 @@ QueryExecutor openConnection() {
   return LazyDatabase(() async {
     final sqlite3 = await WasmSqlite3.loadFromUrl(Uri.parse('sqlite3.wasm'));
     final fileSystem = await IndexedDbFileSystem.open(
-      dbName: 'collectarr-library-sqlite3',
+      dbName: 'collectarr-app-library',
     );
 
     sqlite3.registerVirtualFileSystem(fileSystem, makeDefault: true);

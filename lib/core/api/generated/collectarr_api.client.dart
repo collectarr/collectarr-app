@@ -164,7 +164,7 @@ class CollectarrApiClient {
     final response = await _dio.post<Map<String, dynamic>>(
       '/api/v1/metadata/proposals',
       data: {
-        'schema_version': 'v2',
+        'schema_version': 'v1',
         'kind': kind,
         'catalog_item': catalogItem,
       },

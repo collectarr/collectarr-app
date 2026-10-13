@@ -4,5 +4,6 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_i
 
 LibraryKindImportCapability libraryImportForKind(CatalogMediaKind kind) {
   return collectarrKindImports[kind] ??
-      collectarrKindImports[CatalogMediaKind.music]!;
+      (throw ArgumentError(
+          'No import capability registered for ${kind.apiValue}.'));
 }

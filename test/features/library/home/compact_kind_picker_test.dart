@@ -11,33 +11,9 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   final types = [
     const CatalogMediaType(
-      kind: 'comic',
-      singularLabel: 'Comic',
-      pluralLabel: 'Comics',
-    ),
-    const CatalogMediaType(
-      kind: 'manga',
-      singularLabel: 'Manga',
-      pluralLabel: 'Manga',
-    ),
-    const CatalogMediaType(
-      kind: 'movie',
-      singularLabel: 'Movie',
-      pluralLabel: 'Movies',
-    ),
-    const CatalogMediaType(
-      kind: 'book',
-      singularLabel: 'Book',
-      pluralLabel: 'Books',
-    ),
+        kind: 'music', singularLabel: 'Album', pluralLabel: 'Albums')
   ];
-
-  final counts = {
-    'comic': const LibraryKindCount(entry: 42, wishlist: 5),
-    'manga': const LibraryKindCount(entry: 12, wishlist: 0),
-    'movie': const LibraryKindCount(entry: 8, wishlist: 2),
-    'book': const LibraryKindCount(entry: 0, wishlist: 0),
-  };
+  final counts = {'music': const LibraryKindCount(entry: 42, wishlist: 5)};
 
   testWidgets('CompactLibraryKindPicker renders active kind and count',
       (tester) async {
@@ -47,14 +23,14 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryAccentScope(
-            kind: 'comic',
+            kind: 'music',
             accent: Colors.deepOrange,
             animationsEnabled: true,
             child: CompactLibraryKindPicker(
               types: types,
               counts: counts,
               registry: defaultLibraryKindRegistry,
-              selectedKind: 'comic',
+              selectedKind: 'music',
               onSelected: (type) => selected = type,
             ),
           ),
@@ -62,7 +38,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Comics'), findsOneWidget);
+    expect(find.text('Music'), findsOneWidget);
     expect(find.text('42'), findsOneWidget);
 
     // Tap to open sheet
@@ -70,16 +46,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Switch Library'), findsOneWidget);
-    expect(find.text('Manga'), findsOneWidget);
-    expect(find.text('Movies'), findsOneWidget);
-    expect(find.text('Books'), findsOneWidget);
-
-    // Tap Movies
-    await tester.tap(find.byKey(const ValueKey('kind_picker_item_movie')));
+    expect(find.text('Manga'), findsNothing);
+    expect(find.text('Movies'), findsNothing);
+    expect(find.text('Books'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('kind_picker_item_music')));
     await tester.pumpAndSettle();
 
-    expect(selected, isNotNull);
-    expect(selected!.kind, 'movie');
+    expect(selected, isNull);
+    expect(find.text('Switch Library'), findsNothing);
   });
 
   testWidgets(
@@ -94,7 +68,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAccentScope(
-              kind: 'comic',
+              kind: 'music',
               accent: Colors.deepOrange,
               animationsEnabled: true,
               child: MediaLibraryNav(
@@ -102,7 +76,7 @@ void main() {
                 counts: counts,
                 selectedLabel: 'Comics',
                 registry: defaultLibraryKindRegistry,
-                selectedKind: 'comic',
+                selectedKind: 'music',
                 onSelected: (_) {},
               ),
             ),

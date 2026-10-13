@@ -15,7 +15,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryAccentScope(
-            kind: 'comic',
+            kind: 'music',
             accent: Colors.deepOrange,
             animationsEnabled: true,
             child: ViewAndOrganizeSheet(
@@ -58,7 +58,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryAccentScope(
-            kind: 'comic',
+            kind: 'music',
             accent: Colors.deepOrange,
             animationsEnabled: true,
             child: Builder(

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_target_vocabulary.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
@@ -21,7 +22,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_work
 
 final Map<CatalogMediaKind, MediaTrackingProfile>
     collectarrKindTrackingProfiles =
-    Map.unmodifiable(<CatalogMediaKind, MediaTrackingProfile>{
+    releasedKindContributions(<CatalogMediaKind, MediaTrackingProfile>{
   CatalogMediaKind.anime: animeKindTrackingProfile,
   CatalogMediaKind.boardgame: boardGameKindTrackingProfile,
   CatalogMediaKind.book: bookKindTrackingProfile,
@@ -35,7 +36,7 @@ final Map<CatalogMediaKind, MediaTrackingProfile>
 
 final Map<CatalogMediaKind, LibraryTrackingTopology>
     collectarrKindTrackingTopologies =
-    Map.unmodifiable(<CatalogMediaKind, LibraryTrackingTopology>{
+    releasedKindContributions(<CatalogMediaKind, LibraryTrackingTopology>{
   CatalogMediaKind.anime: animeKindTrackingTopology,
   CatalogMediaKind.boardgame: boardGameKindTrackingTopology,
   CatalogMediaKind.book: bookKindTrackingTopology,
@@ -49,7 +50,7 @@ final Map<CatalogMediaKind, LibraryTrackingTopology>
 
 final Map<CatalogMediaKind, LibraryHierarchyCapability>
     collectarrKindHierarchies =
-    Map.unmodifiable(<CatalogMediaKind, LibraryHierarchyCapability>{
+    releasedKindContributions(<CatalogMediaKind, LibraryHierarchyCapability>{
   CatalogMediaKind.anime: animeKindHierarchy,
   CatalogMediaKind.movie: movieKindHierarchy,
   CatalogMediaKind.music: musicKindHierarchy,
@@ -58,7 +59,7 @@ final Map<CatalogMediaKind, LibraryHierarchyCapability>
 
 final Map<CatalogMediaKind, LibraryTargetVocabulary>
     collectarrKindEntityVocabularies =
-    Map.unmodifiable(<CatalogMediaKind, LibraryTargetVocabulary>{
+    releasedKindContributions(<CatalogMediaKind, LibraryTargetVocabulary>{
   CatalogMediaKind.anime: animeKindEntityVocabulary,
   CatalogMediaKind.boardgame: boardGameKindEntityVocabulary,
   CatalogMediaKind.book: bookKindEntityVocabulary,
@@ -72,7 +73,7 @@ final Map<CatalogMediaKind, LibraryTargetVocabulary>
 
 final Map<CatalogMediaKind, LibraryInspectorCapability>
     collectarrKindInspectors =
-    Map.unmodifiable(<CatalogMediaKind, LibraryInspectorCapability>{
+    releasedKindContributions(<CatalogMediaKind, LibraryInspectorCapability>{
   CatalogMediaKind.anime: animeKindInspector,
   CatalogMediaKind.boardgame: boardGameKindInspector,
   CatalogMediaKind.book: bookKindInspector,
@@ -85,7 +86,7 @@ final Map<CatalogMediaKind, LibraryInspectorCapability>
 });
 
 final Map<CatalogMediaKind, LibraryKindToolbarModule?> collectarrKindToolbars =
-    Map.unmodifiable(<CatalogMediaKind, LibraryKindToolbarModule?>{
+    releasedKindContributions(<CatalogMediaKind, LibraryKindToolbarModule?>{
   CatalogMediaKind.anime: animeKindToolbar as LibraryKindToolbarModule?,
   CatalogMediaKind.boardgame: boardGameKindToolbar as LibraryKindToolbarModule?,
   CatalogMediaKind.book: bookKindToolbar as LibraryKindToolbarModule?,
@@ -99,7 +100,7 @@ final Map<CatalogMediaKind, LibraryKindToolbarModule?> collectarrKindToolbars =
 
 final Map<CatalogMediaKind, List<LibrarySearchTarget>>
     collectarrKindSearchTargetOptions =
-    Map.unmodifiable(<CatalogMediaKind, List<LibrarySearchTarget>>{
+    releasedKindContributions(<CatalogMediaKind, List<LibrarySearchTarget>>{
   CatalogMediaKind.anime: animeKindSearchTargetOptions,
   CatalogMediaKind.boardgame: boardGameKindSearchTargetOptions,
   CatalogMediaKind.book: bookKindSearchTargetOptions,
@@ -113,7 +114,7 @@ final Map<CatalogMediaKind, List<LibrarySearchTarget>>
 
 final Map<CatalogMediaKind, LibraryWorkspaceViewProfile>
     collectarrKindViewProfiles =
-    Map.unmodifiable(<CatalogMediaKind, LibraryWorkspaceViewProfile>{
+    releasedKindContributions(<CatalogMediaKind, LibraryWorkspaceViewProfile>{
   CatalogMediaKind.anime: animeKindViewProfile,
   CatalogMediaKind.boardgame: boardGameKindViewProfile,
   CatalogMediaKind.book: bookKindViewProfile,

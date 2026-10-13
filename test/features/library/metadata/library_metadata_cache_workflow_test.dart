@@ -1,0 +1,73 @@
+import '../../../support/fakes/music_catalog_api_fake.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('search workflow caches metadata results', () async {
+    final api = MusicCatalogApiFake(
+        searchId: 'music-search-1', barcodeId: (code) => 'music-$code');
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final items = await searchAndCacheLibraryMetadata(
+      api: api,
+      kind: musicKindIdentity.kind,
+      catalog: CatalogTransportRepository(db),
+      input: const MetadataSearchQuery(
+        query: 'Batman',
+        issueNumber: '1',
+        limit: 25,
+      ),
+    );
+    final rows = await CatalogSnapshotRepository(db).findAll();
+
+    expect(api.lastSearchQuery?.kind, 'music');
+    expect(api.lastSearchQuery?.query, 'Batman');
+    expect(api.lastSearchQuery?.issueNumber, isNull);
+    expect(api.lastSearchQuery?.limit, 25);
+    expect(items.single.reference.id, 'music-search-1');
+    expect(rows.single.id, 'music-search-1');
+  });
+
+  test('barcode workflow caches matches and reports misses', () async {
+    final api = MusicCatalogApiFake(
+        searchId: 'music-search-1', barcodeId: (code) => 'music-$code');
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final seen = <LibraryBarcodeLookupResult>[];
+
+    final results = await lookupAndCacheLibraryBarcodes(
+      api: api,
+      kind: musicKindIdentity.kind,
+      catalog: CatalogTransportRepository(db),
+      codes: const ['012345678905', '000000000000'],
+      onResult: seen.add,
+    );
+    final rows = await CatalogSnapshotRepository(db).findAll();
+
+    expect(results.length, 2);
+    expect(results.first.found, isTrue);
+    expect(results.last.found, isFalse);
+    expect(seen.map((result) => result.code), [
+      '012345678905',
+      '000000000000',
+    ]);
+    expect(rows.single.id, 'music-012345678905');
+  });
+
+  test('search input detects blank requests', () {
+    expect(const MetadataSearchQuery().isEmpty, isTrue);
+    expect(
+      const MetadataSearchQuery(query: '   ', barcode: '').isEmpty,
+      isTrue,
+    );
+    expect(const MetadataSearchQuery(series: 'Batman').isEmpty, isFalse);
+    expect(const MetadataSearchQuery(year: 2024).isEmpty, isFalse);
+  });
+}

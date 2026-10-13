@@ -81,7 +81,6 @@ final animeKindIdentity = const LibraryKindIdentity(
 );
 
 final animeKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: AnimeMetadata.fromJson,
   catalogTransportCodec: AnimeCatalogTransportCodec(),
   searchQueryBuilder: animeMetadataSearchQuery,
 );

@@ -28,8 +28,22 @@ void main() {
     return;
   }
 
+  // Ownership checks cover dormant source modules too: disabling a release
+  // kind must not allow its fields to leak into shared production code.
+  final sourceKinds = Directory(p.join(repoRoot, 'lib/features/library/kinds'))
+      .listSync()
+      .whereType<Directory>()
+      .map((directory) => p.basename(directory.path))
+      .where((kind) => File(p.join(repoRoot, 'lib/features/library/kinds', kind,
+              '${kind}_module.dart'))
+          .existsSync())
+      .toList()
+    ..sort();
+  if (!sourceKinds.toSet().containsAll(activeKinds.cast<String>())) {
+    throw StateError('A released kind is missing its source module.');
+  }
   final kinds = <String, Object?>{};
-  for (final kind in activeKinds.cast<String>()..sort()) {
+  for (final kind in sourceKinds) {
     kinds[kind] = _buildKindManifest(repoRoot, kind);
   }
 
@@ -289,9 +303,10 @@ class _LibraryFieldIdCollector extends RecursiveAstVisitor<void> {
     super.visitMethodInvocation(node);
   }
 
-  void _addFieldId(List<Expression> arguments, String source) {
+  void _addFieldId(List<Argument> arguments, String source) {
     if (arguments.isEmpty) return;
-    final value = _resolveStringValue(arguments.first, stringConstants);
+    final value = _resolveStringValue(
+        arguments.first.argumentExpression, stringConstants);
     if (value == null) {
       throw FormatException(
         'Cannot resolve LibraryFieldId value "${arguments.first}".',
@@ -369,13 +384,13 @@ class _MapperAliasCollector extends RecursiveAstVisitor<void> {
   final Map<String, Set<String>> aliases;
 
   @override
-  void visitNamedExpression(NamedExpression node) {
+  void visitNamedArgument(NamedArgument node) {
     final namedArgument =
-        RegExp(r'^([A-Za-z_]\w*)').firstMatch(node.name.toSource());
+        RegExp(r'^([A-Za-z_]\w*)').firstMatch(node.name.lexeme);
     if (namedArgument != null) {
       final name = namedArgument.group(1)!;
       final propertyCollector = _PropertyNameCollector();
-      node.expression.accept(propertyCollector);
+      node.argumentExpression.accept(propertyCollector);
       final properties = propertyCollector.names;
 
       if (databaseColumns.contains(name)) {
@@ -389,7 +404,7 @@ class _MapperAliasCollector extends RecursiveAstVisitor<void> {
         }
       }
     }
-    super.visitNamedExpression(node);
+    super.visitNamedArgument(node);
   }
 }
 

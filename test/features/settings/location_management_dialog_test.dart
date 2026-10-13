@@ -5,7 +5,7 @@ import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 
-import '../../helpers/test_constants.dart';
+import '../../support/fixtures/test_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

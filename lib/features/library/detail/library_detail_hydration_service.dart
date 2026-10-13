@@ -21,7 +21,6 @@ final class LibraryDetailHydrationService {
     final candidate = candidateBuilder == null
         ? CatalogSearchCandidate.fromApiJson(
             json: json,
-            metadataDecoder: metadata.catalogMetadataDecoder,
             summaryBuilder: summarizeCatalogTransportPayload,
           )
         : candidateBuilder(json);

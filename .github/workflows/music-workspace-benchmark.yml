@@ -1,0 +1,28 @@
+name: Music workspace benchmark
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+      - name: Install locked dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Measure 1000 and 5000 album workspaces
+        run: flutter test benchmark/music_workspace_benchmark.dart --enable-vmservice --no-dds --reporter expanded
+      - name: Save measurements
+        uses: actions/upload-artifact@v4
+        with:
+          name: music-workspace-benchmark
+          path: build/benchmarks/music-workspace.json
+          if-no-files-found: error

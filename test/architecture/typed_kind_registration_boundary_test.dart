@@ -87,17 +87,7 @@ void main() {
           'Drift table composition and development seed contributor lists'),
     );
 
-    const activeKinds = <CatalogMediaKind>{
-      CatalogMediaKind.anime,
-      CatalogMediaKind.boardgame,
-      CatalogMediaKind.book,
-      CatalogMediaKind.comic,
-      CatalogMediaKind.game,
-      CatalogMediaKind.manga,
-      CatalogMediaKind.movie,
-      CatalogMediaKind.music,
-      CatalogMediaKind.tv,
-    };
+    const activeKinds = <CatalogMediaKind>{CatalogMediaKind.music};
     expect(libraryCalendarContributorsByKind.keys, containsAll(activeKinds));
     expect(libraryBarcodeResolversByKind.keys, containsAll(activeKinds));
     expect(libraryAdminContributorsByKind.keys, containsAll(activeKinds));
@@ -143,7 +133,7 @@ void main() {
       catalogRegistrySource,
       isNot(contains('CatalogKindTransportCodec<Object?>')),
     );
-    expect(libraryCatalogTransportCodecs, hasLength(9));
+    expect(libraryCatalogTransportCodecs, hasLength(1));
     expect(
       libraryCatalogTransportCodecs,
       everyElement(isNotNull),
@@ -152,17 +142,7 @@ void main() {
 
   test('generated registrations dispatch through concrete kind types', () {
     final source = File(registrationsPath).readAsStringSync();
-    const registrations = <String, String>{
-      'anime': 'AnimeRegistration',
-      'boardgame': 'BoardgameRegistration',
-      'book': 'BookRegistration',
-      'comic': 'ComicRegistration',
-      'game': 'GameRegistration',
-      'manga': 'MangaRegistration',
-      'movie': 'MovieRegistration',
-      'music': 'MusicRegistration',
-      'tv': 'TvRegistration',
-    };
+    const registrations = <String, String>{'music': 'MusicRegistration'};
     for (final entry in registrations.entries) {
       expect(source, contains('${entry.value}(),'));
       expect(source, contains('CatalogMediaKind.${entry.key}'));
@@ -172,17 +152,7 @@ void main() {
       'lib/features/library/entries/entry_kind_contributor_registry.dart',
     ).readAsStringSync();
     expect(entrySource, contains('collectarrEntryKindContributors'));
-    for (final contributor in [
-      'animeEntryContributor',
-      'boardGameEntryContributor',
-      'bookEntryContributor',
-      'comicEntryContributor',
-      'gameEntryContributor',
-      'mangaEntryContributor',
-      'movieEntryContributor',
-      'musicEntryContributor',
-      'tvEntryContributor',
-    ]) {
+    for (final contributor in ['musicEntryContributor']) {
       expect(entrySource, contains(contributor));
     }
   });
@@ -262,20 +232,10 @@ void main() {
   });
 
   test('generated registrations are keyed by their concrete kind', () {
-    expect(collectarrKindRegistrations, hasLength(9));
+    expect(collectarrKindRegistrations, hasLength(1));
     expect(
       collectarrKindRegistrations.keys,
-      containsAll(<CatalogMediaKind>[
-        CatalogMediaKind.anime,
-        CatalogMediaKind.boardgame,
-        CatalogMediaKind.book,
-        CatalogMediaKind.comic,
-        CatalogMediaKind.game,
-        CatalogMediaKind.manga,
-        CatalogMediaKind.movie,
-        CatalogMediaKind.music,
-        CatalogMediaKind.tv,
-      ]),
+      equals(<CatalogMediaKind>{CatalogMediaKind.music}),
     );
     for (final entry in collectarrKindRegistrations.entries) {
       expect(entry.value.kind, entry.key);

@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 QueryExecutor openConnection() {
   return LazyDatabase(() async {
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await getApplicationSupportDirectory();
     final file = File(p.join(dir.path, 'collectarr-library.sqlite'));
     return NativeDatabase.createInBackground(file);
   });

@@ -49,7 +49,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   }
 
   void _replaceLibraryKind(String kind) {
-    final normalized = canonicalLibraryNavKind(kind) ?? 'comic';
+    final normalized = canonicalLibraryNavKind(kind) ?? 'music';
     final previousKind = ref.read(selectedLibraryKindProvider);
     final uiPreferences = ref.read(uiPreferencesProvider);
     final switchAnimationDuration = uiPreferences.animationsEnabled &&

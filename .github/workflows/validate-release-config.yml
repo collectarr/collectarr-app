@@ -48,5 +48,5 @@ jobs:
           METADATA_BASE_URL: https://example.collectarr.local
         run: |
           flutter pub get --enforce-lockfile
-          dart run build_runner build --delete-conflicting-outputs
+          dart run build_runner build
           flutter build web --release --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL

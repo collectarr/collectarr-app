@@ -1,0 +1,103 @@
+import '../../../../../../support/contracts/collection_csv_contract.dart';
+import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
+import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_projection.dart';
+import 'package:flutter_test/flutter_test.dart';
+import '../../../../../../support/builders/catalog_item_builder.dart';
+
+void main() {
+  test('Book import profile owns ISBN and edition aliases', () {
+    final profile = const BookCollectionCsvImportProfile();
+    final cells = profile.importCatalogCells(
+      header: const [
+        'Media Type',
+        'Collectarr Item ID',
+        'Title',
+        'Edition no.',
+        'Edition / Binding',
+        'Edition Title',
+        'Physical Format',
+        'Physical Format Label',
+        'Publisher',
+        'Release Date',
+        'ISBN / Barcode',
+      ],
+      values: const [
+        'Book',
+        'book-1',
+        'The Hobbit',
+        '1',
+        'Hardcover',
+        'First edition',
+        'hardcover',
+        'Hardcover',
+        'Allen & Unwin',
+        '09/21/1937',
+        '9780261102217',
+      ],
+    );
+
+    expect(cells, [
+      'book-1',
+      'Book',
+      'The Hobbit',
+      '1',
+      'Hardcover',
+      'First edition',
+      'hardcover',
+      'Hardcover',
+      'Allen & Unwin',
+      '09/21/1937',
+      '9780261102217',
+    ]);
+    expect(
+      profile.importEntryCells(
+        header: const ['Media Type'],
+        values: const ['Book'],
+      ),
+      hasLength(9),
+    );
+  });
+
+  test('projects Book catalog cells with edition semantics', () {
+    final projection = const BookCollectionCsvProjection();
+    final entry = collectionCsvFixture(
+      catalog: testCatalogItem(
+        id: 'book-1',
+        kind: 'book',
+        title: 'The Hobbit',
+        itemNumber: '1',
+        editionTitle: 'First edition',
+        physicalFormat: 'Hardcover',
+        publisher: 'Allen & Unwin',
+        releaseDate: DateTime.utc(1937, 9, 21),
+        barcode: '9780261102217',
+        payload: const {'variant_name': 'Hardcover'},
+      ),
+    );
+
+    verifyCollectionCsvCatalogContract(
+        projection: projection,
+        fixture: entry,
+        expectedCells: [
+          'book-1',
+          'book',
+          'The Hobbit',
+          '1',
+          'Hardcover',
+          'First edition',
+          'Hardcover',
+          'Hardcover',
+          'Allen & Unwin',
+          '1937-09-21',
+          '9780261102217',
+        ]);
+    expect(
+      projection.entryCellsBeforeLocation(entry, clzFriendly: false),
+      isEmpty,
+    );
+    expect(
+      projection.entryCellsAfterIndex(entry, clzFriendly: false),
+      everyElement(isEmpty),
+    );
+  });
+}

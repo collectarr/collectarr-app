@@ -139,13 +139,9 @@ final class CatalogSearchCandidate {
   /// transport object unless the user selects the candidate.
   factory CatalogSearchCandidate.fromApiJson({
     required Map<String, dynamic> json,
-    JsonEncodable Function(JsonMap payload)? metadataDecoder,
     CatalogDisplaySummary Function(CatalogItemDto item)? summaryBuilder,
   }) {
-    var item = CatalogItemDto.fromJson(json);
-    if (metadataDecoder != null) {
-      item = item.replacingKindData(metadataDecoder(item.payload));
-    }
+    final item = CatalogItemDto.fromJson(json);
     return CatalogSearchCandidate.fromTransport(
       item: item,
       summary:

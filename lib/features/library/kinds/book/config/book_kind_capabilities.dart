@@ -54,7 +54,6 @@ final bookKindIdentity = const LibraryKindIdentity(
 );
 
 final bookKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: BookCatalogMetadata.fromJson,
   catalogTransportCodec: BookCatalogTransportCodec(),
   searchQueryBuilder: bookMetadataSearchQuery,
 );

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'dart:io';
 import 'package:collectarr_app/dev/seeds/music_inspector_reference_seed.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -6,12 +7,11 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +19,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../helpers/test_constants.dart';
-import '../../helpers/test_data_factories.dart';
+import '../../support/fixtures/test_constants.dart';
+import '../../support/builders/catalog_item_builder.dart';
+import '../../support/fixtures/music_fixtures.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 
 void main() {
   testWidgets('loan manager renders on desktop and filters loans',
@@ -35,21 +37,17 @@ void main() {
     addTearDown(db.close);
 
     await CatalogTransportRepository(db).upsertTransportItems([
-      testCatalogItemFromJson({
-        'id': 'comic-1',
-        'kind': 'comic',
-        'title': 'Action Comics #1',
-      }),
+      testCatalogItem(id: 'comic-1', kind: 'music', title: 'Action Comics #1'),
     ]);
-    await ComicEntryRepository(db).upsert(
-      testComicLibraryEntryFrom(testLibraryEntry(
+    await MusicEntryRepository(db).upsert(
+      musicLibraryEntryFixture(
         id: 'entry-1',
-        itemId: 'comic-1',
-        kind: 'comic',
-        catalogTitle: 'Action Comics #1',
-        condition: 'Near Mint',
+        metadata: musicAlbumFixture(title: 'Action Comics #1'),
+        sourceCatalogRef:
+            const CatalogItemRef(kind: CatalogMediaKind.music, id: 'comic-1'),
+        personal: const MusicPersonalData(condition: 'Near Mint'),
         updatedAt: DateTime.utc(2026, 5, 1),
-      )),
+      ),
     );
 
     final loanRepo = LoanRepository(db);
@@ -57,7 +55,7 @@ void main() {
       Loan(
         id: 'loan-1',
         libraryEntryRef: const LibraryEntryRef(
-          kind: CatalogMediaKind.comic,
+          kind: CatalogMediaKind.music,
           id: LibraryEntryId('entry-1'),
         ),
         borrowerName: 'Alice',
@@ -135,21 +133,18 @@ void main() {
     addTearDown(db.close);
 
     await CatalogTransportRepository(db).upsertTransportItems([
-      testCatalogItemFromJson({
-        'id': 'comic-2',
-        'kind': 'comic',
-        'title': 'Detective Comics #27',
-      }),
+      testCatalogItem(
+          id: 'comic-2', kind: 'music', title: 'Detective Comics #27'),
     ]);
-    await ComicEntryRepository(db).upsert(
-      testComicLibraryEntryFrom(testLibraryEntry(
+    await MusicEntryRepository(db).upsert(
+      musicLibraryEntryFixture(
         id: 'entry-2',
-        itemId: 'comic-2',
-        kind: 'comic',
-        catalogTitle: 'Detective Comics #27',
-        condition: 'Near Mint',
+        metadata: musicAlbumFixture(title: 'Detective Comics #27'),
+        sourceCatalogRef:
+            const CatalogItemRef(kind: CatalogMediaKind.music, id: 'comic-2'),
+        personal: const MusicPersonalData(condition: 'Near Mint'),
         updatedAt: DateTime.utc(2026, 5, 1),
-      )),
+      ),
     );
 
     final loanRepo = LoanRepository(db);
@@ -157,7 +152,7 @@ void main() {
       Loan(
         id: 'loan-2',
         libraryEntryRef: const LibraryEntryRef(
-          kind: CatalogMediaKind.comic,
+          kind: CatalogMediaKind.music,
           id: LibraryEntryId('entry-2'),
         ),
         borrowerName: 'Bob',

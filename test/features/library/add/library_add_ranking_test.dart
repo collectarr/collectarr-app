@@ -1,0 +1,221 @@
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import '../../../support/builders/catalog_item_builder.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+const _publisherFilterId = LibraryAddFilterId('test.publisher');
+const _yearFilterId = LibraryAddFilterId('test.year');
+const _issueFilterId = LibraryAddFilterId('test.issue');
+
+final _ranking = buildLibraryAddSearchRanking(
+  fields: [
+    LibraryAddSearchRankField(
+      id: _publisherFilterId,
+      exactWeight: 60,
+      containsWeight: 24,
+      metadataValues: (item) => [
+        item.kindCapability
+            .mapTransport((transport) => transport)
+            .payload['label']
+      ],
+    ),
+    LibraryAddSearchRankField(
+      id: _yearFilterId,
+      exactWeight: 55,
+      containsWeight: 20,
+      metadataValues: (item) => [
+        (item.kindCapability.toImportTransport().payload['release_date']
+            as Map?)?['year']
+      ],
+    ),
+    LibraryAddSearchRankField(
+      id: _issueFilterId,
+      exactWeight: 75,
+      containsWeight: 36,
+      metadataValues: (item) => [
+        item.kindCapability
+            .mapTransport((transport) => transport)
+            .payload['catalog_number']
+      ],
+    ),
+  ],
+);
+
+LibraryAddSearchContext _context({
+  String query = '',
+  Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilters = const {},
+}) {
+  return LibraryAddSearchContext(
+    query: query,
+    advancedFilters: advancedFilters,
+  );
+}
+
+void main() {
+  group('LibraryAddSearchContext', () {
+    test('reports no input when query and filters are empty', () {
+      expect(_context().hasAnyInput, isFalse);
+    });
+
+    test('reports input when query or an opaque filter is set', () {
+      expect(_context(query: 'spider-man').hasAnyInput, isTrue);
+      expect(
+        _context(
+          advancedFilters: {
+            _yearFilterId: const LibraryAddTextFilterValue('2020'),
+          },
+        ).hasAnyInput,
+        isTrue,
+      );
+    });
+  });
+
+  group('LibraryAddSearchRanking', () {
+    test('returns original list when fewer than 2 items', () {
+      final items = [_item(title: 'Only One')];
+      final result = _ranking.rankMetadata(
+        items,
+        _context(query: 'Saga'),
+      );
+      expect(result, hasLength(1));
+      expect(result.first.summary.primaryLabel, 'Only One');
+    });
+
+    test('returns original list when no search input exists', () {
+      final items = [_item(title: 'A'), _item(title: 'B')];
+      final result = _ranking.rankMetadata(items, _context());
+      expect(result.first.summary.primaryLabel, 'A');
+    });
+
+    test('ranks exact title match above partial match', () {
+      final items = [
+        _item(title: 'Amazing Spider-Man'),
+        _item(title: 'Spider-Man'),
+      ];
+      final result = _ranking.rankMetadata(
+        items,
+        _context(query: 'Spider-Man'),
+      );
+      expect(result.first.summary.primaryLabel, 'Spider-Man');
+    });
+
+    test('ranks matching publisher higher', () {
+      final items = [
+        _item(title: 'Batman', publisher: 'IDW'),
+        _item(title: 'Batman', publisher: 'DC Comics'),
+      ];
+      final result = _ranking.rankMetadata(
+        items,
+        _context(
+          query: 'Batman',
+          advancedFilters: {
+            _publisherFilterId: const LibraryAddTextFilterValue('DC Comics'),
+          },
+        ),
+      );
+      expect(
+          result.first.kindCapability
+              .mapTransport((transport) => transport)
+              .payload['label'],
+          'DC Comics');
+    });
+
+    test('ranks matching year higher', () {
+      final items = [
+        _item(title: 'Saga', releaseYear: 2020),
+        _item(title: 'Saga', releaseYear: 2012),
+      ];
+      final result = _ranking.rankMetadata(
+        items,
+        _context(
+          query: 'Saga',
+          advancedFilters: {
+            _yearFilterId: const LibraryAddTextFilterValue('2012'),
+          },
+        ),
+      );
+      expect(
+          (result.first.kindCapability
+              .toImportTransport()
+              .payload['release_date'] as Map?)?['year'],
+          2012);
+    });
+
+    test('ranks matching issue number higher', () {
+      final items = [
+        _item(title: 'Spawn', itemNumber: '5'),
+        _item(title: 'Spawn', itemNumber: '1'),
+      ];
+      final result = _ranking.rankMetadata(
+        items,
+        _context(
+          query: 'Spawn',
+          advancedFilters: {
+            _issueFilterId: const LibraryAddTextFilterValue('1'),
+          },
+        ),
+      );
+      expect(
+          result.first.kindCapability
+              .mapTransport((transport) => transport)
+              .payload['catalog_number'],
+          '1');
+    });
+  });
+
+  group('filterAndRankCatalogItems', () {
+    test('removes items below minimum score', () {
+      final items = [
+        _item(title: 'Exact Match'),
+        _item(title: 'Completely Different Title'),
+      ];
+      final result = filterAndRankCatalogItems(
+        items,
+        _ranking,
+        _context(query: 'Exact Match'),
+        minimumScore: 50,
+      );
+      expect(result, hasLength(1));
+      expect(result.first.summary.primaryLabel, 'Exact Match');
+    });
+
+    test('returns empty when no items meet threshold', () {
+      final result = filterAndRankCatalogItems(
+        [_item(title: 'Unrelated')],
+        _ranking,
+        _context(query: 'Saga'),
+        minimumScore: 200,
+      );
+      expect(result, isEmpty);
+    });
+
+    test('returns original items when no input is given', () {
+      final result = filterAndRankCatalogItems(
+        [_item(title: 'A'), _item(title: 'B')],
+        _ranking,
+        _context(),
+      );
+      expect(result, hasLength(2));
+    });
+  });
+}
+
+CatalogSearchCandidate _item({
+  required String title,
+  String? publisher,
+  String? itemNumber,
+  int? releaseYear,
+}) {
+  return CatalogSearchCandidate.fromItem(
+    testCatalogItem(
+      id: 'test-${title.hashCode}',
+      kind: 'music',
+      title: title,
+      publisher: publisher,
+      releaseDate: releaseYear == null ? null : DateTime.utc(releaseYear),
+      payload: {if (itemNumber != null) 'catalog_number': itemNumber},
+    ),
+  );
+}

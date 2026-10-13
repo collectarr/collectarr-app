@@ -19580,7 +19580,11 @@ class $$LibraryEntriesTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$LibraryEntriesTable, LibraryEntry>(table),
+                    BaseReferences<_$LocalDatabase, $LibraryEntriesTable,
+                        LibraryEntry>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -19827,7 +19831,8 @@ class $$LibraryCollectionsTableTableManager extends RootTableManager<
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
-                    e.readTable(table),
+                    e.readTable<$LibraryCollectionsTable, LibraryCollection>(
+                        table),
                     $$LibraryCollectionsTableReferences(db, table, e)
                   ))
               .toList(),
@@ -20077,7 +20082,8 @@ class $$LibraryCollectionMembershipsTableTableManager extends RootTableManager<
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
-                    e.readTable(table),
+                    e.readTable<$LibraryCollectionMembershipsTable,
+                        LibraryCollectionMembership>(table),
                     $$LibraryCollectionMembershipsTableReferences(db, table, e)
                   ))
               .toList(),
@@ -20293,7 +20299,12 @@ class $$CatalogItemsCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$CatalogItemsCacheTable, CatalogItemsCacheData>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $CatalogItemsCacheTable,
+                        CatalogItemsCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -20519,7 +20530,12 @@ class $$WishlistItemsCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$WishlistItemsCacheTable,
+                        WishlistItemsCacheData>(table),
+                    BaseReferences<_$LocalDatabase, $WishlistItemsCacheTable,
+                        WishlistItemsCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -20708,7 +20724,11 @@ class $$SyncQueueTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$SyncQueueTable, SyncQueueData>(table),
+                    BaseReferences<_$LocalDatabase, $SyncQueueTable,
+                        SyncQueueData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -20920,7 +20940,14 @@ class $$UserMetadataOverridesCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$UserMetadataOverridesCacheTable,
+                        UserMetadataOverridesCacheData>(table),
+                    BaseReferences<
+                        _$LocalDatabase,
+                        $UserMetadataOverridesCacheTable,
+                        UserMetadataOverridesCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -21132,7 +21159,14 @@ class $$UserExternalLinksCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$UserExternalLinksCacheTable,
+                        UserExternalLinksCacheData>(table),
+                    BaseReferences<
+                        _$LocalDatabase,
+                        $UserExternalLinksCacheTable,
+                        UserExternalLinksCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -21357,7 +21391,14 @@ class $$CustomFieldDefinitionsCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$CustomFieldDefinitionsCacheTable,
+                        CustomFieldDefinitionsCacheData>(table),
+                    BaseReferences<
+                        _$LocalDatabase,
+                        $CustomFieldDefinitionsCacheTable,
+                        CustomFieldDefinitionsCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -21554,7 +21595,14 @@ class $$CustomFieldValuesCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$CustomFieldValuesCacheTable,
+                        CustomFieldValuesCacheData>(table),
+                    BaseReferences<
+                        _$LocalDatabase,
+                        $CustomFieldValuesCacheTable,
+                        CustomFieldValuesCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -21763,7 +21811,12 @@ class $$ItemImagesCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$ItemImagesCacheTable, ItemImagesCacheData>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $ItemImagesCacheTable,
+                        ItemImagesCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -21969,7 +22022,11 @@ class $$LoansCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$LoansCacheTable, LoansCacheData>(table),
+                    BaseReferences<_$LocalDatabase, $LoansCacheTable,
+                        LoansCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -22143,7 +22200,12 @@ class $$LocationsCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$LocationsCacheTable, LocationsCacheData>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $LocationsCacheTable,
+                        LocationsCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -22304,7 +22366,12 @@ class $$SmartListsCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$SmartListsCacheTable, SmartListsCacheData>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $SmartListsCacheTable,
+                        SmartListsCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -22495,7 +22562,12 @@ class $$UserFoldersCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$UserFoldersCacheTable, UserFoldersCacheData>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $UserFoldersCacheTable,
+                        UserFoldersCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -22645,7 +22717,12 @@ class $$UserFolderItemsCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$UserFolderItemsCacheTable,
+                        UserFolderItemsCacheData>(table),
+                    BaseReferences<_$LocalDatabase, $UserFolderItemsCacheTable,
+                        UserFolderItemsCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -22795,7 +22872,12 @@ class $$ReadingQueueCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$ReadingQueueCacheTable, ReadingQueueCacheData>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $ReadingQueueCacheTable,
+                        ReadingQueueCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -23003,7 +23085,12 @@ class $$PickListValuesCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$PickListValuesCacheTable,
+                        PickListValuesCacheData>(table),
+                    BaseReferences<_$LocalDatabase, $PickListValuesCacheTable,
+                        PickListValuesCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -23246,7 +23333,12 @@ class $$SerialAuthorityCacheTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$SerialAuthorityCacheTable,
+                        SerialAuthorityCacheData>(table),
+                    BaseReferences<_$LocalDatabase, $SerialAuthorityCacheTable,
+                        SerialAuthorityCacheData>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -23599,7 +23691,12 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$AnimeTrackingRowsTable, AnimeTrackingRow>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $AnimeTrackingRowsTable,
+                        AnimeTrackingRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -23828,7 +23925,12 @@ class $$AnimeTrackingUnitRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$AnimeTrackingUnitRowsTable,
+                        AnimeTrackingUnitRow>(table),
+                    BaseReferences<_$LocalDatabase, $AnimeTrackingUnitRowsTable,
+                        AnimeTrackingUnitRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -24151,7 +24253,12 @@ class $$AnimeWatchSessionRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$AnimeWatchSessionRowsTable,
+                        AnimeWatchSessionRow>(table),
+                    BaseReferences<_$LocalDatabase, $AnimeWatchSessionRowsTable,
+                        AnimeWatchSessionRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -24462,7 +24569,14 @@ class $$AnimeCustomEpisodeRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$AnimeCustomEpisodeRowsTable,
+                        AnimeCustomEpisodeRow>(table),
+                    BaseReferences<
+                        _$LocalDatabase,
+                        $AnimeCustomEpisodeRowsTable,
+                        AnimeCustomEpisodeRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -24704,7 +24818,14 @@ class $$BoardGamePlaySessionsRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$BoardGamePlaySessionsRowsTable,
+                        BoardGamePlaySessionsRow>(table),
+                    BaseReferences<
+                        _$LocalDatabase,
+                        $BoardGamePlaySessionsRowsTable,
+                        BoardGamePlaySessionsRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -25011,7 +25132,12 @@ class $$BoardGameTrackingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$BoardGameTrackingRowsTable,
+                        BoardGameTrackingRow>(table),
+                    BaseReferences<_$LocalDatabase, $BoardGameTrackingRowsTable,
+                        BoardGameTrackingRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -25241,7 +25367,12 @@ class $$BookTrackingUnitRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$BookTrackingUnitRowsTable,
+                        BookTrackingUnitRow>(table),
+                    BaseReferences<_$LocalDatabase, $BookTrackingUnitRowsTable,
+                        BookTrackingUnitRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -25544,7 +25675,11 @@ class $$BookTrackingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$BookTrackingRowsTable, BookTrackingRow>(table),
+                    BaseReferences<_$LocalDatabase, $BookTrackingRowsTable,
+                        BookTrackingRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -25720,7 +25855,11 @@ class $$ComicReadingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$ComicReadingRowsTable, ComicReadingRow>(table),
+                    BaseReferences<_$LocalDatabase, $ComicReadingRowsTable,
+                        ComicReadingRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -25932,7 +26071,12 @@ class $$ComicTrackingUnitRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$ComicTrackingUnitRowsTable,
+                        ComicTrackingUnitRow>(table),
+                    BaseReferences<_$LocalDatabase, $ComicTrackingUnitRowsTable,
+                        ComicTrackingUnitRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -26236,7 +26380,12 @@ class $$ComicTrackingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$ComicTrackingRowsTable, ComicTrackingRow>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $ComicTrackingRowsTable,
+                        ComicTrackingRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -26537,7 +26686,11 @@ class $$GameTrackingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$GameTrackingRowsTable, GameTrackingRow>(table),
+                    BaseReferences<_$LocalDatabase, $GameTrackingRowsTable,
+                        GameTrackingRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -26766,7 +26919,12 @@ class $$MangaTrackingUnitRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$MangaTrackingUnitRowsTable,
+                        MangaTrackingUnitRow>(table),
+                    BaseReferences<_$LocalDatabase, $MangaTrackingUnitRowsTable,
+                        MangaTrackingUnitRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -27070,7 +27228,12 @@ class $$MangaTrackingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$MangaTrackingRowsTable, MangaTrackingRow>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $MangaTrackingRowsTable,
+                        MangaTrackingRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -27372,7 +27535,12 @@ class $$MovieTrackingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$MovieTrackingRowsTable, MovieTrackingRow>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $MovieTrackingRowsTable,
+                        MovieTrackingRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -27674,7 +27842,12 @@ class $$MusicTrackingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$MusicTrackingRowsTable, MusicTrackingRow>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $MusicTrackingRowsTable,
+                        MusicTrackingRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -27929,7 +28102,12 @@ class $$MusicListenEventsRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$MusicListenEventsRowsTable,
+                        MusicListenEventsRow>(table),
+                    BaseReferences<_$LocalDatabase, $MusicListenEventsRowsTable,
+                        MusicListenEventsRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -28250,7 +28428,12 @@ class $$TvWatchSessionRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$TvWatchSessionRowsTable, TvWatchSessionRow>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $TvWatchSessionRowsTable,
+                        TvWatchSessionRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -28559,7 +28742,12 @@ class $$TvCustomEpisodeRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$TvCustomEpisodeRowsTable, TvCustomEpisodeRow>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $TvCustomEpisodeRowsTable,
+                        TvCustomEpisodeRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -28910,7 +29098,11 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$TvTrackingRowsTable, TvTrackingRow>(table),
+                    BaseReferences<_$LocalDatabase, $TvTrackingRowsTable,
+                        TvTrackingRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));
@@ -29137,7 +29329,12 @@ class $$TvTrackingUnitRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable<$TvTrackingUnitRowsTable, TvTrackingUnitRow>(
+                        table),
+                    BaseReferences<_$LocalDatabase, $TvTrackingUnitRowsTable,
+                        TvTrackingUnitRow>(db, table, e)
+                  ))
               .toList(),
           prefetchHooksCallback: null,
         ));

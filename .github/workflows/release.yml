@@ -118,7 +118,7 @@ jobs:
 
       - name: Generate Drift code
         if: steps.release_context.outputs.release_published == 'true'
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
 
       - name: Build web bundle
         if: steps.release_context.outputs.release_published == 'true'
@@ -190,7 +190,7 @@ jobs:
         run: flutter pub get --enforce-lockfile
 
       - name: Generate Drift code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
 
       - name: Build Android artifacts
         run: |
@@ -222,7 +222,7 @@ jobs:
         run: flutter pub get --enforce-lockfile
 
       - name: Generate Drift code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
 
       - name: Build Windows app
         run: flutter build windows --release --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL
@@ -332,7 +332,7 @@ jobs:
         run: flutter pub get --enforce-lockfile
 
       - name: Generate Drift code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
 
       - name: Build macOS app
         run: flutter build macos --release --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL
@@ -394,7 +394,7 @@ jobs:
         run: flutter pub get --enforce-lockfile
 
       - name: Generate Drift code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
 
       - name: Build Linux app
         run: flutter build linux --release --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL

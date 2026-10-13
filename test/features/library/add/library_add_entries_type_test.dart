@@ -1,0 +1,45 @@
+﻿import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
+import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+
+import '../../../support/widget/library_add_test_harness.dart';
+
+import '../../../support/fixtures/test_constants.dart';
+
+void main() {
+  testWidgets('manual action opens edit modal with save action',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    configureLibraryAddDesktopViewport(tester);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          mediaCatalogProvider
+              .overrideWith((ref) async => fallbackMediaCatalog),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: const MusicRegistration(),
+              autoLookupInitialIdentifier: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Manual'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Add to Collection'), findsWidgets);
+    expect(find.byTooltip('Close'), findsWidgets);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
+}

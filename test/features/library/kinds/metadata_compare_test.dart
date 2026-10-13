@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart'
+    show comicKindMetadata;
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/comic/metadata/comic_metadata_compare.dart';
 import 'package:collectarr_app/features/library/kinds/music/metadata/music_metadata_compare.dart';
@@ -56,10 +58,8 @@ void main() {
     expect(panels.length, 3);
     expect(panels.every((p) => p is MetadataDiffPanel), isTrue);
 
-    expect(libraryMetadataForKind(CatalogMediaKind.comic).supportsServerCompare,
-        isTrue);
-    expect(libraryMetadataForKind(CatalogMediaKind.comic).compareBuilder,
-        isNotNull);
+    expect(comicKindMetadata.supportsServerCompare, isTrue);
+    expect(comicKindMetadata.compareBuilder, isNotNull);
   });
 
   testWidgets('music compare builder builds diff panels with discs',

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_target_action_capability.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
@@ -12,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final Map<CatalogMediaKind, LibraryTargetActionCapability>
     collectarrKindEntityActions =
-    Map.unmodifiable(<CatalogMediaKind, LibraryTargetActionCapability>{
+    releasedKindContributions(<CatalogMediaKind, LibraryTargetActionCapability>{
   CatalogMediaKind.anime: animeKindActions,
   CatalogMediaKind.boardgame: boardGameKindActions,
   CatalogMediaKind.book: bookKindActions,

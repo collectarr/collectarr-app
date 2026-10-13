@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
@@ -13,12 +13,12 @@ import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_voc
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
-import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
+import '../../support/contracts/concrete_kind_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('PR 2: Kind-Entry Vocabularies Verification', () {
+  group('Kind-owned vocabularies', () {
     test(
         'Comic vocabularies have built-ins for grading, page quality, key categories, publisher',
         () {
@@ -142,21 +142,9 @@ void main() {
       );
     });
 
-    test('All 9 kind edit capabilities expose matching vocabulary definitions',
+    test('Active kind edit capabilities expose matching vocabulary definitions',
         () {
-      final kinds = [
-        CatalogMediaKind.comic,
-        CatalogMediaKind.game,
-        CatalogMediaKind.movie,
-        CatalogMediaKind.tv,
-        CatalogMediaKind.anime,
-        CatalogMediaKind.manga,
-        CatalogMediaKind.book,
-        CatalogMediaKind.music,
-        CatalogMediaKind.boardgame,
-      ];
-
-      for (final kind in kinds) {
+      for (final kind in releasedLibraryKinds) {
         final runtime = testKindRegistration(kind);
         expect(runtime.kind, kind, reason: 'Runtime for $kind should exist');
         final vocCapability = libraryEditPresentationForKind(kind).vocabularies;

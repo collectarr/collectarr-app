@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/manga/data/manga_catalog_t
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_catalog_transport_codec.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../../support/builders/catalog_item_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -22,13 +22,13 @@ void main() {
     }
   });
 
-  test('all nine kinds are registered as flat Catalog Item workspaces', () {
-    expect(collectarrKindRegistrationsList, hasLength(9));
+  test('only Music is registered for the first release', () {
+    expect(collectarrKindRegistrationsList, hasLength(1));
     expect(
       collectarrKindRegistrationsList
           .map((registration) => registration.kind)
           .toSet(),
-      hasLength(9),
+      hasLength(1),
     );
   });
 

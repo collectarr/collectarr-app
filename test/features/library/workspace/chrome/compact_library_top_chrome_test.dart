@@ -43,7 +43,7 @@ void main() {
 
     await tester.pumpWidget(
       LibraryAccentScope(
-        kind: 'comic',
+        kind: 'music',
         accent: Colors.deepOrange,
         animationsEnabled: true,
         child: buildSubject(
@@ -98,7 +98,7 @@ void main() {
 
     await tester.pumpWidget(
       LibraryAccentScope(
-        kind: 'comic',
+        kind: 'music',
         accent: Colors.deepOrange,
         animationsEnabled: true,
         child: buildSubject(

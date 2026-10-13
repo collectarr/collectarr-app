@@ -215,6 +215,33 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'wishlist',
   };
 
+  // Permanent ownership boundary, replacing the historical cleanup proof scan.
+  static const _removedRuntimeAbstractions = {
+    'LibraryMetadataItem',
+    'LibraryCatalogItemView',
+    'LibraryKindMetadataRuntime',
+    'CatalogKindCodec',
+    'KindEditDraft',
+    'LibrarySectionRegistry',
+    'DefaultLibraryEditPresentationBuilder',
+    'CatalogCache',
+    'LibraryEditCapability',
+    'collectarrKindEdits',
+    'MetadataOverrideFieldOption',
+  };
+
+  void _checkRemovedRuntimeAbstraction(String name, int offset) {
+    if (!relativePath.startsWith('lib/') ||
+        relativePath.endsWith('.g.dart') ||
+        relativePath.endsWith('.freezed.dart') ||
+        !_removedRuntimeAbstractions.contains(name)) {
+      return;
+    }
+    final line = lineInfo.getLocation(offset).lineNumber;
+    violations.add('TK023 $relativePath:$line: Removed runtime abstraction '
+        '"$name" contradicts kind-owned typed contracts.');
+  }
+
   static const _forbiddenRuntimeTypeNames = {
     'CatalogItemDto',
     'LibraryKindMetadataRuntime',
@@ -256,9 +283,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitSimpleIdentifier(SimpleIdentifier node) {
+    _checkRemovedRuntimeAbstraction(node.name, node.offset);
     if (_forbiddenFlattenedIdentityNames.contains(node.name) &&
         relativePath.startsWith('lib/') &&
-        !relativePath.startsWith('lib/test/') &&
         !relativePath.endsWith('.g.dart') &&
         !relativePath.endsWith('.freezed.dart')) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
@@ -425,6 +452,17 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     final importedRelativePath =
         p.relative(importedPath, from: repoRoot).replaceAll('\\', '/');
 
+    if (relativePath.startsWith('lib/') &&
+        (importedRelativePath.startsWith('test/') ||
+            importedRelativePath.startsWith('integration_test/') ||
+            importedRelativePath.startsWith('lib/test/'))) {
+      violations.add(
+        'TK022 $relativePath:$lineNumber: Production code must not '
+        '$directive test support ($uriString)',
+      );
+      return;
+    }
+
     if (isRegistryFile || _compositionRoots.contains(relativePath)) {
       if (importedRelativePath.startsWith('lib/features/library/kinds/') &&
           !importedRelativePath
@@ -482,6 +520,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitNamedType(NamedType node) {
+    _checkRemovedRuntimeAbstraction(node.name.lexeme, node.offset);
     if (_forbiddenRuntimeTypeNames.contains(node.name.lexeme) &&
         _isForbiddenRuntimeTypeContext(relativePath)) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
@@ -590,6 +629,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     final endLine = lineInfo.getLocation(node.end).lineNumber;
     final classLength = endLine - startLine + 1;
     final className = node.namePart.toSource();
+    _checkRemovedRuntimeAbstraction(className, node.offset);
     if (classLength > 500 && !_isExempt(relativePath)) {
       complexityWarnings.add(
         'CX002 $relativePath:$startLine: Class "$className" exceeds complexity budget ($classLength > 500 lines)',
@@ -853,6 +893,7 @@ void runArchitectureChecker([List<String> args = const <String>[]]) {
   final allComplexityWarnings = <String>[];
   final allKindFieldLeaks = <KindFieldLeakFinding>[];
 
+  allViolations.addAll(testLayoutViolations(repoRoot));
   _checkKindModuleLayout(repoRoot, allViolations);
 
   for (final file in files) {
@@ -1092,8 +1133,7 @@ bool isBoundaryFile(String relativePath) {
   if (!relativePath.startsWith('lib/')) {
     return false;
   }
-  if (relativePath.startsWith('lib/test/') ||
-      relativePath.startsWith('lib/dev/') ||
+  if (relativePath.startsWith('lib/dev/') ||
       relativePath.startsWith('lib/features/library/kinds/') ||
       relativePath.startsWith('lib/core/api/generated/') ||
       _compositionRoots.contains(relativePath)) {
@@ -1178,4 +1218,33 @@ String? _resolveImportPath(
   }
   final sourceDir = p.dirname(sourceFilePath);
   return p.normalize(p.join(sourceDir, uriString));
+}
+
+Iterable<String> testLayoutViolations(String repoRoot) sync* {
+  if (Directory(p.join(repoRoot, 'lib', 'test')).existsSync()) {
+    yield 'TK022 lib/test/: Test support must live outside production source.';
+  }
+  final tests = Directory(p.join(repoRoot, 'test'));
+  if (!tests.existsSync()) return;
+  for (final file in tests.listSync(followLinks: false).whereType<File>()) {
+    if (file.path.endsWith('.dart') &&
+        p.basename(file.path) != 'flutter_test_config.dart') {
+      yield 'TX001 test/${p.basename(file.path)}: Tests must follow production ownership.';
+    }
+  }
+  for (final file in tests
+      .listSync(recursive: true, followLinks: false)
+      .whereType<File>()) {
+    final name = p.basename(file.path);
+    if (name.contains('benchmark') && name.endsWith('.dart')) {
+      yield 'TX002 ${p.relative(file.path, from: repoRoot)}: Benchmarks belong outside test/.';
+    }
+    if (name == 'helpers.dart' &&
+        p
+            .relative(file.path, from: repoRoot)
+            .replaceAll('\\', '/')
+            .startsWith('test/features/')) {
+      yield 'TX003 ${p.relative(file.path, from: repoRoot)}: Name feature helpers by their responsibility.';
+    }
+  }
 }

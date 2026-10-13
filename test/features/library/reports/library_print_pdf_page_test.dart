@@ -11,8 +11,8 @@ import 'package:collectarr_app/features/library/reports/library_print_pdf_page.d
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../helpers/test_constants.dart';
-import '../../../helpers/test_data_factories.dart';
+import '../../../support/fixtures/test_constants.dart';
+import '../../../support/builders/workspace_item_builder.dart';
 
 void main() {
   testWidgets('LibraryPrintPdfPage renders full layout with all CLZ sections',
