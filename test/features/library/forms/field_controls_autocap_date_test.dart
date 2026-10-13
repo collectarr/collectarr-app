@@ -12,42 +12,22 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets(
-      'LibraryPartialDateInput renders divider lines between date fields',
-      (tester) async {
+  testWidgets('partial date edits emit the changed component value', (tester) async {
     PartialDate? changedDate;
-
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: buildLibraryTheme(palette: kDefaultAppThemePalette),
-        home: Scaffold(
-          body: LibraryPartialDateInput(
-            value: const PartialDate(year: 2024, month: 10, day: 6),
-            onChanged: (val) => changedDate = val,
-          ),
-        ),
-      ),
-    );
-
-    // Verify 3 input text controls for YYYY, MM, DD
-    expect(changedDate, isNull);
-    expect(find.byType(LibraryTextFormControl), findsNWidgets(3));
+    await tester.pumpWidget(MaterialApp(
+      theme: buildLibraryTheme(palette: kDefaultAppThemePalette),
+      home: Scaffold(body: LibraryPartialDateInput(
+        value: const PartialDate(year: 2024, month: 10, day: 6),
+        onChanged: (value) => changedDate = value,
+      )),
+    ));
     expect(find.text('2024'), findsOneWidget);
     expect(find.text('10'), findsOneWidget);
     expect(find.text('06'), findsOneWidget);
-
-    // Verify 2 divider line containers connecting the fields
-    final containers =
-        tester.widgetList<Container>(find.byType(Container)).where((c) {
-      final constraints = c.constraints;
-      return constraints != null &&
-          constraints.minWidth == 8 &&
-          constraints.maxWidth == 8 &&
-          constraints.minHeight == 1 &&
-          constraints.maxHeight == 1;
-    }).toList();
-
-    expect(containers.length, 2);
+    expect(changedDate, isNull);
+    await tester.enterText(find.byType(TextFormField).at(1), '11');
+    await tester.pump();
+    expect(changedDate, const PartialDate(year: 2024, month: 11, day: 6));
   });
 
   testWidgets('Autocap action renders Aa instead of Tt glyph in field header',

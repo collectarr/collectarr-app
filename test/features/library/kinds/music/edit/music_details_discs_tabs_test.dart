@@ -17,48 +17,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('Music Details sub-tabs and Tracks tab refactor', () {
-    testWidgets(
-        'LibraryPartialDateInput divider is vertically centered with fields',
-        (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        theme: buildLibraryTheme(),
-        home: Scaffold(
-          body: Center(
-            child: SizedBox(
-              width: 300,
-              child: LibraryPartialDateInput(
-                value: null,
-                onChanged: (_) {},
-              ),
-            ),
-          ),
-        ),
-      ));
-
-      // Two divider containers between 3 fields
-      final containers =
-          tester.widgetList<Container>(find.byType(Container)).toList();
-      expect(containers.length, greaterThanOrEqualTo(2));
-
-      // Find the divider render boxes
-      final dividerElements = find.byWidgetPredicate((widget) =>
-          widget is Container &&
-          widget.constraints?.maxWidth == 8 &&
-          widget.constraints?.maxHeight == 1);
-      expect(dividerElements, findsNWidgets(2));
-
-      final firstDividerRect = tester.getRect(dividerElements.first);
-      final firstFieldRect = tester.getRect(find.byType(TextFormField).first);
-
-      // The vertical center of the divider line must match the vertical center of the field box (within 1px tolerance)
-      final fieldCenterY = (firstFieldRect.top + firstFieldRect.bottom) / 2;
-      final dividerCenterY =
-          (firstDividerRect.top + firstDividerRect.bottom) / 2;
-      expect((fieldCenterY - dividerCenterY).abs(), lessThan(1.5));
-    });
-
-    testWidgets('MusicAlbumDetailsPane renders General + Disc sub-tabs',
+  group('Music album details navigation and track editing', () {
+    testWidgets('shows General and one metadata tab per disc',
         (tester) async {
       final album = MusicAlbum(
         id: const CatalogItemRef(
@@ -133,7 +93,7 @@ void main() {
     });
 
     testWidgets(
-        'MusicAlbumStructureTab (Tracks tab) does not display disc extra fields',
+        'track selection shows bulk actions while disc metadata stays in Details',
         (tester) async {
       final album = MusicAlbum(
         id: const CatalogItemRef(

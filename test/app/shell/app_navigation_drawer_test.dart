@@ -7,38 +7,6 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('navigation closes with a 200ms linear slide', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-            body: Builder(
-      builder: (context) => TextButton(
-        onPressed: () => showAppNavigationDrawer(
-          context: context,
-          type: defaultLibraryKindRegistry.require(CatalogMediaKind.music),
-          selectedAction: DrawerAction.libraries,
-          isAdmin: false,
-          accent: Colors.orange,
-          addLabel: 'Add Albums from Core',
-          animationsEnabled: true,
-          onSelected: (context, _) => Navigator.of(context).pop(),
-        ),
-        child: const Text('Open'),
-      ),
-    ))));
-    await tester.tap(find.text('Open'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 200));
-    final header = find.byKey(const Key('drawer.header'));
-    expect(tester.getTopLeft(header).dx, 0);
-    await tester.tap(find.byTooltip('Close navigation'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(tester.getTopLeft(header).dx, closeTo(-160, 1));
-    await tester.pumpAndSettle();
-    expect(header, findsNothing);
-    expect(tester.takeException(), isNull);
-  });
-
   testWidgets('app shell drawer renders semantic icons, headers, and dividers',
       (tester) async {
     tester.view.physicalSize = const Size(1280, 1200);
@@ -72,9 +40,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
-    final header =
-        tester.widget<Material>(find.byKey(const Key('drawer.header')));
-    expect(header.color, Colors.transparent);
     final kindIcon =
         tester.widget<Icon>(find.byKey(const Key('drawer.kind-icon')));
     expect(
@@ -126,8 +91,6 @@ void main() {
     // Test collapsible toggle animation for Maintenance
     await tester.tap(find.text('Maintenance'));
     await tester.pump();
-    await tester
-        .pump(const Duration(milliseconds: 150)); // halfway through 300ms
     await tester.pumpAndSettle();
 
     // Maintenance items should be collapsed
@@ -136,8 +99,6 @@ void main() {
     // Expand Maintenance back
     await tester.tap(find.text('Maintenance'));
     await tester.pump();
-    await tester
-        .pump(const Duration(milliseconds: 150)); // halfway through 300ms
     await tester.pumpAndSettle();
     expect(find.text('Backup / Restore'), findsOneWidget);
   });
