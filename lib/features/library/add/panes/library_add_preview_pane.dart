@@ -126,7 +126,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: libraryAccentTextColor(accent, palette.panel),
-                          fontSize: 25,
+                          fontSize: 24,
                           fontWeight: FontWeight.w700,
                           height: 1.02,
                         ),
@@ -313,15 +313,18 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: palette.textMuted,
+                color: palette.textPrimary,
                 fontWeight: FontWeight.w700,
+                fontSize: 14,
+                height: 20 / 14,
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                  fontWeight: FontWeight.w400, fontSize: 14, height: 20 / 14),
             ),
           ),
         ],

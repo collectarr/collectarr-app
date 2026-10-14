@@ -54,18 +54,17 @@ List<Widget> buildMusicInspectorSections(
       accentColor: request.accent,
       collapsible: false,
       children: [child]);
-  return [
-    if (model.discs.isNotEmpty) ...[
-      Padding(
-          padding: const EdgeInsets.all(12),
-          child: _MusicInspectorTracks(inspector: request)),
-    ],
+  final credits = <Widget>[
     if (model.music.credits.isNotEmpty ||
         model.discs.any((disc) => disc.credits.isNotEmpty))
       section('Credits', _MusicInspectorCredits(inspector: request)),
+  ];
+  final catalog = <Widget>[
     section('Details', _MusicProductDetails(inspector: request)),
     if (model.discs.isNotEmpty)
       section('Disc Details', _MusicDiscDetails(inspector: request)),
+  ];
+  final personal = <Widget>[
     if (model.entry != null) ...[
       section('Personal', _MusicInspectorDetailsPersonal(inspector: request)),
       section('Listening history', _MusicListeningSection(inspector: request)),
@@ -75,7 +74,7 @@ List<Widget> buildMusicInspectorSections(
           'Notes',
           Text(model.entry!.personal.personalNotes!,
               style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w400))),
     if (model.entry?.personal.tags?.trim().isNotEmpty == true)
       section(
           'Tags',
@@ -85,6 +84,9 @@ List<Widget> buildMusicInspectorSections(
                 .map((v) => v.trim())
                 .where((v) => v.isNotEmpty))
               TextButton.icon(
+                  style: TextButton.styleFrom(
+                      textStyle: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w400)),
                   onPressed: request.onFilterByValue == null
                       ? null
                       : () => request.onFilterByValue!(tag),
@@ -97,9 +99,39 @@ List<Widget> buildMusicInspectorSections(
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             for (final link in model.music.externalLinks)
               TextButton(
+                  style: TextButton.styleFrom(
+                      textStyle: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w400)),
                   onPressed: () => launchUrl(Uri.parse(link.url)),
                   child: Text(link.title ?? link.url)),
           ])),
+  ];
+  Widget column(List<Widget> children) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
+  return [
+    if (model.discs.isNotEmpty)
+      Padding(
+          padding: const EdgeInsets.all(12),
+          child: _MusicInspectorTracks(inspector: request)),
+    LayoutBuilder(builder: (context, constraints) {
+      final groups = <List<Widget>>[
+        if (credits.isNotEmpty) credits,
+        catalog,
+        if (personal.isNotEmpty) personal,
+      ];
+      if (constraints.maxWidth < 680 || groups.length == 1) {
+        return column(groups.expand((group) => group).toList());
+      }
+      if (constraints.maxWidth < 1000 && groups.length == 3) {
+        groups[0] = [...groups[0], ...groups.removeAt(1)];
+      }
+      return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        for (var index = 0; index < groups.length; index++) ...[
+          if (index > 0) const SizedBox(width: 12),
+          Expanded(child: column(groups[index])),
+        ],
+      ]);
+    }),
   ];
 }
 
@@ -581,7 +613,8 @@ class _MusicInspectorHeader extends ConsumerWidget {
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                                color: inspector.accent,
+                                color:
+                                    collectionStatus.colorFor(inspector.accent),
                                 borderRadius: BorderRadius.circular(4)),
                             child: Icon(collectionStatus.icon,
                                 size: 22, color: Colors.white)))),
@@ -1220,7 +1253,9 @@ class _MusicTrackRow extends StatelessWidget {
                               : palette.textPrimary,
                           fontWeight: track.isHeader
                               ? FontWeight.w700
-                              : FontWeight.w600,
+                              : FontWeight.w400,
+                          fontSize: 14,
+                          height: 20 / 14,
                         ),
                   ),
                   if (!track.isHeader &&

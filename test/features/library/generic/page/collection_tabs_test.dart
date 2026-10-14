@@ -10,6 +10,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('collection tabs attach to the top with rounded lower corners',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: SizedBox(
+      height: 33,
+      child: LibraryCollectionTab(
+          label: 'Music', isActive: true, accent: Colors.orange, onTap: () {}),
+    ))));
+    final tab = find.descendant(
+        of: find.byType(LibraryCollectionTab), matching: find.byType(InkWell));
+    expect(tester.getSize(tab).height, 27);
+    expect(tester.getTopLeft(tab).dy,
+        tester.getTopLeft(find.byType(LibraryCollectionTab)).dy);
+    expect(tester.widget<InkWell>(tab).borderRadius,
+        const BorderRadius.vertical(bottom: Radius.circular(4)));
+  });
   late LocalDatabase db;
   late LibraryCollectionRepository repo;
   setUp(() {

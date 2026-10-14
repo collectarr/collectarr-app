@@ -156,6 +156,22 @@ void main() {
             findsOneWidget);
         expect(find.byIcon(libraryCollectionStatusFromValue(status).icon),
             findsWidgets);
+        final badge = tester.widget<Container>(find
+            .descendant(
+              of: find
+                  .byTooltip(libraryCollectionStatusFromValue(status).label),
+              matching: find.byType(Container),
+            )
+            .first);
+        final expectedStatusColor = switch (status) {
+          'For Sale' => const Color(0xff2d7427),
+          'Wish List' => const Color(0xffff9b00),
+          'On Order' => const Color(0xff13627f),
+          'Sold' => const Color(0xffa63131),
+          'Not in Collection' => const Color(0xff605c5c),
+          _ => const Color(0xff2a9fd6),
+        };
+        expect((badge.decoration as BoxDecoration).color, expectedStatusColor);
 
         // 4. Label & Year
         expect(find.text('Metal Blade Records'), findsOneWidget);

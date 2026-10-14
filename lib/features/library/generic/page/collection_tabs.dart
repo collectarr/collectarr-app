@@ -160,38 +160,33 @@ class LibraryCollectionTab extends StatelessWidget {
             : palette.surfaceSubtle;
     final foreground =
         isActive || palette.isDark ? Colors.white : palette.textPrimary;
-    return Padding(
-      padding: const EdgeInsets.only(left: 1, top: 2, right: 1),
-      child: Material(
-        color: background,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-        child: InkWell(
-          mouseCursor: WidgetStateMouseCursor.clickable,
-          onTap: onTap,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-          child: Container(
-            constraints: const BoxConstraints(minWidth: 58),
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 13),
-            decoration: BoxDecoration(
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 1),
+        child: SizedBox(
+          height: 27,
+          child: Material(
+            color: background,
+            borderRadius:
+                const BorderRadius.vertical(bottom: Radius.circular(4)),
+            child: InkWell(
+              mouseCursor: WidgetStateMouseCursor.clickable,
+              onTap: onTap,
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(4)),
-              border: Border(
-                bottom: BorderSide(
-                  color: isActive ? accent : palette.divider,
-                  width: isActive ? 2 : 1,
-                ),
+                  const BorderRadius.vertical(bottom: Radius.circular(4)),
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 58),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Text(label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: foreground)),
               ),
-            ),
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: foreground,
-                  ),
             ),
           ),
         ),
