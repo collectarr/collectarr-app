@@ -618,15 +618,15 @@ class _LibraryTableCheckbox extends StatelessWidget {
         height: 15,
         decoration: BoxDecoration(
           color: active ? accentColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(2),
+          borderRadius: BorderRadius.zero,
           border: Border.all(
-            color: active ? accentColor : Colors.white38,
+            color: active ? accentColor : Colors.white70,
             width: 1.2,
           ),
         ),
         child: active
             ? Icon(
-                indeterminate ? Icons.remove : Icons.check,
+                indeterminate ? AppIcons.minus : AppIcons.check,
                 size: 11,
                 color: Colors.white,
               )
@@ -762,6 +762,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                   child: Tooltip(
                     message: 'Edit',
                     child: InkResponse(
+                      mouseCursor: SystemMouseCursors.click,
                       onTap: onEditEntry == null
                           ? null
                           : () => onEditEntry!(entry),
@@ -769,7 +770,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                       child: Icon(
                         AppIcons.inlineEdit,
                         size: 14,
-                        color: accentColor,
+                        color: appPalette(context).textPrimary,
                       ),
                     ),
                   ),

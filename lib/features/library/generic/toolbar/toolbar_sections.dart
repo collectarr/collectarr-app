@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_shelf_style_dropdown.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -297,6 +298,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                             ],
                           ),
                         ),
+                      ],
+                      if (viewState.viewMode == LibraryViewMode.shelves) ...[
+                        const _LibraryDesktopToolbarSeparator(),
+                        const LibraryShelfStyleDropdown(),
                       ],
                     ],
                   ),

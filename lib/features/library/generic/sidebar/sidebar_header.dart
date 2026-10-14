@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/pick_list_field_button.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -243,7 +244,10 @@ class _LibrarySidebarToolbarButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isPickList) {
       return PickListFieldButton(
-          tooltip: tooltip, onPressed: onPressed, embeddedInField: false);
+          tooltip: tooltip,
+          onPressed: onPressed,
+          embeddedInField: false,
+          icon: AppIcons.viewHorizontalCards);
     }
     final palette = appPalette(context);
     final resolvedActiveColor = activeColor ?? palette.textPrimary;

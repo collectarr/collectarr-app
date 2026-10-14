@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:collectarr_app/features/library/workspace/config/library_shelf_style.dart';
 
 import 'package:flutter/material.dart';
 
@@ -13,24 +14,29 @@ class LibraryShelfBackdrop extends StatelessWidget {
     required this.child,
     required this.shelfPitch,
     this.color = libraryShelfBackColor,
+    this.style = LibraryShelfStyle.woodLight,
   });
 
   final Widget child;
   final double shelfPitch;
   final Color color;
+  final LibraryShelfStyle style;
 
   @override
   Widget build(BuildContext context) => CustomPaint(
-        painter: _ShelfTimberPainter(shelfPitch: shelfPitch, color: color),
+        painter: _ShelfTimberPainter(
+            shelfPitch: shelfPitch, color: color, style: style),
         child: child,
       );
 }
 
 class _ShelfTimberPainter extends CustomPainter {
-  const _ShelfTimberPainter({required this.shelfPitch, required this.color});
+  const _ShelfTimberPainter(
+      {required this.shelfPitch, required this.color, required this.style});
 
   final double shelfPitch;
   final Color color;
+  final LibraryShelfStyle style;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -49,23 +55,35 @@ class _ShelfTimberPainter extends CustomPainter {
               colors: [
                 Color.alphaBlend(const Color(0x35000000), color),
                 color,
-                libraryShelfHighlightColor,
-                libraryShelfPlankColor,
+                style.isWood ? style.highlight : color,
+                style.plank,
               ],
               stops: const [0, .12, .93, 1],
             ).createShader(rect));
     }
     // Fine, deterministic vertical grain continues across empty shelf space.
     final grain = Paint()..strokeWidth = .7;
-    for (var x = 0.0; x < size.width; x += 3) {
+    for (var x = 0.0;
+        x < size.width;
+        x += style == LibraryShelfStyle.carbon ? 6 : 3) {
       grain.color =
           Colors.black.withValues(alpha: .015 + .012 * (1 + math.sin(x)));
-      canvas.drawLine(Offset(x, 0), Offset(x + 1, size.height), grain);
+      if (style.isWood) {
+        canvas.drawLine(Offset(x, 0), Offset(x + 1, size.height), grain);
+      } else if (style == LibraryShelfStyle.carbon) {
+        for (var y = 0.0; y < size.height; y += 6) {
+          canvas.drawRect(Rect.fromLTWH(x, y, 3, 3), grain);
+        }
+      } else if (style == LibraryShelfStyle.metal) {
+        canvas.drawLine(Offset(0, x), Offset(size.width, x), grain);
+      }
     }
     canvas.restore();
   }
 
   @override
   bool shouldRepaint(_ShelfTimberPainter oldDelegate) =>
-      oldDelegate.shelfPitch != shelfPitch || oldDelegate.color != color;
+      oldDelegate.shelfPitch != shelfPitch ||
+      oldDelegate.color != color ||
+      oldDelegate.style != style;
 }

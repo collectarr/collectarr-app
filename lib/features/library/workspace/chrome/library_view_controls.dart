@@ -25,8 +25,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = LibraryAccentScope.accentOf(context);
-    final menuText = libraryToolbarMenuText(context);
-    final menuMuted = libraryToolbarMenuMutedText(context);
+    const menuText = Colors.white;
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
           fontWeight: FontWeight.w400,
@@ -76,19 +75,22 @@ class LibraryViewModeDropdown extends StatelessWidget {
               child: LibraryWorkspaceMenuRow(
                 padding: EdgeInsets.zero,
                 label: _viewModeLabel(mode),
+                backgroundColor: mode == viewMode
+                    ? accent.withValues(alpha: 0.16)
+                    : Colors.transparent,
                 leading: buildViewModeGlyph(
                   mode,
                   size: 17,
-                  color: mode == viewMode ? menuText : menuMuted,
+                  color: mode == viewMode ? accent : menuText,
                 ),
                 trailing: mode == viewMode
-                    ? Icon(Icons.check, size: 16, color: accent)
+                    ? Icon(AppIcons.check, size: 16, color: accent)
                     : null,
                 textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       height: 1,
                       fontWeight:
                           mode == viewMode ? FontWeight.w700 : FontWeight.w500,
-                      color: menuText,
+                      color: mode == viewMode ? accent : menuText,
                     ),
               ),
             ),
@@ -321,9 +323,9 @@ class LibraryRangeSlider extends StatelessWidget {
           overlayColor: Colors.transparent,
           overlayShape: SliderComponentShape.noOverlay,
           thumbShape: const RoundSliderThumbShape(
-              enabledThumbRadius: 10, elevation: 0, pressedElevation: 0),
+              enabledThumbRadius: 8, elevation: 0, pressedElevation: 0),
           trackShape: const RoundedRectSliderTrackShape(),
-          padding: const EdgeInsets.symmetric(horizontal: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 11),
           showValueIndicator: ShowValueIndicator.never,
         ),
         child: Slider(
@@ -584,8 +586,7 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
     if (iconOnly) {
       return LibraryToolbarHoverSurface(
           child: DecoratedBox(
-        decoration: libraryToolbarDropdownDecoration(context,
-            backgroundColor: Colors.transparent),
+        decoration: const BoxDecoration(color: Colors.transparent),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
           child: Row(
@@ -602,8 +603,7 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
     }
     return LibraryToolbarHoverSurface(
         child: DecoratedBox(
-      decoration: libraryToolbarDropdownDecoration(context,
-          backgroundColor: Colors.transparent),
+      decoration: const BoxDecoration(color: Colors.transparent),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Row(

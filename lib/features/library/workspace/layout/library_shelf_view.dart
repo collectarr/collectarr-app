@@ -1,4 +1,6 @@
 import 'dart:math' as math;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_shelf_style.dart';
 
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
@@ -6,7 +8,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'library_shelf_backdrop.dart';
 
-class LibraryShelfView<T> extends StatelessWidget {
+class LibraryShelfView<T> extends ConsumerWidget {
   const LibraryShelfView({
     super.key,
     required this.items,
@@ -47,11 +49,13 @@ class LibraryShelfView<T> extends StatelessWidget {
   final double itemSpacing;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final style = ref.watch(libraryShelfStyleProvider).value ??
+        LibraryShelfStyle.woodLight;
     if (items.isEmpty && emptyBuilder != null) {
       final empty = emptyBuilder!(context);
       return ColoredBox(
-          color: backgroundColor ?? libraryShelfBackColor, child: empty);
+          color: backgroundColor ?? style.background, child: empty);
     }
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -102,14 +106,16 @@ class LibraryShelfView<T> extends StatelessWidget {
               accent: accent,
               shelfHeight: effectiveShelfHeight,
               bookWidth: effectiveBookWidth,
+              style: style,
               itemSpacing: itemSpacing,
               fallbackCoverAspectRatio: fallbackCoverAspectRatio,
             );
           },
         );
         return LibraryShelfBackdrop(
+          style: style,
           shelfPitch: effectiveShelfHeight + 20,
-          color: backgroundColor ?? libraryShelfBackColor,
+          color: backgroundColor ?? style.background,
           child: listView,
         );
       },
@@ -132,6 +138,7 @@ class _ShelfRow<T> extends StatelessWidget {
     required this.shelfHeight,
     required this.bookWidth,
     required this.itemSpacing,
+    required this.style,
     required this.fallbackCoverAspectRatio,
   });
 
@@ -148,6 +155,7 @@ class _ShelfRow<T> extends StatelessWidget {
   final double shelfHeight;
   final double bookWidth;
   final double itemSpacing;
+  final LibraryShelfStyle style;
   final double fallbackCoverAspectRatio;
 
   @override
@@ -155,8 +163,8 @@ class _ShelfRow<T> extends StatelessWidget {
     const shelfThickness = 8.0;
     const shelfShadow = 12.0;
     const shelfOverhang = 8.0;
-    const shelfColor = libraryShelfPlankColor;
-    const shelfHighlight = libraryShelfHighlightColor;
+    final shelfColor = style.plank;
+    final shelfHighlight = style.highlight;
     return SizedBox(
       height: shelfHeight + shelfThickness + shelfShadow,
       child: Stack(
