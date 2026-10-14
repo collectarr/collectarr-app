@@ -229,7 +229,6 @@ class LibraryGroupedShelfView extends StatelessWidget {
                   final child = LibraryCoverTile(
                     key: ValueKey(item.target.id),
                     item: item,
-                    customFieldBadges: item.customFieldBadges,
                     active: _isActive(item),
                     selected: _isSelected(item),
                     selectionMode: selectionEnabled,

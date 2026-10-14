@@ -227,10 +227,7 @@ Color libraryWorkspaceSelectionBackground(
   final palette = appPalette(context);
   final resolvedAccent =
       accentColor == kAppAccent ? palette.accent : accentColor;
-  return Color.alphaBlend(
-    resolvedAccent.withValues(alpha: palette.isDark ? 0.24 : 0.14),
-    baseColor ?? palette.cardBackground,
-  );
+  return resolvedAccent;
 }
 
 Color librarySelectionToolbarSurface(BuildContext context) => Color.alphaBlend(

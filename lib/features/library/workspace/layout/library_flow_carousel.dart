@@ -2,13 +2,10 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
-import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -679,23 +676,6 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           ),
                         ),
                       ),
-                      Positioned(
-                        left: 8,
-                        top: 8,
-                        child: LibraryCoverBadges(
-                          isEntry: widget.item.source.isEntry,
-                          isTracked: widget.item.source.isTracked,
-                          isWishlisted: widget.item.source.isWishlisted,
-                          hasMissingCover:
-                              dto.imageUrl == null || dto.imageUrl!.isEmpty,
-                          hasMissingMetadata: format == null || format.isEmpty,
-                          contractDiagnosticLabel:
-                              libraryHierarchyContractDiagnosticLabel(
-                                  widget.item),
-                          notesLabel: libraryNotesMarkerLabel(
-                              widget.item.source.libraryEntrySummary?.notes),
-                        ),
-                      ),
                       if (showEditButton)
                         Positioned(
                           top: 8,
@@ -719,11 +699,6 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                             ),
                           ),
                         ),
-                      Positioned(
-                        right: 8,
-                        bottom: 8,
-                        child: _cardScopeBadge(context, widget.item),
-                      ),
                     ],
                   ),
                 ),
@@ -756,20 +731,6 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _cardScopeBadge(BuildContext context, LibraryProjectionView item) {
-    final palette = appPalette(context);
-    final scope = resolveLibraryCollectionStatusScope(item);
-    return LibraryTileScopePill(
-      icon: scope.icon,
-      label: scope.label,
-      color: libraryCollectionStatusScopeColor(
-        scope,
-        widget.accent,
-        palette.textMuted,
       ),
     );
   }
