@@ -166,9 +166,6 @@ class AppShellActions {
       case DrawerAction.settings:
         _goToSettingsSection(SettingsSection.appearance, type.kind);
         return;
-      case DrawerAction.libraries:
-        context.go(AppRoutes.forKind(AppRoutes.libraries, type.kind.apiValue));
-        return;
       case DrawerAction.calendar:
         context.go(AppRoutes.forKind(AppRoutes.calendar, type.kind.apiValue));
         return;

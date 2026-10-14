@@ -10,7 +10,6 @@ enum DrawerAction {
   statistics,
   findDuplicates,
   loanManager,
-  libraries,
   calendar,
   admin,
   manageCustomFields,
@@ -100,14 +99,6 @@ const appDrawerDestinations = <AppDrawerDestination>[
       icon: AppIcons.collections,
       section: AppDrawerSection.collection,
       behavior: DrawerActionBehavior.modal),
-  AppDrawerDestination(
-      action: DrawerAction.libraries,
-      label: 'Libraries',
-      icon: AppIcons.libraries,
-      section: AppDrawerSection.collection,
-      behavior: DrawerActionBehavior.routedPage,
-      routePath: AppRoutes.libraries,
-      widgetKey: 'nav.library'),
   AppDrawerDestination(
       action: DrawerAction.printToPdf,
       label: 'Print to PDF',

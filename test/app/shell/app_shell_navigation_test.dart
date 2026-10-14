@@ -103,8 +103,6 @@ void main() {
               .widget<AppNavigationDrawer>(find.byType(AppNavigationDrawer))
               .selectedAction,
           DrawerAction.printToPdf);
-      expect(tester.widget<Text>(find.text('Libraries')).style?.fontWeight,
-          FontWeight.w400);
       expect(
           tester
               .widget<Text>(find.descendant(
@@ -128,7 +126,7 @@ void main() {
           tester
               .widget<AppNavigationDrawer>(find.byType(AppNavigationDrawer))
               .selectedAction,
-          DrawerAction.libraries);
+          null);
       expect(find.text('My Shelf'), findsNothing);
       await tester.tap(find.text('Add Albums from Core'));
       await pumpUntilSettled(tester);
@@ -173,14 +171,14 @@ void main() {
       }
 
       await openDrawer();
-      expect(find.byKey(const Key('nav.library')), findsOneWidget);
+      expect(find.byKey(const Key('nav.library')), findsNothing);
       expect(find.byKey(const Key('nav.shelf')), findsNothing);
       expect(find.text('My Shelf'), findsNothing);
       expect(find.byKey(const Key('nav.more')), findsOneWidget);
       expect(find.byKey(const Key('nav.calendar')), findsOneWidget);
 
       // Navigate to the library
-      await tester.tap(find.byKey(const Key('nav.library')));
+      Navigator.of(tester.element(find.byKey(const Key('nav.more')))).pop();
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
 
@@ -241,12 +239,12 @@ void main() {
       // Mandatory keys must be present in drawer on mobile
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
-      expect(find.byKey(const Key('nav.library')), findsOneWidget);
+      expect(find.byKey(const Key('nav.library')), findsNothing);
       expect(find.byKey(const Key('nav.shelf')), findsNothing);
       expect(find.text('My Shelf'), findsNothing);
 
-      // Navigate to the library via drawer
-      await tester.tap(find.byKey(const Key('nav.library')));
+      // Dismiss navigation without changing the current library
+      Navigator.of(tester.element(find.byKey(const Key('nav.more')))).pop();
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
 

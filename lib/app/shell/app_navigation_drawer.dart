@@ -84,9 +84,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final drawerBg = palette.isDark ? const Color(0xFF383838) : palette.surface;
-    final sectionHeaderColor = palette.isDark
-        ? Colors.white.withValues(alpha: 0.4)
-        : palette.textMuted;
+    final sectionHeaderColor = palette.textPrimary;
 
     return Drawer(
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -198,7 +196,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
           color: selected
               ? widget.accent.withValues(alpha: palette.isDark ? 0.2 : 0.1)
               : Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
           child: Row(
             children: [
               SizedBox(
@@ -221,6 +219,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                   style: TextStyle(
                     fontFamily: appFontFamily,
                     fontSize: 14,
+                    height: 20 / 14,
                     fontWeight: FontWeight.w400,
                     color: itemColor,
                   ),
@@ -318,21 +317,26 @@ class _DrawerCollapsibleSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: AnimatedSize(
-        duration: kAppAnimNormal,
-        curve: Curves.easeInOut,
-        alignment: Alignment.topCenter,
-        child: isExpanded
-            ? Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: children,
-              )
-            : const SizedBox(
-                width: double.infinity,
-                height: 0,
-              ),
+    return TweenAnimationBuilder<double>(
+      tween: Tween(end: isExpanded ? 1 : 0),
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : kAppAnimNormal,
+      curve: Curves.easeInOut,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      ),
+      builder: (context, factor, child) => ClipRect(
+        child: Align(
+          heightFactor: factor,
+          alignment: Alignment.topCenter,
+          child: Offstage(
+            offstage: factor == 0,
+            child: IgnorePointer(ignoring: !isExpanded, child: child),
+          ),
+        ),
       ),
     );
   }

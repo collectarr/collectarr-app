@@ -21,7 +21,7 @@ void main() {
         home: Scaffold(
           drawer: AppNavigationDrawer(
             type: defaultLibraryKindRegistry.require(CatalogMediaKind.music),
-            selectedAction: DrawerAction.libraries,
+            selectedAction: null,
             isAdmin: true,
             accent: const Color(0xFFF2932F),
             addLabel: 'Add Albums from Core',
