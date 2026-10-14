@@ -286,8 +286,9 @@ TooltipThemeData buildAppTooltipTheme(AppThemePalette palette) =>
       ),
       textStyle: TextStyle(
           color: palette.textPrimary,
-          fontFamily: kAppFontFamily,
-          fontSize: 13,
+          fontFamily: appFontFamily,
+          fontSize: 12,
+          height: 20 / 14,
           fontWeight: FontWeight.w400),
       waitDuration: const Duration(milliseconds: 500),
     );

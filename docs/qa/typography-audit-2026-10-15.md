@@ -1,7 +1,8 @@
 # Typography comparison: Collectarr and CLZ Music
 
 Audit date: 2026-10-15. Collectarr baseline: `36a44c386` (`ui-improvements`).
-This report records measurements; it does not change production typography.
+The tables record the original measurements. The implementation follow-up below
+records the corrections made after this audit.
 
 ## Method
 
@@ -100,3 +101,36 @@ No catalog records, definitions or favorites were saved in CLZ. Application prob
 Live measurements cover all ten CLZ edit tabs and the corresponding Music editor surfaces, collections, sorting and column editors/managers, pick lists, custom-field chooser/Text editor/preview, Settings, Import, Statistics, Loans, Duplicates and batch linking. Credits remains a deliberate structural difference.
 
 The reference screenshot operation subsequently blocked the browser connector. Transfer Field Data, Reassign Index, calendar popup typography and all custom-field subtype/validation states are not signed off as live 1:1 comparisons in this report. Do not infer their parity from shared styles alone.
+
+## Implementation follow-up
+
+Applied the measured differences without changing catalog, personal-data or
+Credits semantics:
+
+- Common external and compact floating labels now use 13 / 700. External label
+  text uses an 18.57 px line inside its existing 20 px alignment slot.
+- Artist names, vocabulary chips and derived Format text use 14 / 400.
+- Disc-title and track inputs use 14 / 400 with a 20 px line; track, credit and
+  Links column headings use 14 / 700.
+- Cover headings use 13 / 700, cover actions use 14 / 400, and the image-intake
+  invitation uses 18 / 700. Supporting image instructions remain 14 / 400.
+- Editor footer actions keep 14 / 400 and explicitly select the active font
+  family. Propose to Core now follows the same role. The explicit button styles
+  previously omitted the family even when their numeric size and weight matched.
+- Column Favorites pane headings use 18 / 700, names 14 / 700 and summaries
+  12 / 400. Manager actions, custom-field actions and ordinary menu rows use
+  14 / 400. Selected drawer destinations keep their accent with regular text.
+- Tooltips use 12 / 400 and the active loader alias, including fallback when no
+  user-supplied font is available.
+
+Validation: `flutter analyze` is clean; `dart run tool/run_tests.dart` passed all
+932 correctness tests. The footer test also passed separately after adding
+assertions for the effective family, size and weight of Previous, Next, Cancel
+and Save. The tooltip regression checks that controls and tooltips share the
+active family.
+
+Playwright used isolated browser storage and locally supplied fonts to inspect
+Main, Tracks, Credits, Covers, My Images, Links, Personal and Custom Fields.
+Tracks was also inspected at 1000 x 760; no overflow or runtime exceptions were
+observed in those passes. The unverified reference states listed above remain
+unverified; this patch does not claim new live measurements for them.

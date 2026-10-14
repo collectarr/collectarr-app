@@ -65,7 +65,7 @@ ButtonStyle pickListButtonStyle(BuildContext context,
       textStyle: TextStyle(
           fontFamily: appFontFamily,
           fontSize: 14,
-          fontWeight: footer ? FontWeight.w400 : FontWeight.w600,
+          fontWeight: FontWeight.w400,
           height: 20 / 14),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       side: BorderSide.none,

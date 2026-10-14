@@ -471,9 +471,7 @@ class _PresetShelf extends StatelessWidget {
                                 .textTheme
                                 .bodyMedium
                                 ?.copyWith(
-                                  fontWeight: active
-                                      ? FontWeight.w700
-                                      : FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                 ),
                           ),
                           const SizedBox(width: 8),
@@ -489,6 +487,8 @@ class _PresetShelf extends StatelessWidget {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
                                     color: palette.textMuted,
                                   ),
                             ),
@@ -565,6 +565,7 @@ class _PaneFrame extends StatelessWidget {
                       Text(
                         title,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontSize: 18,
                               fontWeight: FontWeight.w700,
                               color: accent,
                             ),
