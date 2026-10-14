@@ -88,14 +88,6 @@ class _CompactLibraryTopChromeState extends State<CompactLibraryTopChrome> {
 
     return AnimatedLibraryChrome(
       accent: accentData.accent,
-      borderBuilder: (Color? animatedAccent, Brightness brightness) => Border(
-        bottom: BorderSide(
-          color: libraryChromeBorderColor(
-            animatedAccent ?? accentData.accent,
-            brightness: brightness,
-          ),
-        ),
-      ),
       child: Container(
         height: widget.height,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

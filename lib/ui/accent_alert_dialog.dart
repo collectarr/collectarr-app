@@ -119,14 +119,6 @@ class AccentAlertDialog extends StatelessWidget {
     }
     return AnimatedLibraryChrome(
       accent: resolvedAccent,
-      borderBuilder: (animatedAccent, _) => Border(
-        bottom: BorderSide(
-          color: Color.alphaBlend(
-            Colors.white.withValues(alpha: 0.12),
-            animatedAccent,
-          ),
-        ),
-      ),
       child: LibraryPanelHeader(
         backgroundColor: Colors.transparent,
         foregroundColor: accentForeground,

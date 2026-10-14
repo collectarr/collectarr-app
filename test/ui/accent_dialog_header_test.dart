@@ -59,6 +59,13 @@ void main() {
             (box.decoration as BoxDecoration).gradient != null,
       );
       expect(hasGradient, isTrue);
+      expect(
+          decoratedBoxes
+              .where((box) => box.decoration is BoxDecoration)
+              .map((box) => box.decoration as BoxDecoration)
+              .where((decoration) => decoration.gradient != null)
+              .every((decoration) => decoration.border == null),
+          isTrue);
     });
 
     testWidgets('pops dialog when onClose is omitted', (tester) async {

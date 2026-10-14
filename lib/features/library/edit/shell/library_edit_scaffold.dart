@@ -433,14 +433,6 @@ class _LibraryEditTitleBar extends StatelessWidget {
     const foreground = Colors.white;
     return AnimatedLibraryChrome(
       accent: accent,
-      borderBuilder: (animatedAccent, _) => Border(
-        bottom: BorderSide(
-          color: Color.alphaBlend(
-            Colors.white.withValues(alpha: 0.12),
-            animatedAccent,
-          ),
-        ),
-      ),
       child: LibraryPanelHeader(
         backgroundColor: Colors.transparent,
         foregroundColor: foreground,

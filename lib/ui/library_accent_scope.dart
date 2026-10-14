@@ -329,14 +329,6 @@ class LibraryAccentChrome extends StatelessWidget {
     return AnimatedLibraryChrome(
       accent: accent,
       duration: animationDuration,
-      borderBuilder: (animatedAccent, _) => Border(
-        bottom: BorderSide(
-          color: Color.alphaBlend(
-            Colors.white.withValues(alpha: 0.12),
-            animatedAccent,
-          ),
-        ),
-      ),
       child: const SizedBox.expand(),
     );
   }
