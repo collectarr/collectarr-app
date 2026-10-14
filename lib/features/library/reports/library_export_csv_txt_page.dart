@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
@@ -437,7 +438,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               key: const Key('export_csv_txt.back'),
               onPressed: () => Navigator.of(context).pop()),
           title: const Text('Export to CSV / TXT')),
-      body: SingleChildScrollView(
+      body: AppManagementContent(
+          child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Center(
           child: ConstrainedBox(
@@ -478,7 +480,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 

@@ -27,16 +27,11 @@ Future<void> showCustomFieldsManagementPage({
       builder: (context) => LibraryManagementPage(
         title: 'Manage Custom Fields',
         svgAsset: AppIcons.customFieldsSvg,
-        backgroundColor: appManagementCanvasColor(context),
         accent: accent ?? appPalette(context).accent,
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(15, 18, 15, 24),
-          child: Center(
-              child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 930),
-            child: CustomFieldsSettings(
-                db: db, mediaKind: mediaKind, startCreating: startCreating),
-          )),
+          child: CustomFieldsSettings(
+              db: db, mediaKind: mediaKind, startCreating: startCreating),
         ),
       ),
     ));

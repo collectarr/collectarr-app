@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/features/activity/global_activity_provider.dart';
@@ -78,7 +79,8 @@ class _GlobalActivityPageState extends ConsumerState<GlobalActivityPage> {
 
     return Scaffold(
       appBar: AppPageHeader(icon: Icons.history, title: const Text('Activity')),
-      body: asyncEntries.when(
+      body: AppManagementContent(
+          child: asyncEntries.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(
           child: Padding(
@@ -157,7 +159,7 @@ class _GlobalActivityPageState extends ConsumerState<GlobalActivityPage> {
             ],
           );
         },
-      ),
+      )),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -51,7 +52,7 @@ class LibraryStatsPage extends StatelessWidget {
               key: const Key('stats.back'),
               onPressed: () => Navigator.of(context).pop()),
           title: const Text('Statistics')),
-      body: LayoutBuilder(
+      body: AppManagementContent(child: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth >= 900;
           return SingleChildScrollView(
@@ -105,7 +106,7 @@ class LibraryStatsPage extends StatelessWidget {
             ),
           );
         },
-      ),
+      )),
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'ebay_search_preferences.dart';
@@ -185,7 +186,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               icon: Icons.settings_outlined,
               leading: _buildBackButton(context),
               title: const Text('Settings')),
-          body: ListView.separated(
+          body: AppManagementContent(
+              child: ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: SettingsSection.values.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
@@ -209,7 +211,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               icon: Icons.settings_outlined,
                               leading: AppPageBackButton(),
                               title: Text(section.title)),
-                          body: buildSection(section),
+                          body: AppManagementContent(
+                              child: buildSection(section)),
                         ),
                       ),
                     ),
@@ -217,7 +220,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 },
               );
             },
-          ),
+          )),
         ),
       );
     }
@@ -250,9 +253,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         ])))
                     .toList(),
               )),
-          body: TabBarView(
+          body: AppManagementContent(
+              child: TabBarView(
             children: SettingsSection.values.map(buildSection).toList(),
-          ),
+          )),
         ),
       ),
     );

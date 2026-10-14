@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'dart:math' as math;
@@ -140,86 +141,91 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
           leading: AppPageBackButton(
               key: const Key('stats.back'),
               onPressed: () => Navigator.of(context).pop())),
-      body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Center(
-              child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 960),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (collections.hasError)
-                    const Text('Could not load collections.')
-                  else
-                    Wrap(spacing: 8, runSpacing: 6, children: [
-                      _collectionTab(
-                          'All Collections', null, selected == null, accent),
-                      for (final collection in values)
-                        _collectionTab(collection.name, collection.id,
-                            selected?.id == collection.id, accent),
+      body: AppManagementContent(
+          child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                  child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 960),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (collections.hasError)
+                        const Text('Could not load collections.')
+                      else
+                        Wrap(spacing: 8, runSpacing: 6, children: [
+                          _collectionTab('All Collections', null,
+                              selected == null, accent),
+                          for (final collection in values)
+                            _collectionTab(collection.name, collection.id,
+                                selected?.id == collection.id, accent),
+                        ]),
+                      Container(
+                          color: appManagementPanelColor(context),
+                          padding: const EdgeInsets.all(24),
+                          child: Column(children: [
+                            Text(
+                                '$albumCopies albums and ${MusicStatsCapability.countArtists(entries).length} Artists',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w700)),
+                            const SizedBox(height: 12),
+                            Text(
+                                '${MusicStatsCapability.totalMedia(entries)} discs, ${MusicStatsCapability.totalTracks(entries)} tracks / total runtime: ${MusicStatsCapability.formatRuntime(MusicStatsCapability.totalRuntimeSeconds(entries))}',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700)),
+                            if (purchaseTotals.isNotEmpty ||
+                                valueTotals.isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                  'Total purchase price: ${purchaseTotals.isEmpty ? '?' : money(purchaseTotals)} / current value: ${valueTotals.isEmpty ? '?' : money(valueTotals)}',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700)),
+                            ],
+                            if (MusicStatsCapability.totalSignedCopies(
+                                    entries) >
+                                0) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                  '${MusicStatsCapability.totalSignedCopies(entries)} signed albums',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700))
+                            ],
+                          ])),
+                      const SizedBox(height: 20),
+                      LayoutBuilder(
+                          builder: (context, constraints) => constraints
+                                      .maxWidth >=
+                                  800
+                              ? Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                      for (var column = 0;
+                                          column < 2;
+                                          column++) ...[
+                                        if (column == 1)
+                                          const SizedBox(width: 28),
+                                        Expanded(
+                                            child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.stretch,
+                                                children: [
+                                              for (var i = column;
+                                                  i < sections.length;
+                                                  i += 2)
+                                                sections[i]
+                                            ])),
+                                      ],
+                                    ])
+                              : Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: sections)),
+                      ...charts,
                     ]),
-                  Container(
-                      color: appManagementPanelColor(context),
-                      padding: const EdgeInsets.all(24),
-                      child: Column(children: [
-                        Text(
-                            '$albumCopies albums and ${MusicStatsCapability.countArtists(entries).length} Artists',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w700)),
-                        const SizedBox(height: 12),
-                        Text(
-                            '${MusicStatsCapability.totalMedia(entries)} discs, ${MusicStatsCapability.totalTracks(entries)} tracks / total runtime: ${MusicStatsCapability.formatRuntime(MusicStatsCapability.totalRuntimeSeconds(entries))}',
-                            textAlign: TextAlign.center,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w700)),
-                        if (purchaseTotals.isNotEmpty ||
-                            valueTotals.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                              'Total purchase price: ${purchaseTotals.isEmpty ? '?' : money(purchaseTotals)} / current value: ${valueTotals.isEmpty ? '?' : money(valueTotals)}',
-                              textAlign: TextAlign.center,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w700)),
-                        ],
-                        if (MusicStatsCapability.totalSignedCopies(entries) >
-                            0) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                              '${MusicStatsCapability.totalSignedCopies(entries)} signed albums',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w700))
-                        ],
-                      ])),
-                  const SizedBox(height: 20),
-                  LayoutBuilder(
-                      builder: (context, constraints) => constraints.maxWidth >=
-                              800
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                  for (var column = 0;
-                                      column < 2;
-                                      column++) ...[
-                                    if (column == 1) const SizedBox(width: 28),
-                                    Expanded(
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.stretch,
-                                            children: [
-                                          for (var i = column;
-                                              i < sections.length;
-                                              i += 2)
-                                            sections[i]
-                                        ])),
-                                  ],
-                                ])
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: sections)),
-                  ...charts,
-                ]),
-          ))),
+              )))),
     );
   }
 

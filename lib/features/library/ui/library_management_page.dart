@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,6 @@ class LibraryManagementPage extends StatelessWidget {
     required this.child,
     this.bottomBar,
     this.svgAsset,
-    this.backgroundColor,
   }) : assert(icon != null || svgAsset != null);
 
   final String title;
@@ -22,19 +22,19 @@ class LibraryManagementPage extends StatelessWidget {
   final Widget child;
   final Widget? bottomBar;
   final String? svgAsset;
-  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) => Theme(
         data: libraryAccentTheme(context, accent),
         child: Builder(builder: (context) {
-          final palette = appPalette(context);
           return Scaffold(
-            backgroundColor: backgroundColor ?? palette.surface,
+            backgroundColor: appManagementCanvasColor(context),
             appBar: AppPageHeader(
                 title: Text(title), icon: icon, svgAsset: svgAsset),
-            body: child,
-            bottomNavigationBar: bottomBar,
+            body: AppManagementContent(child: child),
+            bottomNavigationBar: bottomBar == null
+                ? null
+                : AppManagementContent(child: bottomBar!),
           );
         }),
       );

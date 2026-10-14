@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
@@ -312,7 +313,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               key: const Key('print_pdf.back'),
               onPressed: () => Navigator.of(context).pop()),
           title: const Text('Print to PDF')),
-      body: SingleChildScrollView(
+      body: AppManagementContent(
+          child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Center(
           child: ConstrainedBox(
@@ -339,7 +341,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 
@@ -347,46 +349,48 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   // SECTION 1: TOP SELECTION & MODES
   // ==========================================
   Widget _buildTopSelectionPane(AppThemePalette palette, Color accent) {
-    final isWide = MediaQuery.of(context).size.width >= 1050;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: palette.panel,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: palette.cardBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (isWide)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildSubsetSection(palette)),
-                const SizedBox(width: 16),
-                if (_supportsChildList) ...[
-                  Expanded(child: _buildExportModeSection(palette)),
+    return LayoutBuilder(builder: (context, constraints) {
+      final isWide = constraints.maxWidth >= 850;
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: palette.panel,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: palette.cardBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (isWide)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _buildSubsetSection(palette)),
                   const SizedBox(width: 16),
+                  if (_supportsChildList) ...[
+                    Expanded(child: _buildExportModeSection(palette)),
+                    const SizedBox(width: 16),
+                  ],
+                  Expanded(child: _buildColumnsSection(palette)),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildSortSection(palette)),
                 ],
-                Expanded(child: _buildColumnsSection(palette)),
-                const SizedBox(width: 16),
-                Expanded(child: _buildSortSection(palette)),
-              ],
-            )
-          else ...[
-            _buildSubsetSection(palette),
-            const SizedBox(height: 16),
-            if (_supportsChildList) ...[
-              _buildExportModeSection(palette),
+              )
+            else ...[
+              _buildSubsetSection(palette),
               const SizedBox(height: 16),
+              if (_supportsChildList) ...[
+                _buildExportModeSection(palette),
+                const SizedBox(height: 16),
+              ],
+              _buildColumnsSection(palette),
+              const SizedBox(height: 16),
+              _buildSortSection(palette),
             ],
-            _buildColumnsSection(palette),
-            const SizedBox(height: 16),
-            _buildSortSection(palette),
           ],
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
 
   Widget _buildSubsetSection(AppThemePalette palette) {
@@ -799,7 +803,9 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
           onChanged: (v) {
             if (v != null) setState(() => _orientation = v);
           },
-          child: Row(
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 4,
             children: [
               InkWell(
                 onTap: () =>
@@ -811,7 +817,6 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
               InkWell(
                 onTap: () =>
                     setState(() => _orientation = PdfOrientation.landscape),
@@ -1507,8 +1512,10 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   // SECTION 4: ACTIONS BAR
   // ==========================================
   Widget _buildActionsBar(AppThemePalette palette, Color accent) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+    return Wrap(
+      alignment: WrapAlignment.end,
+      spacing: 10,
+      runSpacing: 10,
       children: [
         if (_generatedPdfBytes != null) ...[
           FilledButton.icon(
@@ -1522,7 +1529,6 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
             ),
             onPressed: _downloadPdf,
           ),
-          const SizedBox(width: 10),
           OutlinedButton.icon(
             key: const Key('print_pdf.print'),
             icon: const Icon(Icons.print, size: 16),
@@ -1532,7 +1538,6 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
             ),
             onPressed: _openInSystemPrint,
           ),
-          const SizedBox(width: 10),
         ],
         FilledButton.icon(
           key: const Key('print_pdf.generate'),

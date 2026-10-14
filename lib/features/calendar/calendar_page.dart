@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -176,7 +177,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               icon: const Icon(Icons.today),
             ),
           ]),
-      body: eventsAsync.when(
+      body: AppManagementContent(
+          child: eventsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (events) {
@@ -257,7 +259,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             ],
           );
         },
-      ),
+      )),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -94,7 +95,8 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
           appBar: AppPageHeader(
               icon: Icons.link,
               title: Text('Link ${widget.type.identity.pluralLabel}')),
-          body: LayoutBuilder(builder: (context, constraints) {
+          body: AppManagementContent(
+              child: LayoutBuilder(builder: (context, constraints) {
             final entries = _unlinked;
             final list = ListView(children: [
               Padding(
@@ -148,7 +150,7 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
                     const Divider(height: 1),
                     Expanded(child: preview)
                   ]);
-          }),
+          })),
         ),
       );
 }

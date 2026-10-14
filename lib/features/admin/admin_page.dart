@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:async';
@@ -144,7 +145,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               tabAlignment: TabAlignment.start,
               tabs: tabs,
             )),
-        body: TabBarView(children: tabViews),
+        body: AppManagementContent(child: TabBarView(children: tabViews)),
       ),
     );
   }

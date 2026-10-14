@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
@@ -154,7 +155,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
             onPressed: _navigateBack,
           ),
           title: Text(pageTitle)),
-      body: SingleChildScrollView(
+      body: AppManagementContent(
+          child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
             horizontal: 24, vertical: _activeSourceId == null ? 24 : 10),
         child: Center(
@@ -179,7 +181,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 
