@@ -80,28 +80,10 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
 
 class _LibraryGroupModeMenuButtonState
     extends State<LibraryGroupModeMenuButton> {
-  final _layerLink = LayerLink();
-  bool _menuOpen = false;
-  OverlayEntry? _menuOverlayEntry;
+  final _menuController = OverlayPortalController();
+  bool get _menuOpen => _menuController.isShowing;
 
-  @override
-  void dispose() {
-    _removeMenuOverlay();
-    super.dispose();
-  }
-
-  void _removeMenuOverlay() {
-    _menuOverlayEntry?.remove();
-    _menuOverlayEntry = null;
-  }
-
-  void _closeGroupModeMenu() {
-    if (!_menuOpen) {
-      return;
-    }
-    _menuOpen = false;
-    _removeMenuOverlay();
-  }
+  void _closeGroupModeMenu() => _menuController.hide();
 
   void _handleMenuSelection(Object? value, List<String> modes) async {
     _closeGroupModeMenu();
@@ -183,15 +165,17 @@ class _LibraryGroupModeMenuButtonState
 
         return Tooltip(
           message: 'Group By',
-          child: CompositedTransformTarget(
-            link: _layerLink,
+          child: OverlayPortal.overlayChildLayoutBuilder(
+            controller: _menuController,
+            overlayLocation: OverlayChildLocation.rootOverlay,
+            overlayChildBuilder: _buildGroupModeMenu,
             child: InkWell(
               mouseCursor: WidgetStateMouseCursor.clickable,
               onTap: () {
                 if (_menuOpen) {
                   _closeGroupModeMenu();
                 } else {
-                  _showGroupModeMenu(context);
+                  _menuController.show();
                 }
               },
               borderRadius: BorderRadius.circular(5),
@@ -204,68 +188,41 @@ class _LibraryGroupModeMenuButtonState
     );
   }
 
-  void _showGroupModeMenu(BuildContext context) {
-    if (_menuOpen) {
-      return;
-    }
-    _menuOpen = true;
+  Widget _buildGroupModeMenu(
+      BuildContext context, OverlayChildLayoutInfo info) {
     final label = widget.folderPreset == null
         ? 'Group By'
         : genericFolderPresetLabel(widget.folderPreset!, widget.type);
     final modes =
         widget.availableModes ?? libraryGroupModesForType(widget.type);
     final menuWidth = _resolveMenuWidth(context);
-    final overlay = Overlay.of(context, rootOverlay: true)
-        .context
-        .findRenderObject() as RenderBox;
-    final box = context.findRenderObject() as RenderBox;
-    final target = box.localToGlobal(Offset.zero, ancestor: overlay) & box.size;
-    final rightOverflow = target.left + menuWidth + 8.0 - overlay.size.width;
-    final dx = rightOverflow > 0 ? -rightOverflow : 0.0;
-    _menuOverlayEntry = OverlayEntry(
-      builder: (overlayContext) {
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: _closeGroupModeMenu,
-              ),
-            ),
-            CompositedTransformFollower(
-              link: _layerLink,
-              showWhenUnlinked: false,
-              targetAnchor: Alignment.bottomLeft,
-              followerAnchor: Alignment.topLeft,
-              offset: Offset(dx, 0),
-              child: Padding(
-                padding: EdgeInsets.zero,
-                child: SizedBox(
-                  width: menuWidth,
-                  child: InheritedTheme.captureAll(
-                      context,
-                      LibraryGroupModeDropdownMenu(
-                        type: widget.type,
-                        selectedPreset: widget.folderPreset,
-                        availableModes: modes,
-                        initialPinnedPresets: widget.pinnedFolderPresets,
-                        onPinnedPresetsChanged: widget.onPinnedPresetsChanged,
-                        sidebarVisible: widget.sidebarVisible,
-                        hasSidebarVisibilityToggle:
-                            widget.onSidebarVisibilityChanged != null,
-                        triggerLabel: label,
-                        triggerIcon: widget.icon,
-                        onSelected: (value) =>
-                            _handleMenuSelection(value, modes),
-                      )),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-    Overlay.of(context, rootOverlay: true).insert(_menuOverlayEntry!);
+    final target = MatrixUtils.transformRect(
+        info.childPaintTransform, Offset.zero & info.childSize);
+    final left = target.left.clamp(0.0,
+        (info.overlaySize.width - menuWidth - 8).clamp(0.0, double.infinity));
+    return Stack(children: [
+      Positioned.fill(
+          child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: _closeGroupModeMenu)),
+      Positioned(
+          left: left,
+          top: target.bottom,
+          width: menuWidth,
+          child: LibraryGroupModeDropdownMenu(
+            type: widget.type,
+            selectedPreset: widget.folderPreset,
+            availableModes: modes,
+            initialPinnedPresets: widget.pinnedFolderPresets,
+            onPinnedPresetsChanged: widget.onPinnedPresetsChanged,
+            sidebarVisible: widget.sidebarVisible,
+            hasSidebarVisibilityToggle:
+                widget.onSidebarVisibilityChanged != null,
+            triggerLabel: label,
+            triggerIcon: widget.icon,
+            onSelected: (value) => _handleMenuSelection(value, modes),
+          )),
+    ]);
   }
 
   double _resolveMenuWidth(BuildContext context) =>
@@ -416,7 +373,7 @@ class _LibraryGroupModeDropdownMenuState
                                     ),
                                   ),
                                 ),
-                        icon: const Icon(Icons.settings, size: 18),
+                        icon: const Icon(AppIcons.settings, size: 18),
                         visualDensity: VisualDensity.compact,
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(
@@ -956,7 +913,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
       child: Row(children: [
         Padding(
           padding: const EdgeInsets.only(right: 5),
-          child: Icon(Icons.menu,
+          child: Icon(AppIcons.menu,
               size: 16, color: libraryToolbarMenuMutedText(context)),
         ),
         Expanded(
@@ -967,8 +924,11 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
         ),
         FilledButton.icon(
           onPressed: () => _startEditFavorite(index),
-          style: pickListButtonStyle(context, primary: false),
-          icon: const Icon(Icons.edit, size: 14),
+          style: pickListButtonStyle(context, primary: false).copyWith(
+            textStyle: const WidgetStatePropertyAll(
+                TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
+          ),
+          icon: const Icon(AppIcons.inlineEdit, size: 14),
           label: const Text('Edit'),
         ),
         const SizedBox(width: 5),
@@ -977,12 +937,13 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
           child: FilledButton(
             onPressed: () => setState(() => _favoritePresets.removeAt(index)),
             style: pickListButtonStyle(context).copyWith(
-              backgroundColor:
-                  WidgetStatePropertyAll(Theme.of(context).colorScheme.error),
-              foregroundColor:
-                  WidgetStatePropertyAll(Theme.of(context).colorScheme.onError),
+              backgroundColor: const WidgetStatePropertyAll(Color(0xffd9534f)),
+              foregroundColor: const WidgetStatePropertyAll(Colors.white),
+              minimumSize: const WidgetStatePropertyAll(Size(28, 32)),
+              fixedSize: const WidgetStatePropertyAll(Size(28, 32)),
+              padding: const WidgetStatePropertyAll(EdgeInsets.zero),
             ),
-            child: const Icon(Icons.delete, size: 16),
+            child: const Icon(AppIcons.removeAction, size: 14),
           ),
         ),
       ]),
