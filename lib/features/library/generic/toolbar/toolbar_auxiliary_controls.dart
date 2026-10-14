@@ -20,7 +20,6 @@ Future<Set<String>?> showSortFavoritesManagerDialog({
   required LibraryKindRegistration type,
   required List<LibrarySortFavorite> favorites,
   required Set<String> initialPinnedIds,
-  String? activeSortFavoriteId,
 }) {
   return showDialog<Set<String>>(
     context: context,
@@ -28,7 +27,6 @@ Future<Set<String>?> showSortFavoritesManagerDialog({
       type: type,
       favorites: favorites,
       initialPinnedIds: initialPinnedIds,
-      activeSortFavoriteId: activeSortFavoriteId,
     ),
   );
 }
@@ -421,13 +419,11 @@ class _SortFavoritesManagerDialog extends StatefulWidget {
     required this.type,
     required this.favorites,
     required this.initialPinnedIds,
-    this.activeSortFavoriteId,
   });
 
   final LibraryKindRegistration type;
   final List<LibrarySortFavorite> favorites;
   final Set<String> initialPinnedIds;
-  final String? activeSortFavoriteId;
 
   @override
   State<_SortFavoritesManagerDialog> createState() =>

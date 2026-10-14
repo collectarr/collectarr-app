@@ -4,8 +4,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_shelf_s
 import 'package:flutter/material.dart';
 
 const libraryShelfBackColor = Color(0xffb57e36);
-const libraryShelfPlankColor = Color(0xffb77a30);
-const libraryShelfHighlightColor = Color(0xffd79c4c);
 
 /// Original code-drawn timber backdrop; no external shelf image is required.
 class LibraryShelfBackdrop extends StatelessWidget {

@@ -472,7 +472,6 @@ void main() {
                   type: type,
                   favorites: [sortFavorite, secondFavorite],
                   initialPinnedIds: {sortFavorite.id},
-                  activeSortFavoriteId: sortFavorite.id,
                 );
               },
               child: const Text('Open'),
