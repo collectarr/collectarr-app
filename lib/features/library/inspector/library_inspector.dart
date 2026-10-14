@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
+import 'package:collectarr_app/features/library/metadata/library_link_items_page.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_loan_section.dart';
@@ -175,7 +176,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         onEdit: onEdit,
         onDuplicate: onDuplicate,
         onLoan: onLoan,
-        onRefreshMetadata: onRefreshMetadata,
+        onRefreshMetadata: activeLibraryEntry?.sourceCatalogRef == null
+            ? null
+            : onRefreshMetadata,
         onShare: onShare,
         onUnlinkFromCore: activeLibraryEntry?.sourceCatalogRef == null
             ? null
@@ -322,6 +325,16 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                             ? null
                             : () => _moveToCollection(activeLibraryEntry),
                     onUnlinkFromCore: entityActions.onUnlinkFromCore,
+                    onLinkToCore: activeLibraryEntry != null &&
+                            activeLibraryEntry.sourceCatalogRef == null
+                        ? () =>
+                            Navigator.of(context).push(MaterialPageRoute<void>(
+                              builder: (context) => LibraryLinkItemsPage(
+                                type: widget.type,
+                                entries: [selected.source],
+                              ),
+                            ))
+                        : null,
                     onDuplicate: entityActions.onDuplicate,
                     onToggleEntry: entityActions.onToggleEntry,
                     onLoan: entityActions.onLoan,

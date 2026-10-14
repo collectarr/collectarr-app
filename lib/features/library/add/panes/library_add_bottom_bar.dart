@@ -67,9 +67,11 @@ class LibraryAddBottomBar extends StatelessWidget {
               runSpacing: 8,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                LibraryAddResultBadge(effectiveCount > 0
-                    ? '$effectiveCount selected'
-                    : '0 selected'),
+                LibraryAddResultBadge(
+                    effectiveCount > 0
+                        ? '$effectiveCount selected'
+                        : '0 selected',
+                    accent: accent),
               ],
             ),
             if (addTarget == LibraryAddTarget.entry && !isWideLayout) ...[

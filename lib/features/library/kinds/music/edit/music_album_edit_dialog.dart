@@ -277,13 +277,19 @@ final class _MusicAlbumEditDialogState
           },
         ),
       ),
-      coreCorrectionSourceBuilder: () =>
-          LibraryCoreCorrectionSource.fromTypedFields(
-        request: widget.request,
-        coreCatalogRef: coreCatalogRefForEditRequest(widget.request),
-        originalFields: _album.toJson(),
-        proposedFields: _draft.toAlbum().toJson(),
-      ),
+      coreCorrectionSourceBuilder: () {
+        final coreRef = coreCatalogRefForEditRequest(widget.request);
+        return LibraryCoreCorrectionSource.fromTypedFields(
+          request: widget.request,
+          coreCatalogRef: coreRef,
+          originalFields:
+              MusicCatalogMapper.toCatalogItemDto(_album, ref: coreRef)
+                  .kindData,
+          proposedFields: MusicCatalogMapper.toCatalogItemDto(_draft.toAlbum(),
+                  ref: coreRef)
+              .kindData,
+        );
+      },
       onCancel: () => Navigator.of(context).pop(),
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,

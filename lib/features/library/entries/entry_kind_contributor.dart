@@ -249,7 +249,7 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
           );
     final item = fromJson({
       ...toJson(personal),
-      'catalog_data': source.kindData,
+      if (createWithCatalog == null) 'catalog_data': source.kindData,
       'source_catalog_ref': (sourceEntry?.sourceCatalogRef ??
               (!sourceCandidate.kindCapability.isPrivateLocal
                   ? sourceCandidate.reference

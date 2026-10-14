@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import '../../../../support/builders/catalog_item_builder.dart';
@@ -27,6 +31,54 @@ void main() {
 
     expect(title, 'Test Album / Test Artist');
     expect(title, isNot(startsWith('Edit')));
+  });
+
+  testWidgets(
+      'Music correction source reflects edited Label in canonical fields',
+      (tester) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final payload = jsonDecode(
+        File('test/support/fixtures/music_core_ui_album.json')
+            .readAsStringSync()) as Map<String, dynamic>;
+    final request = LibraryEditDialogRequest(
+      type: const MusicRegistration(),
+      item: CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson(payload)),
+      libraryEntry: null,
+      accent: Colors.orange,
+    );
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: MaterialApp(
+          home: Builder(
+              builder: (context) => Scaffold(
+                    body: buildMusicAlbumLibraryEditDialog(context, request),
+                  ))),
+    ));
+    await tester.pumpAndSettle();
+    final input = find.byWidgetPredicate((widget) =>
+        widget is TextField && widget.controller?.text == 'Demo Records');
+    await tester.enterText(input, 'UI Demo Records');
+    await tester.pump();
+    final dialog = tester.widget<
+            LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>>(
+        find.byType(LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>));
+    final source = dialog.coreCorrectionSourceBuilder!();
+    expect(source.originalFields['label'], 'Demo Records');
+    expect(source.proposedFields['label'], 'UI Demo Records');
+    expect(source.proposedFields, isNot(contains('publisher')));
+    expect(source.proposedFields['country'], 'United Kingdom');
+    await tester.enterText(
+        find.byWidgetPredicate((widget) =>
+            widget is TextField &&
+            widget.controller?.text == 'UI Demo Records'),
+        '');
+    await tester.pump();
+    expect(dialog.coreCorrectionSourceBuilder!().proposedFields,
+        containsPair('label', null));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 
   testWidgets('music links tab exposes editable external links',

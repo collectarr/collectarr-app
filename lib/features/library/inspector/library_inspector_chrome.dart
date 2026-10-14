@@ -321,6 +321,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
     this.onLoan,
     this.onRefreshMetadata,
     this.onUnlinkFromCore,
+    this.onLinkToCore,
     this.onDetailsLayoutChanged,
     this.framed = false,
     this.includeLayoutControl = true,
@@ -338,6 +339,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
   final VoidCallback? onLoan;
   final VoidCallback? onRefreshMetadata;
   final VoidCallback? onUnlinkFromCore;
+  final VoidCallback? onLinkToCore;
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final bool framed;
   final bool includeLayoutControl;
@@ -452,6 +454,12 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                           height: 1, color: libraryToolbarMenuBorder(context)),
                       _inspectorMenuItem('Unlink from Core', AppIcons.unlink,
                           onUnlinkFromCore),
+                    ],
+                    if (onLinkToCore != null) ...[
+                      Divider(
+                          height: 1, color: libraryToolbarMenuBorder(context)),
+                      _inspectorMenuItem(
+                          'Link to Core', AppIcons.link, onLinkToCore),
                     ],
                   ],
                   builder: (context, controller, child) => _InspectorBarButton(

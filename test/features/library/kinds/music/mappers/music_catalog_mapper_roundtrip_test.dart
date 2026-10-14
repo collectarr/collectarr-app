@@ -10,6 +10,26 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edi
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('canonical Music encoding keeps nullable fields for correction clearing',
+      () {
+    const ref = CatalogItemRef(kind: CatalogMediaKind.music, id: 'core-album');
+    final encoded = MusicCatalogMapper.toCatalogItemDto(
+            MusicAlbum(title: 'Album'),
+            ref: ref)
+        .kindData;
+    expect(encoded, containsPair('label', null));
+    expect(encoded, containsPair('country', null));
+    expect(encoded, containsPair('release_date', null));
+    expect(encoded, isNot(contains('publisher')));
+    expect(encoded, isNot(contains('country_code')));
+    expect(
+        MusicCatalogMapper.mapMetadataItemToMusic(
+                MusicCatalogMapper.toCatalogItemDto(MusicAlbum(title: 'Album'),
+                    ref: ref))
+            .publisher,
+        isNull);
+  });
+
   test('Music mapper rejects a format without an explicit family', () {
     final album = MusicAlbum(
       id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'album-1'),

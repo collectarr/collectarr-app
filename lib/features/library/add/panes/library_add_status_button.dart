@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -33,7 +34,7 @@ class LibraryAddStatusButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    const blue = Color(0xFF5BB0DA);
+    final accent = LibraryAccentScope.accentOf(context);
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Flexible(
           child: SizedBox(
@@ -41,7 +42,7 @@ class LibraryAddStatusButton extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: isBusy ? null : onAdd,
                 style: FilledButton.styleFrom(
-                  backgroundColor: blue,
+                  backgroundColor: accent,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   shape: const RoundedRectangleBorder(
@@ -63,9 +64,7 @@ class LibraryAddStatusButton extends StatelessWidget {
         enabled: !isBusy && onStatusChanged != null,
         onSelected: onStatusChanged,
         menuPadding: const EdgeInsets.symmetric(vertical: 6),
-        color: Theme.of(context).brightness == Brightness.dark
-            ? const Color(0xFF444444)
-            : palette.panelRaised,
+        color: palette.panelRaised,
         surfaceTintColor: Colors.transparent,
         constraints: const BoxConstraints(minWidth: 200, maxWidth: 240),
         shape: RoundedRectangleBorder(
@@ -75,9 +74,10 @@ class LibraryAddStatusButton extends StatelessWidget {
         child: Container(
           width: 30,
           height: 34,
-          decoration: const BoxDecoration(
-            color: Color(0xFF24658B),
-            borderRadius: BorderRadius.horizontal(right: Radius.circular(3)),
+          decoration: BoxDecoration(
+            color: accent,
+            borderRadius:
+                const BorderRadius.horizontal(right: Radius.circular(3)),
           ),
           child: Icon(Icons.arrow_drop_down,
               color: isBusy ? Colors.white54 : Colors.white, size: 24),
