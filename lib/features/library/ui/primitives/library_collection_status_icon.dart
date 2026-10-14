@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 /// Collection status artwork shared by filters and Add actions.
@@ -12,30 +13,17 @@ class LibraryCollectionStatusIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (asset, background) = switch (collectionStatus) {
-      LibraryCollectionStatusScope.all => ('all', const Color(0xFF777777)),
-      LibraryCollectionStatusScope.inCollection => (
-          'incollection',
-          const Color(0xFF2AA4CC)
-        ),
-      LibraryCollectionStatusScope.forSale => (
-          'forsale',
-          const Color(0xFF2D7427)
-        ),
-      LibraryCollectionStatusScope.wishList => (
-          'wishlist',
-          const Color(0xFFFF9B00)
-        ),
-      LibraryCollectionStatusScope.onOrder => (
-          'onorder',
-          const Color(0xFF13627F)
-        ),
-      LibraryCollectionStatusScope.sold => ('sold', const Color(0xFFA63131)),
-      LibraryCollectionStatusScope.notInCollection => (
-          'notincollection',
-          const Color(0xFF777777)
-        ),
+    final asset = switch (collectionStatus) {
+      LibraryCollectionStatusScope.all => 'all',
+      LibraryCollectionStatusScope.inCollection => 'incollection',
+      LibraryCollectionStatusScope.forSale => 'forsale',
+      LibraryCollectionStatusScope.wishList => 'wishlist',
+      LibraryCollectionStatusScope.onOrder => 'onorder',
+      LibraryCollectionStatusScope.sold => 'sold',
+      LibraryCollectionStatusScope.notInCollection => 'notincollection',
     };
+    final background =
+        collectionStatus.colorFor(LibraryAccentScope.accentOf(context));
     return Container(
       width: size,
       height: size,

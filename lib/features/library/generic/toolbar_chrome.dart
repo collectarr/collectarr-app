@@ -21,6 +21,16 @@ enum LibraryCollectionStatusScope {
 }
 
 extension LibraryCollectionStatusScopeUi on LibraryCollectionStatusScope {
+  Color colorFor(Color kindAccent) => switch (this) {
+        LibraryCollectionStatusScope.all => const Color(0xff777777),
+        LibraryCollectionStatusScope.inCollection => kindAccent,
+        LibraryCollectionStatusScope.forSale => const Color(0xff2d7427),
+        LibraryCollectionStatusScope.wishList => const Color(0xffff9b00),
+        LibraryCollectionStatusScope.onOrder => const Color(0xff13627f),
+        LibraryCollectionStatusScope.sold => const Color(0xffa63131),
+        LibraryCollectionStatusScope.notInCollection => const Color(0xff605c5c),
+      };
+
   String get label {
     return switch (this) {
       LibraryCollectionStatusScope.all => 'All',

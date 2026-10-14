@@ -37,7 +37,8 @@ class LibraryAddStatusButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accent = LibraryAccentScope.accentOf(context);
+    final accent =
+        collectionStatus.colorFor(LibraryAccentScope.accentOf(context));
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Flexible(
           child: SizedBox(
@@ -46,6 +47,8 @@ class LibraryAddStatusButton extends StatelessWidget {
                 onPressed: isBusy ? null : onAdd,
                 style: FilledButton.styleFrom(
                   backgroundColor: accent,
+                  disabledBackgroundColor: accent.withValues(alpha: 0.55),
+                  disabledForegroundColor: Colors.white70,
                   foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 6),

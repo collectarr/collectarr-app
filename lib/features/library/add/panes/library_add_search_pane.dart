@@ -14,6 +14,7 @@ class LibraryAddSearchPane extends StatelessWidget {
     this.onLoadMoreResults,
     required this.error,
     required this.accent,
+    this.selectionColor,
     required this.results,
     required this.selectedResultId,
     required this.checkedResultIds,
@@ -34,6 +35,7 @@ class LibraryAddSearchPane extends StatelessWidget {
   final VoidCallback? onLoadMoreResults;
   final String? error;
   final Color accent;
+  final Color? selectionColor;
   final List<CatalogSearchCandidate> results;
   final String? selectedResultId;
   final Set<String> checkedResultIds;
@@ -65,7 +67,7 @@ class LibraryAddSearchPane extends StatelessWidget {
           Expanded(
             child: _SearchResultsList(
               type: type,
-              accent: accent,
+              accent: selectionColor ?? accent,
               useGridResults: resultPolicy.useGridResults,
               isBusy: isBusy,
               error: error,
@@ -493,29 +495,17 @@ class _SearchResultsGrid extends StatelessWidget {
                           Positioned(
                             right: 4,
                             top: 4,
-                            child: InkWell(
-                              mouseCursor: WidgetStateMouseCursor.clickable,
-                              onTap: () =>
-                                  onToggleResultCheck(item.reference.id),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: palette.surfaceDim,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  checked
-                                      ? Icons.check_circle
-                                      : Icons.radio_button_unchecked,
-                                  size: 18,
-                                  color: checked
-                                      ? libraryAccentTextColor(
-                                          accent,
-                                          palette.surfaceDim,
-                                        )
-                                      : palette.textPrimary,
-                                ),
+                            child: SizedBox.square(
+                              dimension: 24,
+                              child: Checkbox(
+                                value: checked,
+                                onChanged: (_) =>
+                                    onToggleResultCheck(item.reference.id),
+                                activeColor: accent,
+                                checkColor: Colors.white,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                visualDensity: VisualDensity.compact,
                               ),
                             ),
                           ),
@@ -664,6 +654,7 @@ class SearchResultTile extends StatelessWidget {
                   value: checked,
                   onChanged: (_) => onToggleCheck(),
                   activeColor: accent,
+                  checkColor: Colors.white,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   visualDensity: VisualDensity.compact,
                 ),

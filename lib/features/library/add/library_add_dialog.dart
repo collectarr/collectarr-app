@@ -2,6 +2,8 @@ import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'dart:async';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -913,6 +915,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 onLoadMoreResults: _controller.loadMoreResults,
                 error: state.search.error,
                 accent: accent,
+                selectionColor: (state.target == LibraryAddTarget.wishlist
+                        ? LibraryCollectionStatusScope.wishList
+                        : state.target == LibraryAddTarget.track
+                            ? LibraryCollectionStatusScope.notInCollection
+                            : libraryCollectionStatusFromValue(
+                                state.commonDraft.collectionStatus))
+                    .colorFor(accent),
                 results: visibleCore,
                 selectedResultId: state.selection.selectedResultId,
                 checkedResultIds: state.selection.checkedResultIds,

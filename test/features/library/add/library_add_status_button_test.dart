@@ -2,8 +2,34 @@ import 'package:collectarr_app/features/library/add/panes/library_add_status_but
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 
 void main() {
+  testWidgets('Add action follows each destination status color',
+      (tester) async {
+    for (final (status, color) in [
+      (LibraryCollectionStatusScope.inCollection, Colors.orange),
+      (LibraryCollectionStatusScope.forSale, const Color(0xff2d7427)),
+      (LibraryCollectionStatusScope.wishList, const Color(0xffff9b00)),
+      (LibraryCollectionStatusScope.onOrder, const Color(0xff13627f)),
+      (LibraryCollectionStatusScope.sold, const Color(0xffa63131)),
+      (LibraryCollectionStatusScope.notInCollection, const Color(0xff605c5c)),
+    ]) {
+      await tester.pumpWidget(MaterialApp(
+          home: Scaffold(
+              body: LibraryAccentScope(
+        kind: 'music',
+        accent: Colors.orange,
+        animationsEnabled: false,
+        child: LibraryAddStatusButton(
+            collectionStatus: status, onAdd: () {}, onStatusChanged: (_) {}),
+      ))));
+      final button = tester.widget<FilledButton>(find.byType(FilledButton));
+      expect(button.style!.backgroundColor!.resolve({}), color);
+      expect(button.style!.backgroundColor!.resolve({WidgetState.disabled}),
+          color.withValues(alpha: 0.55));
+    }
+  });
   testWidgets('status choices do not add; prefill opens after menu dismisses',
       (tester) async {
     var status = LibraryCollectionStatusScope.inCollection;
