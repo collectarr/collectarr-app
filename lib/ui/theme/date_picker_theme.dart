@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
+import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
 DatePickerThemeData buildAppDatePickerTheme({
@@ -16,6 +17,14 @@ DatePickerThemeData buildAppDatePickerTheme({
     palette.panelRaised,
   );
   final headerForeground = appContrastingTextColor(headerBackground);
+  final actionText = TextStyle(
+    fontFamily: appFontFamily,
+    fontFamilyFallback: kAppFontFamilyFallback,
+    fontSize: 14,
+    fontWeight: kAppNormalFontWeight,
+    height: 20 / 14,
+    letterSpacing: 0,
+  );
   final dialogShape = RoundedRectangleBorder(
     borderRadius: BorderRadius.zero,
     side: BorderSide(color: palette.divider),
@@ -148,12 +157,12 @@ DatePickerThemeData buildAppDatePickerTheme({
     rangeSelectionOverlayColor: WidgetStatePropertyAll(hoverFill),
     cancelButtonStyle: TextButton.styleFrom(
       foregroundColor: palette.textPrimary.withValues(alpha: 0.78),
-      textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      textStyle: actionText,
     ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     confirmButtonStyle: FilledButton.styleFrom(
       backgroundColor: resolvedActionAccent,
       foregroundColor: appContrastingTextColor(resolvedActionAccent),
-      textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      textStyle: actionText,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
     ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
   );

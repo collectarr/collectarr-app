@@ -50,6 +50,10 @@ ButtonStyle libraryAddFilledButtonStyle([Color accent = kAppAccent]) {
     shape: kLibraryDialogFooterButtonShape,
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     visualDensity: VisualDensity.compact,
-    textStyle: const TextStyle(fontWeight: FontWeight.w600),
+    textStyle: TextStyle(
+        fontFamily: appFontFamily,
+        fontFamilyFallback: kAppFontFamilyFallback,
+        fontSize: 14,
+        fontWeight: FontWeight.w600),
   );
 }

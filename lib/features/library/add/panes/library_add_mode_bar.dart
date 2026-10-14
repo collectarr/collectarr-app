@@ -707,7 +707,9 @@ class _LibraryAddModeActionButton extends StatelessWidget {
           ),
           visualDensity: VisualDensity.compact,
           padding: const EdgeInsets.symmetric(horizontal: 11),
-          textStyle: const TextStyle(
+          textStyle: TextStyle(
+            fontFamily: appFontFamily,
+            fontFamilyFallback: kAppFontFamilyFallback,
             fontWeight: FontWeight.w700,
             fontSize: 13,
           ),

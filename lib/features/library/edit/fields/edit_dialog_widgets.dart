@@ -84,7 +84,7 @@ ThemeData editDialogTheme({
     popupMenuTheme: PopupMenuThemeData(
       color: palette.panelRaised,
       surfaceTintColor: Colors.transparent,
-      textStyle: TextStyle(color: palette.textPrimary),
+      textStyle: buildAppPopupMenuTheme(palette).textStyle,
       elevation: 12,
       shape: RoundedRectangleBorder(
         borderRadius: kAppMenuBorderRadius,

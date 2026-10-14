@@ -662,7 +662,11 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
       minimumSize: Size.zero,
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+      textStyle: TextStyle(
+          fontFamily: appFontFamily,
+          fontFamilyFallback: kAppFontFamilyFallback,
+          fontSize: 13,
+          fontWeight: FontWeight.w600),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
       ),

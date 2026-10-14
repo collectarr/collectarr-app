@@ -55,8 +55,12 @@ class LibraryAddStatusButton extends StatelessWidget {
                   shape: const RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.horizontal(left: Radius.circular(4))),
-                  textStyle: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w400, height: 1.25),
+                  textStyle: TextStyle(
+                      fontFamily: appFontFamily,
+                      fontFamilyFallback: kAppFontFamilyFallback,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      height: 1.25),
                 ),
                 icon: isBusy
                     ? const SizedBox.square(
