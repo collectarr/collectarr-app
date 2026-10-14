@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 /// Shared canvas and centered body for settings and collection tools.
 /// Scrolling remains owned by the page so lists and split panes stay bounded.
 class AppManagementContent extends StatelessWidget {
-  const AppManagementContent({super.key, required this.child});
+  const AppManagementContent(
+      {super.key, required this.child, this.maxWidth = 930});
 
   final Widget child;
+  final double maxWidth;
 
   @override
   Widget build(BuildContext context) => Material(
@@ -15,7 +17,7 @@ class AppManagementContent extends StatelessWidget {
           alignment: Alignment.topCenter,
           heightFactor: 1,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 930),
+            constraints: BoxConstraints(maxWidth: maxWidth),
             child: SizedBox(width: double.infinity, child: child),
           ),
         ),

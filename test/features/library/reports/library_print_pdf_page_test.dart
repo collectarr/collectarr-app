@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_track.d
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/reports/library_print_pdf_page.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
+import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -15,6 +17,56 @@ import '../../../support/fixtures/test_constants.dart';
 import '../../../support/builders/workspace_item_builder.dart';
 
 void main() {
+  testWidgets('print field dialogs apply selections and Cancel discards edits',
+      (tester) async {
+    tester.view.physicalSize = const Size(1280, 1024);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(MaterialApp(
+        home: LibraryPrintPdfPage(
+      type: defaultLibraryKindRegistry.require(CatalogMediaKind.music),
+      items: const [],
+    )));
+    await pumpUntilSettled(tester);
+    final originalSummary =
+        tester.widget<Text>(find.textContaining('Active columns (')).data!;
+    final barcodeChoice = find.descendant(
+      of: find.byType(LibraryFieldSelectionCheckbox),
+      matching: find.text('Barcode'),
+    );
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Manage').first);
+    await pumpUntilSettled(tester);
+    await tester.tap(barcodeChoice);
+    await tester.tap(find.text('Cancel'));
+    await pumpUntilSettled(tester);
+    expect(find.text(originalSummary), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Manage').first);
+    await pumpUntilSettled(tester);
+    await tester.tap(barcodeChoice);
+    await tester.tap(find.text('Save'));
+    await pumpUntilSettled(tester);
+    expect(find.text(originalSummary), findsNothing);
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Manage').last);
+    await pumpUntilSettled(tester);
+    final titleChoice = find.descendant(
+      of: find.byType(LibraryFieldSelectionCheckbox),
+      matching: find.text('Title'),
+    );
+    await tester.ensureVisible(titleChoice);
+    await tester.tap(titleChoice);
+    await tester.tap(find.text('Save'));
+    await pumpUntilSettled(tester);
+    final sortSection = find
+        .ancestor(of: find.text('Sort Order'), matching: find.byType(Column))
+        .first;
+    expect(find.descendant(of: sortSection, matching: find.text('Title')),
+        findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('LibraryPrintPdfPage renders full layout with all CLZ sections',
       (tester) async {
     tester.view.physicalSize = const Size(1280, 1024);
@@ -81,6 +133,14 @@ void main() {
     // Header
     expect(find.text('Print to PDF'), findsOneWidget);
     expect(find.byKey(const Key('print_pdf.back')), findsOneWidget);
+    for (final label in ['Print to PDF', 'Back']) {
+      expect(
+          DefaultTextStyle.of(tester.element(find.text(label)))
+              .style
+              .fontFamily,
+          appFontFamily,
+          reason: label);
+    }
 
     // Section 1: Subset
     expect(find.text('Which Albums'), findsOneWidget);

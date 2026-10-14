@@ -48,6 +48,8 @@ class AppPageHeader extends StatelessWidget implements PreferredSizeWidget {
                   data: IconThemeData(size: 16, color: palette.textPrimary),
                   child: DefaultTextStyle(
                     style: TextStyle(
+                        fontFamily: appFontFamily,
+                        height: 20 / 14,
                         color: palette.textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w700),
@@ -122,7 +124,11 @@ class AppPageBackButton extends StatelessWidget {
           foregroundColor: appPalette(context).textPrimary,
           backgroundColor: Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 4),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+          textStyle: TextStyle(
+              fontFamily: appFontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              height: 20 / 14),
         ),
         icon: const Icon(AppIcons.chevronLeft, size: 18),
         label: const Text('Back'),
