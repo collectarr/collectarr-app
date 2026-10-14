@@ -6,7 +6,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 List<PopupMenuEntry<LibraryCollectionStatusScope>>
-    libraryCollectionStatusEditMenuItems(BuildContext context) {
+    libraryCollectionStatusEditMenuItems(BuildContext context,
+        {double rowHeight = 26, double verticalPadding = 0}) {
   PopupMenuEntry<LibraryCollectionStatusScope> heading(String label) =>
       PopupMenuItem(
           enabled: false,
@@ -21,11 +22,15 @@ List<PopupMenuEntry<LibraryCollectionStatusScope>>
           LibraryCollectionStatusScope status) =>
       PopupMenuItem(
           value: status,
-          height: 26,
-          padding: const EdgeInsets.symmetric(horizontal: 7),
+          height: rowHeight,
+          padding:
+              EdgeInsets.symmetric(horizontal: 7, vertical: verticalPadding),
           child: Row(children: [
             Expanded(
-                child: Text(status.label,
+                child: Text(
+                    status == LibraryCollectionStatusScope.wishList
+                        ? 'On Wish List'
+                        : status.label,
                     style: TextStyle(
                         color: appPalette(context).textPrimary,
                         fontSize: 14,

@@ -1,4 +1,5 @@
 import '../music_module_dependencies.dart';
+import 'music_add_preview.dart';
 import '../config/music_kind_configuration.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/music_catalog_remote_source.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_item_hierarchy_mapper.dart';
@@ -97,6 +98,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   ),
   resultPolicy: const LibraryAddResultPolicy.identity(),
   manualPaneBuilder: buildMusicAddManualPane,
+  previewPaneBuilder: buildMusicAddPreview,
   chrome: musicAddChrome,
 );
 

@@ -310,7 +310,7 @@ class _SearchResultsList extends StatelessWidget {
     final palette = appPalette(context);
     final notice = _SearchPaneNoticeStack(error: error);
     if (isBusy && results.isEmpty) {
-      return _SearchSkeletonList(notice: notice);
+      return const Center(child: Text('Searching Core...'));
     }
     if (results.isEmpty) {
       return ListView(
@@ -576,105 +576,6 @@ class _SearchResultsGrid extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _SearchSkeletonList extends StatelessWidget {
-  const _SearchSkeletonList({required this.notice});
-
-  final Widget notice;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        notice,
-        const Padding(
-          padding: EdgeInsets.all(8),
-          child: _ResultSectionHeader(label: 'Searching'),
-        ),
-        for (var index = 0; index < 6; index++) ...[
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color:
-                    index.isEven ? palette.tableEvenRow : palette.tableOddRow,
-                border: Border.all(color: palette.tableBottomBorder),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    _SkeletonBox(width: 42, height: 56),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _SkeletonBox(width: 220, height: 13),
-                          SizedBox(height: 8),
-                          _SkeletonBox(width: 320, height: 10),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-        const SizedBox(height: 8),
-      ],
-    );
-  }
-}
-
-class _SkeletonBox extends StatelessWidget {
-  const _SkeletonBox({required this.width, required this.height});
-
-  final double width;
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: palette.surfaceBright,
-        borderRadius: BorderRadius.circular(2),
-      ),
-    );
-  }
-}
-
-class _ResultSectionHeader extends StatelessWidget {
-  const _ResultSectionHeader({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: palette.panelRaised,
-        border: Border(bottom: BorderSide(color: palette.divider)),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.tableHeader.copyWith(
-          color: palette.textMuted,
-        ),
-      ),
     );
   }
 }

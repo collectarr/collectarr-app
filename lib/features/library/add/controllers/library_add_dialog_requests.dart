@@ -195,9 +195,6 @@ class LibraryAddModeBarRequest {
 
 class LibraryAddBottomBarRequest {
   const LibraryAddBottomBarRequest({
-    required this.type,
-    required this.conditions,
-    required this.defaultTags,
     required this.accent,
     required this.selectedItem,
     required this.addTarget,
@@ -206,21 +203,10 @@ class LibraryAddBottomBarRequest {
     required this.addCount,
     this.hasCheckedSelection = false,
     required this.isAdding,
-    required this.defaultCondition,
-    required this.defaultLocationLabel,
-    required this.defaultPurchaseDate,
-    required this.onAddTargetChanged,
-    required this.onDefaultConditionChanged,
-    required this.onEditDefaultTagsPressed,
-    required this.onDefaultLocationPressed,
-    required this.onDefaultPurchaseDateChanged,
     required this.onAdd,
-    required this.isWideLayout,
+    this.onPrefillSettings,
   });
 
-  final LibraryKindRegistration type;
-  final List<String> conditions;
-  final String? defaultTags;
   final Color accent;
   final CatalogSearchCandidate? selectedItem;
   final LibraryAddTarget addTarget;
@@ -229,14 +215,6 @@ class LibraryAddBottomBarRequest {
   final int addCount;
   final bool hasCheckedSelection;
   final bool isAdding;
-  final String defaultCondition;
-  final String? defaultLocationLabel;
-  final DateTime? defaultPurchaseDate;
-  final ValueChanged<LibraryAddTarget> onAddTargetChanged;
-  final ValueChanged<String> onDefaultConditionChanged;
-  final VoidCallback onEditDefaultTagsPressed;
-  final VoidCallback onDefaultLocationPressed;
-  final ValueChanged<DateTime?> onDefaultPurchaseDateChanged;
   final VoidCallback? onAdd;
-  final bool isWideLayout;
+  final VoidCallback? onPrefillSettings;
 }

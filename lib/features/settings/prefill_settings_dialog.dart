@@ -13,12 +13,16 @@ import 'package:collectarr_app/features/library/edit/sections/library_entry_pers
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/ui/single_value_pick_field.dart';
 
 class PrefillSettingsDialog extends ConsumerStatefulWidget {
-  const PrefillSettingsDialog({super.key, required this.accent, this.kind});
+  const PrefillSettingsDialog(
+      {super.key, required this.accent, this.kind, this.confirmLabel});
 
   final Color accent;
   final CatalogMediaKind? kind;
+  final String? confirmLabel;
 
   @override
   ConsumerState<PrefillSettingsDialog> createState() =>
@@ -27,6 +31,9 @@ class PrefillSettingsDialog extends ConsumerStatefulWidget {
 
 class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   final _tagsController = TextEditingController();
+  final _conditionController = TextEditingController();
+  bool _alwaysShow = true;
+  bool _fillToday = false;
   bool _loaded = false;
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
@@ -41,6 +48,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   @override
   void dispose() {
     _tagsController.dispose();
+    _conditionController.dispose();
     _personalDraft?.dispose();
     super.dispose();
   }
@@ -51,6 +59,10 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     if (!mounted) return;
     setState(() {
       _tagsController.text = defaults.tags ?? '';
+      _conditionController.text =
+          defaults.personalValues['condition'] as String? ?? '';
+      _alwaysShow = defaults.alwaysShow;
+      _fillToday = defaults.fillPurchaseDateWithToday;
       _availableLocations = locations;
       _selectedLocationId = defaults.locationId;
       if (widget.kind case final kind?) {
@@ -75,7 +87,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       ),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-            maxWidth: widget.kind == null ? 440 : 900, maxHeight: 720),
+            maxWidth: widget.kind == null ? 440 : 800, maxHeight: 720),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -111,10 +123,50 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                         hint: 'Comma-separated tags'),
                     if (_personalDraft case final draft?) ...[
                       const SizedBox(height: 16),
-                      LibraryEntryPersonalSection(draft: draft),
+                      SingleValuePickField(
+                        controller: _conditionController,
+                        options:
+                            libraryEditPresentationForKind(draft.record.kind)
+                                .conditions,
+                        label: 'Condition',
+                        onChanged: (value) => draft.set('condition', value),
+                      ),
                       const SizedBox(height: 12),
-                      LibraryEntryStatusStrip(draft: draft),
+                      LibraryEntryPersonalSection(
+                        draft: draft,
+                        layoutBuilder: (fields, _) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final key in [
+                              'purchase_date',
+                              'purchase_store',
+                              'price_paid_cents',
+                              'currency'
+                            ])
+                              if (fields[key] case final field?)
+                                Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: field),
+                          ],
+                        ),
+                      ),
+                      CheckboxListTile(
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: const Text('Fill purchase date with today'),
+                        value: _fillToday,
+                        onChanged: (value) =>
+                            setState(() => _fillToday = value ?? false),
+                      ),
                     ],
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      title: const Text('Always show this screen'),
+                      value: _alwaysShow,
+                      onChanged: (value) =>
+                          setState(() => _alwaysShow = value ?? true),
+                    ),
                   ],
                 ),
               ))),
@@ -130,21 +182,16 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       title: 'Pre-fill Settings',
       accent: widget.accent,
       icon: Icons.auto_fix_high,
-      trailing: TextButton(
-        onPressed: () {
-          setState(() {
-            _selectedLocationId = null;
-            _tagsController.clear();
-            _personalDraft?.reset();
-          });
-        },
-        child: const Text(
-          'Clear all',
-          style: TextStyle(fontSize: 13, color: Colors.white),
-        ),
-      ),
     );
   }
+
+  void _clearAll() => setState(() {
+        _selectedLocationId = null;
+        _tagsController.clear();
+        _personalDraft?.reset();
+        _conditionController.clear();
+        _fillToday = false;
+      });
 
   Widget _locationField() {
     final label = locationPathForId(_availableLocations, _selectedLocationId);
@@ -288,16 +335,20 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          TextButton(onPressed: _clearAll, child: const Text('Clear All')),
+          const Spacer(),
           DialogActionButtons.cancel(
             onPressed: () => Navigator.of(context).pop(),
           ),
           const SizedBox(width: 8),
           DialogActionButtons.save(
+            label: widget.confirmLabel ?? 'Save',
             accent: widget.accent,
             onPressed: () async {
               final defaults = PrefillDefaults(
+                alwaysShow: _alwaysShow,
+                fillPurchaseDateWithToday: _fillToday,
                 locationId: _selectedLocationId,
                 tags:
                     _tagsController.text.isEmpty ? null : _tagsController.text,
@@ -317,11 +368,13 @@ Future<PrefillDefaults?> showPrefillSettingsDialog({
   required BuildContext context,
   required Color accent,
   CatalogMediaKind? kind,
+  String? confirmLabel,
 }) {
   return showDialog<PrefillDefaults>(
     context: context,
     builder: (context) => Theme(
         data: libraryAccentTheme(context, accent),
-        child: PrefillSettingsDialog(accent: accent, kind: kind)),
+        child: PrefillSettingsDialog(
+            accent: accent, kind: kind, confirmLabel: confirmLabel)),
   );
 }

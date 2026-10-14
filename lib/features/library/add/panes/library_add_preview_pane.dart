@@ -39,6 +39,8 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     required this.item,
     required this.isFetchingPreview,
     required this.searched,
+    this.additionalDetails,
+    this.coverAspectRatio = 2 / 3,
   });
 
   final LibraryKindRegistration type;
@@ -48,6 +50,8 @@ class LibraryAddPreviewPane extends ConsumerWidget {
   final CatalogSearchCandidate? item;
   final bool isFetchingPreview;
   final bool searched;
+  final Widget? additionalDetails;
+  final double coverAspectRatio;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -180,6 +184,10 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                               label: row.$1,
                               value: row.$2!,
                             ),
+                        if (additionalDetails != null) ...[
+                          const SizedBox(height: 16),
+                          additionalDetails!,
+                        ],
                         if (isFetchingPreview) ...[
                           const SizedBox(height: 16),
                           Row(
@@ -213,7 +221,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(10),
                         child: AspectRatio(
-                          aspectRatio: 2 / 3,
+                          aspectRatio: coverAspectRatio,
                           child: LibraryInteractiveCover(
                             title: title,
                             itemNumber: itemNumber,

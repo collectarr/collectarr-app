@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'dart:async';
@@ -9,12 +9,10 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_contracts.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
@@ -35,7 +33,6 @@ import 'package:collectarr_app/features/library/add/panes/library_add_preview_pa
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -45,7 +42,6 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
@@ -287,60 +283,27 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     });
   }
 
-  Future<void> _showDefaultTagsEditor() async {
-    final controller =
-        TextEditingController(text: _controller.state.defaultTags ?? '');
-    try {
-      final result = await showDialog<String>(
-        context: context,
-        builder: (dialogCtx) => AccentAlertDialog(
-          headerIcon: AppIcons.tags,
-          title: const Text('Entry default tags'),
-          content: SizedBox(
-            width: 440,
-            child: LibraryVocabularyField(
-              controller: controller,
-              options: _tagOptions,
-              label: 'Tags',
-              hint: 'Comma-separated tags',
-              multiSelect: true,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogCtx).pop(),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(dialogCtx).pop(
-                joinPickListValues(splitPickListValues(controller.text)) ?? '',
-              ),
-              child: const Text('Apply'),
-            ),
-          ],
-        ),
-      );
-      if (!mounted || result == null) return;
-      _controller.setDefaultTags(result.isEmpty ? null : result);
-    } finally {
-      controller.dispose();
+  Future<bool> _showPrefillSettings({bool confirmAdd = false}) async {
+    if (confirmAdd &&
+        !(await PrefillDefaults.load(widget.type.kind)).alwaysShow) {
+      return mounted;
     }
-  }
-
-  Future<void> _pickDefaultLocation() async {
-    final result = await showLocationPickerDialog(
+    if (!mounted) return false;
+    final defaults = await showPrefillSettingsDialog(
       context: context,
-      db: ref.read(localDatabaseProvider),
-      currentLocationId: _controller.state.defaultLocationId,
+      accent: LibraryAccentScope.accentOf(context),
+      kind: widget.type.kind,
+      confirmLabel: confirmAdd ? 'Add' : null,
     );
-    if (result == null) return;
-    final locations =
-        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
-    if (!mounted) return;
-    setState(() {
-      _availableLocations = locations;
-    });
-    _controller.setDefaultLocationId(result.isEmpty ? null : result);
+    if (!mounted || defaults == null) return false;
+    final status = _controller.state.commonDraft.collectionStatus;
+    _controller.setDefaultTags(defaults.tags);
+    _controller.setDefaultLocationId(defaults.locationId);
+    _controller.updateCommonDraft((_) => defaults.applyTo(
+          LibraryAddCommonDraft(collectionStatus: status),
+        ));
+    await _loadPickListOptions();
+    return true;
   }
 
   @override
@@ -1010,9 +973,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       },
       footer: () {
         final bottomBarRequest = LibraryAddBottomBarRequest(
-          type: widget.type,
-          conditions: _conditionOptions,
-          defaultTags: state.defaultTags,
           accent: accent,
           selectedItem: selectedItem,
           addTarget: state.target,
@@ -1026,34 +986,35 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 ? LibraryAddTarget.wishlist
                 : LibraryAddTarget.entry);
           },
-          addCount: checkedSelectionCount > 0 ? checkedSelectionCount : 1,
+          addCount: checkedSelectionCount > 0
+              ? checkedSelectionCount
+              : (selectedItem == null ? 0 : 1),
           hasCheckedSelection: hasCheckedSelection,
-          isAdding: state.isAdding || state.submitState.isLoading,
-          defaultCondition: state.defaultCondition,
-          defaultLocationLabel:
-              locationPathForId(_availableLocations, state.defaultLocationId),
-          defaultPurchaseDate: state.defaultPurchaseDate,
-          onAddTargetChanged: _controller.setTarget,
-          onDefaultConditionChanged: _controller.setDefaultCondition,
-          onEditDefaultTagsPressed: _showDefaultTagsEditor,
-          onDefaultLocationPressed: _pickDefaultLocation,
-          onDefaultPurchaseDateChanged: _controller.setDefaultPurchaseDate,
-          onAdd: () async {
-            final success = await _controller.submitCurrentSelection();
-            if (success && mounted) {
-              final submittedIds = _controller.lastSubmittedItemIds;
-              if (submittedIds.isEmpty) {
-                _controller.reportSubmissionError(
-                  'The items were saved but their local identities were not returned.',
-                );
-                return;
-              }
-              _closeDialog(
-                _addResult(submittedIds),
-              );
-            }
-          },
-          isWideLayout: isWideLayout,
+          isAdding: state.isAdding ||
+              state.submitState.isLoading ||
+              state.search.isBusy,
+          onPrefillSettings: _showPrefillSettings,
+          onAdd: selectedItem == null && !hasCheckedSelection
+              ? null
+              : () async {
+                  if (!await _showPrefillSettings(confirmAdd: true) ||
+                      !mounted) {
+                    return;
+                  }
+                  final success = await _controller.submitCurrentSelection();
+                  if (success && mounted) {
+                    final submittedIds = _controller.lastSubmittedItemIds;
+                    if (submittedIds.isEmpty) {
+                      _controller.reportSubmissionError(
+                        'The items were saved but their local identities were not returned.',
+                      );
+                      return;
+                    }
+                    _closeDialog(
+                      _addResult(submittedIds),
+                    );
+                  }
+                },
         );
         return LibraryAddBottomBar(
           request: bottomBarRequest,

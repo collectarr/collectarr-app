@@ -12,12 +12,14 @@ class LibraryAddStatusButton extends StatelessWidget {
     required this.onAdd,
     required this.onStatusChanged,
     this.isBusy = false,
+    this.onPrefillSettings,
   });
 
   final LibraryCollectionStatusScope collectionStatus;
   final VoidCallback? onAdd;
   final ValueChanged<LibraryCollectionStatusScope>? onStatusChanged;
   final bool isBusy;
+  final VoidCallback? onPrefillSettings;
 
   String get _label => switch (collectionStatus) {
         LibraryCollectionStatusScope.all ||
@@ -60,17 +62,30 @@ class LibraryAddStatusButton extends StatelessWidget {
                 label: Text(_label, overflow: TextOverflow.ellipsis),
               ))),
       PopupMenuButton<LibraryCollectionStatusScope>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
+        position: PopupMenuPosition.under,
         tooltip: 'Choose collection status',
         enabled: !isBusy && onStatusChanged != null,
         onSelected: onStatusChanged,
-        menuPadding: const EdgeInsets.symmetric(vertical: 6),
+        menuPadding: EdgeInsets.zero,
         color: palette.panelRaised,
         surfaceTintColor: Colors.transparent,
-        constraints: const BoxConstraints(minWidth: 200, maxWidth: 240),
+        constraints: const BoxConstraints(minWidth: 190, maxWidth: 240),
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(3),
+            borderRadius: BorderRadius.circular(4),
             side: BorderSide(color: palette.divider)),
-        itemBuilder: libraryCollectionStatusEditMenuItems,
+        itemBuilder: (context) => [
+          ...libraryCollectionStatusEditMenuItems(context,
+              rowHeight: 31, verticalPadding: 4),
+          if (onPrefillSettings != null) ...[
+            const PopupMenuDivider(height: 8),
+            PopupMenuItem<LibraryCollectionStatusScope>(
+              height: 30,
+              onTap: () => Future<void>(onPrefillSettings!),
+              child: const Text('Pre-fill Settings'),
+            ),
+          ],
+        ],
         child: Container(
           width: 30,
           height: 34,

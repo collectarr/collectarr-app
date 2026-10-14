@@ -83,7 +83,9 @@ final class LibraryAddSubmissionService {
     final changes = <String, dynamic>{
       for (final entry in defaults?.personalValues.entries ??
           const <MapEntry<String, dynamic>>[])
-        if (!{
+        if ((entry.key != 'purchase_date_parts' ||
+                defaults?.fillPurchaseDateWithToday != true) &&
+            !{
               'condition',
               'purchase_date',
               'purchase_store',
