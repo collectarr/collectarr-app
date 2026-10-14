@@ -89,7 +89,6 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
 
     return LibraryDetailSection(
       title: 'Location',
-      accentColor: widget.accent,
       children: [
         Material(
           color: Colors.transparent,

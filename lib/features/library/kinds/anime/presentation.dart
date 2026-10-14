@@ -264,7 +264,6 @@ class AnimeLibraryMediaPresentationBuilder
     return [
       LibraryDetailSection(
         title: 'Summary',
-        accentColor: accent,
         children: [
           SelectableText(
             dto.common.synopsis!,

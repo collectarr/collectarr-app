@@ -49,11 +49,8 @@ Widget buildMusicInspectorHero(
 List<Widget> buildMusicInspectorSections(
     BuildContext context, LibraryInspectorRequest request) {
   final model = _musicModel(request.item);
-  Widget section(String title, Widget child) => LibraryDetailSection(
-      title: title,
-      accentColor: request.accent,
-      collapsible: false,
-      children: [child]);
+  Widget section(String title, Widget child) =>
+      LibraryDetailSection(title: title, collapsible: false, children: [child]);
   final credits = <Widget>[
     if (model.music.credits.isNotEmpty ||
         model.discs.any((disc) => disc.credits.isNotEmpty))
@@ -85,8 +82,11 @@ List<Widget> buildMusicInspectorSections(
                 .where((v) => v.isNotEmpty))
               TextButton.icon(
                   style: TextButton.styleFrom(
-                      textStyle: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w400)),
+                      foregroundColor: appPalette(context).textPrimary,
+                      textStyle: TextStyle(
+                          fontFamily: appFontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400)),
                   onPressed: request.onFilterByValue == null
                       ? null
                       : () => request.onFilterByValue!(tag),
@@ -100,8 +100,11 @@ List<Widget> buildMusicInspectorSections(
             for (final link in model.music.externalLinks)
               TextButton(
                   style: TextButton.styleFrom(
-                      textStyle: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w400)),
+                      foregroundColor: appPalette(context).link,
+                      textStyle: TextStyle(
+                          fontFamily: appFontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400)),
                   onPressed: () => launchUrl(Uri.parse(link.url)),
                   child: Text(link.title ?? link.url)),
           ])),
@@ -556,7 +559,7 @@ class _MusicInspectorHeader extends ConsumerWidget {
               child: Text('Find sold listings on eBay',
                   style: TextStyle(
                       fontSize: 14,
-                      color: inspector.accent,
+                      color: palette.link,
                       decoration: TextDecoration.underline))),
         ],
       ]);
@@ -569,7 +572,7 @@ class _MusicInspectorHeader extends ConsumerWidget {
                   style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
-                      color: inspector.accent)),
+                      color: palette.detailHeading)),
               const Divider(height: 18),
               for (var i = 0; i < boxSetAlbums.length; i++)
                 Padding(
@@ -579,8 +582,8 @@ class _MusicInspectorHeader extends ConsumerWidget {
                             ? null
                             : () => onFilter(music.boxSet!),
                         child: Text('${i + 1}  ${boxSetAlbums[i].title}',
-                            style: TextStyle(
-                                fontSize: 14, color: inspector.accent)))),
+                            style:
+                                TextStyle(fontSize: 14, color: palette.link)))),
               const Divider(height: 32),
             ],
             if (artist?.isNotEmpty == true)
@@ -594,7 +597,7 @@ class _MusicInspectorHeader extends ConsumerWidget {
               Expanded(
                   child: Text(music.title,
                       style: TextStyle(
-                          color: inspector.accent,
+                          color: palette.detailHeading,
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
                           height: 1.1))),

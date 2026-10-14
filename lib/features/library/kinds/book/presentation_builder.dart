@@ -449,7 +449,6 @@ class BookLibraryMediaPresentationBuilder
       sections.add(
         LibraryDetailSection(
           title: spec.title,
-          accentColor: accent,
           children: spec.children,
         ),
       );

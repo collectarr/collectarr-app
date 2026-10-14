@@ -24,7 +24,6 @@ class InspectorLinksTrailersSection extends StatelessWidget {
     }
     return LibraryDetailSection(
       title: 'Trailers / links',
-      accentColor: request.accent,
       children: [
         LibraryDetailChipGroupWidget(
           label: 'Links',

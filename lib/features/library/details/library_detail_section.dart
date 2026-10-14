@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -16,13 +15,11 @@ class LibraryDetailSection extends StatefulWidget {
     this.headerActions = const [],
     this.collapsible = true,
     this.initiallyExpanded = true,
-    this.accentColor,
   });
 
   factory LibraryDetailSection.fromSpec(
-    LibraryDetailSectionSpec spec, {
-    Color? accentColor,
-  }) {
+    LibraryDetailSectionSpec spec,
+  ) {
     return LibraryDetailSection(
       title: spec.title,
       subtitle: spec.subtitle,
@@ -30,7 +27,6 @@ class LibraryDetailSection extends StatefulWidget {
       chips: spec.chips,
       collapsible: true,
       initiallyExpanded: spec.initiallyExpanded,
-      accentColor: accentColor,
       headerActions: spec.headerActions,
       children: spec.children,
     );
@@ -44,7 +40,6 @@ class LibraryDetailSection extends StatefulWidget {
   final List<Widget> headerActions;
   final bool collapsible;
   final bool initiallyExpanded;
-  final Color? accentColor;
 
   @override
   State<LibraryDetailSection> createState() => _LibraryDetailSectionState();
@@ -62,7 +57,7 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accent = widget.accentColor ?? LibraryAccentScope.accentOf(context);
+    final accent = palette.detailHeading;
     final body = <Widget>[];
     if (widget.fields.isNotEmpty) {
       body.add(LibraryDetailFieldTable(fields: widget.fields));

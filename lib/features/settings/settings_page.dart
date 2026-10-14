@@ -9,7 +9,6 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/features/settings/local_font_settings_panel.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
@@ -30,7 +29,6 @@ import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
@@ -58,6 +56,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 part 'settings_connection_actions.dart';
+
+ThemeData _settingsTheme(BuildContext context) {
+  final action = appPalette(context).utilityAction;
+  final theme = buildLibraryAccentTheme(Theme.of(context), action);
+  return theme.copyWith(
+    filledButtonTheme: FilledButtonThemeData(
+      style: theme.filledButtonTheme.style!.copyWith(
+        backgroundColor: WidgetStateProperty.resolveWith((states) =>
+            states.contains(WidgetState.disabled)
+                ? action.withValues(alpha: .38)
+                : action),
+        foregroundColor: WidgetStateProperty.resolveWith((states) =>
+            states.contains(WidgetState.disabled)
+                ? Colors.white54
+                : Colors.white),
+      ),
+    ),
+  );
+}
 
 final _metadataProposalHistoryProvider =
     FutureProvider.autoDispose<List<MetadataProposalRecord>>((ref) async {
@@ -152,10 +169,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final uiPreferences = ref.watch(uiPreferencesProvider);
     final metadataProposalHistory = ref.watch(_metadataProposalHistoryProvider);
     final deviceId = ref.watch(_deviceIdentityProvider);
-    final selectedLibraryKind = ref.watch(selectedLibraryKindProvider);
-    final accentScope = LibraryAccentScope.maybeOf(context);
-    final accent = accentScope?.accent ??
-        libraryAccentForKind(catalogMediaKindFromValue(selectedLibraryKind));
+    final accent = appPalette(context).utilityAction;
     final isAndroidPlatform =
         Theme.of(context).platform == TargetPlatform.android;
     _syncTextControllers(settings);
@@ -179,7 +193,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     if (windowClass.isCompact) {
       return Theme(
-        data: buildLibraryAccentTheme(Theme.of(context), accent),
+        data: _settingsTheme(context),
         child: Scaffold(
           backgroundColor: appManagementCanvasColor(context),
           appBar: AppPageHeader(
@@ -204,7 +218,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (ctx) => Theme(
-                        data: buildLibraryAccentTheme(Theme.of(ctx), accent),
+                        data: _settingsTheme(ctx),
                         child: Scaffold(
                           backgroundColor: appManagementCanvasColor(context),
                           appBar: AppPageHeader(
@@ -226,7 +240,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
 
     return Theme(
-      data: buildLibraryAccentTheme(Theme.of(context), accent),
+      data: _settingsTheme(context),
       child: DefaultTabController(
         key: ValueKey(_selectedSection),
         initialIndex: SettingsSection.values.indexOf(_selectedSection),

@@ -19,13 +19,12 @@ class InspectorMetadataSection extends StatelessWidget {
     super.key,
     required this.type,
     required this.item,
-    required this.accent,
     this.onFilterByValue,
   });
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final Color accent;
+
   final ValueChanged<String>? onFilterByValue;
 
   @override
@@ -46,7 +45,6 @@ class InspectorPersonalSection extends StatelessWidget {
     this.libraryEntry,
     this.libraryEntryDispatch,
     this.trackingSummary,
-    required this.accent,
     this.valueSnapshot,
     this.onFilterByValue,
   });
@@ -56,7 +54,7 @@ class InspectorPersonalSection extends StatelessWidget {
   final LibraryEntrySummary? libraryEntry;
   final LibraryEntryDispatch? libraryEntryDispatch;
   final TrackingSummary? trackingSummary;
-  final Color accent;
+
   final LibraryValueSnapshot? valueSnapshot;
   final ValueChanged<String>? onFilterByValue;
 
@@ -97,7 +95,6 @@ class InspectorPersonalSection extends StatelessWidget {
     );
     return LibraryDetailSection(
       title: 'Personal',
-      accentColor: accent,
       children: [
         if (trackingRating != null && trackingRating > 0) ...[
           Padding(

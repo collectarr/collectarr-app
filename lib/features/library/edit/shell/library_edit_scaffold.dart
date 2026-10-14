@@ -304,7 +304,6 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                       onPrevious: widget.onPrevious,
                       onNext: widget.onNext,
                       chromeVariant: widget.chromeVariant,
-                      accent: widget.accent,
                       isBusy: widget.isBusy,
                     ),
                 maxWidth: maxWidth,
@@ -495,7 +494,6 @@ class _LibraryEditFooter extends StatelessWidget {
     this.onPrevious,
     this.onNext,
     required this.chromeVariant,
-    required this.accent,
     required this.isBusy,
   });
   final VoidCallback onCancel;
@@ -504,7 +502,6 @@ class _LibraryEditFooter extends StatelessWidget {
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
-  final Color accent;
   final bool isBusy;
 
   @override
@@ -613,6 +610,8 @@ class _LibraryEditFooter extends StatelessWidget {
         if (onProposeToCore != null) ...[
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
+              foregroundColor: editorPalette.utilityAction,
+              side: BorderSide(color: editorPalette.utilityAction),
               textStyle: navigationStyle.textStyle?.resolve({}),
               shape: kLibraryDialogFooterButtonShape,
               padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -643,7 +642,7 @@ class _LibraryEditFooter extends StatelessWidget {
           width: windowClass.isCompact ? 96 : 100,
           child: FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: accent,
+              backgroundColor: editorPalette.utilityAction,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               minimumSize: Size(windowClass.isCompact ? 96 : 112,

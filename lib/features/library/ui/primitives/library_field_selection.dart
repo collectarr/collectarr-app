@@ -37,16 +37,17 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
     return Theme(
       data: Theme.of(context).copyWith(
           colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: accent, onPrimary: appContrastingTextColor(accent)),
+              primary: palette.utilityAction, onPrimary: Colors.white),
           extensions: [
             ...Theme.of(context)
                 .extensions
                 .values
                 .where((extension) => extension is! AppThemePalette),
             palette.copyWith(
-                accent: accent,
+                accent: palette.utilityAction,
                 selection: Color.alphaBlend(
-                    accent.withValues(alpha: .22), palette.panel))
+                    palette.utilityAction.withValues(alpha: .22),
+                    palette.panel))
           ]),
       child: Builder(
           builder: (context) => Dialog(
@@ -137,39 +138,62 @@ class LibraryFieldSelectionPanes extends StatelessWidget {
       });
 }
 
-class LibraryFieldSelectionSearch extends StatelessWidget {
+class LibraryFieldSelectionSearch extends StatefulWidget {
   const LibraryFieldSelectionSearch(
-      {super.key, required this.controller, required this.onChanged});
-  final TextEditingController controller;
+      {super.key, this.controller, required this.onChanged});
+  final TextEditingController? controller;
   final ValueChanged<String> onChanged;
   @override
-  Widget build(BuildContext context) => SizedBox(
-      height: 28,
-      child: TextField(
-          controller: controller,
-          style: librarySelectionFieldStyle,
-          cursorColor: LibraryAccentScope.maybeOf(context)?.accent ??
-              appPalette(context).accent,
-          onChanged: onChanged,
-          decoration: pickListInputDecoration(context,
-                  hintText: 'Search fields')
-              .copyWith(
-                  contentPadding: EdgeInsets.zero,
-                  prefixIcon: const Icon(Icons.search, size: 16),
-                  prefixIconConstraints:
-                      const BoxConstraints.tightFor(width: 30, height: 26),
-                  suffixIcon: controller.text.isEmpty
-                      ? null
-                      : IconButton(
-                          tooltip: 'Clear search',
-                          padding: EdgeInsets.zero,
-                          icon: const Icon(Icons.cancel, size: 16),
-                          onPressed: () {
-                            controller.clear();
-                            onChanged('');
-                          }),
-                  suffixIconConstraints:
-                      const BoxConstraints.tightFor(width: 26, height: 26))));
+  State<LibraryFieldSelectionSearch> createState() =>
+      _LibraryFieldSelectionSearchState();
+}
+
+class _LibraryFieldSelectionSearchState
+    extends State<LibraryFieldSelectionSearch> {
+  TextEditingController? _ownedController;
+
+  @override
+  void dispose() {
+    _ownedController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller =
+        widget.controller ?? (_ownedController ??= TextEditingController());
+    return SizedBox(
+        height: 28,
+        child: TextField(
+            controller: controller,
+            style: librarySelectionFieldStyle,
+            cursorColor: LibraryAccentScope.maybeOf(context)?.accent ??
+                appPalette(context).accent,
+            onChanged: (value) {
+              setState(() {});
+              widget.onChanged(value);
+            },
+            decoration: pickListInputDecoration(context,
+                    hintText: 'Search fields')
+                .copyWith(
+                    contentPadding: EdgeInsets.zero,
+                    prefixIcon: const Icon(Icons.search, size: 16),
+                    prefixIconConstraints:
+                        const BoxConstraints.tightFor(width: 30, height: 26),
+                    suffixIcon: controller.text.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: 'Clear search',
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.cancel, size: 16),
+                            onPressed: () {
+                              controller.clear();
+                              setState(() {});
+                              widget.onChanged('');
+                            }),
+                    suffixIconConstraints:
+                        const BoxConstraints.tightFor(width: 26, height: 26))));
+  }
 }
 
 class LibraryFieldSelectionCategory extends StatelessWidget {

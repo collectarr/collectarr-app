@@ -103,7 +103,8 @@ class _LibraryColumnChooserDialogState
 
   @override
   Widget build(BuildContext context) {
-    final accent = widget.accent ?? Theme.of(context).colorScheme.primary;
+    final kindAccent = widget.accent ?? Theme.of(context).colorScheme.primary;
+    final accent = appPalette(context).utilityAction;
     final query = _query.trim().toLowerCase();
     final columns = widget.availableColumns
         .where((column) =>
@@ -121,7 +122,7 @@ class _LibraryColumnChooserDialogState
     return LibraryFieldSelectionDialog(
         icon: AppIcons.columns,
         title: 'Select Column Fields',
-        accent: accent,
+        accent: kindAccent,
         headerAction: IconButton(
             tooltip: 'Manage Favorites',
             icon: const Icon(Icons.settings, color: Colors.white, size: 16),
@@ -567,7 +568,7 @@ class _PaneFrame extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: accent,
+                              color: palette.textPrimary,
                             ),
                       ),
                     ],

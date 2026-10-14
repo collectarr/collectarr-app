@@ -133,7 +133,6 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       children: [
         InspectorMetadataFactsSection(
           title: 'Catalog Item',
-          accent: request.accent,
           facts: facts,
         ),
       ],

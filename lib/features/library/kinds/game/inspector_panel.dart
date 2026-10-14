@@ -407,21 +407,18 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
       children: [
         LibraryDetailSection(
           title: 'Info',
-          accentColor: inspector.accent,
           children: [
             _GameInspectorFactRows(rows: detailRows),
           ],
         ),
         LibraryDetailSection(
           title: 'Personal',
-          accentColor: inspector.accent,
           children: [
             _GameInspectorFactRows(rows: personalRows),
           ],
         ),
         LibraryDetailSection(
           title: 'Credits',
-          accentColor: inspector.accent,
           children: [
             _GameInspectorFactRows(rows: creditRows),
           ],

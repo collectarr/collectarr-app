@@ -36,7 +36,9 @@ void main() {
         child: MaterialApp(
             home: Scaffold(
                 body: InspectorCustomFieldsSection(
-                    libraryEntryRef: entry, db: db, accent: Colors.orange)))));
+      libraryEntryRef: entry,
+      db: db,
+    )))));
     await tester.pumpAndSettle();
     expect(find.text('Red, Blue'), findsOneWidget);
     await const CustomFieldDisplaySettings(

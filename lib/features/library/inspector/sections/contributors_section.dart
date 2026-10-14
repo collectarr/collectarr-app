@@ -48,7 +48,6 @@ class InspectorContributorsSection extends StatelessWidget {
     final entries = byRole.entries.toList(growable: false);
     return LibraryDetailSection(
       title: 'Cast & crew',
-      accentColor: request.accent,
       children: [
         for (var i = 0; i < entries.length; i++) ...[
           _ContributorGroup(

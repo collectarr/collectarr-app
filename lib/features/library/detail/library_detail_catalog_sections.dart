@@ -118,13 +118,12 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
     super.key,
     required this.type,
     required this.item,
-    required this.accent,
     this.onFilterByValue,
   });
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final Color accent;
+
   final ValueChanged<String>? onFilterByValue;
 
   @override
@@ -132,7 +131,6 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
     final health = _buildMetadataHealth(type, item);
     return LibraryDetailSection(
       title: 'Metadata health',
-      accentColor: accent,
       children: [
         LibraryDetailFieldTable(
           fields: [
@@ -168,18 +166,15 @@ class LibraryDetailCoverStatusSection extends StatelessWidget {
   const LibraryDetailCoverStatusSection({
     super.key,
     required this.item,
-    required this.accent,
   });
 
   final LibraryProjectionView item;
-  final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final dto = item.dto;
     return LibraryDetailSection(
       title: 'Cover status',
-      accentColor: accent,
       children: [
         LibraryDetailFieldTable(
           fields: [

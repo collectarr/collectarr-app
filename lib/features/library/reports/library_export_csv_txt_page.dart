@@ -7,7 +7,6 @@ import 'package:collectarr_app/core/platform/save_export_file.dart';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -425,7 +424,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = libraryAccentForKind(widget.type.kind);
+    final accent = appPalette(context).utilityAction;
     final palette = appPalette(context);
 
     final itemLabel = _activeListLabel;
@@ -1505,7 +1504,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   // ==========================================
   void _showManageColumnsDialog(BuildContext context) {
     final palette = appPalette(context);
-    final accent = libraryAccentForKind(widget.type.kind);
+    final accent = appPalette(context).utilityAction;
     final isChildList =
         _supportsChildList && _exportMode == ExportMode.childList;
 
@@ -1620,7 +1619,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   // ==========================================
   void _showManageSortDialog(BuildContext context) {
     final palette = appPalette(context);
-    final accent = libraryAccentForKind(widget.type.kind);
+    final accent = appPalette(context).utilityAction;
 
     var tempSortId = _sortColumnId;
     var tempAscending = _sortAscending;

@@ -7,13 +7,12 @@ class InspectorMetadataFactsSection extends StatelessWidget {
   const InspectorMetadataFactsSection({
     super.key,
     required this.title,
-    required this.accent,
     required this.facts,
     this.children = const <Widget>[],
   });
 
   final String title;
-  final Color accent;
+
   final List<LibraryDetailField> facts;
   final List<Widget> children;
 
@@ -24,7 +23,6 @@ class InspectorMetadataFactsSection extends StatelessWidget {
     }
     return LibraryDetailSection(
       title: title,
-      accentColor: accent,
       children: [
         if (facts.isNotEmpty) LibraryDetailFieldTable(fields: facts),
         if (children.isNotEmpty) ...[

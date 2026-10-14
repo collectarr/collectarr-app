@@ -55,10 +55,9 @@ ButtonStyle pickListButtonStyle(BuildContext context,
     {bool primary = true, bool footer = false}) {
   final palette = appPalette(context);
   return FilledButton.styleFrom(
-      backgroundColor: primary ? palette.accent : pickListToolbar(context),
-      foregroundColor: primary
-          ? Theme.of(context).colorScheme.onPrimary
-          : palette.textPrimary,
+      backgroundColor:
+          primary ? palette.utilityAction : pickListToolbar(context),
+      foregroundColor: primary ? Colors.white : palette.textPrimary,
       minimumSize: Size(footer ? 100 : 0, 32),
       maximumSize: const Size(double.infinity, 32),
       padding: const EdgeInsets.symmetric(horizontal: 8),

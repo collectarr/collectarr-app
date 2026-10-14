@@ -85,7 +85,6 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
 
     return LibraryDetailSection(
       title: 'Folders',
-      accentColor: widget.accent,
       children: [
         Align(
           alignment: Alignment.centerRight,

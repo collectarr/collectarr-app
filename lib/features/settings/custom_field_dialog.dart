@@ -52,7 +52,7 @@ class CustomFieldDialog extends StatelessWidget {
             filledButtonTheme: FilledButtonThemeData(
                 style: FilledButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: theme.colorScheme.primary,
+                    backgroundColor: palette.utilityAction,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(3)),

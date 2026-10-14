@@ -147,11 +147,11 @@ void main() {
         // 1. Artist (large, primary)
         expect(find.text('Cannibal Corpse'), findsOneWidget);
 
-        // 2. Title (cyan #2A9FD6)
+        // 2. Title uses the shared detail-heading blue.
         final titleWidget = tester.widget<Text>(find.text('The Bleeding'));
-        expect(titleWidget.style?.color, const Color(0xFF2A9FD6));
+        expect(titleWidget.style?.color, const Color(0xFF71AFD9));
 
-        // 3. Collection badge (cyan ✓)
+        // 3. Collection badge (status ✓)
         expect(find.byTooltip(libraryCollectionStatusFromValue(status).label),
             findsOneWidget);
         expect(find.byIcon(libraryCollectionStatusFromValue(status).icon),

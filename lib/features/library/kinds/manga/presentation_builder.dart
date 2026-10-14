@@ -330,7 +330,6 @@ class MangaLibraryMediaPresentationBuilder
     return [
       LibraryDetailSection(
         title: 'Summary',
-        accentColor: accent,
         children: [
           Text(
             synopsis,

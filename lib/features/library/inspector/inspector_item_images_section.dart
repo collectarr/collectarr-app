@@ -62,7 +62,6 @@ class InspectorItemImagesSection extends ConsumerWidget {
 
     return LibraryDetailSection(
       title: label,
-      accentColor: accent,
       children: [
         if (groups.isEmpty)
           Text(

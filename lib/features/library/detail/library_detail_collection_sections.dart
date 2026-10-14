@@ -64,7 +64,6 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     final trackingProgress = _detailTrackingProgressLabel(trackingSummary);
     return LibraryDetailSection(
       title: 'Local collection',
-      accentColor: accent,
       children: [
         LibraryDetailFieldTable(
           fields: [

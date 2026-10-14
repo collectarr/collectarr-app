@@ -94,7 +94,6 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
 
     return LibraryDetailSection(
       title: 'Loans',
-      accentColor: widget.accent,
       children: [
         Align(
           alignment: Alignment.centerRight,

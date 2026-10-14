@@ -251,7 +251,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             InspectorMetadataSection(
               type: widget.type,
               item: selected,
-              accent: widget.accent,
               onFilterByValue: widget.onFilterByValue,
             ),
           ];
@@ -266,7 +265,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         InspectorCustomFieldsSection(
           libraryEntryRef: activeLibraryEntry.ref,
           db: widget.db!,
-          accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
         ),
       if (inspectorCapability.showsDefaultPersonalSection)
@@ -276,7 +274,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           libraryEntry: activeLibraryEntry,
           libraryEntryDispatch: inspectorRequest.libraryEntryDispatch,
           trackingSummary: activeTrackingSummary,
-          accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
         ),
       if (activeLibraryEntry != null &&

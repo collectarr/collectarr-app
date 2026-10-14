@@ -54,13 +54,12 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
     super.key,
     required this.libraryEntryRef,
     required this.db,
-    required this.accent,
     this.onFilterByValue,
   });
 
   final LibraryEntryRef libraryEntryRef;
   final LocalDatabase db;
-  final Color accent;
+
   final ValueChanged<String>? onFilterByValue;
 
   @override
@@ -94,7 +93,6 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
     if (resolved.isEmpty) return const SizedBox.shrink();
     return LibraryDetailSection(
       title: data.tabName,
-      accentColor: accent,
       children: [
         LibraryDetailFieldTable(
           fields: [

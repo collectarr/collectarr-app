@@ -78,7 +78,6 @@ class _LinkGroupSection extends StatelessWidget {
     final theme = Theme.of(context);
     return LibraryDetailSection(
       title: title,
-      accentColor: accent,
       children: [
         for (final link in links)
           Padding(

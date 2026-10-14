@@ -14,7 +14,7 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
     final save =
         tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Save'));
-    expect(save.style!.backgroundColor!.resolve({}), Colors.teal);
+    expect(save.style!.backgroundColor!.resolve({}), const Color(0xFF5EB1DE));
     expect(find.text('Previous'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
     for (final label in ['Previous', 'Next']) {

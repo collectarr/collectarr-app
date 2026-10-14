@@ -76,7 +76,6 @@ List<Widget> _buildMovieEntitySections(
   final sections = <Widget>[
     InspectorMetadataFactsSection(
       title: 'Movie details',
-      accent: request.accent,
       facts: facts,
       children: [
         if (metadata?.synopsis?.trim().isNotEmpty == true)
