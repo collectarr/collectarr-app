@@ -205,10 +205,16 @@ void main() {
     for (var i = 0; i < directory.getUint16(4); i++) {
       final entry = 12 + i * 16;
       final tag = directory.getUint32(entry);
-      if (tag == 0x4f532f32 || tag == 0x68656164) continue;
+      if (tag == 0x4f532f32 || tag == 0x68656164 || tag == 0x6e616d65) {
+        continue;
+      }
       final offset = directory.getUint32(entry + 8);
       final length = directory.getUint32(entry + 12);
-      expect(modified.sublist(offset, offset + length),
+      final result = ByteData.sublistView(modified);
+      final resultOffset = result.getUint32(entry + 8);
+      expect(result.getUint32(entry), tag);
+      expect(result.getUint32(entry + 12), length);
+      expect(modified.sublist(resultOffset, resultOffset + length),
           original.sublist(offset, offset + length));
     }
   });

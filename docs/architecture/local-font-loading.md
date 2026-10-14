@@ -8,6 +8,11 @@ then Medium, then Regular. This is an optical adjustment for Flutter rendering:
 matching the reference's CSS weight alone left ordinary text visibly lighter.
 Bold headings retain their own face. Registration changes copies in memory;
 the imported files, saved face identities and bundled fallback stay unchanged.
+Registration synchronizes the numeric OS/2 weight with legacy/typographic
+subfamily names. DirectWrite can infer weight from those names; an inconsistent
+copy can leave the normal slots missing and select an installed Light face.
+The SFNT directory/table checksums and whole-font adjustment are rebuilt while
+glyph tables remain byte-for-byte unchanged.
 Restart the application after changing this registration policy; hot reload
 does not replace fonts already registered with the engine.
 
@@ -54,6 +59,9 @@ site/app data also clears imports. Font access does not establish usage rights.
 Validation covers malformed metadata, persistence/restart, disable/restore,
 duplicate imports, failed registration rollback, permission errors, browser
 cache removal, fallback checksum/weight and desktop font directory selection.
+The native font integration contract includes a competing Light face and runs
+on Windows CI as well as in the Linux integration flows. It uses bundled OFL
+fonts and does not depend on user-installed Gilroy.
 Completed verification on 2026-10-12:
 
 - 18 focused font/controller/widget tests pass; 97 shared UI regression tests pass.

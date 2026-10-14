@@ -41,8 +41,8 @@ class LocalFontController extends ChangeNotifier {
   String? _startupError;
   LocalFontFace? get normalTextFace => _normalFace(faces);
 
-  // Match the reference's painted weight, not only its CSS number. At small
-  // sizes Flutter paints local Medium noticeably lighter than the browser.
+  // Normal UI roles prefer a fuller local face. Registration must synchronize
+  // numeric weight and subfamily names so Windows selects these outlines.
   static LocalFontFace? _normalFace(Map<int, LocalFontFace> faces) =>
       faces[600] ?? faces[500] ?? faces[400];
   bool get enabled => _enabled;

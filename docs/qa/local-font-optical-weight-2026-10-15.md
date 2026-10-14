@@ -1,5 +1,13 @@
 # Local font optical weight
 
+**Follow-up:** the initial browser and six-face checks below missed a native
+selection bug when Light is also installed. The SemiBold-to-normal registration
+was inconsistent: its numeric weight changed but subfamily names did not.
+Windows could therefore select Light instead. See the
+[native investigation and regression](windows-font-selection-2026-10-15.md).
+The earlier implication that restarting alone would resolve the user's report
+was incorrect; the registration code needed fixing.
+
 The user's View-menu screenshots show a visible weight difference even though
 both controls request 14 px regular text. This supersedes the assumption in
 the earlier typography audit that equal declared weights imply visual parity.
