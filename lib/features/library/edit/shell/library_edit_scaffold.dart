@@ -525,7 +525,8 @@ class _LibraryEditFooter extends StatelessWidget {
           ? Duration.zero
           : appControlHoverDuration,
       splashFactory: NoSplash.splashFactory,
-      textStyle: const TextStyle(
+      textStyle: TextStyle(
+          fontFamily: appFontFamily,
           fontSize: 14,
           fontWeight: FontWeight.w400,
           height: 20 / 14,
@@ -612,6 +613,7 @@ class _LibraryEditFooter extends StatelessWidget {
         if (onProposeToCore != null) ...[
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
+              textStyle: navigationStyle.textStyle?.resolve({}),
               shape: kLibraryDialogFooterButtonShape,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
@@ -647,7 +649,8 @@ class _LibraryEditFooter extends StatelessWidget {
               minimumSize: Size(windowClass.isCompact ? 96 : 112,
                   kLibraryDialogFooterButtonHeight),
               shape: kLibraryDialogFooterButtonShape,
-              textStyle: const TextStyle(
+              textStyle: TextStyle(
+                  fontFamily: appFontFamily,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   height: 20 / 14,

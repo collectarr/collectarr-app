@@ -119,12 +119,12 @@ ThemeData editDialogTheme({
           : FloatingLabelBehavior.auto,
       labelStyle: TextStyle(
         color: palette.textMuted,
-        fontSize: compactDesktop ? 12 : null,
+        fontSize: compactDesktop ? 13 : null,
         fontWeight: kAppBoldFontWeight,
       ),
       floatingLabelStyle: TextStyle(
         color: accent,
-        fontSize: compactDesktop ? 12 : null,
+        fontSize: compactDesktop ? 13 : null,
         fontWeight: kAppBoldFontWeight,
       ),
       hintStyle: TextStyle(
@@ -802,7 +802,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
         Theme.of(context).inputDecorationTheme.floatingLabelStyle ??
             TextStyle(
               color: palette.accent,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: kAppBoldFontWeight,
             );
     final scaledLabelHeight =

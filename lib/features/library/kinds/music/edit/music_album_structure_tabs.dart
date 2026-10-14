@@ -177,7 +177,9 @@ final class _MusicAlbumStructureTabState
               key: ValueKey('music-disc-title-${disc.id.value}'),
               initialValue: disc.title ?? '',
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                height: 20 / 14,
                 color: Colors.white,
               ),
               decoration: InputDecoration(
@@ -185,7 +187,7 @@ final class _MusicAlbumStructureTabState
                 hintText: 'Disc #${disc.discNumber}',
                 hintStyle: const TextStyle(
                   color: Color(0xFF888888),
-                  fontSize: 13,
+                  fontSize: 14,
                 ),
                 filled: true,
                 fillColor: const Color(0xFF444444),
@@ -602,7 +604,8 @@ final class _MusicAlbumStructureTabState
   Widget _trackTableHeader(MusicDisc disc) {
     const headerStyle = TextStyle(
       color: Colors.white,
-      fontSize: 13,
+      fontSize: 14,
+      height: 20 / 14,
       fontWeight: FontWeight.w700,
     );
     const borderSide = BorderSide(color: Color(0xFF484848));
@@ -970,7 +973,8 @@ final class _MusicAlbumStructureTabState
         textAlign: textAlign,
         keyboardType: keyboardType,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 14,
+          height: 20 / 14,
           fontWeight: isHeader ? FontWeight.w700 : FontWeight.normal,
           color: Colors.white,
         ),
@@ -981,7 +985,7 @@ final class _MusicAlbumStructureTabState
           hintText: hint,
           hintStyle: const TextStyle(
             color: Color(0xFF888888),
-            fontSize: 13,
+            fontSize: 14,
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 8,

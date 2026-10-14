@@ -77,7 +77,7 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
       padding: const EdgeInsets.symmetric(horizontal: 7),
       child: Text(value.name,
           style: const TextStyle(
-              fontSize: 13, fontWeight: FontWeight.w700, height: 20 / 14)),
+              fontSize: 14, fontWeight: FontWeight.w400, height: 20 / 14)),
     );
     return Container(
       key: ValueKey(value.id),

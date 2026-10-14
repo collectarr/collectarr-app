@@ -30,9 +30,9 @@ class LibraryFormField extends StatelessWidget {
                   child: Text(label,
                       style: TextStyle(
                         color: appPalette(context).textMuted,
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: kAppBoldFontWeight,
-                        height: 20 / 12,
+                        height: 20 / 14,
                         letterSpacing: 0,
                       ).merge(labelStyle))),
               if (action != null) action!,

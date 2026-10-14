@@ -535,6 +535,8 @@ const double _columnGap = 8;
 
 TextStyle? _columnHeaderStyle(BuildContext context) =>
     Theme.of(context).textTheme.labelSmall?.copyWith(
+          fontSize: 14,
+          height: 20 / 14,
           color: Theme.of(context).hintColor,
           fontWeight: FontWeight.w700,
         );

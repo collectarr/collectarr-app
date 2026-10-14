@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,12 @@ void main() {
     }
 
     expect(find.text('Cancel'), findsOneWidget);
+    for (final label in ['Previous', 'Next', 'Cancel', 'Save']) {
+      final style = DefaultTextStyle.of(tester.element(find.text(label))).style;
+      expect(style.fontFamily, appFontFamily, reason: label);
+      expect(style.fontSize, 14, reason: label);
+      expect(style.fontWeight, FontWeight.w400, reason: label);
+    }
   });
 
   testWidgets('edit dialog stays top-anchored as its content grows', (

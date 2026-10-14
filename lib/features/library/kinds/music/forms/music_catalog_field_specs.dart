@@ -157,10 +157,9 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
                         color: fmt.isNotEmpty
                             ? appPalette(context).textPrimary
                             : appPalette(context).textSecondary,
-                        fontSize: 13,
-                        fontWeight: fmt.isNotEmpty
-                            ? FontWeight.w500
-                            : FontWeight.normal,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        height: 20 / 14,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),

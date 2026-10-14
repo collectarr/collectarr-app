@@ -230,7 +230,9 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
           child: Text(
             widget.title,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
+                  height: 20 / 14,
                 ),
           ),
         ),
@@ -323,6 +325,11 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
         icon: Icon(icon, size: 18),
         label: Text(label),
         style: TextButton.styleFrom(
+          textStyle: TextStyle(
+              fontFamily: appFontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              height: 20 / 14),
           foregroundColor: Theme.of(context).colorScheme.onSurface,
           minimumSize: const Size(0, 38),
           padding: const EdgeInsets.symmetric(horizontal: 8),

@@ -167,7 +167,9 @@ class _LibraryImageIntakeState extends State<LibraryImageIntake> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: borderColor,
-                                  fontSize: 14,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  height: 20 / 14,
                                 ),
                               ),
                             ],

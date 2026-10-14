@@ -166,6 +166,7 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
+              headingTextStyle: context.libraryTextTheme.tableHeader,
               columnSpacing: 12,
               headingRowHeight: 34,
               dataRowMinHeight: 46,
