@@ -108,7 +108,7 @@ class _LibraryColumnLauncher extends StatelessWidget {
         callbacks.onEditColumns();
       },
       tone: LibraryDenseButtonTone.surface,
-      tooltip: 'Select columns',
+      tooltip: 'Change Columns',
     );
   }
 }

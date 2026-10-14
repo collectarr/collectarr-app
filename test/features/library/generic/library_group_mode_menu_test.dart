@@ -132,7 +132,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Group by'));
+    await tester.tap(find.byTooltip('Group By'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const ValueKey('manageGroupFavoritesButton')));
@@ -177,7 +177,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Group by'));
+    await tester.tap(find.byTooltip('Group By'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('No folders'));
     await tester.pumpAndSettle();
@@ -205,7 +205,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Group by'));
+    await tester.tap(find.byTooltip('Group By'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const ValueKey('manageGroupFavoritesButton')));
@@ -282,7 +282,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Group by'));
+    await tester.tap(find.byTooltip('Group By'));
     await tester.pumpAndSettle();
 
     expect(find.text('Credits'), findsOneWidget);
@@ -312,7 +312,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Group by'));
+    await tester.tap(find.byTooltip('Group By'));
     await tester.pumpAndSettle();
 
     expect(find.text('Credits'), findsOneWidget);

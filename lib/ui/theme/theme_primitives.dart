@@ -277,6 +277,21 @@ ChipThemeData buildAppChipTheme(ThemeData base, AppThemePalette palette) {
   );
 }
 
+TooltipThemeData buildAppTooltipTheme(AppThemePalette palette) =>
+    TooltipThemeData(
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        border: Border.all(color: palette.divider),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      textStyle: TextStyle(
+          color: palette.textPrimary,
+          fontFamily: kAppFontFamily,
+          fontSize: 13,
+          fontWeight: FontWeight.w400),
+      waitDuration: const Duration(milliseconds: 500),
+    );
+
 ThemeData applySharedSurfaceTheme(
   ThemeData base,
   AppThemePalette palette, {
@@ -332,6 +347,7 @@ ThemeData applySharedSurfaceTheme(
     searchBarTheme: buildAppSearchBarTheme(palette),
     chipTheme: buildAppChipTheme(base, palette),
     datePickerTheme: buildAppDatePickerTheme(palette: palette),
+    tooltipTheme: buildAppTooltipTheme(palette),
     textTheme: buildAppTextTheme(base.textTheme, palette.textPrimary),
   );
 }

@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 const _viewModeDropdownKey = Key('library-view-mode-dropdown');
 const _detailsLayoutDropdownKey = Key('library-details-layout-dropdown');
 const _viewModeDropdownHeight = 30.0;
+const _librarySliderWidth = 100.0;
 
 class LibraryViewModeDropdown extends StatelessWidget {
   const LibraryViewModeDropdown({
@@ -75,21 +76,14 @@ class LibraryViewModeDropdown extends StatelessWidget {
               child: LibraryWorkspaceMenuRow(
                 padding: EdgeInsets.zero,
                 label: _viewModeLabel(mode),
-                backgroundColor: mode == viewMode
-                    ? accent.withValues(alpha: 0.16)
-                    : Colors.transparent,
                 leading: buildViewModeGlyph(
                   mode,
                   size: 17,
                   color: mode == viewMode ? accent : menuText,
                 ),
-                trailing: mode == viewMode
-                    ? Icon(AppIcons.check, size: 16, color: accent)
-                    : null,
                 textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       height: 1,
-                      fontWeight:
-                          mode == viewMode ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                       color: mode == viewMode ? accent : menuText,
                     ),
               ),
@@ -350,12 +344,12 @@ class LibraryCoverSizeSlider extends StatelessWidget {
   final ValueChanged<double> onChanged;
   @override
   Widget build(BuildContext context) => Tooltip(
-        message: 'Cover size',
+        message: 'Cover Size',
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.photo_size_select_small,
               size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
           SizedBox(
-              width: 100,
+              width: _librarySliderWidth,
               child: LibraryRangeSlider(
                   value: coverSize,
                   min: minCoverSize,
@@ -372,7 +366,7 @@ class LibrarySpacingSlider extends StatelessWidget {
       required this.onChanged,
       this.minSpacing = 4,
       this.maxSpacing = 24,
-      this.tooltip = 'Item spacing',
+      this.tooltip = 'Item Spacing',
       this.icon});
   final double spacing, minSpacing, maxSpacing;
   final ValueChanged<double> onChanged;
@@ -385,7 +379,7 @@ class LibrarySpacingSlider extends StatelessWidget {
           Icon(icon ?? Icons.format_line_spacing,
               size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
           SizedBox(
-              width: 100,
+              width: _librarySliderWidth,
               child: LibraryRangeSlider(
                   value: spacing,
                   min: minSpacing,
@@ -460,7 +454,7 @@ double _measureDetailsDropdownWidth(
       maxLabelWidth = painter.width;
     }
   }
-  return (24 + 17 + 8 + maxLabelWidth + 28).clamp(116, double.infinity);
+  return (14 + 17 + 8 + maxLabelWidth).clamp(116, double.infinity);
 }
 
 double _measureViewDropdownWidth(
@@ -480,7 +474,7 @@ double _measureViewDropdownWidth(
       maxLabelWidth = painter.width;
     }
   }
-  return (24 + 17 + 8 + maxLabelWidth + 28).clamp(108, double.infinity);
+  return (14 + 17 + 8 + maxLabelWidth).clamp(108, double.infinity);
 }
 
 String _viewModeLabel(LibraryViewMode mode) {
@@ -495,7 +489,7 @@ String _viewModeLabel(LibraryViewMode mode) {
 }
 
 String _viewModeTooltip(LibraryViewMode mode) {
-  return '${_viewModeLabel(mode)} view';
+  return '${_viewModeLabel(mode)} View';
 }
 
 IconData _viewModeIcon(LibraryViewMode mode) {

@@ -239,6 +239,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                         ),
                       if (viewState.viewMode == LibraryViewMode.list) ...[
                         const _LibraryDesktopToolbarSeparator(),
+                        const SizedBox(width: 8),
                         _LibraryDesktopToolbarSection(
                           label: 'Columns',
                           child: _LibraryColumnLauncher(
@@ -261,15 +262,17 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                       ],
                       if (viewState.viewMode == LibraryViewMode.list) ...[
                         const _LibraryDesktopToolbarSeparator(),
+                        const SizedBox(width: 8),
                         _LibraryDesktopToolbarSection(
-                          label: 'Item spacing',
+                          label: 'Item Spacing',
                           child: _buildSpacingSlider(
                             context,
-                            tooltip: 'Item spacing',
+                            tooltip: 'Item Spacing',
                           ),
                         ),
                       ] else ...[
                         const _LibraryDesktopToolbarSeparator(),
+                        const SizedBox(width: 8),
                         _LibraryDesktopToolbarSection(
                           label: viewState.viewMode.supportsCoverSize
                               ? 'Covers & Spacing'
@@ -293,7 +296,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 const SizedBox(width: 8),
                               _buildSpacingSlider(
                                 context,
-                                tooltip: 'Item spacing',
+                                tooltip: 'Item Spacing',
                               ),
                             ],
                           ),
@@ -458,7 +461,7 @@ class _LibraryColumnLauncher extends StatelessWidget {
         onManageColumns();
       },
       tone: LibraryDenseButtonTone.surface,
-      tooltip: 'Column Favorites',
+      tooltip: 'Change Columns',
     );
   }
 }

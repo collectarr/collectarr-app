@@ -115,14 +115,7 @@ ThemeData buildAppShellTheme({
         fontWeight: FontWeight.w500,
       ),
     ),
-    tooltipTheme: TooltipThemeData(
-      decoration: BoxDecoration(
-        color: palette.panelRaised,
-        border: Border.all(color: palette.divider),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      textStyle: TextStyle(color: textColor, fontSize: 13),
-    ),
+    tooltipTheme: buildAppTooltipTheme(palette),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: palette.panelRaised,
       contentTextStyle: TextStyle(color: textColor),

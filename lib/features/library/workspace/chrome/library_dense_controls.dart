@@ -333,14 +333,10 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
     final foreground = tone == LibraryDenseButtonTone.accent
         ? appContrastingTextColor(background)
         : palette.textPrimary;
-    final border = tone == LibraryDenseButtonTone.accent
-        ? accent.withValues(alpha: 0.74)
-        : palette.divider;
 
     return DecoratedBox(
       decoration: BoxDecoration(
         color: background,
-        border: Border(right: BorderSide(color: border)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -348,42 +344,46 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
           Semantics(
             label: iconOnly ? label : null,
             button: iconOnly,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                mouseCursor: WidgetStateMouseCursor.clickable,
-                onTap: onPressed,
-                hoverColor: libraryToolbarControlHover(context),
-                borderRadius:
-                    const BorderRadius.horizontal(left: Radius.circular(4)),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: iconOnly ? 7 : 10,
-                      vertical: iconOnly ? 7 : 5),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(icon, size: iconOnly ? 16 : 14, color: foreground),
-                      if (!iconOnly) ...[
-                        const SizedBox(width: 7),
-                        Text(
-                          label,
-                          style:
-                              Theme.of(context).textTheme.labelLarge?.copyWith(
-                                    color: foreground,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.1,
-                                  ),
-                        ),
+            child: Tooltip(
+              message: tooltip ?? label,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  mouseCursor: WidgetStateMouseCursor.clickable,
+                  onTap: onPressed,
+                  hoverColor: libraryToolbarControlHover(context),
+                  borderRadius:
+                      const BorderRadius.horizontal(left: Radius.circular(4)),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: iconOnly ? 7 : 10,
+                        vertical: iconOnly ? 7 : 5),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(icon, size: iconOnly ? 16 : 14, color: foreground),
+                        if (!iconOnly) ...[
+                          const SizedBox(width: 7),
+                          Text(
+                            label,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  color: foreground,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.1,
+                                ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-          Container(
-              width: 1, height: 20, color: foreground.withValues(alpha: 0.18)),
+          Container(width: 1, height: 30, color: palette.divider),
           PopupMenuButton<T>(
             popUpAnimationStyle: AnimationStyle.noAnimation,
             tooltip: tooltip ?? label,
