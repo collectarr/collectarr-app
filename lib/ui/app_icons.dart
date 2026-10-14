@@ -9,6 +9,16 @@ const String _regular = 'FontAwesomeRegular';
 /// Exposes native [IconData] instances so all widgets across the codebase
 /// can consume standard [Icon] widgets with compile-time constants.
 abstract final class AppIcons {
+  static const IconData collectionStatusAll =
+      IconData(0xf187, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData collectionStatusForSale =
+      IconData(0x24, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData collectionStatusWishList =
+      IconData(0xf328, fontFamily: _regular, fontPackage: _fontPackage);
+  static const IconData collectionStatusOnOrder =
+      IconData(0xf07a, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData collectionStatusSold =
+      IconData(0xf0e3, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData minus =
       IconData(0xf068, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData coverIndicator =

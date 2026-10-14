@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -40,25 +41,27 @@ class LibraryAddStatusButton extends StatelessWidget {
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Flexible(
           child: SizedBox(
-              height: 34,
+              height: 40,
               child: FilledButton.icon(
                 onPressed: isBusy ? null : onAdd,
                 style: FilledButton.styleFrom(
                   backgroundColor: accent,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   shape: const RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.horizontal(left: Radius.circular(3))),
+                          BorderRadius.horizontal(left: Radius.circular(4))),
                   textStyle: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w600),
+                      fontSize: 16, fontWeight: FontWeight.w400, height: 1.25),
                 ),
                 icon: isBusy
                     ? const SizedBox.square(
                         dimension: 16,
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.add, size: 20),
+                    : const SizedBox(
+                        width: 20, child: Icon(AppIcons.add, size: 16)),
                 label: Text(_label, overflow: TextOverflow.ellipsis),
               ))),
       PopupMenuButton<LibraryCollectionStatusScope>(
@@ -87,15 +90,17 @@ class LibraryAddStatusButton extends StatelessWidget {
           ],
         ],
         child: Container(
-          width: 30,
-          height: 34,
+          width: 28,
+          height: 40,
           decoration: BoxDecoration(
             color: accent,
+            border: Border(
+                left: BorderSide(color: Colors.black.withValues(alpha: 0.18))),
             borderRadius:
-                const BorderRadius.horizontal(right: Radius.circular(3)),
+                const BorderRadius.horizontal(right: Radius.circular(4)),
           ),
-          child: Icon(Icons.arrow_drop_down,
-              color: isBusy ? Colors.white54 : Colors.white, size: 24),
+          child: Icon(AppIcons.caretDown,
+              color: isBusy ? Colors.white54 : Colors.white, size: 12),
         ),
       ),
     ]);

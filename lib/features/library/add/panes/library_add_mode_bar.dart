@@ -247,7 +247,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
           showWhenUnlinked: false,
           targetAnchor: Alignment.bottomLeft,
           followerAnchor: Alignment.topLeft,
-          offset: const Offset(0, 4),
+          offset: Offset.zero,
           child: SizedBox(
             width: targetWidth,
             child: Material(
@@ -517,27 +517,30 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: OverlayPortal(
-                            controller: _suggestionsOverlayController,
-                            overlayChildBuilder: _buildSuggestionsOverlay,
-                            child: CompositedTransformTarget(
-                              link: _searchLayerLink,
-                              child: KeyedSubtree(
-                                key: _searchBarKey,
-                                child: LibraryToolbarSearch(
-                                  textFieldKey:
-                                      const ValueKey('library-add-query-field'),
-                                  controller: widget.queryController,
-                                  hintText: searchLabels.queryHint,
-                                  onSearch: (_) => _handleSearch(),
-                                  onChanged: _handleQueryChanged,
-                                  onScanBarcode: () => widget.onModeChanged(
-                                      LibraryAddDialogMode.identifier),
-                                  onScanCover: widget.canScanCover
-                                      ? widget.onScanCover
-                                      : null,
-                                  selectionColor: widget.accent,
-                                  maxWidth: 620,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: OverlayPortal(
+                              controller: _suggestionsOverlayController,
+                              overlayChildBuilder: _buildSuggestionsOverlay,
+                              child: CompositedTransformTarget(
+                                link: _searchLayerLink,
+                                child: KeyedSubtree(
+                                  key: _searchBarKey,
+                                  child: LibraryToolbarSearch(
+                                    textFieldKey: const ValueKey(
+                                        'library-add-query-field'),
+                                    controller: widget.queryController,
+                                    hintText: searchLabels.queryHint,
+                                    onSearch: (_) => _handleSearch(),
+                                    onChanged: _handleQueryChanged,
+                                    onScanBarcode: () => widget.onModeChanged(
+                                        LibraryAddDialogMode.identifier),
+                                    onScanCover: widget.canScanCover
+                                        ? widget.onScanCover
+                                        : null,
+                                    selectionColor: widget.accent,
+                                    maxWidth: 620,
+                                  ),
                                 ),
                               ),
                             ),
@@ -670,8 +673,6 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
             accent: accent,
             onPressed: onScan,
           ),
-          const SizedBox(width: 4),
-          Icon(Icons.menu, size: 26, color: colorScheme.onSurfaceVariant),
         ],
       ),
     );

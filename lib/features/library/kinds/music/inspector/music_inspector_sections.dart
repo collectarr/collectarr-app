@@ -394,7 +394,12 @@ class _MusicInspectorHeader extends ConsumerWidget {
         .firstOrNull;
 
     final onFilter = inspector.onFilterByValue;
-    final isOwned = inspector.item.source.isEntry;
+    final collectionStatus = libraryCollectionStatusFromValue(
+      model.entry?.personal.collectionStatus ??
+          (inspector.item.source.isWishlisted ? 'Wish List' : 'In Collection'),
+    );
+    final hasCollectionStatus =
+        model.entry != null || inspector.item.source.isWishlisted;
     final artist = music.artist?.trim();
     final year =
         music.releaseDateParts?.year ?? music.originalReleaseDateParts?.year;
@@ -567,21 +572,19 @@ class _MusicInspectorHeader extends ConsumerWidget {
                     padding: const EdgeInsets.only(left: 8, top: 4),
                     child: Text('Qty: $quantity',
                         style: const TextStyle(fontWeight: FontWeight.w700))),
-              if (isOwned)
+              if (hasCollectionStatus)
                 Padding(
                     padding: const EdgeInsets.only(left: 8),
                     child: Tooltip(
-                        message: 'In Collection',
+                        message: collectionStatus.label,
                         child: Container(
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
                                 color: inspector.accent,
                                 borderRadius: BorderRadius.circular(4)),
-                            child: Icon(Icons.check,
-                                size: 22,
-                                color: appContrastingTextColor(
-                                    inspector.accent))))),
+                            child: Icon(collectionStatus.icon,
+                                size: 22, color: Colors.white)))),
             ]),
             if (music.subtitle?.isNotEmpty == true) ...[
               const SizedBox(height: 10),

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -34,13 +35,14 @@ extension LibraryCollectionStatusScopeUi on LibraryCollectionStatusScope {
 
   IconData get icon {
     return switch (this) {
-      LibraryCollectionStatusScope.all => Icons.inventory_2,
-      LibraryCollectionStatusScope.inCollection => Icons.check,
-      LibraryCollectionStatusScope.forSale => Icons.attach_money,
-      LibraryCollectionStatusScope.wishList => Icons.list_alt,
-      LibraryCollectionStatusScope.onOrder => Icons.shopping_cart_outlined,
-      LibraryCollectionStatusScope.sold => Icons.gavel,
-      LibraryCollectionStatusScope.notInCollection => Icons.close,
+      LibraryCollectionStatusScope.all => AppIcons.collectionStatusAll,
+      LibraryCollectionStatusScope.inCollection => AppIcons.check,
+      LibraryCollectionStatusScope.forSale => AppIcons.collectionStatusForSale,
+      LibraryCollectionStatusScope.wishList =>
+        AppIcons.collectionStatusWishList,
+      LibraryCollectionStatusScope.onOrder => AppIcons.collectionStatusOnOrder,
+      LibraryCollectionStatusScope.sold => AppIcons.collectionStatusSold,
+      LibraryCollectionStatusScope.notInCollection => AppIcons.close,
     };
   }
 }
