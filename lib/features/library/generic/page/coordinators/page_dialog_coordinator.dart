@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/library_sort_favorites_provider.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/loan.dart';
@@ -210,6 +211,9 @@ class LibraryPageDialogCoordinator {
       ),
       availableColumns: _page.scopeAvailableSortColumns,
     );
+    if (_page.mounted) {
+      _page.ref.invalidate(librarySavedSortFavoritesProvider(_page.type));
+    }
     if (sortRules != null && _page.mounted) {
       final allowed = _page.scopeAvailableSortColumns.toSet();
       final filteredRules = [
@@ -236,6 +240,9 @@ class LibraryPageDialogCoordinator {
       initialPinnedIds: _page.pinnedSortFavoriteIds,
       activeSortFavoriteId: _page.activeSortFavorite?.id,
     );
+    if (_page.mounted) {
+      _page.ref.invalidate(librarySavedSortFavoritesProvider(_page.type));
+    }
     if (result != null && _page.mounted) {
       _page.rebuild(() => _page.pinnedSortFavoriteIds = result);
       unawaited(_page.viewPrefs.writePinnedSortFavoriteIds(result));

@@ -284,7 +284,9 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
             ])
         .toSet();
     return [
-      for (final favorite in librarySortFavoritesForType(widget.type))
+      for (final favorite in librarySortFavoritesForType(widget.type).where(
+          (favorite) =>
+              !_savedPresets.any((preset) => preset.id == favorite.id)))
         if (favorite.rules.every((rule) => available.contains(rule.column)))
           LibrarySortPreset(
             id: favorite.id,

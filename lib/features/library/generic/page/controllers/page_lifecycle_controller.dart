@@ -80,9 +80,17 @@ abstract final class _LibraryPageLifecycleControllerOps {
         return;
       }
 
+      final savedSortFavorites = await state.ref
+          .read(librarySavedSortFavoritesProvider(state.widget.type).future);
+      if (!state.mounted ||
+          loadToken != state._session.preferences.viewPreferenceLoadToken ||
+          state.widget.type.kind != expectedKind) {
+        return;
+      }
       final validPinnedSortFavoriteIds = sanitizeLibraryPinnedSortFavoriteIds(
         state.widget.type,
         pinnedSortFavoriteIds,
+        additionalFavorites: savedSortFavorites,
       );
       final validPinnedColumnFavoriteKeys =
           sanitizeLibraryPinnedColumnFavoriteKeys(
@@ -211,6 +219,10 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._viewPrefs.cachedPinnedSortFavoriteIds.isNotEmpty
           ? state._viewPrefs.cachedPinnedSortFavoriteIds
           : libraryDefaultPinnedSortFavoriteIdsForType(state.widget.type),
+      additionalFavorites: state.ref
+              .read(librarySavedSortFavoritesProvider(state.widget.type))
+              .value ??
+          [],
     );
     state._session.preferences.pinnedColumnFavoriteKeys =
         sanitizeLibraryPinnedColumnFavoriteKeys(

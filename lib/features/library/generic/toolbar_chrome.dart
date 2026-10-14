@@ -124,11 +124,12 @@ Set<String> libraryDefaultPinnedSortFavoriteIdsForType(
 }
 
 Set<String> sanitizeLibraryPinnedSortFavoriteIds(
-  LibraryKindRegistration type,
-  Iterable<String> ids,
-) {
-  final availableIds =
-      librarySortFavoritesForType(type).map((favorite) => favorite.id).toSet();
+    LibraryKindRegistration type, Iterable<String> ids,
+    {List<LibrarySortFavorite> additionalFavorites = const []}) {
+  final availableIds = {
+    for (final favorite in librarySortFavoritesForType(type)) favorite.id,
+    for (final favorite in additionalFavorites) favorite.id,
+  };
   return ids.where(availableIds.contains).toSet();
 }
 

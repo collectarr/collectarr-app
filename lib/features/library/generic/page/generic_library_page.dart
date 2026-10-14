@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/library_sort_favorites_provider.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
@@ -382,6 +383,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(librarySavedSortFavoritesProvider(widget.type));
     return LibraryPageShellPresenter.build(this, context);
   }
 
@@ -470,8 +472,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return LibraryPagePreferencesControllerOps.activeColumnFavoriteLabel(this);
   }
 
-  List<LibrarySortFavorite> get _sortFavorites =>
-      librarySortFavoritesForType(widget.type);
+  List<LibrarySortFavorite> get _sortFavorites => mergeLibrarySortFavorites(
+      widget.type,
+      ref.read(librarySavedSortFavoritesProvider(widget.type)).value ?? []);
 
   LibrarySortFavorite? get _activeSortFavorite {
     return LibraryPagePreferencesControllerOps.activeSortFavorite(this);
