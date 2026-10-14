@@ -3,6 +3,14 @@
 The font files are supplied by the user's device. No Gilroy asset is bundled,
 committed, downloaded from CLZ, or sent through catalog/library sync.
 
+Normal UI roles (400 and 500) use the local SemiBold face when available,
+then Medium, then Regular. This is an optical adjustment for Flutter rendering:
+matching the reference's CSS weight alone left ordinary text visibly lighter.
+Bold headings retain their own face. Registration changes copies in memory;
+the imported files, saved face identities and bundled fallback stay unchanged.
+Restart the application after changing this registration policy; hot reload
+does not replace fonts already registered with the engine.
+
 Settings → Appearance → Typography provides:
 
 - Enable/disable local Gilroy, with immediate theme updates.

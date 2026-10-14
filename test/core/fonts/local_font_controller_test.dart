@@ -12,23 +12,48 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
   LocalFontFace face(int weight) =>
       LocalFontFace.parse(fontFixture(weight: weight), source: 'Imported');
-  test('normal text selects local Medium without changing imported font bytes',
+  test(
+      'normal text selects local SemiBold without changing imported font bytes',
       () async {
-    final medium = face(500);
-    final original = List<int>.of(medium.bytes);
+    final semiBold = face(600);
+    final original = List<int>.of(semiBold.bytes);
     final registered = <int, Uint8List>{};
     final controller = LocalFontController(registerFont: (_, bytes) async {
       registered[fontWeight(bytes)] = Uint8List.fromList(bytes);
     });
     await controller.initialize(discover: false);
-    await controller.importFaces([face(400), medium, face(700)]);
+    await controller.importFaces([face(400), face(500), semiBold, face(700)]);
     final normal = LocalFontFace.parse(registered[400]!, source: 'Imported');
     expect(normal.weight, 400);
-    expect(normal.name, contains('500'));
-    expect(medium.bytes, original);
+    expect(normal.name, contains('600'));
+    expect(LocalFontFace.parse(registered[500]!, source: 'Imported').name,
+        contains('600'));
+    expect(controller.normalTextFace, same(semiBold));
+    expect(semiBold.bytes, original);
     expect(controller.faces[500]!.weight, 500);
     expect(controller.faces[400]!.name, contains('400'));
     controller.dispose();
+  });
+
+  test('partial local families use Medium then Regular for normal UI roles',
+      () async {
+    for (final weight in [500, 400]) {
+      SharedPreferences.setMockInitialValues({});
+      final registered = <int, Uint8List>{};
+      final controller = LocalFontController(registerFont: (_, bytes) async {
+        registered[fontWeight(bytes)] = Uint8List.fromList(bytes);
+      });
+      await controller.initialize(discover: false);
+      await controller.importFaces([face(weight), face(700)]);
+      for (final slot in [400, 500]) {
+        expect(LocalFontFace.parse(registered[slot]!, source: 'Imported').name,
+            contains('$weight'));
+      }
+      expect(controller.faces[weight]!.weight, weight);
+      expect(LocalFontFace.parse(registered[700]!, source: 'Imported').name,
+          contains('700'));
+      controller.dispose();
+    }
   });
 
   test('fills every missing UI weight, persists and restores imported faces',

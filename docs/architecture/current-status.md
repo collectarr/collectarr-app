@@ -34,8 +34,10 @@ Libraries. Navigation smoke tests cover Settings → Print → Duplicates → Ba
 without retaining earlier tool pages. Modal actions retain their parent page.
 Music disc tabs and Add Disc have visible hover feedback, close controls have
 independent hover feedback, and edit/disc reorder proxies have no shadow.
-The CLZ font-face audit identified Gilroy Medium behind CSS weight 400; editor
-tabs use Manrope Medium, with heavier field/title labels for optical parity.
+Fonts use user-local Gilroy when available, otherwise bundled Plus Jakarta
+Sans. Normal UI roles use local SemiBold for optical weight; Bold headings
+retain their face. Equal CSS and Flutter weights did not produce equal painted
+weight. See the [rendering audit](../qa/local-font-optical-weight-2026-10-15.md).
 
 The [library dropdown audit](library-dropdown-parity-2026-10-11.md) consolidates
 neutral popup styling across workspace menus and edit pickers, keeps configured

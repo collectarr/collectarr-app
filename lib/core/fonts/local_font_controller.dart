@@ -39,7 +39,12 @@ class LocalFontController extends ChangeNotifier {
   final _registeredFamilies = <String, String>{};
   String _family = 'Plus Jakarta Sans';
   String? _startupError;
-  LocalFontFace? get normalTextFace => faces[500] ?? faces[400];
+  LocalFontFace? get normalTextFace => _normalFace(faces);
+
+  // Match the reference's painted weight, not only its CSS number. At small
+  // sizes Flutter paints local Medium noticeably lighter than the browser.
+  static LocalFontFace? _normalFace(Map<int, LocalFontFace> faces) =>
+      faces[600] ?? faces[500] ?? faces[400];
   bool get enabled => _enabled;
   String get activeFamily => _family;
   String? get startupError => _startupError;
@@ -216,12 +221,12 @@ class LocalFontController extends ChangeNotifier {
     }
     // New contents get a fresh engine alias. Toggle/reuse needs no new fonts.
     final family = 'Collectarr Local Font ${++_generation}';
-    // CLZ declares Gilroy Medium as its CSS 400 face. FontLoader has no CSS
-    // weight override, so register an in-memory copy in the normal text slot.
-    final normalFace = current[500] ?? current[400];
+    // Keep regular/medium UI roles optically consistent across menus, fields
+    // and navigation. Only registration copies change; originals stay intact.
+    final normalFace = _normalFace(current);
     for (final entry in _fallback.entries) {
       if (current.containsKey(entry.key) ||
-          (entry.key == 400 && normalFace != null)) {
+          ((entry.key == 400 || entry.key == 500) && normalFace != null)) {
         continue;
       }
       final data = await rootBundle
@@ -232,14 +237,16 @@ class LocalFontController extends ChangeNotifier {
           family, entry.key == 900 ? fontBytesAtWeight(bytes, 900) : bytes);
     }
     if (normalFace != null) {
-      await _registerFont(
-          family,
-          normalFace.weight == 400
-              ? normalFace.bytes
-              : fontBytesAtWeight(normalFace.bytes, 400));
+      for (final weight in [400, 500]) {
+        await _registerFont(
+            family,
+            normalFace.weight == weight
+                ? normalFace.bytes
+                : fontBytesAtWeight(normalFace.bytes, weight));
+      }
     }
     for (final face in current.values) {
-      if (face.weight == 400) continue;
+      if (face.weight == 400 || face.weight == 500) continue;
       await _registerFont(family, face.bytes);
     }
     _registeredFamilies[fingerprint] = family;

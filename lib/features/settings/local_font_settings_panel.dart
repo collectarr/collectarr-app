@@ -80,7 +80,10 @@ class _LocalFontSettingsPanelState extends State<LocalFontSettingsPanel> {
       builder: (context, _) {
         final faces = {
           ...controller.faces,
-          if (controller.normalTextFace case final normal?) 400: normal
+          if (controller.normalTextFace case final normal?) ...{
+            400: normal,
+            500: normal,
+          }
         };
         final weights = {...faces.keys, 400, 500, 600, 700, 800, 900}.toList()
           ..sort();
@@ -102,7 +105,7 @@ class _LocalFontSettingsPanelState extends State<LocalFontSettingsPanel> {
                         }),
               ),
               const Text(
-                  'Fonts stay on this device. Normal text uses Gilroy Medium when available, matching CLZ. Missing weights use Plus Jakarta Sans.'),
+                  'Fonts stay on this device. Normal text uses local Gilroy SemiBold for a fuller appearance, or Medium / Regular when unavailable. Missing weights use Plus Jakarta Sans.'),
               const SizedBox(height: 12),
               Wrap(spacing: 8, runSpacing: 8, children: [
                 for (final weight in weights)
