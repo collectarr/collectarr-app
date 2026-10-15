@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<plist version="1.0">
+  <array>
+    <dict>
+      <key>uuidString</key>
+      <string>00000000-0000-4000-8000-000000000001</string>
+      <key>type</key>
+      <string>Music</string>
+      <key>title</key>
+      <string>After &amp; Before</string>
+      <key>actorsCompositeString</key>
+      <string>Mira &quot;Echo&quot; Ionescu</string>
+      <key>formatSingularString</key>
+      <string>CD</string>
+      <key>numberOfMedia</key>
+      <integer>2</integer>
+      <key>publishDate</key>
+      <date>2025-04-18T00:00:00Z</date>
+      <key>purchaseDate</key>
+      <date>2026-01-15T00:00:00Z</date>
+      <key>publishersCompositeString</key>
+      <string>Fictional Records</string>
+      <key>notes</key>
+      <string>Fictional notes
+Unicode: Şé音 &amp; &quot;quotes&quot;</string>
+      <key>genresCompositeString</key>
+      <string>Dream Pop
+Jazz</string>
+      <key>price</key>
+      <string>$12.50</string>
+    </dict>
+    <dict>
+      <key>uuidString</key>
+      <string>00000000-0000-4000-8000-000000000002</string>
+      <key>type</key>
+      <string>Music</string>
+      <key>title</key>
+      <string>Quiet Morning</string>
+      <key>actorsCompositeString</key>
+      <string>Mira &quot;Echo&quot; Ionescu</string>
+      <key>formatSingularString</key>
+      <string>CD</string>
+      <key>numberOfMedia</key>
+      <integer>2</integer>
+      <key>publishDate</key>
+      <date>2025-04-18T00:00:00Z</date>
+      <key>purchaseDate</key>
+      <date>2026-01-15T00:00:00Z</date>
+      <key>publishersCompositeString</key>
+      <string>Fictional Records</string>
+      <key>notes</key>
+      <string>Fictional notes
+Unicode: Şé音 &amp; &quot;quotes&quot;</string>
+      <key>genresCompositeString</key>
+      <string>Dream Pop
+Jazz</string>
+      <key>price</key>
+      <string>$12.50</string>
+    </dict>
+  </array>
+</plist>

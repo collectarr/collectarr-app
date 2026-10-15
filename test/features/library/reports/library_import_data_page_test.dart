@@ -16,10 +16,10 @@ void main() {
       final sourceIds = capability.sources.map((s) => s.id).toList();
       expect(sourceIds, contains('text'));
       expect(sourceIds, contains('discogs'));
-      expect(sourceIds, contains('catraxx'));
+      expect(sourceIds, isNot(contains('catraxx')));
       expect(sourceIds, contains('delicious'));
-      expect(sourceIds, contains('orangecd'));
-      expect(sourceIds, contains('cdpedia'));
+      expect(sourceIds, isNot(contains('orangecd')));
+      expect(sourceIds, isNot(contains('cdpedia')));
       expect(sourceIds, contains('musiccollector'));
       expect(sourceIds, contains('clzweb'));
 
@@ -36,7 +36,7 @@ void main() {
   });
 
   group('LibraryImportDataPage Widget', () {
-    testWidgets('renders root menu with all CLZ Music Web import cards',
+    testWidgets('renders only verified import sources with parsers',
         (tester) async {
       tester.view.physicalSize = const Size(1280, 1400);
       tester.view.devicePixelRatio = 1.0;
@@ -73,10 +73,10 @@ void main() {
       // Main sources
       expect(find.text('Import a Text or CSV file'), findsOneWidget);
       expect(find.text('Discogs'), findsOneWidget);
-      expect(find.text('CATraxx'), findsOneWidget);
+      expect(find.text('CATraxx'), findsNothing);
       expect(find.text('Delicious Library'), findsOneWidget);
-      expect(find.text('OrangeCD'), findsOneWidget);
-      expect(find.text('CDpedia'), findsOneWidget);
+      expect(find.text('OrangeCD'), findsNothing);
+      expect(find.text('CDpedia'), findsNothing);
       expect(find.text('Music Collector'), findsOneWidget);
       expect(find.text('CLZ Music Web'), findsOneWidget);
 
@@ -158,7 +158,7 @@ void main() {
       );
 
       // Action button
-      expect(find.text('Import Albums'), findsOneWidget);
+      expect(find.text('Review Import'), findsOneWidget);
 
       // Tap Back to return to menu
       await tester.tap(find.byKey(const Key('import_data.back')));

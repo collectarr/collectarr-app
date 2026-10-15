@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
 import 'package:flutter/material.dart';
 
 enum LibraryImportSourceType {
@@ -32,8 +33,11 @@ class LibraryImportSourceDefinition {
     this.description = '',
     this.instructions = const [],
     this.filePrompt = 'Upload your file below:',
-  });
+    this.importer,
+  }) : assert((sourceType == LibraryImportSourceType.guidedFile) ==
+            (importer != null));
 
+  final LibraryGuidedImporter? importer;
   final String id;
   final String title;
   final String? subtitle;
@@ -51,10 +55,12 @@ class LibraryKindImportCapability {
   const LibraryKindImportCapability({
     this.sources = const [],
     this.mappableFields = const [],
+    this.mappedCsvImporter,
   });
 
   final List<LibraryImportSourceDefinition> sources;
   final List<KindMappableField> mappableFields;
+  final LibraryMappedCsvImporter? mappedCsvImporter;
 
   LibraryImportSourceDefinition? findSourceById(String id) {
     for (final s in sources) {

@@ -1,0 +1,30 @@
+{
+  "music.discogs": {
+    "kind": "music",
+    "minimal": "music/discogs/minimal.csv",
+    "optional": "music/discogs/optional_missing.csv",
+    "invalid": "music/discogs/truncated.csv",
+    "origin": "Documented Discogs Collection CSV header; fictional values, not a user-export capture."
+  },
+  "music.delicious": {
+    "kind": "music",
+    "minimal": "music/delicious/minimal.xml",
+    "optional": "music/delicious/optional_missing.xml",
+    "invalid": "music/delicious/truncated.xml",
+    "origin": "XML plist shape checked against https://github.com/KDE/tellico/blob/master/src/tests/data/delicious2_music.xml; fictional values."
+  },
+  "music.musiccollector": {
+    "kind": "music",
+    "minimal": "music/music_collector/minimal.xml",
+    "optional": "music/music_collector/optional_missing.xml",
+    "invalid": "music/music_collector/truncated.xml",
+    "origin": "XML shape checked against https://github.com/KDE/tellico/blob/master/src/tests/data/collectorz_music.xml; fictional values."
+  },
+  "music.clzweb": {
+    "kind": "music",
+    "minimal": "music/clz_web/minimal.xml",
+    "optional": "music/clz_web/optional_missing.xml",
+    "invalid": "music/clz_web/truncated.xml",
+    "origin": "XML shape checked against a CLZ Music Web export from the authenticated reference browser on 2026-10-15; fictional values."
+  }
+}

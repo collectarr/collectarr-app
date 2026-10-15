@@ -1,0 +1,246 @@
+<?xml version="1.0" ?>
+<musicinfo>
+  <musiclist>
+    <music>
+      <id>9001</id>
+      <title>After &amp; Before</title>
+      <artists>
+        <artist>
+          <displayname>Mira &quot;Echo&quot; Ionescu</displayname>
+        </artist>
+      </artists>
+      <label>
+        <displayname>Fictional Records</displayname>
+      </label>
+      <releasedate>
+        <date>2025-04</date>
+      </releasedate>
+      <origreleasedate>
+        <date>2024</date>
+      </origreleasedate>
+      <labelnumber>DEMO-001</labelnumber>
+      <upc>9900000000001</upc>
+      <format>
+        <displayname>CD</displayname>
+      </format>
+      <collectionstatus>In Collection</collectionstatus>
+      <quantity>1</quantity>
+      <index>1</index>
+      <rating>8</rating>
+      <notes>Fictional notes
+Unicode: Şé音 &amp; &quot;quotes&quot;</notes>
+      <purchasedate>
+        <date>1/15/2026</date>
+      </purchasedate>
+      <purchaseprice>12.50</purchaseprice>
+      <recordingdate>
+        <date>2024</date>
+      </recordingdate>
+      <islive>true</islive>
+      <studios>
+        <studio>
+          <displayname>Fictional Hall</displayname>
+        </studio>
+      </studios>
+      <composers>
+        <composer>
+          <displayname>Alex Example</displayname>
+        </composer>
+      </composers>
+      <genres>
+        <genre>
+          <displayname>Dream Pop</displayname>
+        </genre>
+        <genre>
+          <displayname>Jazz</displayname>
+        </genre>
+      </genres>
+      <credits>
+        <credit>
+          <person>
+            <displayname>Jane Example</displayname>
+          </person>
+          <role>Producer</role>
+        </credit>
+      </credits>
+      <musicians>
+        <musician>
+          <person>
+            <displayname>Sam Example</displayname>
+          </person>
+          <role>Musician</role>
+          <instrument>
+            <displayname>Guitar</displayname>
+          </instrument>
+        </musician>
+      </musicians>
+      <details>
+        <detail type="disc">
+          <index>1</index>
+          <details>
+            <detail type="track">
+              <position>1</position>
+              <title>Song 1.1</title>
+              <lengthsecs>183</lengthsecs>
+              <composition>Fictional Work</composition>
+              <id>track-0-0-0</id>
+            </detail>
+            <detail type="track">
+              <position>2</position>
+              <title>Song 1.2</title>
+              <lengthsecs>183</lengthsecs>
+              <composition>Fictional Work</composition>
+              <id>track-0-0-1</id>
+            </detail>
+          </details>
+          <id>disc-0-0</id>
+        </detail>
+        <detail type="disc">
+          <index>2</index>
+          <details>
+            <detail type="track">
+              <position>1</position>
+              <title>Song 2.1</title>
+              <lengthsecs>183</lengthsecs>
+              <composition>Fictional Work</composition>
+              <id>track-0-1-0</id>
+            </detail>
+            <detail type="track">
+              <position>2</position>
+              <title>Song 2.2</title>
+              <lengthsecs>183</lengthsecs>
+              <composition>Fictional Work</composition>
+              <id>track-0-1-1</id>
+            </detail>
+          </details>
+          <id>disc-0-1</id>
+        </detail>
+      </details>
+      <sounds>
+        <sound>
+          <displayname>Stereo</displayname>
+        </sound>
+      </sounds>
+    </music>
+    <music>
+      <id>9002</id>
+      <title>Quiet Morning</title>
+      <artists>
+        <artist>
+          <displayname>The Daylights</displayname>
+        </artist>
+      </artists>
+      <label>
+        <displayname>Fictional Records</displayname>
+      </label>
+      <releasedate>
+        <date>2025-04</date>
+      </releasedate>
+      <origreleasedate>
+        <date>2024</date>
+      </origreleasedate>
+      <labelnumber>DEMO-001</labelnumber>
+      <upc>9900000000001</upc>
+      <format>
+        <displayname>CD</displayname>
+      </format>
+      <collectionstatus>In Collection</collectionstatus>
+      <quantity>1</quantity>
+      <index>2</index>
+      <rating>8</rating>
+      <notes>Fictional notes
+Unicode: Şé音 &amp; &quot;quotes&quot;</notes>
+      <purchasedate>
+        <date>1/15/2026</date>
+      </purchasedate>
+      <purchaseprice>12.50</purchaseprice>
+      <recordingdate>
+        <date>2024</date>
+      </recordingdate>
+      <islive>true</islive>
+      <studios>
+        <studio>
+          <displayname>Fictional Hall</displayname>
+        </studio>
+      </studios>
+      <composers>
+        <composer>
+          <displayname>Alex Example</displayname>
+        </composer>
+      </composers>
+      <genres>
+        <genre>
+          <displayname>Dream Pop</displayname>
+        </genre>
+        <genre>
+          <displayname>Jazz</displayname>
+        </genre>
+      </genres>
+      <credits>
+        <credit>
+          <person>
+            <displayname>Jane Example</displayname>
+          </person>
+          <role>Producer</role>
+        </credit>
+      </credits>
+      <musicians>
+        <musician>
+          <person>
+            <displayname>Sam Example</displayname>
+          </person>
+          <role>Musician</role>
+          <instrument>
+            <displayname>Guitar</displayname>
+          </instrument>
+        </musician>
+      </musicians>
+      <details>
+        <detail type="disc">
+          <index>1</index>
+          <details>
+            <detail type="track">
+              <position>1</position>
+              <title>Song 1.1</title>
+              <lengthsecs>183</lengthsecs>
+              <composition>Fictional Work</composition>
+              <id>track-1-0-0</id>
+            </detail>
+            <detail type="track">
+              <position>2</position>
+              <title>Song 1.2</title>
+              <lengthsecs>183</lengthsecs>
+              <composition>Fictional Work</composition>
+              <id>track-1-0-1</id>
+            </detail>
+          </details>
+          <id>disc-1-0</id>
+        </detail>
+        <detail type="disc">
+          <index>2</index>
+          <details>
+            <detail type="track">
+              <position>1</position>
+              <title>Song 2.1</title>
+              <lengthsecs>183</lengthsecs>
+              <composition>Fictional Work</composition>
+              <id>track-1-1-0</id>
+            </detail>
+            <detail type="track">
+              <position>2</position>
+              <title>Song 2.2</title>
+              <lengthsecs>183</lengthsecs>
+              <composition>Fictional Work</composition>
+              <id>track-1-1-1</id>
+            </detail>
+          </details>
+          <id>disc-1-1</id>
+        </detail>
+      </details>
+      <sounds>
+        <sound>
+          <displayname>Stereo</displayname>
+        </sound>
+      </sounds>
+    </music>
+  </

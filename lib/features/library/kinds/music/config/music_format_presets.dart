@@ -4,6 +4,14 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_fo
 /// Unknown values remain custom and require an explicit family selection.
 const musicFormatPresets = <String, MusicDiscFormatFamily>{
   'CD': MusicDiscFormatFamily.opticalDisc,
+  'Audio CD': MusicDiscFormatFamily.opticalDisc,
+  'Audio CD Import': MusicDiscFormatFamily.opticalDisc,
+  'CD-R': MusicDiscFormatFamily.opticalDisc,
+  'DVD': MusicDiscFormatFamily.opticalDisc,
+  'DVDr': MusicDiscFormatFamily.opticalDisc,
+  'DVD-R': MusicDiscFormatFamily.opticalDisc,
+  'DVD-Audio': MusicDiscFormatFamily.opticalDisc,
+  'Blu-ray Audio': MusicDiscFormatFamily.opticalDisc,
   'SACD': MusicDiscFormatFamily.opticalDisc,
   'SHM-CD': MusicDiscFormatFamily.opticalDisc,
   'Blu-spec CD': MusicDiscFormatFamily.opticalDisc,
