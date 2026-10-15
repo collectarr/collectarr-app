@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -7,6 +8,55 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  testWidgets('reassign keeps declared categories without sorting favorites',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.binding.setSurfaceSize(const Size(1440, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    List<LibrarySortRule>? result;
+    await tester.pumpWidget(MaterialApp(
+        home: Builder(
+            builder: (context) => Scaffold(
+                body: TextButton(
+                    onPressed: () async {
+                      result = await showLibrarySortDialog(
+                          context: context,
+                          type: const MusicRegistration(),
+                          title: 'Re-Assign Index Values',
+                          confirmLabel: 'OK',
+                          showFavorites: false,
+                          availableColumns: [
+                            for (final sort in libraryKindWorkspaceForKind(
+                                    const MusicRegistration().kind)
+                                .libraryEntryFields
+                                .sorts)
+                              sort.id.value
+                          ],
+                          currentRules: const [
+                            LibrarySortRule(
+                                column: 'music.title', ascending: true)
+                          ]);
+                    },
+                    child: const Text('Open'))))));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Sorting favorites'), findsNothing);
+    await tester.tap(find.text('Main'));
+    await tester.pumpAndSettle();
+    expect(find.text('Personal'), findsOneWidget);
+    expect(find.text('Value'), findsOneWidget);
+    expect(find.text('Loan'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'Earliest');
+    await tester.pumpAndSettle();
+    expect(find.text('Recording'), findsOneWidget);
+    expect(find.text('Main'), findsNothing);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(result,
+        const [LibrarySortRule(column: 'music.title', ascending: true)]);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('sort field search can be cleared and used again',
       (tester) async {
     SharedPreferences.setMockInitialValues({});

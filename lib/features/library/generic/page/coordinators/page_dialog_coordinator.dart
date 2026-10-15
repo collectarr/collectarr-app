@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_favorites_provider.dart';
 import 'dart:async';
 
@@ -563,7 +564,9 @@ class LibraryPageDialogCoordinator {
       context: context,
       type: _page.type,
       title: 'Re-Assign Index Values',
-      confirmLabel: 'Re-assign',
+      icon: AppIcons.reassignIndex,
+      confirmLabel: 'OK',
+      showFavorites: false,
       description:
           'Re-assign the Index field for all ${items.length} entries, based on the sort order selected below.',
       currentRules: _page.viewState == null
@@ -574,7 +577,7 @@ class LibraryPageDialogCoordinator {
                     column: rule.sortId.value, ascending: rule.ascending)
             ],
       availableColumns: [
-        for (final sort in workspace.fields.sorts) sort.id.value
+        for (final sort in workspace.libraryEntryFields.sorts) sort.id.value
       ],
     );
     if (rules == null || !_page.mounted || !context.mounted) return;
