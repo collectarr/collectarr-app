@@ -1,6 +1,5 @@
-import 'package:collectarr_app/ui/app_management_content.dart';
+import 'package:collectarr_app/ui/app_management_page_scaffold.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -388,140 +387,119 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     final now = DateTime.now();
     final borrowers = _loans.map((loan) => loan.borrowerName).toSet().toList()
       ..sort();
-    return Scaffold(
-      backgroundColor: appManagementCanvasColor(context),
-      appBar: AppPageHeader(
-          icon: Icons.people_outline,
-          title: const Text('Loan Manager'),
-          actions: [
-            IconButton(
-              tooltip: 'Refresh loans',
-              onPressed: _load,
-              icon: const Icon(Icons.refresh),
+    return AppManagementPageScaffold(
+      padding: EdgeInsets.zero,
+      icon: AppIcons.loans,
+      title: 'Loan Manager',
+      actions: [
+        IconButton(
+          tooltip: 'Refresh loans',
+          onPressed: _load,
+          icon: const Icon(Icons.refresh),
+        ),
+      ],
+      child: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.all(12),
+                children: [
+                  Wrap(
+                      spacing: 16,
+                      runSpacing: 10,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        for (final tab in [
+                          (label: 'Current Loans', filter: _LoanFilter.active),
+                          (label: 'Loan History', filter: _LoanFilter.returned)
+                        ])
+                          TextButton(
+                              onPressed: () =>
+                                  setState(() => _filter = tab.filter),
+                              style: TextButton.styleFrom(
+                                  foregroundColor: _filter == tab.filter
+                                      ? accent
+                                      : appPalette(context).textPrimary,
+                                  shape: const RoundedRectangleBorder(),
+                                  side: BorderSide(
+                                      color: _filter == tab.filter
+                                          ? accent
+                                          : Colors.transparent)),
+                              child: Text(tab.label,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700))),
+                        SizedBox(
+                            width: 210,
+                            child: DropdownButtonFormField<String>(
+                                key: ValueKey(_borrower),
+                                initialValue: _borrower ?? '',
+                                isExpanded: true,
+                                items: [
+                                  const DropdownMenuItem(
+                                      value: '', child: Text('all loaners')),
+                                  for (final name in borrowers)
+                                    DropdownMenuItem(
+                                        value: name, child: Text(name))
+                                ],
+                                onChanged: (name) => setState(() =>
+                                    _borrower = name == '' ? null : name))),
+                        SizedBox(
+                            width: 210,
+                            child: TextField(
+                                controller: _queryController,
+                                onChanged: (_) => setState(() {}),
+                                decoration: const InputDecoration(
+                                    hintText: 'Search loans',
+                                    prefixIcon: Icon(Icons.search, size: 18),
+                                    isDense: true))),
+                        TextButton.icon(
+                            onPressed: filteredLoans.isEmpty
+                                ? null
+                                : () => _printLoans(filteredLoans),
+                            icon: const Icon(Icons.picture_as_pdf_outlined,
+                                size: 16),
+                            label: const Text('print to pdf')),
+                      ]),
+                  const Divider(height: 20),
+                  Text('${filteredLoans.length} items'),
+                  const SizedBox(height: 8),
+                  if (MediaQuery.sizeOf(context).width >= 650 &&
+                      filteredLoans.isNotEmpty)
+                    _loanTable(filteredLoans, accent)
+                  else if (filteredLoans.isEmpty)
+                    const _EmptyLoansState()
+                  else
+                    for (final loan in filteredLoans)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: _LoanRow(
+                          loan: loan,
+                          title: _loanTitle(loan),
+                          accent: accent,
+                          isOverdue: loan.isOverdueAt(now),
+                          onReturn:
+                              loan.isActive ? () => _returnLoan(loan) : null,
+                          onDelete: () => _deleteLoan(loan),
+                        ),
+                      ),
+                  const SizedBox(height: 16),
+                  ExpansionTile(
+                      title: const Text('Lend / return by barcode'),
+                      children: [
+                        _LoanActionStrip(
+                          barcodeController: _barcodeController,
+                          filter: _filter,
+                          onFilterChanged: (value) =>
+                              setState(() => _filter = value),
+                          onScanBarcode: _scanBarcode,
+                          onLoanByBarcode: _loanByBarcode,
+                          onReturnByBarcode: _returnByBarcode,
+                        ),
+                      ]),
+                ],
+              ),
             ),
-          ]),
-      body: AppManagementContent(
-          child: _loading
-              ? const Center(child: CircularProgressIndicator())
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: Center(
-                      child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 960),
-                          child: ListView(
-                            padding: const EdgeInsets.all(12),
-                            children: [
-                              Wrap(
-                                  spacing: 16,
-                                  runSpacing: 10,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  children: [
-                                    for (final tab in [
-                                      (
-                                        label: 'Current Loans',
-                                        filter: _LoanFilter.active
-                                      ),
-                                      (
-                                        label: 'Loan History',
-                                        filter: _LoanFilter.returned
-                                      )
-                                    ])
-                                      TextButton(
-                                          onPressed: () => setState(
-                                              () => _filter = tab.filter),
-                                          style: TextButton.styleFrom(
-                                              foregroundColor:
-                                                  _filter == tab.filter
-                                                      ? accent
-                                                      : appPalette(context)
-                                                          .textPrimary,
-                                              shape:
-                                                  const RoundedRectangleBorder(),
-                                              side: BorderSide(
-                                                  color: _filter == tab.filter
-                                                      ? accent
-                                                      : Colors.transparent)),
-                                          child: Text(tab.label,
-                                              style: const TextStyle(
-                                                  fontWeight:
-                                                      FontWeight.w700))),
-                                    SizedBox(
-                                        width: 210,
-                                        child: DropdownButtonFormField<String>(
-                                            key: ValueKey(_borrower),
-                                            initialValue: _borrower ?? '',
-                                            isExpanded: true,
-                                            items: [
-                                              const DropdownMenuItem(
-                                                  value: '',
-                                                  child: Text('all loaners')),
-                                              for (final name in borrowers)
-                                                DropdownMenuItem(
-                                                    value: name,
-                                                    child: Text(name))
-                                            ],
-                                            onChanged: (name) => setState(() =>
-                                                _borrower =
-                                                    name == '' ? null : name))),
-                                    SizedBox(
-                                        width: 210,
-                                        child: TextField(
-                                            controller: _queryController,
-                                            onChanged: (_) => setState(() {}),
-                                            decoration: const InputDecoration(
-                                                hintText: 'Search loans',
-                                                prefixIcon: Icon(Icons.search,
-                                                    size: 18),
-                                                isDense: true))),
-                                    TextButton.icon(
-                                        onPressed: filteredLoans.isEmpty
-                                            ? null
-                                            : () => _printLoans(filteredLoans),
-                                        icon: const Icon(
-                                            Icons.picture_as_pdf_outlined,
-                                            size: 16),
-                                        label: const Text('print to pdf')),
-                                  ]),
-                              const Divider(height: 20),
-                              Text('${filteredLoans.length} items'),
-                              const SizedBox(height: 8),
-                              if (MediaQuery.sizeOf(context).width >= 650 &&
-                                  filteredLoans.isNotEmpty)
-                                _loanTable(filteredLoans, accent)
-                              else if (filteredLoans.isEmpty)
-                                const _EmptyLoansState()
-                              else
-                                for (final loan in filteredLoans)
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: _LoanRow(
-                                      loan: loan,
-                                      title: _loanTitle(loan),
-                                      accent: accent,
-                                      isOverdue: loan.isOverdueAt(now),
-                                      onReturn: loan.isActive
-                                          ? () => _returnLoan(loan)
-                                          : null,
-                                      onDelete: () => _deleteLoan(loan),
-                                    ),
-                                  ),
-                              const SizedBox(height: 16),
-                              ExpansionTile(
-                                  title: const Text('Lend / return by barcode'),
-                                  children: [
-                                    _LoanActionStrip(
-                                      barcodeController: _barcodeController,
-                                      filter: _filter,
-                                      onFilterChanged: (value) =>
-                                          setState(() => _filter = value),
-                                      onScanBarcode: _scanBarcode,
-                                      onLoanByBarcode: _loanByBarcode,
-                                      onReturnByBarcode: _returnByBarcode,
-                                    ),
-                                  ]),
-                            ],
-                          ))),
-                )),
     );
   }
 
