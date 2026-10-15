@@ -100,7 +100,7 @@ class _MusicListeningDraftSectionState
                         icon: const Icon(Icons.headphones_outlined, size: 16),
                         label: const Text('Mark as listened')),
                     SizedBox(
-                        width: 170,
+                        width: 240,
                         child: LibraryDateFieldButton(
                             label: 'Listen Date',
                             showLabel: false,

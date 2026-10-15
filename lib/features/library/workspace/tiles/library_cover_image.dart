@@ -993,10 +993,42 @@ class LibraryGeneratedCover extends StatelessWidget {
     (Color(0xFF7F5539), Color(0xFFE6CCB2), Color(0xFF201A16)),
   ];
 
+  static const _titleWidth = 86.0;
+
+  /// Shrinks the title until its longest word fits on one line, so the
+  /// fixed-width title box never splits a word.
+  static double _wholeWordFontSize(
+    BuildContext context,
+    String text,
+    TextStyle style,
+  ) {
+    final effective = DefaultTextStyle.of(context).style.merge(style);
+    var widest = 0.0;
+    for (final word in text.split(RegExp(r'\s+'))) {
+      if (word.isEmpty) continue;
+      final painter = TextPainter(
+        text: TextSpan(text: word, style: effective),
+        textDirection: TextDirection.ltr,
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      if (painter.width > widest) widest = painter.width;
+      painter.dispose();
+    }
+    final size = style.fontSize!;
+    return widest <= _titleWidth ? size : size * _titleWidth / widest;
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = _palettes[title.hashCode.abs() % _palettes.length];
     final displayTitle = title.replaceAll(', Vol.', '\nVol.');
+    final titleStyle = TextStyle(
+      color: palette.$3,
+      fontSize: 20,
+      fontWeight: FontWeight.w700,
+      height: 0.95,
+    );
     final cover = ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: DecoratedBox(
@@ -1017,16 +1049,17 @@ class LibraryGeneratedCover extends StatelessWidget {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: SizedBox(
-                  width: 86,
+                  width: _titleWidth,
                   child: Text(
                     displayTitle,
                     maxLines: 4,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: palette.$3,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      height: 0.95,
+                    style: titleStyle.copyWith(
+                      fontSize: _wholeWordFontSize(
+                        context,
+                        displayTitle,
+                        titleStyle,
+                      ),
                     ),
                   ),
                 ),

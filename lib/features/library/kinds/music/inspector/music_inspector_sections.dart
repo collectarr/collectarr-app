@@ -442,7 +442,7 @@ class _MusicInspectorHeader extends ConsumerWidget {
     final label = music.publisher?.trim();
     final country = musicCountryName(music.countryCode);
     final trackCount = model.tracks.where((track) => !track.isHeader).length;
-    final totalDuration = _formatTotalDuration(model.tracks);
+    final totalDuration = _formatTotalDuration(model.tracks, withHours: true);
 
     final preferences = ref.watch(uiPreferencesProvider);
     final boxSetAlbums = music.boxSet?.isNotEmpty == true
@@ -903,7 +903,7 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
   Widget _cover({required bool back}) => AspectRatio(
         aspectRatio: 1.0,
         child: LibraryInteractiveCover(
-          title: '${widget.title} ${back ? 'back cover' : 'front cover'}',
+          title: widget.title,
           imageUrl: back ? widget.item.backCoverImageUrl : widget.imageUrl,
           localBytes: back ? _back : _front,
           fallbackAspectRatio: 1.0,
@@ -1343,7 +1343,12 @@ String _formatTrackDuration(int totalSeconds) {
   return '$minutes:${seconds.toString().padLeft(2, '0')}';
 }
 
-String? _formatTotalDuration(List<MusicTrackListEntry> tracks) {
+/// Album totals show hours like the list Length column; disc headers keep
+/// minutes so a long disc still reads as one running time.
+String? _formatTotalDuration(
+  List<MusicTrackListEntry> tracks, {
+  bool withHours = false,
+}) {
   var total = 0;
   for (final track in tracks) {
     if (track.isHeader) continue;
@@ -1355,9 +1360,13 @@ String? _formatTotalDuration(List<MusicTrackListEntry> tracks) {
   if (total <= 0) {
     return null;
   }
-  final minutes = total ~/ 60;
-  final seconds = total % 60;
-  return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  if (withHours && total >= 3600) {
+    final minutes = (total % 3600) ~/ 60;
+    final seconds = total % 60;
+    return '${total ~/ 3600}:${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}';
+  }
+  return _formatTrackDuration(total);
 }
 
 List<String> _musicSearchTerms(String? query) {

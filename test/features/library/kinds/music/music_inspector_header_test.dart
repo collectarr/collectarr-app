@@ -24,6 +24,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 MusicLibraryEntry _createFixture(
@@ -147,8 +148,13 @@ void main() {
         // 1. Artist (large, primary)
         expect(find.text('Cannibal Corpse'), findsOneWidget);
 
-        // 2. Title uses the shared detail-heading blue.
-        final titleWidget = tester.widget<Text>(find.text('The Bleeding'));
+        // 2. Title uses the shared detail-heading blue. A missing cover's
+        // placeholder also shows the title, so ignore that copy.
+        final titles = find.text('The Bleeding').evaluate().where((element) =>
+            element.findAncestorWidgetOfExactType<LibraryGeneratedCover>() ==
+            null);
+        expect(titles, hasLength(1));
+        final titleWidget = titles.single.widget as Text;
         expect(titleWidget.style?.color, const Color(0xFF71AFD9));
 
         // 3. Collection badge (status ✓)

@@ -1,5 +1,9 @@
 part of '../generic_library_page.dart';
 
+/// Last selected item per kind, so returning from a tool page restores the
+/// details panel instead of rebuilding the library with nothing selected.
+final _lastSelectedItemByKind = <String, String>{};
+
 abstract final class LibraryPageShellPresenter {
   static Widget build(
     GenericLibraryPageState state,
@@ -133,19 +137,27 @@ abstract final class LibraryPageShellPresenter {
     final trimmedSearchQuery = searchState.query.trim();
     final bucketStatusSummary =
         state._bucketStatusSummaryForProjection(projection);
-    if (kDebugMode &&
-        kIsWeb &&
-        state._session.selection.selectedId == null &&
-        state._session.selection.value.itemIds.isEmpty &&
+    final kind = state.widget.type.kind.apiValue;
+    final selectedId = state._session.selection.selectedId;
+    if (selectedId != null) {
+      _lastSelectedItemByKind[kind] = selectedId;
+    } else if (state._session.selection.value.itemIds.isEmpty &&
         projection.filteredItems.isNotEmpty) {
-      final firstVisibleId = projection.filteredItems.first.target.id;
+      // Like the reference app, the details panel always shows an album:
+      // the last one selected in this session, otherwise the first visible.
+      final remembered = _lastSelectedItemByKind[kind];
+      final restoreId = remembered != null &&
+              projection.filteredItems
+                  .any((item) => item.target.id == remembered)
+          ? remembered
+          : projection.filteredItems.first.target.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!state.mounted ||
             state._session.selection.selectedId != null ||
             state._session.selection.value.itemIds.isNotEmpty) {
           return;
         }
-        state._activateItem(firstVisibleId);
+        state._activateItem(restoreId);
       });
     }
     final activeProjectionGroupMode = state._projectionGroupMode;

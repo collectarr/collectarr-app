@@ -25,6 +25,12 @@ import 'package:collectarr_app/features/library/workspace/entry/workspace_item.d
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('Music folders default to Artist rather than the first group', () {
+    expect(libraryGroupModesForType(const MusicRegistration()).first,
+        isNot('music.artist'));
+    expect(libraryDefaultGroupMode(const MusicRegistration()), 'music.artist');
+  });
+
   test('contained Music values place an album once in each matching bucket',
       () async {
     final album = _mixedAlbum();

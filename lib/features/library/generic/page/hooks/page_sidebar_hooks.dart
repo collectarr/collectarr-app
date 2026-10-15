@@ -9,11 +9,13 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     if (_scopeAvailableGroupModes.contains(_session.preferences.groupMode)) {
       return _session.preferences.groupMode;
     }
-    final fallback = _scopeAvailableGroupModes;
-    if (fallback.isNotEmpty) {
-      return fallback.first;
-    }
-    return libraryDefaultGroupMode(widget.type);
+    return _scopeDefaultGroupMode ?? libraryDefaultGroupMode(widget.type);
+  }
+
+  String? get _scopeDefaultGroupMode {
+    final modes = _scopeAvailableGroupModes;
+    final preferred = libraryDefaultGroupMode(widget.type);
+    return modes.contains(preferred) ? preferred : modes.firstOrNull;
   }
 
   String get _projectionGroupMode {
@@ -28,7 +30,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     _session.preferences.groupMode = _session.preferences.groupMode != null &&
             allowedModes.contains(_session.preferences.groupMode)
         ? _session.preferences.groupMode
-        : (allowedModes.isNotEmpty ? allowedModes.first : null);
+        : _scopeDefaultGroupMode;
     _session.preferences.folderPreset = sanitizeLibraryFolderPreset(
       _session.preferences.folderPreset,
       allowedModes: allowedModes,
@@ -234,9 +236,8 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     _session.preferences.groupMode = sidebarVisible
         ? routeFolderPreset?.primaryMode ??
             routeState.groupMode ??
-            (_scopeAvailableGroupModes.isNotEmpty
-                ? _scopeAvailableGroupModes.first
-                : libraryDefaultGroupMode(widget.type))
+            _scopeDefaultGroupMode ??
+            libraryDefaultGroupMode(widget.type)
         : null;
     _session.preferences.folderPreset = !sidebarVisible
         ? null

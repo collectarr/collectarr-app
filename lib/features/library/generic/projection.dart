@@ -288,7 +288,10 @@ List<String> libraryGroupModesForType(
 }
 
 String libraryDefaultGroupMode(LibraryKindRegistration type) {
-  return libraryGroupModesForType(type).first;
+  final modes = libraryGroupModesForType(type);
+  final declared =
+      libraryKindWorkspaceForKind(type.kind).fields.defaultGroup?.value;
+  return declared != null && modes.contains(declared) ? declared : modes.first;
 }
 
 String libraryGroupModeStorageValue(String mode,
