@@ -25,8 +25,9 @@ The issue chooser also links to community Q&A and the manual.
 ## Drawer presentation
 
 - Background: `#383838` in dark mode.
-- Option labels: 14 px, weight 400, 20 px line height, white.
-- Section labels: 14 px, weight 700, 20 px line height; the reference's white
+- Option labels: 14 px, 20 px line height, white. The reference declares CSS
+  weight 400; the drawer uses Flutter weight 700 after optical calibration.
+- Section labels: 14 px, 20 px line height; the reference's white
   at 40% opacity explains its muted appearance. Chevrons use the same tone.
 - Rows and headers: 30 px tall. Remove the extra initial 6 px padding.
 - Icons: 14 px within a 17.5 px slot; align the labels with the reference's
@@ -37,9 +38,11 @@ The issue chooser also links to community Q&A and the manual.
 - Find Duplicates, Loan Manager and Clear Database use the reference's solid
   rather than outline icon styles.
 
-The measured text weights already matched. No global weight remapping was
-introduced. Visual review used only the user's locally supplied font faces;
-devices without them retain the bundled open-font fallback.
+The CSS weight values initially matched, but a subsequent native raster review
+showed that this did not match optical density. Sections now use weight 900 in
+the drawer. See [the density investigation](sidebar-font-density-2026-10-15.md).
+No global weight remapping was introduced. Visual review used only the user's
+locally supplied font faces; devices without them retain the open-font fallback.
 
 ## Verification
 

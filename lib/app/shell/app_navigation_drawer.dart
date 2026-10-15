@@ -11,6 +11,17 @@ import 'package:collectarr_app/ui/app_icons.dart';
 
 import 'app_navigation_model.dart';
 
+// Optical roles for the drawer's small text. CSS weight numbers alone do not
+// match the density of the reference web fonts in Flutter's rasterizer.
+TextStyle _drawerTextStyle(Color color, {required bool section}) => TextStyle(
+      fontFamily: appFontFamily,
+      fontSize: 14,
+      height: 20 / 14,
+      letterSpacing: 0,
+      fontWeight: section ? FontWeight.w900 : FontWeight.w700,
+      color: color,
+    );
+
 Future<void> showAppNavigationDrawer({
   required BuildContext context,
   required LibraryKindRegistration type,
@@ -218,14 +229,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
-                    fontFamily: appFontFamily,
-                    fontSize: 14,
-                    height: 20 / 14,
-                    letterSpacing: 0,
-                    fontWeight: FontWeight.w400,
-                    color: itemColor,
-                  ),
+                  style: _drawerTextStyle(itemColor, section: false),
                 ),
               ),
             ],
@@ -248,14 +252,7 @@ class _DrawerSectionLabel extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Text(
         label,
-        style: TextStyle(
-          fontFamily: appFontFamily,
-          color: color,
-          fontSize: 14,
-          height: 20 / 14,
-          letterSpacing: 0,
-          fontWeight: FontWeight.w700,
-        ),
+        style: _drawerTextStyle(color, section: true),
       ),
     );
   }
@@ -286,14 +283,7 @@ class _DrawerCollapsibleSectionLabel extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(
-                  fontFamily: appFontFamily,
-                  color: color,
-                  fontSize: 14,
-                  height: 20 / 14,
-                  letterSpacing: 0,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: _drawerTextStyle(color, section: true),
               ),
             ),
             AnimatedRotation(
