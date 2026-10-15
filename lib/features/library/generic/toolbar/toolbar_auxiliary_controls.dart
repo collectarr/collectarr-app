@@ -58,6 +58,8 @@ class _LibraryCollectionStatusScopeDropdownState
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final accent = Theme.of(context).colorScheme.primary;
+    final filtered =
+        widget.collectionStatusScope != LibraryCollectionStatusScope.all;
     final menuText = libraryToolbarMenuText(context);
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -125,10 +127,18 @@ class _LibraryCollectionStatusScopeDropdownState
           onEnter: (_) => setState(() => _hovered = true),
           onExit: (_) => setState(() => _hovered = false),
           child: DecoratedBox(
+            // An active status filter is outlined in the shared blue, as in
+            // the reference, so a narrowed list is visible at a glance.
             decoration: BoxDecoration(
                 color: _hovered
                     ? libraryToolbarControlHover(context)
-                    : Colors.transparent),
+                    : filtered
+                        ? const Color(0xFF464950)
+                        : Colors.transparent,
+                borderRadius: filtered ? BorderRadius.circular(5) : null,
+                border: filtered
+                    ? Border.all(color: palette.utilityAction, width: 2)
+                    : null),
             child: SizedBox(
               height: kLibraryToolbarTextDropdownHeight,
               child: Padding(

@@ -419,8 +419,20 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
                               : () => widget.onNavigateToAncestorScope!(index),
                         );
                       }
-                      final bucket =
-                          filtered[index - widget.ancestorScopeLabels.length];
+                      final position =
+                          index - widget.ancestorScopeLabels.length;
+                      final bucket = filtered[position];
+                      // A thick gap closes the special rows ([All …] and
+                      // [None]) before the named folders, as in the
+                      // reference.
+                      final isSpecial = bucket.title == widget.allBucketLabel ||
+                          bucket.title == libraryEmptyGroupLabel;
+                      final nextIsSpecial = position + 1 < filtered.length &&
+                          filtered[position + 1].title ==
+                              libraryEmptyGroupLabel;
+                      final separateAfter = isSpecial &&
+                          !nextIsSpecial &&
+                          position + 1 < filtered.length;
                       final selected = bucket.title == widget.selectedBucket;
                       final rowPadding = ref.watch(
                         uiPreferencesProvider
@@ -428,6 +440,7 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
                       );
                       return _LibrarySeriesRow(
                         bucket: bucket,
+                        separateAfter: separateAfter,
                         countWidth: countWidth,
                         selected: selected,
                         onTap: () => widget.onSelectBucket(bucket.title),
@@ -876,10 +889,12 @@ class _LibrarySeriesRow extends StatelessWidget {
     required this.onTap,
     required this.selectionColor,
     required this.countWidth,
+    this.separateAfter = false,
     this.leadingInset = 0,
     this.extraVerticalPadding = 4,
   });
   final LibraryBucket bucket;
+  final bool separateAfter;
   final bool selected;
   final VoidCallback onTap;
   final Color selectionColor;
@@ -888,7 +903,7 @@ class _LibrarySeriesRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final row = LibraryFolderRow(
-      separateAfter: bucket.title == libraryEmptyGroupLabel,
+      separateAfter: separateAfter,
       label: bucket.title,
       count: bucket.count,
       selected: selected,
