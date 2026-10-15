@@ -60,6 +60,9 @@ Keep these when matching the reference visually.
 | Details cover | Placeholder read “Arrival front cover” and used a different color than the grid | The album title is passed unchanged |
 | Played History | Listen date field was 170 px and clipped YYYY/MM | Widened to fit its parts |
 | Shared blue | Custom Fields help link and Add button, Find Duplicates button and Statistics album titles used the kind accent | Use the shared link/utility blue; Statistics rows follow CLZ's title, artist, format-year order |
+| Pane split | Details defaulted to 350 px, so Details, Personal and Links stacked | Music details default to 1060 px (list ~500 px at 1844 px, clamped on smaller screens); the detail toolbar then shows text labels and sections sit side by side |
+| Details | Disc band used the kind accent; a lone year read “(2014)” | Shared blue band with white text; the year is parenthesized only after a label |
+| Editor | Played History used an accent outline; Add Disc/Add credit mixed neutral and accent outlines; Covers ordered Upload → Find Online with Material glyphs | Blue Mark as listened; neutral shared action style; Find Online → Upload → Remove with Font Awesome glyphs |
 
 ## Open differences
 
@@ -70,18 +73,14 @@ items come from earlier audits and must be re-checked before closing.
 
 | Priority | Surface | CLZ | Collectarr |
 | --- | --- | --- | --- |
-| P1 | Default pane split | Folders 250 px, list ~500 px, details take the rest (~1060 px) so Details, Personal and Links sit side by side | List takes the space and details are ~350 px, so the details panel stacks every section |
-| P1 | Detail toolbar | Text + icon “Edit”, “Share”; “Layout ▾” text menu | Icon-only buttons |
-| P1 | Disc header band in details | Shared blue band | Dark kind-accent band |
 | P2 | Header | Collection owner name centered; apps and account icons | Brand only; apps, sync and settings icons |
 | P2 | Collection status scope | Blue toggle “☑ In Collection”, default In Collection | Icon + “All” dropdown, default All |
-| P2 | Alphabet bar | “All” is plain bold text; gear chooses Artist/Composer/Title | Blue “All” pill; field chooser is in progress (uncommitted work) |
+| P2 | Alphabet bar | “All” is plain bold text | Blue “All” pill; the Artist/Composer/Title field chooser matches |
 | P2 | Count | Bold “40 albums” pill | Plain “10 albums” next to Tools |
 | P2 | Search | “Search albums & tracks…” | “Search albums…”; extra barcode, cover-search and random-pick buttons |
 | P2 | Navigation drawer | Maintenance, Import / Export and Help collapsed by default | Expanded by default; the open tooltip covers the Collection heading |
 | P2 | Editor placement | Dialog top at y=10; 34 px inputs; main tab 548 px tall | Top at y=30; 32 px inputs; ~580 px |
 | P2 | Find Duplicates toolbar | Full-width, left-aligned, columns button at far right | Centered 930 px band |
-| P2 | Add buttons | “Add Albums” and Add Disc are blue/neutral | “Add Albums” uses the kind accent; Add Disc is neutral in Tracks but accent-outlined in Details, as is Add credit |
 | P2 | Shell top bar | Flat accent *(carried over)* | Gradient |
 
 ### Functionality
@@ -91,7 +90,9 @@ items come from earlier audits and must be re-checked before closing.
 | P1 | Settings → Localization | Language, time zone, currency and currency display, number format, display/editing date formats, time format | Not available |
 | P1 | Settings → Sorting | Ignore/show sort titles and sort names for persons | Not available |
 | P1 | Settings → Auto Capitalization | When adding from Core / as you type, method and exception list | Only the editor's Aa action |
-| P1 | Sort Title | Pre-filled from Title | Empty until entered |
+| P1 | Sort Title | Pre-filled from Title | Empty until entered; show Title as a live hint or pre-fill on Add |
+| P2 | Editor Personal tab | Three columns; currency symbol inside price inputs; ten large rating stars | Two columns; currency chosen under Additional Personal Details; small stars with a 0/10 counter |
+| P2 | Details track list | Track table in a ~330 px column, sections in three columns below | Track list spans the panel width |
 | P2 | Sort fields | Images group (Back/Front Cover, Has Back/Front), Format, Core AlbumID | No Images group or Format sort; adds Status, Tracks, Purchase date and Personal/Recording/Activity/Loan/Value groups |
 | P2 | Imports | Also Music Label, CATraxx, OrangeCD, CDpedia | Not offered until authentic export fixtures are verified (see [import/export](import-export.md)) |
 | P2 | Loans | Borrower profiles with email, address and sort name *(carried over)* | Borrower names, filters and history only |
@@ -108,9 +109,7 @@ not Gilroy. Compare with a user-supplied local font before changing weights.
 - Settings: CLZ is one centered two-column page with 34 px #444 selects and
   compact checkboxes; ours adds category and Appearance tab bars, near-black
   floating-label selects and wider checkbox spacing.
-- Covers editor: CLZ order Find Online → Upload → Remove with Font Awesome
-  glyphs; ours starts with Upload and mixes Material glyphs. Icon systems are
-  still mixed in Covers, Settings sub-tabs and picker actions.
+- Icon systems are still mixed in Settings sub-tabs and picker actions.
 - My Images intake: CLZ 164 × 300 tile, 18/700 #666 instruction on the body
   color; ours is lighter with 14 px text.
 - Inspector: CLZ title 24/700 and 14/400 values; compare section spacing and
