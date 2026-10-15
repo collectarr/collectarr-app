@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/toolbar/library_alphabet_options.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -485,6 +486,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
     this.onSearchSuggestionSelected,
     this.onCollectionStatusScopeChanged,
     this.selectedLetter,
+    this.alphabetOptions,
     this.onLetterSelected,
     this.onRandomPick,
     this.onScanCover,
@@ -501,6 +503,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
       onCollectionStatusScopeChanged;
   final Set<String> availableLetters;
   final String? selectedLetter;
+  final LibraryAlphabetOptions? alphabetOptions;
   final ValueChanged<String?>? onLetterSelected;
   final VoidCallback onAdd;
   final VoidCallback onScan;
@@ -571,6 +574,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                   child: LibraryToolbarAlphabetRow(
                     letters: availableLetters,
                     selectedLetter: selectedLetter,
+                    alphabetOptions: alphabetOptions,
                     accent: accent,
                     onLetterSelected: onLetterSelected!,
                   ),
@@ -858,6 +862,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.extraActions = const [],
     this.availableLetters = const {},
     this.selectedLetter,
+    this.alphabetOptions,
     this.onLetterSelected,
     this.selectionCallbacks,
     this.selectedCount = 0,
@@ -925,6 +930,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final List<LibraryUtilityMenuAction> extraActions;
   final Set<String> availableLetters;
   final String? selectedLetter;
+  final LibraryAlphabetOptions? alphabetOptions;
   final ValueChanged<String?>? onLetterSelected;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final int selectedCount;
@@ -1133,6 +1139,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
           LibraryToolbarAlphabetRow(
             letters: availableLetters,
             selectedLetter: selectedLetter,
+            alphabetOptions: alphabetOptions,
             accent: accent,
             onLetterSelected: onLetterSelected!,
           ),

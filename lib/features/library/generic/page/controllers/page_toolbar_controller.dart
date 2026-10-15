@@ -75,7 +75,7 @@ class LibraryPageToolbarController {
     final searchSuggestions = _s.ref.watch(
       libraryToolbarSearchSuggestionsProvider((
         projection: projection,
-        query: searchState.query,
+        query: searchState.draftQuery,
       )),
     );
     final presentation = LibraryToolbarPresentation(
@@ -84,6 +84,10 @@ class LibraryPageToolbarController {
         includeDesktopSecondaryBand: false,
       ),
       state: LibraryToolbarState(
+        alphabetOptions: LibraryAlphabetOptions(
+            fields: _s._alphabetFields,
+            selected: _s._alphabetField,
+            onChanged: _s._setAlphabetField),
         searchController: _s._searchController,
         viewState: viewState,
         counts: projection?.counts ?? const LibraryToolbarCounts(),
@@ -100,7 +104,7 @@ class LibraryPageToolbarController {
         quickView: _s._session.facets.quickView,
         availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
           (projection?.filteredItems ?? const <LibraryProjectionItem>[])
-              .map((i) => i.dto.primaryLabel),
+              .expand(_s._alphabetField.values),
         ),
         selectedLetter: _s._session.facets.selectedLetter,
         activeViewPreset: _s._activeViewPreset,

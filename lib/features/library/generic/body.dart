@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/presentation/library_alphabet_field.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -144,6 +145,7 @@ class LibraryBody extends StatelessWidget {
     this.onItemContextMenu,
     this.onFilterByValue,
     this.selectedLetter,
+    this.alphabetField = LibraryAlphabetField.title,
     this.availableLetters = const {},
     this.onLetterSelected,
     this.db,
@@ -227,6 +229,7 @@ class LibraryBody extends StatelessWidget {
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final ValueChanged<String>? onFilterByValue;
   final String? selectedLetter;
+  final LibraryAlphabetField alphabetField;
   final Set<String> availableLetters;
   final ValueChanged<String?>? onLetterSelected;
   final LocalDatabase? db;
@@ -310,10 +313,9 @@ class LibraryBody extends StatelessWidget {
           final letterFilteredItems = selectedLetter == null
               ? projection.filteredItems
               : projection.filteredItems
-                  .where((item) => LibraryAlphaJumpBar.matchesLetter(
-                        item.dto.primaryLabel,
-                        selectedLetter!,
-                      ))
+                  .where((item) => alphabetField.values(item).any((value) =>
+                      LibraryAlphaJumpBar.matchesLetter(
+                          value, selectedLetter!)))
                   .toList();
           final workspace = workspaceOverride ??
               LibraryWorkspace(

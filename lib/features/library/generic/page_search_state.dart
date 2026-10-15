@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryPageSearchState {
   String query = '';
+  String draftQuery = '';
   String? pinnedItemId;
   LibrarySearchTarget target = LibrarySearchTarget.all;
 
   void setQuery(String value) {
     final trimmed = value.trim();
+    draftQuery = trimmed;
     if (query == trimmed && pinnedItemId == null) {
       return;
     }
@@ -20,6 +22,7 @@ class LibraryPageSearchState {
     required String id,
   }) {
     final nextQuery = title.trim();
+    draftQuery = nextQuery;
     if (query == nextQuery && pinnedItemId == id) {
       return;
     }
@@ -29,6 +32,7 @@ class LibraryPageSearchState {
 
   void clearSearch() {
     query = '';
+    draftQuery = '';
     pinnedItemId = null;
     target = LibrarySearchTarget.all;
   }

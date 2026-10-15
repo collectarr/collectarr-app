@@ -50,6 +50,7 @@ final class LibraryPageFacetSession {
 }
 
 final class LibraryPagePreferencesSession {
+  String? alphabetFieldId;
   LibraryWorkspaceViewState? viewState;
   String? groupMode;
   LibraryFolderPreset? folderPreset;

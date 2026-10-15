@@ -1,3 +1,4 @@
+import 'library_alphabet_options.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
@@ -730,10 +731,12 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
       {super.key,
       required this.letters,
       required this.selectedLetter,
+      this.alphabetOptions,
       required this.accent,
       required this.onLetterSelected});
   final Set<String> letters;
   final String? selectedLetter;
+  final LibraryAlphabetOptions? alphabetOptions;
   final Color accent;
   final ValueChanged<String?> onLetterSelected;
   @override
@@ -777,6 +780,8 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
         height: 28,
         child: LayoutBuilder(builder: (context, constraints) {
           final scale = MediaQuery.textScalerOf(context).scale(12) / 12;
+          final options = alphabetOptions;
+          final optionsWidth = options == null ? 0.0 : 46.0;
           if (constraints.maxWidth < 480 * scale) {
             return Align(
                 alignment: Alignment.centerLeft,
@@ -815,15 +820,55 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
                   label: label,
                   width: (label == 'All' ? 44 : 28) *
                       scale *
-                      (constraints.maxWidth / (828 * scale)).clamp(0.0, 1.0),
+                      ((constraints.maxWidth - optionsWidth) / (828 * scale))
+                          .clamp(0.0, 1.0),
                   isSelected: label == (selectedLetter ?? 'All'),
                   isAvailable: label == 'All' || available.contains(label),
-                  accent: accent,
+                  accent: palette.utilityAction,
                   palette: palette,
                   onTap: label == 'All' || available.contains(label)
                       ? () => select(label)
                       : null,
                 ),
+              if (options != null) ...[
+                const SizedBox(width: 10),
+                PopupMenuButton<String>(
+                  tooltip: 'Alphabet Options',
+                  position: PopupMenuPosition.under,
+                  color: palette.isDark
+                      ? const Color(0xff444444)
+                      : palette.panelRaised,
+                  surfaceTintColor: Colors.transparent,
+                  menuPadding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: palette.divider)),
+                  onSelected: options.onChanged,
+                  itemBuilder: (_) => [
+                    for (final field in options.fields)
+                      PopupMenuItem(
+                          value: field.id,
+                          height: 30,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            SizedBox(
+                                width: 18,
+                                child: field.id == options.selected.id
+                                    ? const Icon(AppIcons.check, size: 14)
+                                    : null),
+                            Text(field.label,
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w400)),
+                          ])),
+                  ],
+                  child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: SizedBox(
+                          width: 36,
+                          height: 28,
+                          child: Icon(AppIcons.settings,
+                              size: 14, color: palette.textPrimary))),
+                ),
+              ],
             ],
           );
         }));

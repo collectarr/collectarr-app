@@ -35,6 +35,14 @@ class LibraryViewPreferenceStore {
 
   String get _cacheKey => _key('');
 
+  Future<String?> readAlphabetFieldId() async =>
+      (await SharedPreferences.getInstance()).getString(_key('alphabetField'));
+
+  Future<void> writeAlphabetFieldId(String id) async {
+    await (await SharedPreferences.getInstance())
+        .setString(_key('alphabetField'), id);
+  }
+
   LibraryQuickView? get cachedQuickView => _cachedQuickViews[_cacheKey];
 
   LibraryFolderPreset? get cachedFolderPreset =>

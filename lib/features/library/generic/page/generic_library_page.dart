@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/generic/toolbar/library_alphabet_options.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_alphabet_field.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_favorites_provider.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'dart:async';
@@ -215,6 +217,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _session.preferences.activeSmartListName = null;
       }),
       syncRouteState: _syncRouteState,
+      onDraftChanged: () => _mutateState(() {}),
     );
     _LibraryPageLifecycleControllerOps.initState(this);
   }
@@ -719,6 +722,25 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   void _setSelectedBucket(String? bucket) {
     _LibraryScopeControllerOps.setSelectedBucket(this, bucket);
+  }
+
+  List<LibraryAlphabetField> get _alphabetFields =>
+      libraryPresentationForKind(widget.type.kind).alphabetFields;
+  LibraryAlphabetField get _alphabetField => _alphabetFields.firstWhere(
+      (field) => field.id == _session.preferences.alphabetFieldId,
+      orElse: () => _alphabetFields.first);
+
+  void _setAlphabetField(String id) {
+    if (!_alphabetFields.any((field) => field.id == id) ||
+        _alphabetField.id == id) {
+      return;
+    }
+    _mutateState(() {
+      _session.preferences.alphabetFieldId = id;
+      _session.facets.selectedLetter = null;
+    });
+    unawaited(_viewPrefs.writeAlphabetFieldId(id));
+    _syncRouteState();
   }
 
   void _setSelectedLetter(String? letter) {

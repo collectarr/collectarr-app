@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/toolbar/library_alphabet_options.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -24,6 +25,7 @@ class LibraryToolbarState {
     required this.quickView,
     this.availableLetters = const <String>{},
     this.selectedLetter,
+    this.alphabetOptions,
     this.activeViewPreset,
     this.pinnedViewPresets = const <LibraryWorkspacePreset>{},
     this.sortFavorites = const <LibrarySortFavorite>[],
@@ -59,6 +61,7 @@ class LibraryToolbarState {
   final LibraryQuickView? quickView;
   final Set<String> availableLetters;
   final String? selectedLetter;
+  final LibraryAlphabetOptions? alphabetOptions;
   final LibraryWorkspacePreset? activeViewPreset;
   final Set<LibraryWorkspacePreset> pinnedViewPresets;
   final List<LibrarySortFavorite> sortFavorites;

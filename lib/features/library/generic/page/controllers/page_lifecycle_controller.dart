@@ -38,6 +38,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
     try {
       final loadToken = ++state._session.preferences.viewPreferenceLoadToken;
       final expectedKind = state.widget.type.kind;
+      final alphabetFieldFuture = state._viewPrefs.readAlphabetFieldId();
       final quickViewFuture = state._viewPrefs.readQuickView();
       final folderPresetFuture = state._viewPrefs.readFolderPreset(
         allowedModes: state._scopeAvailableGroupModes,
@@ -80,6 +81,13 @@ abstract final class _LibraryPageLifecycleControllerOps {
         return;
       }
 
+      final alphabetFieldId = await alphabetFieldFuture;
+      if (state.mounted &&
+          state._session.preferences.alphabetFieldId == null &&
+          state._alphabetFields.any((field) => field.id == alphabetFieldId)) {
+        state._mutateState(
+            () => state._session.preferences.alphabetFieldId = alphabetFieldId);
+      }
       final savedSortFavorites = await state.ref
           .read(librarySavedSortFavoritesProvider(state.widget.type).future);
       if (!state.mounted ||
@@ -180,6 +188,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
   }
 
   static void primeCachedViewPreferences(GenericLibraryPageState state) {
+    state._session.preferences.alphabetFieldId = null;
     final allowedGroupModes = state._scopeAvailableGroupModes.toSet();
     state._session.facets.quickView = sanitizeLibraryQuickViewForType(
       state._viewPrefs.cachedQuickView,

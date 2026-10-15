@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 import 'library_filter_presentation.dart';
+import 'library_alphabet_field.dart';
 import 'library_metadata_presentation.dart';
 import 'library_personal_filter_presentation.dart';
 import 'library_search_presentation.dart';
@@ -37,12 +38,14 @@ class LibraryMediaPresentation {
     this.columnFavorites = defaultLibraryColumnFavorites,
     this.filterOptionLabels = const LibraryFilterOptionLabels(),
     this.filterDefinitions = const [],
+    this.alphabetFields = const [LibraryAlphabetField.title],
     this.referenceLabels = const LibraryPresentationLabels(),
     this.statusLabels = const LibraryPresentationLabels(),
     this.bucketLabelOverrides = const LibraryPresentationLabels(),
   });
 
   final LibraryMediaSearchFieldLabels searchFieldLabels;
+  final List<LibraryAlphabetField> alphabetFields;
   final LibraryPresentationLabels filterLabels;
   final LibraryPresentationLabels groupLabels;
   final LibraryMediaPresentationBuilder builder;

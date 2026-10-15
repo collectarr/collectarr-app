@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/toolbar/library_alphabet_options.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -61,6 +62,7 @@ class LibraryToolbar extends StatelessWidget {
     required this.onQuickViewSelected,
     this.availableLetters = const {},
     this.selectedLetter,
+    this.alphabetOptions,
     this.onLetterSelected,
     this.activeViewPreset,
     this.onViewPresetSelected,
@@ -153,6 +155,7 @@ class LibraryToolbar extends StatelessWidget {
         onQuickViewSelected = actions.onQuickViewSelected,
         availableLetters = state.availableLetters,
         selectedLetter = state.selectedLetter,
+        alphabetOptions = state.alphabetOptions,
         onLetterSelected = actions.onLetterSelected,
         activeViewPreset = state.activeViewPreset,
         onViewPresetSelected = actions.onViewPresetSelected,
@@ -239,6 +242,7 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<LibraryQuickView> onQuickViewSelected;
   final Set<String> availableLetters;
   final String? selectedLetter;
+  final LibraryAlphabetOptions? alphabetOptions;
   final ValueChanged<String?>? onLetterSelected;
   final LibraryWorkspacePreset? activeViewPreset;
   final ValueChanged<LibraryWorkspacePreset>? onViewPresetSelected;
@@ -376,6 +380,7 @@ class LibraryToolbar extends StatelessWidget {
                   extraActions: extraUtilityActions,
                   availableLetters: availableLetters,
                   selectedLetter: selectedLetter,
+                  alphabetOptions: alphabetOptions,
                   onLetterSelected: onLetterSelected,
                   selectionCallbacks: selectionCallbacks,
                   selectedCount: selectedCount,
@@ -397,6 +402,7 @@ class LibraryToolbar extends StatelessWidget {
                         onCollectionStatusScopeChanged,
                     availableLetters: availableLetters,
                     selectedLetter: selectedLetter,
+                    alphabetOptions: alphabetOptions,
                     onLetterSelected: onLetterSelected,
                     onAdd: onAdd,
                     onScan: onScan,

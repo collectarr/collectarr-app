@@ -286,8 +286,9 @@ abstract final class LibraryPageShellPresenter {
           canUseBucketCompletionScope ? state._setBucketCompletionScope : null,
       onFilterByValue: state._toggleLinkedMetadataFilter,
       selectedLetter: state._session.facets.selectedLetter,
+      alphabetField: state._alphabetField,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
-        projection.filteredItems.map((i) => i.dto.primaryLabel),
+        projection.filteredItems.expand(state._alphabetField.values),
       ),
       onLetterSelected: state._setSelectedLetter,
       db: state.ref.read(localDatabaseProvider),
