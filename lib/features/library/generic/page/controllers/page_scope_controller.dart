@@ -249,6 +249,7 @@ abstract final class _LibraryScopeControllerOps {
       state._searchController.clear();
       state._session.selection.anchorId = null;
     });
+    unawaited(state._viewPrefs.writeQuickView(null));
     state._searchControllerOps.clearSearch();
     state._syncRouteState();
   }

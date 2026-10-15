@@ -417,6 +417,30 @@ class LibraryBody extends StatelessWidget {
                     ),
                   Expanded(child: desktopToolbarBand!),
                 ]),
+              if (quickView != null ||
+                  filterSelection.hasActiveFilters ||
+                  activeSmartListName != null)
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Wrap(
+                    spacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text([
+                        if (activeSmartListName != null) activeSmartListName!,
+                        if (quickView != null) quickView!.label,
+                        if (filterSelection.hasActiveFilters)
+                          '${filterSelection.activeFilterCount} active filters',
+                      ].join(' / ')),
+                      TextButton.icon(
+                        onPressed: onClearFilters,
+                        icon: const Icon(Icons.filter_alt_off, size: 16),
+                        label: const Text('Clear filters'),
+                      ),
+                    ],
+                  ),
+                ),
               if (workspaceOverride == null &&
                   !showSidebar &&
                   constraints.maxWidth < 600 &&
