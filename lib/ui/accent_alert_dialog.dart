@@ -54,8 +54,6 @@ class AccentAlertDialog extends StatelessWidget {
   final bool scrollable;
   final VoidCallback? headerOnClose;
 
-  static const _defaultRadius = 0.0;
-
   @override
   Widget build(BuildContext context) {
     final titleWidget = _buildTitle(context);
@@ -85,10 +83,7 @@ class AccentAlertDialog extends StatelessWidget {
         surfaceTintColor: surfaceTintColor,
         insetPadding: insetPadding,
         clipBehavior: clipBehavior ?? Clip.antiAlias,
-        shape: shape ??
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(_defaultRadius),
-            ),
+        shape: shape ?? appDialogShape,
         alignment: resolvedAlignment,
         semanticLabel: semanticLabel,
         scrollable: scrollable,

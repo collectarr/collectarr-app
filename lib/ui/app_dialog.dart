@@ -2,8 +2,12 @@ import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 
-/// Default alignment for dialogs: positioned ~2/3 of the screen from the bottom
-/// (a bit above the middle of the screen).
+/// Shared panel corners, without an outer border.
+const ShapeBorder appDialogShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.all(Radius.circular(6)),
+);
+
+/// Default position, a little above the middle of the viewport.
 const Alignment kDefaultDialogAlignment = Alignment(0.0, -0.08);
 
 /// Tracks modal dialog nesting depth and alignment to ensure child dialogs open

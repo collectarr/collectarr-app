@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -245,7 +246,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
 
     return AccentAlertDialog(
       backgroundColor: palette.panel,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: appDialogShape,
       title: Row(
         children: [
           const Expanded(child: Text('Assign Location')),

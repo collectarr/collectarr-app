@@ -196,9 +196,7 @@ class LibraryDialogScaffold extends StatelessWidget {
 
       final effectiveShape = themeData?.dialogTheme.shape ??
           Theme.of(context).dialogTheme.shape ??
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          );
+          appDialogShape;
 
       result = Dialog(
         backgroundColor: palette.panel,

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/library_folder_reorder_row.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
@@ -54,8 +56,7 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
                 insetPadding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
                 backgroundColor: pickListSurface(context),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6)),
+                shape: appDialogShape,
                 clipBehavior: Clip.antiAlias,
                 child: SizedBox(
                     width: 600,
@@ -72,34 +73,17 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
                               onClose: () => Navigator.of(context).pop()),
                           Expanded(
                               child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 15, 10, 15),
+                                  padding: const EdgeInsets.all(15),
                                   child: child)),
-                          Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                  color: palette.isDark
-                                      ? const Color(0xff383838)
-                                      : palette.panelRaised,
-                                  border: Border(
-                                      top: BorderSide(
-                                          color: pickListDivider(context)))),
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    FilledButton(
-                                        style: pickListButtonStyle(context,
-                                            primary: false, footer: true),
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(),
-                                        child: const Text('Cancel')),
-                                    const SizedBox(width: 10),
-                                    FilledButton(
-                                        style: pickListButtonStyle(context,
-                                            footer: true),
-                                        onPressed: onSave,
-                                        child: Text(confirmLabel)),
-                                  ])),
+                          DialogActionFooter(actions: [
+                            DialogActionButton(
+                                label: 'Cancel',
+                                onPressed: () => Navigator.of(context).pop()),
+                            DialogActionButton(
+                                label: confirmLabel,
+                                primary: true,
+                                onPressed: onSave),
+                          ]),
                         ]))),
               )),
     );

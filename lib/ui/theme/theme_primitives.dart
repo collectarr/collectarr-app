@@ -96,10 +96,7 @@ DialogThemeData buildAppDialogTheme(AppThemePalette palette) {
     backgroundColor: palette.panel,
     surfaceTintColor: Colors.transparent,
     clipBehavior: Clip.antiAlias,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(6),
-      side: BorderSide(color: palette.divider),
-    ),
+    shape: appDialogShape,
     titleTextStyle: TextStyle(
       color: palette.textPrimary,
       fontFamily: appFontFamily,

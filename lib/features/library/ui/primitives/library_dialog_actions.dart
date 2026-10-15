@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -40,7 +41,6 @@ class LibraryDialogActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final effectiveAccent = accent ?? palette.accent;
 
     return Container(
       decoration: BoxDecoration(
@@ -62,35 +62,23 @@ class LibraryDialogActions extends StatelessWidget {
                 child: action,
               )),
           if (onCancel != null) ...[
-            OutlinedButton(
-              onPressed: isLoading ? null : onCancel,
-              child: Text(cancelLabel),
-            ),
+            DialogActionButton(
+                label: cancelLabel, onPressed: isLoading ? null : onCancel),
+            const SizedBox(width: 5),
+          ],
+          if (isLoading) ...[
+            const SizedBox.square(
+                dimension: 16,
+                child: CircularProgressIndicator(strokeWidth: 2)),
             const SizedBox(width: 8),
           ],
           if (onSubmit != null)
-            FilledButton.icon(
-              onPressed: isLoading ? null : onSubmit,
-              style: FilledButton.styleFrom(
-                backgroundColor: libraryAccentActionColor(effectiveAccent),
-                foregroundColor: appContrastingTextColor(
-                  libraryAccentActionColor(effectiveAccent),
-                ),
-              ),
-              icon: isLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : (submitIcon != null
-                      ? Icon(submitIcon, size: 16)
-                      : const SizedBox.shrink()),
-              label: Text(submitLabel),
-            ),
+            DialogActionButton(
+                label: submitLabel,
+                primary: true,
+                icon: submitIcon,
+                color: accent,
+                onPressed: isLoading ? null : onSubmit),
         ],
       ),
     );

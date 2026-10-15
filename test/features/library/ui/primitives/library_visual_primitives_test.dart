@@ -185,11 +185,10 @@ void main() {
       );
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      final outlinedBtn =
-          tester.widget<OutlinedButton>(find.byType(OutlinedButton));
-      expect(outlinedBtn.onPressed, isNull);
-      final filledBtn = tester.widget<FilledButton>(find.byType(FilledButton));
-      expect(filledBtn.onPressed, isNull);
+      final buttons =
+          tester.widgetList<FilledButton>(find.byType(FilledButton));
+      expect(buttons, hasLength(2));
+      expect(buttons.every((button) => button.onPressed == null), isTrue);
     });
   });
 

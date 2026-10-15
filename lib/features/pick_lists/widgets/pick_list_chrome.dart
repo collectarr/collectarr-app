@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class PickListDialog extends StatelessWidget {
         insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         alignment: resolvedAlignment,
         backgroundColor: pickListSurface(context),
-        shape: const RoundedRectangleBorder(),
+        shape: appDialogShape,
         clipBehavior: Clip.antiAlias,
         child: ConstrainedBox(
           constraints: BoxConstraints(
@@ -53,12 +54,13 @@ class PickListHeader extends StatelessWidget {
 
 ButtonStyle pickListButtonStyle(BuildContext context,
     {bool primary = true, bool footer = false}) {
+  if (footer) return dialogActionButtonStyle(context, primary: primary);
   final palette = appPalette(context);
   return FilledButton.styleFrom(
       backgroundColor:
           primary ? palette.utilityAction : pickListToolbar(context),
       foregroundColor: primary ? Colors.white : palette.textPrimary,
-      minimumSize: Size(footer ? 100 : 0, 32),
+      minimumSize: const Size(0, 32),
       maximumSize: const Size(double.infinity, 32),
       padding: const EdgeInsets.symmetric(horizontal: 8),
       textStyle: TextStyle(
