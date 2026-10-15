@@ -147,8 +147,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
                   onTap: _showHelp,
                   child: Text('Read about Custom Fields before adding them.',
                       style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.primary))),
+                          fontSize: 14, color: appPalette(context).link))),
             ]),
           ),
         ReorderableListView.builder(
@@ -171,6 +170,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
         const SizedBox(height: 8),
         FilledButton.icon(
           style: FilledButton.styleFrom(
+              backgroundColor: appPalette(context).utilityAction,
               foregroundColor: Colors.white,
               minimumSize: const Size(0, 32),
               visualDensity: VisualDensity.standard,

@@ -303,17 +303,14 @@ class _AlbumList extends StatelessWidget {
                                   children: [
                                 Text(entry.title,
                                     style: TextStyle(
-                                        color: LibraryAccentScope.accentOf(
-                                            context),
-                                        fontWeight: FontWeight.w700)),
-                                Text(
-                                    '${_music(entry).facts.formatSummary ?? ''} - ${_music(entry).music.releaseDateParts?.year ?? ''}'),
+                                        color: appPalette(context).link)),
                                 if (_music(entry).music.artist
                                     case final artist?)
                                   Text(artist,
-                                      style: TextStyle(
-                                          color: appPalette(context)
-                                              .textSecondary)),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w700)),
+                                Text(
+                                    '${_music(entry).facts.formatSummary ?? ''} - ${_music(entry).music.releaseDateParts?.year ?? ''}'),
                               ])),
                           const SizedBox(width: 8),
                           Text(detail(entry)),

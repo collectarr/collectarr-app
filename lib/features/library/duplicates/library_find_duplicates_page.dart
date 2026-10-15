@@ -283,6 +283,9 @@ class _LibraryFindDuplicatesPageState
                 ),
                 FilledButton(
                     key: const Key('duplicates.find'),
+                    style: FilledButton.styleFrom(
+                        backgroundColor: appPalette(context).utilityAction,
+                        foregroundColor: Colors.white),
                     onPressed: _busy ? null : _find,
                     child: const Text('Find Duplicates')),
                 if (groups != null)
