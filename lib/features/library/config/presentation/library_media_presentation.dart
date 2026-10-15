@@ -36,6 +36,7 @@ class LibraryMediaPresentation {
     this.statsLabels = const LibraryMediaStatsLabels(),
     this.sortFavorites = const [],
     this.columnFavorites = defaultLibraryColumnFavorites,
+    this.duplicateColumns,
     this.filterOptionLabels = const LibraryFilterOptionLabels(),
     this.filterDefinitions = const [],
     this.alphabetFields = const [LibraryAlphabetField.title],
@@ -58,6 +59,9 @@ class LibraryMediaPresentation {
   final LibraryMediaStatsLabels statsLabels;
   final List<LibrarySortFavorite> sortFavorites;
   final List<LibraryTableColumnPreset> columnFavorites;
+
+  /// Default Find Duplicates columns; the workspace defaults when null.
+  final List<String>? duplicateColumns;
   final LibraryFilterOptionLabels filterOptionLabels;
   final List<LibraryFilterDefinition<Object?>> filterDefinitions;
   final LibraryPresentationLabels referenceLabels;

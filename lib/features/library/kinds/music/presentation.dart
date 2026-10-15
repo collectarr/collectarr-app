@@ -384,6 +384,12 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
       ],
     ),
   ],
+  duplicateColumns: [
+    MusicFieldIds.artistSummary.value,
+    MusicFieldIds.title.value,
+    MusicFieldIds.trackCount.value,
+    MusicFieldIds.addedAt.value,
+  ],
   columnFavorites: [
     LibraryTableColumnPreset(label: 'Standard', columns: {
       MusicFieldIds.artistSummary.value,

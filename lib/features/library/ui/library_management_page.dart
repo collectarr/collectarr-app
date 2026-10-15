@@ -14,6 +14,7 @@ class LibraryManagementPage extends StatelessWidget {
     required this.child,
     this.bottomBar,
     this.svgAsset,
+    this.maxWidth = 930,
   }) : assert(icon != null || svgAsset != null);
 
   final String title;
@@ -23,6 +24,9 @@ class LibraryManagementPage extends StatelessWidget {
   final Widget? bottomBar;
   final String? svgAsset;
 
+  /// Content width; tools with wide tables use the full page.
+  final double maxWidth;
+
   @override
   Widget build(BuildContext context) => Theme(
         data: libraryAccentTheme(context, accent),
@@ -31,10 +35,10 @@ class LibraryManagementPage extends StatelessWidget {
             backgroundColor: appManagementCanvasColor(context),
             appBar: AppPageHeader(
                 title: Text(title), icon: icon, svgAsset: svgAsset),
-            body: AppManagementContent(child: child),
+            body: AppManagementContent(maxWidth: maxWidth, child: child),
             bottomNavigationBar: bottomBar == null
                 ? null
-                : AppManagementContent(child: bottomBar!),
+                : AppManagementContent(maxWidth: maxWidth, child: bottomBar!),
           );
         }),
       );
