@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/sort_title.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
@@ -49,6 +50,8 @@ final class MusicMappedCsvImporter implements LibraryMappedCsvImporter {
           id: id,
           album: MusicAlbum(
             title: value('title') ?? '',
+            sortTitle:
+                resolveSortTitle(value('title') ?? '', value('sort_title')),
             artist: value('artist'),
             publisher: value('label'),
             catalogNumber: value('catalog_no'),

@@ -25,13 +25,11 @@ final musicCatalogItemWorkspaceSchema =
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
         MusicCatalogWorkspaceFields.artistSummary,
       ),
-    if (MusicFieldIdentities.title.sortable)
-      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicCatalogWorkspaceFields.title,
-      ),
+    if (MusicFieldIdentities.title.sortable) musicTitleSort(),
     if (MusicFieldIdentities.releaseDate.sortable)
-      sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      musicPartialDateSort(
         MusicCatalogWorkspaceFields.releaseDate,
+        (dto) => dto.music.releaseDateParts,
         defaultAscending: false,
       ),
     musicEarliestDiscRecordingDateSort(),

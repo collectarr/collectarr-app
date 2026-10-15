@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/sort_title.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -117,6 +118,8 @@ List<CollectionImportRow> parseCollectorzMusicXml(String source,
         id: id,
         album: MusicAlbum(
           title: title,
+          sortTitle:
+              resolveSortTitle(title, xmlMusicValue(record, 'sorttitle')),
           artist: artists.isEmpty ? null : artists.join(' / '),
           artistCredits: [
             for (var a = 0; a < artists.length; a++)

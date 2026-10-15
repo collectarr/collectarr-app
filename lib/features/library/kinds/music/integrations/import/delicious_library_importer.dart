@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/sort_title.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -68,6 +69,7 @@ final class DeliciousLibraryImporter implements LibraryGuidedImporter {
           id: id,
           album: MusicAlbum(
             title: value('title') ?? '',
+            sortTitle: resolveSortTitle(value('title') ?? '', null),
             artist: value('actorsCompositeString'),
             publisher: value('publishersCompositeString'),
             barcode: value('ean'),

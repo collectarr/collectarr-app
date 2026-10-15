@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/sort_title.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
@@ -14,7 +15,8 @@ abstract final class MusicAlbumFormAdapter {
       MusicAlbum(
         id: id,
         title: values.title.trim(),
-        sortTitle: _text(values.sortTitle),
+        sortTitle:
+            resolveSortTitle(values.title.trim(), _text(values.sortTitle)),
         subtitle: _text(values.subtitle),
         artist: _text(values.artist),
         artistCredits: List.unmodifiable(values.artistCredits),
@@ -44,7 +46,8 @@ abstract final class MusicAlbumFormAdapter {
       MusicAlbum(
         id: original.id,
         title: values.title.trim(),
-        sortTitle: _text(values.sortTitle),
+        sortTitle: followTitleChange(
+            original.title, values.title.trim(), _text(values.sortTitle)),
         subtitle: _text(values.subtitle),
         artist: _text(values.artist),
         originalReleaseDateParts: values.originalReleaseDateParts,

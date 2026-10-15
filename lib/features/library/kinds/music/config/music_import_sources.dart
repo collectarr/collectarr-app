@@ -20,6 +20,11 @@ const List<KindMappableField> musicMappableFields = [
     isDefault: true,
   ),
   KindMappableField(
+    key: 'sort_title',
+    label: 'Sort Title',
+    aliases: ['Sort Title', 'Title Sort', 'Sort'],
+  ),
+  KindMappableField(
     key: 'release_year',
     label: 'Release Year',
     aliases: ['Year', 'Release Year', 'Released', 'Date', 'Release Date'],

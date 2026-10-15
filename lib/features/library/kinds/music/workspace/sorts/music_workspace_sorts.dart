@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/core/utils/sort_title.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -71,3 +72,36 @@ int _compareNullableDates(
   if (byBoundary != 0) return byBoundary;
   return (left.isoString ?? '').compareTo(right.isoString ?? '');
 }
+
+/// Title order uses the sort title, or the automatic one ("Wall, The"), and
+/// ignores letter case, as the reference does.
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicTitleSort() =>
+    LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+      id: LibrarySortId<MusicKind>(MusicCatalogWorkspaceFields.title.id.value),
+      label: MusicCatalogWorkspaceFields.title.label,
+      compare: (left, right) =>
+          _sortTitleOf(left).compareTo(_sortTitleOf(right)),
+    );
+
+String _sortTitleOf(
+        LibraryProjectionContext<MusicWorkspaceProjection> context) =>
+    resolveSortTitle(context.dto.common.title, context.dto.music.sortTitle)
+        .toLowerCase();
+
+/// Release dates are partial; ordering by their DateTime view would drop
+/// every year-only date.
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicPartialDateSort(
+  LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, Object?> field,
+  PartialDate? Function(MusicWorkspaceProjection dto) dateOf, {
+  bool defaultAscending = true,
+}) =>
+    LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+      id: LibrarySortId<MusicKind>(field.id.value),
+      label: field.label,
+      defaultAscending: defaultAscending,
+      compare: (left, right) => _compareNullableDates(
+        dateOf(left.dto),
+        dateOf(right.dto),
+        latest: false,
+      ),
+    );

@@ -100,7 +100,10 @@ final musicLibraryEntryWorkspaceSchema =
     sortFromField(MusicAdditionalWorkspaceFields.loanTo, group: 'Loan'),
     sortFromField(MusicAdditionalWorkspaceFields.releaseYear),
     sortFromField(MusicAdditionalWorkspaceFields.releaseMonth),
-    sortFromField(MusicAdditionalWorkspaceFields.originalReleaseDate),
+    musicPartialDateSort(
+      MusicAdditionalWorkspaceFields.originalReleaseDate,
+      (dto) => dto.music.originalReleaseDateParts,
+    ),
     sortFromField(MusicAdditionalWorkspaceFields.originalReleaseYear),
     sortFromField(MusicAdditionalWorkspaceFields.originalReleaseMonth),
     sortFromField(MusicCatalogWorkspaceFields.catalogNumber),
@@ -109,12 +112,10 @@ final musicLibraryEntryWorkspaceSchema =
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
         MusicCatalogWorkspaceFields.artistSummary,
       ),
-    if (MusicFieldIdentities.title.sortable)
-      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicCatalogWorkspaceFields.title,
-      ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+    if (MusicFieldIdentities.title.sortable) musicTitleSort(),
+    musicPartialDateSort(
       MusicCatalogWorkspaceFields.releaseDate,
+      (dto) => dto.music.releaseDateParts,
       defaultAscending: false,
     ),
     musicEarliestDiscRecordingDateSort(),
