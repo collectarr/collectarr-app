@@ -27,6 +27,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/app_page_tabs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -411,25 +412,20 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
                       runSpacing: 10,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        for (final tab in [
-                          (label: 'Current Loans', filter: _LoanFilter.active),
-                          (label: 'Loan History', filter: _LoanFilter.returned)
-                        ])
-                          TextButton(
-                              onPressed: () =>
-                                  setState(() => _filter = tab.filter),
-                              style: TextButton.styleFrom(
-                                  foregroundColor: _filter == tab.filter
-                                      ? accent
-                                      : appPalette(context).textPrimary,
-                                  shape: const RoundedRectangleBorder(),
-                                  side: BorderSide(
-                                      color: _filter == tab.filter
-                                          ? accent
-                                          : Colors.transparent)),
-                              child: Text(tab.label,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700))),
+                        AppPageTabs(
+                          tabs: const [
+                            AppPageTab(
+                                label: 'Current Loans', icon: Icons.schedule),
+                            AppPageTab(
+                                label: 'Loan History', icon: Icons.history),
+                          ],
+                          selectedIndex:
+                              _filter == _LoanFilter.returned ? 1 : 0,
+                          onSelected: (index) => setState(() => _filter =
+                              index == 1
+                                  ? _LoanFilter.returned
+                                  : _LoanFilter.active),
+                        ),
                         SizedBox(
                             width: 210,
                             child: DropdownButtonFormField<String>(

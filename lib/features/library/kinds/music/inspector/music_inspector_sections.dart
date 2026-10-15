@@ -682,7 +682,7 @@ class _MusicInspectorTracks extends StatelessWidget {
         ? _musicSearchTerms(rawQuery)
         : const <String>[];
 
-    return Column(
+    final discs = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var index = 0; index < groups.length; index++) ...[
@@ -698,7 +698,24 @@ class _MusicInspectorTracks extends StatelessWidget {
         ],
       ],
     );
+    // A wide panel keeps the track list to one column, as in the reference,
+    // instead of stretching durations far from their titles.
+    return LayoutBuilder(
+      builder: (context, constraints) => Align(
+        alignment: Alignment.centerLeft,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: constraints.maxWidth >= _wideTrackPanelWidth
+                ? constraints.maxWidth / 3
+                : constraints.maxWidth,
+          ),
+          child: discs,
+        ),
+      ),
+    );
   }
+
+  static const _wideTrackPanelWidth = 900.0;
 }
 
 class _MusicDiscDetails extends StatelessWidget {

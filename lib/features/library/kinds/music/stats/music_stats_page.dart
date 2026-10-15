@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/collections/library_collection_r
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_page_tabs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -155,13 +156,18 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
                       if (collections.hasError)
                         const Text('Could not load collections.')
                       else
-                        Wrap(spacing: 8, runSpacing: 6, children: [
-                          _collectionTab('All Collections', null,
-                              selected == null, accent),
-                          for (final collection in values)
-                            _collectionTab(collection.name, collection.id,
-                                selected?.id == collection.id, accent),
-                        ]),
+                        AppPageTabs(
+                          tabs: [
+                            const AppPageTab(label: 'All Collections'),
+                            for (final collection in values)
+                              AppPageTab(label: collection.name),
+                          ],
+                          selectedIndex: selected == null
+                              ? 0
+                              : values.indexOf(selected) + 1,
+                          onSelected: (index) => setState(() => _collectionId =
+                              index == 0 ? null : values[index - 1].id),
+                        ),
                       Container(
                           color: appManagementPanelColor(context),
                           padding: const EdgeInsets.all(24),
@@ -230,19 +236,6 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
               )))),
     );
   }
-
-  Widget _collectionTab(String name, String? id, bool active, Color accent) =>
-      TextButton(
-          onPressed: () => setState(() => _collectionId = id),
-          style: TextButton.styleFrom(
-              foregroundColor:
-                  active ? accent : appPalette(context).textPrimary,
-              side: BorderSide(
-                  color: active ? accent : appPalette(context).divider),
-              shape: const RoundedRectangleBorder()),
-          child: Text(name,
-              style: TextStyle(
-                  fontWeight: active ? FontWeight.w700 : FontWeight.w500)));
 }
 
 MusicWorkspaceData _music(LibraryWorkspaceContext entry) =>
