@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_multi_valu
 import 'package:collectarr_app/features/library/ui/primitives/library_vocabulary_options_loader.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 
 /// Wraps manual Add details with a sub-tab bar: General + one tab per disc.
@@ -152,7 +153,7 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
             ),
             const SizedBox(width: 4),
           ],
-          OutlinedButton.icon(
+          FilledButton.icon(
             onPressed: () {
               draft.discs.add(MusicAddManualDisc());
               setState(() {
@@ -160,12 +161,9 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
               });
               _notify();
             },
-            icon: const Icon(Icons.add, size: 15),
+            icon: const Icon(Icons.add, size: 14),
             label: const Text('Add Disc'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(0, 32),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-            ),
+            style: dialogActionButtonStyle(context, width: 0),
           ),
         ],
       ),

@@ -202,6 +202,12 @@ abstract final class AppIcons {
       IconData(0xf00a, fontFamily: _solid, fontPackage: _fontPackage);
   static const String viewVerticalCardsSvg = 'assets/icons/cards-black.svg';
 
+  // --- Cover Actions ---
+  static const IconData findOnline =
+      IconData(0xf002, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData upload =
+      IconData(0xf093, fontFamily: _solid, fontPackage: _fontPackage);
+
   // --- Search Scope Targets ---
   static const IconData searchAll =
       IconData(0xf1c0, fontFamily: _solid, fontPackage: _fontPackage);

@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_managed_vo
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:uuid/uuid.dart';
@@ -249,22 +250,22 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
                   children: [
                     _toolbarAction(
                       context,
-                      icon: Icons.file_upload_outlined,
-                      label: 'Upload',
-                      onPressed: _transforming ? null : _upload,
+                      icon: AppIcons.findOnline,
+                      label: 'Find Online',
+                      onPressed: _transforming ? null : _findOnline,
                     ),
                     _toolbarAction(
                       context,
-                      icon: Icons.image_search_outlined,
-                      label: 'Find Online',
-                      onPressed: _transforming ? null : _findOnline,
+                      icon: AppIcons.upload,
+                      label: 'Upload',
+                      onPressed: _transforming ? null : _upload,
                     ),
                     if (removeActionLabel != null)
                       _toolbarAction(
                         context,
                         icon: removeActionLabel == 'Restore'
                             ? Icons.restore
-                            : Icons.delete_outline,
+                            : AppIcons.removeAction,
                         label: removeActionLabel,
                         onPressed: () {
                           if (image != null) {
@@ -282,7 +283,7 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
               ),
               _toolbarAction(
                 context,
-                icon: Icons.crop_rotate,
+                icon: AppIcons.inlineEdit,
                 label: 'Crop / Rotate',
                 onPressed: canEditCover ? _openCropEditor : null,
               ),

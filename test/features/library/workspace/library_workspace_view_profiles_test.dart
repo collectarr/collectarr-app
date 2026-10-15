@@ -23,7 +23,7 @@ void main() {
           ? LibraryDetailsLayout.right
           : LibraryDetailsLayout.bottom;
       final expectedDetailsWidth =
-          kind == CatalogMediaKind.music ? 350.0 : 340.0;
+          kind == CatalogMediaKind.music ? 1060.0 : 340.0;
 
       expect(profile.defaultCoverSize, 128, reason: kind.apiValue);
       expect(profile.minCoverSize, 96, reason: kind.apiValue);
@@ -82,7 +82,7 @@ void main() {
       );
       expect(
         loaded.detailsWidth,
-        kind == CatalogMediaKind.music ? 350 : kLibraryDetailsDefaultWidth,
+        kind == CatalogMediaKind.music ? 1060 : kLibraryDetailsDefaultWidth,
         reason: kind.apiValue,
       );
     }

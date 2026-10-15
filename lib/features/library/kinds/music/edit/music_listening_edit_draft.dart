@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -95,7 +96,10 @@ class _MusicListeningDraftSectionState
                   runSpacing: 8,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    OutlinedButton.icon(
+                    FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                            backgroundColor: appPalette(context).utilityAction,
+                            foregroundColor: Colors.white),
                         onPressed: () => draft.save(date: _selectedDate),
                         icon: const Icon(Icons.headphones_outlined, size: 16),
                         label: const Text('Mark as listened')),

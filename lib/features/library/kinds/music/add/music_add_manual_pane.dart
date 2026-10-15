@@ -111,10 +111,7 @@ class MusicAddManualPane extends StatelessWidget {
           label: 'Credits',
           icon: AppIcons.tabCredits,
           validate: (_) => _validateCredits(draft),
-          content: MusicAddManualCreditsTab(
-            draft: draft,
-            accent: request.accent,
-          ),
+          content: MusicAddManualCreditsTab(draft: draft),
         ),
         LibraryAddManualPaneTab(
           id: 'tracks',

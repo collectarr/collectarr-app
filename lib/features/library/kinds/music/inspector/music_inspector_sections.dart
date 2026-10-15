@@ -476,7 +476,10 @@ class _MusicInspectorHeader extends ConsumerWidget {
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Wrap(spacing: 4, children: [
           if (label?.isNotEmpty == true) valueLink(label!),
-          if (year != null) valueLink('($year)')
+          // The year is parenthesized only after a label, as in the
+          // reference; on its own it reads as a plain year.
+          if (year != null)
+            valueLink(label?.isNotEmpty == true ? '($year)' : '$year')
         ]),
         if (music.genres.isNotEmpty) ...[
           const SizedBox(height: 4),
@@ -687,7 +690,6 @@ class _MusicInspectorTracks extends StatelessWidget {
             disc: model.discs.firstWhere(
                 (disc) => disc.discNumber == groups[index].discNumber),
             storage: model.storageForDisc(groups[index].discNumber),
-            accent: inspector.accent,
             tracks: groups[index].tracks,
             highlightTerms: highlightTerms,
             onFilterByValue: inspector.onFilterByValue,
@@ -1134,7 +1136,6 @@ class _MusicDiscTable extends StatelessWidget {
   const _MusicDiscTable({
     required this.disc,
     required this.storage,
-    required this.accent,
     required this.tracks,
     this.highlightTerms = const <String>[],
     this.onFilterByValue,
@@ -1142,7 +1143,6 @@ class _MusicDiscTable extends StatelessWidget {
 
   final MusicDisc disc;
   final MusicEntryDiscStorageView storage;
-  final Color accent;
   final List<MusicTrackListEntry> tracks;
   final List<String> highlightTerms;
   final ValueChanged<String>? onFilterByValue;
@@ -1155,7 +1155,9 @@ class _MusicDiscTable extends StatelessWidget {
       children: [
         Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-            color: accent.withValues(alpha: .2),
+            // Disc bands use the shared blue in every kind, as in the
+            // reference app.
+            color: appPalette(context).utilityAction,
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Expanded(
                   child: Text(
@@ -1174,12 +1176,16 @@ class _MusicDiscTable extends StatelessWidget {
                           ].join(' | ')})'
                       ].join(' '),
                       style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w700))),
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700))),
               if (discDuration != null) ...[
                 const SizedBox(width: 8),
                 Text(discDuration,
                     style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w700))
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700))
               ],
             ])),
         const SizedBox(height: 6),
