@@ -165,11 +165,30 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
             : base.colorScheme.surfaceContainerHighest;
       }),
     ),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor:
+          (base.extension<AppThemePalette>() ?? kDefaultAppThemePalette)
+              .utilityAction,
+      selectionColor:
+          (base.extension<AppThemePalette>() ?? kDefaultAppThemePalette)
+              .utilityAction
+              .withValues(alpha: .35),
+      selectionHandleColor:
+          (base.extension<AppThemePalette>() ?? kDefaultAppThemePalette)
+              .utilityAction,
+    ),
     inputDecorationTheme: base.inputDecorationTheme.copyWith(
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: readableAccent),
+        borderSide: BorderSide(
+            color:
+                (base.extension<AppThemePalette>() ?? kDefaultAppThemePalette)
+                    .utilityAction),
       ),
-      floatingLabelStyle: TextStyle(color: readableAccent),
+      floatingLabelStyle: base.inputDecorationTheme.floatingLabelStyle
+          ?.copyWith(
+              color:
+                  (base.extension<AppThemePalette>() ?? kDefaultAppThemePalette)
+                      .utilityAction),
     ),
     tabBarTheme: base.tabBarTheme.copyWith(
       dividerColor: base.colorScheme.outline.withValues(alpha: 0.55),

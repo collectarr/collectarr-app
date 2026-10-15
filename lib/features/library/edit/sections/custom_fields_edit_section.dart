@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/anchored_calendar.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -470,7 +471,7 @@ class _DateCustomField extends StatelessWidget {
         padding: EdgeInsets.zero,
         iconSize: 16,
         onPressed: () async {
-          final date = await showDatePicker(
+          final date = await showAppAnchoredCalendar(
             context: context,
             initialDate: DateTime.tryParse(value ?? '') ?? DateTime.now(),
             firstDate: DateTime(1),

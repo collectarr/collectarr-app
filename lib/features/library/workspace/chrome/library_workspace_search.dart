@@ -1,4 +1,3 @@
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:flutter/material.dart';
@@ -282,9 +281,7 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
                                     key: widget.textFieldKey,
                                     controller: widget.controller,
                                     cursorColor:
-                                        LibraryAccentScope.maybeOf(context)
-                                                ?.accent ??
-                                            widget.selectionColor,
+                                        appPalette(context).utilityAction,
                                     onChanged: widget.onChanged,
                                     onSubmitted: widget.onSearch,
                                     style: Theme.of(context)

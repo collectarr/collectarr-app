@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/anchored_calendar.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_form_layout.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
@@ -59,6 +60,7 @@ ThemeData editDialogTheme({
   return base.copyWith(
     extensions: [palette],
     visualDensity: VisualDensity.standard,
+    tooltipTheme: buildAppTooltipTheme(palette),
     canvasColor: palette.panel,
     colorScheme: ColorScheme.fromSeed(
       seedColor: accent,
@@ -69,9 +71,9 @@ ThemeData editDialogTheme({
       onPrimary: appContrastingTextColor(accent),
     ),
     textSelectionTheme: TextSelectionThemeData(
-      cursorColor: accent,
-      selectionColor: accent.withValues(alpha: 0.35),
-      selectionHandleColor: accent,
+      cursorColor: palette.utilityAction,
+      selectionColor: palette.utilityAction.withValues(alpha: 0.35),
+      selectionHandleColor: palette.utilityAction,
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: palette.panel,
@@ -118,13 +120,13 @@ ThemeData editDialogTheme({
           ? FloatingLabelBehavior.always
           : FloatingLabelBehavior.auto,
       labelStyle: TextStyle(
-        color: palette.textMuted,
-        fontSize: compactDesktop ? 13 : null,
+        color: palette.textPrimary,
+        fontSize: 13,
         fontWeight: kAppBoldFontWeight,
       ),
       floatingLabelStyle: TextStyle(
-        color: accent,
-        fontSize: compactDesktop ? 13 : null,
+        color: palette.textPrimary,
+        fontSize: 13,
         fontWeight: kAppBoldFontWeight,
       ),
       hintStyle: TextStyle(
@@ -140,7 +142,7 @@ ThemeData editDialogTheme({
         borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: accent),
+        borderSide: BorderSide(color: palette.utilityAction),
         borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
     ),
@@ -182,7 +184,7 @@ ThemeData editDialogTheme({
           labelLarge: base.textTheme.labelLarge?.copyWith(
               fontSize: 14,
               height: 20 / 14,
-              fontWeight: kAppBoldFontWeight,
+              fontWeight: kAppNormalFontWeight,
               letterSpacing: 0),
         )
         .apply(
@@ -857,7 +859,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                     const SizedBox(width: 4),
                     IconButton(
                       tooltip: 'Pick with calendar',
-                      onPressed: _pickWithCalendar,
+                      onPressed: () => _pickWithCalendar(context),
                       icon: const Icon(Icons.calendar_today, size: 18),
                       constraints: const BoxConstraints.tightFor(
                         width: LibraryMetrics.defaultFieldHeight,
@@ -945,10 +947,10 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
     return prefix == null ? null : ValueKey('$prefix-$part');
   }
 
-  Future<void> _pickWithCalendar() async {
+  Future<void> _pickWithCalendar(BuildContext context) async {
     final now = DateTime.now();
     final initial = _selectedDate ?? widget.value ?? now;
-    final picked = await showDatePicker(
+    final picked = await showAppAnchoredCalendar(
       context: context,
       initialDate: initial,
       firstDate: DateTime(1900),

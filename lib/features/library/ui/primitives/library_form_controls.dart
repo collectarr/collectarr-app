@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,7 +28,7 @@ class LibraryFormField extends StatelessWidget {
               Expanded(
                   child: Text(label,
                       style: TextStyle(
-                        color: appPalette(context).textMuted,
+                        color: appPalette(context).textPrimary,
                         fontSize: 13,
                         fontWeight: kAppBoldFontWeight,
                         height: 20 / 14,
@@ -98,9 +97,7 @@ class LibraryTextFormControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveAccent = LibraryAccentScope.maybeOf(context)?.accent ??
-        Theme.of(context).textSelectionTheme.cursorColor ??
-        appPalette(context).accent;
+    final effectiveAccent = appPalette(context).utilityAction;
     final effectiveCursorColor = cursorColor ?? effectiveAccent;
     return TextFormField(
       controller: controller,
@@ -136,9 +133,14 @@ class LibraryTextFormControl extends StatelessWidget {
 }
 
 class LibraryFormGroup extends StatelessWidget {
-  const LibraryFormGroup({super.key, required this.title, required this.child});
+  const LibraryFormGroup(
+      {super.key,
+      required this.title,
+      required this.child,
+      this.titleSize = 16.8});
   final String title;
   final Widget child;
+  final double titleSize;
   @override
   Widget build(BuildContext context) => Stack(children: [
         Padding(
@@ -159,10 +161,10 @@ class LibraryFormGroup extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 7),
                   child: Text(title,
                       style: TextStyle(
-                          color: appPalette(context).textMuted,
+                          color: appPalette(context).textPrimary,
                           fontWeight: FontWeight.w700,
-                          fontSize: 16.8,
-                          height: 24 / 16.8))),
+                          fontSize: titleSize,
+                          height: 24 / titleSize))),
             )),
       ]);
 }

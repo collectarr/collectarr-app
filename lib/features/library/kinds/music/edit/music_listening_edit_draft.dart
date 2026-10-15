@@ -86,6 +86,7 @@ class _MusicListeningDraftSectionState
       builder: (context, _) {
         final history = draft.history;
         return LibraryFormGroup(
+            titleSize: 13,
             title: 'Played History (Total Plays: ${history.length})',
             child: Column(children: [
               Wrap(

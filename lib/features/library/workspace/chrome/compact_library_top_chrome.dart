@@ -214,7 +214,7 @@ class _CompactLibraryTopChromeState extends State<CompactLibraryTopChrome> {
           child: TextField(
             key: const ValueKey('compact_search_text_field'),
             controller: widget.searchController,
-            cursorColor: LibraryAccentScope.accentOf(context),
+            cursorColor: appPalette(context).utilityAction,
             focusNode: _searchFocusNode,
             onChanged: widget.onSearchChanged,
             onSubmitted: widget.onSearchSubmitted,

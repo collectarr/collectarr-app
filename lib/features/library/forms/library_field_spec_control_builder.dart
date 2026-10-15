@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/anchored_calendar.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_vocabulary_options_loader.dart';
 import 'dart:async';
@@ -116,39 +117,42 @@ final class LibraryFieldSpecControlBuilder<TDraft>
                       ),
                   ])
                 : field is LibraryPartialDateFieldSpec<TDraft>
-                    ? Tooltip(
-                        message: 'Choose ${field.label}',
-                        child: InkWell(
-                          mouseCursor: SystemMouseCursors.click,
-                          onTap: () async {
-                            final value = field.value(draft);
-                            final now = DateTime.now();
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: value?.asDateTime ??
-                                  DateTime(value?.year ?? now.year,
-                                      value?.month ?? 1),
-                              firstDate: DateTime(1),
-                              lastDate: DateTime(9999, 12, 31),
-                            );
-                            if (!context.mounted || picked == null) return;
-                            field.updateValue(
-                                draft, PartialDate.fromDateTime(picked));
-                            onChanged?.call();
-                          },
-                          child: SizedBox(
-                            width: 22,
-                            height: 16,
-                            child: Center(
-                              child: Icon(
-                                AppIcons.calendar,
-                                size: 14,
-                                color: appPalette(context).textMuted,
+                    ? Builder(
+                        builder: (context) => Tooltip(
+                              message: 'Choose ${field.label}',
+                              child: InkWell(
+                                mouseCursor: SystemMouseCursors.click,
+                                onTap: () async {
+                                  final value = field.value(draft);
+                                  final now = DateTime.now();
+                                  final picked = await showAppAnchoredCalendar(
+                                    context: context,
+                                    initialDate: value?.asDateTime ??
+                                        DateTime(value?.year ?? now.year,
+                                            value?.month ?? 1),
+                                    firstDate: DateTime(1),
+                                    lastDate: DateTime(9999, 12, 31),
+                                  );
+                                  if (!context.mounted || picked == null) {
+                                    return;
+                                  }
+                                  field.updateValue(
+                                      draft, PartialDate.fromDateTime(picked));
+                                  onChanged?.call();
+                                },
+                                child: SizedBox(
+                                  width: 22,
+                                  height: 16,
+                                  child: Center(
+                                    child: Icon(
+                                      AppIcons.calendar,
+                                      size: 14,
+                                      color: appPalette(context).textMuted,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
-                      )
+                            ))
                     : null,
             child: child,
           )

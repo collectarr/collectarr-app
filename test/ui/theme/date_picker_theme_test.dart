@@ -1,10 +1,20 @@
 import 'package:collectarr_app/ui/theme/app_typography.dart';
+import 'package:collectarr_app/ui/theme/date_picker_theme.dart';
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/ui/theme/library_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('calendar separates weekday headings from date values', () {
+    final theme = buildAppDatePickerTheme();
+    expect(theme.dayStyle?.fontSize, 14);
+    expect(theme.dayStyle?.fontWeight, FontWeight.w400);
+    expect(theme.weekdayStyle?.fontSize, 14);
+    expect(theme.weekdayStyle?.fontWeight, FontWeight.w700);
+    expect(theme.weekdayStyle?.color, kDefaultAppThemePalette.utilityAction);
+  });
   testWidgets('calendar actions retain the active family and control text size',
       (tester) async {
     await tester.pumpWidget(MaterialApp(

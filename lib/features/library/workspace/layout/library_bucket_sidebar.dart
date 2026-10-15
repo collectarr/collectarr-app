@@ -320,9 +320,7 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
     final resolvedDividerColor = widget.dividerColor == kAppDivider
         ? palette.divider
         : widget.dividerColor;
-    final resolvedSelectionColor = widget.selectionColor == kAppSelection
-        ? palette.selection
-        : widget.selectionColor;
+    final resolvedSelectionColor = palette.utilityAction;
     final resolvedMutedTextColor = widget.mutedTextColor == kAppTextMuted
         ? palette.textMuted
         : widget.mutedTextColor;
@@ -517,7 +515,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
                             Expanded(
                                 child: TextField(
                               controller: controller,
-                              cursorColor: accentColor,
+                              cursorColor: appPalette(context).utilityAction,
                               textAlignVertical: TextAlignVertical.center,
                               onChanged: (_) => onChanged(),
                               style: libraryFolderTextStyle(context)

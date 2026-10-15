@@ -61,6 +61,22 @@ ThemeData _settingsTheme(BuildContext context) {
   final action = appPalette(context).utilityAction;
   final theme = buildLibraryAccentTheme(Theme.of(context), action);
   return theme.copyWith(
+    textTheme: theme.textTheme.copyWith(
+      bodyLarge: theme.textTheme.bodyLarge
+          ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400),
+      bodyMedium: theme.textTheme.bodyMedium
+          ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400),
+      titleMedium: theme.textTheme.titleMedium
+          ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400),
+      bodySmall: theme.textTheme.bodySmall
+          ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400),
+    ),
+    inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+      labelStyle:
+          TextStyle(color: action, fontSize: 14, fontWeight: FontWeight.w700),
+      floatingLabelStyle:
+          TextStyle(color: action, fontSize: 14, fontWeight: FontWeight.w700),
+    ),
     filledButtonTheme: FilledButtonThemeData(
       style: theme.filledButtonTheme.style!.copyWith(
         backgroundColor: WidgetStateProperty.resolveWith((states) =>
@@ -620,7 +636,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             controlAffinity: ListTileControlAffinity.leading,
             dense: true,
             contentPadding: EdgeInsets.zero,
-            title: Text(label),
+            title: Text(label,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
             value: value,
             onChanged: (value) {
               if (value != null) onChanged(value);

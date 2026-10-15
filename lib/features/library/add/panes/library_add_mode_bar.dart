@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'library_add_pane_dependencies.dart';
 
 class LibraryAddIdentifierPrefillBanner extends StatelessWidget {
@@ -959,8 +958,7 @@ class _AdvancedField extends StatelessWidget {
         child: TextField(
           key: fieldKey,
           controller: controller,
-          cursorColor: LibraryAccentScope.maybeOf(context)?.accent ??
-              appPalette(context).accent,
+          cursorColor: appPalette(context).utilityAction,
           keyboardType: keyboardType ?? TextInputType.text,
           inputFormatters: [noNewlineFormatter],
           textInputAction: TextInputAction.search,

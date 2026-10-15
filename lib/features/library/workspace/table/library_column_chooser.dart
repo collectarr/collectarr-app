@@ -145,7 +145,7 @@ class _LibraryColumnChooserDialogState
                   builder: (context) => TextField(
                       controller: _presetNameController,
                       style: librarySelectionFieldStyle,
-                      cursorColor: accent,
+                      cursorColor: appPalette(context).utilityAction,
                       onChanged: (_) => _nameEdited = true,
                       decoration: pickListInputDecoration(context,
                               hintText: 'My List View columns')

@@ -53,17 +53,27 @@ DatePickerThemeData buildAppDatePickerTheme({
       letterSpacing: 0.8,
     ),
     dividerColor: palette.divider,
+    subHeaderForegroundColor: palette.textPrimary,
+    toggleButtonTextStyle: TextStyle(
+        fontFamily: appFontFamily,
+        fontFamilyFallback: kAppFontFamilyFallback,
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        color: palette.textPrimary),
     weekdayStyle: TextStyle(
-      color: palette.textMuted,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0.8,
+      color: palette.utilityAction,
+      fontSize: 14,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0,
     ),
     dayStyle: TextStyle(
       color: palette.textPrimary,
-      fontWeight: FontWeight.w700,
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
     ),
     yearStyle: TextStyle(
       color: palette.textPrimary,
+      fontSize: 14,
       fontWeight: FontWeight.w700,
     ),
     dayForegroundColor: WidgetStateProperty.resolveWith((states) {

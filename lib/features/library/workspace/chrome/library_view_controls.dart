@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -176,9 +177,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
                   : null,
               textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     height: 1,
-                    fontWeight: layout == detailsLayout
-                        ? FontWeight.w700
-                        : FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                     color: menuText,
                   ),
             ),
@@ -347,7 +346,7 @@ class LibraryCoverSizeSlider extends StatelessWidget {
         message: 'Cover Size',
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.photo_size_select_small,
-              size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              size: 18, color: appPalette(context).textPrimary),
           SizedBox(
               width: _librarySliderWidth,
               child: LibraryRangeSlider(
@@ -377,7 +376,7 @@ class LibrarySpacingSlider extends StatelessWidget {
         message: tooltip,
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon ?? Icons.format_line_spacing,
-              size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              size: 18, color: appPalette(context).textPrimary),
           SizedBox(
               width: _librarySliderWidth,
               child: LibraryRangeSlider(

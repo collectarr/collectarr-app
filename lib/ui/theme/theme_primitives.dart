@@ -77,7 +77,7 @@ InputDecorationTheme buildAppInputDecorationTheme(
       borderRadius: BorderRadius.circular(kAppInputBorderRadius),
     ),
     focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: palette.accent),
+      borderSide: BorderSide(color: palette.utilityAction),
       borderRadius: BorderRadius.circular(kAppInputBorderRadius),
     ),
   );
@@ -280,16 +280,21 @@ ChipThemeData buildAppChipTheme(ThemeData base, AppThemePalette palette) {
 TooltipThemeData buildAppTooltipTheme(AppThemePalette palette) =>
     TooltipThemeData(
       decoration: BoxDecoration(
-        color: palette.panelRaised,
-        border: Border.all(color: palette.divider),
+        color: palette.isDark
+            ? Colors.white.withValues(alpha: .9)
+            : Colors.grey.shade700.withValues(alpha: .9),
         borderRadius: BorderRadius.circular(4),
       ),
       textStyle: TextStyle(
-          color: palette.textPrimary,
-          fontFamily: appFontFamily,
-          fontSize: 12,
-          height: 20 / 14,
-          fontWeight: FontWeight.w400),
+        color: palette.isDark ? Colors.black : Colors.white,
+        fontFamily: appFontFamily,
+        fontFamilyFallback: kAppFontFamilyFallback,
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        height: 20 / 14,
+        letterSpacing: 0,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       waitDuration: const Duration(milliseconds: 500),
     );
 

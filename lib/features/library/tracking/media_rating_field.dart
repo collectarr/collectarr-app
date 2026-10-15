@@ -82,6 +82,8 @@ class _MediaRatingFieldState extends State<MediaRatingField> {
         final ratingText = Text(
           '$_value/${widget.maxRating}',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
                 color: Theme.of(context)
                     .colorScheme
                     .onSurface

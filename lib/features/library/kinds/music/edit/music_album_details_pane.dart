@@ -145,8 +145,8 @@ class _MusicAlbumDetailsPaneState extends State<MusicAlbumDetailsPane> {
         child: Text(
           label,
           style: TextStyle(
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            fontSize: 13,
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
           ),
         ),
       ),
