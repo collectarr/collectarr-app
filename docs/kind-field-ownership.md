@@ -1,6 +1,6 @@
 # Collectarr Kind Field Ownership & Scope Classification
 
-This document classifies fields across the nine active Collectarr kinds as **Catalog Item metadata**, **Personal data**, or **Derived / Session data**. Each collectible edition, version, issue, or release is one Catalog Item. Personal values belong to that same local entry, but remain separate from canonical metadata so they never cross the Core boundary.
+This document classifies fields across Collectarr's nine source kinds (only Music is released in v1) as **Catalog Item metadata**, **Personal data**, or **Derived / Session data**. Each collectible edition, version, issue, or release is one Catalog Item. Personal values belong to that same local entry, but remain separate from canonical metadata so they never cross the Core boundary.
 
 The labels below describe field ownership only. They do not imply separate editable Work, Release, or Copy records. Music is grounded in the saved CLZ Music form; exact CLZ field parity for the other eight kinds remains unverified until their Edit-form captures are reviewed.
 

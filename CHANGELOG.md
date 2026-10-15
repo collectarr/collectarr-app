@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### 🐛 Fixes
+- Music folders now default to Artist instead of the first available group (Has Back).
+- “Wrap column content” wraps long list values instead of cutting them after one line.
+- The details panel keeps the last selected album after returning from a tool page and otherwise shows the first album.
+- Generated cover placeholders no longer split words or show “front cover” in the title.
+- Album totals in the details header use hours (1:07:22), matching the Length column.
+- The Played History date field no longer clips the year and month.
+- Utility actions and links on Custom Fields, Find Duplicates and Statistics use the shared blue.
+
+### 📚 Docs
+- Replaced dated audit, plan and QA reports with one living [CLZ parity report](docs/clz-parity.md) and a concise architecture status.
+- Removed scripts that reset or seeded the real database, and the obsolete Collectarr Sans font tooling.
+
+
 ## What's Changed
 
 ### ✨ Features

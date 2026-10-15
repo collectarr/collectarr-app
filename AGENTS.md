@@ -9,6 +9,16 @@
 - Never modify live databases or backups. Use isolated test storage.
 - Do not rewrite history or replace published tags without an explicit request.
 - CLZ is a reference only. Do not copy its code, paid fonts or proprietary assets.
+  Inspect it read-only: open editors and dialogs, then Cancel; never save there.
+- The goal is an improved, fully FOSS CLZ. Match its workflows and density, but
+  keep the stronger model listed under "Deliberate improvements" in
+  `docs/clz-parity.md`.
+- Compare UI with the workflow in `docs/clz-parity.md` and record results there:
+  move fixed items, add or close open ones. Do not add dated audit, plan or QA
+  files; update the living doc for the topic and delete superseded docs.
+- Scripts and tools must never delete, reset or seed the user's real database.
+- Keep scratch files, logs and captures out of the repository; use a temporary
+  directory.
 - Keep kind logic in kind folders. Share UI mechanics, not kind rules.
 - Use kind accents for library identity. Use shared blue for utility actions,
   input focus/carets, item/folder selection, settings labels and links.
