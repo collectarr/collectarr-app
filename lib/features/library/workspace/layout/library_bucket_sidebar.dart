@@ -64,7 +64,6 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
     this.headerColor = kAppSurface,
     this.dividerColor = kAppDivider,
     this.accentColor = kAppAccent,
-    this.selectionColor = kAppSelection,
     this.badgeColor = kAppBadgeBackground,
     this.selectedBadgeColor = kAppHighlight,
     this.mutedTextColor = kAppTextMuted,
@@ -98,7 +97,6 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
   final Color headerColor;
   final Color dividerColor;
   final Color accentColor;
-  final Color selectionColor;
   final Color badgeColor;
   final Color selectedBadgeColor;
   final Color mutedTextColor;

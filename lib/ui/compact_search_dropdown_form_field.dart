@@ -494,7 +494,9 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
                                 final isSelected = item.value == value;
                                 return Material(
                                   color: isSelected
-                                      ? theme.colorScheme.primaryContainer
+                                      ? appPalette(context)
+                                          .utilityAction
+                                          .withValues(alpha: .22)
                                           .withValues(alpha: 0.42)
                                       : Colors.transparent,
                                   child: InkWell(

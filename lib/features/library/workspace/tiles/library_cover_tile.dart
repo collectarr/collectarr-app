@@ -66,14 +66,10 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final palette = appPalette(context);
     final flat = uiPrefs.flatCovers;
     final resolvedSelectedColor = widget.selectedColor == kAppSelection
-        ? libraryWorkspaceSelectionBackground(
-            context,
-            accentColor: widget.accentColor,
-            baseColor: palette.field,
-          )
+        ? libraryWorkspaceSelectionBackground(context)
         : widget.selectedColor;
     final resolvedSelectionColor = widget.selectionColor == kAppHighlight
-        ? widget.accentColor
+        ? palette.utilityAction
         : widget.selectionColor;
     final showSelectionToggle = widget.selectionMode || selected || _hovered;
     final showEditButton = _hovered && widget.onEditTap != null;
@@ -104,16 +100,16 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
               ? (selected || active
                   ? Border.all(
                       color: selected
-                          ? widget.accentColor
-                          : widget.accentColor.withValues(alpha: 0.82),
+                          ? palette.utilityAction
+                          : palette.utilityAction,
                       width: selected ? selectedBorderWidth : activeBorderWidth,
                     )
                   : null)
               : Border.all(
                   color: selected
-                      ? widget.accentColor
+                      ? palette.utilityAction
                       : active
-                          ? widget.accentColor.withValues(alpha: 0.82)
+                          ? palette.utilityAction
                           : palette.cardBorder,
                   width: selected
                       ? selectedBorderWidth
@@ -168,8 +164,8 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                 ),
                 if (showEditButton)
                   Positioned(
-                    top: 6,
-                    right: 6,
+                    top: 4,
+                    right: 5,
                     child: LibraryTileHoverActionButton(
                       icon: AppIcons.inlineEdit,
                       tooltip: 'Edit',
@@ -185,7 +181,6 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                       child: LibraryTileSelectionToggle(
                         selected: selected,
                         accentColor: resolvedSelectionColor,
-                        coverSize: widget.coverSize,
                       ),
                     ),
                   ),
@@ -220,23 +215,30 @@ class LibraryTileSelectionToggle extends StatelessWidget {
     super.key,
     required this.selected,
     required this.accentColor,
-    required this.coverSize,
+    this.integrated = false,
+    this.highlighted = false,
   });
 
   final bool selected;
   final Color accentColor;
-  final double coverSize;
+  final bool integrated;
+  final bool highlighted;
 
   @override
   Widget build(BuildContext context) => Container(
-        width: 24,
+        width: integrated ? 30 : 24,
         height: 24,
         decoration: BoxDecoration(
-          color: selected ? accentColor : const Color(0xffdddddd),
-          borderRadius: BorderRadius.circular(4),
+          color:
+              selected || highlighted ? accentColor : const Color(0xffdddddd),
+          borderRadius:
+              integrated ? BorderRadius.zero : BorderRadius.circular(4),
         ),
         child: Icon(selected ? AppIcons.check : Icons.check_box_outline_blank,
-            size: 16, color: selected ? Colors.white : const Color(0xff444444)),
+            size: 16,
+            color: selected || highlighted
+                ? Colors.white
+                : const Color(0xff444444)),
       );
 }
 

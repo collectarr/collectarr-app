@@ -109,7 +109,6 @@ class LibrarySidebar extends StatelessWidget {
       selectedBucket: selectedBucket,
       onSelectBucket: onSelected,
       accentColor: accent,
-      selectionColor: accent,
       backgroundColor: libraryFolderDepthColor(context, 0),
       headerColor: appPalette(context).surface,
       dividerColor: appPalette(context).divider,

@@ -11,7 +11,8 @@
 - CLZ is a reference only. Do not copy its code, paid fonts or proprietary assets.
 - Keep kind logic in kind folders. Share UI mechanics, not kind rules.
 - Use kind accents for library identity. Use shared blue for utility actions,
-  settings labels and links where the CLZ reference does.
+  input focus/carets, item/folder selection, settings labels and links.
+  Collection status colors are fixed, independent of kind.
 - Do not bundle Gilroy. Load only fonts supplied locally by the user.
 - Run correctness tests with `dart run tool/run_tests.dart`. Disabling kind
   tests must keep shared correctness, contracts and architecture checks active.

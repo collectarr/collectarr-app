@@ -45,6 +45,13 @@ ColorScheme buildAppColorScheme(AppThemePalette palette) {
   );
 }
 
+TextSelectionThemeData buildAppTextSelectionTheme(AppThemePalette palette) =>
+    TextSelectionThemeData(
+      cursorColor: palette.utilityAction,
+      selectionColor: palette.utilityAction.withValues(alpha: .35),
+      selectionHandleColor: palette.utilityAction,
+    );
+
 InputDecorationTheme buildAppInputDecorationTheme(
   AppThemePalette palette, {
   Color? fillColor,
@@ -310,6 +317,7 @@ ThemeData applySharedSurfaceTheme(
   return base.copyWith(
     visualDensity: compact ? VisualDensity.compact : null,
     colorScheme: buildAppColorScheme(palette),
+    textSelectionTheme: buildAppTextSelectionTheme(palette),
     scaffoldBackgroundColor: palette.canvas,
     canvasColor: includeCanvasColor ? palette.canvas : palette.panelRaised,
     dividerTheme: DividerThemeData(

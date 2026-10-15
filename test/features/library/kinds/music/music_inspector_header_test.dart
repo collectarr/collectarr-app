@@ -169,7 +169,7 @@ void main() {
           'On Order' => const Color(0xff13627f),
           'Sold' => const Color(0xffa63131),
           'Not in Collection' => const Color(0xff605c5c),
-          _ => const Color(0xff2a9fd6),
+          _ => const Color(0xff2aa4cc),
         };
         expect((badge.decoration as BoxDecoration).color, expectedStatusColor);
 

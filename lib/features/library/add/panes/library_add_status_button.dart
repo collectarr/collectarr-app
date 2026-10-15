@@ -1,4 +1,3 @@
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -37,8 +36,7 @@ class LibraryAddStatusButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accent =
-        collectionStatus.colorFor(LibraryAccentScope.accentOf(context));
+    final accent = collectionStatus.color;
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Flexible(
           child: SizedBox(

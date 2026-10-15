@@ -921,7 +921,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             ? LibraryCollectionStatusScope.notInCollection
                             : libraryCollectionStatusFromValue(
                                 state.commonDraft.collectionStatus))
-                    .colorFor(accent),
+                    .color,
                 results: visibleCore,
                 selectedResultId: state.selection.selectedResultId,
                 checkedResultIds: state.selection.checkedResultIds,

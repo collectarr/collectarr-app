@@ -30,7 +30,7 @@ class LibraryCollectionTabBar extends ConsumerWidget {
     }
 
     return Container(
-        height: 36,
+        height: 33,
         color: palette.isDark ? const Color(0xff272323) : palette.toolbar,
         child: Column(children: [
           Container(height: 3, color: accent),

@@ -124,7 +124,11 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     return RepaintBoundary(
         child: AnimatedContainer(
       duration: kAppAnimFast,
-      color: selected ? selectedColor : palette.panelRaised,
+      color: selected
+          ? (selectedColor == kAppSelection
+              ? palette.utilityAction
+              : selectedColor)
+          : palette.panelRaised,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -159,11 +163,11 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                           fontSize: 16,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w400,
                                           height: 1.15,
                                           color: selected
                                               ? Colors.white
-                                              : accentColor))),
+                                              : palette.link))),
                               if (presentation.compactBadges.isNotEmpty)
                                 Padding(
                                     padding: const EdgeInsets.only(left: 6),
@@ -208,7 +212,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                             [
                               presentation.format,
                               presentation.releaseDate?.year.toString()
-                            ].whereType<String>().join(' - '),
+                            ].whereType<String>().join(' \u2013 '),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -219,18 +223,19 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                 ])),
             if (_hovered || selectionMode || checked)
               Positioned(
-                  left: 6,
-                  bottom: 6,
+                  left: 0,
+                  bottom: 0,
                   child: LibraryTileSelectionToggleButton(
                       onTap: onSelectionToggleTap,
                       child: LibraryTileSelectionToggle(
                           selected: checked,
-                          accentColor: accentColor,
-                          coverSize: coverWidth))),
+                          accentColor: palette.utilityAction,
+                          integrated: true,
+                          highlighted: selected))),
             if (_hovered && onEditTap != null)
               Positioned(
-                  left: coverWidth - 24,
-                  top: 6,
+                  right: 5,
+                  top: 5,
                   child: LibraryTileHoverActionButton(
                       icon: AppIcons.inlineEdit,
                       tooltip: 'Edit',
@@ -254,11 +259,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
   }) {
     final palette = appPalette(context);
     final background = selected
-        ? libraryWorkspaceSelectionBackground(
-            context,
-            accentColor: accentColor,
-            baseColor: palette.panelRaised,
-          )
+        ? (selectedColor == kAppSelection
+            ? libraryWorkspaceSelectionBackground(context)
+            : selectedColor)
         : palette.panelRaised;
     final titleColor = kLibraryCardTitleColor;
     return RepaintBoundary(
@@ -269,7 +272,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
           color: background,
           borderRadius: BorderRadius.zero,
           border: Border.all(
-            color: selected ? accentColor : palette.cardBorder,
+            color: selected ? palette.utilityAction : palette.cardBorder,
             width: 1,
           ),
         ),
@@ -311,9 +314,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
                         child: SizedBox(
-                            height: 56,
+                            height: 57,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -334,16 +337,12 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                               fontSize: 12,
-                                              color: selected
-                                                  ? Colors.white
-                                                  : mutedColor))),
+                                              color: palette.textPrimary))),
                                   if (presentation.releaseDate != null)
                                     Text('${presentation.releaseDate!.year}',
                                         style: TextStyle(
                                             fontSize: 12,
-                                            color: selected
-                                                ? Colors.white
-                                                : mutedColor)),
+                                            color: palette.textPrimary)),
                                 ]),
                               ],
                             )),
@@ -353,21 +352,22 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                 ),
                 if (_hovered || selectionMode || checked)
                   Positioned(
-                    left: 6,
-                    bottom: 70,
+                    left: 0,
+                    top: 0,
                     child: LibraryTileSelectionToggleButton(
                       onTap: onSelectionToggleTap,
                       child: LibraryTileSelectionToggle(
                         selected: checked,
-                        accentColor: accentColor,
-                        coverSize: coverWidth,
+                        accentColor: palette.utilityAction,
+                        integrated: true,
+                        highlighted: selected,
                       ),
                     ),
                   ),
                 if (_hovered && onEditTap != null)
                   Positioned(
-                    top: 6,
-                    right: 6,
+                    top: 4,
+                    right: 5,
                     child: LibraryTileHoverActionButton(
                       icon: AppIcons.inlineEdit,
                       tooltip: 'Edit',

@@ -242,7 +242,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
                         : (d) => onItemContextMenu!(item, d.globalPosition),
                     coverSize: viewState.coverSize,
                     fallbackCoverAspectRatio: fallbackCoverAspectRatio,
-                    selectedColor: appPalette(context).selection,
+                    selectedColor: appPalette(context).utilityAction,
                     accentColor: accent,
                     selectionColor: accent,
                     mutedTextColor: appPalette(context).textMuted,

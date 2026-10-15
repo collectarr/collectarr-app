@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 /// Collection status artwork shared by filters and Add actions.
@@ -22,8 +21,7 @@ class LibraryCollectionStatusIcon extends StatelessWidget {
       LibraryCollectionStatusScope.sold => 'sold',
       LibraryCollectionStatusScope.notInCollection => 'notincollection',
     };
-    final background =
-        collectionStatus.colorFor(LibraryAccentScope.accentOf(context));
+    final background = collectionStatus.color;
     return Container(
       width: size,
       height: size,

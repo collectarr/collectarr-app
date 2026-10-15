@@ -69,7 +69,7 @@ class LibraryTableInkRow extends StatelessWidget {
           onTap: onTap,
           onDoubleTap: onDoubleTap,
           onSecondaryTapUp: onSecondaryTapUp,
-          hoverColor: hoverColor,
+          hoverColor: selected ? Colors.transparent : hoverColor,
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               resolvedHorizontalMargin,

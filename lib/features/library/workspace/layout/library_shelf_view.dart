@@ -257,7 +257,7 @@ class _ShelfRow<T> extends StatelessWidget {
                 : null,
             coverSize: bookW,
             fallbackCoverAspectRatio: fallbackCoverAspectRatio,
-            selectedColor: palette.selection,
+            selectedColor: palette.utilityAction,
             accentColor: accent,
             selectionColor: accent,
             mutedTextColor: palette.textMuted,

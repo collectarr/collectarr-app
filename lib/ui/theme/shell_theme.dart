@@ -116,6 +116,7 @@ ThemeData buildAppShellTheme({
       ),
     ),
     tooltipTheme: buildAppTooltipTheme(palette),
+    textSelectionTheme: buildAppTextSelectionTheme(palette),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: palette.panelRaised,
       contentTextStyle: TextStyle(color: textColor),

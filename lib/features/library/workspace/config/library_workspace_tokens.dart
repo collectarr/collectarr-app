@@ -219,16 +219,8 @@ Color libraryWorkspaceTableHeaderColor(BuildContext context) =>
         ? const Color(0xff464950)
         : appPalette(context).surface;
 
-Color libraryWorkspaceSelectionBackground(
-  BuildContext context, {
-  required Color accentColor,
-  Color? baseColor,
-}) {
-  final palette = appPalette(context);
-  final resolvedAccent =
-      accentColor == kAppAccent ? palette.accent : accentColor;
-  return resolvedAccent;
-}
+Color libraryWorkspaceSelectionBackground(BuildContext context) =>
+    appPalette(context).utilityAction;
 
 Color librarySelectionToolbarSurface(BuildContext context) => Color.alphaBlend(
       appPalette(context).textPrimary.withValues(

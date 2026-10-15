@@ -591,7 +591,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                     onRandomPick: onRandomPick,
                     onSearch: onSearchChanged,
                     onChanged: onSearchInputChanged,
-                    selectionColor: accent,
+                    selectionColor: appPalette(context).utilityAction,
                     searchTarget: searchTarget,
                     searchTargetOptions: searchTargetOptions,
                     onSearchTargetChanged: onSearchTargetChanged,

@@ -172,7 +172,7 @@ InputDecoration pickListInputDecoration(BuildContext context,
       border: border,
       enabledBorder: border,
       focusedBorder: border.copyWith(
-          borderSide: BorderSide(color: palette.accent, width: 2)),
+          borderSide: BorderSide(color: palette.utilityAction, width: 2)),
       suffixIconConstraints:
           const BoxConstraints.tightFor(width: 30, height: 30),
       suffixIcon: suffixIcon);

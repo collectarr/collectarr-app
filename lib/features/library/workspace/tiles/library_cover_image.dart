@@ -796,107 +796,83 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: interactive ? _openPreview : null,
-            child: AnimatedScale(
-              duration: const Duration(milliseconds: 170),
-              curve: Curves.easeOutCubic,
-              scale: _hovered ? 1.02 : 1,
-              child: Stack(
-                fit: canExpandInBothAxes ? StackFit.expand : StackFit.loose,
-                children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 170),
-                    curve: Curves.easeOutCubic,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        widget.borderRadius + 8,
-                      ),
-                      boxShadow: [
-                        if (_hovered)
-                          BoxShadow(
-                            color: widget.accentColor.withValues(alpha: 0.28),
-                            blurRadius: 18,
-                            spreadRadius: 1.5,
-                            offset: const Offset(0, 6),
-                          ),
-                      ],
-                    ),
-                    child: _CoverFrame(
-                      borderRadius: widget.borderRadius,
-                      child: LibraryCoverImage(
-                        title: widget.title,
-                        itemNumber: widget.itemNumber,
-                        imageUrl: _activeImageUrl,
-                        localBytes: _activeLocalBytes,
-                        libraryEntryRef: widget.libraryEntryRef,
-                        targetCacheWidth: widget.targetCacheWidth,
-                        fallbackAspectRatio: widget.fallbackAspectRatio,
-                        borderRadius: widget.borderRadius,
-                        fit: widget.fit,
-                      ),
-                    ),
+            child: Stack(
+              fit: canExpandInBothAxes ? StackFit.expand : StackFit.loose,
+              children: [
+                _CoverFrame(
+                  borderRadius: widget.borderRadius,
+                  child: LibraryCoverImage(
+                    title: widget.title,
+                    itemNumber: widget.itemNumber,
+                    imageUrl: _activeImageUrl,
+                    localBytes: _activeLocalBytes,
+                    libraryEntryRef: widget.libraryEntryRef,
+                    targetCacheWidth: widget.targetCacheWidth,
+                    fallbackAspectRatio: widget.fallbackAspectRatio,
+                    borderRadius: widget.borderRadius,
+                    fit: widget.fit,
                   ),
-                  if (interactive && hoverCue)
-                    Positioned(
-                      left: 8,
-                      right: 8,
-                      bottom: 8,
-                      child: IgnorePointer(
-                        ignoring: true,
-                        child: Center(
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 140),
-                            opacity: _hovered ? 1 : 0,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
+                ),
+                if (interactive && hoverCue)
+                  Positioned(
+                    left: 8,
+                    right: 8,
+                    bottom: 8,
+                    child: IgnorePointer(
+                      ignoring: true,
+                      child: Center(
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 140),
+                          opacity: _hovered ? 1 : 0,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: controlBackground.withValues(alpha: 0.96),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
                                 color:
-                                    controlBackground.withValues(alpha: 0.96),
-                                borderRadius: BorderRadius.circular(999),
-                                border: Border.all(
-                                  color:
-                                      widget.accentColor.withValues(alpha: 0.7),
-                                ),
+                                    widget.accentColor.withValues(alpha: 0.7),
                               ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: compactHoverCue ? 8 : 10,
-                                  vertical: compactHoverCue ? 4 : 5,
-                                ),
-                                child: compactHoverCue
-                                    ? Icon(
-                                        Icons.open_in_full,
-                                        size: 14,
-                                        color: widget.accentColor,
-                                      )
-                                    : FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.open_in_full,
-                                              size: 14,
-                                              color: widget.accentColor,
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: compactHoverCue ? 8 : 10,
+                                vertical: compactHoverCue ? 4 : 5,
+                              ),
+                              child: compactHoverCue
+                                  ? Icon(
+                                      Icons.open_in_full,
+                                      size: 14,
+                                      color: widget.accentColor,
+                                    )
+                                  : FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.open_in_full,
+                                            size: 14,
+                                            color: widget.accentColor,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            'Fullscreen',
+                                            style: TextStyle(
+                                              color: controlForeground,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
                                             ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              'Fullscreen',
-                                              style: TextStyle(
-                                                color: controlForeground,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                              ),
+                                    ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         );

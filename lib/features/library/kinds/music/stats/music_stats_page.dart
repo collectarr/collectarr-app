@@ -89,8 +89,7 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
       _StatsSection(
           title: 'Albums by Format',
           child: _Distribution(
-              values: MusicStatsCapability.countFormats(entries),
-              accent: accent)),
+              values: MusicStatsCapability.countFormats(entries))),
       _StatsSection(
           title: 'Most recent additions',
           child: _AlbumList(
@@ -101,7 +100,10 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
           child: _Distribution(values: {
             'Played': played.length,
             'Not Played': entries.length - played.length
-          }, accent: accent)),
+          }, colorsByLabel: const {
+            'Played': Color(0x99F44336),
+            'Not Played': Color(0x992196F3)
+          })),
       Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         _StatsSection(
             title: 'Most played',
@@ -320,21 +322,29 @@ class _AlbumList extends StatelessWidget {
 }
 
 class _Distribution extends StatelessWidget {
-  const _Distribution({required this.values, required this.accent});
+  const _Distribution({required this.values, this.colorsByLabel = const {}});
   final Map<String, int> values;
-  final Color accent;
+  final Map<String, Color> colorsByLabel;
   @override
   Widget build(BuildContext context) {
     final ranked = values.entries.where((e) => e.value > 0).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final total = ranked.fold(0, (n, e) => n + e.value);
     if (total == 0) return const Text('No albums');
+    const chartPalette = [
+      Color(0xFFD43D51),
+      Color(0xFFE1604E),
+      Color(0xFFEA8150),
+      Color(0xFFF0A059),
+      Color(0xFFF3BE6A),
+      Color(0xFFD7BC50),
+      Color(0xFFB4BC3C),
+      Color(0xFF88BC32),
+      Color(0xFF4BBA38),
+    ];
     final colors = [
       for (var i = 0; i < ranked.length; i++)
-        HSLColor.fromColor(accent)
-            .withHue((HSLColor.fromColor(accent).hue + i * 47) % 360)
-            .withLightness(0.42 + (i % 3) * 0.12)
-            .toColor()
+        colorsByLabel[ranked[i].key] ?? chartPalette[i % chartPalette.length]
     ];
     return Column(children: [
       Wrap(spacing: 16, runSpacing: 6, children: [

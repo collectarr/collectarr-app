@@ -8,7 +8,7 @@ void main() {
   testWidgets('Add action follows each destination status color',
       (tester) async {
     for (final (status, color) in [
-      (LibraryCollectionStatusScope.inCollection, Colors.orange),
+      (LibraryCollectionStatusScope.inCollection, const Color(0xff2aa4cc)),
       (LibraryCollectionStatusScope.forSale, const Color(0xff2d7427)),
       (LibraryCollectionStatusScope.wishList, const Color(0xffff9b00)),
       (LibraryCollectionStatusScope.onOrder, const Color(0xff13627f)),

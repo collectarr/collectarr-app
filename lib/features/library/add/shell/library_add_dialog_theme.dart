@@ -27,7 +27,7 @@ ThemeData libraryAddDialogTheme(
     ),
     inputDecorationTheme: base.inputDecorationTheme.copyWith(
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: accent),
+        borderSide: BorderSide(color: palette.utilityAction),
       ),
     ),
     datePickerTheme: buildAppDatePickerTheme(

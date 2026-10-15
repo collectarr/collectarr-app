@@ -150,11 +150,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
         ? palette.divider
         : widget.dividerColor;
     final resolvedSelectedColor = widget.selectedColor == kAppSelection
-        ? libraryWorkspaceSelectionBackground(
-            context,
-            accentColor: widget.accentColor,
-            baseColor: palette.surface,
-          )
+        ? libraryWorkspaceSelectionBackground(context)
         : widget.selectedColor;
     final resolvedOddColor = widget.oddColor == kAppTableOddRow
         ? palette.tableOddRow
@@ -168,11 +164,12 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
             : widget.bottomBorderColor;
     final resolvedSelectionRailColor =
         widget.selectionRailColor == kAppHighlight
-            ? widget.accentColor
+            ? palette.utilityAction
             : widget.selectionRailColor;
     final resolvedHoverColor = widget.hoverColor == kAppTableHover
         ? Color.alphaBlend(
-            widget.accentColor.withValues(alpha: palette.isDark ? 0.12 : 0.08),
+            palette.utilityAction
+                .withValues(alpha: palette.isDark ? 0.12 : 0.08),
             palette.surface,
           )
         : widget.hoverColor;
@@ -223,10 +220,10 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
                     thumbColor:
                         WidgetStateProperty.resolveWith<Color>((states) {
                       if (states.contains(WidgetState.dragged)) {
-                        return widget.accentColor.withValues(alpha: 0.85);
+                        return palette.utilityAction;
                       }
                       if (states.contains(WidgetState.hovered)) {
-                        return widget.accentColor.withValues(alpha: 0.65);
+                        return palette.utilityAction.withValues(alpha: 0.65);
                       }
                       return Colors.white24;
                     }),
@@ -280,7 +277,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
                               ? libraryWorkspacePaneDividerColor(context)
                               : resolvedDividerColor,
                           hoverColor: resolvedHoverColor,
-                          accentColor: widget.accentColor,
+                          accentColor: palette.utilityAction,
                         );
                       },
                     ),
@@ -379,7 +376,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
                         ? _LibraryTableCheckbox(
                             checked: allChecked,
                             indeterminate: !allChecked && hasPartialCheck,
-                            accentColor: accentColor,
+                            accentColor: appPalette(context).utilityAction,
                             onTap: onToggleAllChecked == null
                                 ? null
                                 : () => onToggleAllChecked!(!allChecked),

@@ -641,7 +641,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
               borderRadius: kAppRadiusLarge,
               border: Border.all(
                 color: widget.selected
-                    ? widget.accent
+                    ? palette.utilityAction
                     : widget.focused
                         ? widget.accent.withValues(alpha: 0.55)
                         : palette.cardBorder,
@@ -694,8 +694,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                             onTap: widget.onSelectionToggleTap,
                             child: LibraryTileSelectionToggle(
                               selected: widget.selected,
-                              accentColor: widget.accent,
-                              coverSize: 84,
+                              accentColor: palette.utilityAction,
                             ),
                           ),
                         ),

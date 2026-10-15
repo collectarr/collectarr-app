@@ -237,7 +237,7 @@ class _CompactLibraryTopChromeState extends State<CompactLibraryTopChrome> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color: accentData.accent.withValues(alpha: 0.3),
+                  color: palette.divider,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
@@ -249,7 +249,7 @@ class _CompactLibraryTopChromeState extends State<CompactLibraryTopChrome> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color: accentData.accent,
+                  color: appPalette(context).utilityAction,
                 ),
               ),
               suffixIcon: widget.searchController != null &&

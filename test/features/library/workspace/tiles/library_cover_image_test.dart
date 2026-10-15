@@ -64,6 +64,7 @@ void main() {
       ),
     );
 
+    final beforeHover = tester.getRect(find.byType(LibraryCoverImage));
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
     addTearDown(gesture.removePointer);
     await gesture.addPointer(location: Offset.zero);
@@ -71,6 +72,9 @@ void main() {
         .moveTo(tester.getCenter(find.byType(LibraryInteractiveCover)));
     await pumpUntilSettled(tester);
 
+    expect(tester.getRect(find.byType(LibraryCoverImage)), beforeHover,
+        reason:
+            'Hover must preserve the cover geometry and surrounding hit areas.');
     expect(find.text('Fullscreen'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

@@ -70,11 +70,7 @@ ThemeData editDialogTheme({
       primary: accent,
       onPrimary: appContrastingTextColor(accent),
     ),
-    textSelectionTheme: TextSelectionThemeData(
-      cursorColor: palette.utilityAction,
-      selectionColor: palette.utilityAction.withValues(alpha: 0.35),
-      selectionHandleColor: palette.utilityAction,
-    ),
+    textSelectionTheme: buildAppTextSelectionTheme(palette),
     dialogTheme: DialogThemeData(
       backgroundColor: palette.panel,
       surfaceTintColor: Colors.transparent,
@@ -930,7 +926,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
         border: outline,
         enabledBorder: outline,
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: palette.accent, width: 1.5),
+          borderSide: BorderSide(color: palette.utilityAction, width: 1.5),
           borderRadius: BorderRadius.circular(kAppInputBorderRadius),
         ),
         isDense: true,

@@ -208,9 +208,9 @@ class LibraryWorkspace extends ConsumerWidget {
                 : (d) => onItemContextMenu!(item, d.globalPosition),
             coverSize: viewState.coverSize,
             fallbackCoverAspectRatio: fallbackCoverAspectRatio,
-            selectedColor: accent,
+            selectedColor: appPalette(context).utilityAction,
             accentColor: accent,
-            selectionColor: accent,
+            selectionColor: appPalette(context).utilityAction,
             mutedTextColor: palette.textMuted,
           ),
         ),
@@ -242,7 +242,7 @@ class LibraryWorkspace extends ConsumerWidget {
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
-            selectedColor: accent,
+            selectedColor: appPalette(context).utilityAction,
             accentColor: accent,
             mutedTextColor: palette.textMuted,
             coverWidth:
@@ -529,12 +529,12 @@ class LibraryWorkspace extends ConsumerWidget {
                     selectionRailWidth: 2,
                     headerColor: libraryWorkspaceTableHeaderColor(context),
                     dividerColor: libraryWorkspacePaneDividerColor(context),
-                    selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+                    selectedColor: appPalette(context).utilityAction,
                     oddColor: palette.tableOddRow,
                     evenColor: palette.tableEvenRow,
-                    selectionRailColor: accent,
+                    selectionRailColor: appPalette(context).utilityAction,
                     bottomBorderColor: palette.tableBottomBorder,
-                    hoverColor: palette.tableHover,
+                    hoverColor: palette.surfaceBright,
                     accentColor: accent,
                   ),
                 ),
@@ -596,7 +596,7 @@ class LibraryWorkspace extends ConsumerWidget {
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
-              selectedColor: accent,
+              selectedColor: appPalette(context).utilityAction,
               accentColor: accent,
               mutedTextColor: palette.textMuted,
               coverWidth: tileCoverWidth,

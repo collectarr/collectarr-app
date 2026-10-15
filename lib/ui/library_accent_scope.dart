@@ -165,18 +165,8 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
             : base.colorScheme.surfaceContainerHighest;
       }),
     ),
-    textSelectionTheme: TextSelectionThemeData(
-      cursorColor:
-          (base.extension<AppThemePalette>() ?? kDefaultAppThemePalette)
-              .utilityAction,
-      selectionColor:
-          (base.extension<AppThemePalette>() ?? kDefaultAppThemePalette)
-              .utilityAction
-              .withValues(alpha: .35),
-      selectionHandleColor:
-          (base.extension<AppThemePalette>() ?? kDefaultAppThemePalette)
-              .utilityAction,
-    ),
+    textSelectionTheme: buildAppTextSelectionTheme(
+        base.extension<AppThemePalette>() ?? kDefaultAppThemePalette),
     inputDecorationTheme: base.inputDecorationTheme.copyWith(
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(

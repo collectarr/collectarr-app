@@ -616,8 +616,7 @@ class _MusicInspectorHeader extends ConsumerWidget {
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                                color:
-                                    collectionStatus.colorFor(inspector.accent),
+                                color: collectionStatus.color,
                                 borderRadius: BorderRadius.circular(4)),
                             child: Icon(collectionStatus.icon,
                                 size: 22, color: Colors.white)))),
