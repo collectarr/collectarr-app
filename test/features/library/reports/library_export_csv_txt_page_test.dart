@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -15,6 +16,64 @@ import '../../../support/fixtures/test_constants.dart';
 import '../../../support/builders/workspace_item_builder.dart';
 
 void main() {
+  testWidgets('export applies ordered sort fields and cancels draft changes',
+      (tester) async {
+    tester.view.physicalSize = const Size(1280, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final type = defaultLibraryKindRegistry.require(CatalogMediaKind.music);
+    final entries = [
+      for (final row in [
+        ('Zebra', 'Artist A'),
+        ('Alpha', 'Artist A'),
+        ('Muse', 'Artist B')
+      ])
+        testLibraryWorkspaceSource(
+            itemId: row.$1,
+            kind: 'music',
+            title: row.$1,
+            catalogData: MusicWorkspaceData.fromMusic(MusicAlbum(
+                id: CatalogItemRef(kind: CatalogMediaKind.music, id: row.$1),
+                title: row.$1,
+                artist: row.$2))),
+    ];
+    final shelf = ShelfState(
+        entries: entries,
+        entryCount: entries.length,
+        wishlistCount: 0,
+        pricedCount: 0,
+        totalPaidCents: null,
+        primaryCurrency: null,
+        hasMixedCurrencies: false);
+    final items = libraryItemsForShelf(shelf, type);
+    await tester.pumpWidget(
+        MaterialApp(home: LibraryExportCsvTxtPage(type: type, items: items)));
+    await pumpUntilSettled(tester);
+    List<String> preview() => tester
+        .widgetList<SelectableText>(find.byType(SelectableText))
+        .map((w) => w.data ?? '')
+        .toList();
+    expect(preview()[1], contains('Zebra'));
+    await tester.tap(find.text('Manage').last);
+    await pumpUntilSettled(tester);
+    expect(find.widgetWithText(LibraryFieldSelectionCheckbox, 'Disc Format'),
+        findsNothing);
+    await tester
+        .tap(find.widgetWithText(LibraryFieldSelectionCheckbox, 'Title'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await pumpUntilSettled(tester);
+    expect(preview()[1], contains('Alpha'));
+    expect(preview()[2], contains('Zebra'));
+    await tester.tap(find.text('Manage').last);
+    await pumpUntilSettled(tester);
+    await tester.tap(find.text('A-Z').last);
+    await tester.tap(find.text('Cancel'));
+    await pumpUntilSettled(tester);
+    expect(preview()[1], contains('Alpha'));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('LibraryExportCsvTxtPage renders full layout and controls',
       (tester) async {
     tester.view.physicalSize = const Size(1280, 1400);
@@ -80,7 +139,7 @@ void main() {
 
     // Header checks
     expect(find.text('Export to CSV / TXT'), findsOneWidget);
-    expect(find.text('Export albums to CSV / TXT: Albums'), findsOneWidget);
+    expect(find.text('Export music to CSV / TXT: Albums'), findsOneWidget);
     expect(find.byKey(const Key('export_csv_txt.back')), findsOneWidget);
 
     // Section: Which Albums
@@ -207,7 +266,7 @@ void main() {
     await tester.tap(find.text('Track list'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Export albums to CSV / TXT: Tracks'), findsOneWidget);
+    expect(find.text('Export music to CSV / TXT: Tracks'), findsOneWidget);
     expect(find.textContaining('Paranoid Android'), findsWidgets);
 
     // Open Visible Columns manager
@@ -216,7 +275,7 @@ void main() {
     await tester.tap(manageButtons.first);
     await pumpUntilSettled(tester);
 
-    expect(find.text('Manage Visible Columns'), findsOneWidget);
+    expect(find.text('Select Column Fields'), findsOneWidget);
     // Close modal
     await tester.tap(find.text('Cancel'));
     await pumpUntilSettled(tester);

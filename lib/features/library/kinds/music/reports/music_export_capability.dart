@@ -28,6 +28,7 @@ final musicExportCapability = LibraryExportCapability(
     if (MusicFieldIdentities.artist.exportable)
       exportColumnFromWorkspaceField(
         field: MusicCatalogWorkspaceFields.artist,
+        label: 'Artist Credits',
         valueFormatter: (values) => values.join(' | '),
         defaultVisible: false,
         includeInPdf: false,

@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/reports/library_report_field_dialogs.dart';
 import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
@@ -40,10 +40,12 @@ class PdfColumnDefinition {
     required this.id,
     required this.label,
     required this.getValue,
+    this.metadata,
     this.widthFlex = 1.0,
     this.defaultVisible = true,
   });
 
+  final LibraryKindFieldMetadata? metadata;
   final String id;
   final String label;
   final String Function(LibraryProjectionView item) getValue;
@@ -55,6 +57,7 @@ class PdfColumnDefinition {
   ) =>
       PdfColumnDefinition(
         id: column.id,
+        metadata: column.metadata,
         label: column.pdfLabel ?? column.label,
         getValue: column.pdfGetValue ?? column.getValue,
         widthFlex: column.pdfWidthFlex ?? 1.0,
@@ -1829,19 +1832,9 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
     final columns = isChild
         ? [for (final c in _availableChildColumns) (id: c.id, label: c.label)]
         : [for (final c in _availableItemColumns) (id: c.id, label: c.label)];
-    final result = await showDialog<Set<String>>(
-      context: context,
-      builder: (_) => LibraryColumnChooserDialog(
-        availableColumns: [for (final c in columns) c.id],
-        selectedColumns:
-            (isChild ? _selectedChildColumnIds : _selectedItemColumnIds)
-                .toSet(),
-        defaultColumns:
-            (isChild ? _selectedChildColumnIds : _selectedItemColumnIds)
-                .toSet(),
-        columnLabel: (id) => columns.firstWhere((c) => c.id == id).label,
-      ),
-    );
+    final result = await showLibraryReportColumns(context,
+        fields: columns,
+        selected: isChild ? _selectedChildColumnIds : _selectedItemColumnIds);
     if (!mounted || result == null) return;
     setState(() {
       if (isChild) {
@@ -1854,56 +1847,18 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   }
 
   Future<void> _showManageSortDialog() async {
-    var chosenColId = _sortColumnId;
-    var chosenAsc = _sortAscending;
-    var query = '';
-
-    final result = await showDialog<(String, bool)>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-          builder: (context, update) => LibraryFieldSelectionDialog(
-                title: 'Select Sort Fields',
-                icon: AppIcons.sortAlpha,
-                accent: Theme.of(context).colorScheme.primary,
-                onSave: () =>
-                    Navigator.of(context).pop((chosenColId, chosenAsc)),
-                child: LibraryFieldSelectionPanes(
-                  available: Column(children: [
-                    LibraryFieldSelectionSearch(
-                        onChanged: (value) =>
-                            update(() => query = value.toLowerCase())),
-                    const SizedBox(height: 10),
-                    Expanded(
-                        child: ListView(children: [
-                      for (final column in _availableItemColumns)
-                        if (column.label.toLowerCase().contains(query))
-                          LibraryFieldSelectionCheckbox(
-                              label: column.label,
-                              selected: column.id == chosenColId,
-                              onTap: () =>
-                                  update(() => chosenColId = column.id)),
-                    ])),
-                  ]),
-                  selected: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Column(children: [
-                        LibrarySelectedFieldRow(
-                            label: _availableItemColumns
-                                .firstWhere((c) => c.id == chosenColId)
-                                .label,
-                            onRemove: null,
-                            removeTooltip: 'Sort field',
-                            direction: chosenAsc ? 'A-Z' : 'Z-A',
-                            onToggleDirection: () =>
-                                update(() => chosenAsc = !chosenAsc)),
-                      ])),
-                ),
-              )),
-    );
+    final result = await showLibraryReportSorts(context,
+        fields: [
+          for (final column in _availableItemColumns
+              .where((column) => column.metadata?.sortable != false))
+            (id: column.id, label: column.label)
+        ],
+        selected: [(id: _sortColumnId, ascending: _sortAscending)],
+        multiple: false);
     if (!mounted || result == null) return;
     setState(() {
-      _sortColumnId = result.$1;
-      _sortAscending = result.$2;
+      _sortColumnId = result.first.id;
+      _sortAscending = result.first.ascending;
       _generatedPdfBytes = null;
     });
   }

@@ -1,6 +1,5 @@
+import 'package:collectarr_app/features/library/reports/library_report_field_dialogs.dart';
 import 'package:collectarr_app/ui/app_management_content.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:convert';
 import 'package:collectarr_app/core/platform/save_export_file.dart';
@@ -80,8 +79,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   late List<LibraryExportChildColumnDefinition> _availableChildColumns;
   late List<String> _selectedChildColumnIds;
 
-  String _sortColumnId = 'artist';
-  bool _sortAscending = true;
+  List<({String id, bool ascending})> _sortFields = const [];
 
   bool _isGenerating = false;
   String? _generatedContent;
@@ -189,7 +187,9 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         .where((column) => column.defaultVisible)
         .map((column) => column.id)
         .toList();
-    _sortColumnId = capability?.defaultSortColumnId ?? 'title';
+    _sortFields = [
+      (id: capability?.defaultSortColumnId ?? 'title', ascending: true)
+    ];
   }
 
   static String _monthAbbr(int month) {
@@ -227,15 +227,24 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
     };
 
     final sorted = List<LibraryProjectionView>.from(list);
+    final sorts = [
+      for (final rule in _sortFields)
+        (
+          column: _availableAlbumColumns
+              .firstWhere((column) => column.id == rule.id),
+          ascending: rule.ascending
+        )
+    ];
+    final positions = {for (var i = 0; i < sorted.length; i++) sorted[i]: i};
     sorted.sort((a, b) {
-      final col = _availableAlbumColumns.firstWhere(
-        (c) => c.id == _sortColumnId,
-        orElse: () => _availableAlbumColumns.first,
-      );
-      final valA = col.getValue(a).toLowerCase();
-      final valB = col.getValue(b).toLowerCase();
-      final cmp = valA.compareTo(valB);
-      return _sortAscending ? cmp : -cmp;
+      for (final rule in sorts) {
+        final cmp = rule.column
+            .getValue(a)
+            .toLowerCase()
+            .compareTo(rule.column.getValue(b).toLowerCase());
+        if (cmp != 0) return rule.ascending ? cmp : -cmp;
+      }
+      return positions[a]!.compareTo(positions[b]!);
     });
     return sorted;
   }
@@ -294,9 +303,10 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         _supportsChildList && _exportMode == ExportMode.childList;
 
     if (isChildList) {
-      final activeColumns = _availableChildColumns
-          .where((col) => _selectedChildColumnIds.contains(col.id))
-          .toList();
+      final activeColumns = [
+        for (final id in _selectedChildColumnIds)
+          _availableChildColumns.firstWhere((col) => col.id == id)
+      ];
 
       if (_includeHeaderRow) {
         lines.add(
@@ -311,9 +321,10 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         lines.add(_generateRowString(cells));
       }
     } else {
-      final activeColumns = _availableAlbumColumns
-          .where((col) => _selectedAlbumColumnIds.contains(col.id))
-          .toList();
+      final activeColumns = [
+        for (final id in _selectedAlbumColumnIds)
+          _availableAlbumColumns.firstWhere((col) => col.id == id)
+      ];
 
       if (_includeHeaderRow) {
         lines.add(
@@ -338,9 +349,10 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         _supportsChildList && _exportMode == ExportMode.childList;
 
     if (isChildList) {
-      final activeColumns = _availableChildColumns
-          .where((col) => _selectedChildColumnIds.contains(col.id))
-          .toList();
+      final activeColumns = [
+        for (final id in _selectedChildColumnIds)
+          _availableChildColumns.firstWhere((col) => col.id == id)
+      ];
 
       if (_includeHeaderRow) {
         buffer.writeln(
@@ -352,9 +364,10 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         buffer.writeln(_generateRowString(cells));
       }
     } else {
-      final activeColumns = _availableAlbumColumns
-          .where((col) => _selectedAlbumColumnIds.contains(col.id))
-          .toList();
+      final activeColumns = [
+        for (final id in _selectedAlbumColumnIds)
+          _availableAlbumColumns.firstWhere((col) => col.id == id)
+      ];
 
       if (_includeHeaderRow) {
         buffer.writeln(
@@ -425,7 +438,15 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   @override
   Widget build(BuildContext context) {
     final accent = appPalette(context).utilityAction;
-    final palette = appPalette(context);
+    final basePalette = appPalette(context);
+    final palette = basePalette.isDark
+        ? basePalette.copyWith(
+            surface: const Color(0xff444444),
+            field: const Color(0xff444444),
+            divider: const Color(0xff666666),
+            cardBorder: const Color(0xff262626),
+          )
+        : basePalette;
 
     final itemLabel = _activeListLabel;
 
@@ -438,48 +459,52 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               onPressed: () => Navigator.of(context).pop()),
           title: const Text('Export to CSV / TXT')),
       body: AppManagementContent(
+          maxWidth: 992,
           child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Top Page Title
-                Text(
-                  'Export ${widget.type.identity.pluralLabel.toLowerCase()} to CSV / TXT: $itemLabel',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                    color: palette.textPrimary,
-                  ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 960),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Top Page Title
+                    Text(
+                      'Export ${widget.type.identity.title.toLowerCase()} to CSV / TXT: $itemLabel',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w700,
+                        color: palette.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Top Options Pane
+                    _buildTopOptionsPane(palette, accent),
+                    const SizedBox(height: 20),
+
+                    // Filetype Tabs
+                    _buildFiletypeTabs(palette, accent),
+
+                    // 1. Settings Pane
+                    ColoredBox(
+                        color: palette.panel,
+                        child: Column(children: [
+                          _buildSettingsPane(palette, accent),
+                          Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                              child: _buildPreviewPane(palette, accent)),
+                        ])),
+                    const SizedBox(height: 20),
+
+                    // Bottom Action Button
+                    _buildBottomActions(palette, accent),
+                    const SizedBox(height: 40),
+                  ],
                 ),
-                const SizedBox(height: 16),
-
-                // Top Options Pane
-                _buildTopOptionsPane(palette, accent),
-                const SizedBox(height: 20),
-
-                // Filetype Tabs
-                _buildFiletypeTabs(palette, accent),
-
-                // 1. Settings Pane
-                _buildSettingsPane(palette, accent),
-                const SizedBox(height: 24),
-
-                // 4. Preview Pane
-                _buildPreviewPane(palette, accent),
-                const SizedBox(height: 20),
-
-                // Bottom Action Button
-                _buildBottomActions(palette, accent),
-                const SizedBox(height: 40),
-              ],
+              ),
             ),
-          ),
-        ),
-      )),
+          )),
     );
   }
 
@@ -488,11 +513,9 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   // ==========================================
   Widget _buildTopOptionsPane(AppThemePalette palette, Color accent) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: palette.panel,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: palette.cardBorder),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -554,6 +577,9 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
     final allCount = _allList.length;
     final currentCount = widget.items.length;
     final checkboxedCount = _checkboxedList.length;
+    final allIds = _allList.map((item) => item.target.id).toSet();
+    final sameAsAll = currentCount == allCount &&
+        widget.items.every((item) => allIds.contains(item.target.id));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -561,13 +587,14 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         Text(
           'Which $_itemListLabel',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: palette.textPrimary,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 25),
         Container(
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: palette.panelRaised,
             borderRadius: BorderRadius.circular(4),
@@ -596,7 +623,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
                 title: 'Current List',
                 count: currentCount,
                 selected: _subset == ExportSubset.currentList,
-                enabled: currentCount > 0,
+                enabled: currentCount > 0 && !sameAsAll,
                 onTap: () {
                   setState(() {
                     _subset = ExportSubset.currentList;
@@ -636,13 +663,14 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         Text(
           'Export mode',
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: palette.textPrimary,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 25),
         Container(
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: palette.panelRaised,
             borderRadius: BorderRadius.circular(4),
@@ -708,7 +736,10 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? accent.withValues(alpha: 0.18) : Colors.transparent,
+          color: selected ? palette.surfaceBright : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+              color: selected ? palette.divider : Colors.transparent),
         ),
         child: Row(
           children: [
@@ -716,7 +747,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
               size: 16,
               color: enabled
-                  ? (selected ? accent : palette.textMuted)
+                  ? palette.textPrimary
                   : palette.textMuted.withValues(alpha: 0.5),
             ),
             const SizedBox(width: 8),
@@ -724,8 +755,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
                   color: textColor,
                 ),
               ),
@@ -733,8 +764,9 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: selected ? accent : palette.cardBorder,
-                borderRadius: BorderRadius.circular(10),
+                color:
+                    selected ? const Color(0xff888888) : palette.surfaceBright,
+                borderRadius: BorderRadius.circular(3),
               ),
               child: Text(
                 count.toString(),
@@ -754,15 +786,20 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   Widget _buildVisibleColumnsSection(AppThemePalette palette, Color accent) {
     final isChildList =
         _supportsChildList && _exportMode == ExportMode.childList;
-    final columnNames = isChildList
-        ? _availableChildColumns
-            .where((col) => _selectedChildColumnIds.contains(col.id))
-            .map((c) => c.label)
-            .join(', ')
-        : _availableAlbumColumns
-            .where((col) => _selectedAlbumColumnIds.contains(col.id))
-            .map((c) => c.label)
-            .join(', ');
+    final columnNames = (isChildList
+            ? [
+                for (final id in _selectedChildColumnIds)
+                  _availableChildColumns
+                      .firstWhere((column) => column.id == id)
+                      .label
+              ]
+            : [
+                for (final id in _selectedAlbumColumnIds)
+                  _availableAlbumColumns
+                      .firstWhere((column) => column.id == id)
+                      .label
+              ])
+        .join(', ');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -773,7 +810,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
             Text(
               'Visible Columns',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: palette.textPrimary,
               ),
@@ -782,7 +819,10 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               style: OutlinedButton.styleFrom(
                 visualDensity: VisualDensity.compact,
                 foregroundColor: palette.textPrimary,
-                side: BorderSide(color: palette.cardBorder),
+                backgroundColor: palette.isDark
+                    ? const Color(0xff494949)
+                    : palette.surfaceBright,
+                side: BorderSide.none,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               ),
@@ -790,7 +830,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Manage', style: TextStyle(fontSize: 12)),
+                  Text('Manage', style: TextStyle(fontSize: 14)),
                   SizedBox(width: 4),
                   Icon(Icons.more_vert, size: 14),
                 ],
@@ -802,9 +842,9 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: palette.panelRaised,
+            color: palette.surface,
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: palette.cardBorder),
+            border: Border.all(color: palette.divider),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -835,11 +875,6 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   }
 
   Widget _buildSortOrderSection(AppThemePalette palette, Color accent) {
-    final col = _availableAlbumColumns.firstWhere(
-      (c) => c.id == _sortColumnId,
-      orElse: () => _availableAlbumColumns.first,
-    );
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -849,7 +884,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
             Text(
               'Sort Order',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: palette.textPrimary,
               ),
@@ -858,7 +893,10 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               style: OutlinedButton.styleFrom(
                 visualDensity: VisualDensity.compact,
                 foregroundColor: palette.textPrimary,
-                side: BorderSide(color: palette.cardBorder),
+                backgroundColor: palette.isDark
+                    ? const Color(0xff494949)
+                    : palette.surfaceBright,
+                side: BorderSide.none,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               ),
@@ -866,7 +904,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Manage', style: TextStyle(fontSize: 12)),
+                  Text('Manage', style: TextStyle(fontSize: 14)),
                   SizedBox(width: 4),
                   Icon(Icons.more_vert, size: 14),
                 ],
@@ -878,38 +916,32 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: palette.panelRaised,
+            color: palette.surface,
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: palette.cardBorder),
+            border: Border.all(color: palette.divider),
           ),
-          child: Row(
-            children: [
-              Text(
-                col.label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: palette.textPrimary,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                decoration: BoxDecoration(
-                  color: palette.cardBorder,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: Text(
-                  _sortAscending ? 'ASC' : 'DESC',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: palette.textMuted,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          child: Wrap(spacing: 8, runSpacing: 4, children: [
+            for (final rule in _sortFields)
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                Text(
+                    _availableAlbumColumns
+                        .firstWhere((column) => column.id == rule.id)
+                        .label,
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w700)),
+                const SizedBox(width: 3),
+                DecoratedBox(
+                    decoration: BoxDecoration(
+                        color: palette.textPrimary,
+                        borderRadius: BorderRadius.circular(3)),
+                    child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 3, vertical: 1),
+                        child: Text(rule.ascending ? 'ASC' : 'DESC',
+                            style: TextStyle(
+                                color: palette.panel, fontSize: 10)))),
+              ]),
+          ]),
         ),
       ],
     );
@@ -918,87 +950,49 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   // ==========================================
   // SECTION: FILETYPE TABS (CSV / TXT)
   // ==========================================
-  Widget _buildFiletypeTabs(AppThemePalette palette, Color accent) {
-    return Row(
-      children: [
-        _buildFiletypeTab(
-          label: 'CSV',
-          selected: _fileType == ExportFileType.csv,
-          palette: palette,
-          accent: accent,
-          onTap: () => _onFileTypeChanged(ExportFileType.csv),
-        ),
-        const SizedBox(width: 4),
-        _buildFiletypeTab(
-          label: 'TXT',
-          selected: _fileType == ExportFileType.txt,
-          palette: palette,
-          accent: accent,
-          onTap: () => _onFileTypeChanged(ExportFileType.txt),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFiletypeTab({
-    required String label,
-    required bool selected,
-    required AppThemePalette palette,
-    required Color accent,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: selected ? palette.panel : palette.panelRaised,
-          border: Border.all(
-            color: palette.cardBorder,
-            width: 1,
-          ),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-        ),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-                  color: selected ? Colors.white : palette.textMuted,
+  Widget _buildFiletypeTabs(AppThemePalette palette, Color accent) =>
+      LayoutBuilder(
+        builder: (context, constraints) => Padding(
+          padding: const EdgeInsets.only(left: 15),
+          child: Row(children: [
+            for (final type in ExportFileType.values) ...[
+              SizedBox(
+                width: (constraints.maxWidth - 20) / 4,
+                height: 34,
+                child: Material(
+                  color: type == _fileType
+                      ? palette.panel
+                      : (palette.isDark
+                          ? const Color(0xff131313)
+                          : palette.surfaceSubtle),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(4)),
+                  child: InkWell(
+                    onTap: () => _onFileTypeChanged(type),
+                    mouseCursor: SystemMouseCursors.click,
+                    child: Center(
+                        child: Text(type.name.toUpperCase(),
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: palette.textPrimary))),
+                  ),
                 ),
               ),
-            ),
-            if (selected)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 3,
-                child: ColoredBox(color: accent),
-              ),
-          ],
+              const SizedBox(width: 6),
+            ]
+          ]),
         ),
-      ),
-    );
-  }
+      );
 
   // ==========================================
   // SECTION: 1. SETTINGS PANE
   // ==========================================
   Widget _buildSettingsPane(AppThemePalette palette, Color accent) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: palette.panel,
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(4),
-          bottomLeft: Radius.circular(4),
-          bottomRight: Radius.circular(4),
-        ),
-        border: Border.all(color: palette.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1067,7 +1061,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
           Text(
             'Field Delimiter',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: palette.textPrimary,
             ),
@@ -1108,7 +1102,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
           Text(
             'Field Enclosure',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: palette.textPrimary,
             ),
@@ -1146,13 +1140,13 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
+        padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
           children: [
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
               size: 16,
-              color: selected ? accent : palette.textMuted,
+              color: palette.textPrimary,
             ),
             const SizedBox(width: 8),
             Text(
@@ -1203,7 +1197,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
           Text(
             'Options',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: palette.textPrimary,
             ),
@@ -1218,21 +1212,28 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
             },
             child: Row(
               children: [
-                Checkbox(
-                  value: _includeHeaderRow,
-                  onChanged: (val) {
-                    setState(() {
-                      _includeHeaderRow = val ?? true;
-                      _invalidateGenerated();
-                    });
-                  },
-                ),
-                const SizedBox(width: 4),
+                SizedBox.square(
+                    dimension: 16,
+                    child: Checkbox(
+                      fillColor: WidgetStatePropertyAll(palette.textPrimary),
+                      checkColor: palette.panel,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                      value: _includeHeaderRow,
+                      onChanged: (val) {
+                        setState(() {
+                          _includeHeaderRow = val ?? true;
+                          _invalidateGenerated();
+                        });
+                      },
+                    )),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     'Include Field Names as First Row',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
                       color: palette.textPrimary,
                     ),
                   ),
@@ -1329,7 +1330,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         Container(
           height: 320,
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
+            color: const Color(0xFF262626),
             borderRadius: BorderRadius.circular(4),
             border: Border.all(color: palette.cardBorder),
           ),
@@ -1363,9 +1364,10 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
                             color: const Color(0xFF252525),
                             child: Text(
                               '${index + 1}',
-                              style: const TextStyle(
-                                fontFamily: 'monospace',
-                                fontSize: 12,
+                              style: TextStyle(
+                                fontFamily: appFontFamily,
+                                fontFamilyFallback: kAppFontFamilyFallback,
+                                fontSize: 14,
                                 color: Color(0xFF888888),
                               ),
                             ),
@@ -1379,13 +1381,14 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
                             child: SelectableText(
                               previewLines[index],
                               style: TextStyle(
-                                fontFamily: 'monospace',
-                                fontSize: 12,
+                                fontFamily: appFontFamily,
+                                fontFamilyFallback: kAppFontFamilyFallback,
+                                fontSize: 14,
                                 fontWeight: (index == 0 && _includeHeaderRow)
                                     ? FontWeight.bold
                                     : FontWeight.normal,
                                 color: (index == 0 && _includeHeaderRow)
-                                    ? const Color(0xFFB0C4DE)
+                                    ? const Color(0xFF888888)
                                     : const Color(0xFFE0E0E0),
                               ),
                             ),
@@ -1502,211 +1505,42 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   // ==========================================
   // MANAGE COLUMNS MODAL
   // ==========================================
-  void _showManageColumnsDialog(BuildContext context) {
-    final palette = appPalette(context);
-    final accent = appPalette(context).utilityAction;
-    final isChildList =
-        _supportsChildList && _exportMode == ExportMode.childList;
-
-    final tempSelectedIds = isChildList
-        ? List<String>.from(_selectedChildColumnIds)
-        : List<String>.from(_selectedAlbumColumnIds);
-
-    showDialog<void>(
-      context: context,
-      builder: (dialogCtx) => StatefulBuilder(
-        builder: (context, setModalState) {
-          final allColumns = isChildList
-              ? _availableChildColumns
-                  .map((c) => (id: c.id, label: c.label))
-                  .toList()
-              : _availableAlbumColumns
-                  .map((c) => (id: c.id, label: c.label))
-                  .toList();
-
-          return AccentAlertDialog(
-            headerIcon: AppIcons.columns,
-            backgroundColor: palette.panel,
-            title: Text(
-              'Manage Visible Columns',
-              style: TextStyle(color: palette.textPrimary),
-            ),
-            content: SizedBox(
-              width: 400,
-              height: 420,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          setModalState(() {
-                            tempSelectedIds.clear();
-                            tempSelectedIds.addAll(allColumns.map((c) => c.id));
-                          });
-                        },
-                        child: const Text('Select All'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          setModalState(() {
-                            tempSelectedIds.clear();
-                          });
-                        },
-                        child: const Text('Deselect All'),
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: allColumns.length,
-                      itemBuilder: (context, index) {
-                        final col = allColumns[index];
-                        final isChecked = tempSelectedIds.contains(col.id);
-                        return CheckboxListTile(
-                          dense: true,
-                          title: Text(col.label),
-                          value: isChecked,
-                          onChanged: (val) {
-                            setModalState(() {
-                              if (val == true) {
-                                tempSelectedIds.add(col.id);
-                              } else {
-                                tempSelectedIds.remove(col.id);
-                              }
-                            });
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogCtx),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: () {
-                  setState(() {
-                    if (isChildList) {
-                      _selectedChildColumnIds = tempSelectedIds;
-                    } else {
-                      _selectedAlbumColumnIds = tempSelectedIds;
-                    }
-                    _invalidateGenerated();
-                  });
-                  Navigator.pop(dialogCtx);
-                },
-                child: const Text('Apply'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+  Future<void> _showManageColumnsDialog(BuildContext context) async {
+    final child = _supportsChildList && _exportMode == ExportMode.childList;
+    final result = await showLibraryReportColumns(context,
+        fields: child
+            ? [
+                for (final c in _availableChildColumns)
+                  (id: c.id, label: c.label)
+              ]
+            : [
+                for (final c in _availableAlbumColumns)
+                  (id: c.id, label: c.label)
+              ],
+        selected: child ? _selectedChildColumnIds : _selectedAlbumColumnIds);
+    if (!mounted || result == null) return;
+    setState(() {
+      if (child) {
+        _selectedChildColumnIds = result;
+      } else {
+        _selectedAlbumColumnIds = result;
+      }
+      _invalidateGenerated();
+    });
   }
 
-  // ==========================================
-  // MANAGE SORT MODAL
-  // ==========================================
-  void _showManageSortDialog(BuildContext context) {
-    final palette = appPalette(context);
-    final accent = appPalette(context).utilityAction;
-
-    var tempSortId = _sortColumnId;
-    var tempAscending = _sortAscending;
-
-    showDialog<void>(
-      context: context,
-      builder: (dialogCtx) => StatefulBuilder(
-        builder: (context, setModalState) {
-          return AccentAlertDialog(
-            headerIcon: AppIcons.sortAlpha,
-            backgroundColor: palette.panel,
-            title: Text(
-              'Manage Sort Order',
-              style: TextStyle(color: palette.textPrimary),
-            ),
-            content: SizedBox(
-              width: 360,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<String>(
-                    initialValue: tempSortId,
-                    decoration: const InputDecoration(labelText: 'Sort by'),
-                    items: [
-                      for (final col in _availableAlbumColumns)
-                        DropdownMenuItem(
-                          value: col.id,
-                          child: Text(col.label),
-                        ),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) {
-                        setModalState(() => tempSortId = val);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  RadioGroup<bool>(
-                    groupValue: tempAscending,
-                    onChanged: (val) =>
-                        setModalState(() => tempAscending = val ?? true),
-                    child: const Row(
-                      children: [
-                        Expanded(
-                          child: RadioListTile<bool>(
-                            dense: true,
-                            title: Text('Ascending'),
-                            value: true,
-                          ),
-                        ),
-                        Expanded(
-                          child: RadioListTile<bool>(
-                            dense: true,
-                            title: Text('Descending'),
-                            value: false,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogCtx),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _sortColumnId = tempSortId;
-                    _sortAscending = tempAscending;
-                    _invalidateGenerated();
-                  });
-                  Navigator.pop(dialogCtx);
-                },
-                child: const Text('Apply'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+  Future<void> _showManageSortDialog(BuildContext context) async {
+    final result = await showLibraryReportSorts(context,
+        fields: [
+          for (final column in _availableAlbumColumns
+              .where((column) => column.metadata?.sortable != false))
+            (id: column.id, label: column.label)
+        ],
+        selected: _sortFields);
+    if (!mounted || result == null) return;
+    setState(() {
+      _sortFields = result;
+      _invalidateGenerated();
+    });
   }
 }
