@@ -150,7 +150,7 @@ MetadataSearchQuery musicMetadataSearchQuery({
     query: title,
     barcode: metadata?.barcode,
     publisher: metadata?.publisher,
-    year: metadata?.originalReleaseDate?.year,
+    year: metadata?.originalReleaseDateParts?.year,
     limit: 5,
   );
 }

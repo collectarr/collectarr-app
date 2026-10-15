@@ -173,8 +173,7 @@ class MusicLibraryMediaPresentationBuilder
     return LibraryAddSearchResultDisplay(
       title: album.title,
       secondaryLine: artist?.isNotEmpty == true ? artist : null,
-      year: item.musicCatalogFields.releaseYear ??
-          item.musicCatalogFields.releaseDate?.year,
+      year: item.musicCatalogFields.releaseYear,
       detailLine: detailParts.isEmpty ? null : detailParts.join(' - '),
     );
   }
@@ -193,7 +192,6 @@ class MusicLibraryMediaPresentationBuilder
       (
         'Released',
         album.releaseDateParts?.isoString ??
-            album.releaseDate?.year.toString() ??
             item.musicCatalogFields.releaseYear?.toString(),
       ),
       ('Format', album.formatSummary),
@@ -224,6 +222,7 @@ class MusicLibraryMediaPresentationBuilder
     final barcode = album?.barcode;
     final publisher = album?.publisher;
     final releaseDate = album?.releaseDate;
+    final releaseParts = album?.releaseDateParts;
     final country = musicCountryName(album?.countryCode);
     final format = album?.formatSummary;
 
@@ -261,7 +260,7 @@ class MusicLibraryMediaPresentationBuilder
             label: 'Released',
             value: genericLibraryDash(
               formatPresentationNullableDate(releaseDate) ??
-                  releaseDate?.year.toString(),
+                  releaseParts?.isoString,
             )),
         if (album != null && album.trackCount > 0)
           LibraryDetailField(
