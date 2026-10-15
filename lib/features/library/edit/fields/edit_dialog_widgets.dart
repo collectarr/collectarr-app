@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/anchored_calendar.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_form_layout.dart';
@@ -1020,7 +1021,7 @@ Future<DateTime?> showLibraryDateEntryDialog(
   required String label,
   DateTime? initialDate,
 }) {
-  return showDialog<DateTime?>(
+  return showAppDialog<DateTime?>(
     context: context,
     builder: (dialogContext) {
       var selectedDate = initialDate;

@@ -35,9 +35,7 @@ void main() {
     await tester.tapAt(const Offset(10, 10));
     await tester.pumpAndSettle();
     expect(result, isNull);
-    expect(find.byType(CalendarDatePicker), findsNothing);
-    await tester.tap(find.text('Choose date'));
-    await tester.pumpAndSettle();
+    expect(find.byType(CalendarDatePicker), findsOneWidget);
     await tester.tap(find.text('19').last);
     await tester.pumpAndSettle();
     expect(result, DateTime(2026, 2, 19));

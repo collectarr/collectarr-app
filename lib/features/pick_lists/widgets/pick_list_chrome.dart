@@ -14,13 +14,13 @@ class PickListDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentDepth = ModalDialogDepthScope.of(context);
-    final resolvedAlignment = alignment ?? Alignment.center;
+    final resolvedAlignment = alignment ?? kDefaultDialogAlignment;
 
     return ModalDialogDepthScope(
       depth: currentDepth + 1,
       parentAlignment: resolvedAlignment,
       child: Dialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        insetPadding: const EdgeInsets.fromLTRB(16, kAppDialogTopInset, 16, 24),
         alignment: resolvedAlignment,
         backgroundColor: pickListSurface(context),
         shape: appDialogShape,
@@ -56,22 +56,13 @@ ButtonStyle pickListButtonStyle(BuildContext context,
     {bool primary = true, bool footer = false}) {
   if (footer) return dialogActionButtonStyle(context, primary: primary);
   final palette = appPalette(context);
-  return FilledButton.styleFrom(
-      backgroundColor:
-          primary ? palette.utilityAction : pickListToolbar(context),
-      foregroundColor: primary ? Colors.white : palette.textPrimary,
-      minimumSize: const Size(0, 32),
-      maximumSize: const Size(double.infinity, 32),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      textStyle: TextStyle(
-          fontFamily: appFontFamily,
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          height: 20 / 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      side: BorderSide.none,
-      visualDensity: VisualDensity.standard,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap);
+  return dialogActionButtonStyle(context,
+          primary: true,
+          width: 0,
+          color: primary ? palette.utilityAction : pickListToolbar(context))
+      .copyWith(
+          foregroundColor: WidgetStatePropertyAll(
+              primary ? Colors.white : palette.textPrimary));
 }
 
 /// The reference toolbar has three groups, rather than spacing each button.

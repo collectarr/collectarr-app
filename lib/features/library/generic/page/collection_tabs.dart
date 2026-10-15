@@ -5,7 +5,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'library_collection_menu.dart';
 
 class LibraryCollectionTabBar extends ConsumerWidget {
   const LibraryCollectionTabBar(
@@ -37,54 +37,16 @@ class LibraryCollectionTabBar extends ConsumerWidget {
           Expanded(
             child: Row(
               children: [
-                PopupMenuButton<String>(
-                  key: const ValueKey('library-collection-menu'),
-                  tooltip: 'Collections',
-                  onSelected: (id) {
-                    if (id == '__manage__') {
-                      unawaited(showLibraryCollectionsDialog(context,
-                          kind: mediaKind));
-                    } else {
-                      unawaited(select(values.firstWhere((c) => c.id == id)));
-                    }
-                  },
-                  itemBuilder: (_) => [
-                    for (final collection in values)
-                      PopupMenuItem(
-                        value: collection.id,
-                        height: 30,
-                        child: Row(
-                          children: [
-                            Icon(
-                              collection.id == activeId
-                                  ? Icons.check
-                                  : Icons.folder_outlined,
-                              size: 17,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(collection.name),
-                          ],
-                        ),
-                      ),
-                    const PopupMenuDivider(),
-                    const PopupMenuItem(
-                      value: '__manage__',
-                      height: 30,
-                      child: Text('Manage Collections'),
-                    ),
-                  ],
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: SizedBox(
-                      width: 36,
-                      child: Center(
-                        child: _ClzCollectionMenuIcon(
-                          color: palette.textPrimary.withValues(alpha: 0.85),
-                        ),
-                      ),
-                    ),
-                  ),
+                const SizedBox(width: 3),
+                LibraryCollectionMenu(
+                  collections: values,
+                  activeId: activeId,
+                  accent: accent,
+                  onSelected: (collection) => unawaited(select(collection)),
+                  onManage: () => unawaited(
+                      showLibraryCollectionsDialog(context, kind: mediaKind)),
                 ),
+                const SizedBox(width: 3),
                 Expanded(
                   child: ReorderableListView.builder(
                     scrollDirection: Axis.horizontal,
@@ -119,23 +81,6 @@ class LibraryCollectionTabBar extends ConsumerWidget {
   }
 }
 
-class _ClzCollectionMenuIcon extends StatelessWidget {
-  const _ClzCollectionMenuIcon({required this.color});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: FaIcon(
-        FontAwesomeIcons.bars,
-        size: 14,
-        color: color,
-      ),
-    );
-  }
-}
-
 class LibraryCollectionTab extends StatelessWidget {
   const LibraryCollectionTab({
     super.key,
@@ -163,7 +108,7 @@ class LibraryCollectionTab extends StatelessWidget {
     return Align(
       alignment: Alignment.topLeft,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 1),
+        padding: const EdgeInsets.only(right: 3),
         child: SizedBox(
           height: 27,
           child: Material(
@@ -176,7 +121,6 @@ class LibraryCollectionTab extends StatelessWidget {
               borderRadius:
                   const BorderRadius.vertical(bottom: Radius.circular(4)),
               child: Container(
-                constraints: const BoxConstraints(minWidth: 58),
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(label,

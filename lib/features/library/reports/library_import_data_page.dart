@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/ui/app_management_page_scaffold.dart';
@@ -78,7 +79,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
             key: const Key('import_data.back'), onPressed: _navigateBack),
         child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(
-                horizontal: 24, vertical: source == null ? 24 : 10),
+                horizontal: MediaQuery.sizeOf(context).width < 700 ? 12 : 0,
+                vertical: source == null ? 20 : 10),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -168,7 +170,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
   }
 
   void _showSuccessDialog(int count) {
-    showDialog<void>(
+    showAppDialog<void>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.importData,

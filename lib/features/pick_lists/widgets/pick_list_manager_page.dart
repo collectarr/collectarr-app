@@ -240,7 +240,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
   }
 
   Future<bool> _confirm(String title, String message, String action) async =>
-      await showDialog<bool>(
+      await showAppDialog<bool>(
           context: context,
           builder: (context) => AccentAlertDialog(
                   headerIcon: AppIcons.pickLists,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ Future<bool> confirmLeaveLibraryEdit(
   required bool hasUnsavedChanges,
 }) async {
   if (!hasUnsavedChanges) return true;
-  return await showDialog<bool>(
+  return await showAppDialog<bool>(
         context: context,
         builder: (context) => AccentAlertDialog(
           headerIcon: AppIcons.warning,

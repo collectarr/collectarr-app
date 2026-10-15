@@ -128,7 +128,8 @@ void main() {
     expect(find.text('#15A'), findsOneWidget);
   });
 
-  testWidgets('interactive covers open and close fullscreen preview on tap', (
+  testWidgets(
+      'interactive cover preview stays open outside and closes explicitly', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -155,11 +156,13 @@ void main() {
 
     await tester.tapAt(const Offset(10, 10));
     await pumpUntilSettled(tester);
-
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    await tester.tap(find.byTooltip('Close'));
+    await pumpUntilSettled(tester);
     expect(find.byType(InteractiveViewer), findsNothing);
   });
 
-  testWidgets('tapping empty preview area closes fullscreen preview', (
+  testWidgets('tapping empty preview area keeps fullscreen preview open', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1200, 800);
@@ -189,6 +192,9 @@ void main() {
 
     expect(find.byType(InteractiveViewer), findsOneWidget);
     await tester.tapAt(const Offset(140, 400));
+    await pumpUntilSettled(tester);
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    await tester.tap(find.byTooltip('Close'));
     await pumpUntilSettled(tester);
     expect(find.byType(InteractiveViewer), findsNothing);
   });

@@ -245,7 +245,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   Future<bool> _confirmCorrectionPreview(
     List<_MetadataCorrectionPreviewEntry> changes,
   ) async {
-    return await showDialog<bool>(
+    return await showAppDialog<bool>(
           context: context,
           builder: (context) => AccentAlertDialog(
             headerIcon: AppIcons.admin,

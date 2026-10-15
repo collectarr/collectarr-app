@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -257,7 +258,7 @@ Future<bool?> showSyncSettingsDialog({
   required BuildContext context,
   required Color accent,
 }) {
-  return showDialog<bool>(
+  return showAppDialog<bool>(
     context: context,
     builder: (context) => SyncSettingsDialog(accent: accent),
   );

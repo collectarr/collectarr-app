@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
@@ -13,7 +14,7 @@ Future<void> showLocationManagementDialog({
   bool startCreating = false,
   String? initialParentId,
 }) {
-  return showDialog<void>(
+  return showAppDialog<void>(
     context: context,
     builder: (context) => LocationManagementDialog(
       db: db,
@@ -192,7 +193,7 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
     if (selected == null) {
       return;
     }
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
         headerIcon: AppIcons.delete,

@@ -2,6 +2,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 import 'package:collectarr_app/ui/app_motion.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'app_shell_brand.dart';
@@ -32,16 +33,17 @@ Future<void> showAppNavigationDrawer({
   required bool animationsEnabled,
   required void Function(BuildContext, DrawerAction) onSelected,
 }) =>
-    showGeneralDialog<void>(
+    showAppDialog<void>(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: false,
+      useSafeArea: false,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black54,
       transitionDuration:
           animationsEnabled && !MediaQuery.disableAnimationsOf(context)
               ? appNavigationSlideDuration
               : Duration.zero,
-      pageBuilder: (dialogContext, _, __) => GestureDetector(
+      builder: (dialogContext) => GestureDetector(
         onHorizontalDragEnd: (details) {
           if ((details.primaryVelocity ?? 0) < -300) {
             Navigator.of(dialogContext).pop();

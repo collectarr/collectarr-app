@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -175,7 +176,7 @@ class TvWatchHistorySection extends ConsumerWidget {
     required List<TvWatchHistoryTargetOption> resolvedTargets,
     WatchSession? existing,
   }) async {
-    final result = await showDialog<_WatchSessionDraft>(
+    final result = await showAppDialog<_WatchSessionDraft>(
       context: context,
       builder: (_) => _WatchSessionDialog(
         accent: accent,

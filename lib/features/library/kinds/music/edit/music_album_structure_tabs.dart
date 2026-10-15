@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_disc_tab_button.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
@@ -236,7 +237,7 @@ final class _MusicAlbumStructureTabState
   }
 
   Future<void> _removeDisc(MusicDisc disc) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (dialogContext) => AccentAlertDialog(
         headerIcon: AppIcons.delete,

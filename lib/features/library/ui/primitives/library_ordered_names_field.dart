@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
@@ -215,7 +216,7 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
                                   text: value.sortName ?? value.name);
                               String? result;
                               try {
-                                result = await showDialog<String>(
+                                result = await showAppDialog<String>(
                                     context: context,
                                     builder: (ctx) => AccentAlertDialog(
                                           headerIcon: AppIcons.sortAlpha,

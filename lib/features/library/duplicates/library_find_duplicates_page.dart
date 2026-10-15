@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -105,7 +106,7 @@ class _LibraryFindDuplicatesPageState
   Future<void> _remove(List<LibraryWorkspaceContext> entries,
       {required bool automatic}) async {
     if (entries.isEmpty || _busy) return;
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (context) => Theme(
         data: libraryAccentTheme(context, widget.accent),
@@ -168,7 +169,7 @@ class _LibraryFindDuplicatesPageState
     final presets = await store.read();
     if (!mounted) return;
     final available = _columns.map((column) => column.id.value).toSet();
-    final result = await showDialog<Set<String>>(
+    final result = await showAppDialog<Set<String>>(
       context: context,
       builder: (context) => Theme(
         data: libraryAccentTheme(context, widget.accent),

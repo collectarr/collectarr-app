@@ -110,7 +110,7 @@ void main() {
                   matching: find.text('Print to PDF')))
               .style
               ?.fontWeight,
-          FontWeight.w400);
+          FontWeight.w700);
       await tester.tap(find.text('Find Duplicates'));
       await pumpUntilSettled(tester);
       expect(find.byKey(const Key('print_pdf.back')), findsNothing);

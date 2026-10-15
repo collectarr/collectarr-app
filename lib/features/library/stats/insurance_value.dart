@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -85,7 +86,7 @@ Future<void> showInsuranceValueDialog({
   final summary = await repo.getSummary();
   if (!context.mounted) return;
 
-  unawaited(showDialog<void>(
+  unawaited(showAppDialog<void>(
     context: context,
     builder: (_) => _InsuranceValueDialog(summary: summary),
   ));

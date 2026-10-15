@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_responsive_field_layout.dart';
@@ -343,7 +344,7 @@ Future<PrefillDefaults?> showPrefillSettingsDialog({
   CatalogMediaKind? kind,
   String? confirmLabel,
 }) {
-  return showDialog<PrefillDefaults>(
+  return showAppDialog<PrefillDefaults>(
     context: context,
     builder: (context) => Theme(
         data: editDialogTheme(

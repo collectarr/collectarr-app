@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'dart:typed_data';
 
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
@@ -377,7 +378,7 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
   Future<void> _findOnline() async {
     setState(() => _transforming = true);
     try {
-      final candidate = await showDialog<MusicOnlineCoverCandidate>(
+      final candidate = await showAppDialog<MusicOnlineCoverCandidate>(
         context: context,
         builder: (_) => MusicOnlineCoverPickerDialog(
           artist: widget.searchArtist,

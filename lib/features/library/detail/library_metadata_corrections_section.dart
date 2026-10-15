@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -80,7 +81,7 @@ class LibraryMetadataCorrectionsSection extends ConsumerWidget {
     final contributor = libraryAdminContributorForKind(libraryEntryRef.kind);
     final fields = contributor?.metadataOverrideFields ??
         const <LibraryMetadataOverrideField>[];
-    final result = await showDialog<MetadataOverrideFormResult>(
+    final result = await showAppDialog<MetadataOverrideFormResult>(
       context: context,
       builder: (_) => MetadataOverrideFormDialog(
         accent: accent,
@@ -165,7 +166,7 @@ class _OverrideTile extends ConsumerWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.delete,

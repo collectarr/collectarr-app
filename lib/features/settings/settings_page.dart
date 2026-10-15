@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
@@ -1259,7 +1261,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (!mounted) {
       return;
     }
-    final imported = await showDialog<int>(
+    final imported = await showAppDialog<int>(
       context: context,
       builder: (context) => ImportExportWizardDialog(
         entries: state.entries,
@@ -1364,7 +1366,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       );
       if (file == null) return;
       if (!mounted) return;
-      final confirmed = await showDialog<bool>(
+      final confirmed = await showAppDialog<bool>(
         context: context,
         builder: (ctx) => AccentAlertDialog(
           headerIcon: AppIcons.backupRestore,
@@ -1406,7 +1408,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _clearDatabase() async {
-    final firstConfirm = await showDialog<bool>(
+    final firstConfirm = await showAppDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.delete,
@@ -1433,7 +1435,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
     if (firstConfirm != true || !mounted) return;
 
-    final secondConfirm = await showDialog<bool>(
+    final secondConfirm = await showAppDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.delete,

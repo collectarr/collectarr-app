@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -15,7 +16,7 @@ Future<DateTime?> showAppAnchoredCalendar({
       box == null ? Rect.zero : box.localToGlobal(Offset.zero) & box.size;
   final theme = Theme.of(context);
   final palette = appPalette(context);
-  return showDialog<DateTime>(
+  return showAppDialog<DateTime>(
     context: context,
     barrierColor: Colors.transparent,
     builder: (popupContext) => LayoutBuilder(builder: (context, constraints) {

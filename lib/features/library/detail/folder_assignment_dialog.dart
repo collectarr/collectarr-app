@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
@@ -14,7 +15,7 @@ Future<void> showFolderAssignmentDialog({
   required LocalDatabase db,
   required LibraryEntryRef libraryEntryRef,
 }) async {
-  return showDialog<void>(
+  return showAppDialog<void>(
     context: context,
     builder: (_) =>
         _FolderAssignmentDialog(db: db, libraryEntryRef: libraryEntryRef),

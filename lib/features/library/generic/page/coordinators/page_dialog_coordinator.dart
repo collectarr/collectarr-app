@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_favorites_provider.dart';
 import 'dart:async';
@@ -514,7 +515,7 @@ class LibraryPageDialogCoordinator {
     final libraryEntries = libraryEntriesByRef.values.toList(growable: false);
     if (libraryEntries.isEmpty || !_page.mounted) return;
 
-    final draft = await showDialog<BatchLoanDraft>(
+    final draft = await showAppDialog<BatchLoanDraft>(
       context: context,
       builder: (context) => BatchLoanDialog(
         accent: _page.accent,

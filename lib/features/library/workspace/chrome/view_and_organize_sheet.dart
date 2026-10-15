@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'library_view_controls.dart';
@@ -24,7 +25,7 @@ Future<void> showViewAndOrganizeSheet({
   VoidCallback? onOpenFilterDialog,
   VoidCallback? onOpenColumnChooser,
 }) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     backgroundColor: appPalette(context).surface,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -13,7 +14,7 @@ Future<void> showUserFoldersDialog({
   required BuildContext context,
   required LocalDatabase db,
 }) {
-  return showDialog<void>(
+  return showAppDialog<void>(
     context: context,
     builder: (_) => _UserFoldersDialog(db: db),
   );
@@ -84,7 +85,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   }
 
   Future<void> _deleteFolder(UserFolder folder) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.delete,
@@ -125,7 +126,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   }) async {
     final nameCtrl = TextEditingController(text: initialValue ?? '');
     try {
-      return await showDialog<String>(
+      return await showAppDialog<String>(
         context: context,
         builder: (ctx) => AccentAlertDialog(
           headerIcon: AppIcons.folderOpen,

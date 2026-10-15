@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
@@ -697,7 +698,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           ),
         );
       } else {
-        await showDialog<void>(
+        await showAppDialog<void>(
           context: context,
           barrierDismissible: false,
           builder: buildManualDialog,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:convert';
 import 'package:collectarr_app/core/platform/save_export_file.dart';
@@ -19,7 +20,7 @@ Future<void> showCollectionShareDialog({
   required List<LibraryProjectionView> items,
   Color? accent,
 }) {
-  return showDialog<void>(
+  return showAppDialog<void>(
     context: context,
     builder: (context) => Theme(
         data: libraryAccentTheme(context, accent ?? appPalette(context).accent),

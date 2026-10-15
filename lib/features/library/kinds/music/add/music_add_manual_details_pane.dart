@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
@@ -47,7 +48,7 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
   }
 
   Future<void> _removeDisc(int discIndex) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (dialogContext) => AccentAlertDialog(
         headerIcon: AppIcons.delete,

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
@@ -28,10 +29,11 @@ void main() {
                   : AppIcons.chevronRight)),
           findsOneWidget);
       final style = tester.widget<OutlinedButton>(button).style!;
+      final shared = dialogActionButtonStyle(tester.element(button));
       expect(style.backgroundColor!.resolve({WidgetState.disabled}),
-          const Color(0xFF232323));
+          shared.backgroundColor!.resolve({WidgetState.disabled}));
       expect(style.backgroundColor!.resolve({WidgetState.hovered}),
-          const Color(0xFF535353));
+          shared.backgroundColor!.resolve({WidgetState.hovered}));
     }
 
     expect(find.text('Cancel'), findsOneWidget);

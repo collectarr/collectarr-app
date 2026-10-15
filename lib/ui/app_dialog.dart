@@ -7,11 +7,12 @@ const ShapeBorder appDialogShape = RoundedRectangleBorder(
   borderRadius: BorderRadius.all(Radius.circular(6)),
 );
 
-/// Default position, a little above the middle of the viewport.
-const Alignment kDefaultDialogAlignment = Alignment(0.0, -0.08);
+const double kAppDialogTopInset = 30;
+const Alignment kDefaultDialogAlignment = Alignment.topCenter;
+const EdgeInsets kAppDialogInsets =
+    EdgeInsets.fromLTRB(24, kAppDialogTopInset, 24, 24);
 
-/// Tracks modal dialog nesting depth and alignment to ensure child dialogs open
-/// centered on their parent dialog.
+/// Propagates modal depth and alignment to nested dialogs.
 class ModalDialogDepthScope extends InheritedTheme {
   const ModalDialogDepthScope({
     super.key,
@@ -55,7 +56,7 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
   AppDialogRoute({
     required WidgetBuilder builder,
     CapturedThemes? capturedThemes,
-    super.barrierDismissible = true,
+    super.barrierDismissible = false,
     Color? barrierColor = Colors.black54,
     super.barrierLabel,
     bool useSafeArea = true,
@@ -63,11 +64,13 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
     super.anchorPoint,
     super.traversalEdgeBehavior,
     this.animationsEnabled = true,
+    Duration? transitionDuration,
+    RouteTransitionsBuilder? transitionBuilder,
   }) : super(
           barrierColor: barrierColor ?? Colors.black54,
-          transitionDuration:
-              animationsEnabled ? appDialogFadeDuration : Duration.zero,
-          transitionBuilder: _buildTransitions,
+          transitionDuration: transitionDuration ??
+              (animationsEnabled ? appDialogFadeDuration : Duration.zero),
+          transitionBuilder: transitionBuilder ?? _buildTransitions,
           pageBuilder: (buildContext, animation, secondaryAnimation) {
             final pageChild = Builder(builder: builder);
             final dialog = capturedThemes?.wrap(pageChild) ?? pageChild;
@@ -126,7 +129,13 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
         ),
       );
     }
-    return super.buildModalBarrier();
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        if (barrierDismissible) navigator?.maybePop();
+      },
+      child: const SizedBox.expand(),
+    );
   }
 
   static Widget _buildTransitions(
@@ -146,7 +155,7 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
 Future<T?> showAppDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
-  bool barrierDismissible = true,
+  bool barrierDismissible = false,
   Color? barrierColor = Colors.black54,
   String? barrierLabel,
   bool useSafeArea = true,
@@ -154,6 +163,8 @@ Future<T?> showAppDialog<T>({
   RouteSettings? routeSettings,
   Offset? anchorPoint,
   TraversalEdgeBehavior? traversalEdgeBehavior,
+  Duration? transitionDuration,
+  RouteTransitionsBuilder? transitionBuilder,
 }) {
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
   final capturedThemes = InheritedTheme.capture(
@@ -171,6 +182,8 @@ Future<T?> showAppDialog<T>({
       settings: routeSettings,
       anchorPoint: anchorPoint,
       traversalEdgeBehavior: traversalEdgeBehavior,
+      transitionDuration: transitionDuration,
+      transitionBuilder: transitionBuilder,
       animationsEnabled: LibraryAccentScope.of(context).animationsEnabled &&
           !MediaQuery.disableAnimationsOf(context),
     ),

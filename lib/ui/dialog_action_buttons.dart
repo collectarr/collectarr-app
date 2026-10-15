@@ -9,26 +9,43 @@ ButtonStyle dialogActionButtonStyle(BuildContext context,
       : palette.isDark
           ? const Color(0xff494949)
           : palette.panelRaised;
+  final hover = HSLColor.fromColor(background);
+  final hoverBackground =
+      hover.withLightness((hover.lightness - .07).clamp(0.0, 1.0)).toColor();
   return FilledButton.styleFrom(
-      backgroundColor: background,
-      foregroundColor:
-          primary || palette.isDark ? Colors.white : palette.textPrimary,
-      disabledBackgroundColor:
-          Color.alphaBlend(Colors.black.withValues(alpha: .45), background),
-      disabledForegroundColor: Colors.white54,
-      minimumSize: Size(width, 32),
-      maximumSize: const Size(double.infinity, 32),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      visualDensity: VisualDensity.standard,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(4))),
-      textStyle: TextStyle(
-          fontFamily: appFontFamily,
-          fontFamilyFallback: kAppFontFamilyFallback,
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          height: 20 / 14));
+          backgroundColor: background,
+          foregroundColor:
+              primary || palette.isDark ? Colors.white : palette.textPrimary,
+          disabledBackgroundColor:
+              Color.alphaBlend(Colors.black.withValues(alpha: .45), background),
+          disabledForegroundColor: Colors.white54,
+          minimumSize: Size(width, 32),
+          maximumSize: const Size(double.infinity, 32),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          visualDensity: VisualDensity.standard,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(4))),
+          textStyle: TextStyle(
+              fontFamily: appFontFamily,
+              fontFamilyFallback: kAppFontFamilyFallback,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              height: 20 / 14))
+      .copyWith(
+    backgroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return Color.alphaBlend(
+            Colors.black.withValues(alpha: .45), background);
+      }
+      return states.contains(WidgetState.hovered) ||
+              states.contains(WidgetState.pressed) ||
+              states.contains(WidgetState.focused)
+          ? hoverBackground
+          : background;
+    }),
+    overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+  );
 }
 
 /// Shared Cancel, OK, Close and Save geometry for panel footers.

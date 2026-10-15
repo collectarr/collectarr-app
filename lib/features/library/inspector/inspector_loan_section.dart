@@ -60,7 +60,7 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
   }
 
   Future<void> _addLoan() async {
-    final result = await showDialog<Loan>(
+    final result = await showAppDialog<Loan>(
       context: context,
       builder: (context) => _LoanCreateDialog(
         libraryEntryRef: widget.libraryEntryRef,

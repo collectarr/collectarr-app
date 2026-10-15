@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
@@ -90,7 +91,7 @@ class LibraryKeyboardShortcuts extends StatelessWidget {
 
 /// A help dialog showing available keyboard shortcuts.
 void showKeyboardShortcutsDialog(BuildContext context) {
-  showDialog<void>(
+  showAppDialog<void>(
     context: context,
     builder: (_) => const _KeyboardShortcutsDialog(),
   );

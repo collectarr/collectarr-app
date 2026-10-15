@@ -499,7 +499,7 @@ class _BundleReleaseCorrectionDialogState
       return;
     }
 
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
           context: context,
           builder: (context) => AccentAlertDialog(
             headerIcon: AppIcons.admin,

@@ -54,7 +54,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
 
   Future<void> _pickLocation() async {
     final repo = LocationRepository(widget.db);
-    final result = await showDialog<String?>(
+    final result = await showAppDialog<String?>(
       context: context,
       builder: (context) => _LocationPickerDialog(
         allLocations: _allLocations,
@@ -202,7 +202,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
 
   Future<void> _addLocation() async {
     final nameCtrl = TextEditingController();
-    final result = await showDialog<String>(
+    final result = await showAppDialog<String>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.location,

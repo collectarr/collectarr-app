@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'dart:convert';
 import 'package:collectarr_app/core/platform/save_export_file.dart';
 
@@ -38,7 +39,7 @@ Future<void> showIntegrationExportDialog({
   required ShelfState shelfState,
   ExportFormat? format,
 }) {
-  return showDialog<void>(
+  return showAppDialog<void>(
     context: context,
     builder: (context) => Theme(
       data: libraryAccentTheme(context, libraryAccentForKind(type.kind)),

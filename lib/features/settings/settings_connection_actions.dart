@@ -61,7 +61,7 @@ extension _SettingsConnectionActions on _SettingsPageState {
   }
 
   Future<void> _showPairingCodeDialog(BuildContext context) async {
-    final code = await showDialog<String>(
+    final code = await showAppDialog<String>(
       context: context,
       builder: (context) => const SettingsPairingCodeDialog(),
     );
@@ -79,14 +79,14 @@ extension _SettingsConnectionActions on _SettingsPageState {
       isLoaded: true,
     );
     final code = const ConnectionPairing().encode(settings);
-    await showDialog<void>(
+    await showAppDialog<void>(
       context: context,
       builder: (context) => SettingsPairingQrDialog(code: code),
     );
   }
 
   Future<void> _scanPairingQr(BuildContext context) async {
-    final scanned = await showModalBottomSheet<ScannedCode>(
+    final scanned = await showAppBottomSheet<ScannedCode>(
       context: context,
       isScrollControlled: true,
       builder: (context) => const BarcodeScanSheet(

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 // ignore_for_file: use_build_context_synchronously
 import 'package:cached_network_image/cached_network_image.dart';
@@ -98,7 +99,7 @@ class LibraryPageCoverCoordinator {
   Future<void> _showCoverScanResults({
     required List<Map<String, dynamic>> results,
   }) async {
-    await showDialog<void>(
+    await showAppDialog<void>(
       context: _page.context,
       builder: (dialogContext) => AccentAlertDialog(
         headerIcon: AppIcons.tabImages,

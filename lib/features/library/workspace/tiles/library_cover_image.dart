@@ -6,6 +6,8 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -535,7 +537,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
         ? renderedAspectRatio
         : widget.fallbackAspectRatio;
     final maxPreviewWidth = size.width * 0.92;
-    final maxPreviewHeight = size.height * 0.92;
+    final maxPreviewHeight = math.max(0.0,
+        math.min(size.height * 0.92, size.height - kAppDialogTopInset - 24));
     final previewWidth = maxPreviewWidth < 420
         ? maxPreviewWidth
         : (size.width * 0.70).clamp(420.0, maxPreviewWidth);
@@ -545,13 +548,13 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
     final effectivePreviewWidth = math.max(0.0, previewWidth);
     final effectivePreviewHeight = math.max(0.0, previewHeight);
     var showBackOnly = _showSecondary;
-    await showGeneralDialog<void>(
+    await showAppDialog<void>(
       context: context,
       barrierLabel: 'Close cover preview',
-      barrierDismissible: true,
+      barrierDismissible: false,
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 260),
-      pageBuilder: (context, animation, secondaryAnimation) {
+      builder: (context) {
         return SafeArea(
           child: Material(
             color: Colors.transparent,
@@ -561,12 +564,14 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                 Positioned.fill(
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTapDown: (_) => Navigator.of(context).pop(),
+                    onTapDown: (_) {},
                   ),
                 ),
-                Center(
+                Align(
+                  alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.fromLTRB(
+                        24, kAppDialogTopInset, 24, 24),
                     child: StatefulBuilder(
                       builder: (context, setDialogState) {
                         final contentWidth = effectivePreviewWidth - 28;
@@ -696,6 +701,14 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                               ),
                                               child: singleCover,
                                             ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: LibrarySquareCloseButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
                                     ),
                                   ),
                                   if (showSwitchBadges)

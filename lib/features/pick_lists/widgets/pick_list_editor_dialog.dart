@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -16,7 +17,7 @@ Future<void> showPickListEditorDialog({
   String? mediaKind,
   List<String> builtInValues = const [],
 }) {
-  return showDialog<void>(
+  return showAppDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (_) => _PickListEditorDialog(

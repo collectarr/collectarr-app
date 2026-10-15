@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:convert';
 
@@ -366,7 +367,7 @@ class SettingsSyncConflictSummary extends StatelessWidget {
                     ),
                     IconButton(
                       tooltip: 'View payload diff',
-                      onPressed: () => showDialog<void>(
+                      onPressed: () => showAppDialog<void>(
                         context: context,
                         builder: (context) =>
                             _SyncConflictDiffDialog(change: change),

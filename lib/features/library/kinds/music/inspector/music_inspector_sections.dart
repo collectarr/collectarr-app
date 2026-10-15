@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
@@ -205,7 +206,7 @@ class _MusicListeningSection extends ConsumerWidget {
   ) async {
     final notesController = TextEditingController();
     try {
-      final shouldSave = await showDialog<bool>(
+      final shouldSave = await showAppDialog<bool>(
         context: context,
         builder: (dialogContext) => AccentAlertDialog(
           headerIcon: AppIcons.tabMain,
@@ -319,7 +320,7 @@ class _MusicListenEventTile extends ConsumerWidget {
   Future<void> _edit(BuildContext context, WidgetRef ref) async {
     final notesController = TextEditingController(text: event.notes ?? '');
     try {
-      final shouldSave = await showDialog<bool>(
+      final shouldSave = await showAppDialog<bool>(
         context: context,
         builder: (dialogContext) => AccentAlertDialog(
           headerIcon: AppIcons.inlineEdit,
@@ -367,7 +368,7 @@ class _MusicListenEventTile extends ConsumerWidget {
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (dialogContext) => AccentAlertDialog(
         headerIcon: AppIcons.delete,

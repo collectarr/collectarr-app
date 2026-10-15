@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/smart_list_criteria.dart';
@@ -14,7 +15,7 @@ Future<Map<String, SmartListFieldCriterion>?> showSmartListFieldRulesDialog({
   required Map<String, SmartListFieldCriterion> initial,
   required List<String> kinds,
 }) {
-  return showDialog<Map<String, SmartListFieldCriterion>>(
+  return showAppDialog<Map<String, SmartListFieldCriterion>>(
     context: context,
     builder: (_) => _SmartListFieldRulesDialog(
       kind: kind,

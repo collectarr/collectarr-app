@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -21,7 +23,7 @@ Future<Set<String>?> showSortFavoritesManagerDialog({
   required List<LibrarySortFavorite> favorites,
   required Set<String> initialPinnedIds,
 }) {
-  return showDialog<Set<String>>(
+  return showAppDialog<Set<String>>(
     context: context,
     builder: (context) => _SortFavoritesManagerDialog(
       type: type,
@@ -504,7 +506,7 @@ class _SortFavoritesManagerDialogState
         .where((f) => !_pinnedFavorites.any((p) => p.id == f.id))
         .toList();
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      insetPadding: const EdgeInsets.fromLTRB(20, kAppDialogTopInset, 20, 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
@@ -974,7 +976,7 @@ void showLibraryCompactCoverSizeSheet(
   ValueChanged<double> onCoverSizeChanged,
 ) {
   final coverSizeEnabled = viewMode.supportsCoverSize;
-  showModalBottomSheet<void>(
+  showAppBottomSheet<void>(
     context: context,
     builder: (context) => Material(
       color: Theme.of(context).colorScheme.surface,

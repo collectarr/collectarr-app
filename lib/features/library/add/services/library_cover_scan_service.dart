@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
@@ -136,7 +138,7 @@ class BottomSheetLibraryCoverScanSourcePrompt
     required BuildContext context,
     required LibraryKindRegistration type,
   }) {
-    return showModalBottomSheet<LibraryCoverScanAction>(
+    return showAppBottomSheet<LibraryCoverScanAction>(
       context: context,
       builder: (context) => SafeArea(
         child: Padding(
@@ -593,7 +595,7 @@ class DialogLibraryCoverImageReview implements LibraryCoverImageReview {
     required LibraryKindRegistration type,
     required XFile file,
   }) {
-    return showDialog<LibraryCoverReviewedImage>(
+    return showAppDialog<LibraryCoverReviewedImage>(
       context: context,
       builder: (context) => _LibraryCoverScanReviewDialog(
         file: file,

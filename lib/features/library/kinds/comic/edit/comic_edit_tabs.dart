@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
@@ -790,7 +791,7 @@ extension ComicEditTabBuilders on ComicEditHost {
     }
 
     try {
-      return await showDialog<Map<String, dynamic>>(
+      return await showAppDialog<Map<String, dynamic>>(
         context: comicContext,
         builder: (dialogContext) {
           return StatefulBuilder(

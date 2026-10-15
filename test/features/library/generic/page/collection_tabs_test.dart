@@ -128,6 +128,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('library-collection-menu')));
     await tester.pumpAndSettle();
+    final menuSurface = find.byKey(const ValueKey('library-collection-dropup'));
+    expect(tester.getTopLeft(menuSurface).dx, 3);
+    final trigger =
+        tester.getRect(find.byKey(const ValueKey('library-collection-menu')));
+    expect(tester.getTopLeft(menuSurface).dy, trigger.bottom + 3);
     await tester.tap(find.text('Manage Collections'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Create new collection'));
@@ -208,6 +213,11 @@ void main() {
     expect(selected?.id, vinyl.id);
     await tester.tap(find.byKey(const ValueKey('library-collection-menu')));
     await tester.pumpAndSettle();
+    final menu = find.byKey(const ValueKey('library-collection-dropup'));
+    final trigger =
+        tester.getRect(find.byKey(const ValueKey('library-collection-menu')));
+    expect(tester.getTopLeft(menu).dx, 3);
+    expect(tester.getBottomRight(menu).dy, trigger.top - 3);
     await tester.tap(find.text('Manage Collections'));
     await tester.pumpAndSettle();
     expect(find.text('Manage Collections'), findsWidgets);

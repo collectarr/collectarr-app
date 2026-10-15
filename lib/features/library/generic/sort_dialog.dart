@@ -222,7 +222,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
 
   Future<void> _nameFavorite() async {
     var label = _presetNameController.text;
-    final name = await showDialog<String>(
+    final name = await showAppDialog<String>(
         context: context,
         builder: (context) => AccentAlertDialog(
                 headerIcon: AppIcons.sortAlpha,

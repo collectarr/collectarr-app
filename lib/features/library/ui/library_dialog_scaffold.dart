@@ -160,17 +160,15 @@ class LibraryDialogScaffold extends StatelessWidget {
     );
 
     final inheritedAlignment = ModalDialogDepthScope.parentAlignmentOf(context);
-    final resolvedAlignment = alignment ??
-        (currentDepth > 0
-            ? Alignment.center
-            : (inheritedAlignment ?? kDefaultDialogAlignment));
+    final resolvedAlignment =
+        alignment ?? inheritedAlignment ?? kDefaultDialogAlignment;
 
     Widget result;
 
     if (windowClass.isCompact) {
-      result = Material(
-        color: palette.panel,
-        child: scaffoldColumn,
+      result = Padding(
+        padding: const EdgeInsets.only(top: kAppDialogTopInset),
+        child: Material(color: palette.panel, child: scaffoldColumn),
       );
     } else {
       final effectiveMinWidth =
@@ -204,10 +202,8 @@ class LibraryDialogScaffold extends StatelessWidget {
         shape: effectiveShape,
         alignment: resolvedAlignment,
         insetPadding: insetPadding ??
-            EdgeInsets.symmetric(
-              horizontal: windowClass.isMedium ? 16 : 32,
-              vertical: windowClass.isMedium ? 16 : 24,
-            ),
+            EdgeInsets.fromLTRB(windowClass.isMedium ? 16 : 32,
+                kAppDialogTopInset, windowClass.isMedium ? 16 : 32, 24),
         child: ConstrainedBox(
           key: const ValueKey('library-dialog-surface'),
           constraints: BoxConstraints(

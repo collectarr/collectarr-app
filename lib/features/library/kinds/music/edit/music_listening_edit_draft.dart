@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -134,7 +135,7 @@ class _MusicListeningDraftSectionState
     final notes = TextEditingController(text: existing?.notes ?? '');
     String? value;
     try {
-      value = await showDialog<String>(
+      value = await showAppDialog<String>(
           context: context,
           builder: (dialogContext) => AccentAlertDialog(
                 headerIcon: AppIcons.inlineEdit,

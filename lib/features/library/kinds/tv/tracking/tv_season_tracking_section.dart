@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
@@ -566,7 +567,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     TvCustomEpisode? existing,
     TvEpisodeMetadata? catalogEpisode,
   }) async {
-    final result = await showDialog<_CustomEpisodeFormResult>(
+    final result = await showAppDialog<_CustomEpisodeFormResult>(
       context: context,
       builder: (_) => _CustomEpisodeFormDialog(
         accent: accent,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/settings/custom_field_editor_dialog.dart';
 import 'package:collectarr_app/features/settings/custom_fields_tab_settings_dialog.dart';
@@ -83,7 +84,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
   }
 
   Future<void> _configureTab() async {
-    final result = await showDialog<CustomFieldsDisplaySettings>(
+    final result = await showAppDialog<CustomFieldsDisplaySettings>(
       context: context,
       builder: (context) => CustomFieldsTabSettingsDialog(settings: _display),
     );
@@ -185,7 +186,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
     );
   }
 
-  void _showHelp() => showDialog<void>(
+  void _showHelp() => showAppDialog<void>(
       context: context,
       builder: (_) => CustomFieldDialog(
           title: 'Custom Fields',
@@ -213,7 +214,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
 
   Future<void> _showEditor({CustomFieldDefinition? existing}) async {
     final type = existing?.valueType ??
-        await showDialog<CustomFieldValueType>(
+        await showAppDialog<CustomFieldValueType>(
           context: context,
           builder: (context) => const CustomFieldTypePicker(),
         );
@@ -228,7 +229,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
         0,
         (value, definition) =>
             definition.sortOrder >= value ? definition.sortOrder + 1 : value);
-    final result = await showDialog<CustomFieldEditorResult>(
+    final result = await showAppDialog<CustomFieldEditorResult>(
       context: context,
       builder: (context) => CustomFieldEditorDialog(
           existing: existing,
@@ -246,7 +247,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
   }
 
   Future<void> _confirmDelete(CustomFieldDefinition def) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
         headerIcon: AppIcons.delete,

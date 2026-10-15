@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
@@ -212,7 +213,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
 
 /// Shows the batch scan sheet and returns the list of scanned barcodes.
 Future<List<ScannedCode>?> showBarcodeBatchScanSheet(BuildContext context) {
-  return showModalBottomSheet<List<ScannedCode>>(
+  return showAppBottomSheet<List<ScannedCode>>(
     context: context,
     isScrollControlled: true,
     backgroundColor: kAppPanel,

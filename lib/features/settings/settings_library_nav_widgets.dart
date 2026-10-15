@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -513,7 +514,7 @@ Future<Color?> _showLibraryAccentPickerDialog(
 
   Color current() => HSVColor.fromAHSV(1, hue, saturation, value).toColor();
 
-  return showDialog<Color>(
+  return showAppDialog<Color>(
     context: context,
     builder: (context) {
       return StatefulBuilder(

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 
@@ -21,7 +22,7 @@ Future<void> showReadingQueueDialog({
       kindPresentationByEntryRef,
   ValueChanged<String>? onSelectItem,
 }) {
-  return showDialog<void>(
+  return showAppDialog<void>(
     context: context,
     builder: (_) => _ReadingQueueDialog(
       db: db,

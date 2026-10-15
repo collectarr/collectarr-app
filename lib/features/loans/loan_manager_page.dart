@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_management_page_scaffold.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -230,7 +231,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
 
   Future<LibraryEntrySummary?> _pickLibraryEntry(
       List<LibraryEntrySummary> libraryEntries, String title) async {
-    return showDialog<LibraryEntrySummary>(
+    return showAppDialog<LibraryEntrySummary>(
       context: context,
       builder: (context) => _LibraryEntryPickerDialog(
         title: title,
@@ -307,7 +308,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   }
 
   Future<Loan?> _pickLoan(List<Loan> loans, String title) async {
-    return showDialog<Loan>(
+    return showAppDialog<Loan>(
       context: context,
       builder: (context) => _ActiveLoanPickerDialog(
         title: title,
@@ -319,7 +320,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   Future<void> _createLoan(LibraryEntrySummary libraryEntry) async {
     try {
       final catalogTitle = _catalogTitleFor(libraryEntry);
-      final draft = await showDialog<_LoanDraft>(
+      final draft = await showAppDialog<_LoanDraft>(
         context: context,
         builder: (context) => _LoanCreateDialog(
           title: catalogTitle,

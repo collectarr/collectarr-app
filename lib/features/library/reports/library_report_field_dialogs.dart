@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
 import 'package:collectarr_app/features/library/generic/library_folder_reorder_row.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
@@ -10,7 +11,7 @@ Future<List<String>?> showLibraryReportColumns(
   required List<({String id, String label})> fields,
   required List<String> selected,
 }) async {
-  final result = await showDialog<Set<String>>(
+  final result = await showAppDialog<Set<String>>(
       context: context,
       builder: (_) => LibraryColumnChooserDialog(
             availableColumns: [for (final field in fields) field.id],
@@ -30,7 +31,7 @@ Future<List<({String id, bool ascending})>?> showLibraryReportSorts(
 }) {
   final chosen = [...selected];
   var query = '';
-  return showDialog<List<({String id, bool ascending})>>(
+  return showAppDialog<List<({String id, bool ascending})>>(
     context: context,
     builder: (dialogContext) => StatefulBuilder(
         builder: (context, update) => LibraryFieldSelectionDialog(

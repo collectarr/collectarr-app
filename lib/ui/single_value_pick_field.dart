@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/ui/anchored_popup_geometry.dart';
@@ -81,7 +82,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     if (!widget.enabled || options.isEmpty) {
       return;
     }
-    final selected = await showDialog<String>(
+    final selected = await showAppDialog<String>(
       context: context,
       builder: (context) {
         final palette = appPalette(context);

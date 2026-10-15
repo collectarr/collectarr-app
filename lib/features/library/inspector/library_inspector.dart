@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_item_confirmation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -425,7 +426,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     required String title,
     required Widget child,
   }) {
-    return showDialog<void>(
+    return showAppDialog<void>(
       context: context,
       builder: (context) => LibraryDialogScaffold(
         headerIcon: AppIcons.tabDetails,
@@ -534,7 +535,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }
 
   Future<void> _unlinkFromCore(LibraryEntrySummary entry) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
         context: context,
         builder: (context) => Theme(
             data: libraryAccentTheme(context, widget.accent),
@@ -599,7 +600,7 @@ class _InspectorReadingQueueActionButtonState
   }
 
   Future<void> _openDialog() async {
-    await showDialog<void>(
+    await showAppDialog<void>(
       context: context,
       builder: (context) => AccentAlertDialog(
         headerIcon: AppIcons.readingQueue,

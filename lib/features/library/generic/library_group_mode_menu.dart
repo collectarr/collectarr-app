@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 
@@ -30,7 +31,7 @@ Future<List<LibraryFolderPreset>?> showLibraryFolderFavoritesDialog({
   required List<String> availableModes,
   List<LibraryFolderPreset> initialFavorites = const [],
 }) {
-  return showDialog<List<LibraryFolderPreset>>(
+  return showAppDialog<List<LibraryFolderPreset>>(
     context: context,
     builder: (dialogContext) => Theme(
       data: libraryAccentTheme(context, type.identity.accent),

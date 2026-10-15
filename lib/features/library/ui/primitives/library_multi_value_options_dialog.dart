@@ -92,7 +92,7 @@ class _LibraryMultiValueOptionsDialogState<TValue>
       backgroundColor: palette.panel,
       insetPadding: EdgeInsets.symmetric(
         horizontal: windowClass.isMedium ? 16 : 32,
-        vertical: 24,
+        vertical: kAppDialogTopInset,
       ),
       title: AccentDialogHeader(
         title: 'Select ${widget.label}',

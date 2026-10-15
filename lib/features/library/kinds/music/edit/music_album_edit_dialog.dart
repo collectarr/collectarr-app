@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'dart:convert';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_personal_form_layout.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
@@ -116,7 +117,7 @@ final class _MusicAlbumEditDialogState
       maxDialogWidth: 1200,
       insetPadding: EdgeInsets.fromLTRB(
         MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
-        10,
+        kAppDialogTopInset,
         MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
         24,
       ),

@@ -93,6 +93,7 @@ InputDecorationTheme buildAppInputDecorationTheme(
 DialogThemeData buildAppDialogTheme(AppThemePalette palette) {
   return DialogThemeData(
     alignment: kDefaultDialogAlignment,
+    insetPadding: kAppDialogInsets,
     backgroundColor: palette.panel,
     surfaceTintColor: Colors.transparent,
     clipBehavior: Clip.antiAlias,

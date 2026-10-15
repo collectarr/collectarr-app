@@ -29,6 +29,16 @@ void main() {
         const Color(0xff494949));
     expect(tester.widget<FilledButton>(ok).style!.backgroundColor!.resolve({}),
         const Color(0xff5eb1de));
+    final style = tester.widget<FilledButton>(ok).style!;
+    final hovered = style.backgroundColor!.resolve({WidgetState.hovered})!;
+    expect(hovered.computeLuminance(),
+        lessThan(const Color(0xff5eb1de).computeLuminance()));
+    expect(
+        style.overlayColor!.resolve({WidgetState.hovered}), Colors.transparent);
+    expect(
+        style.backgroundColor!
+            .resolve({WidgetState.disabled, WidgetState.hovered}),
+        style.backgroundColor!.resolve({WidgetState.disabled}));
     expect(tester.takeException(), isNull);
   });
 }

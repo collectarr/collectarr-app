@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'dart:convert';
@@ -202,7 +203,7 @@ Future<bool?> showLibraryCoreCorrectionReview({
           coreCatalogRef: provenance!,
         )
       : source;
-  return showDialog<bool>(
+  return showAppDialog<bool>(
     context: context,
     builder: (_) => _LibraryCoreCorrectionReviewDialog(source: resolved),
   );
