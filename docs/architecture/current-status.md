@@ -1,8 +1,25 @@
 # Current Architecture Status
 
-Last reviewed: 2026-10-13. The current checker reports no AST architecture
-boundary violations and 359 informational complexity findings. Historical
-UI audit gates below describe their dated checkpoints, not current test counts.
+Last reviewed: 2026-10-15. Run the architecture checker for current findings.
+Historical UI audit gates below describe their dated checkpoints, not current
+test counts.
+
+## Verified external import boundaries - 2026-10-15
+
+Guided source definitions now own kind importers. Shared reports contain no
+provider-specific parsing, XML regex fallback or placeholder records. Music's
+verified sources are Discogs CSV, Music Collector XML, CLZ Music Web XML and
+Delicious Library 2 XML. CATraxx/OrangeCD/CDpedia and Delicious TXT require real
+export verification before being advertised. See [import/export](../import-export.md).
+
+Manual CSV mappings also dispatch through a kind-owned importer and require an
+explicit Title mapping. Both flows stage a record review before persistence.
+The source picker, file boundary, guided panel, CSV panel and format settings
+are separate. Import and Loan Manager share the management page scaffold.
+
+Test support remains outside lib/, benchmarks stay under benchmark/, and the
+redundant release-edit/release fixture contracts are deleted. Entry identity
+coverage is named library_entry_identity_contract_test. Bundle behavior is intact.
 
 ## Music v1 release baseline
 
