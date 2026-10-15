@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
@@ -460,11 +462,14 @@ class _MusicInspectorHeader extends ConsumerWidget {
       final sideBySide = preferences.showInspectorBackCover &&
           constraints.maxWidth >= 680 &&
           (back != null || music.backCoverImageUrl?.isNotEmpty == true);
-      final coverWidth = sideBySide
-          ? 430.0
-          : constraints.maxWidth >= 600
-              ? 210.0
-              : (constraints.maxWidth * .42).clamp(90.0, 150.0);
+      // Covers keep one size while the panel is resized, as in the reference;
+      // only a panel narrower than the cover shrinks it.
+      final coverWidth = math.min(
+        sideBySide ? 430.0 : 210.0,
+        constraints.maxWidth < 280
+            ? constraints.maxWidth
+            : constraints.maxWidth * .5,
+      );
       Widget valueLink(String value) => InkWell(
           onTap: onFilter == null ? null : () => onFilter(value),
           child: Text(value,

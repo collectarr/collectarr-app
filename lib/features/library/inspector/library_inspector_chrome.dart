@@ -32,6 +32,8 @@ class InspectorBackdrop extends StatelessWidget {
   final LibraryEntrySummary? libraryEntry;
   final Color? backgroundColor;
 
+  static const _backdropCacheWidth = 640;
+
   @override
   Widget build(BuildContext context) {
     final dto = item.dto;
@@ -45,6 +47,9 @@ class InspectorBackdrop extends StatelessWidget {
           itemNumber: card.itemNumber,
           imageUrl: dto.imageUrl,
           libraryEntryRef: libraryEntryRef,
+          // A fixed decode width keeps the image cache key stable, so resizing
+          // the panel does not reload (and flash) the dimmed backdrop.
+          targetCacheWidth: _backdropCacheWidth,
           fit: BoxFit.cover,
           showPlaceholder: false,
         ),

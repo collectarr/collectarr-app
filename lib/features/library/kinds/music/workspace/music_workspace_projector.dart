@@ -55,9 +55,12 @@ WorkspaceCommonProjection _musicCommonProjection(
   WorkspaceItem item,
   MusicWorkspaceData catalog,
 ) =>
-    WorkspaceCommonProjection.fromKindPresentation(
-      item,
+    // The album's own cover is authoritative. Falling back to the summary
+    // image would show another entry's Core cover on an album whose cover
+    // was removed, while the details panel correctly shows none.
+    WorkspaceCommonProjection(
       title: catalog.music.title,
       releaseDate: catalog.music.releaseDate,
+      currency: item.entrySummary?.currency,
       coverImageUrl: catalog.music.coverImageUrl,
     );
