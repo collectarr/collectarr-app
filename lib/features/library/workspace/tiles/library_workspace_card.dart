@@ -136,7 +136,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
           onDoubleTap: onDoubleTap,
           onSecondaryTapUp: onSecondaryTapUp,
           mouseCursor: SystemMouseCursors.click,
-          hoverColor: palette.textPrimary.withValues(alpha: 0.06),
+          hoverColor: selected ? Colors.transparent : palette.surfaceBright,
+          highlightColor: Colors.transparent,
+          splashFactory: NoSplash.splashFactory,
           child: Stack(children: [
             Padding(
                 padding: const EdgeInsets.all(4),
@@ -280,6 +282,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
           color: Colors.transparent,
           child: InkWell(
             mouseCursor: WidgetStateMouseCursor.clickable,
+            hoverColor: selected ? Colors.transparent : palette.surfaceBright,
+            highlightColor: Colors.transparent,
+            splashFactory: NoSplash.splashFactory,
             onTap: onTap,
             onDoubleTap: onDoubleTap,
             onSecondaryTapUp: onSecondaryTapUp,

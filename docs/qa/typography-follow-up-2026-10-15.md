@@ -19,7 +19,8 @@ disc/track controls, common popups/managers and Settings sections.
 - CLZ interactions are read-only; close editors without saving. Application
   probes use isolated storage and user-local fonts only.
 
-Results are recorded below as checks finish. An unchecked surface is not a
+The tables preserve the initial findings; see **Resolution follow-up** below
+for the applied fixes. Results are recorded below as checks finish. An unchecked surface is not a
 claim of parity.
 
 ## Method and coverage
@@ -122,3 +123,28 @@ favorites-manager state and unrelated App-only Settings pages were not freshly
 compared in this pass. Prior audit data does not turn these into new signoffs.
 Native font selection was checked by the preceding native regression; this
 pass's complete UI captures use isolated Flutter web and widget probes.
+
+
+## Resolution follow-up
+
+The findings above describe the initial audit, before the follow-up fixes.
+The editor now uses white field/footer labels and inactive tab captions; its
+shared action role is 14/400. Details and Tracks disc labels use 14/400, track
+positions use 14/700, Played History uses 13/700 and the rating counter uses
+13/700. The custom Time control now uses the common external 13/700 label.
+Settings dropdown values and checkbox captions use 14/400; dropdown labels
+use 14/700. Layout menu rows use 14/400 in both selected and idle states.
+
+Date controls share an anchored calendar instead of a large selected-date
+modal header. Its month title is white 14/700, weekdays blue 14/700 and day
+values 14/400. It commits on day selection and dismisses without modifying the
+field. The viewport regression checks bounds and both outcomes.
+
+The reference's People/Classical split, composition of Details disc navigation,
+extra rating counter and App-specific settings remain domain/product differences;
+font roles no longer depend on their different widget compositions. The lack
+of populated CLZ custom-field and My Images reference data is still a limit,
+not a parity claim.
+
+See [the surface follow-up](ui-reference-follow-up-2026-10-15.md) for shared
+interaction colors, cards, reports, Pre-fill and verification results.

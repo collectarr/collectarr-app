@@ -139,6 +139,9 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
               children: [
                 InkWell(
                   mouseCursor: WidgetStateMouseCursor.clickable,
+                  hoverColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  splashFactory: NoSplash.splashFactory,
                   onTap: widget.onTap,
                   onDoubleTap: widget.onDoubleTap,
                   onSecondaryTapUp: widget.onSecondaryTapUp,

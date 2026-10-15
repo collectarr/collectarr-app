@@ -74,7 +74,7 @@ void main() {
     );
 
     await pumpUntilSettled(tester);
-    await tester.tap(find.byIcon(Icons.place));
+    await tester.tap(find.byTooltip('Manage Locations'));
     await pumpUntilSettled(tester);
     expect(find.text('Assign Location'), findsOneWidget);
     await tester.tap(find.text('Short Box 1').last);
