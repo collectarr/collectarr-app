@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_models.dar
 import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
 import 'package:collectarr_app/features/library/config/library_import_capability.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 import 'import_file_picker.dart';
 import 'import_rows_review.dart';
@@ -87,7 +88,12 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
     final source = widget.source;
     final palette = appPalette(context);
     return Container(
-        color: palette.panel,
+        decoration: BoxDecoration(
+            color: palette.panel,
+            border: Border.all(
+                color: palette.isDark
+                    ? const Color(0xff262626)
+                    : palette.cardBorder)),
         padding: const EdgeInsets.all(10),
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -137,9 +143,8 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
                   height: 32,
                   child: FilledButton(
                       key: const Key('import_guided.submit'),
-                      style: FilledButton.styleFrom(
-                          backgroundColor: palette.utilityAction,
-                          foregroundColor: Colors.white),
+                      style: dialogActionButtonStyle(context,
+                          primary: true, width: 240),
                       onPressed: _rows.isEmpty || _importing ? null : _import,
                       child: _importing
                           ? const SizedBox.square(

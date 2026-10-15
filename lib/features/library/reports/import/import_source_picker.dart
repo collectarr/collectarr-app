@@ -23,18 +23,21 @@ class ImportSourcePicker extends StatelessWidget {
             color: palette.textPrimary,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: palette.panel,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: palette.cardBorder),
+            border: Border.all(
+                color: palette.isDark
+                    ? const Color(0xff262626)
+                    : palette.cardBorder),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 15),
               for (final source in sources) ...[
                 _buildSourceCard(palette, source),
                 const SizedBox(height: 30),
@@ -59,18 +62,19 @@ class ImportSourcePicker extends StatelessWidget {
         return ConstrainedBox(
           constraints: BoxConstraints(maxWidth: cardWidth),
           child: Material(
-            color: palette.panelRaised,
+            color: palette.panel,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-              side: BorderSide(color: palette.cardBorder),
+              side: BorderSide(
+                  color: palette.isDark
+                      ? const Color(0xff262626)
+                      : palette.cardBorder),
             ),
             child: InkWell(
               key: Key('import_source_${source.id}'),
-              borderRadius: BorderRadius.circular(4),
               hoverColor: Colors.white.withValues(alpha: 0.04),
               onTap: () => onSelect(source.id),
               child: Padding(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(11),
                 child: Row(
                   children: [
                     _buildSourceLogo(source, 45),
@@ -80,6 +84,7 @@ class ImportSourcePicker extends StatelessWidget {
                         source.title,
                         style: TextStyle(
                           fontSize: 18,
+                          height: 1.1,
                           fontWeight: FontWeight.w700,
                           color: palette.textPrimary,
                         ),
