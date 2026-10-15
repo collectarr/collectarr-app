@@ -58,6 +58,19 @@ void main() {
     expect(find.text('Maintenance'), findsOneWidget);
     expect(find.text('Import / Export'), findsOneWidget);
     expect(find.text('Help'), findsOneWidget);
+    final sectionText = tester.widget<Text>(find.text('Maintenance'));
+    expect(sectionText.style?.fontSize, 14);
+    expect(sectionText.style?.fontWeight, FontWeight.w700);
+    expect(sectionText.style?.color?.a, closeTo(0.4, 0.01));
+    expect(
+        tester
+            .getSize(find
+                .ancestor(
+                    of: find.text('Maintenance'),
+                    matching: find.byType(InkWell))
+                .first)
+            .height,
+        30);
 
     // Verify items
     expect(find.text('Add Albums from Core'), findsOneWidget);
@@ -65,13 +78,25 @@ void main() {
     expect(find.text('Print to PDF'), findsOneWidget);
     expect(find.text('Statistics'), findsOneWidget);
     expect(find.text('Backup / Restore'), findsOneWidget);
-    expect(find.text('User Manual'), findsOneWidget);
+    expect(find.text('Manual'), findsOneWidget);
     expect(find.byIcon(AppIcons.userManual), findsOneWidget);
 
-    await tester.ensureVisible(find.text('User Manual'));
-    await tester.tap(find.text('User Manual'));
+    await tester.ensureVisible(find.text('Manual'));
+    await tester.tap(find.text('Manual'));
     await tester.pump();
     expect(selectedAction, DrawerAction.userManual);
+
+    for (final action in [
+      DrawerAction.community,
+      DrawerAction.contactSupport,
+      DrawerAction.whatsNew,
+    ]) {
+      final label = appDrawerDestination(action).label;
+      await tester.ensureVisible(find.text(label));
+      await tester.tap(find.text(label));
+      await tester.pump();
+      expect(selectedAction, action);
+    }
 
     await tester.ensureVisible(find.text('Manage Collections'));
 

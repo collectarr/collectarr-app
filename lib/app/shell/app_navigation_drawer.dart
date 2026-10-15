@@ -84,7 +84,9 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final drawerBg = palette.isDark ? const Color(0xFF383838) : palette.surface;
-    final sectionHeaderColor = palette.textPrimary;
+    final sectionHeaderColor =
+        (palette.isDark ? Colors.white : palette.textPrimary)
+            .withValues(alpha: 0.4);
 
     return Drawer(
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -128,7 +130,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                padding: EdgeInsets.zero,
                 children: [
                   for (final section in AppDrawerSection.values)
                     if (appDrawerDestinations.any((destination) =>
@@ -200,19 +202,19 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
           child: Row(
             children: [
               SizedBox(
-                width: 20,
-                height: 18,
+                width: 17.5,
+                height: 20,
                 child: Center(
                   child: destination.svgAsset != null
                       ? SvgPicture.asset(destination.svgAsset!,
-                          width: 15,
-                          height: 15,
+                          width: 17.5,
+                          height: 14,
                           colorFilter:
                               ColorFilter.mode(itemColor, BlendMode.srcIn))
-                      : Icon(icon, size: 15, color: itemColor),
+                      : Icon(icon, size: 14, color: itemColor),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 14),
               Expanded(
                 child: Text(
                   label,
@@ -220,6 +222,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     fontFamily: appFontFamily,
                     fontSize: 14,
                     height: 20 / 14,
+                    letterSpacing: 0,
                     fontWeight: FontWeight.w400,
                     color: itemColor,
                   ),
@@ -242,13 +245,15 @@ class _DrawerSectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Text(
         label,
         style: TextStyle(
           fontFamily: appFontFamily,
           color: color,
           fontSize: 14,
+          height: 20 / 14,
+          letterSpacing: 0,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -275,7 +280,7 @@ class _DrawerCollapsibleSectionLabel extends StatelessWidget {
       onTap: onTap,
       hoverColor: const Color(0x26FFFFFF),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         child: Row(
           children: [
             Expanded(
@@ -285,6 +290,8 @@ class _DrawerCollapsibleSectionLabel extends StatelessWidget {
                   fontFamily: appFontFamily,
                   color: color,
                   fontSize: 14,
+                  height: 20 / 14,
+                  letterSpacing: 0,
                   fontWeight: FontWeight.w700,
                 ),
               ),

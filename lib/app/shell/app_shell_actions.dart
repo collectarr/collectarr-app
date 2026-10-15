@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/app/help/user_manual.dart';
+import 'package:collectarr_app/app/help/help_links.dart';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
@@ -221,6 +222,15 @@ class AppShellActions {
         return;
       case DrawerAction.userManual:
         await openUserManual(context, kind: type.kind);
+        return;
+      case DrawerAction.community:
+        await openCommunity(context);
+        return;
+      case DrawerAction.contactSupport:
+        await openContactSupport(context);
+        return;
+      case DrawerAction.whatsNew:
+        await openWhatsNew(context);
         return;
       case DrawerAction.keyboardShortcuts:
         showKeyboardShortcutsDialog(context);

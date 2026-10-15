@@ -44,8 +44,13 @@ abstract final class AppIcons {
   static const IconData palette =
       IconData(0xf53f, fontFamily: _solid, fontPackage: _fontPackage);
   // --- Navigation & Drawer ---
+  static const String communitySvg = 'assets/icons/community.svg';
+  static const IconData contactSupport =
+      IconData(0xf0e0, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData whatsNew =
+      IconData(0xf059, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData userManual =
-      IconData(0xf518, fontFamily: _solid, fontPackage: _fontPackage);
+      IconData(0xf15c, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData menu =
       IconData(0xf0c9, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData add =
@@ -64,9 +69,9 @@ abstract final class AppIcons {
   static const IconData statistics =
       IconData(0xe0e3, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData duplicates =
-      IconData(0xf24d, fontFamily: _regular, fontPackage: _fontPackage);
+      IconData(0xf24d, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData loans =
-      IconData(0xf017, fontFamily: _regular, fontPackage: _fontPackage);
+      IconData(0xf017, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData calendar =
       IconData(0xf073, fontFamily: _regular, fontPackage: _fontPackage);
   static const IconData admin =
@@ -116,7 +121,7 @@ abstract final class AppIcons {
   static const IconData backupRestore =
       IconData(0xf0a0, fontFamily: _regular, fontPackage: _fontPackage);
   static const IconData clearDatabase =
-      IconData(0xf2ed, fontFamily: _regular, fontPackage: _fontPackage);
+      IconData(0xf1f8, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData transferFieldData =
       IconData(0xe4c0, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData exportCsv =

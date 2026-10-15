@@ -1,0 +1,7 @@
+contact_links:
+  - name: Ask a question
+    url: https://github.com/collectarr/collectarr-app/discussions/categories/q-a
+    about: Get help with Collectarr App, Core or Sync in Community Q&A.
+  - name: Collectarr manual
+    url: https://collectarr.github.io/collectarr-page/manual/
+    about: Read the user guide before opening a support request.

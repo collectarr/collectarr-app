@@ -25,6 +25,9 @@ enum DrawerAction {
   importData,
   linkAlbums,
   userManual,
+  community,
+  contactSupport,
+  whatsNew,
   keyboardShortcuts,
 }
 
@@ -216,11 +219,32 @@ const appDrawerDestinations = <AppDrawerDestination>[
       behavior: DrawerActionBehavior.overlayPage),
   AppDrawerDestination(
       action: DrawerAction.userManual,
-      label: 'User Manual',
+      label: 'Manual',
       icon: AppIcons.userManual,
       section: AppDrawerSection.help,
       behavior: DrawerActionBehavior.externalLink,
       widgetKey: 'drawer.user-manual'),
+  AppDrawerDestination(
+      action: DrawerAction.community,
+      label: 'Community',
+      svgAsset: AppIcons.communitySvg,
+      section: AppDrawerSection.help,
+      behavior: DrawerActionBehavior.externalLink,
+      widgetKey: 'drawer.community'),
+  AppDrawerDestination(
+      action: DrawerAction.contactSupport,
+      label: 'Contact Support',
+      icon: AppIcons.contactSupport,
+      section: AppDrawerSection.help,
+      behavior: DrawerActionBehavior.externalLink,
+      widgetKey: 'drawer.contact-support'),
+  AppDrawerDestination(
+      action: DrawerAction.whatsNew,
+      label: "What's New?",
+      icon: AppIcons.whatsNew,
+      section: AppDrawerSection.help,
+      behavior: DrawerActionBehavior.externalLink,
+      widgetKey: 'drawer.whats-new'),
   AppDrawerDestination(
       action: DrawerAction.keyboardShortcuts,
       label: 'Keyboard Shortcuts',
