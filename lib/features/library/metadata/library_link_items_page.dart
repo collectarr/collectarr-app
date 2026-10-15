@@ -1,5 +1,8 @@
-import 'package:collectarr_app/ui/app_management_content.dart';
-import 'package:collectarr_app/ui/app_page_header.dart';
+import 'package:collectarr_app/ui/app_management_page_scaffold.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -9,6 +12,10 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_query.
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'library_link_match.dart';
+import 'library_link_candidate_dialog.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 
 class LibraryLinkItemsPage extends ConsumerStatefulWidget {
   const LibraryLinkItemsPage(
@@ -22,135 +29,339 @@ class LibraryLinkItemsPage extends ConsumerStatefulWidget {
 
 class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
   final _linked = <String>{};
-  LibraryWorkspaceContext? _selected;
-  List<CatalogSearchCandidate> _matches = [];
+  final _matches = <String, LibraryLinkMatch>{};
+  final _failures = <String, String>{};
   bool _busy = false;
+  int _progress = 0;
+  int _total = 0;
+  bool _searched = false;
   String? _error;
 
   List<LibraryWorkspaceContext> get _unlinked => widget.entries
       .where((entry) =>
           entry.libraryEntryRef != null &&
-          entry.libraryEntrySummary?.sourceCatalogRef == null &&
+          entry.sourceCatalogRef == null &&
           !_linked.contains(entry.libraryEntryRef!.key))
       .toList();
 
-  Future<void> _find(LibraryWorkspaceContext entry) async {
+  Future<List<CatalogSearchCandidate>> _search(LibraryWorkspaceContext entry,
+      {String? text}) async {
+    final query = libraryMetadataForKind(widget.type.kind)
+        .searchQueryFor(source: entry, title: text ?? entry.title);
+    final results = await searchLibraryMetadata(
+        ref.read(apiClientProvider), widget.type.kind,
+        query: text ?? query.query,
+        barcode: text == null ? query.barcode : null,
+        series: text == null ? query.series : null,
+        issueNumber: text == null ? query.issueNumber : null,
+        publisher: text == null ? query.publisher : null,
+        year: text == null ? query.year : null,
+        limit: 30);
+    return results.where((candidate) => candidate.catalogRef != null).toList();
+  }
+
+  Future<void> _findAll() async {
+    if (_busy) return;
+    final entries = _unlinked;
     setState(() {
-      _selected = entry;
       _busy = true;
       _error = null;
-      _matches = [];
+      _progress = 0;
+      _total = entries.length;
+      _failures.clear();
     });
-    try {
-      final query = libraryMetadataForKind(widget.type.kind)
-          .searchQueryFor(source: entry, title: entry.title);
-      final result = await searchLibraryMetadata(
-          ref.read(apiClientProvider), widget.type.kind,
-          query: query.query,
-          barcode: query.barcode,
-          series: query.series,
-          issueNumber: query.issueNumber,
-          publisher: query.publisher,
-          year: query.year,
-          limit: 30);
-      if (mounted) {
-        setState(() => _matches =
-            result.where((candidate) => candidate.catalogRef != null).toList());
+    final capability = libraryMetadataForKind(widget.type.kind);
+    for (final entry in entries) {
+      if (!mounted) return;
+      final key = entry.libraryEntryRef!.key;
+      try {
+        final results = await _search(entry);
+        if (!mounted) return;
+        _matches[key] =
+            LibraryLinkMatch.rank(entry, results, capability.matchScorer);
+      } catch (error) {
+        if (!mounted) return;
+        _matches.remove(key);
+        _failures[key] = 'Could not find matches: $error';
       }
-    } catch (error) {
-      if (mounted) {
-        setState(() => _error = 'Could not find catalog matches: $error');
-      }
-    } finally {
-      if (mounted) setState(() => _busy = false);
+      setState(() => _progress++);
+    }
+    if (mounted) {
+      setState(() {
+        _busy = false;
+        _searched = true;
+      });
     }
   }
 
-  Future<void> _link(CatalogSearchCandidate candidate) async {
-    final entry = _selected?.libraryEntryRef;
-    final catalog = candidate.catalogRef;
-    if (entry == null || catalog == null || _busy) return;
-    setState(() => _busy = true);
+  Future<bool> _linkEntry(
+      LibraryWorkspaceContext entry, CatalogSearchCandidate candidate) async {
     try {
-      await ref.read(libraryEntryMutationsProvider).linkToCore(entry, catalog);
+      await ref
+          .read(libraryEntryMutationsProvider)
+          .linkToCore(entry.libraryEntryRef!, candidate.catalogRef!);
       if (mounted) {
         setState(() {
-          _linked.add(entry.key);
-          _selected = null;
-          _matches = [];
+          _linked.add(entry.libraryEntryRef!.key);
+          _matches.remove(entry.libraryEntryRef!.key);
         });
       }
+      return true;
     } catch (error) {
-      if (mounted) setState(() => _error = 'Could not link item: $error');
-    } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _error = 'Could not link ${entry.title}: $error');
+      }
+      return false;
     }
+  }
+
+  Future<void> _accept(
+      LibraryWorkspaceContext entry, CatalogSearchCandidate candidate) async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _total = 0;
+      _error = null;
+    });
+    await _linkEntry(entry, candidate);
+    if (mounted) setState(() => _busy = false);
+  }
+
+  Future<void> _linkHighMatches() async {
+    if (_busy) return;
+    final entries = _unlinked
+        .where((entry) =>
+            _matches[entry.libraryEntryRef!.key]?.canBulkLink ?? false)
+        .toList();
+    setState(() {
+      _busy = true;
+      _total = 0;
+      _error = null;
+    });
+    for (final entry in entries) {
+      if (!mounted) return;
+      if (!await _linkEntry(
+          entry, _matches[entry.libraryEntryRef!.key]!.candidate!)) {
+        break;
+      }
+    }
+    if (mounted) setState(() => _busy = false);
+  }
+
+  Future<void> _manual(LibraryWorkspaceContext entry) async {
+    if (_busy) return;
+    final candidate = await showAppDialog<CatalogSearchCandidate>(
+        context: context,
+        builder: (_) => LibraryLinkCandidateDialog(
+            title: entry.title, search: (text) => _search(entry, text: text)));
+    if (candidate != null && mounted) await _accept(entry, candidate);
   }
 
   @override
   Widget build(BuildContext context) => Theme(
-        data:
-            libraryAccentTheme(context, libraryAccentForKind(widget.type.kind)),
-        child: Scaffold(
-          appBar: AppPageHeader(
-              icon: Icons.link,
-              title: Text('Link ${widget.type.identity.pluralLabel}')),
-          body: AppManagementContent(
-              child: LayoutBuilder(builder: (context, constraints) {
-            final entries = _unlinked;
-            final list = ListView(children: [
-              Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text('${entries.length} unlinked items')),
-              for (final entry in entries)
-                ListTile(
-                    title: Text(entry.title),
-                    selected: _selected == entry,
-                    selectedColor: libraryAccentForKind(widget.type.kind),
-                    trailing: const Icon(Icons.search),
-                    onTap: _busy ? null : () => _find(entry)),
-              if (entries.isEmpty)
-                const ListTile(title: Text('All entries are linked.')),
-            ]);
-            final preview =
-                ListView(padding: const EdgeInsets.all(16), children: [
-              const Text(
-                  'Choose a matching catalog item to attach Core provenance.'),
-              const SizedBox(height: 8),
-              const Text(
-                  'Your local metadata and personal data are preserved.'),
-              if (_selected != null)
-                Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Text(_selected!.title)),
-              if (_busy) const LinearProgressIndicator(),
-              if (_error != null) Text(_error!),
-              if (!_busy &&
-                  _selected != null &&
-                  _matches.isEmpty &&
-                  _error == null)
-                const Text('No matching catalog items found.'),
-              for (final match in _matches)
-                Card(
-                    child: ListTile(
-                        title: Text(match.summary.primaryLabel),
-                        subtitle: Text(match.catalogRef!.key),
-                        trailing: FilledButton(
-                            onPressed: _busy ? null : () => _link(match),
-                            child: const Text('Link')))),
-            ]);
-            return constraints.maxWidth >= 700
-                ? Row(children: [
-                    Expanded(child: list),
-                    const VerticalDivider(width: 1),
-                    Expanded(child: preview)
-                  ])
-                : Column(children: [
-                    Expanded(child: list),
-                    const Divider(height: 1),
-                    Expanded(child: preview)
-                  ]);
-          })),
-        ),
-      );
+      data: libraryAccentTheme(context, libraryAccentForKind(widget.type.kind)),
+      child: Builder(builder: (context) {
+        final entries = _unlinked;
+        final palette = appPalette(context);
+        final highCount = entries
+            .where((entry) =>
+                _matches[entry.libraryEntryRef!.key]?.canBulkLink ?? false)
+            .length;
+        final plural = widget.type.identity.pluralLabel;
+        return AppManagementPageScaffold(
+            icon: AppIcons.link,
+            title: 'Link $plural',
+            padding: EdgeInsets.zero,
+            child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('Find matches & link $plural',
+                          style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              height: 1.1)),
+                      const SizedBox(height: 10),
+                      Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            FilledButton(
+                                style: dialogActionButtonStyle(context,
+                                    primary: true, width: 110),
+                                onPressed:
+                                    _busy || entries.isEmpty ? null : _findAll,
+                                child: const Text('Find matches')),
+                            Text(
+                                '${entries.length} unlinked ${plural.toLowerCase()}'),
+                            if (_searched) ...[
+                              for (final score
+                                  in LibraryMetadataMatchScore.values)
+                                _scoreBadge(
+                                    score,
+                                    entries
+                                        .where((entry) =>
+                                            _matches[entry.libraryEntryRef!.key]
+                                                ?.score ==
+                                            score)
+                                        .length),
+                            ],
+                          ]),
+                      if (_busy) ...[
+                        const SizedBox(height: 10),
+                        LinearProgressIndicator(
+                            value: _total > 0 ? _progress / _total : null),
+                        if (_total > 0)
+                          Text('Finding matches: $_progress of $_total'),
+                      ],
+                      if (_searched) ...[
+                        const SizedBox(height: 10),
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: FilledButton(
+                                style: dialogActionButtonStyle(context,
+                                    primary: true,
+                                    width: 0,
+                                    color: const Color(0xff5cb85c)),
+                                onPressed: !_busy && highCount > 0
+                                    ? _linkHighMatches
+                                    : null,
+                                child: Text(
+                                    'Link $highCount ${plural.toLowerCase()} with high match-score'))),
+                        const SizedBox(height: 10),
+                        const Text(
+                            'Review each result before linking. Your local metadata and personal data are preserved.',
+                            style: TextStyle(fontSize: 14)),
+                      ],
+                      if (_error != null)
+                        Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Text(_error!,
+                                style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.error))),
+                      const SizedBox(height: 20),
+                      LayoutBuilder(builder: (context, constraints) {
+                        final width = constraints.maxWidth < 680
+                            ? 680.0
+                            : constraints.maxWidth;
+                        return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: SizedBox(
+                                width: width,
+                                child: Table(
+                                    columnWidths: const {
+                                      0: FlexColumnWidth(43),
+                                      1: FlexColumnWidth(42),
+                                      2: FlexColumnWidth(15)
+                                    },
+                                    border: TableBorder.all(
+                                        color: palette.isDark
+                                            ? const Color(0xff383838)
+                                            : palette.divider),
+                                    defaultVerticalAlignment:
+                                        TableCellVerticalAlignment.middle,
+                                    children: [
+                                      TableRow(
+                                          decoration: BoxDecoration(
+                                              color: palette.isDark
+                                                  ? const Color(0xff464950)
+                                                  : palette.panelRaised),
+                                          children: [
+                                            _cell(Text(
+                                                'Your ${widget.type.identity.singularLabel}',
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w700))),
+                                            _cell(const Text('Core result',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w700))),
+                                            _cell(const Text('Link',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w700))),
+                                          ]),
+                                      for (final entry in entries)
+                                        _row(context, entry),
+                                      if (entries.isEmpty)
+                                        const TableRow(children: [
+                                          _EmptyCell(),
+                                          SizedBox(),
+                                          SizedBox()
+                                        ]),
+                                    ])));
+                      }),
+                    ])));
+      }));
+
+  Widget _cell(Widget child) =>
+      Padding(padding: const EdgeInsets.all(8), child: child);
+
+  TableRow _row(BuildContext context, LibraryWorkspaceContext entry) {
+    final key = entry.libraryEntryRef!.key;
+    final match = _matches[key];
+    final candidate = match?.candidate;
+    final projection = LibraryProjectionItem.fromShelf(entry, widget.type);
+    final local = projection.dto;
+    final card = libraryCardPresentationForEntry(projection);
+    return TableRow(children: [
+      _cell(LinkItemSummary(
+          title: entry.title,
+          subtitle: card.seriesTitle ?? local.secondaryLabel,
+          imageUrl: local.imageUrl)),
+      _cell(candidate == null
+          ? Text(_failures[key] ??
+              (_matches.containsKey(key)
+                  ? 'No matching catalog items found.'
+                  : 'Find matches to search Core.'))
+          : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              LinkItemSummary(
+                  title: candidate.summary.primaryLabel,
+                  subtitle: candidate.summary.subtitle,
+                  imageUrl: candidate.summary.imageUrl),
+              const SizedBox(height: 5),
+              _scoreBadge(match!.score!, null),
+            ])),
+      _cell(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        if (candidate != null) ...[
+          FilledButton(
+              style: dialogActionButtonStyle(context,
+                  primary: true,
+                  width: 0,
+                  color: match!.canBulkLink
+                      ? const Color(0xff5cb85c)
+                      : const Color(0xfff0ad4e)),
+              onPressed: _busy ? null : () => _accept(entry, candidate),
+              child: const Text('Accept')),
+          const SizedBox(height: 5),
+        ],
+        FilledButton(
+            style: dialogActionButtonStyle(context, primary: true, width: 0),
+            onPressed: _busy ? null : () => _manual(entry),
+            child: const Text('Link manually')),
+      ])),
+    ]);
+  }
+
+  Widget _scoreBadge(LibraryMetadataMatchScore score, int? count) => Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(3),
+          color: switch (score) {
+            LibraryMetadataMatchScore.high => const Color(0xff5cb85c),
+            LibraryMetadataMatchScore.medium => const Color(0xfff0ad4e),
+            LibraryMetadataMatchScore.low => const Color(0xffd9534f),
+          }),
+      child: Text('${count == null ? '' : '$count '}${score.name} match-score',
+          style: const TextStyle(color: Colors.white, fontSize: 12)));
+}
+
+class _EmptyCell extends StatelessWidget {
+  const _EmptyCell();
+  @override
+  Widget build(BuildContext context) => const Padding(
+      padding: EdgeInsets.all(16), child: Text('All entries are linked.'));
 }

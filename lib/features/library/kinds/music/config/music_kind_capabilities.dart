@@ -114,6 +114,7 @@ final musicKindMetadata = const LibraryMetadataCapability(
   catalogTransportCodec: MusicCatalogTransportCodec(),
   catalogDetailCandidateBuilder: _musicCatalogDetailCandidateBuilder,
   searchQueryBuilder: musicMetadataSearchQuery,
+  matchScorer: musicMetadataMatchScore,
   catalogSearchBuilder: searchMusicCatalogItems,
   catalogSearchResultsAreDetailed: true,
   supportsServerCompare: true,

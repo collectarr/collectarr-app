@@ -25,6 +25,11 @@ typedef LibraryMetadataCatalogDetailCandidateBuilder = CatalogSearchCandidate
   JsonMap payload,
 );
 
+enum LibraryMetadataMatchScore { high, medium, low }
+
+typedef LibraryMetadataMatchScorer = LibraryMetadataMatchScore Function(
+    LibraryWorkspaceContext source, CatalogSearchCandidate candidate);
+
 typedef MetadataCompareBuilder = List<Widget> Function(
   BuildContext context, {
   required Map<String, dynamic> localPayload,
@@ -42,6 +47,7 @@ class LibraryMetadataCapability {
     this.catalogSearchBuilder,
     this.catalogSearchResultsAreDetailed = false,
     this.catalogDetailCandidateBuilder,
+    this.matchScorer,
   });
 
   final CatalogKindTransportBoundary catalogTransportCodec;
@@ -50,6 +56,7 @@ class LibraryMetadataCapability {
   final LibraryMetadataSearchQueryBuilder? searchQueryBuilder;
   final LibraryMetadataCatalogSearchBuilder? catalogSearchBuilder;
   final bool catalogSearchResultsAreDetailed;
+  final LibraryMetadataMatchScorer? matchScorer;
   final LibraryMetadataCatalogDetailCandidateBuilder?
       catalogDetailCandidateBuilder;
 

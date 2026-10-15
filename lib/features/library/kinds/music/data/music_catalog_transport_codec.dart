@@ -48,6 +48,7 @@ final class MusicCatalogTransportCodec
         kind: kind,
         id: catalogItemId,
         primaryLabel: item.title,
+        subtitle: item.artist,
         imageUrl: item.coverImageUrl,
       );
 
