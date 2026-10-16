@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-10-16
+
 ### ✨ Features
 - Settings gains Sorting (sort titles and sort names), Auto Capitalization (when adding from Core, as you type, method and exceptions) and Localization (currency, currency display, number format, date display and entry order).
 - Albums get automatic sort titles ("Wall, The") on Add, Edit and import; Core derives them for new catalog items.
@@ -48,7 +50,7 @@
 - The CLZ parity report lists matching the light theme as the next open difference.
 
 
-## What's Changed
+## 1.0.0 - 2026-10-13
 
 ### ✨ Features
 - Added the collection activity page with filters and a broader timeline for collection-level actions.
