@@ -192,7 +192,8 @@ void main() {
         expect(find.textContaining('United States'), findsOneWidget);
 
         // 7. Metric strip (1 Disc | 1 Tracks | 3:30)
-        expect(find.text('1 Disc | 1 Track | 3:30'), findsOneWidget);
+        expect(find.text('1 Disc | 1 Track | 3:30', findRichText: true),
+            findsOneWidget);
 
         // 8. Catalog Number & eBay link
         expect(find.textContaining('3984-25039-1', findRichText: true),

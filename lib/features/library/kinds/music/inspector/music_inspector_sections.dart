@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/core/localization/app_formats.dart';
+
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
@@ -69,6 +71,8 @@ List<Widget> buildMusicInspectorSections(
       section('Personal', _MusicInspectorDetailsPersonal(inspector: request)),
       section('Listening history', _MusicListeningSection(inspector: request)),
     ],
+  ];
+  final extras = <Widget>[
     if (model.entry?.personal.personalNotes?.trim().isNotEmpty == true)
       section(
           'Notes',
@@ -116,26 +120,36 @@ List<Widget> buildMusicInspectorSections(
       crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
   return [
     if (model.discs.isNotEmpty)
+      // The header rule above already separates the track list.
       Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           child: _MusicInspectorTracks(inspector: request)),
     LayoutBuilder(builder: (context, constraints) {
+      // Catalog, personal and supplementary sections take one column each,
+      // as Details, Personal and Links do in the reference.
       final groups = <List<Widget>>[
-        if (credits.isNotEmpty) credits,
-        catalog,
+        [...catalog, ...credits],
         if (personal.isNotEmpty) personal,
+        if (extras.isNotEmpty) extras,
       ];
       if (constraints.maxWidth < 680 || groups.length == 1) {
         return column(groups.expand((group) => group).toList());
       }
-      if (constraints.maxWidth < 1000 && groups.length == 3) {
-        groups[0] = [...groups[0], ...groups.removeAt(1)];
+      if (constraints.maxWidth < 1000) {
+        return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: column(groups.first)),
+          Expanded(child: column(groups.skip(1).expand((g) => g).toList())),
+        ]);
       }
+      // Sections carry their own padding, so three flush columns line up
+      // with the disc columns above even when one is empty.
       return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        for (var index = 0; index < groups.length; index++) ...[
-          if (index > 0) const SizedBox(width: 12),
-          Expanded(child: column(groups[index])),
-        ],
+        for (var index = 0; index < 3; index++)
+          Expanded(
+            child: index < groups.length
+                ? column(groups[index])
+                : const SizedBox.shrink(),
+          ),
       ]);
     }),
   ];
@@ -445,6 +459,14 @@ class _MusicInspectorHeader extends ConsumerWidget {
     final country = musicCountryName(music.countryCode);
     final trackCount = model.tracks.where((track) => !track.isHeader).length;
     final totalDuration = _formatTotalDuration(model.tracks, withHours: true);
+    final format =
+        music.formatSummary?.isNotEmpty == true ? music.formatSummary! : null;
+    final summary = [
+      if (model.discs.isNotEmpty)
+        '${model.discs.length} ${model.discs.length == 1 ? 'Disc' : 'Discs'}',
+      if (trackCount > 0) '$trackCount ${trackCount == 1 ? 'Track' : 'Tracks'}',
+      if (totalDuration != null) totalDuration,
+    ];
 
     final preferences = ref.watch(uiPreferencesProvider);
     final boxSetAlbums = music.boxSet?.isNotEmpty == true
@@ -470,24 +492,27 @@ class _MusicInspectorHeader extends ConsumerWidget {
             ? constraints.maxWidth
             : constraints.maxWidth * .5,
       );
-      Widget valueLink(String value) => InkWell(
+      // Label and year lead at 15/700; genres and country read as plain
+      // 14/400 links, as in the reference.
+      Widget valueLink(String value, {bool lead = false}) => InkWell(
           onTap: onFilter == null ? null : () => onFilter(value),
           child: Text(value,
               style: TextStyle(
                   color: palette.textPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500)));
+                  fontSize: lead ? 15 : 14,
+                  fontWeight: lead ? FontWeight.w700 : FontWeight.w400)));
       final metadata =
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Wrap(spacing: 4, children: [
-          if (label?.isNotEmpty == true) valueLink(label!),
+          if (label?.isNotEmpty == true) valueLink(label!, lead: true),
           // The year is parenthesized only after a label, as in the
           // reference; on its own it reads as a plain year.
           if (year != null)
-            valueLink(label?.isNotEmpty == true ? '($year)' : '$year')
+            valueLink(label?.isNotEmpty == true ? '($year)' : '$year',
+                lead: true)
         ]),
         if (music.genres.isNotEmpty) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Wrap(spacing: 4, children: [
             for (var i = 0; i < music.genres.length; i++) ...[
               if (i > 0) const Text('|'),
@@ -527,19 +552,21 @@ class _MusicInspectorHeader extends ConsumerWidget {
                 const Icon(Icons.view_week_outlined, size: 20),
                 Text(music.barcode!,
                     style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w700))
+                        fontSize: 14, fontWeight: FontWeight.w400))
               ]),
         if (country != null) valueLink(country),
-        Text(
-            [
-              if (music.formatSummary?.isNotEmpty == true) music.formatSummary!,
-              if (model.discs.isNotEmpty)
-                '${model.discs.length} ${model.discs.length == 1 ? 'Disc' : 'Discs'}',
-              if (trackCount > 0)
-                '$trackCount ${trackCount == 1 ? 'Track' : 'Tracks'}',
-              if (totalDuration != null) totalDuration
-            ].join(' | '),
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+        // Only the format is bold in the summary line.
+        Text.rich(
+            TextSpan(children: [
+              if (format != null)
+                TextSpan(
+                    text: format,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+              if (format != null && summary.isNotEmpty)
+                const TextSpan(text: ' | '),
+              TextSpan(text: summary.join(' | ')),
+            ]),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
         if (music.catalogNumber?.isNotEmpty == true) ...[
           const SizedBox(height: 16),
           Text.rich(TextSpan(children: [
@@ -664,6 +691,9 @@ class _MusicInspectorHeader extends ConsumerWidget {
                 const SizedBox(width: 20),
                 Expanded(child: metadata),
               ]),
+            // The reference rules the header off from the track list.
+            const SizedBox(height: 20),
+            Divider(height: 1, thickness: 1, color: palette.detailRule),
           ]));
     });
   }
@@ -687,39 +717,31 @@ class _MusicInspectorTracks extends StatelessWidget {
         ? _musicSearchTerms(rawQuery)
         : const <String>[];
 
-    final discs = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (var index = 0; index < groups.length; index++) ...[
-          _MusicDiscTable(
-            disc: model.discs.firstWhere(
-                (disc) => disc.discNumber == groups[index].discNumber),
-            storage: model.storageForDisc(groups[index].discNumber),
-            tracks: groups[index].tracks,
-            highlightTerms: highlightTerms,
-            onFilterByValue: inspector.onFilterByValue,
-          ),
-          if (index < groups.length - 1) const SizedBox(height: 12),
+    Widget disc(_DiscTrackGroup group) => _MusicDiscTable(
+          disc: model.discs
+              .firstWhere((disc) => disc.discNumber == group.discNumber),
+          storage: model.storageForDisc(group.discNumber),
+          tracks: group.tracks,
+          highlightTerms: highlightTerms,
+          onFilterByValue: inspector.onFilterByValue,
+        );
+    // A wide panel lays discs out three abreast, as in the reference, so
+    // durations stay next to their titles and every disc is visible at once.
+    return LayoutBuilder(builder: (context, constraints) {
+      final columns = constraints.maxWidth >= _wideTrackPanelWidth ? 3 : 1;
+      final width = (constraints.maxWidth - _discGap * (columns - 1)) / columns;
+      return Wrap(
+        spacing: _discGap,
+        runSpacing: _discGap,
+        children: [
+          for (final group in groups)
+            SizedBox(width: width, child: disc(group)),
         ],
-      ],
-    );
-    // A wide panel keeps the track list to one column, as in the reference,
-    // instead of stretching durations far from their titles.
-    return LayoutBuilder(
-      builder: (context, constraints) => Align(
-        alignment: Alignment.centerLeft,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: constraints.maxWidth >= _wideTrackPanelWidth
-                ? constraints.maxWidth / 3
-                : constraints.maxWidth,
-          ),
-          child: discs,
-        ),
-      ),
-    );
+      );
+    });
   }
 
+  static const _discGap = 20.0;
   static const _wideTrackPanelWidth = 900.0;
 }
 
@@ -1096,8 +1118,12 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
         ('Signed by', entry!.personal.details.signedBy!),
       if (entry?.personal.details.lastCleanedDate != null)
         ('Last cleaned', formatDate(entry!.personal.details.lastCleanedDate!)),
-      if (entry?.createdAt != null) ('Added', formatDate(entry!.createdAt!)),
-      ('Modified', formatNullableDate(entry?.updatedAt) ?? '-'),
+      if (entry?.createdAt != null)
+        ('Added Date', AppFormats.current.formatDateTime(entry!.createdAt!)),
+      (
+        'Modified Date',
+        entry == null ? '-' : AppFormats.current.formatDateTime(entry.updatedAt)
+      ),
     ];
     List<LibraryDetailField> asFacts(List<(String, String)> rows) {
       return [
@@ -1177,9 +1203,9 @@ class _MusicDiscTable extends StatelessWidget {
       children: [
         Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-            // Disc bands use the shared blue in every kind, as in the
+            // Disc bands use the shared detail blue in every kind, as in the
             // reference app.
-            color: appPalette(context).utilityAction,
+            color: appPalette(context).detailHeading,
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Expanded(
                   child: Text(
@@ -1207,18 +1233,16 @@ class _MusicDiscTable extends StatelessWidget {
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
-                        fontWeight: FontWeight.w700))
+                        fontWeight: FontWeight.w400))
               ],
             ])),
-        const SizedBox(height: 6),
-        for (final track in tracks)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: _MusicTrackRow(
-              track: track,
-              highlight: _matchesTrackTerms(track, highlightTerms),
-              onFilterByValue: onFilterByValue,
-            ),
+        for (var index = 0; index < tracks.length; index++)
+          _MusicTrackRow(
+            track: tracks[index],
+            striped: index.isOdd,
+            last: index == tracks.length - 1,
+            highlight: _matchesTrackTerms(tracks[index], highlightTerms),
+            onFilterByValue: onFilterByValue,
           ),
       ],
     );
@@ -1228,11 +1252,15 @@ class _MusicDiscTable extends StatelessWidget {
 class _MusicTrackRow extends StatelessWidget {
   const _MusicTrackRow({
     required this.track,
+    required this.striped,
+    required this.last,
     required this.highlight,
     this.onFilterByValue,
   });
 
   final MusicTrackListEntry track;
+  final bool striped;
+  final bool last;
   final bool highlight;
   final ValueChanged<String>? onFilterByValue;
 
@@ -1243,51 +1271,55 @@ class _MusicTrackRow extends StatelessWidget {
       const Color(0xFFE8CF74).withValues(alpha: palette.isDark ? 0.84 : 0.5),
       palette.surface,
     );
+    final rule = BorderSide(color: palette.detailRule);
+    const text = TextStyle(fontSize: 14, height: 20 / 14);
     return DecoratedBox(
       key: ValueKey(
           'music-track-row-${track.discNumber}-${track.position}-${track.title}'),
+      // Ruled, striped rows as in the reference track table.
       decoration: BoxDecoration(
-        color: highlight ? highlightColor : Colors.transparent,
-        borderRadius: BorderRadius.circular(2),
+        color: highlight
+            ? highlightColor
+            : striped
+                ? palette.detailStripe
+                : Colors.transparent,
+        border: Border(top: rule, bottom: last ? rule : BorderSide.none),
       ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(
-          4 + (track.indentLevel * 14),
-          track.isHeader ? 5 : 2,
-          4,
-          track.isHeader ? 5 : 2,
+          track.indentLevel * 14.0,
+          // One pixel more on top clears the row rule: 27 px rows.
+          track.isHeader ? 6 : 4,
+          5,
+          track.isHeader ? 5 : 3,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 24,
+              width: 26,
               child: Text(
                 track.position,
-                textAlign: TextAlign.right,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: palette.textMuted,
-                      fontWeight: FontWeight.w700,
-                    ),
+                textAlign: TextAlign.center,
+                style: text.copyWith(
+                  color: palette.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 5),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     track.title,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: track.isHeader
-                              ? palette.accent
-                              : palette.textPrimary,
-                          fontWeight: track.isHeader
-                              ? FontWeight.w700
-                              : FontWeight.w400,
-                          fontSize: 14,
-                          height: 20 / 14,
-                        ),
+                    style: text.copyWith(
+                      color:
+                          track.isHeader ? palette.accent : palette.textPrimary,
+                      fontWeight:
+                          track.isHeader ? FontWeight.w700 : FontWeight.w400,
+                    ),
                   ),
                   if (!track.isHeader &&
                       track.artist?.trim().isNotEmpty == true)
@@ -1319,9 +1351,7 @@ class _MusicTrackRow extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 8),
                 child: Text(
                   _formatTrackDuration(track.durationSeconds!),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: palette.textMuted,
-                      ),
+                  style: text.copyWith(color: palette.textPrimary),
                 ),
               ),
           ],

@@ -192,6 +192,13 @@ final class AppFormats {
     return date.format(local.year, local.month, local.day);
   }
 
+  /// A date with its local time of day, as on Added and Modified dates.
+  String formatDateTime(DateTime value) {
+    final local = value.toLocal();
+    return '${formatDate(local)} '
+        '${_two(local.hour)}:${_two(local.minute)}:${_two(local.second)}';
+  }
+
   /// A partial date as precise as it is known: a year, a month or a day.
   String formatPartialDate(PartialDate? value) {
     final year = value?.year;

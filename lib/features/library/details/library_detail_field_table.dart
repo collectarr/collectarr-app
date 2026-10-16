@@ -29,6 +29,7 @@ class LibraryDetailFieldTable extends StatelessWidget {
         final gap = 12.0;
         final cellWidth =
             (constraints.maxWidth - gap * (columns - 1)) / columns;
+        final fittedLabelWidth = _fittedLabelWidth(context, ordered);
         return KeyedSubtree(
           key: ValueKey('library-detail-field-table-$columns'),
           child: Column(
@@ -82,14 +83,32 @@ class LibraryDetailFieldTable extends StatelessWidget {
               if (showHeader) const SizedBox(height: 8),
               Wrap(
                 spacing: gap,
-                runSpacing: 2,
                 children: [
-                  for (final field in ordered)
+                  for (var index = 0; index < ordered.length; index++)
                     SizedBox(
                       width: cellWidth,
-                      child: LibraryDetailFieldRow(
-                        field: field,
-                        labelWidth: labelWidth,
+                      // Ruled rows with alternate tint, as in the reference
+                      // detail tables.
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: (index ~/ columns).isOdd
+                              ? palette.detailStripe
+                              : null,
+                          border: Border(
+                            top: BorderSide(color: palette.detailRule),
+                            bottom: index + columns >= ordered.length
+                                ? BorderSide(color: palette.detailRule)
+                                : BorderSide.none,
+                          ),
+                        ),
+                        child: Padding(
+                          // The extra top pixel clears the row rule.
+                          padding: const EdgeInsets.fromLTRB(5, 2, 5, 1),
+                          child: LibraryDetailFieldRow(
+                            field: ordered[index],
+                            labelWidth: fittedLabelWidth,
+                          ),
+                        ),
                       ),
                     ),
                 ],
@@ -99,5 +118,31 @@ class LibraryDetailFieldTable extends StatelessWidget {
         );
       },
     );
+  }
+
+  /// The label column fits its longest label, up to [labelWidth].
+  double _fittedLabelWidth(
+    BuildContext context,
+    List<LibraryDetailField> fields,
+  ) {
+    final painter = TextPainter(
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    );
+    var widest = 0.0;
+    for (final field in fields) {
+      painter.text = TextSpan(
+        text: field.label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+            ),
+      );
+      painter.layout();
+      if (painter.width > widest) widest = painter.width;
+    }
+    painter.dispose();
+    return (widest + 2).ceilToDouble().clamp(0, labelWidth).toDouble();
   }
 }

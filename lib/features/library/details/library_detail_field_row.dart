@@ -25,11 +25,6 @@ class LibraryDetailFieldRow extends StatelessWidget {
       LibraryDensity.compact => 1.5,
       LibraryDensity.dense => 1.0,
     };
-    final resolvedLabelWidth = switch (resolvedDensity) {
-      LibraryDensity.comfortable => labelWidth,
-      LibraryDensity.compact => labelWidth * 0.95,
-      LibraryDensity.dense => labelWidth * 0.9,
-    };
     final palette = appPalette(context);
     final accent = LibraryAccentScope.accentOf(context);
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
@@ -39,7 +34,7 @@ class LibraryDetailFieldRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: resolvedLabelWidth,
+            width: labelWidth,
             child: Text(
               field.label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
