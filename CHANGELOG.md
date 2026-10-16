@@ -7,6 +7,8 @@
 - Albums get automatic sort titles ("Wall, The") on Add, Edit and import; Core derives them for new catalog items.
 - Libraries open on the In Collection status filter, and the header shows the signed-in Sync account.
 - Music sorting adds Has Back, Has Front, Format and Genre, and the list can show a Back Cover column.
+- Borrowers have a sort name, email and address; Loan opens a lend form with a loaner picker and a due date two weeks out.
+- Music adds a Core ID column and sort; Settings can open Add/Update from Core settings.
 
 ### 🐛 Fixes
 - Albums without covers no longer show another entry's Core cover in Covers/Shelves.
@@ -27,6 +29,8 @@
 - Settings > Appearance is laid out like the reference page, and Settings opens on it.
 - Statistics, the alphabet bar, cover columns, the editor rating and Played History, and the details Personal section follow the reference; a "Report data error" link opens the editor for Core albums.
 - The folder panel keeps its width when the window narrows, menus open instantly, and a click beside the navigation drawer closes it.
+- Date pickers, the Loan Manager, My Images and Statistics prices follow the reference; icons are Font Awesome throughout.
+- Synced pick-list values keep their sort name and hidden state.
 
 ### 📚 Docs
 - Replaced dated audit, plan and QA reports with one living [CLZ parity report](docs/clz-parity.md) and a concise architecture status.

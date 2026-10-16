@@ -48,10 +48,27 @@ CSV with its complete entry payload for Collectarr backups.
 
 ## Sources awaiting verified exports
 
-CATraxx XML, OrangeCD OXL and CDpedia XML are not advertised until an actual
-export fixture and parser contract are verified. Delicious delimited TXT is also
-not accepted. A generic parser is not substituted for these formats. Unreleased
-Books/Comics/Movies import sources have not been reintroduced.
+CATraxx XML, OrangeCD OXL, CDpedia XML and Music Label's Netwalk Musica
+`export.xml` are not advertised until an actual export fixture and parser
+contract are verified. Delicious delimited TXT is also not accepted. A generic
+parser is not substituted for these formats. Unreleased Books/Comics/Movies
+import sources have not been reintroduced.
+
+A 2026-10-16 search found no published schema, DTD or sample file for any of
+them; their vendors document only how to export:
+
+- [CATraxx Export to XML](https://fnprg.com/catraxx/helpfile/using_workingwithdatabases_importexport_db_exportxml.htm)
+  and its [Data Server FAQ](https://www.fnprg.com/catraxx/faq/power_users.htm)
+  describe the export window and `GenerateXML`, not the element layout.
+- [OrangeCD's news](https://www.firetongue.com/oldnews.html) records the OXL
+  database dump (6.0.2, 2006) without a format description.
+- [CDpedia importing](https://bruji.com/help/cdpedia/adding/importing.html)
+  names the `.cdpedia` package (XML plus covers) without its structure.
+- CLZ's own importers ([OrangeCD](https://clz.com/music/web/whatsnew/2019/05/22/import-from-orangecd-oxl-files),
+  Music Label) only state which file to upload.
+
+No public repository parses these files. A real export from each program,
+reduced to fictional values, is needed before a parser can be written.
 
 ## Collectarr backup and export
 

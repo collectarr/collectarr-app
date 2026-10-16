@@ -55,6 +55,10 @@ Keep these when matching the reference visually.
 | Narrow windows | Folder panel and details keep their widths; the list collapses to nothing and details run off-screen | Folder panel keeps its width, details shrink to their minimum, the list keeps at least 320 px |
 | Settings | One page | The reference page is Appearance > Customization; Connection, Libraries, Proposals, Data, Account, Logs, Covers & layout and Typography are added tabs |
 | Played History | Mark as listened records today | A date beside the button records listens on other days |
+| Search | Search field only | Extra barcode, cover-search and random-pick buttons |
+| Localization | Application language, time zone and a time display format | English only and the device time zone, shown read-only; Music lengths keep m:ss and h:mm:ss, which CLZ Music shows regardless of its time format |
+| Sort fields | Back/Front Cover sorts | Has Back/Has Front cover the same need; no separate cover sorts |
+| Loan Manager | Current loans only | Also deletes loan records and lends or returns by barcode |
 
 ## Fixed in the 2026-10-15/16 passes
 
@@ -108,6 +112,14 @@ Keep these when matching the reference visually.
 | Statistics | 890 px page, bold summary, small legend squares with counts, 80 px recent rows without track data | 958 px page, bold figures in regular sentences with signed and price/value lines, 40 × 12 legend swatches, 100 px recent rows with tracks and length |
 | Settings | Tabbed sub-pages, floating-label near-black selects, Material checkbox tiles | Reference two-column page with blue legends, 34 px #444 selects, compact checkboxes and radios; opens first |
 | Resize | Narrow windows shrank the folder panel first, and that clamped width was saved | Folder panel keeps its width; the stored width survives a narrow window |
+| Settings Behaviour | No "Adding from Core" | "Add/Update from Core settings" opens the prefill settings |
+| Core ID | No Core AlbumID column or sort | Core ID column and sort from the album's Core reference |
+| Statistics | Price/value line only with values | Always shown; zero without prices |
+| Loans | Free-text borrower; loans list dialog before the lend form; due date unset; return as orange text | Reference "Loan Album" form with a loaner picker, due date two weeks later (calendar days); borrowers have sort name, email and address (schema 2); one-row Loan Manager bar, #CCC count pill, white titles, clock/plane dates, blue return square |
+| Sync | Incoming pick-list values lost their sort name and hidden state | Applied with the new contact fields |
+| Calendar | Material month, 320 × 352 px, no Today | Reference 221 × 280 month with « », blue weekdays, neighbouring days, Today; title steps to months and years; an outside click closes it |
+| Icons | Material icons in Settings tabs, picker carets and loan tabs | Font Awesome throughout |
+| My Images | Lighter tile and helper line | #666 dashed tile and instruction on the body colour; helper white at 70 % |
 | Motion | 17 menus animated; 54 % backdrop; list rows faded on hover; drawer ignored overlay clicks | Menus open instantly; 50 % backdrop; instant row hover; overlay click closes the drawer (200 ms linear dialogs and drawer, as in CLZ) |
 
 ## Open differences
@@ -115,35 +127,16 @@ Keep these when matching the reference visually.
 Verified in the 2026-10-15 pass unless marked *carried over*; carried-over
 items come from earlier audits and must be re-checked before closing.
 
-### Layout and chrome
-
-| Priority | Surface | CLZ | Collectarr |
-| --- | --- | --- | --- |
-| P2 | Search | Search field only | Extra barcode, cover-search and random-pick buttons |
-
 ### Functionality
 
 | Priority | Area | CLZ | Collectarr |
 | --- | --- | --- | --- |
-| P2 | Localization | Application language, time zone, time display format | English only; device time zone (shown read-only); no time display format |
-| P2 | Settings Behaviour | "Adding from Core" opens Add/Update from Core settings | Not on the Settings page; prefill settings open from Add |
-| P2 | Sort fields | Back/Front Cover and Core AlbumID sorts | Not offered; adds Status, Tracks, Purchase date and Personal/Recording/Activity/Loan/Value groups |
-| P2 | Imports | Also Music Label, CATraxx, OrangeCD, CDpedia | Not offered until authentic export fixtures are verified (see [import/export](import-export.md)) |
-| P2 | Loans | Borrower profiles with email, address and sort name *(carried over)* | Borrower names, filters and history only |
-| P2 | Statistics | Price/value line always shown | Shown only when prices or values exist |
+| P2 | Imports | Also Music Label, CATraxx, OrangeCD, CDpedia | Not offered: no public schema or sample export exists (see [import/export](import-export.md)) |
 
-### Typography and visuals *(carried over)*
+### Typography *(carried over)*
 
 Equal CSS and Flutter weights do not paint identically, and the bundled face is
 not Gilroy. Compare with a user-supplied local font before changing weights.
-
-- Calendar: CLZ uses a compact anchored month (14/700 header, blue weekdays,
-  14/400 days); ours keeps a separate modal with a large date header.
-- Icon systems are still mixed in Settings sub-tabs and picker actions.
-- My Images intake: CLZ 164 × 300 tile, 18/700 #666 instruction on the body
-  color; ours is lighter with 14 px text.
-- Inspector: CLZ title 24/700 and 14/400 values; compare section spacing and
-  separators at matched widths once the default split matches.
 
 ## Not yet compared live
 
@@ -155,6 +148,7 @@ list directly instead of an empty selector. Opening a menu
 does not establish its save behavior.
 
 The toolbar pills, default status filter, detail panel, editor Personal tab,
-Settings, Statistics, drawer and window resizing (1844, 1280, 1024 and 800 px)
-were re-checked side by side on 2026-10-16. The Loan Manager and header label
-are covered by tests but have not been re-checked in the browser yet.
+calendar, My Images, Settings, Statistics, Loan Manager and lend flow, drawer
+and window resizing (1844, 1280, 1024 and 800 px) were re-checked side by side
+on 2026-10-16. The header account label appears only while signed in to Sync,
+so it is covered by tests rather than the signed-out comparison build.
