@@ -50,6 +50,8 @@ Keep these when matching the reference visually.
 | Sort titles | Filled in by CLZ Core | Core derives them for new Music items and corrected titles; the app applies the same rule to local Add, Edit and imports |
 | Shell top bar | Flat accent | Accent gradient, kept at the owner's request |
 | Header account | Always signed in to CLZ | Shows "account's music" only while signed in to the optional Sync account |
+| Links | The eBay link beside the cover is white | Every link uses the shared link blue |
+| List header | No sort indicator | Shared-blue caret and priority number on sorted columns |
 
 ## Fixed in the 2026-10-15/16 passes
 
@@ -81,6 +83,18 @@ Keep these when matching the reference visually.
 | Navigation drawer | Optional sections expanded | Maintenance, Import / Export and Help start collapsed |
 | Editor Personal tab | Two columns; currency code in price fields | Three columns on wide editors; the currency symbol follows the display setting |
 | Loan Manager | Loose controls under accent tabs | Loaner filter, PRINT TO PDF, count pill and search in one bar on the tabbed panel |
+| List view | Wrapped Artist/Title cells clipped to one row: row heights were measured only for plain text cells | Custom cells report the text they can show; regression test added |
+| Toolbar | Add Albums used the kind accent, regular weight, wide padding | Shared blue #5EB1DE, 14/700, 30 px high, 4 px radius |
+| List view | Grey row checkboxes, white pencils, accent sort caret | Shared blue, white on the selected row |
+| Search fields | Material magnifier, muted and small in the folder search | Font Awesome magnifier; white 14 px in the folder search on #444 with 4 px radius |
+| Details track list | Muted numbers and durations, no rules; band #5EB1DE with bold duration; discs stacked | 27 px ruled, striped rows with bold centred numbers and white durations; band #71AFD9 with regular duration; discs three abreast on wide panels |
+| Details sections | Two columns with heading underlines and section borders; fixed 132 px label column; no row rules | Three columns aligned with the disc columns (Details, Personal, then Notes/Tags/Links); 18/700 headings without underline; 27 px ruled, striped rows with a label column fitted to its labels |
+| Details header | Year and label 14/500, whole summary line bold, no rule under the cover | Label and year 15/700, genres/barcode/country 14/400, only the format bold; a #5A5A5A rule 20 px under the cover |
+| Details Personal | "Added"/"Modified" as dates | "Added Date"/"Modified Date" with time, as in the reference |
+| Editor | Opened 30 px from the top; inputs painted 32 px (the outline follows the content box, not `minHeight`); Artist rows 36 px; tab icons ran into wide labels | 10 px from the top; text, pick-list and name fields paint 34 px; fixed 18 px tab icon boxes |
+| Editor | Cancel on an untouched album with no stored sort title asked to discard changes, because the draft derives the sort title | Changes are compared with the draft's own first output; regression test added |
+| Column chooser | Cover listed under Main; thin 14 px preset name field | Images group with Back Cover and Front Cover; 34 px 18/700 preset name |
+| Sort fields | No Images group, Format or Genre sort | Has Back/Has Front under Images, Format and Genre under Main |
 
 ## Open differences
 
@@ -92,7 +106,8 @@ items come from earlier audits and must be re-checked before closing.
 | Priority | Surface | CLZ | Collectarr |
 | --- | --- | --- | --- |
 | P2 | Alphabet bar | “All” is plain bold text | Blue “All” pill; the Artist/Composer/Title field chooser matches |
-| P2 | Editor placement | Editor top at y=10 (other modals ~28); 34 px inputs | All modals share a 30 px top; 32 px inputs |
+| P2 | Editor header | Flat accent 38 px bar, title only | Accent gradient with the kind icon |
+| P2 | Cover columns | 90 px Back/Front Cover columns with 80 px images and header labels | 42 px thumbnails without header labels |
 | P2 | Search | Search field only | Extra barcode, cover-search and random-pick buttons |
 
 ### Functionality
@@ -101,7 +116,8 @@ items come from earlier audits and must be re-checked before closing.
 | --- | --- | --- | --- |
 | P2 | Localization | Application language, time zone, time display format | English only; device time zone; durations as minutes:seconds |
 | P2 | Editor rating | Ten large stars | Small stars with a 0/10 counter |
-| P2 | Sort fields | Images group (Back/Front Cover, Has Back/Front), Format, Core AlbumID | No Images group or Format sort; adds Status, Tracks, Purchase date and Personal/Recording/Activity/Loan/Value groups |
+| P2 | Sort fields | Back/Front Cover and Core AlbumID sorts | Not offered; adds Status, Tracks, Purchase date and Personal/Recording/Activity/Loan/Value groups |
+| P2 | Details Personal | One "Purchased" row ("On Oct 04, 2026"); no Quantity or Collection status rows | Separate purchase date/store rows; shows Quantity and Collection status |
 | P2 | Imports | Also Music Label, CATraxx, OrangeCD, CDpedia | Not offered until authentic export fixtures are verified (see [import/export](import-export.md)) |
 | P2 | Loans | Borrower profiles with email, address and sort name *(carried over)* | Borrower names, filters and history only |
 | P2 | Report data error | Link under the track list | Corrections are proposed to Core from the editor |
@@ -132,6 +148,7 @@ and Pick Lists were opened and match in structure; Pick Lists opens the Artist
 list directly instead of an empty selector. Opening a menu
 does not establish its save behavior.
 
-The 2026-10-16 changes (Settings panels, toolbar pills, Loan Manager, Personal
-tab, drawer, header label, default status filter, cover fixes) are covered by
-tests but have not been re-checked side by side in the browser yet.
+The toolbar pills, default status filter and detail panel were re-checked side
+by side on 2026-10-16. The Settings panels, Loan Manager, editor Personal tab,
+drawer and header label are covered by tests but have not been re-checked in
+the browser yet.

@@ -6,6 +6,7 @@
 - Settings gains Sorting (sort titles and sort names), Auto Capitalization (when adding from Core, as you type, method and exceptions) and Localization (currency, currency display, number format, date display and entry order).
 - Albums get automatic sort titles ("Wall, The") on Add, Edit and import; Core derives them for new catalog items.
 - Libraries open on the In Collection status filter, and the header shows the signed-in Sync account.
+- Music sorting adds Has Back, Has Front, Format and Genre, and the list can show a Back Cover column.
 
 ### 🐛 Fixes
 - Albums without covers no longer show another entry's Core cover in Covers/Shelves.
@@ -19,6 +20,9 @@
 - Album totals in the details header use hours (1:07:22), matching the Length column.
 - The Played History date field no longer clips the year and month.
 - Utility actions and links on Custom Fields, Find Duplicates and Statistics use the shared blue.
+- Cancelling an untouched album editor no longer asks to discard changes.
+- Wrapped Artist and Title cells in the list grow their rows instead of being cut off.
+- The details track list, field tables, header and section columns, the album editor's fields and the Add button follow the reference sizes and colours.
 
 ### 📚 Docs
 - Replaced dated audit, plan and QA reports with one living [CLZ parity report](docs/clz-parity.md) and a concise architecture status.
