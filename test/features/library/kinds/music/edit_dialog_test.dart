@@ -81,6 +81,56 @@ void main() {
     await tester.pump();
   });
 
+  testWidgets('cancelling an untouched editor closes without a prompt',
+      (tester) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    // The fixture has no stored sort title, which the draft derives on save.
+    final payload = jsonDecode(
+        File('test/support/fixtures/music_core_ui_album.json')
+            .readAsStringSync()) as Map<String, dynamic>;
+    final request = LibraryEditDialogRequest(
+      type: const MusicRegistration(),
+      item: CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson(payload)),
+      libraryEntry: null,
+      accent: Colors.orange,
+    );
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: FilledButton(
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (context) =>
+                    buildMusicAlbumLibraryEditDialog(context, request),
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(
+        find.byType(LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>),
+        findsOneWidget);
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Unsaved changes'), findsNothing);
+    expect(
+        find.byType(LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>),
+        findsNothing);
+  });
+
   testWidgets('music links tab exposes editable external links',
       (tester) async {
     tester.view.physicalSize = const Size(1200, 900);

@@ -53,6 +53,7 @@ final class _MusicAlbumEditDialog extends ConsumerStatefulWidget {
 final class _MusicAlbumEditDialogState
     extends ConsumerState<_MusicAlbumEditDialog> {
   late final MusicAlbum _album;
+  late final String _initialAlbumJson;
   late final MusicAlbumEditDraft _draft;
   late final MusicAlbumCreditsEditor _creditsEditor;
   late final Future<void> _imagesLoaded;
@@ -70,6 +71,9 @@ final class _MusicAlbumEditDialogState
         .mapTransport((transport) => transport);
     _album = MusicCatalogMapper.mapMetadataItemToMusic(transport);
     _draft = MusicAlbumEditDraft.fromAlbum(_album);
+    // Saving fills derived values such as a missing sort title, so an
+    // untouched draft is compared with its own first output, not the album.
+    _initialAlbumJson = jsonEncode(_draft.toAlbum().toJson());
     _creditsEditor = MusicAlbumCreditsEditor(draft: _draft);
     _customFieldEdits = {
       for (final value in widget.request.customFieldValues)
@@ -295,8 +299,7 @@ final class _MusicAlbumEditDialogState
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,
       hasUnsavedChanges: () =>
-          jsonEncode(_album.toJson()) !=
-              jsonEncode(_draft.toAlbum().toJson()) ||
+          _initialAlbumJson != jsonEncode(_draft.toAlbum().toJson()) ||
           _albumImagesDirty ||
           (_listening?.hasChanges ?? false) ||
           jsonEncode(_customFieldEdits) !=
