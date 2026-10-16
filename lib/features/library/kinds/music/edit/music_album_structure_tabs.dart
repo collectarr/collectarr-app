@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_track_lis
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Music-entry release structure editor.
@@ -425,6 +426,9 @@ final class _MusicAlbumStructureTabState
                   () => draft.trackList.autocapTracks(
                     disc.id,
                     Set.of(_selectedTrackIds),
+                    ProviderScope.containerOf(context, listen: false)
+                        .read(uiPreferencesProvider)
+                        .titleCase,
                   ),
                 ),
                 child: Padding(

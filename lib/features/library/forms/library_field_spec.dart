@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/title_case.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/partial_date.dart';
@@ -94,19 +95,27 @@ final class LibraryTextFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {
 }
 
 /// A text transformation rendered in the shared external field header.
+///
+/// Transforms receive the title capitalization settings, so an Autocap
+/// action follows Settings > Auto Capitalization.
 final class LibraryTextFieldAction {
   const LibraryTextFieldAction({
     required this.label,
     this.icon,
     this.iconText,
     required this.transform,
+    this.appliesAsYouType = false,
   }) : assert(icon != null || iconText != null,
             'Either icon or iconText must be provided');
 
   final String label;
   final IconData? icon;
   final String? iconText;
-  final String Function(String value) transform;
+  final String Function(String value, TitleCaseSettings titleCase) transform;
+
+  /// Also applied while typing when Settings enables Auto Capitalization
+  /// "as you type".
+  final bool appliesAsYouType;
 }
 
 final class LibraryNumberFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {

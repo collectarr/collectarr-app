@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_pick_list_field.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_title_formatting.dart';
+import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
@@ -22,7 +22,8 @@ const musicTitleActions = [
   LibraryTextFieldAction(
     label: 'Autocap',
     iconText: 'Aa',
-    transform: autocapMusicTitle,
+    transform: applyTitleCase,
+    appliesAsYouType: true,
   ),
 ];
 

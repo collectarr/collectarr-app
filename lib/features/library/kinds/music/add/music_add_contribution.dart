@@ -15,6 +15,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MusicLibraryEntryCreatePayload(
     details: details as MusicEntryDetailsDraft,
+    autocapTitles: common.autocapTitles,
     initialListens: draft.initialListens,
     quantity: draft.quantity,
     condition: common.condition,

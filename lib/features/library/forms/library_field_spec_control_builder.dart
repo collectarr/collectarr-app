@@ -19,6 +19,8 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/core/utils/title_case.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -86,7 +88,8 @@ final class LibraryFieldSpecControlBuilder<TDraft>
                           onTap: () {
                             final controller =
                                 controllerFor(field.id, field.value(draft));
-                            final text = action.transform(controller.text);
+                            final text = action.transform(
+                                controller.text, _titleCaseSettings);
                             controller.value = TextEditingValue(
                               text: text,
                               selection:
@@ -195,10 +198,34 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         InputDecoration(errorText: field.validate(draft)),
       ),
       onChanged: (value) {
-        field.setValue(draft, value);
+        final text = _autocapWhileTyping(field, controller, value);
+        field.setValue(draft, text);
         onChanged?.call();
       },
     );
+  }
+
+  TitleCaseSettings get _titleCaseSettings =>
+      ProviderScope.containerOf(context, listen: false)
+          .read(uiPreferencesProvider)
+          .titleCase;
+
+  /// Applies Autocap while typing when Settings asks for it. Only
+  /// length-preserving changes are written back, so the caret stays put.
+  String _autocapWhileTyping(LibraryTextFieldSpec<TDraft> field,
+      TextEditingController controller, String value) {
+    final preferences = ProviderScope.containerOf(context, listen: false)
+        .read(uiPreferencesProvider);
+    if (!preferences.autocapAsYouType) return value;
+    var text = value;
+    for (final action in field.actions) {
+      if (action.appliesAsYouType) {
+        text = action.transform(text, preferences.titleCase);
+      }
+    }
+    if (text == value || text.length != value.length) return value;
+    controller.value = controller.value.copyWith(text: text);
+    return text;
   }
 
   @override

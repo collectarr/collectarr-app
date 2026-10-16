@@ -1,3 +1,6 @@
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
+import 'package:collectarr_app/features/settings/title_case_exceptions_dialog.dart';
+import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_management_content.dart';
@@ -777,6 +780,60 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           'Show sort names for persons',
                           preferences.showSortNames,
                           controller.setShowSortNames),
+                    ])),
+            _SettingsPanel(
+                icon: Icons.text_format,
+                title: 'Auto Capitalization',
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _SettingsSubheading('Auto Cap album titles'),
+                      toggle(
+                          'When adding from Core',
+                          preferences.autocapFromCore,
+                          controller.setAutocapFromCore),
+                      toggle(
+                          'As you type in edit screen',
+                          preferences.autocapAsYouType,
+                          controller.setAutocapAsYouType),
+                      const SizedBox(height: 8),
+                      const _SettingsSubheading('Auto Cap Method'),
+                      DropdownButtonFormField<TitleCaseMethod>(
+                        isExpanded: true,
+                        initialValue: preferences.titleCaseMethod,
+                        items: [
+                          for (final method in TitleCaseMethod.values)
+                            DropdownMenuItem(
+                                value: method, child: Text(method.label)),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            controller.setTitleCaseMethod(value);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          style: dialogActionButtonStyle(context),
+                          onPressed: preferences.titleCaseMethod !=
+                                  TitleCaseMethod.eachWordWithExceptions
+                              ? null
+                              : () async {
+                                  final updated =
+                                      await showTitleCaseExceptionsDialog(
+                                          context,
+                                          exceptions:
+                                              preferences.titleCaseExceptions);
+                                  if (updated != null) {
+                                    await controller
+                                        .setTitleCaseExceptions(updated);
+                                  }
+                                },
+                          child: const Text('Manage Exceptions'),
+                        ),
+                      ),
                     ])),
             _SettingsPanel(
                 icon: Icons.shopping_bag_outlined,

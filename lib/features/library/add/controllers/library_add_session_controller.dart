@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
 
@@ -45,8 +46,10 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     this.catalog,
     this.coverScanService = const LocalLibraryCoverScanService(),
     this.hydrationService = const LibraryAddHydrationService(),
-    this.submissionService =
-        const LibraryAddSubmissionService(prefillLoader: PrefillDefaults.load),
+    this.submissionService = const LibraryAddSubmissionService(
+      prefillLoader: PrefillDefaults.load,
+      autocapLoader: loadAutocapForCoreAdds,
+    ),
     this.onAuthSessionExpired,
     LibraryAddSessionState? initialState,
   })  : _registration = type,
