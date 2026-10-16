@@ -26,6 +26,7 @@ class LibraryProjectionService {
         const {},
     Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
+    LibrarySortingOptions sorting = const LibrarySortingOptions(),
   }) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
     final fields = workspace.fields;
@@ -41,6 +42,7 @@ class LibraryProjectionService {
       linkedMetadataFilter: linkedMetadataFilter,
       constrainedItemIds: constrainedItemIds,
       collectionEntryIds: collectionEntryIds,
+      sorting: sorting,
     );
 
     final engine = LibraryProjectionEngine();

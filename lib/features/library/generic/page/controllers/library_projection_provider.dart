@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -178,7 +180,12 @@ int _hashStringMap(Map<String, String> value) {
 
 final libraryProjectionProvider = Provider.autoDispose
     .family<LibraryProjection, LibraryProjectionRequest>((ref, request) {
+  final sorting = ref.watch(uiPreferencesProvider.select((p) =>
+      LibrarySortingOptions(
+          useSortTitles: !p.ignoreSortTitles,
+          useSortNames: !p.ignoreSortNames)));
   return LibraryProjection.fromShelf(
+    sorting: sorting,
     shelf: request.shelf,
     type: request.type,
     viewState: request.viewState,

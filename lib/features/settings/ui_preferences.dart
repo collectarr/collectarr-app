@@ -39,6 +39,10 @@ class UiPreferences {
     this.detailsPanelTemplate = DetailsPanelTemplate.application,
     this.confirmRemoval = true,
     this.confirmDuplication = true,
+    this.ignoreSortTitles = false,
+    this.ignoreSortNames = false,
+    this.showSortTitles = false,
+    this.showSortNames = false,
     this.showEbayLinks = true,
     this.ebayWishlistOnly = false,
     this.ebayToolbar = true,
@@ -80,6 +84,13 @@ class UiPreferences {
   final DetailsPanelTemplate detailsPanelTemplate;
   final bool confirmRemoval;
   final bool confirmDuplication;
+
+  /// Settings > Sorting: sort by titles/names as written, and show sort
+  /// titles/names in lists instead of display values.
+  final bool ignoreSortTitles;
+  final bool ignoreSortNames;
+  final bool showSortTitles;
+  final bool showSortNames;
   final bool showEbayLinks;
   final bool ebayWishlistOnly;
   final bool ebayToolbar;
@@ -111,6 +122,10 @@ class UiPreferences {
     DetailsPanelTemplate? detailsPanelTemplate,
     bool? confirmRemoval,
     bool? confirmDuplication,
+    bool? ignoreSortTitles,
+    bool? ignoreSortNames,
+    bool? showSortTitles,
+    bool? showSortNames,
     bool? showEbayLinks,
     bool? ebayWishlistOnly,
     bool? ebayToolbar,
@@ -144,6 +159,10 @@ class UiPreferences {
       detailsPanelTemplate: detailsPanelTemplate ?? this.detailsPanelTemplate,
       confirmRemoval: confirmRemoval ?? this.confirmRemoval,
       confirmDuplication: confirmDuplication ?? this.confirmDuplication,
+      ignoreSortTitles: ignoreSortTitles ?? this.ignoreSortTitles,
+      ignoreSortNames: ignoreSortNames ?? this.ignoreSortNames,
+      showSortTitles: showSortTitles ?? this.showSortTitles,
+      showSortNames: showSortNames ?? this.showSortNames,
       showEbayLinks: showEbayLinks ?? this.showEbayLinks,
       ebayWishlistOnly: ebayWishlistOnly ?? this.ebayWishlistOnly,
       ebayToolbar: ebayToolbar ?? this.ebayToolbar,
@@ -190,6 +209,10 @@ class UiPreferencesStore {
   static const confirmRemovalKey = '$_prefix.confirm_removal';
 
   static const confirmDuplicationKey = '$_prefix.confirm_duplication';
+  static const ignoreSortTitlesKey = '$_prefix.ignore_sort_titles';
+  static const ignoreSortNamesKey = '$_prefix.ignore_sort_names';
+  static const showSortTitlesKey = '$_prefix.show_sort_titles';
+  static const showSortNamesKey = '$_prefix.show_sort_names';
 
   static const showEbayLinksKey = '$_prefix.show_ebay_links';
 
@@ -232,6 +255,10 @@ class UiPreferencesStore {
           DetailsPanelTemplate.application,
       confirmRemoval: prefs.getBool(confirmRemovalKey) ?? true,
       confirmDuplication: prefs.getBool(confirmDuplicationKey) ?? true,
+      ignoreSortTitles: prefs.getBool(ignoreSortTitlesKey) ?? false,
+      ignoreSortNames: prefs.getBool(ignoreSortNamesKey) ?? false,
+      showSortTitles: prefs.getBool(showSortTitlesKey) ?? false,
+      showSortNames: prefs.getBool(showSortNamesKey) ?? false,
       showEbayLinks: prefs.getBool(showEbayLinksKey) ?? true,
       ebayWishlistOnly: prefs.getBool(ebayWishlistOnlyKey) ?? false,
       ebayToolbar: prefs.getBool(ebayToolbarKey) ?? true,
@@ -274,6 +301,10 @@ class UiPreferencesStore {
         detailsPanelTemplateKey, preferences.detailsPanelTemplate.name);
     await prefs.setBool(confirmRemovalKey, preferences.confirmRemoval);
     await prefs.setBool(confirmDuplicationKey, preferences.confirmDuplication);
+    await prefs.setBool(ignoreSortTitlesKey, preferences.ignoreSortTitles);
+    await prefs.setBool(ignoreSortNamesKey, preferences.ignoreSortNames);
+    await prefs.setBool(showSortTitlesKey, preferences.showSortTitles);
+    await prefs.setBool(showSortNamesKey, preferences.showSortNames);
     await prefs.setBool(showEbayLinksKey, preferences.showEbayLinks);
     await prefs.setBool(ebayWishlistOnlyKey, preferences.ebayWishlistOnly);
     await prefs.setBool(ebayToolbarKey, preferences.ebayToolbar);
@@ -362,6 +393,18 @@ class UiPreferencesController extends Notifier<UiPreferences> {
 
   Future<void> setConfirmDuplication(bool value) =>
       _update((s) => s.copyWith(confirmDuplication: value));
+
+  Future<void> setIgnoreSortTitles(bool value) =>
+      _update((s) => s.copyWith(ignoreSortTitles: value));
+
+  Future<void> setIgnoreSortNames(bool value) =>
+      _update((s) => s.copyWith(ignoreSortNames: value));
+
+  Future<void> setShowSortTitles(bool value) =>
+      _update((s) => s.copyWith(showSortTitles: value));
+
+  Future<void> setShowSortNames(bool value) =>
+      _update((s) => s.copyWith(showSortNames: value));
 
   Future<void> setShowEbayLinks(bool value) =>
       _update((s) => s.copyWith(showEbayLinks: value));

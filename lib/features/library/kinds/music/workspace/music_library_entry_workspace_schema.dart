@@ -108,10 +108,7 @@ final musicLibraryEntryWorkspaceSchema =
     sortFromField(MusicAdditionalWorkspaceFields.originalReleaseMonth),
     sortFromField(MusicCatalogWorkspaceFields.catalogNumber),
     sortFromField(MusicCatalogWorkspaceFields.barcode),
-    if (MusicFieldIdentities.artistSummary.sortable)
-      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicCatalogWorkspaceFields.artistSummary,
-      ),
+    if (MusicFieldIdentities.artistSummary.sortable) musicArtistSort(),
     if (MusicFieldIdentities.title.sortable) musicTitleSort(),
     musicPartialDateSort(
       MusicCatalogWorkspaceFields.releaseDate,

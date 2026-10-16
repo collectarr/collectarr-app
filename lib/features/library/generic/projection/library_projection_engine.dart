@@ -102,6 +102,7 @@ class LibraryProjectionEngine {
           a,
           b,
           viewState.sortRules,
+          sorting: query.sorting,
         ));
 
     final counts = statsCalculator.calculate(

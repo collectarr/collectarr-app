@@ -85,8 +85,46 @@ LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicTitleSort() =>
 
 String _sortTitleOf(
         LibraryProjectionContext<MusicWorkspaceProjection> context) =>
-    resolveSortTitle(context.dto.common.title, context.dto.music.sortTitle)
+    (context.sorting.useSortTitles
+            ? resolveSortTitle(
+                context.dto.common.title, context.dto.music.sortTitle)
+            : context.dto.common.title)
         .toLowerCase();
+
+/// Artist order uses the artists' sort names ("Adams, Bryan"), falling back
+/// to the name with a leading article moved ("Beatles, The"), unless sort
+/// names are ignored in Settings.
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicArtistSort() =>
+    LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+      id: LibrarySortId<MusicKind>(
+          MusicCatalogWorkspaceFields.artistSummary.id.value),
+      label: MusicCatalogWorkspaceFields.artistSummary.label,
+      compare: (left, right) =>
+          _artistSortKey(left).compareTo(_artistSortKey(right)),
+    );
+
+String _artistSortKey(
+        LibraryProjectionContext<MusicWorkspaceProjection> context) =>
+    (context.sorting.useSortNames
+            ? musicArtistSortName(context.dto)
+            : _artistDisplay(context.dto))
+        .toLowerCase();
+
+String _artistDisplay(MusicWorkspaceProjection dto) =>
+    dto.music.artist ?? dto.facts.primaryArtist ?? '';
+
+/// The album's artists by sort name, falling back to the name with a leading
+/// article moved to the end.
+String musicArtistSortName(MusicWorkspaceProjection dto) {
+  final credits = [...dto.music.artistCredits]
+    ..sort((a, b) => a.sequence.compareTo(b.sequence));
+  if (credits.isEmpty) return automaticSortTitle(_artistDisplay(dto));
+  return credits
+      .map((credit) => credit.sortName?.trim().isNotEmpty == true
+          ? credit.sortName!.trim()
+          : automaticSortTitle(credit.creditedName))
+      .join(' / ');
+}
 
 /// Release dates are partial; ordering by their DateTime view would drop
 /// every year-only date.

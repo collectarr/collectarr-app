@@ -385,6 +385,7 @@ class LibraryProjection {
         const {},
     Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
+    LibrarySortingOptions sorting = const LibrarySortingOptions(),
   }) {
     return const LibraryProjectionService().build(
       shelf: shelf,
@@ -407,6 +408,7 @@ class LibraryProjection {
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
       activeLoanLibraryEntryIds: activeLoanLibraryEntryIds,
       searchTarget: searchTarget,
+      sorting: sorting,
     );
   }
 

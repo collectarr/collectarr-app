@@ -757,6 +757,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       controller.setConfirmDuplication),
                 ])),
             _SettingsPanel(
+                icon: Icons.sort_by_alpha,
+                title: 'Sorting',
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const _SettingsSubheading('When sorting...'),
+                      toggle('Ignore sort titles', preferences.ignoreSortTitles,
+                          controller.setIgnoreSortTitles),
+                      toggle(
+                          'Ignore sort names for persons',
+                          preferences.ignoreSortNames,
+                          controller.setIgnoreSortNames),
+                      const SizedBox(height: 8),
+                      const _SettingsSubheading('When displaying...'),
+                      toggle('Show sort titles', preferences.showSortTitles,
+                          controller.setShowSortTitles),
+                      toggle(
+                          'Show sort names for persons',
+                          preferences.showSortNames,
+                          controller.setShowSortNames),
+                    ])),
+            _SettingsPanel(
                 icon: Icons.shopping_bag_outlined,
                 title: 'eBay search links',
                 child: Column(children: [
@@ -1522,6 +1544,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
     return 'Session expires ${_formatSyncTime(expiresAt)}';
   }
+}
+
+/// A blue group label inside a settings panel, as in the reference.
+class _SettingsSubheading extends StatelessWidget {
+  const _SettingsSubheading(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 2),
+        child: Text(label,
+            style: TextStyle(
+                color: appPalette(context).utilityAction,
+                fontSize: 13,
+                fontWeight: FontWeight.w700)),
+      );
 }
 
 class _SettingsTabBody extends StatelessWidget {

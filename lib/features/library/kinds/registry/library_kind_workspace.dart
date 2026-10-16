@@ -104,8 +104,9 @@ abstract interface class LibraryKindWorkspace {
   int compareEntriesByRules(
     LibraryProjectionView left,
     LibraryProjectionView right,
-    Iterable<LibrarySortRuleRuntime> rules,
-  );
+    Iterable<LibrarySortRuleRuntime> rules, {
+    LibrarySortingOptions sorting = const LibrarySortingOptions(),
+  });
   String? subgroupKeyForEntry(
     LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
@@ -423,8 +424,9 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   int compareEntriesByRules(
     LibraryProjectionView left,
     LibraryProjectionView right,
-    Iterable<LibrarySortRuleRuntime> rules,
-  ) {
+    Iterable<LibrarySortRuleRuntime> rules, {
+    LibrarySortingOptions sorting = const LibrarySortingOptions(),
+  }) {
     validateProjection(left);
     validateProjection(right);
     final targetFields = _typedFieldsForTarget(left.target);
@@ -436,11 +438,13 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
             item: left.source.item,
             personal: left.source.personal,
             dto: left.dto as TDto,
+            sorting: sorting,
           ),
           LibraryProjectionContext<TDto>(
             item: right.source.item,
             personal: right.source.personal,
             dto: right.dto as TDto,
+            sorting: sorting,
           ),
         );
         if (result != 0) return rule.ascending ? result : -result;

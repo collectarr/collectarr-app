@@ -21,10 +21,7 @@ final musicCatalogItemWorkspaceSchema =
   ],
   columns: musicCatalogWorkspaceColumns,
   sorts: [
-    if (MusicFieldIdentities.artistSummary.sortable)
-      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicCatalogWorkspaceFields.artistSummary,
-      ),
+    if (MusicFieldIdentities.artistSummary.sortable) musicArtistSort(),
     if (MusicFieldIdentities.title.sortable) musicTitleSort(),
     if (MusicFieldIdentities.releaseDate.sortable)
       musicPartialDateSort(
