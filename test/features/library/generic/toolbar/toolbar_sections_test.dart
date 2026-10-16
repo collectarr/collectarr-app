@@ -389,7 +389,7 @@ void main() {
         );
     await tester.pumpWidget(buildToolbar());
 
-    expect(find.byType(InputChip), findsNothing);
+    expect(find.byType(LibraryToolbarScopeChip), findsNothing);
     expect(find.byTooltip('Reset folders'), findsNothing);
     expect(
         tester
@@ -399,9 +399,9 @@ void main() {
 
     linkedLabel = 'Producer: Demo Contributor';
     await tester.pumpWidget(buildToolbar());
-    expect(find.byType(InputChip), findsOneWidget);
+    expect(find.byType(LibraryToolbarScopeChip), findsOneWidget);
     expect(find.text(linkedLabel), findsOneWidget);
-    await tester.tap(find.byTooltip('Delete'));
+    await tester.tap(find.byTooltip('Clear'));
     expect(cleared, isTrue);
   });
 

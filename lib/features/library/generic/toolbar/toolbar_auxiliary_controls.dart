@@ -1156,14 +1156,36 @@ class LibraryItemCountLabel extends StatelessWidget {
     final label = shown == total
         ? '$total ${pluralLabel.toLowerCase()}'
         : '$shown of $total ${pluralLabel.toLowerCase()}';
-    return Text(
-      label,
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: appPalette(context).textMuted,
-          ),
+    final palette = appPalette(context);
+    return _ToolbarPill(
+      color: palette.isDark ? const Color(0xFF4A4A4A) : palette.panelRaised,
+      child: Text(label,
+          style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: palette.isDark ? Colors.white : palette.textPrimary)),
     );
   }
+}
+
+/// The rounded count and scope pills of the browsing toolbar.
+class _ToolbarPill extends StatelessWidget {
+  const _ToolbarPill({required this.color, required this.child});
+
+  final Color color;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        height: 26,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: child,
+      );
 }
 
 class LibraryToolbarScopeChip extends StatelessWidget {
@@ -1178,18 +1200,30 @@ class LibraryToolbarScopeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InputChip(
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      backgroundColor: appPalette(context).selection,
-      label: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              fontWeight: FontWeight.w700,
+    const style = TextStyle(
+        fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white);
+    return _ToolbarPill(
+      color: appPalette(context).utilityAction,
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 200),
+          child: Text(label,
+              style: style, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+        const SizedBox(width: 5),
+        Tooltip(
+          message: 'Clear',
+          child: InkWell(
+            onTap: onClear,
+            customBorder: const CircleBorder(),
+            mouseCursor: SystemMouseCursors.click,
+            child: const Padding(
+              padding: EdgeInsets.all(3),
+              child: Icon(Icons.close, size: 14, color: Colors.white),
             ),
-      ),
-      labelPadding: const EdgeInsets.symmetric(horizontal: 2),
-      onDeleted: onClear,
+          ),
+        ),
+      ]),
     );
   }
 }
