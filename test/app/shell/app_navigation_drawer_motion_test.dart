@@ -23,6 +23,10 @@ void main() {
       )),
     ));
     await tester.pumpAndSettle();
+    // Optional sections start collapsed, as in the reference.
+    expect(find.text('Backup / Restore'), findsNothing);
+    await tester.tap(find.text('Maintenance'));
+    await tester.pumpAndSettle();
     final nextSection = find.text('Import / Export');
     final expandedY = tester.getTopLeft(nextSection).dy;
 

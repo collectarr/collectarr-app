@@ -155,16 +155,16 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                         _DrawerCollapsibleSectionLabel(
                           section.label,
                           color: sectionHeaderColor,
-                          isExpanded: _expanded[section] ?? true,
+                          isExpanded: _expanded[section] ?? false,
                           onTap: () => setState(() => _expanded[section] =
-                              !(_expanded[section] ?? true)),
+                              !(_expanded[section] ?? false)),
                         )
                       else
                         _DrawerSectionLabel(section.label,
                             color: sectionHeaderColor),
                       if (section.collapsible)
                         _DrawerCollapsibleSection(
-                            isExpanded: _expanded[section] ?? true,
+                            isExpanded: _expanded[section] ?? false,
                             children: _sectionActions(context, section))
                       else
                         ..._sectionActions(context, section),

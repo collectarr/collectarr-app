@@ -75,6 +75,14 @@ void main() {
             .height,
         30);
 
+    // Optional sections start collapsed; open them to verify their items.
+    expect(find.text('Backup / Restore'), findsNothing);
+    for (final section in ['Maintenance', 'Import / Export', 'Help']) {
+      await tester.ensureVisible(find.text(section));
+      await tester.tap(find.text(section));
+      await tester.pumpAndSettle();
+    }
+
     // Verify items
     expect(find.text('Add Albums from Core'), findsOneWidget);
     expect(find.text('Manage Collections'), findsOneWidget);
