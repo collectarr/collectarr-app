@@ -326,8 +326,8 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
                                                   ? 'Clear search'
                                                   : 'Search',
                                               icon: widget.searchActive
-                                                  ? Icons.close
-                                                  : Icons.search,
+                                                  ? AppIcons.close
+                                                  : AppIcons.search,
                                               onPressed: widget.searchActive
                                                   ? () {
                                                       widget.onClearSearch

@@ -36,21 +36,32 @@ class LibraryToolbarPrimaryActions extends ConsumerWidget {
         if (!useFab) ...[
           SizedBox(
             height: 30,
-            child: FilledButton.icon(
+            child: FilledButton(
               onPressed: onAdd,
               style: FilledButton.styleFrom(
                 backgroundColor: addBackgroundColor,
                 foregroundColor: addForegroundColor,
-                padding: const EdgeInsets.symmetric(horizontal: 9),
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                minimumSize: Size.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
                 textStyle: TextStyle(
                   fontFamily: appFontFamily,
                   fontFamilyFallback: kAppFontFamilyFallback,
                   fontSize: 14,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-              icon: const Icon(AppIcons.add, size: 14),
-              label: Text(addLabel),
+              // Compact plus and bold label, as in the reference toolbar.
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(AppIcons.add, size: 13),
+                  const SizedBox(width: 4),
+                  Text(addLabel),
+                ],
+              ),
             ),
           ),
         ],

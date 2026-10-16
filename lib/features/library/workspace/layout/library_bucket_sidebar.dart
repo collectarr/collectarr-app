@@ -520,7 +520,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
                                 Theme.of(context).brightness == Brightness.dark
                                     ? const Color(0xff444444)
                                     : appPalette(context).panelRaised,
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: BorderRadius.circular(4),
                           ),
                           child: Row(children: [
                             Expanded(
@@ -566,16 +566,16 @@ class _SidebarSearchAndSort extends StatelessWidget {
                                   },
                                   icon: Icon(
                                       controller.text.isEmpty
-                                          ? Icons.search
-                                          : Icons.close,
+                                          ? AppIcons.search
+                                          : AppIcons.close,
                                       size: 14,
-                                      color: mutedTextColor),
+                                      color: appPalette(context).textPrimary),
                                 ),
                               ),
                           ]),
                         )
                       : Center(
-                          child: Icon(Icons.search,
+                          child: Icon(AppIcons.search,
                               size: 14, color: mutedTextColor)),
                 ),
               ),

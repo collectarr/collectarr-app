@@ -537,7 +537,9 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
             onRefreshMetadata: onRefreshMetadata,
             onRandomPick: onRandomPick,
             onScanCover: onScanCover,
-            addBackgroundColor: accent,
+            // Add is a utility action: shared blue in every kind, as in the
+            // reference.
+            addBackgroundColor: appPalette(context).utilityAction,
             addForegroundColor: Colors.white,
           ),
         if (showChromeRow) ...[

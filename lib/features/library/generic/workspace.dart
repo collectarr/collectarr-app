@@ -529,7 +529,7 @@ class LibraryWorkspace extends ConsumerWidget {
                     selectionRailColor: appPalette(context).utilityAction,
                     bottomBorderColor: palette.tableBottomBorder,
                     hoverColor: palette.surfaceBright,
-                    accentColor: accent,
+                    accentColor: appPalette(context).utilityAction,
                   ),
                 ),
               ),

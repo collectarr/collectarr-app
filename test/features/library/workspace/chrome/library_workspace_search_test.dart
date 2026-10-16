@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:flutter/material.dart';
@@ -31,13 +32,13 @@ void main() {
       ),
     );
 
-    expect(find.byIcon(Icons.search), findsOneWidget);
+    expect(find.byIcon(AppIcons.search), findsOneWidget);
     expect(find.byIcon(Icons.barcode_reader), findsOneWidget);
     expect(find.byIcon(Icons.image_search), findsOneWidget);
     expect(find.byIcon(Icons.casino_outlined), findsOneWidget);
     expect(find.text('Entry'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.search));
+    await tester.tap(find.byIcon(AppIcons.search));
     await tester.pump();
 
     expect(lastSearch, 'Spider-Man');
@@ -126,10 +127,10 @@ void main() {
       ),
     );
 
-    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(find.byIcon(AppIcons.close), findsOneWidget);
     expect(find.text('Spider-Man #1'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.close));
+    await tester.tap(find.byIcon(AppIcons.close));
     await tester.pump();
     expect(cleared, isTrue);
 

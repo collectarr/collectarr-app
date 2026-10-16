@@ -208,6 +208,10 @@ abstract final class AppIcons {
   static const IconData upload =
       IconData(0xf093, fontFamily: _solid, fontPackage: _fontPackage);
 
+  // --- Search ---
+  static const IconData search =
+      IconData(0xf002, fontFamily: _solid, fontPackage: _fontPackage);
+
   // --- Search Scope Targets ---
   static const IconData searchAll =
       IconData(0xf1c0, fontFamily: _solid, fontPackage: _fontPackage);

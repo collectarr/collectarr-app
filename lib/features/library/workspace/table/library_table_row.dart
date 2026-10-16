@@ -70,6 +70,8 @@ class LibraryTableInkRow extends StatelessWidget {
           onDoubleTap: onDoubleTap,
           onSecondaryTapUp: onSecondaryTapUp,
           hoverColor: selected ? Colors.transparent : hoverColor,
+          // A keyboard-focused row must not hide the selection fill.
+          focusColor: selected ? Colors.transparent : hoverColor,
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               resolvedHorizontalMargin,
