@@ -43,6 +43,7 @@ import 'package:collectarr_app/features/library/providers/selected_library_provi
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
+import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -817,6 +818,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               label: 'when duplicating $kindPlural',
               value: preferences.confirmDuplication,
               onChanged: controller.setConfirmDuplication),
+          const SizedBox(height: 10),
+          const SettingsLegend('Adding from Core'),
+          SettingsBlockButton(
+            label: 'Add/Update from Core settings',
+            onPressed: () => showPrefillSettingsDialog(
+                context: context,
+                accent: kindIdentity.accent,
+                kind: kindIdentity.kind),
+          ),
         ]));
     final sorting = _SettingsPanel(
         icon: Icons.sort_by_alpha,
