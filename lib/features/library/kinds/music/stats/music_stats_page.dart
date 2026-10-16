@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
@@ -83,9 +85,10 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
       }
     }
     String money(Map<String, int> totals) => (totals.keys.toList()..sort())
-        .map((currency) =>
-            '$currency ${(totals[currency]! / 100).toStringAsFixed(2)}')
-        .join(' / ');
+        .map((currency) => AppFormats.current.formatMoney(totals[currency],
+            currency == 'Unspecified currency' ? null : currency))
+        .join(' + ');
+    final signed = MusicStatsCapability.totalSignedCopies(entries);
     final sections = <Widget>[
       _StatsSection(
           title: 'Albums by Format',
@@ -93,9 +96,8 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
               values: MusicStatsCapability.countFormats(entries))),
       _StatsSection(
           title: 'Most recent additions',
-          child: _AlbumList(
-              entries: recent.take(5).toList(),
-              detail: (e) => _date(e.addedAt))),
+          child:
+              _AlbumList(entries: recent.take(5).toList(), showTracks: true)),
       _StatsSection(
           title: 'Played',
           child: _Distribution(values: {
@@ -144,7 +146,9 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
           leading: AppPageBackButton(
               key: const Key('stats.back'),
               onPressed: () => Navigator.of(context).pop())),
+      // A 958 px page, as in the reference.
       body: AppManagementContent(
+          maxWidth: 998,
           child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Center(
@@ -168,38 +172,67 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
                           onSelected: (index) => setState(() => _collectionId =
                               index == 0 ? null : values[index - 1].id),
                         ),
+                      // Numbers bold, words regular, as in the reference.
                       Container(
                           color: appManagementPanelColor(context),
-                          padding: const EdgeInsets.all(24),
+                          padding: const EdgeInsets.all(20),
                           child: Column(children: [
-                            Text(
-                                '$albumCopies albums and ${MusicStatsCapability.countArtists(entries).length} Artists',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w700)),
-                            const SizedBox(height: 12),
-                            Text(
-                                '${MusicStatsCapability.totalMedia(entries)} discs, ${MusicStatsCapability.totalTracks(entries)} tracks / total runtime: ${MusicStatsCapability.formatRuntime(MusicStatsCapability.totalRuntimeSeconds(entries))}',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700)),
+                            _SummaryLine(fontSize: 18, parts: [
+                              ('$albumCopies', true),
+                              (' albums and ', false),
+                              (
+                                '${MusicStatsCapability.countArtists(entries).length}',
+                                true
+                              ),
+                              (' Artists', false),
+                            ]),
+                            const SizedBox(height: 14),
+                            _SummaryLine(fontSize: 16, parts: [
+                              (
+                                '${MusicStatsCapability.totalMedia(entries)}',
+                                true
+                              ),
+                              (' discs, ', false),
+                              (
+                                '${MusicStatsCapability.totalTracks(entries)}',
+                                true
+                              ),
+                              (' tracks / total runtime: ', false),
+                              ..._runtimeParts(
+                                  MusicStatsCapability.totalRuntimeSeconds(
+                                      entries)),
+                            ]),
+                            if (signed > 0) ...[
+                              const SizedBox(height: 14),
+                              _SummaryLine(fontSize: 16, parts: [
+                                ('$signed', true),
+                                (
+                                  signed == 1
+                                      ? ' signed album'
+                                      : ' signed albums',
+                                  false
+                                ),
+                              ]),
+                            ],
                             if (purchaseTotals.isNotEmpty ||
                                 valueTotals.isNotEmpty) ...[
-                              const SizedBox(height: 12),
-                              Text(
-                                  'Total purchase price: ${purchaseTotals.isEmpty ? '?' : money(purchaseTotals)} / current value: ${valueTotals.isEmpty ? '?' : money(valueTotals)}',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700)),
-                            ],
-                            if (MusicStatsCapability.totalSignedCopies(
-                                    entries) >
-                                0) ...[
-                              const SizedBox(height: 12),
-                              Text(
-                                  '${MusicStatsCapability.totalSignedCopies(entries)} signed albums',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700))
+                              const SizedBox(height: 14),
+                              _SummaryLine(fontSize: 18, parts: [
+                                ('purchase price: ', false),
+                                (
+                                  purchaseTotals.isEmpty
+                                      ? '?'
+                                      : money(purchaseTotals),
+                                  true
+                                ),
+                                (' / current value: ', false),
+                                (
+                                  valueTotals.isEmpty
+                                      ? '?'
+                                      : money(valueTotals),
+                                  true
+                                ),
+                              ]),
                             ],
                           ])),
                       const SizedBox(height: 20),
@@ -214,7 +247,7 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
                                           column < 2;
                                           column++) ...[
                                         if (column == 1)
-                                          const SizedBox(width: 28),
+                                          const SizedBox(width: 32),
                                         Expanded(
                                             child: Column(
                                                 crossAxisAlignment:
@@ -264,51 +297,143 @@ class _StatsSection extends StatelessWidget {
           ])));
 }
 
-class _AlbumList extends StatelessWidget {
-  const _AlbumList({required this.entries, required this.detail});
-  final List<LibraryWorkspaceContext> entries;
-  final String Function(LibraryWorkspaceContext) detail;
+/// A summary line with bold figures between regular words.
+class _SummaryLine extends StatelessWidget {
+  const _SummaryLine({required this.parts, required this.fontSize});
+  final List<(String, bool)> parts;
+  final double fontSize;
   @override
-  Widget build(BuildContext context) => entries.isEmpty
-      ? const Text('No albums')
-      : Column(children: [
-          for (final entry in entries)
-            InkWell(
-                onTap: () => openWorkspaceEntryDetails(context, entry),
+  Widget build(BuildContext context) => Text.rich(
+      TextSpan(children: [
+        for (final (text, bold) in parts)
+          TextSpan(
+              text: text,
+              style: TextStyle(
+                  fontWeight: bold ? FontWeight.w700 : FontWeight.w400)),
+      ]),
+      textAlign: TextAlign.center,
+      style: TextStyle(fontSize: fontSize));
+}
+
+/// "2 days, 5 hours, 32 minutes" with the figures bold.
+List<(String, bool)> _runtimeParts(int totalSeconds) {
+  final minutes = totalSeconds ~/ 60;
+  final units = [
+    (minutes ~/ (24 * 60), 'day'),
+    (minutes ~/ 60 % 24, 'hour'),
+    (minutes % 60, 'minute'),
+  ].where((unit) => unit.$1 > 0).toList();
+  if (units.isEmpty) return const [('0', true), (' minutes', false)];
+  return [
+    for (var i = 0; i < units.length; i++) ...[
+      if (i > 0) (', ', false),
+      ('${units[i].$1}', true),
+      (' ${units[i].$2}${units[i].$1 == 1 ? '' : 's'}', false),
+    ],
+  ];
+}
+
+String _trackLength(int seconds) {
+  String two(int value) => value.toString().padLeft(2, '0');
+  final minutes = seconds ~/ 60 % 60;
+  return seconds >= 3600
+      ? '${seconds ~/ 3600}:${two(minutes)}:${two(seconds % 60)}'
+      : '$minutes:${two(seconds % 60)}';
+}
+
+/// Reference album rows: a 90 px cover, blue title, bold artist,
+/// format and year at the bottom, and optionally tracks and length.
+class _AlbumList extends StatelessWidget {
+  const _AlbumList(
+      {required this.entries, this.detail, this.showTracks = false});
+  final List<LibraryWorkspaceContext> entries;
+  final String Function(LibraryWorkspaceContext)? detail;
+  final bool showTracks;
+  @override
+  Widget build(BuildContext context) {
+    if (entries.isEmpty) return const Text('No albums');
+    final palette = appPalette(context);
+    return Column(children: [
+      for (final entry in entries)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 5),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: appManagementPanelColor(context),
+              boxShadow: const [
+                BoxShadow(
+                    color: Color(0x66000000),
+                    blurRadius: 3,
+                    offset: Offset(0, 1)),
+              ],
+            ),
+            child: InkWell(
+              onTap: () => openWorkspaceEntryDetails(context, entry),
+              child: SizedBox(
+                height: 100,
                 child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                              width: 80,
-                              height: 80,
-                              child: LibraryCoverImage(
-                                  title: entry.title,
-                                  libraryEntryRef: entry.libraryEntryRef,
-                                  imageUrl: _music(entry).music.coverImageUrl,
-                                  fallbackAspectRatio: 1,
-                                  borderRadius: 0)),
-                          const SizedBox(width: 8),
-                          Expanded(
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                Text(entry.title,
-                                    style: TextStyle(
-                                        color: appPalette(context).link)),
-                                if (_music(entry).music.artist
-                                    case final artist?)
-                                  Text(artist,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w700)),
+                  padding: const EdgeInsets.all(5),
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(
+                            width: 90,
+                            child: LibraryCoverImage(
+                                title: entry.title,
+                                libraryEntryRef: entry.libraryEntryRef,
+                                imageUrl: _music(entry).music.coverImageUrl,
+                                fallbackAspectRatio: 1,
+                                borderRadius: 0)),
+                        const SizedBox(width: 7),
+                        Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                              Text(entry.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: palette.utilityAction)),
+                              if (_music(entry).music.artist case final artist?)
+                                Text(artist,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w700)),
+                              const Spacer(),
+                              Text(
+                                  '${_music(entry).facts.formatSummary ?? ''} - ${_music(entry).music.releaseDateParts?.year ?? ''}'),
+                            ])),
+                        const SizedBox(width: 8),
+                        if (showTracks)
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(mainAxisSize: MainAxisSize.min, children: [
+                                  const Icon(AppIcons.searchTracks, size: 11),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                      '${MusicStatsCapability.totalTracks([
+                                            entry
+                                          ])}',
+                                      style: const TextStyle(fontSize: 12)),
+                                ]),
                                 Text(
-                                    '${_music(entry).facts.formatSummary ?? ''} - ${_music(entry).music.releaseDateParts?.year ?? ''}'),
-                              ])),
-                          const SizedBox(width: 8),
-                          Text(detail(entry)),
-                        ]))),
-        ]);
+                                    _trackLength(MusicStatsCapability
+                                        .totalRuntimeSeconds([entry])),
+                                    style: const TextStyle(fontSize: 12)),
+                              ])
+                        else if (detail != null)
+                          Text(detail!(entry)),
+                      ]),
+                ),
+              ),
+            ),
+          ),
+        ),
+    ]);
+  }
 }
 
 class _Distribution extends StatelessWidget {
@@ -340,9 +465,11 @@ class _Distribution extends StatelessWidget {
       Wrap(spacing: 16, runSpacing: 6, children: [
         for (var i = 0; i < ranked.length; i++)
           Row(mainAxisSize: MainAxisSize.min, children: [
-            Container(width: 10, height: 10, color: colors[i]),
+            // Reference legend: a 40 x 12 swatch and the label; counts
+            // are in the chart tooltip.
+            Container(width: 40, height: 12, color: colors[i]),
             const SizedBox(width: 6),
-            Text('${ranked[i].key}: ${ranked[i].value}'),
+            Text(ranked[i].key, style: const TextStyle(fontSize: 12)),
           ]),
       ]),
       const SizedBox(height: 12),
