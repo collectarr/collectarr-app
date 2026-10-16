@@ -32,6 +32,21 @@ class LibraryTableCellText extends StatelessWidget {
   }
 }
 
+/// A custom list cell that tells wrapped rows which text to fit.
+abstract interface class LibraryMeasuredTableCell {
+  /// The longest text the cell can show.
+  String get measuredText;
+}
+
+/// The text a list cell shows, used to size wrapped rows.
+String libraryTableCellText(Widget cell) => switch (cell) {
+      LibraryTableCellText(:final value, :final emptyText) =>
+        value == null || value.isEmpty ? emptyText : value,
+      Text(:final data) => data ?? '',
+      LibraryMeasuredTableCell(:final measuredText) => measuredText,
+      _ => '',
+    };
+
 class LibraryTableCellDisplayScope extends InheritedWidget {
   const LibraryTableCellDisplayScope({
     super.key,

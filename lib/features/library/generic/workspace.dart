@@ -327,14 +327,8 @@ class LibraryWorkspace extends ConsumerWidget {
           target: schemaNode,
         );
         final widths = Map.of(viewState.columnWidths);
-        String cellText(LibraryProjectionItem item, String id) {
-          final cell = _tableCell(item, id);
-          return switch (cell) {
-            LibraryTableCellText(:final value) => value ?? '-',
-            Text(:final data) => data ?? '',
-            _ => '',
-          };
-        }
+        String cellText(LibraryProjectionItem item, String id) =>
+            libraryTableCellText(_tableCell(item, id));
 
         final painter = TextPainter(
           textDirection: Directionality.of(context),

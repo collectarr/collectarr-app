@@ -44,4 +44,22 @@ void main() {
 
     expect(wrapped, greaterThan(singleLine * 1.5));
   });
+
+  test('wrapped rows measure custom cells by their measured text', () {
+    expect(libraryTableCellText(const LibraryTableCellText(null)), '-');
+    expect(libraryTableCellText(const Text('Arrival')), 'Arrival');
+    expect(libraryTableCellText(const _MeasuredCell()), 'Sabaton, The');
+    expect(libraryTableCellText(const SizedBox()), '');
+  });
+}
+
+class _MeasuredCell extends StatelessWidget
+    implements LibraryMeasuredTableCell {
+  const _MeasuredCell();
+
+  @override
+  String get measuredText => 'Sabaton, The';
+
+  @override
+  Widget build(BuildContext context) => const Text('Sabaton');
 }
