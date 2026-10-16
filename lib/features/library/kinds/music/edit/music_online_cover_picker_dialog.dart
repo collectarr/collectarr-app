@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
@@ -90,7 +91,7 @@ final class _MusicOnlineCoverPickerDialogState
     final height = (viewport.height - 64).clamp(240.0, 600.0).toDouble();
     return Dialog(
       alignment: Alignment.topCenter,
-      insetPadding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+      insetPadding: const EdgeInsets.fromLTRB(16, kAppDialogTopInset, 16, 24),
       child: SizedBox(
           width: width,
           height: height,

@@ -70,6 +70,13 @@ class LibraryToolsButton extends StatelessWidget {
       onQuickViewSelected: onQuickViewSelected,
       badgeCount: _utilityBadgeCount,
       actions: [
+        if (hasActiveFilters)
+          LibraryUtilityMenuAction(
+            icon: Icons.filter_alt_off,
+            label: 'Clear filters',
+            section: 'Filters',
+            onSelected: onClearFilters,
+          ),
         if (onEditSort != null)
           LibraryUtilityMenuAction(
             icon: Icons.sort,

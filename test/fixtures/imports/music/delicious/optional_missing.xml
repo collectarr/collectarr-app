@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<plist version="1.0">
+  <array>
+    <dict>
+      <key>uuidString</key>
+      <string>00000000-0000-4000-8000-000000000001</string>
+      <key>type</key>
+      <string>Music</string>
+      <key>title</key>
+      <string>After &amp; Before</string>
+    </dict>
+    <dict>
+      <key>uuidString</key>
+      <string>00000000-0000-4000-8000-000000000002</string>
+      <key>type</key>
+      <string>Music</string>
+      <key>title</key>
+      <string>Quiet Morning</string>
+    </dict>
+  </array>
+</plist>

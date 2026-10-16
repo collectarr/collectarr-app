@@ -54,18 +54,14 @@ class AccentAlertDialog extends StatelessWidget {
   final bool scrollable;
   final VoidCallback? headerOnClose;
 
-  static const _defaultRadius = 0.0;
-
   @override
   Widget build(BuildContext context) {
     final titleWidget = _buildTitle(context);
     final hasAccentHeader = titleWidget != null;
     final currentDepth = ModalDialogDepthScope.of(context);
     final inheritedAlignment = ModalDialogDepthScope.parentAlignmentOf(context);
-    final resolvedAlignment = alignment ??
-        (currentDepth > 0
-            ? Alignment.center
-            : (inheritedAlignment ?? kDefaultDialogAlignment));
+    final resolvedAlignment =
+        alignment ?? inheritedAlignment ?? kDefaultDialogAlignment;
 
     return ModalDialogDepthScope(
       depth: currentDepth + 1,
@@ -79,16 +75,13 @@ class AccentAlertDialog extends StatelessWidget {
         actions: actions,
         titlePadding: hasAccentHeader ? EdgeInsets.zero : titlePadding,
         contentPadding: contentPadding,
-        actionsPadding: actionsPadding,
-        buttonPadding: buttonPadding,
+        actionsPadding: actionsPadding ?? const EdgeInsets.all(10),
+        buttonPadding: buttonPadding ?? const EdgeInsets.only(left: 5),
         backgroundColor: backgroundColor,
         surfaceTintColor: surfaceTintColor,
-        insetPadding: insetPadding,
+        insetPadding: insetPadding ?? kAppDialogInsets,
         clipBehavior: clipBehavior ?? Clip.antiAlias,
-        shape: shape ??
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(_defaultRadius),
-            ),
+        shape: shape ?? appDialogShape,
         alignment: resolvedAlignment,
         semanticLabel: semanticLabel,
         scrollable: scrollable,
@@ -119,14 +112,6 @@ class AccentAlertDialog extends StatelessWidget {
     }
     return AnimatedLibraryChrome(
       accent: resolvedAccent,
-      borderBuilder: (animatedAccent, _) => Border(
-        bottom: BorderSide(
-          color: Color.alphaBlend(
-            Colors.white.withValues(alpha: 0.12),
-            animatedAccent,
-          ),
-        ),
-      ),
       child: LibraryPanelHeader(
         backgroundColor: Colors.transparent,
         foregroundColor: accentForeground,

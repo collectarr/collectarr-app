@@ -88,7 +88,6 @@ List<Widget> buildBookLibraryEntryInspectorSections(
     ...sections,
     LibraryDetailSection(
       title: 'Collection item details',
-      accentColor: request.accent,
       children: [LibraryDetailFieldTable(fields: facts)],
     ),
   ];

@@ -83,10 +83,8 @@ class _MusicDiscTabButtonState extends State<MusicDiscTabButton> {
                 label,
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: selected || _hovered
-                      ? Colors.white
-                      : const Color(0xFFAAAAAA),
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
                 ),
               ),
               if (onRemove != null) ...[

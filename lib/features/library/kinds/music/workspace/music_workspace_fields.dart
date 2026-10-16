@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -18,5 +19,22 @@ abstract final class MusicWorkspaceFields {
     id: MusicFieldIds.cover,
     metadata: MusicWorkspaceFieldMetadata.cover,
     getValue: (context) => context.dto.imageUrl,
+  );
+
+  static final backCover =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
+    id: MusicFieldIds.backCover,
+    metadata: MusicWorkspaceFieldMetadata.backCover,
+    getValue: (context) => context.dto.music.backCoverImageUrl,
+  );
+
+  static final coreId =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
+    id: MusicFieldIds.coreId,
+    metadata: MusicWorkspaceFieldMetadata.coreId,
+    getValue: (context) => switch (context.item.target) {
+      CatalogTargetRef(:final ref) => ref.id,
+      _ => context.item.entrySummary?.sourceCatalogRef?.id,
+    },
   );
 }

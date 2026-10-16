@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -11,12 +12,14 @@ class LibraryAddStatusButton extends StatelessWidget {
     required this.onAdd,
     required this.onStatusChanged,
     this.isBusy = false,
+    this.onPrefillSettings,
   });
 
   final LibraryCollectionStatusScope collectionStatus;
   final VoidCallback? onAdd;
   final ValueChanged<LibraryCollectionStatusScope>? onStatusChanged;
   final bool isBusy;
+  final VoidCallback? onPrefillSettings;
 
   String get _label => switch (collectionStatus) {
         LibraryCollectionStatusScope.all ||
@@ -33,54 +36,76 @@ class LibraryAddStatusButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    const blue = Color(0xFF5BB0DA);
+    final accent = collectionStatus.color;
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Flexible(
           child: SizedBox(
-              height: 34,
+              height: 40,
               child: FilledButton.icon(
                 onPressed: isBusy ? null : onAdd,
                 style: FilledButton.styleFrom(
-                  backgroundColor: blue,
+                  backgroundColor: accent,
+                  disabledBackgroundColor: accent.withValues(alpha: 0.55),
+                  disabledForegroundColor: Colors.white70,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   shape: const RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.horizontal(left: Radius.circular(3))),
-                  textStyle: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w600),
+                          BorderRadius.horizontal(left: Radius.circular(4))),
+                  textStyle: TextStyle(
+                      fontFamily: appFontFamily,
+                      fontFamilyFallback: kAppFontFamilyFallback,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      height: 1.25),
                 ),
                 icon: isBusy
                     ? const SizedBox.square(
                         dimension: 16,
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.add, size: 20),
+                    : const SizedBox(
+                        width: 20, child: Icon(AppIcons.add, size: 16)),
                 label: Text(_label, overflow: TextOverflow.ellipsis),
               ))),
       PopupMenuButton<LibraryCollectionStatusScope>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
+        position: PopupMenuPosition.under,
         tooltip: 'Choose collection status',
         enabled: !isBusy && onStatusChanged != null,
         onSelected: onStatusChanged,
-        menuPadding: const EdgeInsets.symmetric(vertical: 6),
-        color: Theme.of(context).brightness == Brightness.dark
-            ? const Color(0xFF444444)
-            : palette.panelRaised,
+        menuPadding: EdgeInsets.zero,
+        color: palette.panelRaised,
         surfaceTintColor: Colors.transparent,
-        constraints: const BoxConstraints(minWidth: 200, maxWidth: 240),
+        constraints: const BoxConstraints(minWidth: 190, maxWidth: 240),
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(3),
+            borderRadius: BorderRadius.circular(4),
             side: BorderSide(color: palette.divider)),
-        itemBuilder: libraryCollectionStatusEditMenuItems,
+        itemBuilder: (context) => [
+          ...libraryCollectionStatusEditMenuItems(context,
+              rowHeight: 31, verticalPadding: 4),
+          if (onPrefillSettings != null) ...[
+            const PopupMenuDivider(height: 8),
+            PopupMenuItem<LibraryCollectionStatusScope>(
+              height: 30,
+              onTap: () => Future<void>(onPrefillSettings!),
+              child: const Text('Pre-fill Settings'),
+            ),
+          ],
+        ],
         child: Container(
-          width: 30,
-          height: 34,
-          decoration: const BoxDecoration(
-            color: Color(0xFF24658B),
-            borderRadius: BorderRadius.horizontal(right: Radius.circular(3)),
+          width: 28,
+          height: 40,
+          decoration: BoxDecoration(
+            color: accent,
+            border: Border(
+                left: BorderSide(color: Colors.black.withValues(alpha: 0.18))),
+            borderRadius:
+                const BorderRadius.horizontal(right: Radius.circular(4)),
           ),
-          child: Icon(Icons.arrow_drop_down,
-              color: isBusy ? Colors.white54 : Colors.white, size: 24),
+          child: Icon(AppIcons.caretDown,
+              color: isBusy ? Colors.white54 : Colors.white, size: 12),
         ),
       ),
     ]);

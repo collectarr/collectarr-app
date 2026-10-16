@@ -21,7 +21,6 @@ import 'support/media_edit_contract.dart';
 import 'support/entry_edit_contract.dart';
 import 'overrides/override_contract.dart';
 import 'support/persistence_contract.dart';
-import 'support/release_edit_contract.dart';
 import 'support/repository_contract.dart';
 import 'support/sort_contract.dart';
 import 'support/tracking_contract.dart';
@@ -169,13 +168,6 @@ class FixtureDto {
     create: () => 1,
     tabIds: (_) => const ['media'],
     fieldIds: (_, __) => const ['title'],
-  );
-
-  defineReleaseEditContract<int>(
-    name: 'fixture',
-    create: () => 1,
-    tabIds: (_) => const ['release'],
-    fieldIds: (_, __) => const ['format'],
   );
 
   defineEntryEditContract<int>(

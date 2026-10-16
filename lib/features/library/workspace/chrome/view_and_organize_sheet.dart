@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'library_view_controls.dart';
@@ -5,7 +6,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// Modal bottom sheet for configuring view mode, sorting, and layout on compact screens.
 Future<void> showViewAndOrganizeSheet({
@@ -24,7 +24,7 @@ Future<void> showViewAndOrganizeSheet({
   VoidCallback? onOpenFilterDialog,
   VoidCallback? onOpenColumnChooser,
 }) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     backgroundColor: appPalette(context).surface,
@@ -143,7 +143,13 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
               children: [
                 _buildChoiceChip(
                   key: const ValueKey('view_mode_grid'),
-                  icon: AppIcons.viewCovers,
+                  leading: buildViewModeGlyph(
+                    LibraryViewMode.grid,
+                    size: 16,
+                    color: _viewMode == LibraryViewMode.grid
+                        ? accentData.accent
+                        : palette.textMuted,
+                  ),
                   label: 'Grid',
                   selected: _viewMode == LibraryViewMode.grid,
                   accent: accentData.accent,
@@ -155,16 +161,12 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                 ),
                 _buildChoiceChip(
                   key: const ValueKey('view_mode_card'),
-                  leading: SvgPicture.asset(
-                    AppIcons.viewVerticalCardsSvg,
-                    width: 16,
-                    height: 16,
-                    colorFilter: ColorFilter.mode(
-                      _viewMode == LibraryViewMode.card
-                          ? accentData.accent
-                          : palette.textMuted,
-                      BlendMode.srcIn,
-                    ),
+                  leading: buildViewModeGlyph(
+                    LibraryViewMode.card,
+                    size: 16,
+                    color: _viewMode == LibraryViewMode.card
+                        ? accentData.accent
+                        : palette.textMuted,
                   ),
                   label: 'Cards',
                   selected: _viewMode == LibraryViewMode.card,
@@ -189,7 +191,13 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                 ),
                 _buildChoiceChip(
                   key: const ValueKey('view_mode_shelves'),
-                  icon: Icons.shelves,
+                  leading: buildViewModeGlyph(
+                    LibraryViewMode.shelves,
+                    size: 16,
+                    color: _viewMode == LibraryViewMode.shelves
+                        ? accentData.accent
+                        : palette.textMuted,
+                  ),
                   label: 'Shelves',
                   selected: _viewMode == LibraryViewMode.shelves,
                   accent: accentData.accent,

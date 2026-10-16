@@ -20,23 +20,19 @@ class LibraryPageToolbarController {
       if (title.isEmpty) {
         continue;
       }
-      final normalizedTitle = title.toLowerCase();
       final card = libraryCardPresentationForEntry(item);
+      final creator = card.seriesTitle?.trim();
+      final label =
+          creator == null || creator.isEmpty ? title : '$creator - $title';
+      final normalizedLabel = label.toLowerCase();
       final itemNumber = card.itemNumber?.trim();
-      final format = card.format ?? card.variant;
-      final subtitleParts = <String>[
-        if (itemNumber != null && itemNumber.isNotEmpty) '#$itemNumber',
-        if (format != null && format.isNotEmpty) format,
-      ];
-      final subtitle = subtitleParts.isEmpty ? null : subtitleParts.join(' • ');
       var score = 0;
-      if (normalizedTitle.startsWith(normalizedQuery)) {
+      if (normalizedLabel.startsWith(normalizedQuery) ||
+          title.toLowerCase().startsWith(normalizedQuery)) {
         score = 3;
-      } else if (normalizedTitle.contains(normalizedQuery)) {
+      } else if (normalizedLabel.contains(normalizedQuery)) {
         score = 2;
-      } else if ((itemNumber?.toLowerCase().contains(normalizedQuery) ??
-              false) ||
-          (format?.toLowerCase().contains(normalizedQuery) ?? false)) {
+      } else if (itemNumber?.toLowerCase().contains(normalizedQuery) ?? false) {
         score = 1;
       }
       if (score == 0) {
@@ -47,7 +43,10 @@ class LibraryPageToolbarController {
         LibraryToolbarSearchSuggestion(
           id: item.target.id,
           title: title,
-          subtitle: subtitle,
+          label: label,
+          subtitle: card.suggestionDetail ?? card.releaseDate?.year.toString(),
+          imageUrl: item.dto.imageUrl,
+          libraryEntryRef: item.source.libraryEntryRef,
         ),
       ));
     }
@@ -56,11 +55,11 @@ class LibraryPageToolbarController {
       if (byScore != 0) {
         return byScore;
       }
-      return left.$2.title
+      return left.$2.label
           .toLowerCase()
-          .compareTo(right.$2.title.toLowerCase());
+          .compareTo(right.$2.label.toLowerCase());
     });
-    return ranked.map((value) => value.$2).take(8).toList(growable: false);
+    return ranked.map((value) => value.$2).take(5).toList(growable: false);
   }
 
   Widget buildToolbar({
@@ -75,7 +74,7 @@ class LibraryPageToolbarController {
     final searchSuggestions = _s.ref.watch(
       libraryToolbarSearchSuggestionsProvider((
         projection: projection,
-        query: searchState.query,
+        query: searchState.draftQuery,
       )),
     );
     final presentation = LibraryToolbarPresentation(
@@ -84,6 +83,10 @@ class LibraryPageToolbarController {
         includeDesktopSecondaryBand: false,
       ),
       state: LibraryToolbarState(
+        alphabetOptions: LibraryAlphabetOptions(
+            fields: _s._alphabetFields,
+            selected: _s._alphabetField,
+            onChanged: _s._setAlphabetField),
         searchController: _s._searchController,
         viewState: viewState,
         counts: projection?.counts ?? const LibraryToolbarCounts(),
@@ -100,7 +103,7 @@ class LibraryPageToolbarController {
         quickView: _s._session.facets.quickView,
         availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
           (projection?.filteredItems ?? const <LibraryProjectionItem>[])
-              .map((i) => i.dto.primaryLabel),
+              .expand(_s._alphabetField.values),
         ),
         selectedLetter: _s._session.facets.selectedLetter,
         activeViewPreset: _s._activeViewPreset,
@@ -172,7 +175,8 @@ class LibraryPageToolbarController {
             onClearFilters: _s._clearFilters,
             onRandomPick: (value) {
               if (value == null) return;
-              _s._collectionActionCoordinator.pickRandomItemFlow(value);
+              _s._collectionActionCoordinator
+                  .pickRandomItemFlow(_s._visibleItems(value));
             },
             onSmartLists: (value) =>
                 _s._dialogCoordinator.showSmartListsFlow(value),

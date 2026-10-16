@@ -1,34 +1,5 @@
 import 'library_add_pane_dependencies.dart';
 
-class LibraryAddPaneResizeDivider extends StatelessWidget {
-  const LibraryAddPaneResizeDivider({super.key, this.onDragDelta});
-
-  final ValueChanged<double>? onDragDelta;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return MouseRegion(
-      cursor: SystemMouseCursors.resizeColumn,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onHorizontalDragUpdate: onDragDelta == null
-            ? null
-            : (details) => onDragDelta!(details.delta.dx),
-        child: Tooltip(
-          message: 'Resize results pane',
-          child: SizedBox(
-            width: 10,
-            child: Center(
-              child: Container(width: 2, color: palette.divider),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class LibraryAddPreviewPane extends ConsumerWidget {
   const LibraryAddPreviewPane({
     super.key,
@@ -39,6 +10,8 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     required this.item,
     required this.isFetchingPreview,
     required this.searched,
+    this.additionalDetails,
+    this.coverAspectRatio = 2 / 3,
   });
 
   final LibraryKindRegistration type;
@@ -48,6 +21,8 @@ class LibraryAddPreviewPane extends ConsumerWidget {
   final CatalogSearchCandidate? item;
   final bool isFetchingPreview;
   final bool searched;
+  final Widget? additionalDetails;
+  final double coverAspectRatio;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -122,7 +97,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: libraryAccentTextColor(accent, palette.panel),
-                          fontSize: 25,
+                          fontSize: 24,
                           fontWeight: FontWeight.w700,
                           height: 1.02,
                         ),
@@ -180,6 +155,10 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                               label: row.$1,
                               value: row.$2!,
                             ),
+                        if (additionalDetails != null) ...[
+                          const SizedBox(height: 16),
+                          additionalDetails!,
+                        ],
                         if (isFetchingPreview) ...[
                           const SizedBox(height: 16),
                           Row(
@@ -213,7 +192,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(10),
                         child: AspectRatio(
-                          aspectRatio: 2 / 3,
+                          aspectRatio: coverAspectRatio,
                           child: LibraryInteractiveCover(
                             title: title,
                             itemNumber: itemNumber,
@@ -305,15 +284,18 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: palette.textMuted,
+                color: palette.textPrimary,
                 fontWeight: FontWeight.w700,
+                fontSize: 14,
+                height: 20 / 14,
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                  fontWeight: FontWeight.w400, fontSize: 14, height: 20 / 14),
             ),
           ),
         ],

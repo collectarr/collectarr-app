@@ -65,6 +65,7 @@ void main() {
     expect(display, isNotNull);
     expect(display!.title, 'Kinesis');
     expect(display.secondaryLine, 'Ad Infinitum');
-    expect(display.detailLine, 'CD - 3 tracks - 1234567890 - KDCD 1022');
+    expect(display.detailLine, 'CD | 1 disc, 3 tracks');
+    expect(display.trailingDetail, '1234567890');
   });
 }

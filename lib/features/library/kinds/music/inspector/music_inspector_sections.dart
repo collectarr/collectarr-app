@@ -1,3 +1,9 @@
+import 'dart:math' as math;
+
+import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
+
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
@@ -10,6 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
     show LibraryEditTextField;
@@ -49,33 +56,31 @@ Widget buildMusicInspectorHero(
 List<Widget> buildMusicInspectorSections(
     BuildContext context, LibraryInspectorRequest request) {
   final model = _musicModel(request.item);
-  Widget section(String title, Widget child) => LibraryDetailSection(
-      title: title,
-      accentColor: request.accent,
-      collapsible: false,
-      children: [child]);
-  return [
-    if (model.discs.isNotEmpty) ...[
-      Padding(
-          padding: const EdgeInsets.all(12),
-          child: _MusicInspectorTracks(inspector: request)),
-    ],
+  Widget section(String title, Widget child) =>
+      LibraryDetailSection(title: title, collapsible: false, children: [child]);
+  final credits = <Widget>[
     if (model.music.credits.isNotEmpty ||
         model.discs.any((disc) => disc.credits.isNotEmpty))
       section('Credits', _MusicInspectorCredits(inspector: request)),
+  ];
+  final catalog = <Widget>[
     section('Details', _MusicProductDetails(inspector: request)),
     if (model.discs.isNotEmpty)
       section('Disc Details', _MusicDiscDetails(inspector: request)),
+  ];
+  final personal = <Widget>[
     if (model.entry != null) ...[
       section('Personal', _MusicInspectorDetailsPersonal(inspector: request)),
       section('Listening history', _MusicListeningSection(inspector: request)),
     ],
+  ];
+  final extras = <Widget>[
     if (model.entry?.personal.personalNotes?.trim().isNotEmpty == true)
       section(
           'Notes',
           Text(model.entry!.personal.personalNotes!,
               style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w400))),
     if (model.entry?.personal.tags?.trim().isNotEmpty == true)
       section(
           'Tags',
@@ -85,6 +90,12 @@ List<Widget> buildMusicInspectorSections(
                 .map((v) => v.trim())
                 .where((v) => v.isNotEmpty))
               TextButton.icon(
+                  style: TextButton.styleFrom(
+                      foregroundColor: appPalette(context).textPrimary,
+                      textStyle: TextStyle(
+                          fontFamily: appFontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400)),
                   onPressed: request.onFilterByValue == null
                       ? null
                       : () => request.onFilterByValue!(tag),
@@ -97,9 +108,52 @@ List<Widget> buildMusicInspectorSections(
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             for (final link in model.music.externalLinks)
               TextButton(
+                  style: TextButton.styleFrom(
+                      foregroundColor: appPalette(context).link,
+                      textStyle: TextStyle(
+                          fontFamily: appFontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400)),
                   onPressed: () => launchUrl(Uri.parse(link.url)),
                   child: Text(link.title ?? link.url)),
           ])),
+  ];
+  Widget column(List<Widget> children) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
+  return [
+    if (model.discs.isNotEmpty)
+      // The header rule above already separates the track list.
+      Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: _MusicInspectorTracks(inspector: request)),
+    LayoutBuilder(builder: (context, constraints) {
+      // Catalog, personal and supplementary sections take one column each,
+      // as Details, Personal and Links do in the reference.
+      final groups = <List<Widget>>[
+        [...catalog, ...credits],
+        if (personal.isNotEmpty) personal,
+        if (extras.isNotEmpty) extras,
+      ];
+      if (constraints.maxWidth < 680 || groups.length == 1) {
+        return column(groups.expand((group) => group).toList());
+      }
+      if (constraints.maxWidth < 1000) {
+        return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: column(groups.first)),
+          Expanded(child: column(groups.skip(1).expand((g) => g).toList())),
+        ]);
+      }
+      // Sections carry their own padding, so three flush columns line up
+      // with the disc columns above even when one is empty.
+      return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        for (var index = 0; index < 3; index++)
+          Expanded(
+            child: index < groups.length
+                ? column(groups[index])
+                : const SizedBox.shrink(),
+          ),
+      ]);
+    }),
   ];
 }
 
@@ -170,7 +224,7 @@ class _MusicListeningSection extends ConsumerWidget {
   ) async {
     final notesController = TextEditingController();
     try {
-      final shouldSave = await showDialog<bool>(
+      final shouldSave = await showAppDialog<bool>(
         context: context,
         builder: (dialogContext) => AccentAlertDialog(
           headerIcon: AppIcons.tabMain,
@@ -260,6 +314,7 @@ class _MusicListenEventTile extends ConsumerWidget {
             ),
           ),
           PopupMenuButton<String>(
+            popUpAnimationStyle: AnimationStyle.noAnimation,
             tooltip: 'Event actions',
             padding: EdgeInsets.zero,
             iconSize: 18,
@@ -284,7 +339,7 @@ class _MusicListenEventTile extends ConsumerWidget {
   Future<void> _edit(BuildContext context, WidgetRef ref) async {
     final notesController = TextEditingController(text: event.notes ?? '');
     try {
-      final shouldSave = await showDialog<bool>(
+      final shouldSave = await showAppDialog<bool>(
         context: context,
         builder: (dialogContext) => AccentAlertDialog(
           headerIcon: AppIcons.inlineEdit,
@@ -332,7 +387,7 @@ class _MusicListenEventTile extends ConsumerWidget {
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (dialogContext) => AccentAlertDialog(
         headerIcon: AppIcons.delete,
@@ -394,14 +449,27 @@ class _MusicInspectorHeader extends ConsumerWidget {
         .firstOrNull;
 
     final onFilter = inspector.onFilterByValue;
-    final isOwned = inspector.item.source.isEntry;
+    final collectionStatus = libraryCollectionStatusFromValue(
+      model.entry?.personal.collectionStatus ??
+          (inspector.item.source.isWishlisted ? 'Wish List' : 'In Collection'),
+    );
+    final hasCollectionStatus =
+        model.entry != null || inspector.item.source.isWishlisted;
     final artist = music.artist?.trim();
     final year =
         music.releaseDateParts?.year ?? music.originalReleaseDateParts?.year;
     final label = music.publisher?.trim();
     final country = musicCountryName(music.countryCode);
     final trackCount = model.tracks.where((track) => !track.isHeader).length;
-    final totalDuration = _formatTotalDuration(model.tracks);
+    final totalDuration = _formatTotalDuration(model.tracks, withHours: true);
+    final format =
+        music.formatSummary?.isNotEmpty == true ? music.formatSummary! : null;
+    final summary = [
+      if (model.discs.isNotEmpty)
+        '${model.discs.length} ${model.discs.length == 1 ? 'Disc' : 'Discs'}',
+      if (trackCount > 0) '$trackCount ${trackCount == 1 ? 'Track' : 'Tracks'}',
+      if (totalDuration != null) totalDuration,
+    ];
 
     final preferences = ref.watch(uiPreferencesProvider);
     final boxSetAlbums = music.boxSet?.isNotEmpty == true
@@ -419,26 +487,35 @@ class _MusicInspectorHeader extends ConsumerWidget {
       final sideBySide = preferences.showInspectorBackCover &&
           constraints.maxWidth >= 680 &&
           (back != null || music.backCoverImageUrl?.isNotEmpty == true);
-      final coverWidth = sideBySide
-          ? 430.0
-          : constraints.maxWidth >= 600
-              ? 210.0
-              : (constraints.maxWidth * .42).clamp(90.0, 150.0);
-      Widget valueLink(String value) => InkWell(
+      // Covers keep one size while the panel is resized, as in the reference;
+      // only a panel narrower than the cover shrinks it.
+      final coverWidth = math.min(
+        sideBySide ? 430.0 : 210.0,
+        constraints.maxWidth < 280
+            ? constraints.maxWidth
+            : constraints.maxWidth * .5,
+      );
+      // Label and year lead at 15/700; genres and country read as plain
+      // 14/400 links, as in the reference.
+      Widget valueLink(String value, {bool lead = false}) => InkWell(
           onTap: onFilter == null ? null : () => onFilter(value),
           child: Text(value,
               style: TextStyle(
                   color: palette.textPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500)));
+                  fontSize: lead ? 15 : 14,
+                  fontWeight: lead ? FontWeight.w700 : FontWeight.w400)));
       final metadata =
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Wrap(spacing: 4, children: [
-          if (label?.isNotEmpty == true) valueLink(label!),
-          if (year != null) valueLink('($year)')
+          if (label?.isNotEmpty == true) valueLink(label!, lead: true),
+          // The year is parenthesized only after a label, as in the
+          // reference; on its own it reads as a plain year.
+          if (year != null)
+            valueLink(label?.isNotEmpty == true ? '($year)' : '$year',
+                lead: true)
         ]),
         if (music.genres.isNotEmpty) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Wrap(spacing: 4, children: [
             for (var i = 0; i < music.genres.length; i++) ...[
               if (i > 0) const Text('|'),
@@ -478,19 +555,21 @@ class _MusicInspectorHeader extends ConsumerWidget {
                 const Icon(Icons.view_week_outlined, size: 20),
                 Text(music.barcode!,
                     style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w700))
+                        fontSize: 14, fontWeight: FontWeight.w400))
               ]),
         if (country != null) valueLink(country),
-        Text(
-            [
-              if (music.formatSummary?.isNotEmpty == true) music.formatSummary!,
-              if (model.discs.isNotEmpty)
-                '${model.discs.length} ${model.discs.length == 1 ? 'Disc' : 'Discs'}',
-              if (trackCount > 0)
-                '$trackCount ${trackCount == 1 ? 'Track' : 'Tracks'}',
-              if (totalDuration != null) totalDuration
-            ].join(' | '),
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+        // Only the format is bold in the summary line.
+        Text.rich(
+            TextSpan(children: [
+              if (format != null)
+                TextSpan(
+                    text: format,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+              if (format != null && summary.isNotEmpty)
+                const TextSpan(text: ' | '),
+              TextSpan(text: summary.join(' | ')),
+            ]),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
         if (music.catalogNumber?.isNotEmpty == true) ...[
           const SizedBox(height: 16),
           Text.rich(TextSpan(children: [
@@ -519,7 +598,7 @@ class _MusicInspectorHeader extends ConsumerWidget {
               child: Text('Find sold listings on eBay',
                   style: TextStyle(
                       fontSize: 14,
-                      color: inspector.accent,
+                      color: palette.link,
                       decoration: TextDecoration.underline))),
         ],
       ]);
@@ -532,7 +611,7 @@ class _MusicInspectorHeader extends ConsumerWidget {
                   style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
-                      color: inspector.accent)),
+                      color: palette.detailHeading)),
               const Divider(height: 18),
               for (var i = 0; i < boxSetAlbums.length; i++)
                 Padding(
@@ -542,8 +621,8 @@ class _MusicInspectorHeader extends ConsumerWidget {
                             ? null
                             : () => onFilter(music.boxSet!),
                         child: Text('${i + 1}  ${boxSetAlbums[i].title}',
-                            style: TextStyle(
-                                fontSize: 14, color: inspector.accent)))),
+                            style:
+                                TextStyle(fontSize: 14, color: palette.link)))),
               const Divider(height: 32),
             ],
             if (artist?.isNotEmpty == true)
@@ -557,7 +636,7 @@ class _MusicInspectorHeader extends ConsumerWidget {
               Expanded(
                   child: Text(music.title,
                       style: TextStyle(
-                          color: inspector.accent,
+                          color: palette.detailHeading,
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
                           height: 1.1))),
@@ -567,21 +646,19 @@ class _MusicInspectorHeader extends ConsumerWidget {
                     padding: const EdgeInsets.only(left: 8, top: 4),
                     child: Text('Qty: $quantity',
                         style: const TextStyle(fontWeight: FontWeight.w700))),
-              if (isOwned)
+              if (hasCollectionStatus)
                 Padding(
                     padding: const EdgeInsets.only(left: 8),
                     child: Tooltip(
-                        message: 'In Collection',
+                        message: collectionStatus.label,
                         child: Container(
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                                color: inspector.accent,
+                                color: collectionStatus.color,
                                 borderRadius: BorderRadius.circular(4)),
-                            child: Icon(Icons.check,
-                                size: 22,
-                                color: appContrastingTextColor(
-                                    inspector.accent))))),
+                            child: Icon(collectionStatus.icon,
+                                size: 22, color: Colors.white)))),
             ]),
             if (music.subtitle?.isNotEmpty == true) ...[
               const SizedBox(height: 10),
@@ -617,6 +694,9 @@ class _MusicInspectorHeader extends ConsumerWidget {
                 const SizedBox(width: 20),
                 Expanded(child: metadata),
               ]),
+            // The reference rules the header off from the track list.
+            const SizedBox(height: 20),
+            Divider(height: 1, thickness: 1, color: palette.detailRule),
           ]));
     });
   }
@@ -640,22 +720,73 @@ class _MusicInspectorTracks extends StatelessWidget {
         ? _musicSearchTerms(rawQuery)
         : const <String>[];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (var index = 0; index < groups.length; index++) ...[
-          _MusicDiscTable(
-            disc: model.discs.firstWhere(
-                (disc) => disc.discNumber == groups[index].discNumber),
-            storage: model.storageForDisc(groups[index].discNumber),
-            accent: inspector.accent,
-            tracks: groups[index].tracks,
-            highlightTerms: highlightTerms,
-            onFilterByValue: inspector.onFilterByValue,
+    Widget disc(_DiscTrackGroup group) => _MusicDiscTable(
+          disc: model.discs
+              .firstWhere((disc) => disc.discNumber == group.discNumber),
+          storage: model.storageForDisc(group.discNumber),
+          tracks: group.tracks,
+          highlightTerms: highlightTerms,
+          onFilterByValue: inspector.onFilterByValue,
+        );
+    // Core data errors are corrected through the editor's Propose to Core,
+    // so the reference link opens the editor for albums that came from Core.
+    final onReport = inspector.onEdit != null &&
+            (inspector.item.target is CatalogTargetRef ||
+                inspector.libraryEntry?.sourceCatalogRef != null)
+        ? inspector.onEdit
+        : null;
+    // A wide panel lays discs out three abreast, as in the reference, so
+    // durations stay next to their titles and every disc is visible at once.
+    return LayoutBuilder(builder: (context, constraints) {
+      final columns = constraints.maxWidth >= _wideTrackPanelWidth ? 3 : 1;
+      final width = (constraints.maxWidth - _discGap * (columns - 1)) / columns;
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Wrap(
+          spacing: _discGap,
+          runSpacing: _discGap,
+          children: [
+            for (final group in groups)
+              SizedBox(width: width, child: disc(group)),
+          ],
+        ),
+        if (onReport != null)
+          SizedBox(
+            width: width,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _ReportDataErrorLink(onTap: onReport),
+            ),
           ),
-          if (index < groups.length - 1) const SizedBox(height: 12),
-        ],
-      ],
+      ]);
+    });
+  }
+
+  static const _discGap = 20.0;
+  static const _wideTrackPanelWidth = 900.0;
+}
+
+class _ReportDataErrorLink extends StatelessWidget {
+  const _ReportDataErrorLink({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    const style = TextStyle(
+      color: Color(0xFF888888),
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+    );
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 6),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          const Text('Report data error', style: style),
+          const SizedBox(width: 5),
+          Icon(AppIcons.caretRight, size: 12, color: style.color),
+        ]),
+      ),
     );
   }
 }
@@ -864,7 +995,7 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
   Widget _cover({required bool back}) => AspectRatio(
         aspectRatio: 1.0,
         child: LibraryInteractiveCover(
-          title: '${widget.title} ${back ? 'back cover' : 'front cover'}',
+          title: widget.title,
           imageUrl: back ? widget.item.backCoverImageUrl : widget.imageUrl,
           localBytes: back ? _back : _front,
           fallbackAspectRatio: 1.0,
@@ -984,9 +1115,12 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
     final entry = MusicLibraryEntryProjection.fromDispatch(
       inspector.libraryEntryDispatch,
     );
+    final purchased = _purchasedSummary(entry);
     final personalRows = <(String, String)>[
+      // Purchase facts read as one row, as in the reference; quantity and
+      // collection status already show in the header.
+      if (purchased != null) ('Purchased', purchased),
       ('Index', entry?.personal.indexNumber?.toString() ?? '-'),
-      if (entry != null) ('Quantity', entry.personal.quantity.toString()),
       if (entry?.personal.rating != null)
         ('My Rating', '${entry!.personal.rating}/10'),
       if (entry?.personal.ownerLabel != null)
@@ -1009,32 +1143,21 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
         ('Grade', entry!.personal.grade!),
       if (source.locationPath?.trim().isNotEmpty == true)
         ('Location', source.locationPath!),
-      if (entry?.personal.collectionStatus?.trim().isNotEmpty == true)
-        (
-          'Collection status',
-          libraryCollectionStatusFromValue(entry!.personal.collectionStatus)
-              .label
-        ),
-      if (entry?.personal.pricePaidCents != null)
-        (
-          'Price paid',
-          formatMoney(entry!.personal.pricePaidCents, entry.personal.currency)
-        ),
       if (entry?.personal.sellPriceCents != null)
         (
           'Sell price',
           formatMoney(entry!.personal.sellPriceCents, entry.personal.currency)
         ),
-      if (entry?.personal.purchaseDate != null)
-        ('Purchase date', formatDate(entry!.personal.purchaseDate!)),
-      if (entry?.personal.purchaseStore?.trim().isNotEmpty == true)
-        ('Purchase store', entry!.personal.purchaseStore!),
       if (entry?.personal.details.signedBy?.trim().isNotEmpty == true)
         ('Signed by', entry!.personal.details.signedBy!),
       if (entry?.personal.details.lastCleanedDate != null)
         ('Last cleaned', formatDate(entry!.personal.details.lastCleanedDate!)),
-      if (entry?.createdAt != null) ('Added', formatDate(entry!.createdAt!)),
-      ('Modified', formatNullableDate(entry?.updatedAt) ?? '-'),
+      if (entry?.createdAt != null)
+        ('Added Date', AppFormats.current.formatDateTime(entry!.createdAt!)),
+      (
+        'Modified Date',
+        entry == null ? '-' : AppFormats.current.formatDateTime(entry.updatedAt)
+      ),
     ];
     List<LibraryDetailField> asFacts(List<(String, String)> rows) {
       return [
@@ -1050,6 +1173,22 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
       fields: asFacts(personalRows),
     );
   }
+}
+
+/// "On Oct 04, 2026 at Store for \$12.00", leaving out unknown parts.
+String? _purchasedSummary(MusicLibraryEntry? entry) {
+  final personal = entry?.personal;
+  if (personal == null) return null;
+  final store = personal.purchaseStore?.trim();
+  final parts = [
+    if (personal.purchaseDate case final date?) 'on ${formatDate(date)}',
+    if (store != null && store.isNotEmpty) 'at $store',
+    if (personal.pricePaidCents != null)
+      'for ${formatMoney(personal.pricePaidCents, personal.currency)}',
+  ];
+  if (parts.isEmpty) return null;
+  final text = parts.join(' ');
+  return text[0].toUpperCase() + text.substring(1);
 }
 
 class _MusicInspectorCredits extends StatelessWidget {
@@ -1091,19 +1230,50 @@ class _MusicInspectorCredits extends StatelessWidget {
   }
 }
 
+/// A catalog album's discs as detail tables, without entry storage, as the
+/// Add dialog's confirm sheet shows them.
+class MusicCatalogDiscTables extends StatelessWidget {
+  const MusicCatalogDiscTables({super.key, required this.album});
+
+  final MusicAlbum album;
+
+  @override
+  Widget build(BuildContext context) {
+    final groups = _groupTracksByDisc([
+      for (final disc in album.discs)
+        for (final track in disc.tracks)
+          MusicTrackListEntry(discNumber: disc.discNumber, track: track),
+    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final group in groups)
+          Padding(
+            padding: EdgeInsets.only(top: group == groups.first ? 0 : 10),
+            child: _MusicDiscTable(
+              disc: album.discs
+                  .firstWhere((disc) => disc.discNumber == group.discNumber),
+              tracks: group.tracks,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 class _MusicDiscTable extends StatelessWidget {
   const _MusicDiscTable({
     required this.disc,
-    required this.storage,
-    required this.accent,
+    this.storage,
     required this.tracks,
     this.highlightTerms = const <String>[],
     this.onFilterByValue,
   });
 
   final MusicDisc disc;
-  final MusicEntryDiscStorageView storage;
-  final Color accent;
+
+  /// The entry's storage for this disc; catalog albums have none.
+  final MusicEntryDiscStorageView? storage;
   final List<MusicTrackListEntry> tracks;
   final List<String> highlightTerms;
   final ValueChanged<String>? onFilterByValue;
@@ -1116,7 +1286,9 @@ class _MusicDiscTable extends StatelessWidget {
       children: [
         Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-            color: accent.withValues(alpha: .2),
+            // Disc bands use the shared detail blue in every kind, as in the
+            // reference app.
+            color: appPalette(context).detailHeading,
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Expanded(
                   child: Text(
@@ -1124,7 +1296,9 @@ class _MusicDiscTable extends StatelessWidget {
                         disc.title?.isNotEmpty == true
                             ? disc.title!
                             : 'Disc #${disc.discNumber}',
-                        if (storage.label != '-') '(${storage.label})',
+                        if (storage case final storage?
+                            when storage.label != '-')
+                          '(${storage.label})',
                         if (disc.matrixNumberSideA?.isNotEmpty == true ||
                             disc.matrixNumberSideB?.isNotEmpty == true)
                           '(${[
@@ -1135,23 +1309,25 @@ class _MusicDiscTable extends StatelessWidget {
                           ].join(' | ')})'
                       ].join(' '),
                       style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w700))),
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700))),
               if (discDuration != null) ...[
                 const SizedBox(width: 8),
                 Text(discDuration,
                     style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w700))
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400))
               ],
             ])),
-        const SizedBox(height: 6),
-        for (final track in tracks)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: _MusicTrackRow(
-              track: track,
-              highlight: _matchesTrackTerms(track, highlightTerms),
-              onFilterByValue: onFilterByValue,
-            ),
+        for (var index = 0; index < tracks.length; index++)
+          _MusicTrackRow(
+            track: tracks[index],
+            striped: index.isOdd,
+            last: index == tracks.length - 1,
+            highlight: _matchesTrackTerms(tracks[index], highlightTerms),
+            onFilterByValue: onFilterByValue,
           ),
       ],
     );
@@ -1161,11 +1337,15 @@ class _MusicDiscTable extends StatelessWidget {
 class _MusicTrackRow extends StatelessWidget {
   const _MusicTrackRow({
     required this.track,
+    required this.striped,
+    required this.last,
     required this.highlight,
     this.onFilterByValue,
   });
 
   final MusicTrackListEntry track;
+  final bool striped;
+  final bool last;
   final bool highlight;
   final ValueChanged<String>? onFilterByValue;
 
@@ -1176,49 +1356,55 @@ class _MusicTrackRow extends StatelessWidget {
       const Color(0xFFE8CF74).withValues(alpha: palette.isDark ? 0.84 : 0.5),
       palette.surface,
     );
+    final rule = BorderSide(color: palette.detailRule);
+    const text = TextStyle(fontSize: 14, height: 20 / 14);
     return DecoratedBox(
       key: ValueKey(
           'music-track-row-${track.discNumber}-${track.position}-${track.title}'),
+      // Ruled, striped rows as in the reference track table.
       decoration: BoxDecoration(
-        color: highlight ? highlightColor : Colors.transparent,
-        borderRadius: BorderRadius.circular(2),
+        color: highlight
+            ? highlightColor
+            : striped
+                ? palette.detailStripe
+                : Colors.transparent,
+        border: Border(top: rule, bottom: last ? rule : BorderSide.none),
       ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(
-          4 + (track.indentLevel * 14),
-          track.isHeader ? 5 : 2,
-          4,
-          track.isHeader ? 5 : 2,
+          track.indentLevel * 14.0,
+          // One pixel more on top clears the row rule: 27 px rows.
+          track.isHeader ? 6 : 4,
+          5,
+          track.isHeader ? 5 : 3,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 24,
+              width: 26,
               child: Text(
                 track.position,
-                textAlign: TextAlign.right,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: palette.textMuted,
-                      fontWeight: FontWeight.w700,
-                    ),
+                textAlign: TextAlign.center,
+                style: text.copyWith(
+                  color: palette.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 5),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     track.title,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: track.isHeader
-                              ? palette.accent
-                              : palette.textPrimary,
-                          fontWeight: track.isHeader
-                              ? FontWeight.w700
-                              : FontWeight.w600,
-                        ),
+                    style: text.copyWith(
+                      color:
+                          track.isHeader ? palette.accent : palette.textPrimary,
+                      fontWeight:
+                          track.isHeader ? FontWeight.w700 : FontWeight.w400,
+                    ),
                   ),
                   if (!track.isHeader &&
                       track.artist?.trim().isNotEmpty == true)
@@ -1250,9 +1436,7 @@ class _MusicTrackRow extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 8),
                 child: Text(
                   _formatTrackDuration(track.durationSeconds!),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: palette.textMuted,
-                      ),
+                  style: text.copyWith(color: palette.textPrimary),
                 ),
               ),
           ],
@@ -1302,7 +1486,12 @@ String _formatTrackDuration(int totalSeconds) {
   return '$minutes:${seconds.toString().padLeft(2, '0')}';
 }
 
-String? _formatTotalDuration(List<MusicTrackListEntry> tracks) {
+/// Album totals show hours like the list Length column; disc headers keep
+/// minutes so a long disc still reads as one running time.
+String? _formatTotalDuration(
+  List<MusicTrackListEntry> tracks, {
+  bool withHours = false,
+}) {
   var total = 0;
   for (final track in tracks) {
     if (track.isHeader) continue;
@@ -1314,9 +1503,13 @@ String? _formatTotalDuration(List<MusicTrackListEntry> tracks) {
   if (total <= 0) {
     return null;
   }
-  final minutes = total ~/ 60;
-  final seconds = total % 60;
-  return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  if (withHours && total >= 3600) {
+    final minutes = (total % 3600) ~/ 60;
+    final seconds = total % 60;
+    return '${total ~/ 3600}:${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}';
+  }
+  return _formatTrackDuration(total);
 }
 
 List<String> _musicSearchTerms(String? query) {

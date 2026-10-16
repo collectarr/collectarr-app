@@ -19,8 +19,10 @@ LibraryCardPresentation buildMusicCardPresentation(
   final duration = musicCardDuration(item);
 
   return LibraryCardPresentation(
+    seriesTitle: musicCardArtist(item),
     identifierCode: music?.music.barcode,
     releaseDate: music?.music.releaseDate,
+    suggestionDetail: music?.music.releaseDateParts?.year?.toString(),
     format: music?.facts.formatSummary,
     contextFacts: [
       musicCardArtist(item),
@@ -30,7 +32,7 @@ LibraryCardPresentation buildMusicCardPresentation(
       if (tracks != null)
         LibraryCardBadge(
           icon: Icons.music_note_outlined,
-          label: '$tracks tracks',
+          label: '$tracks',
         ),
       if (duration != null)
         LibraryCardBadge(

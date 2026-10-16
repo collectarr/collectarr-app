@@ -226,6 +226,7 @@ class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.defaultWidth,
     this.minWidth,
     this.maxWidth,
+    this.minRowHeight,
   })  : sortable = metadata.sortable && allowSortInteraction,
         groupable = metadata.groupable && allowGroupInteraction;
 
@@ -242,6 +243,10 @@ class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final double? defaultWidth;
   final double? minWidth;
   final double? maxWidth;
+
+  /// List rows grow to this height while the column is visible, e.g. for
+  /// cover images.
+  final double? minRowHeight;
 
   String get resolvedDisplayName => displayName ?? label;
   String get label => metadata.label;

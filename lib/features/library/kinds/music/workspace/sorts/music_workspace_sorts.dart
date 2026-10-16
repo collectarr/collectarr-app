@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/core/utils/sort_title.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_additional_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -22,6 +24,53 @@ LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicStatusSort() {
     },
     label: 'Status',
   );
+}
+
+/// Has Back and Has Front, listed under Images as in the reference.
+List<LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>>
+    musicImageSorts() => [
+          for (final field in [
+            MusicAdditionalWorkspaceFields.hasBack,
+            MusicAdditionalWorkspaceFields.hasFront,
+          ])
+            LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+              id: LibrarySortId<MusicKind>(field.id.value),
+              label: field.label,
+              group: 'Images',
+              compare: (left, right) => (field.getValue(left) ? 1 : 0)
+                  .compareTo(field.getValue(right) ? 1 : 0),
+            ),
+        ];
+
+/// The album format summary, labelled Format as in the reference.
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicFormatSort() =>
+    LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+      id: LibrarySortId<MusicKind>(
+        MusicCatalogWorkspaceFields.formatSummary.id.value,
+      ),
+      label: 'Format',
+      compare: (left, right) => _compareNullableText(
+        left.dto.facts.formatSummary,
+        right.dto.facts.formatSummary,
+      ),
+    );
+
+/// Albums sort by their first genre.
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicGenreSort() =>
+    LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+      id: LibrarySortId<MusicKind>(MusicCatalogWorkspaceFields.genre.id.value),
+      label: MusicCatalogWorkspaceFields.genre.label,
+      compare: (left, right) => _compareNullableText(
+        MusicCatalogWorkspaceFields.genreValues(left.dto).firstOrNull,
+        MusicCatalogWorkspaceFields.genreValues(right.dto).firstOrNull,
+      ),
+    );
+
+int _compareNullableText(String? left, String? right) {
+  final a = left?.trim().toLowerCase() ?? '';
+  final b = right?.trim().toLowerCase() ?? '';
+  if (a.isEmpty || b.isEmpty) return a.isEmpty ? (b.isEmpty ? 0 : 1) : -1;
+  return a.compareTo(b);
 }
 
 LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>
@@ -71,3 +120,74 @@ int _compareNullableDates(
   if (byBoundary != 0) return byBoundary;
   return (left.isoString ?? '').compareTo(right.isoString ?? '');
 }
+
+/// Title order uses the sort title, or the automatic one ("Wall, The"), and
+/// ignores letter case, as the reference does.
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicTitleSort() =>
+    LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+      id: LibrarySortId<MusicKind>(MusicCatalogWorkspaceFields.title.id.value),
+      label: MusicCatalogWorkspaceFields.title.label,
+      compare: (left, right) =>
+          _sortTitleOf(left).compareTo(_sortTitleOf(right)),
+    );
+
+String _sortTitleOf(
+        LibraryProjectionContext<MusicWorkspaceProjection> context) =>
+    (context.sorting.useSortTitles
+            ? resolveSortTitle(
+                context.dto.common.title, context.dto.music.sortTitle)
+            : context.dto.common.title)
+        .toLowerCase();
+
+/// Artist order uses the artists' sort names ("Adams, Bryan"), falling back
+/// to the name with a leading article moved ("Beatles, The"), unless sort
+/// names are ignored in Settings.
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicArtistSort() =>
+    LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+      id: LibrarySortId<MusicKind>(
+          MusicCatalogWorkspaceFields.artistSummary.id.value),
+      label: MusicCatalogWorkspaceFields.artistSummary.label,
+      compare: (left, right) =>
+          _artistSortKey(left).compareTo(_artistSortKey(right)),
+    );
+
+String _artistSortKey(
+        LibraryProjectionContext<MusicWorkspaceProjection> context) =>
+    (context.sorting.useSortNames
+            ? musicArtistSortName(context.dto)
+            : _artistDisplay(context.dto))
+        .toLowerCase();
+
+String _artistDisplay(MusicWorkspaceProjection dto) =>
+    dto.music.artist ?? dto.facts.primaryArtist ?? '';
+
+/// The album's artists by sort name, falling back to the name with a leading
+/// article moved to the end.
+String musicArtistSortName(MusicWorkspaceProjection dto) {
+  final credits = [...dto.music.artistCredits]
+    ..sort((a, b) => a.sequence.compareTo(b.sequence));
+  if (credits.isEmpty) return automaticSortTitle(_artistDisplay(dto));
+  return credits
+      .map((credit) => credit.sortName?.trim().isNotEmpty == true
+          ? credit.sortName!.trim()
+          : automaticSortTitle(credit.creditedName))
+      .join(' / ');
+}
+
+/// Release dates are partial; ordering by their DateTime view would drop
+/// every year-only date.
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicPartialDateSort(
+  LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, Object?> field,
+  PartialDate? Function(MusicWorkspaceProjection dto) dateOf, {
+  bool defaultAscending = true,
+}) =>
+    LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+      id: LibrarySortId<MusicKind>(field.id.value),
+      label: field.label,
+      defaultAscending: defaultAscending,
+      compare: (left, right) => _compareNullableDates(
+        dateOf(left.dto),
+        dateOf(right.dto),
+        latest: false,
+      ),
+    );

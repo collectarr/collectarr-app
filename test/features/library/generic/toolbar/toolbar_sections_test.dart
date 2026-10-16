@@ -333,7 +333,12 @@ void main() {
     expect(items[0], isA<PopupMenuItem<Object>>());
     expect((items[2] as PopupMenuItem<Object>).value, pinnedFavorite);
     expect((items[3] as PopupMenuItem<Object>).value, secondPinnedFavorite);
-    expect((items[5] as PopupMenuItem<Object>).value, overflowFavorite);
+    expect(items, hasLength(4));
+    expect(
+        items
+            .whereType<PopupMenuItem<Object>>()
+            .where((item) => item.value == overflowFavorite),
+        isEmpty);
   });
 
   testWidgets(
@@ -384,7 +389,7 @@ void main() {
         );
     await tester.pumpWidget(buildToolbar());
 
-    expect(find.byType(InputChip), findsNothing);
+    expect(find.byType(LibraryToolbarScopeChip), findsNothing);
     expect(find.byTooltip('Reset folders'), findsNothing);
     expect(
         tester
@@ -394,9 +399,9 @@ void main() {
 
     linkedLabel = 'Producer: Demo Contributor';
     await tester.pumpWidget(buildToolbar());
-    expect(find.byType(InputChip), findsOneWidget);
+    expect(find.byType(LibraryToolbarScopeChip), findsOneWidget);
     expect(find.text(linkedLabel), findsOneWidget);
-    await tester.tap(find.byTooltip('Delete'));
+    await tester.tap(find.byTooltip('Clear'));
     expect(cleared, isTrue);
   });
 
@@ -448,27 +453,13 @@ void main() {
   });
 
   testWidgets(
-      'sort favorites manager dialog renders pinned and available panes', (
+      'sort favorites manager keeps one compact list and adds available favorites',
+      (
     tester,
   ) async {
     final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
-    const sortFavorite = LibrarySortFavorite(
-      id: 'series_issue',
-      label: 'Series | Issue',
-      icon: Icons.swap_vert,
-      rules: [
-        LibrarySortRule(column: 'series', ascending: true),
-        LibrarySortRule(column: 'issue', ascending: true),
-      ],
-    );
-    const secondFavorite = LibrarySortFavorite(
-      id: 'updated_desc',
-      label: 'Updated desc',
-      icon: Icons.update,
-      rules: [
-        LibrarySortRule(column: 'updated', ascending: false),
-      ],
-    );
+    final sortFavorite = librarySortFavoritesForType(type).first;
+    final secondFavorite = librarySortFavoritesForType(type).last;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -479,9 +470,8 @@ void main() {
                 showSortFavoritesManagerDialog(
                   context: context,
                   type: type,
-                  favorites: const [sortFavorite, secondFavorite],
-                  initialPinnedIds: const {'series_issue'},
-                  activeSortFavoriteId: 'series_issue',
+                  favorites: [sortFavorite, secondFavorite],
+                  initialPinnedIds: {sortFavorite.id},
                 );
               },
               child: const Text('Open'),
@@ -495,14 +485,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Manage Sorting Favorites'), findsOneWidget);
-    expect(find.text('Pinned Favorites'), findsOneWidget);
-    expect(find.text('Available Favorites'), findsOneWidget);
-    expect(find.byKey(const ValueKey('sortFavorite_series_issue')),
+    expect(find.text('Sorting Favorites'), findsOneWidget);
+    expect(find.text('Available Favorites'), findsNothing);
+    expect(find.byKey(ValueKey('sortFavorite_${sortFavorite.id}')),
         findsOneWidget);
-    expect(
-      find.byKey(const ValueKey('availableSortFavorite_updated_desc')),
-      findsOneWidget,
-    );
+    await tester.tap(find.byTooltip('Add Favorite'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(secondFavorite.label));
+    await tester.pumpAndSettle();
+    expect(find.byKey(ValueKey('sortFavorite_${secondFavorite.id}')),
+        findsOneWidget);
+    expect(find.text('Edit'), findsNWidgets(2));
+    expect(tester.takeException(), isNull);
   });
 }
 

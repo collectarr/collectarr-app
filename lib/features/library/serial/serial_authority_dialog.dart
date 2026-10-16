@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
@@ -15,7 +16,7 @@ Future<SerialAuthorityEntry?> showSeriesPickerDialog({
   String? selectedTitle,
   String? selectedSeriesId,
 }) {
-  return showDialog<SerialAuthorityEntry>(
+  return showAppDialog<SerialAuthorityEntry>(
     context: context,
     builder: (_) => _SeriesPickerDialog(
       db: db,
@@ -31,7 +32,7 @@ Future<void> showSeriesManagerDialog({
   required LocalDatabase db,
   required String mediaKind,
 }) {
-  return showDialog<void>(
+  return showAppDialog<void>(
     context: context,
     builder: (_) => _SeriesManagerDialog(
       db: db,
@@ -313,7 +314,7 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
   }
 
   Future<void> _mergeEntry(SerialAuthorityEntry source) async {
-    final targetId = await showDialog<String>(
+    final targetId = await showAppDialog<String>(
       context: context,
       builder: (context) {
         String? selectedId;
@@ -459,7 +460,7 @@ Future<({String title, String? sortTitle})?> _showSeriesEditDialog(
   String? initialTitle,
   String? initialSortTitle,
 }) {
-  return showDialog<({String title, String? sortTitle})>(
+  return showAppDialog<({String title, String? sortTitle})>(
     context: context,
     builder: (context) => _SeriesEditDialog(
       initialTitle: initialTitle,

@@ -8,9 +8,9 @@ void main() {
     for (final kind in CatalogMediaKind.values) {
       if (kind.isUnknown) continue;
       expect(userManualUri(kind: kind).toString(),
-          'https://collectarr.github.io/collectarr-site/manual/kinds/${kind.apiValue}/');
+          'https://collectarr.github.io/collectarr-page/manual/kinds/${kind.apiValue}/');
     }
-    expect(userManualUri().path, '/collectarr-site/manual/');
+    expect(userManualUri().path, '/collectarr-page/manual/');
     expect(userManualUri(kind: CatalogMediaKind.unknown), userManualUri());
   });
 
@@ -18,9 +18,9 @@ void main() {
     expect(
         userManualUri(
                 kind: CatalogMediaKind.music,
-                baseUrl: 'http://127.0.0.1:4321/collectarr-site/manual')
+                baseUrl: 'http://127.0.0.1:4321/collectarr-page/manual')
             .toString(),
-        'http://127.0.0.1:4321/collectarr-site/manual/kinds/music/');
+        'http://127.0.0.1:4321/collectarr-page/manual/kinds/music/');
     expect(userManualUri(baseUrl: 'https://docs.example.com/manual/').path,
         '/manual/');
   });

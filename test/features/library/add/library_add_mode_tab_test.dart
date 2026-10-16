@@ -10,7 +10,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryAddModeTab(
-            icon: Icons.qr_code_2,
+            icon: const Icon(Icons.qr_code_2),
             label: 'Barcode',
             selected: true,
             onTap: () => tapped = true,

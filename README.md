@@ -30,8 +30,10 @@ Screenshots will use fictional demo data with no private account information.
 
 ## 🧭 Independent, familiar workflows
 
-Collectarr is an independent **clean-room implementation inspired by CLZ Music
-collection workflows**. It is not affiliated with or endorsed by CLZ and does
+Collectarr is an independent, fully open-source **clean-room implementation
+inspired by CLZ Music collection workflows**, with a stricter data model:
+disc-level formats and recording data, scoped credits, partial dates and an
+offline-first library. It is not affiliated with or endorsed by CLZ and does
 not bundle CLZ source code, collection data, branding, screenshots or paid font
 files. Familiar behavior is implemented with Collectarr's own code and assets.
 
@@ -65,8 +67,11 @@ flutter pub get --enforce-lockfile
 flutter run
 ```
 
-See [contributor instructions](AGENTS.md), [versioning policy](docs/versioning-policy.md)
-and the [architecture status](docs/architecture/current-status.md) for technical
-work. Do not publish a release until its verification gates pass.
+Run the correctness suite with `dart run tool/run_tests.dart`.
+
+See [contributor instructions](AGENTS.md), [versioning policy](docs/versioning-policy.md),
+the [architecture status](docs/architecture/current-status.md), [testing](docs/testing.md)
+and the [CLZ parity report](docs/clz-parity.md) for technical work. Do not
+publish a release until its verification gates pass.
 
 </details>

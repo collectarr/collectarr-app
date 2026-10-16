@@ -143,11 +143,9 @@ class VideoProgressSummaryFields extends StatelessWidget {
   const VideoProgressSummaryFields({
     super.key,
     required this.summary,
-    required this.accent,
   });
 
   final VideoProgressSummary summary;
-  final Color accent;
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +180,6 @@ class VideoProgressSummaryFields extends StatelessWidget {
           value: summary.nextEpisode?.code ?? '-',
         ),
       ],
-      accentColor: accent,
       collapsible: false,
     );
   }

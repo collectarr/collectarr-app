@@ -12,6 +12,7 @@ class LibraryPageSearchController {
     required this.searchTargetOptions,
     required this.clearActiveSmartLists,
     required this.syncRouteState,
+    required this.onDraftChanged,
   });
 
   final WidgetRef ref;
@@ -20,6 +21,7 @@ class LibraryPageSearchController {
   final List<LibrarySearchTarget> searchTargetOptions;
   final VoidCallback clearActiveSmartLists;
   final VoidCallback syncRouteState;
+  final VoidCallback onDraftChanged;
 
   LibraryPageSearchState get state => ref.read(
         libraryPageSearchStateProvider(searchStateKey),
@@ -27,7 +29,7 @@ class LibraryPageSearchController {
 
   void onSearchChanged(String value) {
     final trimmed = value.trim();
-    final searchState = ref.watch(
+    final searchState = ref.read(
       libraryPageSearchStateProvider(searchStateKey),
     );
     if (searchState.query == trimmed && searchState.pinnedItemId == null) {
@@ -39,7 +41,9 @@ class LibraryPageSearchController {
   }
 
   void onSearchInputChanged(String value) {
-    onSearchChanged(value);
+    if (state.draftQuery == value) return;
+    state.draftQuery = value;
+    onDraftChanged();
   }
 
   void clearSearch() {

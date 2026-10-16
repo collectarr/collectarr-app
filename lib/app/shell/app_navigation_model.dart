@@ -10,7 +10,6 @@ enum DrawerAction {
   statistics,
   findDuplicates,
   loanManager,
-  libraries,
   calendar,
   admin,
   manageCustomFields,
@@ -26,6 +25,9 @@ enum DrawerAction {
   importData,
   linkAlbums,
   userManual,
+  community,
+  contactSupport,
+  whatsNew,
   keyboardShortcuts,
 }
 
@@ -100,14 +102,6 @@ const appDrawerDestinations = <AppDrawerDestination>[
       icon: AppIcons.collections,
       section: AppDrawerSection.collection,
       behavior: DrawerActionBehavior.modal),
-  AppDrawerDestination(
-      action: DrawerAction.libraries,
-      label: 'Libraries',
-      icon: AppIcons.libraries,
-      section: AppDrawerSection.collection,
-      behavior: DrawerActionBehavior.routedPage,
-      routePath: AppRoutes.libraries,
-      widgetKey: 'nav.library'),
   AppDrawerDestination(
       action: DrawerAction.printToPdf,
       label: 'Print to PDF',
@@ -225,11 +219,32 @@ const appDrawerDestinations = <AppDrawerDestination>[
       behavior: DrawerActionBehavior.overlayPage),
   AppDrawerDestination(
       action: DrawerAction.userManual,
-      label: 'User Manual',
+      label: 'Manual',
       icon: AppIcons.userManual,
       section: AppDrawerSection.help,
       behavior: DrawerActionBehavior.externalLink,
       widgetKey: 'drawer.user-manual'),
+  AppDrawerDestination(
+      action: DrawerAction.community,
+      label: 'Community',
+      svgAsset: AppIcons.communitySvg,
+      section: AppDrawerSection.help,
+      behavior: DrawerActionBehavior.externalLink,
+      widgetKey: 'drawer.community'),
+  AppDrawerDestination(
+      action: DrawerAction.contactSupport,
+      label: 'Contact Support',
+      icon: AppIcons.contactSupport,
+      section: AppDrawerSection.help,
+      behavior: DrawerActionBehavior.externalLink,
+      widgetKey: 'drawer.contact-support'),
+  AppDrawerDestination(
+      action: DrawerAction.whatsNew,
+      label: "What's New?",
+      icon: AppIcons.whatsNew,
+      section: AppDrawerSection.help,
+      behavior: DrawerActionBehavior.externalLink,
+      widgetKey: 'drawer.whats-new'),
   AppDrawerDestination(
       action: DrawerAction.keyboardShortcuts,
       label: 'Keyboard Shortcuts',

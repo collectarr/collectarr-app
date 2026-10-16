@@ -117,7 +117,6 @@ class BoardGamePlayStatsSection extends ConsumerWidget {
 
     return LibraryDetailSection(
       title: 'Play stats',
-      accentColor: request.accent,
       children: [
         if (facts.isNotEmpty) LibraryDetailFieldTable(fields: facts),
         if (chipSections.isNotEmpty) ...[

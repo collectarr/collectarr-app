@@ -94,7 +94,7 @@ final musicKindViewProfile = standardMediaWorkspaceViewProfile(
   CatalogMediaKind.music,
   musicKindUiPolicy,
   defaultDetailsLayout: LibraryDetailsLayout.right,
-  defaultDetailsWidth: 350,
+  defaultDetailsWidth: 1060,
 );
 
 final musicKindIdentity = const LibraryKindIdentity(
@@ -114,6 +114,7 @@ final musicKindMetadata = const LibraryMetadataCapability(
   catalogTransportCodec: MusicCatalogTransportCodec(),
   catalogDetailCandidateBuilder: _musicCatalogDetailCandidateBuilder,
   searchQueryBuilder: musicMetadataSearchQuery,
+  matchScorer: musicMetadataMatchScore,
   catalogSearchBuilder: searchMusicCatalogItems,
   catalogSearchResultsAreDetailed: true,
   supportsServerCompare: true,

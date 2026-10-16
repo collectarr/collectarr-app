@@ -26,12 +26,16 @@ class LibraryAddSearchResultDisplay {
     required this.title,
     required this.secondaryLine,
     required this.detailLine,
+    this.trailingDetail,
     this.year,
   });
 
   final String title;
   final String? secondaryLine;
   final String? detailLine;
+
+  /// Right-aligned on the detail line, such as a barcode.
+  final String? trailingDetail;
   final int? year;
 }
 
@@ -323,7 +327,6 @@ abstract class LibraryMediaPresentationBuilder {
     }).toList(growable: false);
     return LibraryDetailSection(
       title: presentation.labels.identitySectionTitle,
-      accentColor: accent,
       children: [
         LibraryDetailFieldTable(fields: identityFacts),
       ],
@@ -345,7 +348,6 @@ abstract class LibraryMediaPresentationBuilder {
     );
     return LibraryDetailSection(
       title: presentation.labels.contextSectionTitle,
-      accentColor: accent,
       children: [
         LibraryDetailFieldTable(fields: presentation.contextFacts),
         for (final entry in presentation.sections.entries)
@@ -391,7 +393,6 @@ abstract class LibraryMediaPresentationBuilder {
     }
     return LibraryDetailSection(
       title: presentation.labels.creditsSectionTitle,
-      accentColor: accent,
       children: [
         for (var index = 0; index < creditSections.length; index++) ...[
           if (index > 0) const SizedBox(height: 8),

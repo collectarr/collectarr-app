@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -124,7 +123,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final synopsis = comic?.synopsis?.trim();
     const String? plotDescription = null;
     final comicDetails = libraryEntry?.personal.details;
-    final slabLabel = librarySlabMarkerLabel(
+    final slabLabel = _slabMarkerLabel(
       comicDetails?.rawOrSlabbed,
       comicDetails?.gradingCompany,
     );
@@ -920,4 +919,16 @@ class _ComicDetailLine extends StatelessWidget {
       ),
     );
   }
+}
+
+String? _slabMarkerLabel(String? rawOrSlabbed, String? gradingCompany) {
+  final slab = rawOrSlabbed?.trim();
+  final company = gradingCompany?.trim();
+  if ((slab == null || slab.isEmpty) && (company == null || company.isEmpty)) {
+    return null;
+  }
+  if (slab?.isNotEmpty == true && company?.isNotEmpty == true) {
+    return '$slab - $company';
+  }
+  return slab?.isNotEmpty == true ? slab : company;
 }

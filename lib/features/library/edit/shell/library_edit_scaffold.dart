@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/app_panel_title.dart';
 import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -304,7 +305,6 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                       onPrevious: widget.onPrevious,
                       onNext: widget.onNext,
                       chromeVariant: widget.chromeVariant,
-                      accent: widget.accent,
                       isBusy: widget.isBusy,
                     ),
                 maxWidth: maxWidth,
@@ -433,14 +433,6 @@ class _LibraryEditTitleBar extends StatelessWidget {
     const foreground = Colors.white;
     return AnimatedLibraryChrome(
       accent: accent,
-      borderBuilder: (animatedAccent, _) => Border(
-        bottom: BorderSide(
-          color: Color.alphaBlend(
-            Colors.white.withValues(alpha: 0.12),
-            animatedAccent,
-          ),
-        ),
-      ),
       child: LibraryPanelHeader(
         backgroundColor: Colors.transparent,
         foregroundColor: foreground,
@@ -503,7 +495,6 @@ class _LibraryEditFooter extends StatelessWidget {
     this.onPrevious,
     this.onNext,
     required this.chromeVariant,
-    required this.accent,
     required this.isBusy,
   });
   final VoidCallback onCancel;
@@ -512,7 +503,6 @@ class _LibraryEditFooter extends StatelessWidget {
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
-  final Color accent;
   final bool isBusy;
 
   @override
@@ -520,41 +510,12 @@ class _LibraryEditFooter extends StatelessWidget {
     final isWideDesktop =
         chromeVariant == LibraryEditChromeVariant.movieDesktop;
     final editorPalette = libraryEditPalette(appPalette(context));
-    final navigationStyle = OutlinedButton.styleFrom(
-      foregroundColor: editorPalette.textPrimary,
-      disabledForegroundColor: editorPalette.textPrimary,
-      side: BorderSide.none,
-      shape: kLibraryDialogFooterButtonShape,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      minimumSize: const Size(100, kLibraryDialogFooterButtonHeight),
-      visualDensity: VisualDensity.standard,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    final navigationStyle = dialogActionButtonStyle(context).copyWith(
+      side: const WidgetStatePropertyAll(BorderSide.none),
       animationDuration: MediaQuery.disableAnimationsOf(context)
           ? Duration.zero
           : appControlHoverDuration,
       splashFactory: NoSplash.splashFactory,
-      textStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          height: 20 / 14,
-          letterSpacing: 0),
-    ).copyWith(
-      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-      backgroundColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.disabled)) {
-          return editorPalette.isDark
-              ? const Color(0xFF232323)
-              : editorPalette.panelRaised;
-        }
-        if (states.contains(WidgetState.hovered)) {
-          return editorPalette.isDark
-              ? const Color(0xFF535353)
-              : editorPalette.surfaceBright;
-        }
-        return editorPalette.isDark
-            ? const Color(0xFF494949)
-            : editorPalette.field;
-      }),
     );
     final compactIconButtonStyle = navigationStyle.copyWith(
       minimumSize: const WidgetStatePropertyAll(
@@ -620,6 +581,9 @@ class _LibraryEditFooter extends StatelessWidget {
         if (onProposeToCore != null) ...[
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
+              foregroundColor: editorPalette.utilityAction,
+              side: BorderSide(color: editorPalette.utilityAction),
+              textStyle: navigationStyle.textStyle?.resolve({}),
               shape: kLibraryDialogFooterButtonShape,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
@@ -643,26 +607,13 @@ class _LibraryEditFooter extends StatelessWidget {
                 : const Text('Cancel'),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 5),
         SizedBox(
           height: kLibraryDialogFooterButtonHeight,
           width: windowClass.isCompact ? 96 : 100,
           child: FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: accent,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              minimumSize: Size(windowClass.isCompact ? 96 : 112,
-                  kLibraryDialogFooterButtonHeight),
-              shape: kLibraryDialogFooterButtonShape,
-              textStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  height: 20 / 14,
-                  letterSpacing: 0),
-              visualDensity: VisualDensity.standard,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
+            style: dialogActionButtonStyle(context,
+                primary: true, width: windowClass.isCompact ? 96 : 100),
             onPressed: isBusy ? null : onSave,
             child: const Text('Save'),
           ),

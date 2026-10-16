@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/presentation/library_alphabet_field.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -82,6 +83,19 @@ double resolveLibrarySidebarMinWidth(
 // Minimum available content width for the workspace side-by-side layout.
 const double _workspaceSplitMinWidth = 860;
 
+/// The items the views show once the alphabet bar's letter is applied.
+List<LibraryProjectionItem> libraryItemsForLetter(
+  List<LibraryProjectionItem> items,
+  LibraryAlphabetField field,
+  String? letter,
+) =>
+    letter == null
+        ? items
+        : items
+            .where((item) => field.values(item).any(
+                (value) => LibraryAlphaJumpBar.matchesLetter(value, letter)))
+            .toList();
+
 class LibraryBody extends StatelessWidget {
   const LibraryBody({
     super.key,
@@ -144,6 +158,7 @@ class LibraryBody extends StatelessWidget {
     this.onItemContextMenu,
     this.onFilterByValue,
     this.selectedLetter,
+    this.alphabetField = LibraryAlphabetField.title,
     this.availableLetters = const {},
     this.onLetterSelected,
     this.db,
@@ -227,6 +242,7 @@ class LibraryBody extends StatelessWidget {
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final ValueChanged<String>? onFilterByValue;
   final String? selectedLetter;
+  final LibraryAlphabetField alphabetField;
   final Set<String> availableLetters;
   final ValueChanged<String?>? onLetterSelected;
   final LocalDatabase? db;
@@ -284,11 +300,14 @@ class LibraryBody extends StatelessWidget {
             minWidth: kLibraryDetailsMinWidth,
             maxWidth: kLibraryPaneStoredMaxWidth,
           );
+          // As in the reference, the folder panel keeps its width when the
+          // window narrows; the details pane gives way first, down to its
+          // minimum.
           final maxSidebarWidth = resolveLibrarySidebarMaxWidth(
             viewportWidth: constraints.maxWidth,
             workspaceMinWidth: workspaceMinWidth,
             hasRightDetails: detailsLayout == LibraryDetailsLayout.right,
-            rightDetailsWidth: requestedDetailsWidth,
+            rightDetailsWidth: kLibraryDetailsMinWidth,
             minWidth: sidebarMinWidth,
           );
           final sidebarWidth = clampLibraryPaneWidth(
@@ -307,14 +326,8 @@ class LibraryBody extends StatelessWidget {
                 constraints.maxHeight.isFinite ? constraints.maxHeight : 800,
             workspaceMinHeight: kLibraryWorkspaceMinHeight,
           );
-          final letterFilteredItems = selectedLetter == null
-              ? projection.filteredItems
-              : projection.filteredItems
-                  .where((item) => LibraryAlphaJumpBar.matchesLetter(
-                        item.dto.primaryLabel,
-                        selectedLetter!,
-                      ))
-                  .toList();
+          final letterFilteredItems = libraryItemsForLetter(
+              projection.filteredItems, alphabetField, selectedLetter);
           final workspace = workspaceOverride ??
               LibraryWorkspace(
                 type: type,
@@ -396,6 +409,7 @@ class LibraryBody extends StatelessWidget {
                 Row(children: [
                   if (!canShowSidebar)
                     PopupMenuButton<String>(
+                      popUpAnimationStyle: AnimationStyle.noAnimation,
                       tooltip: 'Folders',
                       onSelected: (bucket) => onBucketChanged(
                           bucket == genericAllBucketLabel(type)
@@ -417,6 +431,30 @@ class LibraryBody extends StatelessWidget {
                     ),
                   Expanded(child: desktopToolbarBand!),
                 ]),
+              if (quickView != null ||
+                  filterSelection.hasActiveFilters ||
+                  activeSmartListName != null)
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Wrap(
+                    spacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text([
+                        if (activeSmartListName != null) activeSmartListName!,
+                        if (quickView != null) quickView!.label,
+                        if (filterSelection.hasActiveFilters)
+                          '${filterSelection.activeFilterCount} active filters',
+                      ].join(' / ')),
+                      TextButton.icon(
+                        onPressed: onClearFilters,
+                        icon: const Icon(Icons.filter_alt_off, size: 16),
+                        label: const Text('Clear filters'),
+                      ),
+                    ],
+                  ),
+                ),
               if (workspaceOverride == null &&
                   !showSidebar &&
                   constraints.maxWidth < 600 &&
@@ -519,8 +557,14 @@ class LibraryBody extends StatelessWidget {
           );
           _postLayoutSnapshotIfNeeded(
             context,
+            // The stored width survives a narrow window; only the drawn
+            // panel is clamped, as in the reference.
             snapshot: LibraryLayoutSnapshot(
-              sidebarWidth: sidebarWidth,
+              sidebarWidth: clampLibraryPaneWidth(
+                viewState.sidebarWidth,
+                minWidth: sidebarMinWidth,
+                maxWidth: kLibraryPaneStoredMaxWidth,
+              ),
               inspectorWidth: requestedDetailsWidth,
               detailsHeight: viewState.detailsHeight,
               coverSize: viewState.coverSize,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -8,6 +9,10 @@ export 'package:collectarr_app/features/library/config/library_media_presentatio
     show LibrarySortFavorite;
 
 const double kLibraryToolbarCompactBreakpoint = 760;
+
+/// The status filter a library opens with: albums in the collection, as in
+/// the reference. Clearing filters returns here rather than to All.
+const kDefaultCollectionStatusScope = LibraryCollectionStatusScope.inCollection;
 
 enum LibraryCollectionStatusScope {
   all,
@@ -20,6 +25,16 @@ enum LibraryCollectionStatusScope {
 }
 
 extension LibraryCollectionStatusScopeUi on LibraryCollectionStatusScope {
+  Color get color => switch (this) {
+        LibraryCollectionStatusScope.all => const Color(0xff777777),
+        LibraryCollectionStatusScope.inCollection => const Color(0xff2aa4cc),
+        LibraryCollectionStatusScope.forSale => const Color(0xff2d7427),
+        LibraryCollectionStatusScope.wishList => const Color(0xffff9b00),
+        LibraryCollectionStatusScope.onOrder => const Color(0xff13627f),
+        LibraryCollectionStatusScope.sold => const Color(0xffa63131),
+        LibraryCollectionStatusScope.notInCollection => const Color(0xff605c5c),
+      };
+
   String get label {
     return switch (this) {
       LibraryCollectionStatusScope.all => 'All',
@@ -34,13 +49,14 @@ extension LibraryCollectionStatusScopeUi on LibraryCollectionStatusScope {
 
   IconData get icon {
     return switch (this) {
-      LibraryCollectionStatusScope.all => Icons.inventory_2,
-      LibraryCollectionStatusScope.inCollection => Icons.check,
-      LibraryCollectionStatusScope.forSale => Icons.attach_money,
-      LibraryCollectionStatusScope.wishList => Icons.list_alt,
-      LibraryCollectionStatusScope.onOrder => Icons.shopping_cart_outlined,
-      LibraryCollectionStatusScope.sold => Icons.gavel,
-      LibraryCollectionStatusScope.notInCollection => Icons.close,
+      LibraryCollectionStatusScope.all => AppIcons.collectionStatusAll,
+      LibraryCollectionStatusScope.inCollection => AppIcons.check,
+      LibraryCollectionStatusScope.forSale => AppIcons.collectionStatusForSale,
+      LibraryCollectionStatusScope.wishList =>
+        AppIcons.collectionStatusWishList,
+      LibraryCollectionStatusScope.onOrder => AppIcons.collectionStatusOnOrder,
+      LibraryCollectionStatusScope.sold => AppIcons.collectionStatusSold,
+      LibraryCollectionStatusScope.notInCollection => AppIcons.close,
     };
   }
 }
@@ -124,11 +140,12 @@ Set<String> libraryDefaultPinnedSortFavoriteIdsForType(
 }
 
 Set<String> sanitizeLibraryPinnedSortFavoriteIds(
-  LibraryKindRegistration type,
-  Iterable<String> ids,
-) {
-  final availableIds =
-      librarySortFavoritesForType(type).map((favorite) => favorite.id).toSet();
+    LibraryKindRegistration type, Iterable<String> ids,
+    {List<LibrarySortFavorite> additionalFavorites = const []}) {
+  final availableIds = {
+    for (final favorite in librarySortFavoritesForType(type)) favorite.id,
+    for (final favorite in additionalFavorites) favorite.id,
+  };
   return ids.where(availableIds.contains).toSet();
 }
 

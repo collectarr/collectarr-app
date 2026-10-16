@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -15,6 +16,7 @@ class LibraryAddCommonDraft {
     this.ownerLabel,
     this.collectionStatus,
     this.isDigital,
+    this.autocapTitles,
   });
 
   final String? condition;
@@ -29,6 +31,10 @@ class LibraryAddCommonDraft {
   final String? ownerLabel;
   final String? collectionStatus;
   final bool? isDigital;
+
+  /// Capitalization for titles added from Core, from Settings > Auto
+  /// Capitalization; null keeps catalog titles as written.
+  final TitleCaseSettings? autocapTitles;
 
   LibraryAddCommonDraft copyWith({
     String? condition,
@@ -59,6 +65,7 @@ class LibraryAddCommonDraft {
       ownerLabel: ownerLabel ?? this.ownerLabel,
       collectionStatus: collectionStatus ?? this.collectionStatus,
       isDigital: isDigital ?? this.isDigital,
+      autocapTitles: autocapTitles,
     );
   }
 }

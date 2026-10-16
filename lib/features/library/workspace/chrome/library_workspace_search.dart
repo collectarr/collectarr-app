@@ -1,7 +1,10 @@
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
 import '../config/library_workspace_tokens.dart';
@@ -10,12 +13,22 @@ class LibraryToolbarSearchSuggestion {
   const LibraryToolbarSearchSuggestion({
     required this.id,
     required this.title,
+    String? label,
     this.subtitle,
-  });
+    this.imageUrl,
+    this.libraryEntryRef,
+  }) : label = label ?? title;
 
   final String id;
+
+  /// Search text applied when the suggestion is chosen.
   final String title;
+
+  /// Bold first line, such as "Artist - Title".
+  final String label;
   final String? subtitle;
+  final String? imageUrl;
+  final LibraryEntryRef? libraryEntryRef;
 }
 
 class LibraryToolbarSearch extends StatefulWidget {
@@ -108,6 +121,11 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
     }
   }
 
+  void _closeSuggestions() {
+    if (_overlayController.isShowing) _overlayController.hide();
+    if (mounted) setState(() => _dismissed = true);
+  }
+
   Widget _buildSuggestionsOverlay(BuildContext overlayContext) {
     if (_dismissed ||
         widget.suggestions.isEmpty ||
@@ -119,99 +137,91 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
     final targetWidth =
         renderBox?.hasSize == true ? renderBox!.size.width : widget.maxWidth;
     final palette = appPalette(overlayContext);
-    final borderColor = Color.alphaBlend(
-      widget.selectionColor.withValues(alpha: palette.isDark ? 0.34 : 0.22),
-      palette.divider,
-    );
+    final border = palette.isDark ? const Color(0xff5d626c) : palette.divider;
     return TapRegion(
       groupId: this,
-      onTapOutside: (_) {
-        if (_overlayController.isShowing) {
-          _overlayController.hide();
-        }
-        if (mounted) {
-          setState(() {
-            _dismissed = true;
-          });
-        }
-      },
+      onTapOutside: (_) => _closeSuggestions(),
       child: CompositedTransformFollower(
         link: _layerLink,
         showWhenUnlinked: false,
         targetAnchor: Alignment.bottomLeft,
         followerAnchor: Alignment.topLeft,
-        offset: const Offset(0, 4),
-        child: SizedBox(
-          width: targetWidth,
-          child: Material(
-            color: palette.panel,
-            elevation: 12,
-            shadowColor: Colors.black.withValues(alpha: 0.5),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(2),
-              side: BorderSide(color: borderColor),
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: Container(
+            width: targetWidth,
+            constraints: const BoxConstraints(maxHeight: 400),
+            decoration: BoxDecoration(
+              color: palette.isDark ? const Color(0xff383838) : palette.panel,
+              border: Border.all(color: border),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0xff333333),
+                  offset: Offset(10, 10),
+                  blurRadius: 15,
+                  spreadRadius: -10,
+                ),
+              ],
             ),
-            clipBehavior: Clip.antiAlias,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 260),
-              child: ListView.builder(
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                itemCount: widget.suggestions.length,
-                itemBuilder: (context, index) {
-                  final suggestion = widget.suggestions[index];
-                  return InkWell(
-                    mouseCursor: WidgetStateMouseCursor.clickable,
-                    key: ValueKey(
-                      'library-search-suggestion-${suggestion.id}',
-                    ),
-                    onTap: () {
-                      widget.onSuggestionSelected?.call(suggestion);
-                      if (_overlayController.isShowing) {
-                        _overlayController.hide();
-                      }
-                      if (mounted) {
-                        setState(() {
-                          _dismissed = true;
-                        });
-                      }
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            suggestion.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
+            child: Material(
+              type: MaterialType.transparency,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      itemCount: widget.suggestions.length,
+                      itemBuilder: (context, index) {
+                        final suggestion = widget.suggestions[index];
+                        return _SearchSuggestionRow(
+                          key: ValueKey(
+                            'library-search-suggestion-${suggestion.id}',
                           ),
-                          if ((suggestion.subtitle ?? '').trim().isNotEmpty)
+                          suggestion: suggestion,
+                          borderColor: border,
+                          onTap: () {
+                            widget.onSuggestionSelected?.call(suggestion);
+                            _closeSuggestions();
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: InkWell(
+                      key: const ValueKey('library-search-view-all'),
+                      mouseCursor: SystemMouseCursors.click,
+                      onTap: () {
+                        widget.onSearch(widget.controller.text);
+                        _closeSuggestions();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 2, vertical: 4),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
                             Text(
-                              suggestion.subtitle!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: palette.textMuted,
-                                  ),
+                              'View all results',
+                              style: TextStyle(
+                                fontSize: 12,
+                                height: 17 / 12,
+                                color: palette.textPrimary,
+                              ),
                             ),
-                        ],
+                            const SizedBox(width: 3),
+                            Icon(AppIcons.chevronRight,
+                                size: 9, color: palette.textPrimary),
+                          ],
+                        ),
                       ),
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
           ),
@@ -223,24 +233,23 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    const inputHeight = 34.0;
+    const inputHeight = 30.0;
     final showSearchScope = widget.searchTargetOptions.isNotEmpty &&
         widget.onSearchTargetChanged != null;
     final inlineActionCount = 1 +
         (widget.onScanBarcode != null ? 1 : 0) +
         (widget.onScanCover != null ? 1 : 0) +
         (widget.onRandomPick != null ? 1 : 0);
-    final inlineActionsWidth = inlineActionCount * 28.0 + 8;
-    final inputBackground = Color.alphaBlend(
-      (palette.isDark ? Colors.white : palette.accent).withValues(
-        alpha: palette.isDark ? 0.045 : 0.03,
-      ),
-      palette.field,
-    );
-    final borderColor = Color.alphaBlend(
-      palette.accent.withValues(alpha: palette.isDark ? 0.34 : 0.22),
-      palette.divider,
-    );
+    final inlineActionsWidth = inlineActionCount * 26.0 + 2;
+    final inputBackground =
+        palette.isDark ? const Color(0xff444444) : palette.field;
+    final textStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontSize: 14,
+          height: 20 / 14,
+          fontWeight: FontWeight.w400,
+          color: palette.textPrimary,
+        );
+    final iconColor = palette.textPrimary;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -265,116 +274,115 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
                     overlayChildBuilder: _buildSuggestionsOverlay,
                     child: CompositedTransformTarget(
                       link: _layerLink,
-                      child: ClipRRect(
+                      child: DecoratedBox(
                         key: _searchBarKey,
-                        borderRadius: BorderRadius.circular(2),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: inputBackground,
-                            border: Border.all(color: borderColor),
-                          ),
-                          child: SizedBox(
-                            height: inputHeight,
-                            child: Stack(
-                              children: [
-                                Positioned.fill(
-                                  child: TextField(
-                                    key: widget.textFieldKey,
-                                    controller: widget.controller,
-                                    cursorColor:
-                                        LibraryAccentScope.maybeOf(context)
-                                                ?.accent ??
-                                            widget.selectionColor,
-                                    onChanged: widget.onChanged,
-                                    onSubmitted: widget.onSearch,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(
-                                          fontSize: 12.5,
-                                          height: 1.05,
-                                        ),
-                                    decoration: InputDecoration(
-                                      isDense: true,
-                                      hintText: widget.hintText,
-                                      hintStyle: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            color: palette.textMuted,
-                                            fontSize: 12,
-                                            height: 1.05,
-                                          ),
-                                      border: InputBorder.none,
-                                      contentPadding: EdgeInsets.fromLTRB(
-                                        showSearchScope ? 50 : 10,
-                                        8,
-                                        10,
-                                        8,
-                                      ),
-                                      suffixIconConstraints: BoxConstraints(
-                                        minWidth: inlineActionsWidth,
-                                        maxWidth: inlineActionsWidth,
-                                        minHeight: inputHeight,
-                                        maxHeight: inputHeight,
-                                      ),
-                                      suffixIcon: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 4),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            _ToolbarSearchInlineAction(
-                                              tooltip: widget.searchActive
-                                                  ? 'Clear search'
-                                                  : 'Search',
-                                              icon: widget.searchActive
-                                                  ? Icons.close
-                                                  : Icons.search,
-                                              onPressed: widget.searchActive
-                                                  ? () {
-                                                      widget.onClearSearch
-                                                          ?.call();
-                                                    }
-                                                  : () => widget.onSearch(
-                                                      widget.controller.text),
+                        decoration: BoxDecoration(
+                          color: inputBackground,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: SizedBox(
+                          height: inputHeight,
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: TextField(
+                                  key: widget.textFieldKey,
+                                  controller: widget.controller,
+                                  cursorColor: palette.utilityAction,
+                                  onChanged: widget.onChanged,
+                                  onSubmitted: widget.onSearch,
+                                  style: textStyle,
+                                  textAlignVertical: TextAlignVertical.center,
+                                  decoration: InputDecoration(
+                                    isDense: true,
+                                    filled: false,
+                                    hintText: widget.hintText,
+                                    hintStyle: textStyle?.copyWith(
+                                      color: palette.isDark
+                                          ? const Color(0xff999999)
+                                          : palette.textMuted,
+                                    ),
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    contentPadding: EdgeInsets.fromLTRB(
+                                      showSearchScope ? 50 : 8,
+                                      5,
+                                      4,
+                                      5,
+                                    ),
+                                    suffixIconConstraints: BoxConstraints(
+                                      minWidth: inlineActionsWidth,
+                                      maxWidth: inlineActionsWidth,
+                                      minHeight: inputHeight,
+                                      maxHeight: inputHeight,
+                                    ),
+                                    suffixIcon: Padding(
+                                      padding: const EdgeInsets.only(right: 2),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          _ToolbarSearchInlineAction(
+                                            tooltip: widget.searchActive
+                                                ? 'Clear search'
+                                                : 'Search',
+                                            onPressed: widget.searchActive
+                                                ? () =>
+                                                    widget.onClearSearch?.call()
+                                                : () => widget.onSearch(
+                                                    widget.controller.text),
+                                            child: Icon(
+                                              widget.searchActive
+                                                  ? AppIcons.close
+                                                  : AppIcons.search,
+                                              size: 14,
+                                              color: iconColor,
                                             ),
-                                            if (widget.onScanBarcode != null)
-                                              _ToolbarSearchInlineAction(
-                                                tooltip: 'Scan barcode',
-                                                icon: Icons.barcode_reader,
-                                                onPressed:
-                                                    widget.onScanBarcode!,
+                                          ),
+                                          if (widget.onScanBarcode != null)
+                                            _ToolbarSearchInlineAction(
+                                              tooltip: 'Scan barcode',
+                                              onPressed: widget.onScanBarcode!,
+                                              child: SvgPicture.asset(
+                                                AppIcons.barcodeScanSvg,
+                                                key: const ValueKey(
+                                                    'library-search-barcode-glyph'),
+                                                width: 22,
+                                                height: 18,
+                                                colorFilter: ColorFilter.mode(
+                                                    iconColor, BlendMode.srcIn),
                                               ),
-                                            if (widget.onScanCover != null)
-                                              _ToolbarSearchInlineAction(
-                                                tooltip: 'Search by cover',
-                                                icon: Icons.image_search,
-                                                onPressed: widget.onScanCover!,
-                                              ),
-                                            if (widget.onRandomPick != null)
-                                              _ToolbarSearchInlineAction(
-                                                tooltip: 'Random pick',
-                                                icon: Icons.casino_outlined,
-                                                onPressed: widget.onRandomPick!,
-                                              ),
-                                          ],
-                                        ),
+                                            ),
+                                          if (widget.onScanCover != null)
+                                            _ToolbarSearchInlineAction(
+                                              tooltip: 'Search by cover',
+                                              onPressed: widget.onScanCover!,
+                                              child: Icon(AppIcons.camera,
+                                                  size: 14, color: iconColor),
+                                            ),
+                                          if (widget.onRandomPick != null)
+                                            _ToolbarSearchInlineAction(
+                                              tooltip: 'Random pick',
+                                              onPressed: widget.onRandomPick!,
+                                              child: Icon(AppIcons.dice,
+                                                  size: 14, color: iconColor),
+                                            ),
+                                        ],
                                       ),
                                     ),
                                   ),
                                 ),
-                                if (showSearchScope)
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: _ToolbarSearchScopeButton(
-                                      selected: widget.searchTarget,
-                                      options: widget.searchTargetOptions,
-                                      onSelected: widget.onSearchTargetChanged!,
-                                    ),
+                              ),
+                              if (showSearchScope)
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: _ToolbarSearchScopeButton(
+                                    selected: widget.searchTarget,
+                                    options: widget.searchTargetOptions,
+                                    onSelected: widget.onSearchTargetChanged!,
                                   ),
-                              ],
-                            ),
+                                ),
+                            ],
                           ),
                         ),
                       ),
@@ -436,34 +444,37 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
 class _ToolbarSearchInlineAction extends StatelessWidget {
   const _ToolbarSearchInlineAction({
     required this.tooltip,
-    required this.icon,
     required this.onPressed,
+    required this.child,
   });
 
   final String tooltip;
-  final IconData icon;
   final VoidCallback onPressed;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return SizedBox(
-      width: 28,
-      child: IconButton(
-        tooltip: tooltip,
-        visualDensity: VisualDensity.compact,
-        padding: EdgeInsets.zero,
-        style: IconButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          disabledBackgroundColor: Colors.transparent,
-          hoverColor: libraryToolbarControlHover(context),
-          highlightColor: libraryToolbarControlHover(
-            context,
-          ).withValues(alpha: 0.9),
+    return Tooltip(
+      message: tooltip,
+      excludeFromSemantics: true,
+      child: Semantics(
+        label: tooltip,
+        button: true,
+        onTap: onPressed,
+        excludeSemantics: true,
+        child: AppClickTarget(
+          onClick: onPressed,
+          builder: (context, hovered) => Container(
+            width: 26,
+            height: 26,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: hovered ? libraryToolbarControlHover(context) : null,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: child,
+          ),
         ),
-        constraints: const BoxConstraints.tightFor(width: 28, height: 28),
-        onPressed: onPressed,
-        icon: Icon(icon, size: 18, color: palette.textPrimary),
       ),
     );
   }
@@ -486,7 +497,64 @@ class _ToolbarSearchScopeButton extends StatefulWidget {
 }
 
 class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
+  static const _menuWidth = 160.0;
   bool _hovered = false;
+
+  /// Opens the scope list left-aligned under the button, as in the reference.
+  ///
+  /// The anchor spans the menu's own width, so Flutter's menu layout lands on
+  /// the same left edge whichever half of the window the button is in.
+  Future<void> _open() async {
+    final palette = appPalette(context);
+    final box = context.findRenderObject()! as RenderBox;
+    final overlay =
+        Overlay.of(context).context.findRenderObject()! as RenderBox;
+    final topLeft =
+        box.localToGlobal(Offset(-4, box.size.height + 2), ancestor: overlay);
+    final anchor = Rect.fromLTWH(topLeft.dx, topLeft.dy, _menuWidth, 0);
+    final selected = await showMenu<LibrarySearchTarget>(
+      context: context,
+      position: RelativeRect.fromRect(anchor, Offset.zero & overlay.size),
+      popUpAnimationStyle: AnimationStyle.noAnimation,
+      constraints: const BoxConstraints.tightFor(width: _menuWidth),
+      color: palette.isDark ? const Color(0xFF444444) : palette.panelRaised,
+      surfaceTintColor: Colors.transparent,
+      elevation: 6,
+      menuPadding: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+            color: palette.isDark ? const Color(0xFF666666) : palette.divider),
+      ),
+      items: [
+        for (final option in widget.options)
+          PopupMenuItem<LibrarySearchTarget>(
+            value: option,
+            height: 30,
+            padding: const EdgeInsets.symmetric(horizontal: 7),
+            child: Row(
+              children: [
+                _librarySearchTargetIcon(option, palette.textPrimary, size: 16),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    _librarySearchTargetLabel(option),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: palette.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      height: 20 / 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+    if (selected != null && mounted) widget.onSelected(selected);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -494,89 +562,42 @@ class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
     final buttonBackground = _hovered
         ? (palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright)
         : (palette.isDark ? const Color(0xFF383838) : palette.surface);
-    final menuBackground =
-        palette.isDark ? const Color(0xFF444444) : palette.panelRaised;
-    final menuBorder =
-        palette.isDark ? const Color(0xFF666666) : palette.divider;
-    return Theme(
-      data: Theme.of(context).copyWith(
-        hoverColor:
-            palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright,
-        focusColor:
-            palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright,
-      ),
-      child: PopupMenuButton<LibrarySearchTarget>(
-        key: const ValueKey('library-search-target-button'),
-        tooltip: 'Search scope',
-        onSelected: widget.onSelected,
-        padding: EdgeInsets.zero,
-        position: PopupMenuPosition.under,
-        offset: const Offset(-18, 2),
-        constraints: const BoxConstraints(minWidth: 160, maxWidth: 220),
-        color: menuBackground,
-        surfaceTintColor: Colors.transparent,
-        elevation: 6,
-        menuPadding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: menuBorder),
-        ),
-        itemBuilder: (context) => [
-          for (final option in widget.options)
-            PopupMenuItem<LibrarySearchTarget>(
-              value: option,
-              height: 26,
-              padding: const EdgeInsets.symmetric(horizontal: 7),
-              child: Row(
-                children: [
-                  _librarySearchTargetIcon(option, palette.textPrimary),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      _librarySearchTargetLabel(option),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: palette.textPrimary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        height: 20 / 14,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
+    return Tooltip(
+      message: 'Search scope',
+      child: Semantics(
+        button: true,
+        expanded: false,
+        onTap: _open,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           onEnter: (_) => setState(() => _hovered = true),
           onExit: (_) => setState(() => _hovered = false),
-          child: Container(
-            width: 44,
-            height: 26,
-            margin: const EdgeInsets.all(2),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: buttonBackground,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: _hovered
-                    ? palette.accent.withValues(alpha: 0.5)
-                    : Colors.transparent,
-                width: 1,
+          child: GestureDetector(
+            key: const ValueKey('library-search-target-button'),
+            behavior: HitTestBehavior.opaque,
+            onTap: _open,
+            child: Container(
+              width: 44,
+              height: 26,
+              margin: const EdgeInsets.all(2),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: buttonBackground,
+                borderRadius: BorderRadius.circular(4),
               ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _librarySearchTargetIcon(widget.selected, palette.textPrimary),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 14,
-                  color: palette.textPrimary,
-                ),
-              ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _librarySearchTargetIcon(
+                      widget.selected, palette.textPrimary),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 14,
+                    color: palette.textPrimary,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -585,20 +606,21 @@ class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
   }
 }
 
-Widget _librarySearchTargetIcon(LibrarySearchTarget target, Color color) {
+Widget _librarySearchTargetIcon(LibrarySearchTarget target, Color color,
+    {double size = 13}) {
   final icon = switch (target) {
     LibrarySearchTarget.all => AppIcons.searchAll,
     LibrarySearchTarget.mediaOnly => AppIcons.searchMedia,
     LibrarySearchTarget.tracksOnly => AppIcons.searchTracks,
   };
   return SizedBox(
-    width: 18,
-    height: 14,
+    width: size + 5,
+    height: size + 1,
     child: Center(
       child: Icon(
         icon,
         key: ValueKey('library-search-target-icon-${target.name}'),
-        size: 13,
+        size: size,
         color: color,
       ),
     ),
@@ -611,4 +633,99 @@ String _librarySearchTargetLabel(LibrarySearchTarget target) {
     LibrarySearchTarget.mediaOnly => 'Albums',
     LibrarySearchTarget.tracksOnly => 'Tracks',
   };
+}
+
+/// One autocomplete row: a 40 px cover, the bold label and a second line,
+/// ruled underneath, as in the reference.
+class _SearchSuggestionRow extends StatefulWidget {
+  const _SearchSuggestionRow({
+    super.key,
+    required this.suggestion,
+    required this.borderColor,
+    required this.onTap,
+  });
+
+  final LibraryToolbarSearchSuggestion suggestion;
+  final Color borderColor;
+  final VoidCallback onTap;
+
+  @override
+  State<_SearchSuggestionRow> createState() => _SearchSuggestionRowState();
+}
+
+class _SearchSuggestionRowState extends State<_SearchSuggestionRow> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final suggestion = widget.suggestion;
+    final subtitle = suggestion.subtitle?.trim() ?? '';
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        child: Container(
+          height: 41,
+          decoration: BoxDecoration(
+            color: _hovered ? libraryToolbarMenuHover(context) : null,
+            border: Border(bottom: BorderSide(color: widget.borderColor)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox.square(
+                dimension: 40,
+                child: LibraryCoverImage(
+                  title: suggestion.label,
+                  imageUrl: suggestion.imageUrl,
+                  libraryEntryRef: suggestion.libraryEntryRef,
+                  targetCacheWidth: 80,
+                  fallbackAspectRatio: 1,
+                  borderRadius: 0,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 3),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        suggestion.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          height: 17 / 14,
+                          fontWeight: FontWeight.w700,
+                          color: palette.textPrimary,
+                        ),
+                      ),
+                      if (subtitle.isNotEmpty)
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            height: 18.5 / 13,
+                            color: palette.textPrimary,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

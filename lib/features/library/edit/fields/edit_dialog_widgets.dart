@@ -1,3 +1,6 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/anchored_calendar.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_form_layout.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
@@ -59,6 +62,7 @@ ThemeData editDialogTheme({
   return base.copyWith(
     extensions: [palette],
     visualDensity: VisualDensity.standard,
+    tooltipTheme: buildAppTooltipTheme(palette),
     canvasColor: palette.panel,
     colorScheme: ColorScheme.fromSeed(
       seedColor: accent,
@@ -68,11 +72,7 @@ ThemeData editDialogTheme({
       primary: accent,
       onPrimary: appContrastingTextColor(accent),
     ),
-    textSelectionTheme: TextSelectionThemeData(
-      cursorColor: accent,
-      selectionColor: accent.withValues(alpha: 0.35),
-      selectionHandleColor: accent,
-    ),
+    textSelectionTheme: buildAppTextSelectionTheme(palette),
     dialogTheme: DialogThemeData(
       backgroundColor: palette.panel,
       surfaceTintColor: Colors.transparent,
@@ -84,7 +84,7 @@ ThemeData editDialogTheme({
     popupMenuTheme: PopupMenuThemeData(
       color: palette.panelRaised,
       surfaceTintColor: Colors.transparent,
-      textStyle: TextStyle(color: palette.textPrimary),
+      textStyle: buildAppPopupMenuTheme(palette).textStyle,
       elevation: 12,
       shape: RoundedRectangleBorder(
         borderRadius: kAppMenuBorderRadius,
@@ -107,9 +107,11 @@ ThemeData editDialogTheme({
       filled: true,
       fillColor: palette.isDark ? const Color(0xFF444444) : palette.surface,
       isDense: true,
+      // Outline and fill follow the content height, so the padding makes
+      // the 34 px reference field; the constraint alone does not.
       contentPadding: EdgeInsets.symmetric(
         horizontal: 7,
-        vertical: 6,
+        vertical: 7,
       ),
       constraints: const BoxConstraints(
         minHeight: LibraryMetrics.defaultFieldHeight,
@@ -118,13 +120,13 @@ ThemeData editDialogTheme({
           ? FloatingLabelBehavior.always
           : FloatingLabelBehavior.auto,
       labelStyle: TextStyle(
-        color: palette.textMuted,
-        fontSize: compactDesktop ? 12 : null,
+        color: palette.textPrimary,
+        fontSize: 13,
         fontWeight: kAppBoldFontWeight,
       ),
       floatingLabelStyle: TextStyle(
-        color: accent,
-        fontSize: compactDesktop ? 12 : null,
+        color: palette.textPrimary,
+        fontSize: 13,
         fontWeight: kAppBoldFontWeight,
       ),
       hintStyle: TextStyle(
@@ -140,7 +142,7 @@ ThemeData editDialogTheme({
         borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: accent),
+        borderSide: BorderSide(color: palette.utilityAction),
         borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
     ),
@@ -182,7 +184,7 @@ ThemeData editDialogTheme({
           labelLarge: base.textTheme.labelLarge?.copyWith(
               fontSize: 14,
               height: 20 / 14,
-              fontWeight: kAppBoldFontWeight,
+              fontWeight: kAppNormalFontWeight,
               letterSpacing: 0),
         )
         .apply(
@@ -391,20 +393,22 @@ class EditTab extends StatelessWidget {
               final iconTheme = IconTheme.of(context);
               return SvgPicture.asset(
                 svgAsset!,
-                width: iconTheme.size ?? 16,
-                height: iconTheme.size ?? 16,
+                width: iconTheme.size ?? 14,
+                height: iconTheme.size ?? 14,
                 colorFilter: iconTheme.color != null
                     ? ColorFilter.mode(iconTheme.color!, BlendMode.srcIn)
                     : null,
               );
             },
           )
-        : Icon(icon, size: 16);
+        : Icon(icon, size: 14);
 
+    // A fixed-width icon box, as in the reference tabs: wide glyphs such as
+    // the people icon no longer run into their label.
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        iconWidget,
+        SizedBox(width: 18, child: Center(child: iconWidget)),
         const SizedBox(width: 3),
         Text(label),
       ],
@@ -623,57 +627,6 @@ class ValueContextChip extends StatelessWidget {
   }
 }
 
-const List<String> kLibraryCurrencyCodes = <String>[
-  'USD',
-  'SGD',
-  'EUR',
-  'GBP',
-  'RON',
-  'CHF',
-  'JPY',
-  'CAD',
-  'AUD',
-  'NZD',
-  'SEK',
-  'NOK',
-  'DKK',
-  'PLN',
-  'CZK',
-  'HUF',
-  'TRY',
-  'INR',
-  'BRL',
-  'MXN',
-];
-
-String libraryCurrencySymbol(String? currency) {
-  final normalized = currency?.trim().toUpperCase() ?? '';
-  return switch (normalized) {
-    'USD' => r'$',
-    'SGD' => r'S$',
-    'EUR' => '€',
-    'GBP' => '£',
-    'RON' => 'lei',
-    'CHF' => 'CHF',
-    'JPY' => '¥',
-    'CAD' => r'$',
-    'AUD' => r'$',
-    'NZD' => r'$',
-    'SEK' => 'kr',
-    'NOK' => 'kr',
-    'DKK' => 'kr',
-    'PLN' => 'zł',
-    'CZK' => 'Kč',
-    'HUF' => 'Ft',
-    'TRY' => '₺',
-    'INR' => '₹',
-    'BRL' => 'R\$',
-    'MXN' => r'$',
-    _ when normalized.isNotEmpty => normalized,
-    _ => '¤',
-  };
-}
-
 class LibraryCurrencyField extends StatelessWidget {
   const LibraryCurrencyField({
     super.key,
@@ -681,7 +634,7 @@ class LibraryCurrencyField extends StatelessWidget {
     this.label = 'Currency',
     this.enabled = true,
     this.onChanged,
-    this.currencyCodes = kLibraryCurrencyCodes,
+    this.currencyCodes = kCurrencyCodes,
   });
 
   final TextEditingController controller;
@@ -708,7 +661,7 @@ class LibraryCurrencyField extends StatelessWidget {
             for (final code in items)
               LibraryFieldOption<String>(
                 value: code,
-                label: '${libraryCurrencySymbol(code)} $code',
+                label: '${currencySymbol(code)} $code',
               ),
           ],
           openPicker: (
@@ -802,7 +755,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
         Theme.of(context).inputDecorationTheme.floatingLabelStyle ??
             TextStyle(
               color: palette.accent,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: kAppBoldFontWeight,
             );
     final scaledLabelHeight =
@@ -824,40 +777,29 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                 ),
                 child: Row(
                   children: [
-                    Expanded(
-                      flex: 3,
-                      child: _datePartField(
-                        palette: palette,
-                        key: _partKey('year'),
-                        controller: _yearController,
-                        hintText: 'YYYY',
-                        focusNode: widget.focusNode,
+                    for (final (position, part)
+                        in dateEntryPartOrder(AppFormats.current.dateEntry)
+                            .indexed) ...[
+                      if (position > 0) _dateConnector(palette),
+                      Expanded(
+                        flex: part == 0 ? 3 : 2,
+                        child: _datePartField(
+                          palette: palette,
+                          key: _partKey(['year', 'month', 'day'][part]),
+                          controller: [
+                            _yearController,
+                            _monthController,
+                            _dayController
+                          ][part],
+                          hintText: ['YYYY', 'MM', 'DD'][part],
+                          focusNode: position == 0 ? widget.focusNode : null,
+                        ),
                       ),
-                    ),
-                    _dateConnector(palette),
-                    Expanded(
-                      flex: 2,
-                      child: _datePartField(
-                        palette: palette,
-                        key: _partKey('month'),
-                        controller: _monthController,
-                        hintText: 'MM',
-                      ),
-                    ),
-                    _dateConnector(palette),
-                    Expanded(
-                      flex: 2,
-                      child: _datePartField(
-                        palette: palette,
-                        key: _partKey('day'),
-                        controller: _dayController,
-                        hintText: 'DD',
-                      ),
-                    ),
+                    ],
                     const SizedBox(width: 4),
                     IconButton(
                       tooltip: 'Pick with calendar',
-                      onPressed: _pickWithCalendar,
+                      onPressed: () => _pickWithCalendar(context),
                       icon: const Icon(Icons.calendar_today, size: 18),
                       constraints: const BoxConstraints.tightFor(
                         width: LibraryMetrics.defaultFieldHeight,
@@ -928,7 +870,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
         border: outline,
         enabledBorder: outline,
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: palette.accent, width: 1.5),
+          borderSide: BorderSide(color: palette.utilityAction, width: 1.5),
           borderRadius: BorderRadius.circular(kAppInputBorderRadius),
         ),
         isDense: true,
@@ -945,10 +887,10 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
     return prefix == null ? null : ValueKey('$prefix-$part');
   }
 
-  Future<void> _pickWithCalendar() async {
+  Future<void> _pickWithCalendar(BuildContext context) async {
     final now = DateTime.now();
     final initial = _selectedDate ?? widget.value ?? now;
-    final picked = await showDatePicker(
+    final picked = await showAppAnchoredCalendar(
       context: context,
       initialDate: initial,
       firstDate: DateTime(1900),
@@ -1022,7 +964,7 @@ Future<DateTime?> showLibraryDateEntryDialog(
   required String label,
   DateTime? initialDate,
 }) {
-  return showDialog<DateTime?>(
+  return showAppDialog<DateTime?>(
     context: context,
     builder: (dialogContext) {
       var selectedDate = initialDate;

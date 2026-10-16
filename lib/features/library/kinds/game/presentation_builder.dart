@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
@@ -183,8 +183,8 @@ class GameLibraryMediaPresentationBuilder
         if (releaseDate != null)
           LibraryDetailField(
             label: 'Released',
-            value: formatPresentationNullableDate(releaseDate) ??
-                releaseDate.year.toString(),
+            value:
+                formatNullableDate(releaseDate) ?? releaseDate.year.toString(),
           ),
       ],
       sections: {

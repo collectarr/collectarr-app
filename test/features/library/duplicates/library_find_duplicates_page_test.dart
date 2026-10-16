@@ -114,8 +114,9 @@ void main() {
     expect(find.byType(AlertDialog), findsNothing);
     await tester.tap(find.byKey(const Key('duplicates.find')));
     await tester.pumpAndSettle();
-    expect(find.text('1 duplicate groups found'), findsOneWidget);
-    final keep = find.widgetWithText(OutlinedButton, 'Keep 2');
+    expect(find.text('1 duplicates found:'), findsOneWidget);
+    expect(find.text('Added Date'), findsOneWidget);
+    final keep = find.widgetWithText(FilledButton, 'Keep 2');
     await tester.ensureVisible(keep);
     await tester.tap(keep);
     await tester.pumpAndSettle();
@@ -125,11 +126,13 @@ void main() {
                 find.byKey(const Key('duplicates.remove_all')))
             .onPressed,
         isNull);
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Keeping 2'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Keeping 2'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('duplicates.remove_all')));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+    await tester.tap(find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.widgetWithText(FilledButton, 'Remove')));
     await tester.pumpAndSettle();
     expect(removed, ['new']);
     expect(find.text('No duplicates found.'), findsOneWidget);

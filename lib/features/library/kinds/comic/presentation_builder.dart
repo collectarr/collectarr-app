@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/config/library_duplicate_present
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_physical_media_formats.dart';
@@ -259,7 +259,7 @@ class ComicLibraryCatalogItemPresentationBuilder
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
-              formatPresentationNullableDate(metadata.releaseDate) ??
+              formatNullableDate(metadata.releaseDate) ??
                   metadata.releaseDate?.year.toString(),
             )),
         if (metadata.pageCount != null)
@@ -268,7 +268,7 @@ class ComicLibraryCatalogItemPresentationBuilder
         if (metadata.coverPriceCents != null)
           LibraryDetailField(
               label: 'Cover Price',
-              value: formatPresentationMoney(
+              value: formatMoney(
                 metadata.coverPriceCents,
                 metadata.currency,
               )),
@@ -345,7 +345,6 @@ class ComicLibraryCatalogItemPresentationBuilder
     return [
       LibraryDetailSection(
         title: 'Summary',
-        accentColor: accent,
         children: [
           Text(
             synopsis,

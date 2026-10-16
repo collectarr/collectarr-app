@@ -1,4 +1,6 @@
 import 'ebay_search_preferences.dart';
+import 'package:collectarr_app/core/utils/title_case.dart';
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,6 +41,15 @@ class UiPreferences {
     this.detailsPanelTemplate = DetailsPanelTemplate.application,
     this.confirmRemoval = true,
     this.confirmDuplication = true,
+    this.ignoreSortTitles = false,
+    this.ignoreSortNames = false,
+    this.showSortTitles = false,
+    this.showSortNames = false,
+    this.autocapFromCore = false,
+    this.autocapAsYouType = false,
+    this.titleCaseMethod = TitleCaseMethod.eachWordWithExceptions,
+    this.titleCaseExceptions = defaultTitleCaseExceptions,
+    this.formats = const AppFormats(),
     this.showEbayLinks = true,
     this.ebayWishlistOnly = false,
     this.ebayToolbar = true,
@@ -80,6 +91,26 @@ class UiPreferences {
   final DetailsPanelTemplate detailsPanelTemplate;
   final bool confirmRemoval;
   final bool confirmDuplication;
+
+  /// Settings > Sorting: sort by titles/names as written, and show sort
+  /// titles/names in lists instead of display values.
+  final bool ignoreSortTitles;
+  final bool ignoreSortNames;
+  final bool showSortTitles;
+  final bool showSortNames;
+
+  /// Settings > Auto Capitalization: capitalize album titles when adding
+  /// from Core and while typing them in the editor.
+  final bool autocapFromCore;
+  final bool autocapAsYouType;
+  final TitleCaseMethod titleCaseMethod;
+  final List<String> titleCaseExceptions;
+
+  /// Settings > Localization: date, number and currency display.
+  final AppFormats formats;
+
+  TitleCaseSettings get titleCase => TitleCaseSettings(
+      method: titleCaseMethod, exceptions: titleCaseExceptions);
   final bool showEbayLinks;
   final bool ebayWishlistOnly;
   final bool ebayToolbar;
@@ -111,6 +142,15 @@ class UiPreferences {
     DetailsPanelTemplate? detailsPanelTemplate,
     bool? confirmRemoval,
     bool? confirmDuplication,
+    bool? ignoreSortTitles,
+    bool? ignoreSortNames,
+    bool? showSortTitles,
+    bool? showSortNames,
+    bool? autocapFromCore,
+    bool? autocapAsYouType,
+    TitleCaseMethod? titleCaseMethod,
+    List<String>? titleCaseExceptions,
+    AppFormats? formats,
     bool? showEbayLinks,
     bool? ebayWishlistOnly,
     bool? ebayToolbar,
@@ -144,6 +184,15 @@ class UiPreferences {
       detailsPanelTemplate: detailsPanelTemplate ?? this.detailsPanelTemplate,
       confirmRemoval: confirmRemoval ?? this.confirmRemoval,
       confirmDuplication: confirmDuplication ?? this.confirmDuplication,
+      ignoreSortTitles: ignoreSortTitles ?? this.ignoreSortTitles,
+      ignoreSortNames: ignoreSortNames ?? this.ignoreSortNames,
+      showSortTitles: showSortTitles ?? this.showSortTitles,
+      showSortNames: showSortNames ?? this.showSortNames,
+      autocapFromCore: autocapFromCore ?? this.autocapFromCore,
+      autocapAsYouType: autocapAsYouType ?? this.autocapAsYouType,
+      titleCaseMethod: titleCaseMethod ?? this.titleCaseMethod,
+      titleCaseExceptions: titleCaseExceptions ?? this.titleCaseExceptions,
+      formats: formats ?? this.formats,
       showEbayLinks: showEbayLinks ?? this.showEbayLinks,
       ebayWishlistOnly: ebayWishlistOnly ?? this.ebayWishlistOnly,
       ebayToolbar: ebayToolbar ?? this.ebayToolbar,
@@ -154,6 +203,13 @@ class UiPreferences {
       isLoaded: isLoaded ?? this.isLoaded,
     );
   }
+}
+
+/// Title capitalization to apply to items added from Core, or null when
+/// Settings > Auto Capitalization leaves them as written.
+Future<TitleCaseSettings?> loadAutocapForCoreAdds() async {
+  final preferences = await const UiPreferencesStore().read();
+  return preferences.autocapFromCore ? preferences.titleCase : null;
 }
 
 class UiPreferencesStore {
@@ -190,6 +246,19 @@ class UiPreferencesStore {
   static const confirmRemovalKey = '$_prefix.confirm_removal';
 
   static const confirmDuplicationKey = '$_prefix.confirm_duplication';
+  static const ignoreSortTitlesKey = '$_prefix.ignore_sort_titles';
+  static const ignoreSortNamesKey = '$_prefix.ignore_sort_names';
+  static const showSortTitlesKey = '$_prefix.show_sort_titles';
+  static const showSortNamesKey = '$_prefix.show_sort_names';
+  static const autocapFromCoreKey = '$_prefix.autocap_from_core';
+  static const autocapAsYouTypeKey = '$_prefix.autocap_as_you_type';
+  static const titleCaseMethodKey = '$_prefix.title_case_method';
+  static const titleCaseExceptionsKey = '$_prefix.title_case_exceptions';
+  static const dateDisplayFormatKey = '$_prefix.date_display_format';
+  static const dateEntryOrderKey = '$_prefix.date_entry_order';
+  static const numberFormatKey = '$_prefix.number_format';
+  static const defaultCurrencyKey = '$_prefix.default_currency';
+  static const currencyDisplayKey = '$_prefix.currency_display';
 
   static const showEbayLinksKey = '$_prefix.show_ebay_links';
 
@@ -232,6 +301,32 @@ class UiPreferencesStore {
           DetailsPanelTemplate.application,
       confirmRemoval: prefs.getBool(confirmRemovalKey) ?? true,
       confirmDuplication: prefs.getBool(confirmDuplicationKey) ?? true,
+      ignoreSortTitles: prefs.getBool(ignoreSortTitlesKey) ?? false,
+      ignoreSortNames: prefs.getBool(ignoreSortNamesKey) ?? false,
+      showSortTitles: prefs.getBool(showSortTitlesKey) ?? false,
+      showSortNames: prefs.getBool(showSortNamesKey) ?? false,
+      autocapFromCore: prefs.getBool(autocapFromCoreKey) ?? false,
+      autocapAsYouType: prefs.getBool(autocapAsYouTypeKey) ?? false,
+      titleCaseMethod: TitleCaseMethod.values
+              .where(
+                  (value) => value.name == prefs.getString(titleCaseMethodKey))
+              .firstOrNull ??
+          TitleCaseMethod.eachWordWithExceptions,
+      titleCaseExceptions: prefs.getStringList(titleCaseExceptionsKey) ??
+          defaultTitleCaseExceptions,
+      formats: AppFormats(
+        date: _named(
+            DateDisplayFormat.values,
+            prefs.getString(dateDisplayFormatKey),
+            DateDisplayFormat.monthDayYear),
+        dateEntry: _named(DateEntryOrder.values,
+            prefs.getString(dateEntryOrderKey), DateEntryOrder.yearMonthDay),
+        number: _named(NumberFormatStyle.values,
+            prefs.getString(numberFormatKey), NumberFormatStyle.plain),
+        currency: prefs.getString(defaultCurrencyKey) ?? 'USD',
+        currencyDisplay: _named(CurrencyDisplay.values,
+            prefs.getString(currencyDisplayKey), CurrencyDisplay.code),
+      ),
       showEbayLinks: prefs.getBool(showEbayLinksKey) ?? true,
       ebayWishlistOnly: prefs.getBool(ebayWishlistOnlyKey) ?? false,
       ebayToolbar: prefs.getBool(ebayToolbarKey) ?? true,
@@ -274,6 +369,21 @@ class UiPreferencesStore {
         detailsPanelTemplateKey, preferences.detailsPanelTemplate.name);
     await prefs.setBool(confirmRemovalKey, preferences.confirmRemoval);
     await prefs.setBool(confirmDuplicationKey, preferences.confirmDuplication);
+    await prefs.setBool(ignoreSortTitlesKey, preferences.ignoreSortTitles);
+    await prefs.setBool(ignoreSortNamesKey, preferences.ignoreSortNames);
+    await prefs.setBool(showSortTitlesKey, preferences.showSortTitles);
+    await prefs.setBool(showSortNamesKey, preferences.showSortNames);
+    await prefs.setBool(autocapFromCoreKey, preferences.autocapFromCore);
+    await prefs.setBool(autocapAsYouTypeKey, preferences.autocapAsYouType);
+    await prefs.setString(titleCaseMethodKey, preferences.titleCaseMethod.name);
+    await prefs.setStringList(
+        titleCaseExceptionsKey, preferences.titleCaseExceptions);
+    final formats = preferences.formats;
+    await prefs.setString(dateDisplayFormatKey, formats.date.name);
+    await prefs.setString(dateEntryOrderKey, formats.dateEntry.name);
+    await prefs.setString(numberFormatKey, formats.number.name);
+    await prefs.setString(defaultCurrencyKey, formats.currency);
+    await prefs.setString(currencyDisplayKey, formats.currencyDisplay.name);
     await prefs.setBool(showEbayLinksKey, preferences.showEbayLinks);
     await prefs.setBool(ebayWishlistOnlyKey, preferences.ebayWishlistOnly);
     await prefs.setBool(ebayToolbarKey, preferences.ebayToolbar);
@@ -363,6 +473,33 @@ class UiPreferencesController extends Notifier<UiPreferences> {
   Future<void> setConfirmDuplication(bool value) =>
       _update((s) => s.copyWith(confirmDuplication: value));
 
+  Future<void> setIgnoreSortTitles(bool value) =>
+      _update((s) => s.copyWith(ignoreSortTitles: value));
+
+  Future<void> setIgnoreSortNames(bool value) =>
+      _update((s) => s.copyWith(ignoreSortNames: value));
+
+  Future<void> setShowSortTitles(bool value) =>
+      _update((s) => s.copyWith(showSortTitles: value));
+
+  Future<void> setShowSortNames(bool value) =>
+      _update((s) => s.copyWith(showSortNames: value));
+
+  Future<void> setAutocapFromCore(bool value) =>
+      _update((s) => s.copyWith(autocapFromCore: value));
+
+  Future<void> setAutocapAsYouType(bool value) =>
+      _update((s) => s.copyWith(autocapAsYouType: value));
+
+  Future<void> setTitleCaseMethod(TitleCaseMethod value) =>
+      _update((s) => s.copyWith(titleCaseMethod: value));
+
+  Future<void> setTitleCaseExceptions(List<String> value) =>
+      _update((s) => s.copyWith(titleCaseExceptions: value));
+
+  Future<void> setFormats(AppFormats value) =>
+      _update((s) => s.copyWith(formats: value));
+
   Future<void> setShowEbayLinks(bool value) =>
       _update((s) => s.copyWith(showEbayLinks: value));
 
@@ -387,3 +524,6 @@ class UiPreferencesController extends Notifier<UiPreferences> {
   Future<void> resetDefaults() =>
       _update((_) => const UiPreferences(isLoaded: true));
 }
+
+T _named<T extends Enum>(List<T> values, String? name, T fallback) =>
+    values.where((value) => value.name == name).firstOrNull ?? fallback;

@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_managed_vo
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 
 /// One editor for credits owned by the album or any contained disc.
@@ -150,10 +151,11 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
       children: [
         Align(
           alignment: Alignment.centerRight,
-          child: OutlinedButton.icon(
+          child: FilledButton.icon(
             onPressed: () => setState(editor.add),
-            icon: const Icon(Icons.add, size: 16),
+            icon: const Icon(Icons.add, size: 14),
             label: const Text('Add credit'),
+            style: dialogActionButtonStyle(context, width: 0),
           ),
         ),
         const SizedBox(height: 8),
@@ -166,6 +168,7 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
+              headingTextStyle: context.libraryTextTheme.tableHeader,
               columnSpacing: 12,
               headingRowHeight: 34,
               dataRowMinHeight: 46,

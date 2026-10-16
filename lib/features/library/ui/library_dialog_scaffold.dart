@@ -54,6 +54,7 @@ class LibraryDialogScaffold extends StatelessWidget {
     this.insetPadding,
     this.alignment,
     this.body,
+    this.overlay,
   }) : assert(
           header != null || title != null || body != null,
           'LibraryDialogScaffold requires a header, title, or body.',
@@ -87,6 +88,10 @@ class LibraryDialogScaffold extends StatelessWidget {
   /// Main body content widget.
   final Widget? body;
 
+  /// Drawn over the whole surface, header included, such as a sheet that
+  /// dims the dialog behind it.
+  final Widget? overlay;
+
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
@@ -101,14 +106,6 @@ class LibraryDialogScaffold extends StatelessWidget {
         (title != null
             ? AnimatedLibraryChrome(
                 accent: resolvedAccent,
-                borderBuilder: (animatedAccent, _) => Border(
-                  bottom: BorderSide(
-                    color: Color.alphaBlend(
-                      Colors.white.withValues(alpha: 0.12),
-                      animatedAccent,
-                    ),
-                  ),
-                ),
                 child: LibraryPanelHeader(
                   backgroundColor: Colors.transparent,
                   foregroundColor: Colors.white,
@@ -151,7 +148,7 @@ class LibraryDialogScaffold extends StatelessWidget {
       );
     }
 
-    final scaffoldColumn = Column(
+    final column = Column(
       mainAxisSize: expandBody || windowClass.isCompact
           ? MainAxisSize.max
           : MainAxisSize.min,
@@ -166,19 +163,20 @@ class LibraryDialogScaffold extends StatelessWidget {
         if (footer != null) footer!,
       ],
     );
+    final scaffoldColumn = overlay == null
+        ? column
+        : Stack(children: [column, Positioned.fill(child: overlay!)]);
 
     final inheritedAlignment = ModalDialogDepthScope.parentAlignmentOf(context);
-    final resolvedAlignment = alignment ??
-        (currentDepth > 0
-            ? Alignment.center
-            : (inheritedAlignment ?? kDefaultDialogAlignment));
+    final resolvedAlignment =
+        alignment ?? inheritedAlignment ?? kDefaultDialogAlignment;
 
     Widget result;
 
     if (windowClass.isCompact) {
-      result = Material(
-        color: palette.panel,
-        child: scaffoldColumn,
+      result = Padding(
+        padding: const EdgeInsets.only(top: kAppDialogTopInset),
+        child: Material(color: palette.panel, child: scaffoldColumn),
       );
     } else {
       final effectiveMinWidth =
@@ -204,9 +202,7 @@ class LibraryDialogScaffold extends StatelessWidget {
 
       final effectiveShape = themeData?.dialogTheme.shape ??
           Theme.of(context).dialogTheme.shape ??
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          );
+          appDialogShape;
 
       result = Dialog(
         backgroundColor: palette.panel,
@@ -214,10 +210,8 @@ class LibraryDialogScaffold extends StatelessWidget {
         shape: effectiveShape,
         alignment: resolvedAlignment,
         insetPadding: insetPadding ??
-            EdgeInsets.symmetric(
-              horizontal: windowClass.isMedium ? 16 : 32,
-              vertical: windowClass.isMedium ? 16 : 24,
-            ),
+            EdgeInsets.fromLTRB(windowClass.isMedium ? 16 : 32,
+                kAppDialogTopInset, windowClass.isMedium ? 16 : 32, 24),
         child: ConstrainedBox(
           key: const ValueKey('library-dialog-surface'),
           constraints: BoxConstraints(

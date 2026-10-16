@@ -12,7 +12,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
   Future<bool> _handleAuthExpiration(Object error, String action);
   void selectResult(String id);
   Future<void> _ensureSelectedResultLoaded(String itemId);
-  Timer? _searchDebounceTimer;
   Timer? _autocompleteTimer;
   CancelToken? _coreSearchCancelToken;
   CancelToken? _coreLoadMoreCancelToken;
@@ -48,13 +47,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     } else {
       _autocompleteTimer = Timer(_autocompleteDebounce, () {
         fetchSuggestions(query);
-      });
-    }
-
-    _searchDebounceTimer?.cancel();
-    if (query.isNotEmpty) {
-      _searchDebounceTimer = Timer(const Duration(milliseconds: 400), () {
-        executeSearch();
       });
     }
   }
@@ -125,12 +117,18 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
   }
 
   void selectSuggestion(CatalogSearchCandidate item) {
+    _autocompleteTimer?.cancel();
+    _suggestionsGeneration++;
+    _suggestionsCancelToken?.cancel('Autocomplete result selected');
+    _coreSearchCancelToken?.cancel('Autocomplete result selected');
     state = state.copyWith(
       search: state.search.copyWith(
         query: item.summary.primaryLabel,
         showSuggestions: false,
         suggestions: const [],
         results: [item],
+        isSearching: false,
+        coreSearchGeneration: state.search.coreSearchGeneration + 1,
         isLoadingMoreResults: false,
         hasMoreResults: false,
         nextOffset: 0,
@@ -152,6 +150,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
   }
 
   Future<void> executeSearch() async {
+    _autocompleteTimer?.cancel();
     _suggestionsGeneration++;
     _suggestionsCancelToken?.cancel('Autocomplete superseded by search');
     _suggestionsCancelToken = null;
@@ -163,6 +162,8 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
       search: state.search.copyWith(
         coreSearchGeneration: state.search.coreSearchGeneration + 1,
         isSearching: false,
+        showSuggestions: false,
+        suggestions: const [],
         isLoadingMoreResults: false,
         hasMoreResults: false,
         nextOffset: 0,
@@ -193,7 +194,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         clearError: true,
         clearLoadMoreError: true,
         coreSearchGeneration: searchGeneration,
-        results: const [],
       ),
       selection: state.selection.copyWith(
         clearSelectedResultId: true,
@@ -341,7 +341,6 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
   }
 
   void cancelSearch() {
-    _searchDebounceTimer?.cancel();
     _autocompleteTimer?.cancel();
     _coreSearchCancelToken?.cancel('Add search cancelled');
     _coreSearchCancelToken = null;

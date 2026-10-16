@@ -18,7 +18,7 @@ class LibraryRouteState {
     this.selectedBucket,
     this.linkedMetadataValue,
     this.selectedLetter,
-    this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.collectionStatusScope = kDefaultCollectionStatusScope,
     this.bucketCompletionScope = LibraryBucketCompletionScope.all,
     this.quickView,
     this.filterSelection = LibraryFilterSelection.none,
@@ -60,7 +60,7 @@ class LibraryRouteState {
         selectedBucket != null ||
         linkedMetadataValue != null ||
         selectedLetter != null ||
-        collectionStatusScope != LibraryCollectionStatusScope.all ||
+        collectionStatusScope != kDefaultCollectionStatusScope ||
         bucketCompletionScope != LibraryBucketCompletionScope.all ||
         quickView != null ||
         filterSelection.hasActiveFilters ||
@@ -89,7 +89,7 @@ class LibraryRouteState {
       selectedLetter: _trimmed(params[letterKey]),
       collectionStatusScope:
           _enumByName(LibraryCollectionStatusScope.values, params[scopeKey]) ??
-              LibraryCollectionStatusScope.all,
+              kDefaultCollectionStatusScope,
       bucketCompletionScope: _enumByName(
             LibraryBucketCompletionScope.values,
             params[bucketScopeKey],
@@ -128,7 +128,7 @@ class LibraryRouteState {
     if (trimmedLetter != null) {
       params[letterKey] = trimmedLetter;
     }
-    if (collectionStatusScope != LibraryCollectionStatusScope.all) {
+    if (collectionStatusScope != kDefaultCollectionStatusScope) {
       params[scopeKey] = collectionStatusScope.name;
     }
     if (bucketCompletionScope != LibraryBucketCompletionScope.all) {

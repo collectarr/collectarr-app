@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/ui/anchored_calendar.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -428,7 +430,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
         validator: validator,
         decoration: InputDecoration(
             prefixText: def.valueType == CustomFieldValueType.currency
-                ? '${libraryCurrencySymbol(_display[def.id]?.currencyCode ?? 'USD')} '
+                ? '${currencySymbol(_display[def.id]?.currencyCode ?? AppFormats.current.currency)} '
                 : null,
             suffixText: suffixText,
             helperText: widget.preview ? null : _scopeLabel(def.targetScope)),
@@ -470,7 +472,7 @@ class _DateCustomField extends StatelessWidget {
         padding: EdgeInsets.zero,
         iconSize: 16,
         onPressed: () async {
-          final date = await showDatePicker(
+          final date = await showAppAnchoredCalendar(
             context: context,
             initialDate: DateTime.tryParse(value ?? '') ?? DateTime.now(),
             firstDate: DateTime(1),
@@ -504,60 +506,62 @@ class _TimeCustomField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final parsed = _parseTimeOfDay(value);
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelText: label,
-        constraints: const BoxConstraints(
-          minHeight: LibraryMetrics.defaultFieldHeight,
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-      ),
-      child: SizedBox(
-        height: LibraryMetrics.defaultFieldHeight - 2,
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                parsed == null ? 'No time set' : _formatTimeOfDay(parsed),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+    return LibraryFormField(
+        label: label,
+        child: InputDecorator(
+          decoration: InputDecoration(
+            constraints: const BoxConstraints(
+              minHeight: LibraryMetrics.defaultFieldHeight,
             ),
-            TextButton(
-              style: TextButton.styleFrom(
-                minimumSize:
-                    const Size(0, LibraryMetrics.defaultFieldHeight - 8),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
-              ),
-              onPressed: () async {
-                final picked = await showTimePicker(
-                  context: context,
-                  initialTime: parsed ?? const TimeOfDay(hour: 12, minute: 0),
-                );
-                if (picked == null || !context.mounted) {
-                  return;
-                }
-                onChanged(_formatTimeOfDay(picked));
-              },
-              child: const Text('Pick time'),
-            ),
-            if (parsed != null)
-              IconButton(
-                tooltip: 'Clear time',
-                onPressed: () => onChanged(null),
-                icon: const Icon(Icons.close, size: 16),
-                constraints: const BoxConstraints.tightFor(
-                  width: 32,
-                  height: LibraryMetrics.defaultFieldHeight - 8,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+          ),
+          child: SizedBox(
+            height: LibraryMetrics.defaultFieldHeight - 2,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    parsed == null ? 'No time set' : _formatTimeOfDay(parsed),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ),
-                padding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
-              ),
-          ],
-        ),
-      ),
-    );
+                TextButton(
+                  style: TextButton.styleFrom(
+                    minimumSize:
+                        const Size(0, LibraryMetrics.defaultFieldHeight - 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  onPressed: () async {
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime:
+                          parsed ?? const TimeOfDay(hour: 12, minute: 0),
+                    );
+                    if (picked == null || !context.mounted) {
+                      return;
+                    }
+                    onChanged(_formatTimeOfDay(picked));
+                  },
+                  child: const Text('Pick time'),
+                ),
+                if (parsed != null)
+                  IconButton(
+                    tooltip: 'Clear time',
+                    onPressed: () => onChanged(null),
+                    icon: const Icon(Icons.close, size: 16),
+                    constraints: const BoxConstraints.tightFor(
+                      width: 32,
+                      height: LibraryMetrics.defaultFieldHeight - 8,
+                    ),
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  ),
+              ],
+            ),
+          ),
+        ));
   }
 }
 

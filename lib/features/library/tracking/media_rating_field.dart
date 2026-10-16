@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
 
 class MediaRatingField extends StatefulWidget {
@@ -60,6 +61,14 @@ class _MediaRatingFieldState extends State<MediaRatingField> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.compact) {
+      return _ReferenceStarRow(
+        value: _value,
+        maxRating: widget.maxRating,
+        label: widget.label,
+        onSelected: _onStarTap,
+      );
+    }
     final starCount = widget.maxRating.clamp(1, 10);
     final pointsPerStar = widget.maxRating / starCount;
 
@@ -82,6 +91,8 @@ class _MediaRatingFieldState extends State<MediaRatingField> {
         final ratingText = Text(
           '$_value/${widget.maxRating}',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
                 color: Theme.of(context)
                     .colorScheme
                     .onSurface
@@ -259,6 +270,75 @@ class MediaRatingDisplay extends StatelessWidget {
               ),
         ),
       ],
+    );
+  }
+}
+
+/// Editor rating as in the reference: one large star per point spread over
+/// the field, grey when empty, gold when set, previewing the hovered value.
+class _ReferenceStarRow extends StatefulWidget {
+  const _ReferenceStarRow({
+    required this.value,
+    required this.maxRating,
+    required this.label,
+    required this.onSelected,
+  });
+
+  final int value;
+  final int maxRating;
+  final String label;
+  final ValueChanged<int> onSelected;
+
+  static const empty = Color(0xFFBBBBBB);
+  static const filled = Color(0xFFF4B30A);
+
+  @override
+  State<_ReferenceStarRow> createState() => _ReferenceStarRowState();
+}
+
+class _ReferenceStarRowState extends State<_ReferenceStarRow> {
+  int? _hovered;
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = _hovered ?? widget.value;
+    return SizedBox(
+      height: 34,
+      child: MouseRegion(
+        onExit: (_) => setState(() => _hovered = null),
+        child: Row(
+          children: [
+            for (var star = 1; star <= widget.maxRating; star++)
+              Flexible(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 55),
+                  child: Semantics(
+                    button: true,
+                    selected: star <= widget.value,
+                    label: '${widget.label} $star of ${widget.maxRating}',
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      onEnter: (_) => setState(() => _hovered = star),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => widget.onSelected(star),
+                        child: Center(
+                          child: Icon(
+                            AppIcons.star,
+                            size: 28,
+                            color: star <= shown
+                                ? _ReferenceStarRow.filled
+                                : _ReferenceStarRow.empty,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

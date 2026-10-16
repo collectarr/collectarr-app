@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -53,7 +54,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
 
   Future<void> _pickLocation() async {
     final repo = LocationRepository(widget.db);
-    final result = await showDialog<String?>(
+    final result = await showAppDialog<String?>(
       context: context,
       builder: (context) => _LocationPickerDialog(
         allLocations: _allLocations,
@@ -89,7 +90,6 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
 
     return LibraryDetailSection(
       title: 'Location',
-      accentColor: widget.accent,
       children: [
         Material(
           color: Colors.transparent,
@@ -202,7 +202,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
 
   Future<void> _addLocation() async {
     final nameCtrl = TextEditingController();
-    final result = await showDialog<String>(
+    final result = await showAppDialog<String>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.location,
@@ -246,7 +246,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
 
     return AccentAlertDialog(
       backgroundColor: palette.panel,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: appDialogShape,
       title: Row(
         children: [
           const Expanded(child: Text('Assign Location')),

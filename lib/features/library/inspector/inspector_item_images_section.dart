@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -62,7 +64,6 @@ class InspectorItemImagesSection extends ConsumerWidget {
 
     return LibraryDetailSection(
       title: label,
-      accentColor: accent,
       children: [
         if (groups.isEmpty)
           Text(
@@ -128,7 +129,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
     WidgetRef ref,
     String imageId,
   ) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
         headerIcon: AppIcons.delete,
@@ -256,14 +257,18 @@ class _InspectorThumbnail extends StatelessWidget {
 
   void _showFullImage(BuildContext context) {
     final palette = appPalette(context);
-    showDialog<void>(
+    showAppDialog<void>(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: false,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Align(
+                alignment: Alignment.centerRight,
+                child: LibrarySquareCloseButton(
+                    onPressed: () => Navigator.pop(context))),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: ConstrainedBox(

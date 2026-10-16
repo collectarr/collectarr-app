@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 enum ImportReviewSeverity { info, warning, error }
@@ -74,6 +75,8 @@ class ImportReviewPanel extends StatelessWidget {
                 ),
                 if (onClearAll != null && items.isNotEmpty)
                   TextButton(
+                    style: TextButton.styleFrom(
+                        foregroundColor: appPalette(context).utilityAction),
                     onPressed: onClearAll,
                     child: Text(clearAllLabel),
                   ),
@@ -100,7 +103,7 @@ class _ImportReviewItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final severityColor = switch (item.severity) {
-      ImportReviewSeverity.info => theme.colorScheme.primary,
+      ImportReviewSeverity.info => appPalette(context).utilityAction,
       ImportReviewSeverity.warning => Colors.orange,
       ImportReviewSeverity.error => theme.colorScheme.error,
     };

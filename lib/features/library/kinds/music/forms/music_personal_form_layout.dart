@@ -14,26 +14,56 @@ Widget musicPersonalFormLayout(Map<String, Widget> fields, Widget? history) {
           if (trailing != null) trailing,
         ],
       );
+  Widget pair(String first, String second) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: stack([first])),
+          const SizedBox(width: 14),
+          Expanded(child: stack([second])),
+        ],
+      );
   return LayoutBuilder(builder: (context, constraints) {
-    final left = stack([
-      'purchase_date',
-      'price_paid_cents',
-      'purchase_store',
-      'market_value_cents',
-      'tags',
-      'last_cleaned_date',
-      'signed_by'
-    ]);
     final right =
         stack(['owner_label', 'rating', 'personal_notes'], trailing: history);
+    final Widget body;
+    if (constraints.maxWidth >= 900) {
+      // Three columns as in the reference: purchase facts in two columns,
+      // owner, rating, notes and plays in the third.
+      body = Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+          flex: 2,
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            pair('purchase_date', 'purchase_store'),
+            pair('price_paid_cents', 'market_value_cents'),
+            stack(['tags', 'last_cleaned_date', 'signed_by']),
+          ]),
+        ),
+        const SizedBox(width: 14),
+        Expanded(child: right),
+      ]);
+    } else {
+      final left = stack([
+        'purchase_date',
+        'price_paid_cents',
+        'purchase_store',
+        'market_value_cents',
+        'tags',
+        'last_cleaned_date',
+        'signed_by'
+      ]);
+      body = constraints.maxWidth >= 720
+          ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(child: left),
+              const SizedBox(width: 14),
+              Expanded(child: right)
+            ])
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [left, right]);
+    }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      if (constraints.maxWidth >= 720)
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Expanded(child: left),
-          const SizedBox(width: 14),
-          Expanded(child: right)
-        ])
-      else ...[left, right],
+      body,
       const SizedBox(height: 12),
       LibraryFormGroup(
           title: 'Additional Personal Details',

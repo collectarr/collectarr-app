@@ -1,4 +1,8 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/core/utils/sort_title.dart';
 import 'package:flutter/material.dart';
+import '../presentation/music_sort_value_cell.dart';
+import '../sorts/music_workspace_sorts.dart';
 import '../music_additional_workspace_fields.dart';
 import '../presentation/music_workspace_formatting.dart';
 import '../music_catalog_workspace_fields.dart';
@@ -17,7 +21,8 @@ final musicCatalogWorkspaceColumns =
             field.metadata.valueType.name == 'partialDate',
         cellValue: (c) => Text(
             field == MusicAdditionalWorkspaceFields.originalReleaseDate
-                ? formatMusicPartialDate(c.dto.music.originalReleaseDateParts)
+                ? AppFormats.current
+                    .formatPartialDate(c.dto.music.originalReleaseDateParts)
                 : formatMusicCell(field.getValue(c))),
         defaultWidth: 118),
   for (final field in [
@@ -46,14 +51,29 @@ final musicCatalogWorkspaceColumns =
         defaultWidth: 150),
   musicStatusColumn(field: MusicWorkspaceFields.status),
   musicCoverColumn(field: MusicWorkspaceFields.cover),
+  musicCoverColumn(field: MusicWorkspaceFields.backCover),
+  columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+    MusicWorkspaceFields.coreId,
+    defaultWidth: 110,
+  ),
   columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
     MusicCatalogWorkspaceFields.artistSummary,
     defaultWidth: 160,
+    cellValue: (c) => MusicSortValueCell(
+      kind: MusicSortValueKind.name,
+      display: MusicCatalogWorkspaceFields.artistSummary.getValue(c),
+      sortValue: musicArtistSortName(c.dto),
+    ),
   ),
   columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
     MusicCatalogWorkspaceFields.title,
     defaultWidth: 260,
     maxWidth: 520,
+    cellValue: (c) => MusicSortValueCell(
+      kind: MusicSortValueKind.title,
+      display: c.dto.common.title,
+      sortValue: resolveSortTitle(c.dto.common.title, c.dto.music.sortTitle),
+    ),
   ),
   musicAlbumDateColumn(
     field: MusicCatalogWorkspaceFields.releaseDate,

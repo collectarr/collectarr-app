@@ -1,3 +1,6 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/library/generic/library_sort_favorites_provider.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/loan.dart';
@@ -97,7 +100,7 @@ class LibraryPageDialogCoordinator {
       _page.selectedBucket = null;
       _page.selectedLetter = null;
       _page.linkedMetadataFilter = null;
-      _page.collectionStatusScope = LibraryCollectionStatusScope.all;
+      _page.collectionStatusScope = kDefaultCollectionStatusScope;
       _page.bucketCompletionScope = LibraryBucketCompletionScope.all;
       _page.quickView = null;
       _page.filterSelection = LibraryFilterSelection.none;
@@ -210,6 +213,9 @@ class LibraryPageDialogCoordinator {
       ),
       availableColumns: _page.scopeAvailableSortColumns,
     );
+    if (_page.mounted) {
+      _page.ref.invalidate(librarySavedSortFavoritesProvider(_page.type));
+    }
     if (sortRules != null && _page.mounted) {
       final allowed = _page.scopeAvailableSortColumns.toSet();
       final filteredRules = [
@@ -234,8 +240,10 @@ class LibraryPageDialogCoordinator {
       type: _page.type,
       favorites: _page.sortFavorites,
       initialPinnedIds: _page.pinnedSortFavoriteIds,
-      activeSortFavoriteId: _page.activeSortFavorite?.id,
     );
+    if (_page.mounted) {
+      _page.ref.invalidate(librarySavedSortFavoritesProvider(_page.type));
+    }
     if (result != null && _page.mounted) {
       _page.rebuild(() => _page.pinnedSortFavoriteIds = result);
       unawaited(_page.viewPrefs.writePinnedSortFavoriteIds(result));
@@ -507,7 +515,7 @@ class LibraryPageDialogCoordinator {
     final libraryEntries = libraryEntriesByRef.values.toList(growable: false);
     if (libraryEntries.isEmpty || !_page.mounted) return;
 
-    final draft = await showDialog<BatchLoanDraft>(
+    final draft = await showAppDialog<BatchLoanDraft>(
       context: context,
       builder: (context) => BatchLoanDialog(
         accent: _page.accent,
@@ -557,7 +565,9 @@ class LibraryPageDialogCoordinator {
       context: context,
       type: _page.type,
       title: 'Re-Assign Index Values',
-      confirmLabel: 'Re-assign',
+      icon: AppIcons.reassignIndex,
+      confirmLabel: 'OK',
+      showFavorites: false,
       description:
           'Re-assign the Index field for all ${items.length} entries, based on the sort order selected below.',
       currentRules: _page.viewState == null
@@ -568,7 +578,7 @@ class LibraryPageDialogCoordinator {
                     column: rule.sortId.value, ascending: rule.ascending)
             ],
       availableColumns: [
-        for (final sort in workspace.fields.sorts) sort.id.value
+        for (final sort in workspace.libraryEntryFields.sorts) sort.id.value
       ],
     );
     if (rules == null || !_page.mounted || !context.mounted) return;

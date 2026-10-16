@@ -64,7 +64,6 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
     this.headerColor = kAppSurface,
     this.dividerColor = kAppDivider,
     this.accentColor = kAppAccent,
-    this.selectionColor = kAppSelection,
     this.badgeColor = kAppBadgeBackground,
     this.selectedBadgeColor = kAppHighlight,
     this.mutedTextColor = kAppTextMuted,
@@ -98,7 +97,6 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
   final Color headerColor;
   final Color dividerColor;
   final Color accentColor;
-  final Color selectionColor;
   final Color badgeColor;
   final Color selectedBadgeColor;
   final Color mutedTextColor;
@@ -320,9 +318,7 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
     final resolvedDividerColor = widget.dividerColor == kAppDivider
         ? palette.divider
         : widget.dividerColor;
-    final resolvedSelectionColor = widget.selectionColor == kAppSelection
-        ? palette.selection
-        : widget.selectionColor;
+    final resolvedSelectionColor = palette.utilityAction;
     final resolvedMutedTextColor = widget.mutedTextColor == kAppTextMuted
         ? palette.textMuted
         : widget.mutedTextColor;
@@ -423,8 +419,20 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
                               : () => widget.onNavigateToAncestorScope!(index),
                         );
                       }
-                      final bucket =
-                          filtered[index - widget.ancestorScopeLabels.length];
+                      final position =
+                          index - widget.ancestorScopeLabels.length;
+                      final bucket = filtered[position];
+                      // A thick gap closes the special rows ([All …] and
+                      // [None]) before the named folders, as in the
+                      // reference.
+                      final isSpecial = bucket.title == widget.allBucketLabel ||
+                          bucket.title == libraryEmptyGroupLabel;
+                      final nextIsSpecial = position + 1 < filtered.length &&
+                          filtered[position + 1].title ==
+                              libraryEmptyGroupLabel;
+                      final separateAfter = isSpecial &&
+                          !nextIsSpecial &&
+                          position + 1 < filtered.length;
                       final selected = bucket.title == widget.selectedBucket;
                       final rowPadding = ref.watch(
                         uiPreferencesProvider
@@ -432,6 +440,7 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
                       );
                       return _LibrarySeriesRow(
                         bucket: bucket,
+                        separateAfter: separateAfter,
                         countWidth: countWidth,
                         selected: selected,
                         onTap: () => widget.onSelectBucket(bucket.title),
@@ -511,13 +520,13 @@ class _SidebarSearchAndSort extends StatelessWidget {
                                 Theme.of(context).brightness == Brightness.dark
                                     ? const Color(0xff444444)
                                     : appPalette(context).panelRaised,
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: BorderRadius.circular(4),
                           ),
                           child: Row(children: [
                             Expanded(
                                 child: TextField(
                               controller: controller,
-                              cursorColor: accentColor,
+                              cursorColor: appPalette(context).utilityAction,
                               textAlignVertical: TextAlignVertical.center,
                               onChanged: (_) => onChanged(),
                               style: libraryFolderTextStyle(context)
@@ -557,16 +566,16 @@ class _SidebarSearchAndSort extends StatelessWidget {
                                   },
                                   icon: Icon(
                                       controller.text.isEmpty
-                                          ? Icons.search
-                                          : Icons.close,
+                                          ? AppIcons.search
+                                          : AppIcons.close,
                                       size: 14,
-                                      color: mutedTextColor),
+                                      color: appPalette(context).textPrimary),
                                 ),
                               ),
                           ]),
                         )
                       : Center(
-                          child: Icon(Icons.search,
+                          child: Icon(AppIcons.search,
                               size: 14, color: mutedTextColor)),
                 ),
               ),
@@ -610,6 +619,7 @@ class _SidebarStatusScopeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<LibraryBucketCompletionScope>(
+      popUpAnimationStyle: AnimationStyle.noAnimation,
       tooltip: scope.label,
       initialValue: scope,
       onSelected: onSelected,
@@ -880,10 +890,12 @@ class _LibrarySeriesRow extends StatelessWidget {
     required this.onTap,
     required this.selectionColor,
     required this.countWidth,
+    this.separateAfter = false,
     this.leadingInset = 0,
     this.extraVerticalPadding = 4,
   });
   final LibraryBucket bucket;
+  final bool separateAfter;
   final bool selected;
   final VoidCallback onTap;
   final Color selectionColor;
@@ -892,7 +904,7 @@ class _LibrarySeriesRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final row = LibraryFolderRow(
-      separateAfter: bucket.title == libraryEmptyGroupLabel,
+      separateAfter: separateAfter,
       label: bucket.title,
       count: bucket.count,
       selected: selected,

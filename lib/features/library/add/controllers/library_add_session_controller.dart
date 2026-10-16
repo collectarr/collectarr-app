@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
 
@@ -45,8 +46,10 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     this.catalog,
     this.coverScanService = const LocalLibraryCoverScanService(),
     this.hydrationService = const LibraryAddHydrationService(),
-    this.submissionService =
-        const LibraryAddSubmissionService(prefillLoader: PrefillDefaults.load),
+    this.submissionService = const LibraryAddSubmissionService(
+      prefillLoader: PrefillDefaults.load,
+      autocapLoader: loadAutocapForCoreAdds,
+    ),
     this.onAuthSessionExpired,
     LibraryAddSessionState? initialState,
   })  : _registration = type,
@@ -164,6 +167,13 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       ),
     );
     unawaited(_ensureSelectedResultLoaded(id));
+  }
+
+  /// Closes the confirm sheet without touching checked results.
+  void clearSelectedResult() {
+    state = state.copyWith(
+      selection: state.selection.copyWith(clearSelectedResultId: true),
+    );
   }
 
   void toggleCheckedResult(String id) {
@@ -515,16 +525,22 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     return result.submittedCount;
   }
 
-  Future<bool> submitCurrentSelection() async {
+  /// Adds the checked results, or the selected one when none are checked.
+  ///
+  /// [selectedOnly] adds just the selected result, as the confirm sheet does.
+  Future<bool> submitCurrentSelection({bool selectedOnly = false}) async {
     if (state.isAdding || state.submitState.isLoading) return false;
     _lastSubmittedItemIds = const [];
 
     final selectedResult = state.selectedItem;
-    final checkedResults = state.selection.checkedResultIds
-        .where(
-          (id) => state.search.results.any((item) => item.reference.id == id),
-        )
-        .toSet();
+    final checkedResults = selectedOnly
+        ? const <String>{}
+        : state.selection.checkedResultIds
+            .where(
+              (id) =>
+                  state.search.results.any((item) => item.reference.id == id),
+            )
+            .toSet();
     final hasBulkSelection = checkedResults.isNotEmpty;
     if (!hasBulkSelection && selectedResult == null) {
       reportSubmissionError('Select an item before adding it.');

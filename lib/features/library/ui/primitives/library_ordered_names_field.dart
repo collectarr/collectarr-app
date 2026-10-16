@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
@@ -77,8 +78,11 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
       padding: const EdgeInsets.symmetric(horizontal: 7),
       child: Text(value.name,
           style: const TextStyle(
-              fontSize: 13, fontWeight: FontWeight.w700, height: 20 / 14)),
+              fontSize: 14, fontWeight: FontWeight.w400, height: 20 / 14)),
     );
+    // The border adds a pixel on each side, so the row content is 2 px
+    // shorter than the field.
+    const rowHeight = LibraryMetrics.defaultFieldHeight - 2;
     return Container(
       key: ValueKey(value.id),
       constraints:
@@ -102,16 +106,16 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
               ? ReorderableDragStartListener(
                   index: index,
                   child: SizedBox(
-                      height: LibraryMetrics.defaultFieldHeight,
+                      height: rowHeight,
                       child:
                           Align(alignment: Alignment.centerLeft, child: name)))
               : SizedBox(
-                  height: LibraryMetrics.defaultFieldHeight,
+                  height: rowHeight,
                   child: Align(alignment: Alignment.centerLeft, child: name)),
         )),
         SizedBox(
             width: 30,
-            height: LibraryMetrics.defaultFieldHeight,
+            height: rowHeight,
             child: IconButton(
                 tooltip: 'Remove ${widget.label}',
                 padding: EdgeInsets.zero,
@@ -215,7 +219,7 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
                                   text: value.sortName ?? value.name);
                               String? result;
                               try {
-                                result = await showDialog<String>(
+                                result = await showAppDialog<String>(
                                     context: context,
                                     builder: (ctx) => AccentAlertDialog(
                                           headerIcon: AppIcons.sortAlpha,

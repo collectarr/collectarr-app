@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_view_co
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
+import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -32,6 +33,8 @@ class InspectorBackdrop extends StatelessWidget {
   final LibraryEntrySummary? libraryEntry;
   final Color? backgroundColor;
 
+  static const _backdropCacheWidth = 640;
+
   @override
   Widget build(BuildContext context) {
     final dto = item.dto;
@@ -45,6 +48,9 @@ class InspectorBackdrop extends StatelessWidget {
           itemNumber: card.itemNumber,
           imageUrl: dto.imageUrl,
           libraryEntryRef: libraryEntryRef,
+          // A fixed decode width keeps the image cache key stable, so resizing
+          // the panel does not reload (and flash) the dimmed backdrop.
+          targetCacheWidth: _backdropCacheWidth,
           fit: BoxFit.cover,
           showPlaceholder: false,
         ),
@@ -266,39 +272,44 @@ class _InspectorBarButton extends StatelessWidget {
         enabled: onPressed != null,
         onTap: onPressed,
         excludeSemantics: true,
-        child: InkWell(
-          mouseCursor: onPressed == null
-              ? SystemMouseCursors.basic
-              : SystemMouseCursors.click,
-          onTap: onPressed,
-          hoverColor: palette.isDark ? const Color(0xFF464950) : null,
-          borderRadius: BorderRadius.circular(4),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (icon != null) ...[
-                  Icon(
-                    icon,
-                    size: 14,
-                    color: onPressed != null ? foreground : disabledColor,
-                  ),
-                  if (label != null || labelContent != null)
-                    const SizedBox(width: 6),
-                ],
-                if (labelContent != null)
-                  labelContent!
-                else if (label != null)
-                  Text(
-                    label!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
+        child: AppClickTarget(
+          onClick: onPressed,
+          builder: (context, hovered) => DecoratedBox(
+            decoration: BoxDecoration(
+              color: hovered
+                  ? palette.isDark
+                      ? const Color(0xFF464950)
+                      : Theme.of(context).hoverColor
+                  : null,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[
+                    Icon(
+                      icon,
+                      size: 14,
                       color: onPressed != null ? foreground : disabledColor,
                     ),
-                  ),
-              ],
+                    if (label != null || labelContent != null)
+                      const SizedBox(width: 6),
+                  ],
+                  if (labelContent != null)
+                    labelContent!
+                  else if (label != null)
+                    Text(
+                      label!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: onPressed != null ? foreground : disabledColor,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -321,6 +332,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
     this.onLoan,
     this.onRefreshMetadata,
     this.onUnlinkFromCore,
+    this.onLinkToCore,
     this.onDetailsLayoutChanged,
     this.framed = false,
     this.includeLayoutControl = true,
@@ -338,6 +350,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
   final VoidCallback? onLoan;
   final VoidCallback? onRefreshMetadata;
   final VoidCallback? onUnlinkFromCore;
+  final VoidCallback? onLinkToCore;
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final bool framed;
   final bool includeLayoutControl;
@@ -452,6 +465,12 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                           height: 1, color: libraryToolbarMenuBorder(context)),
                       _inspectorMenuItem('Unlink from Core', AppIcons.unlink,
                           onUnlinkFromCore),
+                    ],
+                    if (onLinkToCore != null) ...[
+                      Divider(
+                          height: 1, color: libraryToolbarMenuBorder(context)),
+                      _inspectorMenuItem(
+                          'Link to Core', AppIcons.link, onLinkToCore),
                     ],
                   ],
                   builder: (context, controller, child) => _InspectorBarButton(

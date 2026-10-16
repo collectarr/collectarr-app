@@ -88,14 +88,6 @@ class _CompactLibraryTopChromeState extends State<CompactLibraryTopChrome> {
 
     return AnimatedLibraryChrome(
       accent: accentData.accent,
-      borderBuilder: (Color? animatedAccent, Brightness brightness) => Border(
-        bottom: BorderSide(
-          color: libraryChromeBorderColor(
-            animatedAccent ?? accentData.accent,
-            brightness: brightness,
-          ),
-        ),
-      ),
       child: Container(
         height: widget.height,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -222,7 +214,7 @@ class _CompactLibraryTopChromeState extends State<CompactLibraryTopChrome> {
           child: TextField(
             key: const ValueKey('compact_search_text_field'),
             controller: widget.searchController,
-            cursorColor: LibraryAccentScope.accentOf(context),
+            cursorColor: appPalette(context).utilityAction,
             focusNode: _searchFocusNode,
             onChanged: widget.onSearchChanged,
             onSubmitted: widget.onSearchSubmitted,
@@ -245,7 +237,7 @@ class _CompactLibraryTopChromeState extends State<CompactLibraryTopChrome> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color: accentData.accent.withValues(alpha: 0.3),
+                  color: palette.divider,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
@@ -257,7 +249,7 @@ class _CompactLibraryTopChromeState extends State<CompactLibraryTopChrome> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
-                  color: accentData.accent,
+                  color: appPalette(context).utilityAction,
                 ),
               ),
               suffixIcon: widget.searchController != null &&

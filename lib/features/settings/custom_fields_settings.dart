@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/settings/custom_field_editor_dialog.dart';
 import 'package:collectarr_app/features/settings/custom_fields_tab_settings_dialog.dart';
@@ -27,16 +28,11 @@ Future<void> showCustomFieldsManagementPage({
       builder: (context) => LibraryManagementPage(
         title: 'Manage Custom Fields',
         svgAsset: AppIcons.customFieldsSvg,
-        backgroundColor: appManagementCanvasColor(context),
         accent: accent ?? appPalette(context).accent,
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(15, 18, 15, 24),
-          child: Center(
-              child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 930),
-            child: CustomFieldsSettings(
-                db: db, mediaKind: mediaKind, startCreating: startCreating),
-          )),
+          child: CustomFieldsSettings(
+              db: db, mediaKind: mediaKind, startCreating: startCreating),
         ),
       ),
     ));
@@ -88,7 +84,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
   }
 
   Future<void> _configureTab() async {
-    final result = await showDialog<CustomFieldsDisplaySettings>(
+    final result = await showAppDialog<CustomFieldsDisplaySettings>(
       context: context,
       builder: (context) => CustomFieldsTabSettingsDialog(settings: _display),
     );
@@ -151,8 +147,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
                   onTap: _showHelp,
                   child: Text('Read about Custom Fields before adding them.',
                       style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.primary))),
+                          fontSize: 14, color: appPalette(context).link))),
             ]),
           ),
         ReorderableListView.builder(
@@ -175,6 +170,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
         const SizedBox(height: 8),
         FilledButton.icon(
           style: FilledButton.styleFrom(
+              backgroundColor: appPalette(context).utilityAction,
               foregroundColor: Colors.white,
               minimumSize: const Size(0, 32),
               visualDensity: VisualDensity.standard,
@@ -190,7 +186,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
     );
   }
 
-  void _showHelp() => showDialog<void>(
+  void _showHelp() => showAppDialog<void>(
       context: context,
       builder: (_) => CustomFieldDialog(
           title: 'Custom Fields',
@@ -218,7 +214,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
 
   Future<void> _showEditor({CustomFieldDefinition? existing}) async {
     final type = existing?.valueType ??
-        await showDialog<CustomFieldValueType>(
+        await showAppDialog<CustomFieldValueType>(
           context: context,
           builder: (context) => const CustomFieldTypePicker(),
         );
@@ -233,7 +229,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
         0,
         (value, definition) =>
             definition.sortOrder >= value ? definition.sortOrder + 1 : value);
-    final result = await showDialog<CustomFieldEditorResult>(
+    final result = await showAppDialog<CustomFieldEditorResult>(
       context: context,
       builder: (context) => CustomFieldEditorDialog(
           existing: existing,
@@ -251,7 +247,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
   }
 
   Future<void> _confirmDelete(CustomFieldDefinition def) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
         headerIcon: AppIcons.delete,

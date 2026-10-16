@@ -4,7 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 const collectarrManualUrl = String.fromEnvironment(
   'COLLECTARR_MANUAL_URL',
-  defaultValue: 'https://collectarr.github.io/collectarr-site/manual/',
+  defaultValue: 'https://collectarr.github.io/collectarr-page/manual/',
 );
 
 /// One external manual, with contextual chapters for the active kind.

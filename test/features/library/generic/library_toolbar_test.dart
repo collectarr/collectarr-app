@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_view_co
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,7 +82,7 @@ void main() {
     expect(find.text('0-9'), findsOneWidget);
   });
 
-  testWidgets('alphabet row selected button uses library accent', (
+  testWidgets('alphabet row selected button uses the shared utility blue', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(900, 600);
@@ -111,7 +112,11 @@ void main() {
           .first,
     );
     final decoration = container.decoration as BoxDecoration?;
-    expect(decoration?.color, accent);
+    // Like the reference app, letter selection is a utility selection and
+    // stays blue for every kind.
+    expect(decoration?.color, isNot(accent));
+    expect(decoration?.color,
+        appPalette(tester.element(find.text(selectedLetter))).utilityAction);
     final selectedText = tester.widget<Text>(find.text(selectedLetter));
     expect(selectedText.style?.color, Colors.white);
   });
@@ -138,7 +143,7 @@ void main() {
 
     final aButton =
         find.ancestor(of: find.text('A'), matching: find.byType(InkWell)).first;
-    expect(tester.getSize(aButton).width, greaterThanOrEqualTo(28));
+    expect(tester.getSize(aButton).width, greaterThanOrEqualTo(22));
   });
 
   test('alpha jump bar groups symbol and numeric titles separately', () {

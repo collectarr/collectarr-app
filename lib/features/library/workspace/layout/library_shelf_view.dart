@@ -1,12 +1,15 @@
 import 'dart:math' as math;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_shelf_style.dart';
 
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'library_reveal.dart';
 import 'library_shelf_backdrop.dart';
 
-class LibraryShelfView<T> extends StatelessWidget {
+class LibraryShelfView<T> extends ConsumerStatefulWidget {
   const LibraryShelfView({
     super.key,
     required this.items,
@@ -47,16 +50,54 @@ class LibraryShelfView<T> extends StatelessWidget {
   final double itemSpacing;
 
   @override
+  ConsumerState<LibraryShelfView<T>> createState() =>
+      _LibraryShelfViewState<T>();
+}
+
+class _LibraryShelfViewState<T> extends ConsumerState<LibraryShelfView<T>>
+    with LibraryRevealListener {
+  final _scrollController = ScrollController();
+  ({int booksPerShelf, double pitch})? _layout;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void revealItem(String itemId) {
+    final layout = _layout;
+    if (layout == null) return;
+    final index = widget.items
+        .indexWhere((item) => widget.entryOf(item).target.id == itemId);
+    if (index < 0) return;
+    revealScrollExtent(
+      _scrollController,
+      leading: (index ~/ layout.booksPerShelf) * layout.pitch,
+      extent: layout.pitch,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final items = widget.items;
+    final emptyBuilder = widget.emptyBuilder;
+    final backgroundColor = widget.backgroundColor;
+    final bookWidth = widget.bookWidth;
+    final shelfHeight = widget.shelfHeight;
+    final itemSpacing = widget.itemSpacing;
+    final style = ref.watch(libraryShelfStyleProvider).value ??
+        LibraryShelfStyle.woodLight;
     if (items.isEmpty && emptyBuilder != null) {
-      final empty = emptyBuilder!(context);
+      final empty = emptyBuilder(context);
       return ColoredBox(
-          color: backgroundColor ?? libraryShelfBackColor, child: empty);
+          color: backgroundColor ?? style.background, child: empty);
     }
     return LayoutBuilder(
       builder: (context, constraints) {
         const shelfOverhang = 8.0;
-        final bookHorizontalPadding = this.bookHorizontalPadding;
+        final bookHorizontalPadding = widget.bookHorizontalPadding;
         const bookInnerInset = 8.0;
         final availableShelfWidth =
             math.max(1.0, constraints.maxWidth - (shelfOverhang * 2));
@@ -85,31 +126,38 @@ class LibraryShelfView<T> extends StatelessWidget {
             (i + booksPerShelf).clamp(0, items.length),
           ));
         }
+        _layout = (
+          booksPerShelf: booksPerShelf,
+          pitch: effectiveShelfHeight + 20,
+        );
         final listView = ListView.builder(
+          controller: _scrollController,
           padding: const EdgeInsets.only(bottom: 24),
           itemCount: shelves.length,
           itemBuilder: (context, shelfIndex) {
             return _ShelfRow(
               books: shelves[shelfIndex],
-              entryOf: entryOf,
-              isActive: isActive,
-              isSelected: isSelected,
-              selectionEnabled: selectionEnabled,
-              onTap: onTap,
-              onToggleSelectionItem: onToggleSelectionItem,
-              onDoubleTap: onDoubleTap,
-              onSecondaryTapUp: onSecondaryTapUp,
-              accent: accent,
+              entryOf: widget.entryOf,
+              isActive: widget.isActive,
+              isSelected: widget.isSelected,
+              selectionEnabled: widget.selectionEnabled,
+              onTap: widget.onTap,
+              onToggleSelectionItem: widget.onToggleSelectionItem,
+              onDoubleTap: widget.onDoubleTap,
+              onSecondaryTapUp: widget.onSecondaryTapUp,
+              accent: widget.accent,
               shelfHeight: effectiveShelfHeight,
               bookWidth: effectiveBookWidth,
+              style: style,
               itemSpacing: itemSpacing,
-              fallbackCoverAspectRatio: fallbackCoverAspectRatio,
+              fallbackCoverAspectRatio: widget.fallbackCoverAspectRatio,
             );
           },
         );
         return LibraryShelfBackdrop(
+          style: style,
           shelfPitch: effectiveShelfHeight + 20,
-          color: backgroundColor ?? libraryShelfBackColor,
+          color: backgroundColor ?? style.background,
           child: listView,
         );
       },
@@ -132,6 +180,7 @@ class _ShelfRow<T> extends StatelessWidget {
     required this.shelfHeight,
     required this.bookWidth,
     required this.itemSpacing,
+    required this.style,
     required this.fallbackCoverAspectRatio,
   });
 
@@ -148,6 +197,7 @@ class _ShelfRow<T> extends StatelessWidget {
   final double shelfHeight;
   final double bookWidth;
   final double itemSpacing;
+  final LibraryShelfStyle style;
   final double fallbackCoverAspectRatio;
 
   @override
@@ -155,8 +205,8 @@ class _ShelfRow<T> extends StatelessWidget {
     const shelfThickness = 8.0;
     const shelfShadow = 12.0;
     const shelfOverhang = 8.0;
-    const shelfColor = libraryShelfPlankColor;
-    const shelfHighlight = libraryShelfHighlightColor;
+    final shelfColor = style.plank;
+    final shelfHighlight = style.highlight;
     return SizedBox(
       height: shelfHeight + shelfThickness + shelfShadow,
       child: Stack(
@@ -249,7 +299,7 @@ class _ShelfRow<T> extends StatelessWidget {
                 : null,
             coverSize: bookW,
             fallbackCoverAspectRatio: fallbackCoverAspectRatio,
-            selectedColor: palette.selection,
+            selectedColor: palette.utilityAction,
             accentColor: accent,
             selectionColor: accent,
             mutedTextColor: palette.textMuted,

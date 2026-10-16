@@ -8,10 +8,22 @@ import 'package:collectarr_app/features/collection/repositories/loan_repository.
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('mixed comparison fixture obeys contained disc capabilities', () async {
+    final fixture = jsonDecode(
+        await File('tool/fixtures/music_inspector_mixed_reference.json')
+            .readAsString()) as Map<String, dynamic>;
+    final album = MusicCatalogMapper.fromCatalogPayload(
+        Map<String, dynamic>.from(fixture['catalog'] as Map));
+    expect(album.discs, hasLength(3));
+    expect(album.discs.last.format, 'FLAC');
+    expect(album.discs.last.matrixNumber, isNull);
+  });
+
   test(
       'comparison seed persists canonical metadata and all personal scopes idempotently',
       () async {

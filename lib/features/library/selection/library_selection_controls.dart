@@ -246,6 +246,7 @@ class LibrarySelectionControls extends StatelessWidget {
         dividerColor: const Color(0xFF4F4F4F),
       ),
       child: PopupMenuButton<_BulkAction>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
         key: const ValueKey('library-selection-more-button'),
         tooltip: 'More selection actions',
         position: onAccent ? PopupMenuPosition.under : PopupMenuPosition.over,

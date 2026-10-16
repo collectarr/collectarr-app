@@ -1,0 +1,127 @@
+{
+  "id": "00000000-0000-4000-8000-000000000001",
+  "kind": "music",
+  "title": "After the Rain",
+  "revision": 1,
+  "sort_title": null,
+  "subtitle": null,
+  "artist": "The Paper Moons",
+  "artist_credits": [],
+  "original_release_date": null,
+  "release_date": {
+    "year": 2026,
+    "month": 2,
+    "day": 18
+  },
+  "label": "Demo Records",
+  "barcode": null,
+  "catalog_number": "DEMO-001",
+  "genres": [
+    "Alternative",
+    "Rock"
+  ],
+  "packaging": "Digipak",
+  "country": "United Kingdom",
+  "extra": [],
+  "box_set": null,
+  "credits": [
+    {
+      "id": "album-credit-1",
+      "contributor_id": null,
+      "name": "Alex Rivers",
+      "role": "Producer",
+      "role_id": null,
+      "sequence": 1,
+      "sort_name": null,
+      "instruments": []
+    }
+  ],
+  "external_links": [],
+  "cover_image_url": null,
+  "back_cover_image_url": null,
+  "thumbnail_image_url": null,
+  "discs": [
+    {
+      "id": "10000000-0000-4000-8000-000000000011",
+      "disc_number": 1,
+      "title": null,
+      "format_family": "opticalDisc",
+      "format": "CD",
+      "sound_types": [
+        "Stereo"
+      ],
+      "recording_date": {
+        "year": 2025,
+        "month": null,
+        "day": null
+      },
+      "recording_locations": [
+        "Demo Studio"
+      ],
+      "is_live": false,
+      "spars_code": null,
+      "color": null,
+      "vinyl_weight_grams": null,
+      "rpm": null,
+      "matrix_number": null,
+      "matrix_number_side_a": null,
+      "matrix_number_side_b": null,
+      "credits": [],
+      "tracks": [
+        {
+          "id": "20000000-0000-4000-8000-000000000011",
+          "position": "1",
+          "position_order": 0,
+          "title": "First Light",
+          "artist": null,
+          "composition": null,
+          "duration_ms": 180000,
+          "is_header": false,
+          "parent_header_id": null,
+          "indent_level": 0
+        }
+      ]
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000012",
+      "disc_number": 2,
+      "title": null,
+      "format_family": "vinyl",
+      "format": "12\" Vinyl",
+      "sound_types": [
+        "Stereo"
+      ],
+      "recording_date": {
+        "year": 2024,
+        "month": null,
+        "day": null
+      },
+      "recording_locations": [
+        "Demo Hall"
+      ],
+      "is_live": true,
+      "spars_code": null,
+      "color": null,
+      "vinyl_weight_grams": null,
+      "rpm": null,
+      "matrix_number": null,
+      "matrix_number_side_a": null,
+      "matrix_number_side_b": null,
+      "credits": [],
+      "tracks": [
+        {
+          "id": "20000000-0000-4000-8000-000000000012",
+          "position": "1",
+          "position_order": 0,
+          "title": "Encore",
+          "artist": null,
+          "composition": null,
+          "duration_ms": 180000,
+          "is_header": false,
+          "parent_header_id": null,
+          "indent_level": 0
+        }
+      ]
+    }
+  ]
+}

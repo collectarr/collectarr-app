@@ -275,6 +275,11 @@ class SyncApplyService {
               mediaKind: Value(data['media_kind'] as String?),
               value: data['value'] as String,
               sortOrder: Value(data['sort_order'] as int? ?? 0),
+              // Sort name and hidden state were sent but dropped on apply.
+              sortName: Value(data['sort_name'] as String?),
+              isHidden: Value(data['is_hidden'] as bool? ?? false),
+              email: Value(data['email'] as String?),
+              address: Value(data['address'] as String?),
             ),
             mode: InsertMode.insertOrReplace,
           );

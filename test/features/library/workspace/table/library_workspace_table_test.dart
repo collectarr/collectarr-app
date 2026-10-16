@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/table/library_workspace_table.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../support/fixtures/test_constants.dart';
@@ -366,7 +365,7 @@ void main() {
     final afterTapBorder = afterTapBox.border! as Border;
     expect(afterTapBox.color, isNot(beforeTapBox.color));
     expect(afterTapBox.boxShadow, isNull);
-    expect(afterTapBorder.left.color, kAppAccent);
+    expect(afterTapBorder.left.color, const Color(0xff5eb1de));
     expect(afterTapBorder.left.width, 3);
   });
 

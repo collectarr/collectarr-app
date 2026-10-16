@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/generic/library_folder_reorder_l
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class LibraryColumnChooserDialog extends StatefulWidget {
   const LibraryColumnChooserDialog({
@@ -103,7 +104,8 @@ class _LibraryColumnChooserDialogState
 
   @override
   Widget build(BuildContext context) {
-    final accent = widget.accent ?? Theme.of(context).colorScheme.primary;
+    final kindAccent = widget.accent ?? Theme.of(context).colorScheme.primary;
+    final accent = appPalette(context).utilityAction;
     final query = _query.trim().toLowerCase();
     final columns = widget.availableColumns
         .where((column) =>
@@ -121,7 +123,7 @@ class _LibraryColumnChooserDialogState
     return LibraryFieldSelectionDialog(
         icon: AppIcons.columns,
         title: 'Select Column Fields',
-        accent: accent,
+        accent: kindAccent,
         headerAction: IconButton(
             tooltip: 'Manage Favorites',
             icon: const Icon(Icons.settings, color: Colors.white, size: 16),
@@ -141,16 +143,27 @@ class _LibraryColumnChooserDialogState
           SizedBox(
               height: 34,
               child: Builder(
+                  // The preset name fills the 34 px field at 18/700, as in
+                  // the reference.
                   builder: (context) => TextField(
                       controller: _presetNameController,
-                      style: librarySelectionFieldStyle,
-                      cursorColor: accent,
+                      style: librarySelectionFieldStyle.copyWith(fontSize: 18),
+                      cursorColor: appPalette(context).utilityAction,
                       onChanged: (_) => _nameEdited = true,
+                      // Expanding fills the 34 px box; the name stays one
+                      // line.
+                      expands: true,
+                      maxLines: null,
+                      textAlignVertical: TextAlignVertical.center,
+                      textInputAction: TextInputAction.done,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'[\r\n]')),
+                      ],
                       decoration: pickListInputDecoration(context,
                               hintText: 'My List View columns')
                           .copyWith(
                               contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 6))))),
+                                  horizontal: 7, vertical: 0))))),
           const SizedBox(height: 15),
           const Text('Columns', style: TextStyle(height: 20 / 14)),
           const SizedBox(height: 5),
@@ -471,9 +484,7 @@ class _PresetShelf extends StatelessWidget {
                                 .textTheme
                                 .bodyMedium
                                 ?.copyWith(
-                                  fontWeight: active
-                                      ? FontWeight.w700
-                                      : FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                 ),
                           ),
                           const SizedBox(width: 8),
@@ -489,6 +500,8 @@ class _PresetShelf extends StatelessWidget {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
                                     color: palette.textMuted,
                                   ),
                             ),
@@ -565,8 +578,9 @@ class _PaneFrame extends StatelessWidget {
                       Text(
                         title,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: accent,
+                              color: palette.textPrimary,
                             ),
                       ),
                     ],

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:convert';
 import 'package:collectarr_app/core/fonts/font_weight.dart';
 import 'package:collectarr_app/core/fonts/local_font_controller.dart';
@@ -12,23 +13,48 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
   LocalFontFace face(int weight) =>
       LocalFontFace.parse(fontFixture(weight: weight), source: 'Imported');
-  test('normal text selects local Medium without changing imported font bytes',
+  test(
+      'normal text selects local SemiBold without changing imported font bytes',
       () async {
-    final medium = face(500);
-    final original = List<int>.of(medium.bytes);
+    final semiBold = face(600);
+    final original = List<int>.of(semiBold.bytes);
     final registered = <int, Uint8List>{};
     final controller = LocalFontController(registerFont: (_, bytes) async {
       registered[fontWeight(bytes)] = Uint8List.fromList(bytes);
     });
     await controller.initialize(discover: false);
-    await controller.importFaces([face(400), medium, face(700)]);
+    await controller.importFaces([face(400), face(500), semiBold, face(700)]);
     final normal = LocalFontFace.parse(registered[400]!, source: 'Imported');
     expect(normal.weight, 400);
-    expect(normal.name, contains('500'));
-    expect(medium.bytes, original);
+    expect(normal.name, contains('600'));
+    expect(LocalFontFace.parse(registered[500]!, source: 'Imported').name,
+        contains('600'));
+    expect(controller.normalTextFace, same(semiBold));
+    expect(semiBold.bytes, original);
     expect(controller.faces[500]!.weight, 500);
     expect(controller.faces[400]!.name, contains('400'));
     controller.dispose();
+  });
+
+  test('partial local families use Medium then Regular for normal UI roles',
+      () async {
+    for (final weight in [500, 400]) {
+      SharedPreferences.setMockInitialValues({});
+      final registered = <int, Uint8List>{};
+      final controller = LocalFontController(registerFont: (_, bytes) async {
+        registered[fontWeight(bytes)] = Uint8List.fromList(bytes);
+      });
+      await controller.initialize(discover: false);
+      await controller.importFaces([face(weight), face(700)]);
+      for (final slot in [400, 500]) {
+        expect(LocalFontFace.parse(registered[slot]!, source: 'Imported').name,
+            contains('$weight'));
+      }
+      expect(controller.faces[weight]!.weight, weight);
+      expect(LocalFontFace.parse(registered[700]!, source: 'Imported').name,
+          contains('700'));
+      controller.dispose();
+    }
   });
 
   test('fills every missing UI weight, persists and restores imported faces',
@@ -37,7 +63,8 @@ void main() {
     final c = LocalFontController(
         registerFont: (_, bytes) async => registered.add(fontWeight(bytes)));
     await c.initialize(discover: false);
-    expect(c.activeFamily, 'Plus Jakarta Sans');
+    expect(c.activeFamily, LocalFontController.bundledFamily);
+    registered.clear();
     await c.importFaces([face(700)]);
     expect(registered.toSet(), {400, 500, 600, 700, 800, 900});
     expect(registered.length, 6);
@@ -50,7 +77,7 @@ void main() {
     final disabled = LocalFontController(registerFont: (_, __) async {});
     await disabled.initialize(discover: false);
     expect(disabled.enabled, false);
-    expect(disabled.activeFamily, 'Plus Jakarta Sans');
+    expect(disabled.activeFamily, LocalFontController.bundledFamily);
     expect(disabled.faces.keys, [700]);
     c.dispose();
     restored.dispose();
@@ -180,11 +207,58 @@ void main() {
     for (var i = 0; i < directory.getUint16(4); i++) {
       final entry = 12 + i * 16;
       final tag = directory.getUint32(entry);
-      if (tag == 0x4f532f32 || tag == 0x68656164) continue;
+      if (tag == 0x4f532f32 || tag == 0x68656164 || tag == 0x6e616d65) {
+        continue;
+      }
       final offset = directory.getUint32(entry + 8);
       final length = directory.getUint32(entry + 12);
-      expect(modified.sublist(offset, offset + length),
+      final result = ByteData.sublistView(modified);
+      final resultOffset = result.getUint32(entry + 8);
+      expect(result.getUint32(entry), tag);
+      expect(result.getUint32(entry + 12), length);
+      expect(modified.sublist(resultOffset, resultOffset + length),
           original.sublist(offset, offset + length));
     }
   });
+
+  test('the bundled family serves SemiBold outlines in its normal slots',
+      () async {
+    final registered = <(String, int, Uint8List)>[];
+    final c = LocalFontController(
+        registerFont: (family, bytes) async =>
+            registered.add((family, fontWeight(bytes), bytes)));
+    await c.initialize(discover: false);
+
+    expect(c.activeFamily, LocalFontController.bundledFamily);
+    expect(c.isGilroyActive, isFalse);
+    expect(registered.map((r) => r.$1).toSet(),
+        {LocalFontController.bundledFamily});
+    expect(
+        registered.map((r) => r.$2).toList(), [400, 500, 600, 700, 800, 900]);
+    // 400 and 500 carry the SemiBold outlines, re-weighted, not Regular's.
+    final semiBold = _glyf(
+        File('assets/fonts/PlusJakartaSans-SemiBold.ttf').readAsBytesSync());
+    final regular = _glyf(
+        File('assets/fonts/PlusJakartaSans-Regular.ttf').readAsBytesSync());
+    for (final weight in [400, 500]) {
+      final outlines = _glyf(registered.firstWhere((r) => r.$2 == weight).$3);
+      expect(outlines, semiBold);
+      expect(outlines, isNot(regular));
+    }
+    c.dispose();
+  });
+}
+
+/// The glyph outline table of an SFNT font.
+List<int> _glyf(Uint8List font) {
+  final data = ByteData.sublistView(font);
+  final tables = data.getUint16(4);
+  for (var i = 0; i < tables; i++) {
+    final record = 12 + i * 16;
+    if (String.fromCharCodes(font.sublist(record, record + 4)) == 'glyf') {
+      final offset = data.getUint32(record + 8);
+      return font.sublist(offset, offset + data.getUint32(record + 12));
+    }
+  }
+  throw StateError('No glyf table');
 }

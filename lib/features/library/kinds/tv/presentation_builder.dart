@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/config/library_duplicate_present
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_data.dart';
@@ -228,7 +228,7 @@ class TvLibraryMediaPresentationBuilder
         LibraryDetailField(
           label: 'Released',
           value: genericLibraryDash(
-            formatPresentationNullableDate(releaseDate),
+            formatNullableDate(releaseDate),
           ),
         ),
         if (country != null)
@@ -266,7 +266,6 @@ class TvLibraryMediaPresentationBuilder
     return [
       LibraryDetailSection(
         title: 'Summary',
-        accentColor: accent,
         children: [
           SelectableText(
             dto.common.synopsis!,

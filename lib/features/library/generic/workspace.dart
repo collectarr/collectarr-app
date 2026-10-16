@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/empty_state.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -11,7 +10,6 @@ import 'package:collectarr_app/features/library/selection/library_selection_stat
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_shelf_view.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_shelf_backdrop.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -158,23 +156,23 @@ class LibraryWorkspace extends ConsumerWidget {
     final cardCoverWidth =
         (uiPrefs.cardCoverWidth * cardScale).clamp(60.0, 164.0).toDouble();
     final cardTileWidth = (430.0 * cardScale).clamp(312.0, 620.0).toDouble();
-    final cardTileHeight = (156.0 * cardScale).clamp(124.0, 228.0).toDouble();
+    final cardTileHeight = (110.0 * cardScale).clamp(100.0, 184.0).toDouble();
     final standardVerticalTileWidth =
         ((viewState.coverSize + 54) * density.cardScaleFactor)
             .clamp(160.0, 244.0)
             .toDouble();
-    final standardVerticalTileHeight = (standardVerticalTileWidth *
-            (1.34 + ((density.cardScaleFactor - 0.86) * 0.4)))
-        .clamp(220.0, 352.0)
-        .toDouble();
+    final cardFooterHeight =
+        items.any((item) => item.customFieldBadges.isNotEmpty) ? 82.0 : 64.0;
+    final standardVerticalTileHeight = standardVerticalTileWidth *
+            libraryViewProfileForKind(type.kind).coverGridHeightFactor +
+        cardFooterHeight;
     final coverFocusedTileWidth =
         ((viewState.coverSize + 56) * density.cardScaleFactor)
             .clamp(164.0, 248.0)
             .toDouble();
-    final coverFocusedTileHeight = (viewState.coverSize *
-            (1.38 + ((density.cardScaleFactor - 0.86) * 0.5)))
-        .clamp(224.0, 360.0)
-        .toDouble();
+    final coverFocusedTileHeight = coverFocusedTileWidth *
+            libraryViewProfileForKind(type.kind).coverGridHeightFactor +
+        cardFooterHeight;
     final coverMainAxisExtent = libraryWorkspaceGridMainAxisExtent(
       type: type,
       coverSize: viewState.coverSize,
@@ -198,7 +196,6 @@ class LibraryWorkspace extends ConsumerWidget {
           itemBuilder: (context, item) => LibraryCoverTile(
             key: ValueKey(item.target.id),
             item: item,
-            customFieldBadges: item.customFieldBadges,
             active: _isActive(item),
             selected: _isSelectionSelected(item),
             selectionMode: selectionEnabled,
@@ -211,9 +208,9 @@ class LibraryWorkspace extends ConsumerWidget {
                 : (d) => onItemContextMenu!(item, d.globalPosition),
             coverSize: viewState.coverSize,
             fallbackCoverAspectRatio: fallbackCoverAspectRatio,
-            selectedColor: palette.selection,
+            selectedColor: appPalette(context).utilityAction,
             accentColor: accent,
-            selectionColor: accent,
+            selectionColor: appPalette(context).utilityAction,
             mutedTextColor: palette.textMuted,
           ),
         ),
@@ -239,14 +236,13 @@ class LibraryWorkspace extends ConsumerWidget {
             item: item,
             customFieldBadges: item.customFieldBadges,
             selected: _isHighlighted(item),
+            checked: _isSelectionSelected(item),
             onTap: _selectionTap(item),
             onDoubleTap: () => onOpenItem(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
-            dateFormatter: formatDate,
-            moneyFormatter: formatMoney,
-            selectedColor: palette.selection,
+            selectedColor: appPalette(context).utilityAction,
             accentColor: accent,
             mutedTextColor: palette.textMuted,
             coverWidth:
@@ -297,7 +293,6 @@ class LibraryWorkspace extends ConsumerWidget {
           shelfHeight: coverMainAxisExtent,
           bookWidth: viewState.coverSize,
           fallbackCoverAspectRatio: fallbackCoverAspectRatio,
-          backgroundColor: libraryShelfBackColor,
           emptyBuilder: _emptyBuilder,
           bookHorizontalPadding: 1.5,
           itemSpacing: gridSpacing,
@@ -332,14 +327,8 @@ class LibraryWorkspace extends ConsumerWidget {
           target: schemaNode,
         );
         final widths = Map.of(viewState.columnWidths);
-        String cellText(LibraryProjectionItem item, String id) {
-          final cell = _tableCell(item, id);
-          return switch (cell) {
-            LibraryTableCellText(:final value) => value ?? '-',
-            Text(:final data) => data ?? '',
-            _ => '',
-          };
-        }
+        String cellText(LibraryProjectionItem item, String id) =>
+            libraryTableCellText(_tableCell(item, id));
 
         final painter = TextPainter(
           textDirection: Directionality.of(context),
@@ -374,10 +363,12 @@ class LibraryWorkspace extends ConsumerWidget {
               target: schemaNode,
             );
         final heights = <String, double>{};
-        final effectiveRowHeight = math.max(
+        final effectiveRowHeight = [
           22.0,
           density.tableRowHeight + (preferences.gridSpacing - 10.0) * 1.5,
-        );
+          for (final column in visibleColumns)
+            workspace.columnMinRowHeight(column, target: schemaNode) ?? 0,
+        ].reduce(math.max);
         double heightFor(LibraryProjectionItem item) =>
             heights.putIfAbsent(item.target.id, () {
               final measure = TextPainter(
@@ -424,6 +415,7 @@ class LibraryWorkspace extends ConsumerWidget {
                   wrap: preferences.wrapColumnContent,
                   child: LibraryWorkspaceTable<LibraryProjectionItem>(
                     entries: items,
+                    entryIdOf: (item) => item.target.id,
                     columns: [
                       for (final column in visibleColumns) column.value
                     ],
@@ -534,13 +526,13 @@ class LibraryWorkspace extends ConsumerWidget {
                     selectionRailWidth: 2,
                     headerColor: libraryWorkspaceTableHeaderColor(context),
                     dividerColor: libraryWorkspacePaneDividerColor(context),
-                    selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+                    selectedColor: appPalette(context).utilityAction,
                     oddColor: palette.tableOddRow,
                     evenColor: palette.tableEvenRow,
-                    selectionRailColor: accent,
+                    selectionRailColor: appPalette(context).utilityAction,
                     bottomBorderColor: palette.tableBottomBorder,
-                    hoverColor: palette.tableHover,
-                    accentColor: accent,
+                    hoverColor: palette.surfaceBright,
+                    accentColor: appPalette(context).utilityAction,
                   ),
                 ),
               ),
@@ -595,14 +587,13 @@ class LibraryWorkspace extends ConsumerWidget {
               item: item,
               customFieldBadges: item.customFieldBadges,
               selected: _isHighlighted(item),
+              checked: _isSelectionSelected(item),
               onTap: _selectionTap(item),
               onDoubleTap: () => onOpenItem(item),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
-              dateFormatter: formatDate,
-              moneyFormatter: formatMoney,
-              selectedColor: palette.selection,
+              selectedColor: appPalette(context).utilityAction,
               accentColor: accent,
               mutedTextColor: palette.textMuted,
               coverWidth: tileCoverWidth,

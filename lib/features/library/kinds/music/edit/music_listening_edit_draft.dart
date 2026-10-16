@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -7,6 +8,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -85,20 +87,32 @@ class _MusicListeningDraftSectionState
       listenable: draft,
       builder: (context, _) {
         final history = draft.history;
-        return LibraryFormGroup(
-            title: 'Played History (Total Plays: ${history.length})',
-            child: Column(children: [
+        // A plain field label over a left-aligned button, as in the
+        // reference; the date beside it records listens on other days.
+        return LibraryFormField(
+            label: 'Played History (total plays: ${history.length})',
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const SizedBox(height: 4),
               Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    OutlinedButton.icon(
+                    FilledButton(
+                        style: FilledButton.styleFrom(
+                            backgroundColor: appPalette(context).utilityAction,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(0, 32),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            textStyle: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w400),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4))),
                         onPressed: () => draft.save(date: _selectedDate),
-                        icon: const Icon(Icons.headphones_outlined, size: 16),
-                        label: const Text('Mark as listened')),
+                        child: const Text('Mark as listened')),
                     SizedBox(
-                        width: 170,
+                        width: 240,
                         child: LibraryDateFieldButton(
                             label: 'Listen Date',
                             showLabel: false,
@@ -133,7 +147,7 @@ class _MusicListeningDraftSectionState
     final notes = TextEditingController(text: existing?.notes ?? '');
     String? value;
     try {
-      value = await showDialog<String>(
+      value = await showAppDialog<String>(
           context: context,
           builder: (dialogContext) => AccentAlertDialog(
                 headerIcon: AppIcons.inlineEdit,

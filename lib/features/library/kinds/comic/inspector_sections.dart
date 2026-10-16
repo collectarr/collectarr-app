@@ -43,7 +43,6 @@ class _ComicInspectorTabsSectionState
     final selectedTab = tabs[_selectedTabIndex.clamp(0, tabs.length - 1)];
     return LibraryDetailSection(
       title: 'Comic detail',
-      accentColor: widget.request.accent,
       children: [
         Wrap(
           spacing: 6,
@@ -116,7 +115,6 @@ List<_ComicInspectorTab> _comicInspectorTabs(
         children: [
           LibraryDetailSection(
             title: 'Overview',
-            accentColor: request.accent,
             children: [
               LibraryDetailFieldTable(fields: _detailFacts(item)),
               if (synopsis?.isNotEmpty == true) ...[
@@ -165,7 +163,6 @@ List<_ComicInspectorTab> _comicInspectorTabs(
         children: [
           LibraryDetailSection(
             title: 'Value details',
-            accentColor: request.accent,
             children: [
               LibraryDetailFieldTable(
                   fields: _valueFacts(item, request.libraryEntry))
@@ -175,7 +172,6 @@ List<_ComicInspectorTab> _comicInspectorTabs(
             const SizedBox(height: 8),
             LibraryDetailSection(
               title: 'Collector',
-              accentColor: request.accent,
               children: [
                 LibraryDetailFieldTable(fields: _collectorFacts(libraryEntry))
               ],
@@ -207,7 +203,6 @@ List<_ComicInspectorTab> _comicInspectorTabs(
       icon: Icons.group_outlined,
       builder: (context, ref) => _ComicCreatorsGroupedSection(
         creators: creators,
-        accent: request.accent,
         onValueTap: request.onFilterByValue,
         headerActions: [
           if (request.onEdit != null)
@@ -223,7 +218,6 @@ List<_ComicInspectorTab> _comicInspectorTabs(
         children: [
           LibraryDetailSection(
             title: 'Series metadata',
-            accentColor: request.accent,
             children: [
               LibraryDetailFieldTable(fields: _seriesFacts(request.item))
             ],
@@ -231,7 +225,6 @@ List<_ComicInspectorTab> _comicInspectorTabs(
           const SizedBox(height: 8),
           ComicSeriesCompletenessSection(
             request: request,
-            accent: request.accent,
           ),
         ],
       ),
@@ -245,7 +238,6 @@ List<_ComicInspectorTab> _comicInspectorTabs(
           if (_noteFacts(libraryEntry).isNotEmpty)
             LibraryDetailSection(
               title: 'Notes',
-              accentColor: request.accent,
               children: [
                 LibraryDetailFieldTable(fields: _noteFacts(libraryEntry))
               ],
@@ -254,7 +246,6 @@ List<_ComicInspectorTab> _comicInspectorTabs(
             const SizedBox(height: 8),
             LibraryDetailSection(
               title: 'Links',
-              accentColor: request.accent,
               children: [
                 LibraryDetailFieldTable(fields: _linkFacts(request.item))
               ],
@@ -330,11 +321,9 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
   const ComicSeriesCompletenessSection({
     super.key,
     required this.request,
-    required this.accent,
   });
 
   final LibraryInspectorRequest request;
-  final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -342,7 +331,6 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
     if (seriesId == null || seriesId.trim().isEmpty) {
       return LibraryDetailSection(
         title: 'Series completeness',
-        accentColor: accent,
         children: const [
           Text('No series id is available for this comic.'),
         ],
@@ -352,12 +340,10 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
     return itemsAsync.when(
       loading: () => LibraryDetailSection(
         title: 'Series completeness',
-        accentColor: accent,
         children: const [Text('Loading series issues...')],
       ),
       error: (error, _) => LibraryDetailSection(
         title: 'Series completeness',
-        accentColor: accent,
         children: [Text('Failed to load series issues: $error')],
       ),
       data: (items) {
@@ -370,7 +356,6 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
             .length;
         return LibraryDetailSection(
           title: 'Series completeness',
-          accentColor: accent,
           children: [
             LibraryDetailFieldTable(
               fields: [
@@ -415,13 +400,12 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
 class _ComicCreatorsGroupedSection extends StatelessWidget {
   const _ComicCreatorsGroupedSection({
     required this.creators,
-    required this.accent,
     required this.onValueTap,
     this.headerActions = const [],
   });
 
   final List<Map<String, dynamic>> creators;
-  final Color accent;
+
   final ValueChanged<String>? onValueTap;
   final List<Widget> headerActions;
 
@@ -449,7 +433,6 @@ class _ComicCreatorsGroupedSection extends StatelessWidget {
         for (var i = 0; i < entries.length; i++) ...[
           LibraryDetailSection(
             title: entries[i].key,
-            accentColor: accent,
             headerActions: headerActions,
             children: [
               Wrap(

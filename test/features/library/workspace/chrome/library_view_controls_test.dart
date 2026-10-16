@@ -4,6 +4,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('cover size and item spacing have equal slider widths',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: Row(children: [
+      LibraryCoverSizeSlider(
+        viewMode: LibraryViewMode.grid,
+        coverSize: 128,
+        minCoverSize: 100,
+        maxCoverSize: 200,
+        onChanged: (_) {},
+      ),
+      LibrarySpacingSlider(spacing: 8, onChanged: (_) {}),
+    ]))));
+    final sliders = find.byType(Slider);
+    expect(sliders, findsNWidgets(2));
+    expect(tester.getSize(sliders.at(0)).width,
+        tester.getSize(sliders.at(1)).width);
+    expect(find.byTooltip('Cover Size'), findsOneWidget);
+    expect(find.byTooltip('Item Spacing'), findsOneWidget);
+  });
+
   testWidgets('reports view and details layout changes', (tester) async {
     var viewMode = LibraryViewMode.grid;
     var detailsLayout = LibraryDetailsLayout.right;

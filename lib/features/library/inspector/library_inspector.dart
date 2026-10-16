@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_item_confirmation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -16,9 +17,9 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
+import 'package:collectarr_app/features/library/metadata/library_link_items_page.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
-import 'package:collectarr_app/features/library/inspector/inspector_loan_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
@@ -33,8 +34,8 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/features/loans/loan_item_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -130,16 +131,18 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final onDuplicate = activeLibraryEntry == null
         ? null
         : () => _duplicateLibraryEntry(selected, activeLibraryEntry);
+    // Loan opens the reference "Loan Album" form directly; returns and
+    // history live in the Loan Manager.
     final onLoan = activeLibraryEntry == null || widget.db == null
         ? null
-        : () => _showEntrySectionDialog(
-              context,
-              title: 'Loans',
-              child: InspectorLoanSection(
-                libraryEntryRef: activeLibraryEntry.ref,
-                db: widget.db!,
-                accent: widget.accent,
-              ),
+        : () => showLoanItemDialog(
+              context: context,
+              db: widget.db!,
+              libraryEntryRef: activeLibraryEntry.ref,
+              singularLabel: widget.type.identity.singularLabel,
+              title: selected.dto.primaryLabel,
+              subtitle: selected.dto.secondaryLabel,
+              imageUrl: selected.dto.imageUrl,
             );
     void onRefreshMetadata() => _refreshSelectedEntryMetadata(selected);
     void onShare() => _shareInspectorEntry(selected);
@@ -175,7 +178,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         onEdit: onEdit,
         onDuplicate: onDuplicate,
         onLoan: onLoan,
-        onRefreshMetadata: onRefreshMetadata,
+        onRefreshMetadata: activeLibraryEntry?.sourceCatalogRef == null
+            ? null
+            : onRefreshMetadata,
         onShare: onShare,
         onUnlinkFromCore: activeLibraryEntry?.sourceCatalogRef == null
             ? null
@@ -248,7 +253,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             InspectorMetadataSection(
               type: widget.type,
               item: selected,
-              accent: widget.accent,
               onFilterByValue: widget.onFilterByValue,
             ),
           ];
@@ -263,7 +267,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         InspectorCustomFieldsSection(
           libraryEntryRef: activeLibraryEntry.ref,
           db: widget.db!,
-          accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
         ),
       if (inspectorCapability.showsDefaultPersonalSection)
@@ -273,7 +276,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           libraryEntry: activeLibraryEntry,
           libraryEntryDispatch: inspectorRequest.libraryEntryDispatch,
           trackingSummary: activeTrackingSummary,
-          accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
         ),
       if (activeLibraryEntry != null &&
@@ -322,6 +324,16 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                             ? null
                             : () => _moveToCollection(activeLibraryEntry),
                     onUnlinkFromCore: entityActions.onUnlinkFromCore,
+                    onLinkToCore: activeLibraryEntry != null &&
+                            activeLibraryEntry.sourceCatalogRef == null
+                        ? () =>
+                            Navigator.of(context).push(MaterialPageRoute<void>(
+                              builder: (context) => LibraryLinkItemsPage(
+                                type: widget.type,
+                                entries: [selected.source],
+                              ),
+                            ))
+                        : null,
                     onDuplicate: entityActions.onDuplicate,
                     onToggleEntry: entityActions.onToggleEntry,
                     onLoan: entityActions.onLoan,
@@ -407,24 +419,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                                   ]))))),
                 ]),
               )),
-    );
-  }
-
-  Future<void> _showEntrySectionDialog(
-    BuildContext context, {
-    required String title,
-    required Widget child,
-  }) {
-    return showDialog<void>(
-      context: context,
-      builder: (context) => LibraryDialogScaffold(
-        headerIcon: AppIcons.tabDetails,
-        title: Text(
-          title,
-        ),
-        onClose: () => Navigator.of(context).pop(),
-        body: SingleChildScrollView(child: child),
-      ),
     );
   }
 
@@ -524,7 +518,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }
 
   Future<void> _unlinkFromCore(LibraryEntrySummary entry) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
         context: context,
         builder: (context) => Theme(
             data: libraryAccentTheme(context, widget.accent),
@@ -589,7 +583,7 @@ class _InspectorReadingQueueActionButtonState
   }
 
   Future<void> _openDialog() async {
-    await showDialog<void>(
+    await showAppDialog<void>(
       context: context,
       builder: (context) => AccentAlertDialog(
         headerIcon: AppIcons.readingQueue,

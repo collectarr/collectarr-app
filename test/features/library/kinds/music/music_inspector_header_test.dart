@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -22,9 +24,11 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-MusicLibraryEntry _createFixture({String? front, String? back}) =>
+MusicLibraryEntry _createFixture(
+        {String? front, String? back, String status = 'In Collection'}) =>
     MusicLibraryEntry(
       id: const LibraryEntryId('test-entry-1'),
       sourceCatalogRef: const CatalogItemRef(
@@ -32,7 +36,7 @@ MusicLibraryEntry _createFixture({String? front, String? back}) =>
         id: 'catalog-1',
       ),
       updatedAt: DateTime.utc(2026, 10, 10),
-      personal: const MusicPersonalData(indexNumber: 1),
+      personal: MusicPersonalData(indexNumber: 1, collectionStatus: status),
       metadata: MusicAlbum(
         title: 'The Bleeding',
         coverImageUrl: front,
@@ -62,119 +66,153 @@ MusicLibraryEntry _createFixture({String? front, String? back}) =>
     );
 
 void main() {
-  for (final covers in [
-    (false, false),
-    (true, false),
-    (false, true),
-    (true, true)
+  for (final status in [
+    'In Collection',
+    'For Sale',
+    'Wish List',
+    'On Order',
+    'Sold',
+    'Not in Collection'
   ]) {
-    testWidgets(
-        'music inspector cover availability: front ${covers.$1}, back ${covers.$2}',
-        (tester) async {
-      final db = LocalDatabase(NativeDatabase.memory());
-      addTearDown(db.close);
-      final entry = _createFixture(
-          front: covers.$1 ? 'https://example.invalid/front.png' : null,
-          back: covers.$2 ? 'https://example.invalid/back.png' : null);
-      await MusicEntryRepository(db).upsert(entry);
-      final summary = MusicLibraryEntryProjection.toSummary(entry);
+    for (final covers in [
+      (false, false),
+      (true, false),
+      (false, true),
+      (true, true)
+    ]) {
+      testWidgets(
+          'music inspector $status cover availability: front ${covers.$1}, back ${covers.$2}',
+          (tester) async {
+        final db = LocalDatabase(NativeDatabase.memory());
+        addTearDown(db.close);
+        final entry = _createFixture(
+            status: status,
+            front: covers.$1 ? 'https://example.invalid/front.png' : null,
+            back: covers.$2 ? 'https://example.invalid/back.png' : null);
+        await MusicEntryRepository(db).upsert(entry);
+        final summary = MusicLibraryEntryProjection.toSummary(entry);
 
-      final source = LibraryWorkspaceContext(
-        item: WorkspaceItem(
-          target: EntryTargetRef(summary.ref),
-          entrySummary: summary,
-          libraryEntryDispatch: OpaqueLibraryEntryDispatch(
-            ref: summary.ref,
-            kind: CatalogMediaKind.music,
-            value: entry,
+        final source = LibraryWorkspaceContext(
+          item: WorkspaceItem(
+            target: EntryTargetRef(summary.ref),
+            entrySummary: summary,
+            libraryEntryDispatch: OpaqueLibraryEntryDispatch(
+              ref: summary.ref,
+              kind: CatalogMediaKind.music,
+              value: entry,
+            ),
+            kindPresentationData: MusicWorkspaceData.fromMusic(entry.metadata),
           ),
-          kindPresentationData: MusicWorkspaceData.fromMusic(entry.metadata),
-        ),
-        personal: const PersonalOverlay(),
-      );
+          personal: const PersonalOverlay(),
+        );
 
-      final item = LibraryProjectionItem.fromShelf(
-        source,
-        const MusicRegistration(),
-      );
-      final projection = LibraryProjection(
-        allItems: [item],
-        filteredItems: [item],
-        buckets: const [],
-        selectedItem: item,
-        counts: const LibraryToolbarCounts(),
-      );
+        final item = LibraryProjectionItem.fromShelf(
+          source,
+          const MusicRegistration(),
+        );
+        final projection = LibraryProjection(
+          allItems: [item],
+          filteredItems: [item],
+          buckets: const [],
+          selectedItem: item,
+          counts: const LibraryToolbarCounts(),
+        );
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [localDatabaseProvider.overrideWithValue(db)],
-          child: MaterialApp(
-            home: Scaffold(
-              body: SizedBox(
-                width: 450,
-                child: LibraryInspector(
-                  type: const MusicRegistration(),
-                  projection: projection,
-                  item: item,
-                  libraryEntry: null,
-                  accent: const Color(0xFF2A9FD6),
-                  db: db,
-                  onAddEntry: null,
-                  onRemoveEntry: () {},
-                  onAddWishlist: null,
-                  onRemoveWishlist: null,
-                  onEdit: (_) {},
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [localDatabaseProvider.overrideWithValue(db)],
+            child: MaterialApp(
+              home: Scaffold(
+                body: SizedBox(
+                  width: 450,
+                  child: LibraryInspector(
+                    type: const MusicRegistration(),
+                    projection: projection,
+                    item: item,
+                    libraryEntry: null,
+                    accent: const Color(0xFF2A9FD6),
+                    db: db,
+                    onAddEntry: null,
+                    onRemoveEntry: () {},
+                    onAddWishlist: null,
+                    onRemoveWishlist: null,
+                    onEdit: (_) {},
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // 1. Artist (large, primary)
-      expect(find.text('Cannibal Corpse'), findsOneWidget);
+        // 1. Artist (large, primary)
+        expect(find.text('Cannibal Corpse'), findsOneWidget);
 
-      // 2. Title (cyan #2A9FD6)
-      final titleWidget = tester.widget<Text>(find.text('The Bleeding'));
-      expect(titleWidget.style?.color, const Color(0xFF2A9FD6));
+        // 2. Title uses the shared detail-heading blue. A missing cover's
+        // placeholder also shows the title, so ignore that copy.
+        final titles = find.text('The Bleeding').evaluate().where((element) =>
+            element.findAncestorWidgetOfExactType<LibraryGeneratedCover>() ==
+            null);
+        expect(titles, hasLength(1));
+        final titleWidget = titles.single.widget as Text;
+        expect(titleWidget.style?.color, const Color(0xFF71AFD9));
 
-      // 3. Collection badge (cyan ✓)
-      expect(find.byTooltip('In Collection'), findsOneWidget);
-      expect(find.byIcon(Icons.check), findsWidgets);
+        // 3. Collection badge (status ✓)
+        expect(find.byTooltip(libraryCollectionStatusFromValue(status).label),
+            findsOneWidget);
+        expect(find.byIcon(libraryCollectionStatusFromValue(status).icon),
+            findsWidgets);
+        final badge = tester.widget<Container>(find
+            .descendant(
+              of: find
+                  .byTooltip(libraryCollectionStatusFromValue(status).label),
+              matching: find.byType(Container),
+            )
+            .first);
+        final expectedStatusColor = switch (status) {
+          'For Sale' => const Color(0xff2d7427),
+          'Wish List' => const Color(0xffff9b00),
+          'On Order' => const Color(0xff13627f),
+          'Sold' => const Color(0xffa63131),
+          'Not in Collection' => const Color(0xff605c5c),
+          _ => const Color(0xff2aa4cc),
+        };
+        expect((badge.decoration as BoxDecoration).color, expectedStatusColor);
 
-      // 4. Label & Year
-      expect(find.text('Metal Blade Records'), findsOneWidget);
-      expect(find.text('(2017)'), findsOneWidget);
+        // 4. Label & Year
+        expect(find.text('Metal Blade Records'), findsOneWidget);
+        expect(find.text('(2017)'), findsOneWidget);
 
-      // 5. Pipe-separated Genres
-      expect(find.text('Death Metal'), findsOneWidget);
-      expect(find.text('Brutal Death Metal'), findsOneWidget);
+        // 5. Pipe-separated Genres
+        expect(find.text('Death Metal'), findsOneWidget);
+        expect(find.text('Brutal Death Metal'), findsOneWidget);
 
-      // 6. Barcode & Country
-      expect(find.text('039842503912'), findsOneWidget);
-      expect(find.textContaining('United States'), findsOneWidget);
+        // 6. Barcode & Country
+        expect(find.text('039842503912'), findsOneWidget);
+        expect(find.textContaining('United States'), findsOneWidget);
 
-      // 7. Metric strip (1 Disc | 1 Tracks | 3:30)
-      expect(find.text('1 Disc | 1 Track | 3:30'), findsOneWidget);
+        // 7. Metric strip (1 Disc | 1 Tracks | 3:30)
+        expect(find.text('1 Disc | 1 Track | 3:30', findRichText: true),
+            findsOneWidget);
 
-      // 8. Catalog Number & eBay link
-      expect(find.textContaining('3984-25039-1', findRichText: true),
-          findsOneWidget);
-      expect(find.text('Find sold listings on eBay'), findsOneWidget);
+        // 8. Catalog Number & eBay link
+        expect(find.textContaining('3984-25039-1', findRichText: true),
+            findsOneWidget);
+        expect(find.text('Find sold listings on eBay'), findsOneWidget);
 
-      // No cover switch when one or both covers are missing.
-      expect(find.byTooltip('Front cover'),
-          covers.$1 && covers.$2 ? findsOneWidget : findsNothing);
-      expect(find.byTooltip('Back cover'),
-          covers.$1 && covers.$2 ? findsOneWidget : findsNothing);
-      if (covers.$1 && covers.$2) {
-        await tester.tap(find.byTooltip('Back cover'));
-        await tester.pump();
-        expect(tester.takeException(), isNull);
-      }
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pump(const Duration(milliseconds: 1));
-    });
+        // No cover switch when one or both covers are missing.
+        expect(find.byTooltip('Front cover'),
+            covers.$1 && covers.$2 ? findsOneWidget : findsNothing);
+        expect(find.byTooltip('Back cover'),
+            covers.$1 && covers.$2 ? findsOneWidget : findsNothing);
+        if (covers.$1 && covers.$2) {
+          await tester.tap(find.byTooltip('Back cover'));
+          await tester.pump();
+          expect(tester.takeException(), isNull);
+        }
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump(const Duration(milliseconds: 1));
+      });
+    }
   }
 }

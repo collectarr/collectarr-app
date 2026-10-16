@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_disc_tab_button.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
@@ -9,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_track_lis
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Music-entry release structure editor.
@@ -177,7 +179,9 @@ final class _MusicAlbumStructureTabState
               key: ValueKey('music-disc-title-${disc.id.value}'),
               initialValue: disc.title ?? '',
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                height: 20 / 14,
                 color: Colors.white,
               ),
               decoration: InputDecoration(
@@ -185,7 +189,7 @@ final class _MusicAlbumStructureTabState
                 hintText: 'Disc #${disc.discNumber}',
                 hintStyle: const TextStyle(
                   color: Color(0xFF888888),
-                  fontSize: 13,
+                  fontSize: 14,
                 ),
                 filled: true,
                 fillColor: const Color(0xFF444444),
@@ -234,7 +238,7 @@ final class _MusicAlbumStructureTabState
   }
 
   Future<void> _removeDisc(MusicDisc disc) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (dialogContext) => AccentAlertDialog(
         headerIcon: AppIcons.delete,
@@ -422,6 +426,9 @@ final class _MusicAlbumStructureTabState
                   () => draft.trackList.autocapTracks(
                     disc.id,
                     Set.of(_selectedTrackIds),
+                    ProviderScope.containerOf(context, listen: false)
+                        .read(uiPreferencesProvider)
+                        .titleCase,
                   ),
                 ),
                 child: Padding(
@@ -461,6 +468,7 @@ final class _MusicAlbumStructureTabState
                   color: Colors.white.withValues(alpha: 0.35),
                 ),
                 PopupMenuButton<MusicDiscId>(
+                  popUpAnimationStyle: AnimationStyle.noAnimation,
                   tooltip: 'Move selected tracks to another disc',
                   onSelected: (destinationId) {
                     _change(() {
@@ -602,7 +610,8 @@ final class _MusicAlbumStructureTabState
   Widget _trackTableHeader(MusicDisc disc) {
     const headerStyle = TextStyle(
       color: Colors.white,
-      fontSize: 13,
+      fontSize: 14,
+      height: 20 / 14,
       fontWeight: FontWeight.w700,
     );
     const borderSide = BorderSide(color: Color(0xFF484848));
@@ -811,7 +820,7 @@ final class _MusicAlbumStructureTabState
                       track.position,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -970,7 +979,8 @@ final class _MusicAlbumStructureTabState
         textAlign: textAlign,
         keyboardType: keyboardType,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 14,
+          height: 20 / 14,
           fontWeight: isHeader ? FontWeight.w700 : FontWeight.normal,
           color: Colors.white,
         ),
@@ -981,7 +991,7 @@ final class _MusicAlbumStructureTabState
           hintText: hint,
           hintStyle: const TextStyle(
             color: Color(0xFF888888),
-            fontSize: 13,
+            fontSize: 14,
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 8,

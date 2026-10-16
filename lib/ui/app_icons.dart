@@ -9,6 +9,18 @@ const String _regular = 'FontAwesomeRegular';
 /// Exposes native [IconData] instances so all widgets across the codebase
 /// can consume standard [Icon] widgets with compile-time constants.
 abstract final class AppIcons {
+  static const IconData collectionStatusAll =
+      IconData(0xf187, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData collectionStatusForSale =
+      IconData(0x24, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData collectionStatusWishList =
+      IconData(0xf328, fontFamily: _regular, fontPackage: _fontPackage);
+  static const IconData collectionStatusOnOrder =
+      IconData(0xf07a, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData collectionStatusSold =
+      IconData(0xf0e3, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData minus =
+      IconData(0xf068, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData coverIndicator =
       IconData(0xf111, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData collect =
@@ -21,8 +33,15 @@ abstract final class AppIcons {
       IconData(0xf02e, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData barcode =
       IconData(0xf02a, fontFamily: _solid, fontPackage: _fontPackage);
+  static const String barcodeScanSvg = 'assets/icons/barcode-scan.svg';
+  static const IconData dice =
+      IconData(0xf522, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData camera =
+      IconData(0xf030, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData warning =
       IconData(0xf071, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData circleExclamation =
+      IconData(0xf06a, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData location =
       IconData(0xf3c5, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData sync =
@@ -32,8 +51,13 @@ abstract final class AppIcons {
   static const IconData palette =
       IconData(0xf53f, fontFamily: _solid, fontPackage: _fontPackage);
   // --- Navigation & Drawer ---
+  static const String communitySvg = 'assets/icons/community.svg';
+  static const IconData contactSupport =
+      IconData(0xf0e0, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData whatsNew =
+      IconData(0xf059, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData userManual =
-      IconData(0xf518, fontFamily: _solid, fontPackage: _fontPackage);
+      IconData(0xf15c, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData menu =
       IconData(0xf0c9, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData add =
@@ -52,9 +76,9 @@ abstract final class AppIcons {
   static const IconData statistics =
       IconData(0xe0e3, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData duplicates =
-      IconData(0xf24d, fontFamily: _regular, fontPackage: _fontPackage);
+      IconData(0xf24d, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData loans =
-      IconData(0xf017, fontFamily: _regular, fontPackage: _fontPackage);
+      IconData(0xf017, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData calendar =
       IconData(0xf073, fontFamily: _regular, fontPackage: _fontPackage);
   static const IconData admin =
@@ -104,7 +128,7 @@ abstract final class AppIcons {
   static const IconData backupRestore =
       IconData(0xf0a0, fontFamily: _regular, fontPackage: _fontPackage);
   static const IconData clearDatabase =
-      IconData(0xf2ed, fontFamily: _regular, fontPackage: _fontPackage);
+      IconData(0xf1f8, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData transferFieldData =
       IconData(0xe4c0, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData exportCsv =
@@ -181,9 +205,42 @@ abstract final class AppIcons {
       IconData(0xf0c9, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData viewHorizontalCards =
       IconData(0xf03a, fontFamily: _solid, fontPackage: _fontPackage);
-  static const IconData viewCovers =
-      IconData(0xf00a, fontFamily: _solid, fontPackage: _fontPackage);
+  static const String viewCoversSvg = 'assets/icons/view-covers.svg';
+  static const String viewShelvesSvg = 'assets/icons/view-shelves.svg';
   static const String viewVerticalCardsSvg = 'assets/icons/cards-black.svg';
+
+  // --- Cover Actions ---
+  static const IconData findOnline =
+      IconData(0xf002, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData upload =
+      IconData(0xf093, fontFamily: _solid, fontPackage: _fontPackage);
+
+  // --- Settings sections ---
+  static const IconData plug =
+      IconData(0xf1e6, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData layerGroup =
+      IconData(0xf5fd, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData clipboardCheck =
+      IconData(0xf46c, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData database =
+      IconData(0xf1c0, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData user =
+      IconData(0xf007, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData bug =
+      IconData(0xf188, fontFamily: _solid, fontPackage: _fontPackage);
+
+  static const IconData paperPlane =
+      IconData(0xf1d8, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData history =
+      IconData(0xf1da, fontFamily: _solid, fontPackage: _fontPackage);
+
+  // --- Rating ---
+  static const IconData star =
+      IconData(0xf005, fontFamily: _solid, fontPackage: _fontPackage);
+
+  // --- Search ---
+  static const IconData search =
+      IconData(0xf002, fontFamily: _solid, fontPackage: _fontPackage);
 
   // --- Search Scope Targets ---
   static const IconData searchAll =

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -173,7 +174,8 @@ class _CollectionCloudSharingPageState
         child: Scaffold(
             appBar: AppPageHeader(
                 icon: Icons.cloud_outlined, title: const Text('Cloud Sharing')),
-            body: ListView(padding: const EdgeInsets.all(20), children: [
+            body: AppManagementContent(
+                child: ListView(padding: const EdgeInsets.all(20), children: [
               const Text(
                   'Partial makes the collection public without personal fields. Private sharing links are optional. Save publishes the current collection snapshot.'),
               const SizedBox(height: 12),
@@ -269,6 +271,6 @@ class _CollectionCloudSharingPageState
                         onPressed: _busy ? null : _save,
                         child: const Text('Save'))),
               ],
-            ])),
+            ]))),
       );
 }

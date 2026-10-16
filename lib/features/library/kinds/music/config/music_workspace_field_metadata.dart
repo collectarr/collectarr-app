@@ -31,11 +31,31 @@ abstract final class MusicWorkspaceFieldMetadata {
 
   static const cover = LibraryKindFieldMetadata(
     id: 'music.cover',
-    label: 'Cover',
+    label: 'Front Cover',
     valueType: LibraryFieldValueType.text,
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.derived,
     sourcePath: 'cover',
+  );
+
+  /// The Core catalog item an album came from, as CLZ's Core AlbumID.
+  static const coreId = LibraryKindFieldMetadata(
+    id: 'music.core_id',
+    label: 'Core ID',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'core_ref.id',
+    sortable: true,
+  );
+
+  static const backCover = LibraryKindFieldMetadata(
+    id: 'music.back_cover',
+    label: 'Back Cover',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'back_cover',
   );
 
   static const grade = LibraryKindFieldMetadata(
@@ -284,7 +304,9 @@ abstract final class MusicWorkspaceFieldMetadata {
     addedAt,
     addedMonth,
     addedYear,
+    backCover,
     condition,
+    coreId,
     cover,
     collectionStatus,
     extra,

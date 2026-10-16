@@ -33,7 +33,6 @@ class InspectorPersonalStatusSection extends StatelessWidget {
       libraryEntry: libraryEntry,
       libraryEntryDispatch: libraryEntryDispatch,
       trackingSummary: trackingSummary,
-      accent: accent,
       onFilterByValue: onFilterByValue,
     );
   }

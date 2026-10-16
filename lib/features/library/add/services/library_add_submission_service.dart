@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/title_case.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
 
@@ -74,8 +75,14 @@ final class LibraryAddBatchSubmissionResult {
 }
 
 final class LibraryAddSubmissionService {
-  const LibraryAddSubmissionService({this.prefillLoader});
+  const LibraryAddSubmissionService({
+    this.prefillLoader,
+    this.autocapLoader,
+  });
   final Future<PrefillDefaults> Function(CatalogMediaKind)? prefillLoader;
+
+  /// Title capitalization for items added from Core, or null to keep them.
+  final Future<TitleCaseSettings?> Function()? autocapLoader;
 
   Future<void> _applyPersonalDefaults(LibraryEntryMutations mutations,
       LibraryEntryRef ref, PrefillDefaults? defaults,
@@ -83,7 +90,9 @@ final class LibraryAddSubmissionService {
     final changes = <String, dynamic>{
       for (final entry in defaults?.personalValues.entries ??
           const <MapEntry<String, dynamic>>[])
-        if (!{
+        if ((entry.key != 'purchase_date_parts' ||
+                defaults?.fillPurchaseDateWithToday != true) &&
+            !{
               'condition',
               'purchase_date',
               'purchase_store',
@@ -111,8 +120,10 @@ final class LibraryAddSubmissionService {
     }
     final candidates = [for (final item in request.items) item.candidate];
     final defaults = await prefillLoader?.call(request.kind);
+    final autocapTitles = await autocapLoader?.call();
     final itemIds = await const LibraryAddCoordinator().add(
       LibraryAddBatchRequest(
+        autocapTitles: autocapTitles,
         dependencies: LibraryAddMutationDependencies(
           catalog: request.catalog,
           entryMutations: request.entryMutations,
@@ -159,8 +170,10 @@ final class LibraryAddSubmissionService {
     final defaults = items.isEmpty
         ? null
         : await prefillLoader?.call(items.first.summary.kind);
+    final autocapTitles = await autocapLoader?.call();
     final itemIds = await const LibraryAddCoordinator().add(
       LibraryAddBatchRequest(
+        autocapTitles: autocapTitles,
         dependencies: request.dependencies,
         items: items,
         target: request.target,

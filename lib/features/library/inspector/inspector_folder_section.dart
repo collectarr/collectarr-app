@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -56,7 +57,7 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
     final available =
         _allFolders.where((f) => !currentIds.contains(f.id)).toList();
 
-    final result = await showDialog<String>(
+    final result = await showAppDialog<String>(
       context: context,
       builder: (ctx) => _FolderPickerDialog(
         available: available,
@@ -85,7 +86,6 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
 
     return LibraryDetailSection(
       title: 'Folders',
-      accentColor: widget.accent,
       children: [
         Align(
           alignment: Alignment.centerRight,
@@ -231,7 +231,7 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
 
   Future<void> _createNew() async {
     final ctrl = TextEditingController();
-    final name = await showDialog<String>(
+    final name = await showAppDialog<String>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.folderOpen,

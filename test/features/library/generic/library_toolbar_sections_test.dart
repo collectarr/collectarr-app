@@ -77,7 +77,9 @@ void main() {
     final decoration = bandDecoratedBox.decoration as BoxDecoration;
     final border = decoration.border as Border;
     expect(border.top, isNot(BorderSide.none));
-    expect(decoration.gradient, isNotNull);
+    // Flat accent chrome, as in the reference.
+    expect(decoration.gradient, isNull);
+    expect(decoration.color, isNotNull);
 
     // Tap more menu to verify CLZ overflow options
     await tester.ensureVisible(find.byType(LibrarySelectionMoreIcon));

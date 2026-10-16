@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -136,7 +137,10 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
         Text(
           widget.helperText,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: appPalette(context).textMuted,
+                // White at 70 %, as the reference helper line.
+                color: appPalette(context).isDark
+                    ? Colors.white70
+                    : appPalette(context).textMuted,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
@@ -256,7 +260,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   }
 
   Future<void> _openImageEditor(_EditableImage image) async {
-    final result = await showDialog<_ImageEditorResult>(
+    final result = await showAppDialog<_ImageEditorResult>(
       context: context,
       builder: (context) => _ImageEditorDialog(imageBytes: image.imageData),
     );
@@ -551,7 +555,7 @@ class _ImageEditorDialogState extends State<_ImageEditorDialog> {
     try {
       final aspectRatio = await compute(_decodeImageAspectRatio, _imageBytes);
       if (!mounted) return;
-      final bounds = await showDialog<_ImageCropBounds>(
+      final bounds = await showAppDialog<_ImageCropBounds>(
         context: context,
         builder: (context) => _ImageCropDialog(
           imageBytes: _imageBytes,

@@ -1,5 +1,5 @@
 import 'package:uuid/uuid.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_title_formatting.dart';
+import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
@@ -247,23 +247,6 @@ final class MusicTrackListEditor {
     );
   }
 
-  void autocapAllTrackTitles() {
-    for (var d = 0; d < discs.length; d++) {
-      final disc = discs[d];
-      final nextTracks = [
-        for (final track in disc.tracks)
-          musicTrackWithEdits(
-            track,
-            title: autocapMusicTitle(track.title),
-            position: track.position,
-            artist: track.artist ?? '',
-            durationMs: track.durationMs,
-          ),
-      ];
-      discs[d] = copyMusicDisc(disc, tracks: nextTracks);
-    }
-  }
-
   void copyTracks(MusicDiscId sourceDiscId, MusicDiscId destinationDiscId) {
     final source = discs.where((disc) => disc.id == sourceDiscId).firstOrNull;
     final destinationIndex =
@@ -291,7 +274,11 @@ final class MusicTrackListEditor {
     );
   }
 
-  void autocapTracks(MusicDiscId discId, Set<String> trackIds) {
+  void autocapTracks(
+    MusicDiscId discId,
+    Set<String> trackIds,
+    TitleCaseSettings titleCase,
+  ) {
     if (trackIds.isEmpty) return;
     final discIndex = discs.indexWhere((disc) => disc.id == discId);
     if (discIndex < 0) return;
@@ -301,7 +288,7 @@ final class MusicTrackListEditor {
         if (trackIds.contains(track.id.value) && !track.isHeader)
           musicTrackWithEdits(
             track,
-            title: autocapMusicTitle(track.title),
+            title: applyTitleCase(track.title, titleCase),
             position: track.position,
             artist: track.artist ?? '',
             durationMs: track.durationMs,

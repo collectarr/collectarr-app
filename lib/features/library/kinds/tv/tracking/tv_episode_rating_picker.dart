@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ Future<int?> showEpisodeRatingPicker({
   required int episode,
   int? currentRating,
 }) async {
-  return showDialog<int>(
+  return showAppDialog<int>(
     context: context,
     builder: (context) => _EpisodeRatingPickerDialog(
       season: season,

@@ -2,6 +2,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 import 'package:collectarr_app/ui/app_motion.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'app_shell_brand.dart';
@@ -10,6 +11,17 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
 import 'app_navigation_model.dart';
+
+// Optical roles for the drawer's small text. CSS weight numbers alone do not
+// match the density of the reference web fonts in Flutter's rasterizer.
+TextStyle _drawerTextStyle(Color color, {required bool section}) => TextStyle(
+      fontFamily: appFontFamily,
+      fontSize: 14,
+      height: 20 / 14,
+      letterSpacing: 0,
+      fontWeight: section ? FontWeight.w900 : FontWeight.w700,
+      color: color,
+    );
 
 Future<void> showAppNavigationDrawer({
   required BuildContext context,
@@ -21,16 +33,18 @@ Future<void> showAppNavigationDrawer({
   required bool animationsEnabled,
   required void Function(BuildContext, DrawerAction) onSelected,
 }) =>
-    showGeneralDialog<void>(
+    // As in the reference menu, a click on the overlay closes the drawer;
+    // it holds no edits, unlike modal panels.
+    showAppDialog<void>(
       context: context,
       barrierDismissible: true,
+      useSafeArea: false,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black54,
       transitionDuration:
           animationsEnabled && !MediaQuery.disableAnimationsOf(context)
               ? appNavigationSlideDuration
               : Duration.zero,
-      pageBuilder: (dialogContext, _, __) => GestureDetector(
+      builder: (dialogContext) => GestureDetector(
         onHorizontalDragEnd: (details) {
           if ((details.primaryVelocity ?? 0) < -300) {
             Navigator.of(dialogContext).pop();
@@ -84,9 +98,9 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final drawerBg = palette.isDark ? const Color(0xFF383838) : palette.surface;
-    final sectionHeaderColor = palette.isDark
-        ? Colors.white.withValues(alpha: 0.4)
-        : palette.textMuted;
+    final sectionHeaderColor =
+        (palette.isDark ? Colors.white : palette.textPrimary)
+            .withValues(alpha: 0.4);
 
     return Drawer(
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -130,7 +144,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                padding: EdgeInsets.zero,
                 children: [
                   for (final section in AppDrawerSection.values)
                     if (appDrawerDestinations.any((destination) =>
@@ -142,16 +156,16 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                         _DrawerCollapsibleSectionLabel(
                           section.label,
                           color: sectionHeaderColor,
-                          isExpanded: _expanded[section] ?? true,
+                          isExpanded: _expanded[section] ?? false,
                           onTap: () => setState(() => _expanded[section] =
-                              !(_expanded[section] ?? true)),
+                              !(_expanded[section] ?? false)),
                         )
                       else
                         _DrawerSectionLabel(section.label,
                             color: sectionHeaderColor),
                       if (section.collapsible)
                         _DrawerCollapsibleSection(
-                            isExpanded: _expanded[section] ?? true,
+                            isExpanded: _expanded[section] ?? false,
                             children: _sectionActions(context, section))
                       else
                         ..._sectionActions(context, section),
@@ -198,32 +212,27 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
           color: selected
               ? widget.accent.withValues(alpha: palette.isDark ? 0.2 : 0.1)
               : Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
           child: Row(
             children: [
               SizedBox(
-                width: 20,
-                height: 18,
+                width: 17.5,
+                height: 20,
                 child: Center(
                   child: destination.svgAsset != null
                       ? SvgPicture.asset(destination.svgAsset!,
-                          width: 15,
-                          height: 15,
+                          width: 17.5,
+                          height: 14,
                           colorFilter:
                               ColorFilter.mode(itemColor, BlendMode.srcIn))
-                      : Icon(icon, size: 15, color: itemColor),
+                      : Icon(icon, size: 14, color: itemColor),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 14),
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
-                    fontFamily: appFontFamily,
-                    fontSize: 14,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-                    color: itemColor,
-                  ),
+                  style: _drawerTextStyle(itemColor, section: false),
                 ),
               ),
             ],
@@ -243,15 +252,10 @@ class _DrawerSectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Text(
         label,
-        style: TextStyle(
-          fontFamily: appFontFamily,
-          color: color,
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-        ),
+        style: _drawerTextStyle(color, section: true),
       ),
     );
   }
@@ -276,18 +280,13 @@ class _DrawerCollapsibleSectionLabel extends StatelessWidget {
       onTap: onTap,
       hoverColor: const Color(0x26FFFFFF),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         child: Row(
           children: [
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(
-                  fontFamily: appFontFamily,
-                  color: color,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: _drawerTextStyle(color, section: true),
               ),
             ),
             AnimatedRotation(
@@ -318,21 +317,26 @@ class _DrawerCollapsibleSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: AnimatedSize(
-        duration: kAppAnimNormal,
-        curve: Curves.easeInOut,
-        alignment: Alignment.topCenter,
-        child: isExpanded
-            ? Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: children,
-              )
-            : const SizedBox(
-                width: double.infinity,
-                height: 0,
-              ),
+    return TweenAnimationBuilder<double>(
+      tween: Tween(end: isExpanded ? 1 : 0),
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : kAppAnimNormal,
+      curve: Curves.easeInOut,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      ),
+      builder: (context, factor, child) => ClipRect(
+        child: Align(
+          heightFactor: factor,
+          alignment: Alignment.topCenter,
+          child: Offstage(
+            offstage: factor == 0,
+            child: IgnorePointer(ignoring: !isExpanded, child: child),
+          ),
+        ),
       ),
     );
   }

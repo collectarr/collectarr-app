@@ -28,6 +28,7 @@ final musicExportCapability = LibraryExportCapability(
     if (MusicFieldIdentities.artist.exportable)
       exportColumnFromWorkspaceField(
         field: MusicCatalogWorkspaceFields.artist,
+        label: 'Artist Credits',
         valueFormatter: (values) => values.join(' | '),
         defaultVisible: false,
         includeInPdf: false,
@@ -197,9 +198,14 @@ final musicExportCapability = LibraryExportCapability(
         pdfOrder: 4,
       ),
     if (MusicFieldIdentities.releaseDate.exportable)
-      exportColumnFromWorkspaceField(
-        field: MusicCatalogWorkspaceFields.releaseDate,
-        valueFormatter: (value) => value?.year.toString() ?? '',
+      // Partial dates (year only, as most imports provide) have no DateTime,
+      // so the year is read from the canonical date parts.
+      ExportColumnDefinition(
+        id: MusicCatalogWorkspaceFields.releaseDate.id.value,
+        label: MusicCatalogWorkspaceFields.releaseDate.label,
+        metadata: MusicCatalogWorkspaceFields.releaseDate.metadata,
+        getValue: (item) =>
+            _musicAlbum(item)?.releaseDateParts?.year?.toString() ?? '',
         pdfLabel: 'Release Year',
         pdfWidthFlex: 1.0,
         pdfOrder: 7,
@@ -208,7 +214,7 @@ final musicExportCapability = LibraryExportCapability(
       id: 'orig_year',
       label: 'Original Year',
       getValue: (item) =>
-          _musicAlbum(item)?.originalReleaseDate?.year.toString() ?? '',
+          _musicAlbum(item)?.originalReleaseDateParts?.year?.toString() ?? '',
       defaultVisible: false,
       pdfWidthFlex: 1.0,
       pdfDefaultVisible: false,

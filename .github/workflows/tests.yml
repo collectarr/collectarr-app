@@ -79,6 +79,17 @@ jobs:
             xvfb-run -a flutter test "$flow" -d linux
           done
 
+  test-windows-fonts:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+      - run: flutter pub get --enforce-lockfile
+      - name: Verify native Windows font selection
+        run: flutter test integration_test/font_rendering_test.dart -d windows
+
   build-web:
     runs-on: ubuntu-latest
     steps:

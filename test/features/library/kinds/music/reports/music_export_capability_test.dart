@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
@@ -104,5 +105,34 @@ void main() {
       {true, false},
     );
     expect(column.getValue(item), 'true | false');
+  });
+
+  test('year columns export year-only partial dates', () {
+    final album = MusicAlbum(
+      title: 'Arrival',
+      releaseDateParts: const PartialDate(year: 1976),
+      originalReleaseDateParts: const PartialDate(year: 1975),
+    );
+    final item = LibraryProjectionItem.fromShelf(
+      LibraryWorkspaceContext(
+        item: WorkspaceItem(
+          target: const CatalogTargetRef(
+            CatalogItemRef(kind: CatalogMediaKind.music, id: 'arrival'),
+          ),
+          kindPresentationData: MusicWorkspaceData.fromMusic(album),
+        ),
+        personal: const PersonalOverlay(),
+      ),
+      const MusicRegistration(),
+    );
+    final columns = {
+      for (final column in musicExportCapability.itemColumns) column.id: column,
+    };
+
+    expect(
+      columns[MusicCatalogWorkspaceFields.releaseDate.id.value]!.getValue(item),
+      '1976',
+    );
+    expect(columns['orig_year']!.getValue(item), '1975');
   });
 }

@@ -15,10 +15,13 @@ class LibraryTableCellText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEmpty = value == null || value!.isEmpty;
+    // An ellipsis truncates after the first line even without maxLines, so
+    // wrapped cells must not request one.
+    final wraps = LibraryTableCellDisplayScope.wraps(context);
     return Text(
       isEmpty ? emptyText : value!,
-      maxLines: LibraryTableCellDisplayScope.wraps(context) ? null : 1,
-      overflow: TextOverflow.ellipsis,
+      maxLines: wraps ? null : 1,
+      overflow: wraps ? TextOverflow.clip : TextOverflow.ellipsis,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             fontSize: fontSize,
             fontWeight: FontWeight.w400,
@@ -28,6 +31,21 @@ class LibraryTableCellText extends StatelessWidget {
     );
   }
 }
+
+/// A custom list cell that tells wrapped rows which text to fit.
+abstract interface class LibraryMeasuredTableCell {
+  /// The longest text the cell can show.
+  String get measuredText;
+}
+
+/// The text a list cell shows, used to size wrapped rows.
+String libraryTableCellText(Widget cell) => switch (cell) {
+      LibraryTableCellText(:final value, :final emptyText) =>
+        value == null || value.isEmpty ? emptyText : value,
+      Text(:final data) => data ?? '',
+      LibraryMeasuredTableCell(:final measuredText) => measuredText,
+      _ => '',
+    };
 
 class LibraryTableCellDisplayScope extends InheritedWidget {
   const LibraryTableCellDisplayScope({

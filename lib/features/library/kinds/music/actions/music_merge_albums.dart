@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -107,7 +108,7 @@ Future<LibraryEntryRef?> showMusicMergeAlbums(BuildContext context,
     albums.add(album);
   }
   if (!context.mounted) return null;
-  final ordered = await showDialog<List<MusicLibraryEntry>>(
+  final ordered = await showAppDialog<List<MusicLibraryEntry>>(
       context: context, builder: (_) => _MusicMergeDialog(albums: albums));
   if (ordered == null) return null;
   return mergeMusicAlbumsInDatabase(
@@ -250,7 +251,7 @@ class _MusicMergeDialogState extends State<_MusicMergeDialog> {
                 '${album.metadata.discs.length} discs / ${album.metadata.trackCount} tracks')));
     return Dialog(
         alignment: Alignment.topCenter,
-        insetPadding: const EdgeInsets.fromLTRB(16, 28, 16, 24),
+        insetPadding: const EdgeInsets.fromLTRB(16, kAppDialogTopInset, 16, 24),
         child: SizedBox(
             width: 600,
             height: 520,

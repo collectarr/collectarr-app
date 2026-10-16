@@ -5,7 +5,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'library_collection_menu.dart';
 
 class LibraryCollectionTabBar extends ConsumerWidget {
   const LibraryCollectionTabBar(
@@ -30,61 +30,23 @@ class LibraryCollectionTabBar extends ConsumerWidget {
     }
 
     return Container(
-        height: 36,
+        height: 33,
         color: palette.isDark ? const Color(0xff272323) : palette.toolbar,
         child: Column(children: [
           Container(height: 3, color: accent),
           Expanded(
             child: Row(
               children: [
-                PopupMenuButton<String>(
-                  key: const ValueKey('library-collection-menu'),
-                  tooltip: 'Collections',
-                  onSelected: (id) {
-                    if (id == '__manage__') {
-                      unawaited(showLibraryCollectionsDialog(context,
-                          kind: mediaKind));
-                    } else {
-                      unawaited(select(values.firstWhere((c) => c.id == id)));
-                    }
-                  },
-                  itemBuilder: (_) => [
-                    for (final collection in values)
-                      PopupMenuItem(
-                        value: collection.id,
-                        height: 30,
-                        child: Row(
-                          children: [
-                            Icon(
-                              collection.id == activeId
-                                  ? Icons.check
-                                  : Icons.folder_outlined,
-                              size: 17,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(collection.name),
-                          ],
-                        ),
-                      ),
-                    const PopupMenuDivider(),
-                    const PopupMenuItem(
-                      value: '__manage__',
-                      height: 30,
-                      child: Text('Manage Collections'),
-                    ),
-                  ],
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: SizedBox(
-                      width: 36,
-                      child: Center(
-                        child: _ClzCollectionMenuIcon(
-                          color: palette.textPrimary.withValues(alpha: 0.85),
-                        ),
-                      ),
-                    ),
-                  ),
+                const SizedBox(width: 3),
+                LibraryCollectionMenu(
+                  collections: values,
+                  activeId: activeId,
+                  accent: accent,
+                  onSelected: (collection) => unawaited(select(collection)),
+                  onManage: () => unawaited(
+                      showLibraryCollectionsDialog(context, kind: mediaKind)),
                 ),
+                const SizedBox(width: 3),
                 Expanded(
                   child: ReorderableListView.builder(
                     scrollDirection: Axis.horizontal,
@@ -119,23 +81,6 @@ class LibraryCollectionTabBar extends ConsumerWidget {
   }
 }
 
-class _ClzCollectionMenuIcon extends StatelessWidget {
-  const _ClzCollectionMenuIcon({required this.color});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: FaIcon(
-        FontAwesomeIcons.bars,
-        size: 14,
-        color: color,
-      ),
-    );
-  }
-}
-
 class LibraryCollectionTab extends StatelessWidget {
   const LibraryCollectionTab({
     super.key,
@@ -160,38 +105,32 @@ class LibraryCollectionTab extends StatelessWidget {
             : palette.surfaceSubtle;
     final foreground =
         isActive || palette.isDark ? Colors.white : palette.textPrimary;
-    return Padding(
-      padding: const EdgeInsets.only(left: 1, top: 2, right: 1),
-      child: Material(
-        color: background,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-        child: InkWell(
-          mouseCursor: WidgetStateMouseCursor.clickable,
-          onTap: onTap,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-          child: Container(
-            constraints: const BoxConstraints(minWidth: 58),
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 13),
-            decoration: BoxDecoration(
+    return Align(
+      alignment: Alignment.topLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 3),
+        child: SizedBox(
+          height: 27,
+          child: Material(
+            color: background,
+            borderRadius:
+                const BorderRadius.vertical(bottom: Radius.circular(4)),
+            child: InkWell(
+              mouseCursor: WidgetStateMouseCursor.clickable,
+              onTap: onTap,
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(4)),
-              border: Border(
-                bottom: BorderSide(
-                  color: isActive ? accent : palette.divider,
-                  width: isActive ? 2 : 1,
-                ),
+                  const BorderRadius.vertical(bottom: Radius.circular(4)),
+              child: Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Text(label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: foreground)),
               ),
-            ),
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: foreground,
-                  ),
             ),
           ),
         ),

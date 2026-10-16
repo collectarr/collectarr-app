@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/ui/anchored_popup_geometry.dart';
@@ -81,7 +82,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     if (!widget.enabled || options.isEmpty) {
       return;
     }
-    final selected = await showDialog<String>(
+    final selected = await showAppDialog<String>(
       context: context,
       builder: (context) {
         final palette = appPalette(context);
@@ -222,9 +223,10 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
               child: SizedBox(
                 width: _suffixButtonExtent,
                 height: LibraryDensityScope.of(context).metrics.fieldHeight - 2,
+                // A small Font Awesome caret, as the reference select arrow.
                 child: Icon(
                   icon,
-                  size: 18,
+                  size: 12,
                 ),
               ),
             ),
@@ -262,7 +264,12 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           hintText: widget.hint,
           helperText: widget.helperText,
           errorText: widget.errorText,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 7),
+          // The outline follows the content, so the padding around the
+          // 20 px text line makes the full field height.
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 7,
+            vertical: (fieldHeight - 20) / 2,
+          ),
           constraints: BoxConstraints(
             minHeight: fieldHeight,
           ),
@@ -280,7 +287,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                 _suffixAction(
                   tooltip: 'Pick ${widget.label}',
                   onPressed: () => _openInlinePicker(normalizedOptions),
-                  icon: Icons.arrow_drop_down,
+                  icon: AppIcons.caretDown,
                 ),
                 if (hasBrowseAction)
                   PickListFieldButton(

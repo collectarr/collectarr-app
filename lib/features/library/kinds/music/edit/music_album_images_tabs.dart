@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'dart:typed_data';
 
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
@@ -12,6 +13,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_managed_vo
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:uuid/uuid.dart';
@@ -230,7 +232,9 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
           child: Text(
             widget.title,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
+                  height: 20 / 14,
                 ),
           ),
         ),
@@ -246,22 +250,22 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
                   children: [
                     _toolbarAction(
                       context,
-                      icon: Icons.file_upload_outlined,
-                      label: 'Upload',
-                      onPressed: _transforming ? null : _upload,
+                      icon: AppIcons.findOnline,
+                      label: 'Find Online',
+                      onPressed: _transforming ? null : _findOnline,
                     ),
                     _toolbarAction(
                       context,
-                      icon: Icons.image_search_outlined,
-                      label: 'Find Online',
-                      onPressed: _transforming ? null : _findOnline,
+                      icon: AppIcons.upload,
+                      label: 'Upload',
+                      onPressed: _transforming ? null : _upload,
                     ),
                     if (removeActionLabel != null)
                       _toolbarAction(
                         context,
                         icon: removeActionLabel == 'Restore'
                             ? Icons.restore
-                            : Icons.delete_outline,
+                            : AppIcons.removeAction,
                         label: removeActionLabel,
                         onPressed: () {
                           if (image != null) {
@@ -279,7 +283,7 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
               ),
               _toolbarAction(
                 context,
-                icon: Icons.crop_rotate,
+                icon: AppIcons.inlineEdit,
                 label: 'Crop / Rotate',
                 onPressed: canEditCover ? _openCropEditor : null,
               ),
@@ -323,6 +327,11 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
         icon: Icon(icon, size: 18),
         label: Text(label),
         style: TextButton.styleFrom(
+          textStyle: TextStyle(
+              fontFamily: appFontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              height: 20 / 14),
           foregroundColor: Theme.of(context).colorScheme.onSurface,
           minimumSize: const Size(0, 38),
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -370,7 +379,7 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
   Future<void> _findOnline() async {
     setState(() => _transforming = true);
     try {
-      final candidate = await showDialog<MusicOnlineCoverCandidate>(
+      final candidate = await showAppDialog<MusicOnlineCoverCandidate>(
         context: context,
         builder: (_) => MusicOnlineCoverPickerDialog(
           artist: widget.searchArtist,

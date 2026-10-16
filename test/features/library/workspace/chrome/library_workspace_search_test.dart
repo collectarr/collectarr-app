@@ -1,6 +1,8 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -31,13 +33,14 @@ void main() {
       ),
     );
 
-    expect(find.byIcon(Icons.search), findsOneWidget);
-    expect(find.byIcon(Icons.barcode_reader), findsOneWidget);
-    expect(find.byIcon(Icons.image_search), findsOneWidget);
-    expect(find.byIcon(Icons.casino_outlined), findsOneWidget);
+    expect(find.byIcon(AppIcons.search), findsOneWidget);
+    expect(find.byKey(const ValueKey('library-search-barcode-glyph')),
+        findsOneWidget);
+    expect(find.byIcon(AppIcons.camera), findsOneWidget);
+    expect(find.byIcon(AppIcons.dice), findsOneWidget);
     expect(find.text('Entry'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.search));
+    await tester.tap(find.byIcon(AppIcons.search));
     await tester.pump();
 
     expect(lastSearch, 'Spider-Man');
@@ -51,21 +54,24 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: SizedBox(
-            width: 600,
-            child: LibraryToolbarSearch(
-              controller: controller,
-              hintText: 'Search music...',
-              onSearch: (_) {},
-              onChanged: (_) {},
-              selectionColor: Colors.orange,
-              searchTarget: selected,
-              searchTargetOptions: const [
-                LibrarySearchTarget.all,
-                LibrarySearchTarget.mediaOnly,
-                LibrarySearchTarget.tracksOnly,
-              ],
-              onSearchTargetChanged: (value) => selected = value,
+          body: Padding(
+            padding: const EdgeInsets.only(left: 100),
+            child: SizedBox(
+              width: 600,
+              child: LibraryToolbarSearch(
+                controller: controller,
+                hintText: 'Search music...',
+                onSearch: (_) {},
+                onChanged: (_) {},
+                selectionColor: Colors.orange,
+                searchTarget: selected,
+                searchTargetOptions: const [
+                  LibrarySearchTarget.all,
+                  LibrarySearchTarget.mediaOnly,
+                  LibrarySearchTarget.tracksOnly,
+                ],
+                onSearchTargetChanged: (value) => selected = value,
+              ),
             ),
           ),
         ),
@@ -84,6 +90,13 @@ void main() {
         .tap(find.byKey(const ValueKey('library-search-target-button')));
     await tester.pumpAndSettle();
     expect(find.byType(PopupMenuItem<LibrarySearchTarget>), findsNWidgets(3));
+    // The list opens left-aligned under the button, as in the reference.
+    final button = tester
+        .getRect(find.byKey(const ValueKey('library-search-target-button')));
+    final firstItem =
+        tester.getRect(find.byType(PopupMenuItem<LibrarySearchTarget>).first);
+    expect(firstItem.left, button.left - 4);
+    expect(firstItem.top, button.bottom + 2);
     await tester.tap(find.text('Tracks').last);
     await tester.pumpAndSettle();
 
@@ -97,45 +110,53 @@ void main() {
     final controller = TextEditingController(text: 'Spider');
     var cleared = false;
     String? pickedSuggestionId;
+    String? searched;
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SizedBox(
-            width: 600,
-            child: LibraryToolbarSearch(
-              controller: controller,
-              hintText: 'Search comics...',
-              onSearch: (_) {},
-              onClearSearch: () {
-                cleared = true;
-              },
-              searchActive: true,
-              suggestions: const [
-                LibraryToolbarSearchSuggestion(
-                  id: 'item-1',
-                  title: 'Spider-Man #1',
-                  subtitle: '#1 • Marvel',
-                ),
-              ],
-              onSuggestionSelected: (value) => pickedSuggestionId = value.id,
-              selectionColor: Colors.cyan,
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 600,
+              child: LibraryToolbarSearch(
+                controller: controller,
+                hintText: 'Search comics...',
+                onSearch: (value) => searched = value,
+                onClearSearch: () {
+                  cleared = true;
+                },
+                searchActive: true,
+                suggestions: const [
+                  LibraryToolbarSearchSuggestion(
+                    id: 'item-1',
+                    title: 'Spider-Man #1',
+                    label: 'Amazing Spider-Man - Spider-Man #1',
+                    subtitle: '1963',
+                  ),
+                ],
+                onSuggestionSelected: (value) => pickedSuggestionId = value.id,
+                selectionColor: Colors.cyan,
+              ),
             ),
           ),
         ),
       ),
     );
 
-    expect(find.byIcon(Icons.close), findsOneWidget);
-    expect(find.text('Spider-Man #1'), findsOneWidget);
+    expect(find.byIcon(AppIcons.close), findsOneWidget);
+    expect(find.text('Amazing Spider-Man - Spider-Man #1'), findsWidgets);
+    expect(find.text('1963'), findsOneWidget);
+    expect(find.text('View all results'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.close));
+    await tester.tap(find.byIcon(AppIcons.close));
     await tester.pump();
     expect(cleared, isTrue);
 
-    await tester.tap(find.text('Spider-Man #1'));
+    await tester.tap(find.text('1963'));
     await tester.pump();
     expect(pickedSuggestionId, 'item-1');
+    expect(find.text('View all results'), findsNothing);
+    expect(searched, isNull);
 
     controller.dispose();
   });

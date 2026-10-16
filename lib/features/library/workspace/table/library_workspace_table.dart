@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_reveal.dart';
+import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryColumnWidthFor = double Function(String column);
@@ -56,6 +58,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
     this.headerHeight = 30,
     this.rowHeight = 38,
     this.rowHeightFor,
+    this.entryIdOf,
     this.columnSpacing = 10,
     this.horizontalMargin = 8,
     this.selectionRailWidth = 3,
@@ -104,6 +107,9 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final double headerHeight;
   final double rowHeight;
   final double Function(T entry)? rowHeightFor;
+
+  /// Identifies entries for reveal requests from [LibraryRevealScope].
+  final String Function(T entry)? entryIdOf;
   final double columnSpacing;
   final double horizontalMargin;
   final double selectionRailWidth;
@@ -123,8 +129,26 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
       _LibraryWorkspaceTableState<T>();
 }
 
-class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
+class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
+    with LibraryRevealListener {
   final _scrollController = ScrollController();
+  double _rowHeight = 0;
+
+  @override
+  void revealItem(String itemId) {
+    final entryIdOf = widget.entryIdOf;
+    if (entryIdOf == null) return;
+    final index =
+        widget.entries.indexWhere((entry) => entryIdOf(entry) == itemId);
+    if (index < 0) return;
+    double heightOf(T entry) => widget.rowHeightFor?.call(entry) ?? _rowHeight;
+    var leading = 0.0;
+    for (var i = 0; i < index; i++) {
+      leading += heightOf(widget.entries[i]);
+    }
+    revealScrollExtent(_scrollController,
+        leading: leading, extent: heightOf(widget.entries[index]));
+  }
 
   @override
   void dispose() {
@@ -139,6 +163,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
     final densityScale = densityMetrics.scale;
     final resolvedHeaderHeight = widget.headerHeight * densityScale;
     final resolvedRowHeight = widget.rowHeight * densityScale;
+    _rowHeight = resolvedRowHeight;
     final resolvedColumnSpacing = widget.columnSpacing * densityScale;
     final resolvedHorizontalMargin = widget.horizontalMargin * densityScale;
     final palette = appPalette(context);
@@ -150,11 +175,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
         ? palette.divider
         : widget.dividerColor;
     final resolvedSelectedColor = widget.selectedColor == kAppSelection
-        ? libraryWorkspaceSelectionBackground(
-            context,
-            accentColor: widget.accentColor,
-            baseColor: palette.surface,
-          )
+        ? libraryWorkspaceSelectionBackground(context)
         : widget.selectedColor;
     final resolvedOddColor = widget.oddColor == kAppTableOddRow
         ? palette.tableOddRow
@@ -168,11 +189,12 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
             : widget.bottomBorderColor;
     final resolvedSelectionRailColor =
         widget.selectionRailColor == kAppHighlight
-            ? widget.accentColor
+            ? palette.utilityAction
             : widget.selectionRailColor;
     final resolvedHoverColor = widget.hoverColor == kAppTableHover
         ? Color.alphaBlend(
-            widget.accentColor.withValues(alpha: palette.isDark ? 0.12 : 0.08),
+            palette.utilityAction
+                .withValues(alpha: palette.isDark ? 0.12 : 0.08),
             palette.surface,
           )
         : widget.hoverColor;
@@ -223,10 +245,10 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
                     thumbColor:
                         WidgetStateProperty.resolveWith<Color>((states) {
                       if (states.contains(WidgetState.dragged)) {
-                        return widget.accentColor.withValues(alpha: 0.85);
+                        return palette.utilityAction;
                       }
                       if (states.contains(WidgetState.hovered)) {
-                        return widget.accentColor.withValues(alpha: 0.65);
+                        return palette.utilityAction.withValues(alpha: 0.65);
                       }
                       return Colors.white24;
                     }),
@@ -280,7 +302,6 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
                               ? libraryWorkspacePaneDividerColor(context)
                               : resolvedDividerColor,
                           hoverColor: resolvedHoverColor,
-                          accentColor: widget.accentColor,
                         );
                       },
                     ),
@@ -379,7 +400,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
                         ? _LibraryTableCheckbox(
                             checked: allChecked,
                             indeterminate: !allChecked && hasPartialCheck,
-                            accentColor: accentColor,
+                            accentColor: appPalette(context).utilityAction,
                             onTap: onToggleAllChecked == null
                                 ? null
                                 : () => onToggleAllChecked!(!allChecked),
@@ -599,12 +620,16 @@ class _LibraryTableCheckbox extends StatelessWidget {
     required this.checked,
     this.indeterminate = false,
     required this.accentColor,
+    this.outlineColor = Colors.white70,
+    this.checkColor = Colors.white,
     this.onTap,
   });
 
   final bool checked;
   final bool indeterminate;
   final Color accentColor;
+  final Color outlineColor;
+  final Color checkColor;
   final VoidCallback? onTap;
 
   @override
@@ -618,17 +643,17 @@ class _LibraryTableCheckbox extends StatelessWidget {
         height: 15,
         decoration: BoxDecoration(
           color: active ? accentColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(2),
+          borderRadius: BorderRadius.zero,
           border: Border.all(
-            color: active ? accentColor : Colors.white38,
+            color: active ? accentColor : outlineColor,
             width: 1.2,
           ),
         ),
         child: active
             ? Icon(
-                indeterminate ? Icons.remove : Icons.check,
+                indeterminate ? AppIcons.minus : AppIcons.check,
                 size: 11,
-                color: Colors.white,
+                color: checkColor,
               )
             : null,
       ),
@@ -666,7 +691,6 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
     required this.bottomBorderColor,
     required this.dividerColor,
     required this.hoverColor,
-    required this.accentColor,
   });
 
   final T entry;
@@ -697,11 +721,12 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
   final Color bottomBorderColor;
   final Color dividerColor;
   final Color hoverColor;
-  final Color accentColor;
 
   @override
   Widget build(BuildContext context) {
     final isChecked = isEntryChecked?.call(entry) ?? false;
+    final palette = appPalette(context);
+    final rowControlColor = selected ? Colors.white : palette.utilityAction;
     return _LibraryTableColumnGrid(
       columns: columns,
       columnWidthFor: columnWidthFor,
@@ -735,9 +760,13 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                 width: kLibraryTableCheckboxWidth,
                 height: rowHeight,
                 child: Center(
+                  // Row controls use the shared blue, white on the blue
+                  // selected row, as in the reference list.
                   child: _LibraryTableCheckbox(
                     checked: isChecked,
-                    accentColor: accentColor,
+                    accentColor: rowControlColor,
+                    outlineColor: rowControlColor,
+                    checkColor: selected ? palette.utilityAction : Colors.white,
                     onTap: onToggleEntryCheck == null
                         ? null
                         : () => onToggleEntryCheck!(entry),
@@ -761,15 +790,17 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                 child: Center(
                   child: Tooltip(
                     message: 'Edit',
-                    child: InkResponse(
-                      onTap: onEditEntry == null
+                    child: AppClickTarget(
+                      onClick: onEditEntry == null
                           ? null
                           : () => onEditEntry!(entry),
-                      radius: 12,
-                      child: Icon(
-                        AppIcons.inlineEdit,
-                        size: 14,
-                        color: accentColor,
+                      builder: (context, _) => SizedBox.square(
+                        dimension: 24,
+                        child: Icon(
+                          AppIcons.inlineEdit,
+                          size: 14,
+                          color: rowControlColor,
+                        ),
                       ),
                     ),
                   ),

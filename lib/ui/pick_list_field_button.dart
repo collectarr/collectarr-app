@@ -12,10 +12,12 @@ class PickListFieldButton extends StatelessWidget {
     required this.tooltip,
     required this.onPressed,
     this.embeddedInField = true,
+    this.icon,
   });
 
   static const double width = 33;
   final bool embeddedInField;
+  final IconData? icon;
   final String tooltip;
   final VoidCallback? onPressed;
 
@@ -52,14 +54,17 @@ class PickListFieldButton extends StatelessWidget {
                                     right: Radius.circular(3))
                                 : BorderRadius.circular(3),
                             child: Center(
-                                child: SvgPicture.asset(
-                                    AppIcons.pickListManageSvg,
-                                    width: embeddedInField ? 14 : 16,
-                                    height: embeddedInField ? 14 : 16,
-                                    colorFilter: ColorFilter.mode(
-                                        onPressed == null
-                                            ? foreground.withValues(alpha: .45)
-                                            : foreground,
-                                        BlendMode.srcIn)))))))));
+                                child: icon != null
+                                    ? Icon(icon, size: 16, color: foreground)
+                                    : SvgPicture.asset(
+                                        AppIcons.pickListManageSvg,
+                                        width: embeddedInField ? 14 : 16,
+                                        height: embeddedInField ? 14 : 16,
+                                        colorFilter: ColorFilter.mode(
+                                            onPressed == null
+                                                ? foreground.withValues(
+                                                    alpha: .45)
+                                                : foreground,
+                                            BlendMode.srcIn)))))))));
   }
 }

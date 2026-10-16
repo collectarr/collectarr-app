@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -17,7 +18,7 @@ Future<void> showLibraryMetadataCompareDialog({
   required MetadataCompareBuilder compareBuilder,
   required Color accent,
 }) async {
-  await showDialog<void>(
+  await showAppDialog<void>(
     context: context,
     builder: (_) => _LibraryMetadataCompareDialog(
       itemId: itemId,

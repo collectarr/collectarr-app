@@ -126,7 +126,7 @@ class LibraryWorkspaceMenuRow extends StatelessWidget {
     final effectiveTextStyle = textStyle ??
         Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: libraryToolbarMenuText(context),
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
             );
     final content = Ink(
       decoration: BoxDecoration(color: backgroundColor ?? Colors.transparent),

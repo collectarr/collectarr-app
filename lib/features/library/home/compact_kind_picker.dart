@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
@@ -102,7 +103,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
     final palette = appPalette(context);
     final selected = selectedLibraryHomeType(types, selectedKind);
 
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       backgroundColor: palette.surface,
       shape: const RoundedRectangleBorder(

@@ -60,13 +60,13 @@ void main() {
 
       // Verify all mandatory destination keys exist
       await openDrawer();
-      expect(find.byKey(const Key('nav.library')), findsOneWidget);
+      expect(find.byKey(const Key('nav.library')), findsNothing);
       expect(find.byKey(const Key('nav.more')), findsOneWidget);
       expect(find.byKey(const Key('nav.calendar')), findsOneWidget);
       expect(find.byKey(const Key('nav.settings')), findsOneWidget);
 
-      // Close navigation by selecting the current library.
-      await tester.tap(find.byKey(const Key('nav.library')));
+      // Dismiss navigation without changing the current library.
+      Navigator.of(tester.element(find.byKey(const Key('nav.more')))).pop();
       await pumpUntilSettled(tester);
 
       // Navigate to Loans / More
@@ -122,10 +122,10 @@ void main() {
       // Mandatory keys must be present on mobile
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
-      expect(find.byKey(const Key('nav.library')), findsOneWidget);
+      expect(find.byKey(const Key('nav.library')), findsNothing);
 
-      // Return to the current library branch, which closes the drawer.
-      await tester.tap(find.byKey(const Key('nav.library')));
+      // Dismiss navigation without changing the current library.
+      Navigator.of(tester.element(find.byKey(const Key('nav.more')))).pop();
       await pumpUntilSettled(tester);
 
       // Navigate to Settings

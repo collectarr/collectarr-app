@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -12,7 +13,7 @@ Future<String?> showLocationPickerDialog({
   required LocalDatabase db,
   String? currentLocationId,
 }) {
-  return showDialog<String?>(
+  return showAppDialog<String?>(
     context: context,
     builder: (context) => LocationPickerDialog(
       db: db,
@@ -73,7 +74,7 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
 
   Future<void> _addLocation() async {
     final nameController = TextEditingController();
-    final result = await showDialog<String>(
+    final result = await showAppDialog<String>(
       context: context,
       builder: (context) => AccentAlertDialog(
         backgroundColor: appPalette(context).panel,

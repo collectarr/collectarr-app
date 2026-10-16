@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/fonts/local_font_controller.dart';
@@ -111,6 +113,13 @@ class CollectarrApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(appThemeModeProvider);
+    // Settings > Localization formats are read synchronously by formatters
+    // across the app, so a change rebuilds every element once.
+    AppFormats.current = ref.read(uiPreferencesProvider).formats;
+    ref.listen(uiPreferencesProvider.select((p) => p.formats), (_, formats) {
+      AppFormats.current = formats;
+      WidgetsBinding.instance.reassembleApplication();
+    });
     final palette = paletteForThemeMode(themeMode);
     return ListenableBuilder(
       listenable: LocalFontController.instance,

@@ -2,12 +2,23 @@ import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 
-/// Default alignment for dialogs: positioned ~2/3 of the screen from the bottom
-/// (a bit above the middle of the screen).
-const Alignment kDefaultDialogAlignment = Alignment(0.0, -0.08);
+/// Shared panel corners, without an outer border.
+const ShapeBorder appDialogShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.all(Radius.circular(6)),
+);
 
-/// Tracks modal dialog nesting depth and alignment to ensure child dialogs open
-/// centered on their parent dialog.
+/// Modal backdrop: black at 50 %, as in the reference.
+const Color kAppDialogBarrierColor = Color(0x80000000);
+
+const double kAppDialogTopInset = 30;
+
+/// Item editors sit higher than other modals, as in the reference.
+const double kAppEditorTopInset = 10;
+const Alignment kDefaultDialogAlignment = Alignment.topCenter;
+const EdgeInsets kAppDialogInsets =
+    EdgeInsets.fromLTRB(24, kAppDialogTopInset, 24, 24);
+
+/// Propagates modal depth and alignment to nested dialogs.
 class ModalDialogDepthScope extends InheritedTheme {
   const ModalDialogDepthScope({
     super.key,
@@ -51,19 +62,21 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
   AppDialogRoute({
     required WidgetBuilder builder,
     CapturedThemes? capturedThemes,
-    super.barrierDismissible = true,
-    Color? barrierColor = Colors.black54,
+    super.barrierDismissible = false,
+    Color? barrierColor = kAppDialogBarrierColor,
     super.barrierLabel,
     bool useSafeArea = true,
     super.settings,
     super.anchorPoint,
     super.traversalEdgeBehavior,
     this.animationsEnabled = true,
+    Duration? transitionDuration,
+    RouteTransitionsBuilder? transitionBuilder,
   }) : super(
-          barrierColor: barrierColor ?? Colors.black54,
-          transitionDuration:
-              animationsEnabled ? appDialogFadeDuration : Duration.zero,
-          transitionBuilder: _buildTransitions,
+          barrierColor: barrierColor ?? kAppDialogBarrierColor,
+          transitionDuration: transitionDuration ??
+              (animationsEnabled ? appDialogFadeDuration : Duration.zero),
+          transitionBuilder: transitionBuilder ?? _buildTransitions,
           pageBuilder: (buildContext, animation, secondaryAnimation) {
             final pageChild = Builder(builder: builder);
             final dialog = capturedThemes?.wrap(pageChild) ?? pageChild;
@@ -122,7 +135,13 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
         ),
       );
     }
-    return super.buildModalBarrier();
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        if (barrierDismissible) navigator?.maybePop();
+      },
+      child: const SizedBox.expand(),
+    );
   }
 
   static Widget _buildTransitions(
@@ -142,14 +161,16 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
 Future<T?> showAppDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
-  bool barrierDismissible = true,
-  Color? barrierColor = Colors.black54,
+  bool barrierDismissible = false,
+  Color? barrierColor = kAppDialogBarrierColor,
   String? barrierLabel,
   bool useSafeArea = true,
   bool useRootNavigator = true,
   RouteSettings? routeSettings,
   Offset? anchorPoint,
   TraversalEdgeBehavior? traversalEdgeBehavior,
+  Duration? transitionDuration,
+  RouteTransitionsBuilder? transitionBuilder,
 }) {
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
   final capturedThemes = InheritedTheme.capture(
@@ -167,6 +188,8 @@ Future<T?> showAppDialog<T>({
       settings: routeSettings,
       anchorPoint: anchorPoint,
       traversalEdgeBehavior: traversalEdgeBehavior,
+      transitionDuration: transitionDuration,
+      transitionBuilder: transitionBuilder,
       animationsEnabled: LibraryAccentScope.of(context).animationsEnabled &&
           !MediaQuery.disableAnimationsOf(context),
     ),

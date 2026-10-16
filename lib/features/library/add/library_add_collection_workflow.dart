@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/title_case.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
@@ -66,9 +67,11 @@ final class LibraryAddBatchRequest {
     this.upsertCatalogItems = true,
     this.onLibraryEntryCreated,
     this.onSubmissionCommitted,
+    this.autocapTitles,
   });
 
   final LibraryAddMutationDependencies dependencies;
+  final TitleCaseSettings? autocapTitles;
   final Iterable<CatalogSearchCandidate> items;
   final LibraryAddTarget target;
   final LibraryAddDefaults defaults;
@@ -132,6 +135,7 @@ final class LibraryAddCoordinator {
           ownerLabel: baseCommon.ownerLabel,
           collectionStatus: baseCommon.collectionStatus,
           isDigital: digitalLibraryEntry ?? baseCommon.isDigital,
+          autocapTitles: request.autocapTitles,
         );
         switch (target) {
           case LibraryAddTarget.entry:
@@ -165,6 +169,7 @@ final class LibraryAddCoordinator {
                 personalNotes: itemCommon.personalNotes,
                 tags: itemCommon.tags,
                 collectionStatus: 'Not in Collection',
+                autocapTitles: request.autocapTitles,
               ),
               tracking: trackDraft,
               kindDraft: kindDraftsByCatalogRef[item.reference],

@@ -1,3 +1,9 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'library_alphabet_options.dart';
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
+import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'dart:collection';
@@ -18,15 +24,13 @@ Future<Set<String>?> showSortFavoritesManagerDialog({
   required LibraryKindRegistration type,
   required List<LibrarySortFavorite> favorites,
   required Set<String> initialPinnedIds,
-  String? activeSortFavoriteId,
 }) {
-  return showDialog<Set<String>>(
+  return showAppDialog<Set<String>>(
     context: context,
     builder: (context) => _SortFavoritesManagerDialog(
       type: type,
       favorites: favorites,
       initialPinnedIds: initialPinnedIds,
-      activeSortFavoriteId: activeSortFavoriteId,
     ),
   );
 }
@@ -55,6 +59,8 @@ class _LibraryCollectionStatusScopeDropdownState
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final accent = Theme.of(context).colorScheme.primary;
+    final filtered =
+        widget.collectionStatusScope != LibraryCollectionStatusScope.all;
     final menuText = libraryToolbarMenuText(context);
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -122,10 +128,18 @@ class _LibraryCollectionStatusScopeDropdownState
           onEnter: (_) => setState(() => _hovered = true),
           onExit: (_) => setState(() => _hovered = false),
           child: DecoratedBox(
+            // An active status filter is outlined in the shared blue, as in
+            // the reference, so a narrowed list is visible at a glance.
             decoration: BoxDecoration(
                 color: _hovered
                     ? libraryToolbarControlHover(context)
-                    : Colors.transparent),
+                    : filtered
+                        ? const Color(0xFF464950)
+                        : Colors.transparent,
+                borderRadius: filtered ? BorderRadius.circular(5) : null,
+                border: filtered
+                    ? Border.all(color: palette.utilityAction, width: 2)
+                    : null),
             child: SizedBox(
               height: kLibraryToolbarTextDropdownHeight,
               child: Padding(
@@ -192,10 +206,6 @@ class LibraryToolbarSortButton extends StatelessWidget {
       sortFavorites,
       pinnedSortFavoriteIds,
     );
-    final overflowFavorites = _overflowSortFavorites(
-      sortFavorites,
-      pinnedSortFavoriteIds,
-    );
     LibrarySortFavorite? activeFavorite;
     for (final favorite in sortFavorites) {
       if (favorite.id == activeSortFavoriteId) {
@@ -218,7 +228,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
           minWidth: 0,
         );
     var measuredMenuWidth = labelWidth('Manage Favorites') + 14 + 14;
-    for (final favorite in [...pinnedFavorites, ...overflowFavorites]) {
+    for (final favorite in pinnedFavorites) {
       final contentWidth = fieldLabel == null
           ? labelWidth(favorite.label)
           : favorite.rules.fold<double>(
@@ -236,7 +246,6 @@ class LibraryToolbarSortButton extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: libraryToolbarControlSurface(context),
-        border: Border(right: BorderSide(color: palette.divider)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -310,7 +319,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
                   trailingIcon: AppIcons.settings,
                 ),
               ),
-              if (pinnedFavorites.isNotEmpty || overflowFavorites.isNotEmpty)
+              if (pinnedFavorites.isNotEmpty)
                 PopupMenuItem<Object>(
                   enabled: false,
                   height: 22,
@@ -323,21 +332,6 @@ class LibraryToolbarSortButton extends StatelessWidget {
                               : palette.textMuted)),
                 ),
               for (final favorite in pinnedFavorites)
-                PopupMenuItem<Object>(
-                  value: favorite,
-                  height: kLibraryToolbarPopupItemHeight,
-                  padding: const EdgeInsets.symmetric(horizontal: 7),
-                  child: _LibraryToolbarSortMenuRow(
-                    label: favorite.label,
-                    icon: null,
-                    rules: favorite.rules,
-                    fieldLabel: fieldLabel,
-                    active: favorite.id == activeSortFavoriteId,
-                  ),
-                ),
-              if (pinnedFavorites.isNotEmpty && overflowFavorites.isNotEmpty)
-                const PopupMenuDivider(height: 1),
-              for (final favorite in overflowFavorites)
                 PopupMenuItem<Object>(
                   value: favorite,
                   height: kLibraryToolbarPopupItemHeight,
@@ -439,13 +433,11 @@ class _SortFavoritesManagerDialog extends StatefulWidget {
     required this.type,
     required this.favorites,
     required this.initialPinnedIds,
-    this.activeSortFavoriteId,
   });
 
   final LibraryKindRegistration type;
   final List<LibrarySortFavorite> favorites;
   final Set<String> initialPinnedIds;
-  final String? activeSortFavoriteId;
 
   @override
   State<_SortFavoritesManagerDialog> createState() =>
@@ -455,510 +447,187 @@ class _SortFavoritesManagerDialog extends StatefulWidget {
 class _SortFavoritesManagerDialogState
     extends State<_SortFavoritesManagerDialog> {
   late final List<LibrarySortFavorite> _allFavorites;
-  late List<LibrarySortFavorite> _pinnedFavorites;
-  late List<LibrarySortFavorite> _availableFavorites;
+  late final List<LibrarySortFavorite> _pinnedFavorites;
+  bool _busy = false;
 
   @override
   void initState() {
     super.initState();
-    _allFavorites = List<LibrarySortFavorite>.from(widget.favorites);
-    _pinnedFavorites = _orderedPinnedSortFavorites(
-      widget.favorites,
-      widget.initialPinnedIds,
-    );
-    _availableFavorites = _overflowSortFavorites(
-      widget.favorites,
-      widget.initialPinnedIds,
-    );
+    _allFavorites = List.of(widget.favorites);
+    _pinnedFavorites =
+        _orderedPinnedSortFavorites(widget.favorites, widget.initialPinnedIds);
+  }
+
+  void _close() => Navigator.of(context).pop(LinkedHashSet<String>.from(
+      _pinnedFavorites.map((favorite) => favorite.id)));
+
+  Future<void> _edit([LibrarySortFavorite? favorite]) async {
+    final rules = await showLibrarySortDialog(
+        context: context,
+        type: widget.type,
+        currentRules: favorite?.rules ?? []);
+    if (rules == null || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      final fields =
+          libraryKindWorkspaceForKind(widget.type.kind).workspaceFields;
+      final label = rules
+          .map((rule) =>
+              fields.sortDefinitionFor(fields.decodeSortId(rule.column)).label)
+          .join(' | ');
+      final presets = await LibrarySortPresetStore(widget.type)
+          .savePreset(id: favorite?.id, label: label, rules: rules);
+      final preset = favorite == null
+          ? presets.last
+          : presets.firstWhere((p) => p.id == favorite.id);
+      if (!mounted) return;
+      final updated = LibrarySortFavorite(
+          id: preset.id!,
+          label: preset.label,
+          icon: AppIcons.sortAlpha,
+          rules: preset.rules);
+      setState(() {
+        final allIndex = _allFavorites.indexWhere((f) => f.id == updated.id);
+        if (allIndex < 0) {
+          _allFavorites.add(updated);
+        } else {
+          _allFavorites[allIndex] = updated;
+        }
+        final pinnedIndex =
+            _pinnedFavorites.indexWhere((f) => f.id == updated.id);
+        if (pinnedIndex < 0) {
+          _pinnedFavorites.add(updated);
+        } else {
+          _pinnedFavorites[pinnedIndex] = updated;
+        }
+      });
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not save sorting favorite.')));
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final theme = Theme.of(context);
+    final available = _allFavorites
+        .where((f) => !_pinnedFavorites.any((p) => p.id == f.id))
+        .toList();
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-        side: BorderSide(color: libraryToolbarMenuBorder(context)),
-      ),
+      insetPadding: const EdgeInsets.fromLTRB(20, kAppDialogTopInset, 20, 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 980, maxHeight: 640),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AccentDialogHeader(
+        constraints: const BoxConstraints(maxWidth: 600, maxHeight: 640),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          AccentDialogHeader(
               title: 'Manage Sorting Favorites',
               icon: AppIcons.sortAlpha,
-              trailing: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: palette.badgeBackground,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  '${_allFavorites.length} total',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              onClose: () => Navigator.of(context).pop(),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              onClose: _busy ? null : _close),
+          Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
               child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Pinned favorites stay at the top of the sort menu. Drag to reorder them.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: libraryToolbarMenuMutedText(context),
-                  ),
-                ),
-              ),
-            ),
-            Divider(height: 1, color: libraryToolbarMenuBorder(context)),
-            Flexible(
-              child: _allFavorites.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        'No sort favorites are available for this library type.',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: libraryToolbarMenuMutedText(context),
-                        ),
-                      ),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final panes = [
-                            Expanded(
-                              child: _SortFavoritesPaneFrame(
-                                title: 'Pinned Favorites',
-                                count: _pinnedFavorites.length,
-                                child: _pinnedFavorites.isEmpty
-                                    ? _SortFavoritesEmptyState(
-                                        message:
-                                            'No pinned favorites yet. Add favorites from the right pane to keep them at the top of the sort menu.',
-                                      )
-                                    : ReorderableListView.builder(
-                                        padding: const EdgeInsets.all(8),
-                                        buildDefaultDragHandles: false,
-                                        itemCount: _pinnedFavorites.length,
-                                        onReorderItem: (oldIndex, newIndex) {
-                                          setState(() {
-                                            final favorite = _pinnedFavorites
-                                                .removeAt(oldIndex);
-                                            _pinnedFavorites.insert(
-                                              newIndex,
-                                              favorite,
-                                            );
-                                          });
-                                        },
-                                        itemBuilder: (context, index) {
-                                          final favorite =
-                                              _pinnedFavorites[index];
-                                          return _PinnedSortFavoriteTile(
-                                            key: ValueKey(
-                                              'sortFavorite_${favorite.id}',
-                                            ),
-                                            type: widget.type,
-                                            favorite: favorite,
-                                            active: favorite.id ==
-                                                widget.activeSortFavoriteId,
-                                            index: index,
-                                            onRemove: () => setState(() {
-                                              _pinnedFavorites.removeAt(index);
-                                              _availableFavorites.add(favorite);
-                                              _availableFavorites.sort(
-                                                (left, right) =>
-                                                    _allFavorites
-                                                        .indexOf(left) -
-                                                    _allFavorites
-                                                        .indexOf(right),
-                                              );
-                                            }),
-                                          );
-                                        },
-                                      ),
-                              ),
-                            ),
-                            Expanded(
-                              child: _SortFavoritesPaneFrame(
-                                title: 'Available Favorites',
-                                count: _availableFavorites.length,
-                                child: _availableFavorites.isEmpty
-                                    ? const _SortFavoritesEmptyState(
-                                        message:
-                                            'All available sort favorites are already pinned.',
-                                      )
-                                    : ListView.builder(
-                                        padding: const EdgeInsets.all(8),
-                                        itemCount: _availableFavorites.length,
-                                        itemBuilder: (context, index) {
-                                          final favorite =
-                                              _availableFavorites[index];
-                                          return _AvailableSortFavoriteTile(
-                                            key: ValueKey(
-                                              'availableSortFavorite_${favorite.id}',
-                                            ),
-                                            type: widget.type,
-                                            favorite: favorite,
-                                            active: favorite.id ==
-                                                widget.activeSortFavoriteId,
-                                            onAdd: () => setState(() {
-                                              _availableFavorites
-                                                  .removeAt(index);
-                                              _pinnedFavorites.add(favorite);
-                                            }),
-                                          );
-                                        },
-                                      ),
-                              ),
-                            ),
-                          ];
-
-                          if (constraints.maxWidth <
-                              kLibraryToolbarCompactBreakpoint) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                panes[0],
-                                const SizedBox(height: 14),
-                                panes[1],
-                              ],
-                            );
-                          }
-
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              panes[0],
-                              const SizedBox(width: 14),
-                              panes[1],
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-            ),
-            Divider(height: 1, color: libraryToolbarMenuBorder(context)),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: Row(
-                children: [
-                  Text(
-                    '${_pinnedFavorites.length} pinned',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: libraryToolbarMenuMutedText(context),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  DialogActionButtons.cancel(
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  const Spacer(),
-                  DialogActionButtons.save(
-                    onPressed: () => Navigator.of(context).pop(
-                      LinkedHashSet<String>.from(
-                        _pinnedFavorites.map((favorite) => favorite.id),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SortFavoritesPaneFrame extends StatelessWidget {
-  const _SortFavoritesPaneFrame({
-    required this.title,
-    required this.count,
-    required this.child,
-  });
-
-  final String title;
-  final int count;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border.all(color: palette.divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-            decoration: BoxDecoration(
-              color: Color.alphaBlend(
-                palette.accent.withValues(alpha: 0.06),
-                palette.surface,
-              ),
-              border: Border(bottom: BorderSide(color: palette.divider)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: palette.accent,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: palette.badgeBackground,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    '$count',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Sorting Favorites',
+                      style: TextStyle(
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
-                        ),
-                  ),
+                          color: palette.textPrimary)))),
+          Flexible(
+              child: ReorderableListView.builder(
+            shrinkWrap: true,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            buildDefaultDragHandles: false,
+            itemCount: _pinnedFavorites.length,
+            onReorderItem: (oldIndex, newIndex) => setState(() {
+              _pinnedFavorites.insert(
+                  newIndex, _pinnedFavorites.removeAt(oldIndex));
+            }),
+            itemBuilder: (context, index) {
+              final favorite = _pinnedFavorites[index];
+              return SizedBox(
+                  key: ValueKey('sortFavorite_${favorite.id}'),
+                  height: 38,
+                  child: Row(children: [
+                    ReorderableDragStartListener(
+                        index: index,
+                        enabled: !_busy,
+                        child: const MouseRegion(
+                            cursor: SystemMouseCursors.grab,
+                            child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 6),
+                                child: Icon(Icons.drag_indicator, size: 16)))),
+                    Expanded(
+                        child: _LibraryToolbarSortMenuRow(
+                            label: favorite.label,
+                            icon: null,
+                            rules: favorite.rules,
+                            fieldLabel: (id) =>
+                                libraryKindWorkspaceForKind(widget.type.kind)
+                                    .workspaceFields
+                                    .sortDefinitionFor(
+                                        libraryKindWorkspaceForKind(
+                                                widget.type.kind)
+                                            .workspaceFields
+                                            .decodeSortId(id))
+                                    .label)),
+                    TextButton.icon(
+                        style: TextButton.styleFrom(
+                            foregroundColor: palette.textPrimary),
+                        onPressed: _busy ? null : () => _edit(favorite),
+                        icon: const Icon(AppIcons.inlineEdit, size: 14),
+                        label: const Text('Edit')),
+                    IconButton(
+                        tooltip: 'Remove favorite',
+                        icon: const Icon(AppIcons.delete, size: 16),
+                        onPressed: _busy
+                            ? null
+                            : () => setState(
+                                () => _pinnedFavorites.removeAt(index))),
+                  ]));
+            },
+          )),
+          if (_pinnedFavorites.isEmpty)
+            const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('No sorting favorites.')),
+          Padding(
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
+              child: Row(children: [
+                PopupMenuButton<LibrarySortFavorite>(
+                  popUpAnimationStyle: AnimationStyle.noAnimation,
+                  tooltip: 'Add Favorite',
+                  onSelected: (favorite) =>
+                      setState(() => _pinnedFavorites.add(favorite)),
+                  itemBuilder: (context) => [
+                    for (final favorite in available)
+                      PopupMenuItem(
+                          value: favorite, child: Text(favorite.label))
+                  ],
+                  child: const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Row(children: [
+                        Icon(AppIcons.add, size: 14),
+                        SizedBox(width: 6),
+                        Text('Add Favorite'),
+                        Icon(AppIcons.chevronDown, size: 12)
+                      ])),
                 ),
-              ],
-            ),
-          ),
-          Expanded(child: child),
-        ],
+                TextButton(
+                    onPressed: _busy ? null : _edit,
+                    child: const Text('New Favorite')),
+                const Spacer(),
+                DialogActionButtons.cancel(
+                    label: 'Close', onPressed: _busy ? null : _close),
+              ])),
+        ]),
       ),
     );
   }
-}
-
-class _SortFavoritesEmptyState extends StatelessWidget {
-  const _SortFavoritesEmptyState({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: libraryToolbarMenuMutedText(context),
-              ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PinnedSortFavoriteTile extends StatelessWidget {
-  const _PinnedSortFavoriteTile({
-    super.key,
-    required this.type,
-    required this.favorite,
-    required this.active,
-    required this.index,
-    required this.onRemove,
-  });
-
-  final LibraryKindRegistration type;
-  final LibrarySortFavorite favorite;
-  final bool active;
-  final int index;
-  final VoidCallback onRemove;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final theme = Theme.of(context);
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        color: active
-            ? Color.alphaBlend(
-                palette.accent.withValues(alpha: 0.08),
-                palette.panelRaised,
-              )
-            : libraryToolbarMenuHover(context),
-        border: Border.all(
-          color: active
-              ? palette.accent.withValues(alpha: 0.45)
-              : libraryToolbarMenuBorder(context),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        child: Row(
-          children: [
-            ReorderableDragStartListener(
-              index: index,
-              child: Icon(
-                Icons.drag_indicator,
-                color: libraryToolbarMenuMutedText(context),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Icon(
-              favorite.icon,
-              size: 18,
-              color: active ? palette.accent : palette.textMuted,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    favorite.label,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    _sortFavoriteSummary(type, favorite.rules),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: libraryToolbarMenuMutedText(context),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (active) ...[
-              Text(
-                'Active',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: palette.accent,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
-            IconButton(
-              tooltip: 'Remove favorite',
-              onPressed: onRemove,
-              icon: const Icon(Icons.remove_circle_outline, size: 18),
-              visualDensity: VisualDensity.compact,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AvailableSortFavoriteTile extends StatelessWidget {
-  const _AvailableSortFavoriteTile({
-    super.key,
-    required this.type,
-    required this.favorite,
-    required this.active,
-    required this.onAdd,
-  });
-
-  final LibraryKindRegistration type;
-  final LibrarySortFavorite favorite;
-  final bool active;
-  final VoidCallback onAdd;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final theme = Theme.of(context);
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        color: active
-            ? Color.alphaBlend(
-                palette.accent.withValues(alpha: 0.08),
-                palette.panelRaised,
-              )
-            : libraryToolbarMenuHover(context),
-        border: Border.all(color: libraryToolbarMenuBorder(context)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        child: Row(
-          children: [
-            Icon(
-              favorite.icon,
-              size: 18,
-              color: active ? palette.accent : palette.textMuted,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    favorite.label,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    _sortFavoriteSummary(type, favorite.rules),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: libraryToolbarMenuMutedText(context),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              tooltip: 'Pin favorite',
-              onPressed: onAdd,
-              icon: const Icon(Icons.add_circle_outline, size: 18),
-              visualDensity: VisualDensity.compact,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-String _sortFavoriteSummary(
-    LibraryKindRegistration type, List<LibrarySortRule> rules) {
-  return rules
-      .map(
-        (rule) =>
-            '${_sortColumnLabel(type, rule.column)} ${rule.ascending ? 'ASC' : 'DESC'}',
-      )
-      .join('  |  ');
-}
-
-String _sortColumnLabel(LibraryKindRegistration type, String column) {
-  final fields = libraryKindWorkspaceForKind(type.kind).fields;
-  return fields.findSortDefinition(fields.decodeSortId(column))?.label ??
-      column;
 }
 
 List<LibrarySortFavorite> _orderedPinnedSortFavorites(
@@ -969,17 +638,6 @@ List<LibrarySortFavorite> _orderedPinnedSortFavorites(
   return [
     for (final id in pinnedIds)
       if (byId[id] case final favorite?) favorite,
-  ];
-}
-
-List<LibrarySortFavorite> _overflowSortFavorites(
-  List<LibrarySortFavorite> favorites,
-  Iterable<String> pinnedIds,
-) {
-  final pinned = pinnedIds.toSet();
-  return [
-    for (final favorite in favorites)
-      if (!pinned.contains(favorite.id)) favorite,
   ];
 }
 
@@ -1085,10 +743,12 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
       {super.key,
       required this.letters,
       required this.selectedLetter,
+      this.alphabetOptions,
       required this.accent,
       required this.onLetterSelected});
   final Set<String> letters;
   final String? selectedLetter;
+  final LibraryAlphabetOptions? alphabetOptions;
   final Color accent;
   final ValueChanged<String?> onLetterSelected;
   @override
@@ -1125,17 +785,28 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
       'Y',
       'Z'
     ];
+    // Reference slot widths at 14 px: letters 24, All 32, 0-9 34.
+    double slotWidth(String label) => switch (label) {
+          'All' => 32,
+          '0-9' => 34,
+          _ => 24,
+        };
+    final designWidth =
+        ['All', ...alphabet].fold<double>(0, (sum, l) => sum + slotWidth(l));
     void select(String value) => onLetterSelected(
         value == 'All' || value == selectedLetter ? null : value);
     final palette = appPalette(context);
     return SizedBox(
-        height: 28,
+        height: 30,
         child: LayoutBuilder(builder: (context, constraints) {
           final scale = MediaQuery.textScalerOf(context).scale(12) / 12;
+          final options = alphabetOptions;
+          final optionsWidth = options == null ? 0.0 : 46.0;
           if (constraints.maxWidth < 480 * scale) {
             return Align(
                 alignment: Alignment.centerLeft,
                 child: PopupMenuButton<String>(
+                  popUpAnimationStyle: AnimationStyle.noAnimation,
                   tooltip: 'Filter A–Z',
                   onSelected: select,
                   itemBuilder: (_) => [
@@ -1168,17 +839,61 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
               for (final label in ['All', ...alphabet])
                 _AlphabetLetterButton(
                   label: label,
-                  width: (label == 'All' ? 44 : 28) *
+                  width: slotWidth(label) *
                       scale *
-                      (constraints.maxWidth / (828 * scale)).clamp(0.0, 1.0),
-                  isSelected: label == (selectedLetter ?? 'All'),
+                      ((constraints.maxWidth - optionsWidth) /
+                              (designWidth * scale))
+                          .clamp(0.0, 1.0),
+                  // As in the reference, only a chosen letter is highlighted;
+                  // All stays plain text.
+                  isSelected: label != 'All' && label == selectedLetter,
                   isAvailable: label == 'All' || available.contains(label),
-                  accent: accent,
+                  accent: palette.utilityAction,
                   palette: palette,
                   onTap: label == 'All' || available.contains(label)
                       ? () => select(label)
                       : null,
                 ),
+              if (options != null) ...[
+                const SizedBox(width: 10),
+                PopupMenuButton<String>(
+                  popUpAnimationStyle: AnimationStyle.noAnimation,
+                  tooltip: 'Alphabet Options',
+                  position: PopupMenuPosition.under,
+                  color: palette.isDark
+                      ? const Color(0xff444444)
+                      : palette.panelRaised,
+                  surfaceTintColor: Colors.transparent,
+                  menuPadding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide(color: palette.divider)),
+                  onSelected: options.onChanged,
+                  itemBuilder: (_) => [
+                    for (final field in options.fields)
+                      PopupMenuItem(
+                          value: field.id,
+                          height: 30,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            SizedBox(
+                                width: 18,
+                                child: field.id == options.selected.id
+                                    ? const Icon(AppIcons.check, size: 14)
+                                    : null),
+                            Text(field.label,
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w400)),
+                          ])),
+                  ],
+                  child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: SizedBox(
+                          width: 36,
+                          height: 28,
+                          child: Icon(AppIcons.settings,
+                              size: 14, color: palette.textPrimary))),
+                ),
+              ],
             ],
           );
         }));
@@ -1237,7 +952,7 @@ class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
 
     return SizedBox(
       width: widget.width,
-      height: 26,
+      height: 30,
       child: MouseRegion(
         cursor: canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
         onEnter: (_) => setState(() => _hovered = true),
@@ -1246,18 +961,22 @@ class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
           mouseCursor:
               canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
           onTap: widget.onTap,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(5),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 1),
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(5),
             ),
             child: Center(
+              // Labels never wrap ("0-9") when the bar is squeezed.
               child: Text(
                 widget.label,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.visible,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: isSelected || _hovered
                       ? FontWeight.w700
                       : FontWeight.w600,
@@ -1331,7 +1050,7 @@ void showLibraryCompactCoverSizeSheet(
   ValueChanged<double> onCoverSizeChanged,
 ) {
   final coverSizeEnabled = viewMode.supportsCoverSize;
-  showModalBottomSheet<void>(
+  showAppBottomSheet<void>(
     context: context,
     builder: (context) => Material(
       color: Theme.of(context).colorScheme.surface,
@@ -1455,14 +1174,36 @@ class LibraryItemCountLabel extends StatelessWidget {
     final label = shown == total
         ? '$total ${pluralLabel.toLowerCase()}'
         : '$shown of $total ${pluralLabel.toLowerCase()}';
-    return Text(
-      label,
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: appPalette(context).textMuted,
-          ),
+    final palette = appPalette(context);
+    return _ToolbarPill(
+      color: palette.isDark ? const Color(0xFF4A4A4A) : palette.panelRaised,
+      child: Text(label,
+          style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: palette.isDark ? Colors.white : palette.textPrimary)),
     );
   }
+}
+
+/// The rounded count and scope pills of the browsing toolbar.
+class _ToolbarPill extends StatelessWidget {
+  const _ToolbarPill({required this.color, required this.child});
+
+  final Color color;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        height: 26,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: child,
+      );
 }
 
 class LibraryToolbarScopeChip extends StatelessWidget {
@@ -1477,18 +1218,30 @@ class LibraryToolbarScopeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InputChip(
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      backgroundColor: appPalette(context).selection,
-      label: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              fontWeight: FontWeight.w700,
+    const style = TextStyle(
+        fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white);
+    return _ToolbarPill(
+      color: appPalette(context).utilityAction,
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 200),
+          child: Text(label,
+              style: style, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+        const SizedBox(width: 5),
+        Tooltip(
+          message: 'Clear',
+          child: InkWell(
+            onTap: onClear,
+            customBorder: const CircleBorder(),
+            mouseCursor: SystemMouseCursors.click,
+            child: const Padding(
+              padding: EdgeInsets.all(3),
+              child: Icon(Icons.close, size: 14, color: Colors.white),
             ),
-      ),
-      labelPadding: const EdgeInsets.symmetric(horizontal: 2),
-      onDeleted: onClear,
+          ),
+        ),
+      ]),
     );
   }
 }
@@ -1508,7 +1261,7 @@ class LibraryCollectionValueChip extends StatelessWidget {
   final String? currency;
 
   String _fmt(int cents) {
-    final cur = currency ?? 'USD';
+    final cur = currency ?? AppFormats.current.currency;
     return '${(cents / 100).toStringAsFixed(2)} $cur';
   }
 

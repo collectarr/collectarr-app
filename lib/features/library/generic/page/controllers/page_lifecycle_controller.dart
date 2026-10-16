@@ -38,6 +38,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
     try {
       final loadToken = ++state._session.preferences.viewPreferenceLoadToken;
       final expectedKind = state.widget.type.kind;
+      final alphabetFieldFuture = state._viewPrefs.readAlphabetFieldId();
       final quickViewFuture = state._viewPrefs.readQuickView();
       final folderPresetFuture = state._viewPrefs.readFolderPreset(
         allowedModes: state._scopeAvailableGroupModes,
@@ -80,9 +81,24 @@ abstract final class _LibraryPageLifecycleControllerOps {
         return;
       }
 
+      final alphabetFieldId = await alphabetFieldFuture;
+      if (state.mounted &&
+          state._session.preferences.alphabetFieldId == null &&
+          state._alphabetFields.any((field) => field.id == alphabetFieldId)) {
+        state._mutateState(
+            () => state._session.preferences.alphabetFieldId = alphabetFieldId);
+      }
+      final savedSortFavorites = await state.ref
+          .read(librarySavedSortFavoritesProvider(state.widget.type).future);
+      if (!state.mounted ||
+          loadToken != state._session.preferences.viewPreferenceLoadToken ||
+          state.widget.type.kind != expectedKind) {
+        return;
+      }
       final validPinnedSortFavoriteIds = sanitizeLibraryPinnedSortFavoriteIds(
         state.widget.type,
         pinnedSortFavoriteIds,
+        additionalFavorites: savedSortFavorites,
       );
       final validPinnedColumnFavoriteKeys =
           sanitizeLibraryPinnedColumnFavoriteKeys(
@@ -172,6 +188,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
   }
 
   static void primeCachedViewPreferences(GenericLibraryPageState state) {
+    state._session.preferences.alphabetFieldId = null;
     final allowedGroupModes = state._scopeAvailableGroupModes.toSet();
     state._session.facets.quickView = sanitizeLibraryQuickViewForType(
       state._viewPrefs.cachedQuickView,
@@ -211,6 +228,10 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._viewPrefs.cachedPinnedSortFavoriteIds.isNotEmpty
           ? state._viewPrefs.cachedPinnedSortFavoriteIds
           : libraryDefaultPinnedSortFavoriteIdsForType(state.widget.type),
+      additionalFavorites: state.ref
+              .read(librarySavedSortFavoritesProvider(state.widget.type))
+              .value ??
+          [],
     );
     state._session.preferences.pinnedColumnFavoriteKeys =
         sanitizeLibraryPinnedColumnFavoriteKeys(
@@ -233,7 +254,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._session.selection.value = LibrarySelectionState.empty();
       state._session.selection.filterSelection = LibraryFilterSelection.none;
       state._session.facets.collectionStatusScope =
-          LibraryCollectionStatusScope.all;
+          kDefaultCollectionStatusScope;
       state._session.facets.bucketCompletionScope =
           LibraryBucketCompletionScope.all;
       state._session.preferences.activeSmartListId = null;

@@ -62,6 +62,19 @@ class AppThemePalette extends ThemeExtension<AppThemePalette> {
 
   bool get isDark => brightness == Brightness.dark;
 
+  /// Utility actions and settings use a shared accent, independent of kind.
+  Color get utilityAction =>
+      isDark ? const Color(0xFF5EB1DE) : const Color(0xFF1475A6);
+  Color get detailHeading =>
+      isDark ? const Color(0xFF71AFD9) : const Color(0xFF286A95);
+
+  /// Row rules and alternate-row tint of detail tables (track lists, fields).
+  Color get detailRule =>
+      isDark ? const Color(0xFF5A5A5A) : const Color(0xFFD2D2D2);
+  Color get detailStripe =>
+      isDark ? const Color(0x0BFFFFFF) : const Color(0x09000000);
+  Color get link => isDark ? const Color(0xFF06B3F1) : const Color(0xFF0078A6);
+
   Color get infoBackground =>
       isDark ? kAppBannerInfoBackground : const Color(0xFFE4F2F8);
   Color get infoForeground => appContrastingTextColor(infoBackground);

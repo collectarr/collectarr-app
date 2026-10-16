@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/toolbar/library_alphabet_options.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -9,6 +10,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_shelf_style_dropdown.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -238,6 +240,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                         ),
                       if (viewState.viewMode == LibraryViewMode.list) ...[
                         const _LibraryDesktopToolbarSeparator(),
+                        const SizedBox(width: 8),
                         _LibraryDesktopToolbarSection(
                           label: 'Columns',
                           child: _LibraryColumnLauncher(
@@ -260,15 +263,17 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                       ],
                       if (viewState.viewMode == LibraryViewMode.list) ...[
                         const _LibraryDesktopToolbarSeparator(),
+                        const SizedBox(width: 8),
                         _LibraryDesktopToolbarSection(
-                          label: 'Item spacing',
+                          label: 'Item Spacing',
                           child: _buildSpacingSlider(
                             context,
-                            tooltip: 'Item spacing',
+                            tooltip: 'Item Spacing',
                           ),
                         ),
                       ] else ...[
                         const _LibraryDesktopToolbarSeparator(),
+                        const SizedBox(width: 8),
                         _LibraryDesktopToolbarSection(
                           label: viewState.viewMode.supportsCoverSize
                               ? 'Covers & Spacing'
@@ -292,11 +297,15 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 const SizedBox(width: 8),
                               _buildSpacingSlider(
                                 context,
-                                tooltip: 'Item spacing',
+                                tooltip: 'Item Spacing',
                               ),
                             ],
                           ),
                         ),
+                      ],
+                      if (viewState.viewMode == LibraryViewMode.shelves) ...[
+                        const _LibraryDesktopToolbarSeparator(),
+                        const LibraryShelfStyleDropdown(),
                       ],
                     ],
                   ),
@@ -453,7 +462,7 @@ class _LibraryColumnLauncher extends StatelessWidget {
         onManageColumns();
       },
       tone: LibraryDenseButtonTone.surface,
-      tooltip: 'Column Favorites',
+      tooltip: 'Change Columns',
     );
   }
 }
@@ -477,6 +486,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
     this.onSearchSuggestionSelected,
     this.onCollectionStatusScopeChanged,
     this.selectedLetter,
+    this.alphabetOptions,
     this.onLetterSelected,
     this.onRandomPick,
     this.onScanCover,
@@ -493,6 +503,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
       onCollectionStatusScopeChanged;
   final Set<String> availableLetters;
   final String? selectedLetter;
+  final LibraryAlphabetOptions? alphabetOptions;
   final ValueChanged<String?>? onLetterSelected;
   final VoidCallback onAdd;
   final VoidCallback onScan;
@@ -526,7 +537,9 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
             onRefreshMetadata: onRefreshMetadata,
             onRandomPick: onRandomPick,
             onScanCover: onScanCover,
-            addBackgroundColor: accent,
+            // Add is a utility action: shared blue in every kind, as in the
+            // reference.
+            addBackgroundColor: appPalette(context).utilityAction,
             addForegroundColor: Colors.white,
           ),
         if (showChromeRow) ...[
@@ -563,6 +576,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                   child: LibraryToolbarAlphabetRow(
                     letters: availableLetters,
                     selectedLetter: selectedLetter,
+                    alphabetOptions: alphabetOptions,
                     accent: accent,
                     onLetterSelected: onLetterSelected!,
                   ),
@@ -576,14 +590,16 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: LibraryToolbarSearch(
                     controller: searchController,
-                    hintText:
+                    hintText: libraryPresentationForKind(type.kind)
+                            .searchFieldLabels
+                            .libraryHint ??
                         'Search ${type.identity.pluralLabel.toLowerCase()}...',
                     onScanBarcode: onScan,
                     onScanCover: onScanCover,
                     onRandomPick: onRandomPick,
                     onSearch: onSearchChanged,
                     onChanged: onSearchInputChanged,
-                    selectionColor: accent,
+                    selectionColor: appPalette(context).utilityAction,
                     searchTarget: searchTarget,
                     searchTargetOptions: searchTargetOptions,
                     onSearchTargetChanged: onSearchTargetChanged,
@@ -591,7 +607,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                     searchActive: searchActive,
                     suggestions: searchSuggestions,
                     onSuggestionSelected: onSearchSuggestionSelected,
-                    maxWidth: 380,
+                    maxWidth: 400,
                   ),
                 ),
               ),
@@ -654,7 +670,11 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
       minimumSize: Size.zero,
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+      textStyle: TextStyle(
+          fontFamily: appFontFamily,
+          fontFamilyFallback: kAppFontFamilyFallback,
+          fontSize: 13,
+          fontWeight: FontWeight.w600),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
       ),
@@ -846,6 +866,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.extraActions = const [],
     this.availableLetters = const {},
     this.selectedLetter,
+    this.alphabetOptions,
     this.onLetterSelected,
     this.selectionCallbacks,
     this.selectedCount = 0,
@@ -913,6 +934,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final List<LibraryUtilityMenuAction> extraActions;
   final Set<String> availableLetters;
   final String? selectedLetter;
+  final LibraryAlphabetOptions? alphabetOptions;
   final ValueChanged<String?>? onLetterSelected;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final int selectedCount;
@@ -940,7 +962,10 @@ class LibraryCompactToolbarContent extends StatelessWidget {
             final search = SearchBar(
               controller: searchController,
               constraints: const BoxConstraints.tightFor(height: 36),
-              hintText: 'Search ${type.identity.pluralLabel.toLowerCase()}...',
+              hintText: libraryPresentationForKind(type.kind)
+                      .searchFieldLabels
+                      .libraryHint ??
+                  'Search ${type.identity.pluralLabel.toLowerCase()}...',
               leading: const Icon(Icons.search),
               trailing: searchActive
                   ? [
@@ -959,6 +984,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                   onSearchTargetChanged != null) ...[
                 const SizedBox(width: 6),
                 PopupMenuButton<LibrarySearchTarget>(
+                  popUpAnimationStyle: AnimationStyle.noAnimation,
                   tooltip: 'Search scope',
                   color: libraryToolbarMenuSurface(context),
                   shape: libraryToolbarDropdownMenuShape(context),
@@ -1121,6 +1147,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
           LibraryToolbarAlphabetRow(
             letters: availableLetters,
             selectedLetter: selectedLetter,
+            alphabetOptions: alphabetOptions,
             accent: accent,
             onLetterSelected: onLetterSelected!,
           ),

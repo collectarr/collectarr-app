@@ -62,15 +62,18 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(home: MusicStatsPage(state: state))));
     await pumpUntilSettled(tester);
-    expect(find.text('2 albums and 1 Artists'), findsOneWidget);
+    expect(find.text('2 albums and 1 Artists', findRichText: true),
+        findsOneWidget);
     expect(find.text('Albums by Format'), findsOneWidget);
     await tester.tap(find.text('Empty reference'));
     await pumpUntilSettled(tester);
-    expect(find.text('0 albums and 0 Artists'), findsOneWidget);
+    expect(find.text('0 albums and 0 Artists', findRichText: true),
+        findsOneWidget);
     expect(find.text(entry.metadata.title), findsNothing);
     await tester.tap(find.text('All Collections'));
     await pumpUntilSettled(tester);
-    expect(find.text('2 albums and 1 Artists'), findsOneWidget);
+    expect(find.text('2 albums and 1 Artists', findRichText: true),
+        findsOneWidget);
     for (final width in [700.0, 380.0]) {
       await tester.binding.setSurfaceSize(Size(width, 850));
       await pumpUntilSettled(tester);

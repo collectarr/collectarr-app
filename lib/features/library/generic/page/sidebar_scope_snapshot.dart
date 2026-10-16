@@ -8,7 +8,7 @@ class LibrarySidebarScopeSnapshot {
     this.selectedBucket,
     this.selectedLetter,
     this.linkedMetadataFilter,
-    this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.collectionStatusScope = kDefaultCollectionStatusScope,
     this.bucketCompletionScope = LibraryBucketCompletionScope.all,
     this.quickView,
     this.filterSelection = LibraryFilterSelection.none,
@@ -48,7 +48,7 @@ class LibrarySidebarScopeSnapshot {
       selectedBucket == null &&
       selectedLetter == null &&
       linkedMetadataFilter == null &&
-      collectionStatusScope == LibraryCollectionStatusScope.all &&
+      collectionStatusScope == kDefaultCollectionStatusScope &&
       bucketCompletionScope == LibraryBucketCompletionScope.all &&
       quickView == null &&
       !filterSelection.hasActiveFilters &&

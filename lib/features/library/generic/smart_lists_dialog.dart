@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -51,7 +52,7 @@ Future<SmartListLoadResult?> showSmartListsDialog({
   List<CustomFieldDefinition> customFieldDefinitions = const [],
   bool allowCurrentViewUpdate = true,
 }) {
-  return showDialog<SmartListLoadResult>(
+  return showAppDialog<SmartListLoadResult>(
     context: context,
     builder: (_) => _SmartListsDialog(
       db: db,
@@ -147,7 +148,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
 
   Future<Set<String>?> _chooseKinds(Set<String> initialKinds) {
     final selectedKinds = Set<String>.of(initialKinds);
-    return showDialog<Set<String>>(
+    return showAppDialog<Set<String>>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AccentAlertDialog(
@@ -200,7 +201,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     String? initialValue,
   }) async {
     final nameCtrl = TextEditingController(text: initialValue ?? '');
-    return showDialog<String>(
+    return showAppDialog<String>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.smartLists,
@@ -337,7 +338,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
   }
 
   Future<void> _overwriteFromCurrentView(SmartList list) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.smartLists,
@@ -372,7 +373,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
   }
 
   Future<void> _delete(SmartList list) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.delete,
@@ -506,6 +507,8 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
                                   onTap: () =>
                                       setState(() => _selectedListId = list.id),
                                   trailing: PopupMenuButton<_SmartListAction>(
+                                    popUpAnimationStyle:
+                                        AnimationStyle.noAnimation,
                                     icon:
                                         const Icon(Icons.more_horiz, size: 18),
                                     tooltip: 'Smart list actions',

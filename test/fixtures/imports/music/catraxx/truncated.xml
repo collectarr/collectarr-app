@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data date="01/20/2026" longdate="Tuesday, January 20, 2026" unformatteddate="20260120" time="9:00:00 AM" timeshort="9:00 AM" computername="FICTIONAL-PC" username="collector" database="C:\Fictional\Albums.mdb" explorerwidth="0" exploreheight="0" guest="No" dataserver="No" audioplayer="No">
+	<fld>
+		<album>
+			<albumid name="Album ID" use="Yes"/>
+			<title name="Title" use="Yes"/>
+			<artist name="Artist" use="Yes" linktable="ArtistAlbumLink" luptable="ArtistPerson"/>
+			<format name="Format" use="Yes" luptable="Format"/>
+		</album>
+	</fld>
+	<record table="album" id="1">
+		<albumdata audioattached="False" audiofolder="" discogsid="" asin="">
+			<albumid unformatted="1">1</albumid>
+			<disccount unformatted="2">2</disccount>
+			<title>After &amp; Before</title>
+			<titlesort>After &amp; Before</titlesort>
+			<artists formattedname="Mira &quot;Echo&quot; Ionescu" sort="Ionescu, Mira">
+				<artist id="1">
+					<name>Mira &quot;Echo&quot; Ionescu</name>
+					<sortby>Ionescu, Mira</sortby>
+					<country id="-1"/>
+				</artist>
+			</artists>
+			<format id="2">2CD</format>
+			<released year="2025" month="04" day="18" long="Friday, April 18, 2025" unformatted="20250418">04/18/2025</released>
+			<label id="1">Fictional Records</label>
+			<catalognumber>FIC-001</catalognumber>
+			<country id="4">Germany</country>
+			<conditionrecord id="2">Near Mint</conditionrecord>
+			<status id="1">Own</status>
+			<genrelist>
+				<genre id="1">Dream Pop</genre>
+				<genre id="2">Jazz</genre>
+			</genrelist>
+			<primarygenre id="1">Dream Pop</primarygenre>
+			

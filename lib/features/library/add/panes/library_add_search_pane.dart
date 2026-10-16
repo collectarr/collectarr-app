@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 
 import 'library_add_pane_dependencies.dart';
@@ -14,6 +16,7 @@ class LibraryAddSearchPane extends StatelessWidget {
     this.onLoadMoreResults,
     required this.error,
     required this.accent,
+    this.selectionColor,
     required this.results,
     required this.selectedResultId,
     required this.checkedResultIds,
@@ -24,6 +27,8 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.onResultPolicyOptionChanged,
     required this.onSelectResult,
     required this.onToggleResultCheck,
+    this.searched = false,
+    this.headerTrailing,
   });
 
   final LibraryKindRegistration type;
@@ -34,6 +39,7 @@ class LibraryAddSearchPane extends StatelessWidget {
   final VoidCallback? onLoadMoreResults;
   final String? error;
   final Color accent;
+  final Color? selectionColor;
   final List<CatalogSearchCandidate> results;
   final String? selectedResultId;
   final Set<String> checkedResultIds;
@@ -45,16 +51,29 @@ class LibraryAddSearchPane extends StatelessWidget {
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onToggleResultCheck;
 
+  /// Whether a search has run, so the caption stays while a filter empties
+  /// the results.
+  final bool searched;
+
+  /// Kind filter shown at the right of the results caption.
+  final Widget? headerTrailing;
+
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panelRaised,
-        border: Border(right: BorderSide(color: palette.divider)),
-      ),
+    final showCaption =
+        results.isNotEmpty || (searched && !isBusy && error == null);
+    return ColoredBox(
+      color: results.isEmpty
+          ? libraryAddSearchBackground(context)
+          : libraryAddResultsBackground(context),
       child: Column(
         children: [
+          if (showCaption)
+            _LibraryAddResultsCaption(
+              count: results.length,
+              hasMore: hasMoreResults,
+              trailing: headerTrailing,
+            ),
           if (resultPolicy.options.isNotEmpty)
             _LibraryAddResultOptionsBar(
               options: resultPolicy.options,
@@ -65,7 +84,7 @@ class LibraryAddSearchPane extends StatelessWidget {
           Expanded(
             child: _SearchResultsList(
               type: type,
-              accent: accent,
+              accent: selectionColor ?? accent,
               useGridResults: resultPolicy.useGridResults,
               isBusy: isBusy,
               error: error,
@@ -85,6 +104,45 @@ class LibraryAddSearchPane extends StatelessWidget {
             error: loadMoreError,
             onLoadMore: onLoadMoreResults,
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "66 Results" centred over the list, with the kind filter at the right.
+class _LibraryAddResultsCaption extends StatelessWidget {
+  const _LibraryAddResultsCaption({
+    required this.count,
+    required this.hasMore,
+    this.trailing,
+  });
+
+  final int count;
+  final bool hasMore;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Container(
+      key: const ValueKey('library-add-results-caption'),
+      constraints: const BoxConstraints(minHeight: 31),
+      color: libraryAddResultsBackground(context),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Text(
+            '$count${hasMore ? '+' : ''} ${count == 1 ? 'Result' : 'Results'}',
+            style: TextStyle(
+              color: palette.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          if (trailing != null)
+            Align(alignment: Alignment.centerRight, child: trailing),
         ],
       ),
     );
@@ -307,25 +365,12 @@ class _SearchResultsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final notice = _SearchPaneNoticeStack(error: error);
     if (isBusy && results.isEmpty) {
-      return _SearchSkeletonList(notice: notice);
+      return const Center(child: Text('Searching...'));
     }
     if (results.isEmpty) {
-      return ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          notice,
-          SizedBox(
-            height: 280,
-            child: _NoSearchResults(
-              type: type,
-              accent: accent,
-            ),
-          ),
-        ],
-      );
+      return ListView(padding: EdgeInsets.zero, children: [notice]);
     }
     if (useGridResults) {
       return _SearchResultsGrid(
@@ -356,8 +401,6 @@ class _SearchResultsList extends StatelessWidget {
             onSelect: () => onSelectResult(results[i].reference.id),
             onToggleCheck: () => onToggleResultCheck(results[i].reference.id),
           ),
-          if (i < results.length - 1)
-            Divider(height: 1, thickness: 1, color: palette.divider),
         ],
       ],
     );
@@ -493,29 +536,17 @@ class _SearchResultsGrid extends StatelessWidget {
                           Positioned(
                             right: 4,
                             top: 4,
-                            child: InkWell(
-                              mouseCursor: WidgetStateMouseCursor.clickable,
-                              onTap: () =>
-                                  onToggleResultCheck(item.reference.id),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: palette.surfaceDim,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  checked
-                                      ? Icons.check_circle
-                                      : Icons.radio_button_unchecked,
-                                  size: 18,
-                                  color: checked
-                                      ? libraryAccentTextColor(
-                                          accent,
-                                          palette.surfaceDim,
-                                        )
-                                      : palette.textPrimary,
-                                ),
+                            child: SizedBox.square(
+                              dimension: 24,
+                              child: Checkbox(
+                                value: checked,
+                                onChanged: (_) =>
+                                    onToggleResultCheck(item.reference.id),
+                                activeColor: accent,
+                                checkColor: Colors.white,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                visualDensity: VisualDensity.compact,
                               ),
                             ),
                           ),
@@ -580,105 +611,8 @@ class _SearchResultsGrid extends StatelessWidget {
   }
 }
 
-class _SearchSkeletonList extends StatelessWidget {
-  const _SearchSkeletonList({required this.notice});
-
-  final Widget notice;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        notice,
-        const Padding(
-          padding: EdgeInsets.all(8),
-          child: _ResultSectionHeader(label: 'Searching'),
-        ),
-        for (var index = 0; index < 6; index++) ...[
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color:
-                    index.isEven ? palette.tableEvenRow : palette.tableOddRow,
-                border: Border.all(color: palette.tableBottomBorder),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    _SkeletonBox(width: 42, height: 56),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _SkeletonBox(width: 220, height: 13),
-                          SizedBox(height: 8),
-                          _SkeletonBox(width: 320, height: 10),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-        const SizedBox(height: 8),
-      ],
-    );
-  }
-}
-
-class _SkeletonBox extends StatelessWidget {
-  const _SkeletonBox({required this.width, required this.height});
-
-  final double width;
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: palette.surfaceBright,
-        borderRadius: BorderRadius.circular(2),
-      ),
-    );
-  }
-}
-
-class _ResultSectionHeader extends StatelessWidget {
-  const _ResultSectionHeader({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: palette.panelRaised,
-        border: Border(bottom: BorderSide(color: palette.divider)),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.tableHeader.copyWith(
-          color: palette.textMuted,
-        ),
-      ),
-    );
-  }
-}
-
+/// A Core result as the reference lists it: cover, bold title, artist line,
+/// edition with the barcode at the right, and a checkbox for adding several.
 class SearchResultTile extends StatelessWidget {
   const SearchResultTile({
     super.key,
@@ -706,209 +640,154 @@ class SearchResultTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final density = LibraryDensityScope.maybeOf(context)?.density ??
-        LibraryDensity.comfortable;
-    final densityScale = density.metrics.searchScale;
     final summary = matchSummary?.call(item);
-    final resultDisplay =
+    final display =
         libraryPresentationForKind(type.kind).builder.buildSearchResultDisplay(
               item: item,
             );
-    final subtitle = resultDisplay?.secondaryLine ?? '';
-    final detailLine = resultDisplay?.detailLine;
-    final entryTone = Theme.of(context).colorScheme.tertiary;
-    final entryFill = Color.alphaBlend(
-      entryTone.withValues(alpha: 0.16),
-      palette.tableEvenRow,
-    );
-    final entryBorder = entryTone.withValues(alpha: 0.6);
-    final entryBadgeBackground = Color.alphaBlend(
-      entryTone.withValues(alpha: palette.isDark ? 0.34 : 0.16),
-      palette.surfaceDim,
-    );
-    final entryBadgeForeground = appContrastingTextColor(entryBadgeBackground);
-    return InkWell(
-      mouseCursor: WidgetStateMouseCursor.clickable,
-      key: ValueKey('library-add-search-result-${item.reference.id}'),
-      onTap: onSelect,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: selected
-              ? Color.alphaBlend(
-                  accent.withValues(alpha: 0.46), palette.selection)
-              : isEntry
-                  ? entryFill
-                  : palette.tableEvenRow,
-          border: Border(
-            left: BorderSide(
-              color: selected
-                  ? accent
-                  : isEntry
-                      ? entryBorder
-                      : Colors.transparent,
-              width: 4,
+    final secondary = display?.secondaryLine ?? '';
+    final detail = display?.detailLine ?? '';
+    final trailing = display?.trailingDetail ?? '';
+    const text = TextStyle(fontSize: 14, height: 20 / 14);
+    final row = Material(
+      color: selected ? palette.utilityAction : Colors.transparent,
+      child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
+        key: ValueKey('library-add-search-result-${item.reference.id}'),
+        onTap: onSelect,
+        child: Container(
+          height: 71,
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: libraryAddResultsDivider(context)),
             ),
           ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 8 * densityScale,
-            vertical: 5 * densityScale,
-          ),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 28,
-                child: Checkbox(
-                  value: checked,
-                  onChanged: (_) => onToggleCheck(),
-                  activeColor: accent,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
+          child: DefaultTextStyle.merge(
+            style: text.copyWith(color: palette.textPrimary),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 65,
+                  height: 70,
+                  child: LibraryCoverImage(
+                    title: item.summary.primaryLabel,
+                    imageUrl: item.summary.imageUrl,
+                    fallbackAspectRatio: 65 / 70,
+                    borderRadius: 0,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 38,
-                height: 56,
-                child: LibraryCoverImage(
-                  title: item.summary.primaryLabel,
-                  itemNumber: null,
-                  imageUrl: item.summary.imageUrl,
-                ),
-              ),
-              SizedBox(width: 10 * densityScale),
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final compact = constraints.maxWidth < 170;
-                    final showDetailLine =
-                        detailLine != null && detailLine.trim().isNotEmpty;
-                    final showMatchSummary =
-                        summary != null && (!compact || !showDetailLine);
-                    return Column(
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (isEntry) ...[
-                          LibraryAddResultBadge(
-                            'Already in collection',
-                            icon: Icons.playlist_add_check_rounded,
-                            backgroundColor: entryBadgeBackground,
-                            borderColor: entryBorder,
-                            foregroundColor: entryBadgeForeground,
-                          ),
-                          const SizedBox(height: 4),
-                        ],
-                        Text(
-                          resultDisplay?.title ?? item.summary.primaryLabel,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: palette.textPrimary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        if (subtitle.isNotEmpty) ...[
-                          SizedBox(height: 3 * densityScale),
-                          Text(
-                            subtitle,
-                            maxLines: compact ? 1 : 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: palette.textMuted,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                        if (showDetailLine) ...[
-                          SizedBox(height: 2 * densityScale),
-                          Text(
-                            detailLine,
-                            maxLines: compact ? 1 : 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: palette.textMuted,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                        if (showMatchSummary) ...[
-                          SizedBox(height: 3 * densityScale),
-                          Text(
-                            'Matched on: $summary',
-                            maxLines: compact ? 1 : 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color:
-                                  libraryAccentTextColor(accent, palette.panel),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                        SizedBox(height: 5 * densityScale),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              const LibraryAddResultBadge('core'),
-                              const SizedBox(width: 4),
-                              LibraryAddResultBadge(item.summary.kind.apiValue),
+                        Row(
+                          children: [
+                            if (isEntry) ...[
+                              Tooltip(
+                                message: 'Already in collection',
+                                child: Container(
+                                  key: const ValueKey(
+                                      'library-add-result-in-collection'),
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: LibraryCollectionStatusScope
+                                        .inCollection.color,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
                             ],
-                          ),
+                            Flexible(
+                              child: Text(
+                                display?.title ?? item.summary.primaryLabel,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  height: 21.4 / 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (secondary.isNotEmpty) Text(secondary),
+                        Row(
+                          children: [
+                            Expanded(child: Text(detail)),
+                            if (trailing.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              Text(trailing),
+                            ],
+                          ],
                         ),
                       ],
-                    );
-                  },
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 20),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20, right: 13),
+                  child: _ResultCheckbox(
+                    checked: checked,
+                    onPressed: onToggleCheck,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+    return summary == null
+        ? row
+        : Tooltip(message: 'Matched on: $summary', child: row);
   }
 }
 
-class _NoSearchResults extends StatelessWidget {
-  const _NoSearchResults({
-    required this.type,
-    required this.accent,
-  });
+class _ResultCheckbox extends StatelessWidget {
+  const _ResultCheckbox({required this.checked, required this.onPressed});
 
-  final LibraryKindRegistration type;
-  final Color accent;
+  final bool checked;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              type.identity.icon,
-              size: 28,
-              color: libraryAccentTextColor(accent, palette.panel),
+    final blue = palette.utilityAction;
+    return Semantics(
+      checked: checked,
+      button: true,
+      label: 'Add to selection',
+      child: GestureDetector(
+        key: const ValueKey('library-add-result-checkbox'),
+        behavior: HitTestBehavior.opaque,
+        onTap: onPressed,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: checked
+                  ? blue
+                  : palette.isDark
+                      ? const Color(0xff444444)
+                      : palette.field,
+              border: Border.all(color: blue, width: 2),
+              borderRadius: BorderRadius.circular(4),
             ),
-            const SizedBox(height: 8),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 360),
-              child: Text(
-                'Search the catalog or add and propose a Catalog Item manually.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: palette.textMuted,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
+            child: checked
+                ? const Icon(AppIcons.check, size: 16, color: Colors.white)
+                : null,
+          ),
         ),
       ),
     );

@@ -35,7 +35,7 @@ void main() {
     final selectedContext =
         tester.element(find.byKey(const ValueKey('selected-sort-music.title')));
     final palette = appPalette(selectedContext);
-    expect(palette.accent, const MusicRegistration().identity.accent);
+    expect(palette.accent, palette.utilityAction);
     expect(
         palette.selection,
         Color.alphaBlend(

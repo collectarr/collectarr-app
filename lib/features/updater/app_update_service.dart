@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:collectarr_app/core/config/project_links.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
@@ -14,8 +15,6 @@ export 'package:collectarr_app/features/updater/release_asset.dart';
 // Configuration
 // ---------------------------------------------------------------------------
 
-const kGitHubOwner = 'collectarr';
-const kGitHubRepo = 'collectarr-app';
 const _kAutoCheckKey = 'collectarr.updater.auto_check';
 const _kChannelKey = 'collectarr.updater.channel';
 

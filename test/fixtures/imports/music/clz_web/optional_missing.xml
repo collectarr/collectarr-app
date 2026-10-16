@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<collectorz>
+  <data>
+    <musicinfo>
+      <musiclist>
+        <music>
+          <hash>9001</hash>
+          <title>After &amp; Before</title>
+        </music>
+        <music>
+          <hash>9002</hash>
+          <title>Quiet Morning</title>
+        </music>
+      </musiclist>
+    </musicinfo>
+  </data>
+</collectorz>

@@ -1,38 +1,29 @@
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
-import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_compact_meta_pill.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-typedef LibraryDateFormatter = String Function(DateTime value);
-typedef LibraryMoneyFormatter = String Function(int? cents, String? currency);
-
 enum LibraryCardLayout { vertical, horizontal }
 
-class LibraryWorkspaceCard extends StatelessWidget {
+class LibraryWorkspaceCard extends StatefulWidget {
   const LibraryWorkspaceCard({
     required this.item,
     required this.selected,
     required this.onTap,
     this.onDoubleTap,
     this.onSecondaryTapUp,
-    required this.dateFormatter,
-    required this.moneyFormatter,
     this.selectedColor = kAppSelection,
     this.accentColor = kAppAccent,
     this.mutedTextColor = kAppTextMuted,
     this.coverWidth = 72,
     this.cardLayout = LibraryCardLayout.horizontal,
     this.selectionMode = false,
+    this.checked = false,
     this.onSelectionToggleTap,
     this.onEditTap,
     this.customFieldBadges = const <String>[],
@@ -44,31 +35,44 @@ class LibraryWorkspaceCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onDoubleTap;
   final GestureTapUpCallback? onSecondaryTapUp;
-  final LibraryDateFormatter dateFormatter;
-  final LibraryMoneyFormatter moneyFormatter;
   final Color selectedColor;
   final Color accentColor;
   final Color mutedTextColor;
   final double coverWidth;
   final LibraryCardLayout cardLayout;
   final bool selectionMode;
+  final bool checked;
   final VoidCallback? onSelectionToggleTap;
   final VoidCallback? onEditTap;
   final List<String> customFieldBadges;
 
   @override
+  State<LibraryWorkspaceCard> createState() => _LibraryWorkspaceCardState();
+}
+
+class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
+  bool _hovered = false;
+  LibraryProjectionView get item => widget.item;
+  bool get selected => widget.selected;
+  VoidCallback get onTap => widget.onTap;
+  VoidCallback? get onDoubleTap => widget.onDoubleTap;
+  GestureTapUpCallback? get onSecondaryTapUp => widget.onSecondaryTapUp;
+  Color get selectedColor => widget.selectedColor;
+  Color get accentColor => widget.accentColor;
+  Color get mutedTextColor => widget.mutedTextColor;
+  double get coverWidth => widget.coverWidth;
+  LibraryCardLayout get cardLayout => widget.cardLayout;
+  bool get selectionMode => widget.selectionMode;
+  bool get checked => widget.checked;
+  VoidCallback? get onSelectionToggleTap => widget.onSelectionToggleTap;
+  VoidCallback? get onEditTap => widget.onEditTap;
+  List<String> get customFieldBadges => widget.customFieldBadges;
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final resolvedSelectedColor = selectedColor == kAppSelection
-        ? libraryWorkspaceSelectionBackground(
-            context,
-            accentColor: accentColor,
-            baseColor: palette.cardBackground,
-          )
-        : selectedColor;
     final resolvedMutedTextColor =
         mutedTextColor == kAppTextMuted ? palette.textMuted : mutedTextColor;
-    final selectedTitleColor = appContrastingTextColor(resolvedSelectedColor);
+    const selectedTitleColor = Colors.white;
     final kind = item.source.mediaKind;
     final registration = libraryKindRegistrationForKind(kind);
     // Resolve the kind-supplied card presentation (or fall back to default).
@@ -79,27 +83,30 @@ class LibraryWorkspaceCard extends StatelessWidget {
       coverFocused: coverFocused,
     );
 
-    final strongSelection = selected && item.target is! CatalogTargetRef;
     final coverCacheWidth = _targetCacheWidth(context);
 
     if (cardLayout == LibraryCardLayout.vertical) {
-      return _buildStandardVerticalCard(
-        context: context,
-        selectedTitleColor: selectedTitleColor,
-        mutedColor: resolvedMutedTextColor,
-        strongSelection: strongSelection,
-        coverCacheWidth: coverCacheWidth,
-        presentation: presentation,
-      );
+      return MouseRegion(
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: _buildStandardVerticalCard(
+            context: context,
+            selectedTitleColor: selectedTitleColor,
+            mutedColor: resolvedMutedTextColor,
+            coverCacheWidth: coverCacheWidth,
+            presentation: presentation,
+          ));
     }
-    return _buildStandardHorizontalCard(
-      context: context,
-      selectedTitleColor: selectedTitleColor,
-      mutedColor: resolvedMutedTextColor,
-      strongSelection: strongSelection,
-      coverCacheWidth: coverCacheWidth,
-      presentation: presentation,
-    );
+    return MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: _buildStandardHorizontalCard(
+          context: context,
+          selectedTitleColor: selectedTitleColor,
+          mutedColor: resolvedMutedTextColor,
+          coverCacheWidth: coverCacheWidth,
+          presentation: presentation,
+        ));
   }
 
   // ---------------------------------------------------------------------------
@@ -110,263 +117,135 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required BuildContext context,
     required Color selectedTitleColor,
     required Color mutedColor,
-    required bool strongSelection,
     required int? coverCacheWidth,
     required LibraryCardPresentation presentation,
   }) {
     final palette = appPalette(context);
-    final gradeLabel = _coverGradeLabel(presentation);
-    final contextFacts = presentation.contextFacts;
     return RepaintBoundary(
-      child: AnimatedContainer(
-        duration: kAppAnimFast,
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: selected
-              ? libraryWorkspaceSelectionBackground(
-                  context,
-                  accentColor: accentColor,
-                  baseColor: palette.cardBackground,
-                )
-              : palette.cardBackground,
-          border: Border.all(
-            color: selected ? accentColor : palette.cardBorder,
-            width: selected ? (strongSelection ? 3 : 2) : 1,
-          ),
-          borderRadius: kAppRadiusSmall,
-          boxShadow: strongSelection
-              ? [
-                  BoxShadow(
-                    color: accentColor.withValues(
-                      alpha: palette.isDark ? 0.34 : 0.26,
-                    ),
-                    blurRadius: 16,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : null,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            mouseCursor: WidgetStateMouseCursor.clickable,
-            onTap: onTap,
-            onDoubleTap: onDoubleTap,
-            onSecondaryTapUp: onSecondaryTapUp,
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 28),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: coverWidth,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            _buildCover(
-                              context: context,
-                              coverCacheWidth: coverCacheWidth,
-                              presentation: presentation,
-                              fit: BoxFit.contain,
-                              borderRadius: 2,
-                            ),
-                            Positioned(
-                              left: 4,
-                              top: 4,
-                              child: LibraryCoverBadges(
-                                isEntry: item.source.isEntry,
-                                isTracked: item.source.isTracked,
-                                isWishlisted: item.source.isWishlisted,
-                                hasMissingCover: item.dto.imageUrl == null ||
-                                    item.dto.imageUrl!.isEmpty,
-                                hasMissingMetadata: contextFacts.isEmpty &&
-                                    presentation.format == null &&
-                                    presentation.variant == null &&
-                                    presentation.releaseDate == null,
-                                contractDiagnosticLabel:
-                                    libraryHierarchyContractDiagnosticLabel(
-                                  item,
-                                ),
-                                keyLabel: _coverKeyLabel(presentation),
-                                gradeLabel: gradeLabel,
-                                slabLabel: _coverSlabLabel(presentation),
-                                notesLabel: libraryNotesMarkerLabel(
-                                    item.source.libraryEntrySummary?.notes),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
+        child: AnimatedContainer(
+      duration: kAppAnimFast,
+      color: selected
+          ? (selectedColor == kAppSelection
+              ? palette.utilityAction
+              : selectedColor)
+          : palette.panelRaised,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          onDoubleTap: onDoubleTap,
+          onSecondaryTapUp: onSecondaryTapUp,
+          mouseCursor: SystemMouseCursors.click,
+          hoverColor: selected ? Colors.transparent : palette.surfaceBright,
+          highlightColor: Colors.transparent,
+          splashFactory: NoSplash.splashFactory,
+          child: Stack(children: [
+            Padding(
+                padding: const EdgeInsets.all(4),
+                child: Row(children: [
+                  SizedBox(
+                      width: coverWidth,
+                      child: _buildCover(
+                          context: context,
+                          coverCacheWidth: coverCacheWidth,
+                          presentation: presentation,
+                          fit: BoxFit.contain,
+                          borderRadius: 0)),
+                  const SizedBox(width: 4),
+                  Expanded(
+                      child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    item.dto.primaryLabel,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleSmall
-                                        ?.copyWith(
-                                          color: kLibraryCardTitleColor,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                  ),
-                                ),
-                                if (presentation.itemNumber != null)
-                                  _LibraryIssuePill(
-                                      label: '#${presentation.itemNumber}'),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              [
-                                if (item.target is! CatalogTargetRef &&
-                                    presentation.variant != null &&
-                                    presentation.variant!.isNotEmpty)
-                                  presentation.variant,
-                                if (presentation.releaseDate != null)
-                                  dateFormatter(presentation.releaseDate!),
-                                ...contextFacts,
-                                if (contextFacts.isEmpty &&
-                                    presentation.format != null &&
-                                    presentation.format!.isNotEmpty)
-                                  presentation.format,
-                              ].whereType<String>().join('  |  '),
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                  child: Text(item.dto.primaryLabel,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w400,
+                                          height: 1.15,
+                                          color: selected
+                                              ? Colors.white
+                                              : palette.link))),
+                              if (presentation.compactBadges.isNotEmpty)
+                                Padding(
+                                    padding: const EdgeInsets.only(left: 6),
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          for (final badge
+                                              in presentation.compactBadges)
+                                            Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(badge.icon,
+                                                      size: 12,
+                                                      color: Colors.white),
+                                                  const SizedBox(width: 2),
+                                                  Text(badge.label,
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          color: Colors.white)),
+                                                ]),
+                                        ])),
+                            ]),
+                        if (presentation.seriesTitle?.isNotEmpty == true)
+                          Text(presentation.seriesTitle!,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: mutedColor,
-                                  ),
-                            ),
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 6,
-                              runSpacing: 6,
-                              children: [
-                                if (presentation.format != null)
-                                  LibraryCompactMetaPill(
-                                    icon: Icons.album_outlined,
-                                    label: 'Format: ${presentation.format!}',
-                                    accentColor: accentColor,
-                                  ),
-                                for (final badge in presentation.compactBadges)
-                                  LibraryCompactMetaPill(
-                                    icon: badge.icon,
-                                    label: badge.label,
-                                    accentColor: accentColor,
-                                  ),
-                                if (_compactNotesLabel(
-                                        item.source.libraryEntrySummary?.notes)
-                                    case final noteLabel?)
-                                  LibraryCompactMetaPill(
-                                    icon: Icons.sticky_note_2_outlined,
-                                    label: noteLabel,
-                                    accentColor: accentColor,
-                                  ),
-                                for (final badge in customFieldBadges)
-                                  LibraryCompactMetaPill(
-                                    icon: Icons.tune,
-                                    label: badge,
-                                    accentColor: accentColor,
-                                  ),
-                                if (item.source.locationPath != null)
-                                  LibraryCompactMetaPill(
-                                    icon: Icons.inventory_2_outlined,
-                                    label: item.source.locationPath!,
-                                    accentColor: accentColor,
-                                  ),
-                                if (item.source.libraryEntrySummary
-                                        ?.pricePaidCents !=
-                                    null)
-                                  LibraryCompactMetaPill(
-                                    icon: Icons.attach_money,
-                                    label: moneyFormatter(
-                                      item.source.libraryEntrySummary!
-                                          .pricePaidCents,
-                                      item.source.libraryEntrySummary!.currency,
-                                    ),
-                                    accentColor: accentColor,
-                                  ),
-                                if (item.source.isWishlisted)
-                                  LibraryCompactMetaPill(
-                                    icon: Icons.star,
-                                    label: 'Wishlist',
-                                    accentColor: accentColor,
-                                  ),
-                              ],
-                            ),
-                            const Spacer(),
-                            if (item.target is! CatalogTargetRef) ...[
-                              Builder(
-                                builder: (context) {
-                                  final format = presentation.format;
-                                  return Text(
-                                    format == null || format.isEmpty
-                                        ? 'No format'
-                                        : format,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelSmall
-                                        ?.copyWith(
-                                          color:
-                                              appPalette(context).textSecondary,
-                                        ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (selectionMode || selected)
-                  Positioned(
-                    left: 6,
-                    bottom: 6,
-                    child: LibraryTileSelectionToggleButton(
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white)),
+                        if (customFieldBadges.isNotEmpty)
+                          Text(customFieldBadges.join(' | '),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.white)),
+                        const Spacer(),
+                        Text(
+                            [
+                              presentation.format,
+                              presentation.releaseDate?.year.toString()
+                            ].whereType<String>().join(' \u2013 '),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white)),
+                      ])),
+                ])),
+            if (_hovered || selectionMode || checked)
+              Positioned(
+                  left: 0,
+                  bottom: 0,
+                  child: LibraryTileSelectionToggleButton(
                       onTap: onSelectionToggleTap,
                       child: LibraryTileSelectionToggle(
-                        selected: selected,
-                        accentColor: accentColor,
-                        coverSize: coverWidth,
-                      ),
-                    ),
-                  ),
-                if (onEditTap != null)
-                  Positioned(
-                    top: 6,
-                    right: 6,
-                    child: LibraryTileHoverActionButton(
-                      icon: Icons.edit_outlined,
-                      tooltip: 'Edit item',
-                      onTap: onEditTap!,
-                    ),
-                  ),
-                Positioned(
-                  right: 6,
-                  bottom: 6,
-                  child: _scopeBadge(context, item),
-                ),
-              ],
-            ),
-          ),
+                          selected: checked,
+                          accentColor: palette.utilityAction,
+                          integrated: true,
+                          highlighted: selected))),
+            if (_hovered && onEditTap != null)
+              Positioned(
+                  right: 5,
+                  top: 5,
+                  child: LibraryTileHoverActionButton(
+                      icon: AppIcons.inlineEdit,
+                      tooltip: 'Edit',
+                      onTap: onEditTap!)),
+          ]),
         ),
       ),
-    );
+    ));
   }
 
   // ---------------------------------------------------------------------------
@@ -377,65 +256,42 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required BuildContext context,
     required Color selectedTitleColor,
     required Color mutedColor,
-    required bool strongSelection,
     required int? coverCacheWidth,
     required LibraryCardPresentation presentation,
   }) {
     final palette = appPalette(context);
     final background = selected
-        ? libraryWorkspaceSelectionBackground(
-            context,
-            accentColor: accentColor,
-            baseColor: palette.cardBackground,
-          )
-        : palette.cardBackground;
+        ? (selectedColor == kAppSelection
+            ? libraryWorkspaceSelectionBackground(context)
+            : selectedColor)
+        : palette.panelRaised;
     final titleColor = kLibraryCardTitleColor;
-    final variant = presentation.variant;
-    final releaseDate = presentation.releaseDate;
-    final format = presentation.format;
-    final subtitle = [
-      if (item.target is! CatalogTargetRef &&
-          variant != null &&
-          variant.isNotEmpty)
-        variant,
-      if (releaseDate != null) dateFormatter(releaseDate),
-      if (format != null && format.isNotEmpty) format,
-    ].whereType<String>().join('  |  ');
-    final support = presentation.contextFacts.join('  ·  ');
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: background,
-          borderRadius: kAppRadiusSmall,
+          borderRadius: BorderRadius.zero,
           border: Border.all(
-            color: selected ? accentColor : palette.cardBorder,
-            width: selected ? (strongSelection ? 3 : 2) : 1,
+            color: selected ? palette.utilityAction : palette.cardBorder,
+            width: 1,
           ),
-          boxShadow: strongSelection
-              ? [
-                  BoxShadow(
-                    color: accentColor.withValues(
-                      alpha: palette.isDark ? 0.34 : 0.26,
-                    ),
-                    blurRadius: 16,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : null,
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             mouseCursor: WidgetStateMouseCursor.clickable,
+            hoverColor: selected ? Colors.transparent : palette.surfaceBright,
+            highlightColor: Colors.transparent,
+            splashFactory: NoSplash.splashFactory,
             onTap: onTap,
             onDoubleTap: onDoubleTap,
             onSecondaryTapUp: onSecondaryTapUp,
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 28),
+                  padding: EdgeInsets.zero,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -450,126 +306,79 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               fit: BoxFit.cover,
                               borderRadius: 0,
                             ),
-                            Positioned(
-                              left: 6,
-                              top: 6,
-                              child: LibraryCoverBadges(
-                                isEntry: item.source.isEntry,
-                                isTracked: item.source.isTracked,
-                                isWishlisted: item.source.isWishlisted,
-                                hasMissingCover: item.dto.imageUrl == null ||
-                                    item.dto.imageUrl!.isEmpty,
-                                hasMissingMetadata:
-                                    (format == null || format.isEmpty),
-                                contractDiagnosticLabel:
-                                    libraryHierarchyContractDiagnosticLabel(
-                                  item,
-                                ),
-                                keyLabel: _coverKeyLabel(presentation),
-                                slabLabel: _coverSlabLabel(presentation),
-                                notesLabel: libraryNotesMarkerLabel(
-                                    item.source.libraryEntrySummary?.notes),
-                              ),
-                            ),
+                            if (customFieldBadges.isNotEmpty)
+                              Text(customFieldBadges.join(' | '),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: selected
+                                          ? Colors.white
+                                          : mutedColor)),
                           ],
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.dto.primaryLabel,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                    color: titleColor,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                            ),
-                            if (subtitle.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                subtitle,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: mutedColor,
-                                    ),
-                              ),
-                            ],
-                            if (support.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                support,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
-                                    ?.copyWith(
-                                      color: mutedColor.withValues(alpha: 0.9),
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                              ),
-                            ],
-                            if (presentation.compactBadges.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Wrap(
-                                spacing: 4,
-                                runSpacing: 4,
-                                children: [
-                                  for (final badge
-                                      in presentation.compactBadges)
-                                    LibraryCompactMetaPill(
-                                      icon: badge.icon,
-                                      label: badge.label,
-                                      accentColor: accentColor,
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ],
-                        ),
+                        padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
+                        child: SizedBox(
+                            height: 57,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                    child: Text(item.dto.primaryLabel,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            color: titleColor,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w700,
+                                            height: 1.4))),
+                                Row(children: [
+                                  Expanded(
+                                      child: Text(
+                                          presentation.seriesTitle ?? '',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: palette.textPrimary))),
+                                  if (presentation.releaseDate != null)
+                                    Text('${presentation.releaseDate!.year}',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: palette.textPrimary)),
+                                ]),
+                              ],
+                            )),
                       ),
                     ],
                   ),
                 ),
-                if (selectionMode || selected)
+                if (_hovered || selectionMode || checked)
                   Positioned(
-                    left: 6,
-                    bottom: 6,
+                    left: 0,
+                    top: 0,
                     child: LibraryTileSelectionToggleButton(
                       onTap: onSelectionToggleTap,
                       child: LibraryTileSelectionToggle(
-                        selected: selected,
-                        accentColor: accentColor,
-                        coverSize: coverWidth,
+                        selected: checked,
+                        accentColor: palette.utilityAction,
+                        integrated: true,
+                        highlighted: selected,
                       ),
                     ),
                   ),
-                if (onEditTap != null)
+                if (_hovered && onEditTap != null)
                   Positioned(
-                    top: 6,
-                    right: 6,
+                    top: 4,
+                    right: 5,
                     child: LibraryTileHoverActionButton(
-                      icon: Icons.edit_outlined,
-                      tooltip: 'Edit item',
+                      icon: AppIcons.inlineEdit,
+                      tooltip: 'Edit',
                       onTap: onEditTap!,
                     ),
                   ),
-                Positioned(
-                  right: 6,
-                  bottom: 6,
-                  child: _scopeBadge(context, item),
-                ),
               ],
             ),
           ),
@@ -610,95 +419,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
     return wrapOverlay != null ? wrapOverlay(cover) : cover;
   }
 
-  Widget _scopeBadge(BuildContext context, LibraryProjectionView item) {
-    final palette = appPalette(context);
-    final scope = resolveLibraryCollectionStatusScope(item);
-    return LibraryTileScopePill(
-      icon: scope.icon,
-      label: scope.label,
-      color: libraryCollectionStatusScopeColor(
-        scope,
-        accentColor,
-        palette.textMuted,
-      ),
-    );
-  }
-
   int? _targetCacheWidth(BuildContext context) {
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
     if (pixelRatio <= 0) return null;
     final rawWidth = coverWidth * pixelRatio;
     return ((rawWidth / 64).ceil() * 64).toInt();
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Helpers for extracting cover-badge labels from the presentation.
-// These read the first badge of the expected icon type.  Kinds can inject
-// badges via LibraryCardPresentation.compactBadges; the cover badges come from
-// kind-specific labels exposed via comic_card_presentation helpers.
-// ---------------------------------------------------------------------------
-
-String? _coverKeyLabel(LibraryCardPresentation presentation) {
-  for (final b in presentation.compactBadges) {
-    if (b.icon == Icons.label_important) return b.label;
-  }
-  return null;
-}
-
-String? _coverSlabLabel(LibraryCardPresentation presentation) {
-  for (final b in presentation.compactBadges) {
-    if (b.icon == Icons.workspace_premium) return b.label;
-  }
-  return null;
-}
-
-String? _coverGradeLabel(LibraryCardPresentation presentation) {
-  for (final b in presentation.compactBadges) {
-    if (b.icon == Icons.workspace_premium) return b.label;
-  }
-  return null;
-}
-
-// ---------------------------------------------------------------------------
-// Module-level helpers (previously in the file-level scope).
-// ---------------------------------------------------------------------------
-
-String? _compactNotesLabel(String? notes) {
-  final trimmed = notes?.trim();
-  if (trimmed == null || trimmed.isEmpty) return null;
-  if (trimmed.length <= 28) return trimmed;
-  return '${trimmed.substring(0, 27)}...';
-}
-
-// ---------------------------------------------------------------------------
-// Private widget helpers.
-// ---------------------------------------------------------------------------
-
-class _LibraryIssuePill extends StatelessWidget {
-  const _LibraryIssuePill({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.issueBackground,
-        borderRadius: kAppRadiusSmall,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: palette.issueForeground,
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-    );
   }
 }

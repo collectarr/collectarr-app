@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../comic_module_dependencies.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -220,7 +221,7 @@ Future<void> _showJumpToIssueDialog(
 }) async {
   final controller = TextEditingController();
   try {
-    await showDialog<void>(
+    await showAppDialog<void>(
       context: context,
       builder: (dialogContext) {
         void submit() {

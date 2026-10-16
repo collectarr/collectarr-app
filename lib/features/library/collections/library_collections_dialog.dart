@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
@@ -16,7 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> showLibraryCollectionsDialog(BuildContext context,
         {required String kind}) =>
-    showDialog<void>(
+    showAppDialog<void>(
         context: context, builder: (_) => _CollectionsDialog(kind: kind));
 
 Future<String?> chooseLibraryCollection(BuildContext context,
@@ -26,7 +27,7 @@ Future<String?> chooseLibraryCollection(BuildContext context,
     String title = 'Move to other collection'}) async {
   final collections = await LibraryCollectionRepository(db).watch(kind).first;
   if (!context.mounted) return null;
-  return showDialog<String>(
+  return showAppDialog<String>(
       context: context,
       builder: (context) => Theme(
           data: libraryAccentTheme(context,
@@ -85,7 +86,8 @@ final class _CollectionsDialog extends ConsumerWidget {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
             clipBehavior: Clip.antiAlias,
             alignment: Alignment.topCenter,
-            insetPadding: const EdgeInsets.fromLTRB(16, 28, 16, 24),
+            insetPadding:
+                const EdgeInsets.fromLTRB(16, kAppDialogTopInset, 16, 24),
             child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 640),
                 child: Column(
@@ -114,7 +116,7 @@ final class _CollectionsDialog extends ConsumerWidget {
                               ),
                               label: const Text('Create new collection'),
                               icon: const Icon(AppIcons.add, size: 14),
-                              onPressed: () => showDialog<void>(
+                              onPressed: () => showAppDialog<void>(
                                   context: context,
                                   builder: (_) => _CollectionNameDialog(
                                       repo: repo, kind: kind)))),
@@ -150,7 +152,7 @@ final class _CollectionsDialog extends ConsumerWidget {
                                           .identity
                                           .countLabel(collection.count)
                                           .toLowerCase(),
-                                      onRename: () => showDialog<void>(
+                                      onRename: () => showAppDialog<void>(
                                           context: context,
                                           builder: (_) => _CollectionNameDialog(
                                               repo: repo,
@@ -191,7 +193,7 @@ final class _CollectionsDialog extends ConsumerWidget {
         excluding: collection.id,
         title: 'Move items before deleting ${collection.name}');
     if (destination == null || !context.mounted) return;
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
         context: context,
         builder: (context) => AccentAlertDialog(
                 headerIcon: AppIcons.delete,
@@ -301,7 +303,7 @@ final class _CollectionNameDialogState extends State<_CollectionNameDialog> {
                       onPressed:
                           _saving ? null : () => Navigator.of(context).pop(),
                       child: const Text('Cancel')),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 5),
                   FilledButton(
                       style: _collectionButtonStyle(context),
                       onPressed: _saving ? null : _save,
@@ -315,15 +317,14 @@ class _CollectionPrivacyIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(AppIcons.coverIndicator,
-            size: 12, color: Theme.of(context).colorScheme.error),
+        Icon(AppIcons.coverIndicator, size: 12, color: const Color(0xffd43f3a)),
         const SizedBox(width: 5),
         Flexible(
             child: Text('Private',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
+                    color: const Color(0xffd43f3a),
                     fontSize: 14,
                     fontWeight: FontWeight.w400))),
       ]);
@@ -374,7 +375,9 @@ class _CollectionRowState extends State<_CollectionRow> {
                     const BoxConstraints.tightFor(width: 30, height: 37),
                 style: IconButton.styleFrom(
                     foregroundColor: palette.textPrimary,
-                    hoverColor: palette.highlight,
+                    hoverColor: palette.isDark
+                        ? const Color(0x26ffffff)
+                        : const Color(0x14000000),
                     shape: const RoundedRectangleBorder(),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap)),
             width: 30,
@@ -431,14 +434,13 @@ class _CollectionRowState extends State<_CollectionRow> {
                           ? Tooltip(
                               message: 'Private',
                               child: Icon(AppIcons.coverIndicator,
-                                  size: 12,
-                                  color: Theme.of(context).colorScheme.error))
+                                  size: 12, color: const Color(0xffd43f3a)))
                           : const _CollectionPrivacyIndicator(),
                       width: compact ? 30 : 100),
                   action(AppIcons.inlineEdit, 'Rename collection',
                       widget.onRename),
                   action(
-                      AppIcons.delete,
+                      AppIcons.removeAction,
                       widget.onDelete == null
                           ? 'Keep at least one collection'
                           : 'Delete collection',

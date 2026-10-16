@@ -48,6 +48,8 @@ class AppPageHeader extends StatelessWidget implements PreferredSizeWidget {
                   data: IconThemeData(size: 16, color: palette.textPrimary),
                   child: DefaultTextStyle(
                     style: TextStyle(
+                        fontFamily: appFontFamily,
+                        height: 20 / 14,
                         color: palette.textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w700),
@@ -79,7 +81,10 @@ class AppPageHeader extends StatelessWidget implements PreferredSizeWidget {
                           alignment: Alignment.centerLeft,
                           child: SizedBox(
                               width: 80,
-                              child: leading ?? const AppPageBackButton())),
+                              child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child:
+                                      leading ?? const AppPageBackButton()))),
                       if (actions?.isNotEmpty ?? false)
                         Align(
                             alignment: Alignment.centerRight,
@@ -105,7 +110,7 @@ class AppPageBackButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
   @override
-  Widget build(BuildContext context) => TextButton.icon(
+  Widget build(BuildContext context) => TextButton(
         onPressed: onPressed ??
             () {
               final navigator = Navigator.of(context);
@@ -121,10 +126,25 @@ class AppPageBackButton extends StatelessWidget {
         style: TextButton.styleFrom(
           foregroundColor: appPalette(context).textPrimary,
           backgroundColor: Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+          minimumSize: const Size(0, 30),
+          maximumSize: const Size(double.infinity, 30),
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          overlayColor:
+              appPalette(context).isDark ? Colors.white : Colors.black,
+          textStyle: TextStyle(
+              fontFamily: appFontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              height: 20 / 14),
         ),
-        icon: const Icon(AppIcons.chevronLeft, size: 18),
-        label: const Text('Back'),
+        child: const Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(AppIcons.chevronLeft, size: 14),
+          SizedBox(width: 2.5),
+          Flexible(
+              child:
+                  Text('Back', maxLines: 1, overflow: TextOverflow.ellipsis)),
+        ]),
       );
 }

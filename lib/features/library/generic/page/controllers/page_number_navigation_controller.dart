@@ -47,7 +47,7 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       state._session.facets.selectedLetter = null;
       state._session.facets.linkedMetadataFilter = null;
       state._session.facets.collectionStatusScope =
-          LibraryCollectionStatusScope.all;
+          kDefaultCollectionStatusScope;
       state._session.facets.bucketCompletionScope =
           LibraryBucketCompletionScope.all;
       state._session.facets.quickView = null;

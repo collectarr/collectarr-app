@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/library/generic/toolbar/library_alphabet_options.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_alphabet_field.dart';
+import 'package:collectarr_app/features/library/generic/library_sort_favorites_provider.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
@@ -58,6 +61,7 @@ import 'package:collectarr_app/features/library/selection/library_selection_stat
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_reveal.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
@@ -144,6 +148,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   final LibraryPageSession _session = LibraryPageSession();
   final _searchStateKey = const Uuid().v4();
   final _searchController = TextEditingController();
+  final _revealController = LibraryRevealController();
   WidgetRef get _pageRef => ref;
 
   final _detailHydrationInFlight = <String>{};
@@ -214,6 +219,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _session.preferences.activeSmartListName = null;
       }),
       syncRouteState: _syncRouteState,
+      onDraftChanged: () => _mutateState(() {}),
     );
     _LibraryPageLifecycleControllerOps.initState(this);
   }
@@ -227,8 +233,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void dispose() {
     _LibraryPageLifecycleControllerOps.dispose(this);
+    _revealController.dispose();
     super.dispose();
   }
+
+  List<LibraryProjectionItem> _visibleItems(LibraryProjection projection) =>
+      libraryItemsForLetter(projection.filteredItems, _alphabetField,
+          _session.facets.selectedLetter);
 
   void _onSearchChanged(String value) =>
       _searchControllerOps.onSearchChanged(value);
@@ -314,6 +325,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       mutateSidebarScope: _mutateSidebarScope,
       updateViewState: _updateViewState,
       selectItem: _selectItem,
+      revealItem: _revealController.reveal,
       syncRouteState: _syncRouteState,
       bulkActions: bulkActions,
       confirmBulkRemove: confirmBulkRemove,
@@ -382,6 +394,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(librarySavedSortFavoritesProvider(widget.type));
     return LibraryPageShellPresenter.build(this, context);
   }
 
@@ -470,8 +483,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return LibraryPagePreferencesControllerOps.activeColumnFavoriteLabel(this);
   }
 
-  List<LibrarySortFavorite> get _sortFavorites =>
-      librarySortFavoritesForType(widget.type);
+  List<LibrarySortFavorite> get _sortFavorites => mergeLibrarySortFavorites(
+      widget.type,
+      ref.read(librarySavedSortFavoritesProvider(widget.type)).value ?? []);
 
   LibrarySortFavorite? get _activeSortFavorite {
     return LibraryPagePreferencesControllerOps.activeSortFavorite(this);
@@ -522,7 +536,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   void _toggleCollectionStatusScope(LibraryCollectionStatusScope scope) {
     _setCollectionStatusScope(
       _session.facets.collectionStatusScope == scope
-          ? LibraryCollectionStatusScope.all
+          ? kDefaultCollectionStatusScope
           : scope,
     );
   }
@@ -716,6 +730,25 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   void _setSelectedBucket(String? bucket) {
     _LibraryScopeControllerOps.setSelectedBucket(this, bucket);
+  }
+
+  List<LibraryAlphabetField> get _alphabetFields =>
+      libraryPresentationForKind(widget.type.kind).alphabetFields;
+  LibraryAlphabetField get _alphabetField => _alphabetFields.firstWhere(
+      (field) => field.id == _session.preferences.alphabetFieldId,
+      orElse: () => _alphabetFields.first);
+
+  void _setAlphabetField(String id) {
+    if (!_alphabetFields.any((field) => field.id == id) ||
+        _alphabetField.id == id) {
+      return;
+    }
+    _mutateState(() {
+      _session.preferences.alphabetFieldId = id;
+      _session.facets.selectedLetter = null;
+    });
+    unawaited(_viewPrefs.writeAlphabetFieldId(id));
+    _syncRouteState();
   }
 
   void _setSelectedLetter(String? letter) {

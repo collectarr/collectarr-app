@@ -27,6 +27,8 @@ class PickListValue {
     this.sortOrder = 0,
     this.isSystem = false,
     this.isHidden = false,
+    this.email,
+    this.address,
   });
 
   final String id;
@@ -43,6 +45,10 @@ class PickListValue {
   final int sortOrder;
   final bool isSystem;
   final bool isHidden;
+
+  /// Contact details, used by the borrower list as CLZ loaner profiles.
+  final String? email;
+  final String? address;
 
   String get effectiveLabel => displayLabel?.trim().isNotEmpty == true
       ? displayLabel!.trim()

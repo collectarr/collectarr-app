@@ -103,6 +103,7 @@ class LibraryPageCoordinatorContext {
     required void Function(VoidCallback mutate) mutateSidebarScope,
     required void Function(LibraryViewStateUpdater update) updateViewState,
     required void Function(String id) selectItem,
+    required void Function(String id) revealItem,
     required void Function() syncRouteState,
     required LibraryBulkActions Function() bulkActions,
     required Future<bool> Function(
@@ -170,6 +171,7 @@ class LibraryPageCoordinatorContext {
         _mutateSidebarScope = mutateSidebarScope,
         _updateViewState = updateViewState,
         _selectItem = selectItem,
+        _revealItem = revealItem,
         _syncRouteState = syncRouteState,
         _bulkActions = bulkActions,
         _confirmBulkRemove = confirmBulkRemove,
@@ -233,6 +235,7 @@ class LibraryPageCoordinatorContext {
   final void Function(VoidCallback mutate) _mutateSidebarScope;
   final void Function(LibraryViewStateUpdater update) _updateViewState;
   final void Function(String id) _selectItem;
+  final void Function(String id) _revealItem;
   final void Function() _syncRouteState;
   final LibraryBulkActions Function() _bulkActions;
   final Future<bool> Function(
@@ -339,6 +342,9 @@ class LibraryPageCoordinatorContext {
   void updateViewState(LibraryViewStateUpdater update) =>
       _updateViewState(update);
   void selectItem(String id) => _selectItem(id);
+
+  /// Scrolls the visible view so the item can be seen.
+  void revealItem(String id) => _revealItem(id);
   void syncRouteState() => _syncRouteState();
 
   LibraryBulkActions bulkActions() => _bulkActions();

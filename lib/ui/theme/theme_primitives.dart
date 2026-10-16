@@ -45,6 +45,13 @@ ColorScheme buildAppColorScheme(AppThemePalette palette) {
   );
 }
 
+TextSelectionThemeData buildAppTextSelectionTheme(AppThemePalette palette) =>
+    TextSelectionThemeData(
+      cursorColor: palette.utilityAction,
+      selectionColor: palette.utilityAction.withValues(alpha: .35),
+      selectionHandleColor: palette.utilityAction,
+    );
+
 InputDecorationTheme buildAppInputDecorationTheme(
   AppThemePalette palette, {
   Color? fillColor,
@@ -77,7 +84,7 @@ InputDecorationTheme buildAppInputDecorationTheme(
       borderRadius: BorderRadius.circular(kAppInputBorderRadius),
     ),
     focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: palette.accent),
+      borderSide: BorderSide(color: palette.utilityAction),
       borderRadius: BorderRadius.circular(kAppInputBorderRadius),
     ),
   );
@@ -86,13 +93,11 @@ InputDecorationTheme buildAppInputDecorationTheme(
 DialogThemeData buildAppDialogTheme(AppThemePalette palette) {
   return DialogThemeData(
     alignment: kDefaultDialogAlignment,
+    insetPadding: kAppDialogInsets,
     backgroundColor: palette.panel,
     surfaceTintColor: Colors.transparent,
     clipBehavior: Clip.antiAlias,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(6),
-      side: BorderSide(color: palette.divider),
-    ),
+    shape: appDialogShape,
     titleTextStyle: TextStyle(
       color: palette.textPrimary,
       fontFamily: appFontFamily,
@@ -277,6 +282,27 @@ ChipThemeData buildAppChipTheme(ThemeData base, AppThemePalette palette) {
   );
 }
 
+TooltipThemeData buildAppTooltipTheme(AppThemePalette palette) =>
+    TooltipThemeData(
+      decoration: BoxDecoration(
+        color: palette.isDark
+            ? Colors.white.withValues(alpha: .9)
+            : Colors.grey.shade700.withValues(alpha: .9),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      textStyle: TextStyle(
+        color: palette.isDark ? Colors.black : Colors.white,
+        fontFamily: appFontFamily,
+        fontFamilyFallback: kAppFontFamilyFallback,
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        height: 20 / 14,
+        letterSpacing: 0,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      waitDuration: const Duration(milliseconds: 500),
+    );
+
 ThemeData applySharedSurfaceTheme(
   ThemeData base,
   AppThemePalette palette, {
@@ -289,6 +315,7 @@ ThemeData applySharedSurfaceTheme(
   return base.copyWith(
     visualDensity: compact ? VisualDensity.compact : null,
     colorScheme: buildAppColorScheme(palette),
+    textSelectionTheme: buildAppTextSelectionTheme(palette),
     scaffoldBackgroundColor: palette.canvas,
     canvasColor: includeCanvasColor ? palette.canvas : palette.panelRaised,
     dividerTheme: DividerThemeData(
@@ -332,6 +359,7 @@ ThemeData applySharedSurfaceTheme(
     searchBarTheme: buildAppSearchBarTheme(palette),
     chipTheme: buildAppChipTheme(base, palette),
     datePickerTheme: buildAppDatePickerTheme(palette: palette),
+    tooltipTheme: buildAppTooltipTheme(palette),
     textTheme: buildAppTextTheme(base.textTheme, palette.textPrimary),
   );
 }

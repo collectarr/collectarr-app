@@ -38,10 +38,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-MusicLibraryEntry fixture() => MusicLibraryEntry(
+MusicLibraryEntry fixture({bool linked = true}) => MusicLibraryEntry(
       id: const LibraryEntryId('music-entry'),
-      sourceCatalogRef:
-          const CatalogItemRef(kind: CatalogMediaKind.music, id: 'core-album'),
+      sourceCatalogRef: linked
+          ? const CatalogItemRef(kind: CatalogMediaKind.music, id: 'core-album')
+          : null,
       updatedAt: DateTime.utc(2026, 10, 10),
       personal: const MusicPersonalData(
           indexNumber: 4, personalNotes: 'Keep this note'),
@@ -111,89 +112,95 @@ void main() {
     expect(payload['source_catalog_ref'], isNull);
   });
 
-  testWidgets(
-      'entry inspector resolves summary, offers actions and renders Music v2 at 350px',
-      (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    final semantics = tester.ensureSemantics();
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    final entry = fixture();
-    await MusicEntryRepository(db).upsert(entry);
-    final summary = MusicLibraryEntryProjection.toSummary(entry);
-    final source = LibraryWorkspaceContext(
-      item: WorkspaceItem(
-          target: EntryTargetRef(summary.ref),
-          entrySummary: summary,
-          libraryEntryDispatch: OpaqueLibraryEntryDispatch(
-              ref: summary.ref, kind: CatalogMediaKind.music, value: entry),
-          kindPresentationData: MusicWorkspaceData.fromMusic(entry.metadata)),
-      personal: const PersonalOverlay(),
-    );
-    final item =
-        LibraryProjectionItem.fromShelf(source, const MusicRegistration());
-    final projection = LibraryProjection(
-        allItems: [item],
-        filteredItems: [item],
-        buckets: const [],
-        selectedItem: item,
-        counts: const LibraryToolbarCounts());
-    await tester.pumpWidget(ProviderScope(
-        overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp(
-            home: Scaffold(
-                body: SizedBox(
-                    width: 350,
-                    child: LibraryInspector(
-                      type: const MusicRegistration(),
-                      projection: projection,
-                      item: item,
-                      libraryEntry: null,
-                      accent: Colors.orange,
-                      db: db,
-                      onAddEntry: null,
-                      onRemoveEntry: () {},
-                      onAddWishlist: null,
-                      onRemoveWishlist: null,
-                      onEdit: (_) {},
-                    ))))));
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Credits'), 300,
-        scrollable: find.byType(Scrollable).first);
-    expect(find.text('Producer / Disc 1'), findsOneWidget);
-    expect(find.text('John - Piano'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, 3000));
-    await tester.pumpAndSettle();
-    final container = ProviderScope.containerOf(
-        tester.element(find.byType(LibraryInspector)));
-    final preferences = container.read(uiPreferencesProvider.notifier);
-    expect(find.byType(InspectorBackdrop), findsOneWidget);
-    await preferences.setShowInspectorBackdrop(false);
-    await preferences.setShowEbayLinks(false);
-    await tester.pumpAndSettle();
-    expect(find.byType(InspectorBackdrop), findsNothing);
-    expect(find.byTooltip('Search sold prices on eBay'), findsNothing);
-    expect(find.text('Search eBay'), findsNothing);
-    await preferences.setShowInspectorBackdrop(true);
-    await preferences.setShowEbayLinks(true);
-    await tester.pumpAndSettle();
-    expect(find.byTooltip('Share'), findsOneWidget);
-    expect(find.bySemanticsLabel('Edit'), findsOneWidget);
-    expect(find.bySemanticsLabel('Share'), findsOneWidget);
-    await tester.tap(find.byTooltip('More inspector actions'));
-    await tester.pumpAndSettle();
-    expect(find.text('Duplicate'), findsOneWidget);
-    expect(find.text('Loan'), findsOneWidget);
-    expect(find.text('Unlink from Core'), findsOneWidget);
-    expect(find.text('Move to other collection'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-    await tester.tap(find.text('Loan'));
-    await tester.pumpAndSettle();
-    expect(find.text('Loans'), findsWidgets);
-    expect(tester.takeException(), isNull);
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(milliseconds: 1));
-    semantics.dispose();
-  });
+  for (final linked in [true, false]) {
+    testWidgets(
+        'entry inspector offers Core actions for linked=$linked at 350px',
+        (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final semantics = tester.ensureSemantics();
+      final db = LocalDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final entry = fixture(linked: linked);
+      await MusicEntryRepository(db).upsert(entry);
+      final summary = MusicLibraryEntryProjection.toSummary(entry);
+      final source = LibraryWorkspaceContext(
+        item: WorkspaceItem(
+            target: EntryTargetRef(summary.ref),
+            entrySummary: summary,
+            libraryEntryDispatch: OpaqueLibraryEntryDispatch(
+                ref: summary.ref, kind: CatalogMediaKind.music, value: entry),
+            kindPresentationData: MusicWorkspaceData.fromMusic(entry.metadata)),
+        personal: const PersonalOverlay(),
+      );
+      final item =
+          LibraryProjectionItem.fromShelf(source, const MusicRegistration());
+      final projection = LibraryProjection(
+          allItems: [item],
+          filteredItems: [item],
+          buckets: const [],
+          selectedItem: item,
+          counts: const LibraryToolbarCounts());
+      await tester.pumpWidget(ProviderScope(
+          overrides: [localDatabaseProvider.overrideWithValue(db)],
+          child: MaterialApp(
+              home: Scaffold(
+                  body: SizedBox(
+                      width: 350,
+                      child: LibraryInspector(
+                        type: const MusicRegistration(),
+                        projection: projection,
+                        item: item,
+                        libraryEntry: null,
+                        accent: Colors.orange,
+                        db: db,
+                        onAddEntry: null,
+                        onRemoveEntry: () {},
+                        onAddWishlist: null,
+                        onRemoveWishlist: null,
+                        onEdit: (_) {},
+                      ))))));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Credits'), 300,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.text('Producer / Disc 1'), findsOneWidget);
+      expect(find.text('John - Piano'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, 3000));
+      await tester.pumpAndSettle();
+      final container = ProviderScope.containerOf(
+          tester.element(find.byType(LibraryInspector)));
+      final preferences = container.read(uiPreferencesProvider.notifier);
+      expect(find.byType(InspectorBackdrop), findsOneWidget);
+      await preferences.setShowInspectorBackdrop(false);
+      await preferences.setShowEbayLinks(false);
+      await tester.pumpAndSettle();
+      expect(find.byType(InspectorBackdrop), findsNothing);
+      expect(find.byTooltip('Search sold prices on eBay'), findsNothing);
+      expect(find.text('Search eBay'), findsNothing);
+      await preferences.setShowInspectorBackdrop(true);
+      await preferences.setShowEbayLinks(true);
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Share'), findsOneWidget);
+      expect(find.bySemanticsLabel('Edit'), findsOneWidget);
+      expect(find.bySemanticsLabel('Share'), findsOneWidget);
+      await tester.tap(find.byTooltip('More inspector actions'));
+      await tester.pumpAndSettle();
+      expect(find.text('Duplicate'), findsOneWidget);
+      expect(find.text('Loan'), findsOneWidget);
+      expect(find.text('Unlink from Core'),
+          linked ? findsOneWidget : findsNothing);
+      expect(find.text('Update from Core'),
+          linked ? findsOneWidget : findsNothing);
+      expect(find.text('Link to Core'), linked ? findsNothing : findsOneWidget);
+      expect(find.text('Move to other collection'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.text('Loan'));
+      await tester.pumpAndSettle();
+      expect(find.text('Loan Album'), findsWidgets);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 1));
+      semantics.dispose();
+    });
+  }
 }

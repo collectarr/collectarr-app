@@ -165,11 +165,20 @@ ThemeData buildLibraryAccentTheme(ThemeData base, Color accent) {
             : base.colorScheme.surfaceContainerHighest;
       }),
     ),
+    textSelectionTheme: buildAppTextSelectionTheme(
+        base.extension<AppThemePalette>() ?? kDefaultAppThemePalette),
     inputDecorationTheme: base.inputDecorationTheme.copyWith(
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: readableAccent),
+        borderSide: BorderSide(
+            color:
+                (base.extension<AppThemePalette>() ?? kDefaultAppThemePalette)
+                    .utilityAction),
       ),
-      floatingLabelStyle: TextStyle(color: readableAccent),
+      floatingLabelStyle: base.inputDecorationTheme.floatingLabelStyle
+          ?.copyWith(
+              color:
+                  (base.extension<AppThemePalette>() ?? kDefaultAppThemePalette)
+                      .utilityAction),
     ),
     tabBarTheme: base.tabBarTheme.copyWith(
       dividerColor: base.colorScheme.outline.withValues(alpha: 0.55),
@@ -329,14 +338,6 @@ class LibraryAccentChrome extends StatelessWidget {
     return AnimatedLibraryChrome(
       accent: accent,
       duration: animationDuration,
-      borderBuilder: (animatedAccent, _) => Border(
-        bottom: BorderSide(
-          color: Color.alphaBlend(
-            Colors.white.withValues(alpha: 0.12),
-            animatedAccent,
-          ),
-        ),
-      ),
       child: const SizedBox.expand(),
     );
   }

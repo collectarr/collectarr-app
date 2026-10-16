@@ -63,6 +63,7 @@ class CompactDropdown extends StatelessWidget {
     final palette = appPalette(context);
     final bg = compactMenuBackgroundFor(accent, palette);
     return PopupMenuButton<String?>(
+      popUpAnimationStyle: AnimationStyle.noAnimation,
       initialValue: selectedValue,
       tooltip: label,
       position: PopupMenuPosition.under,
@@ -120,6 +121,7 @@ class CompactDropdownWithNone extends StatelessWidget {
     final palette = appPalette(context);
     final bg = compactMenuBackgroundFor(accent, palette);
     return PopupMenuButton<String?>(
+      popUpAnimationStyle: AnimationStyle.noAnimation,
       initialValue: selectedValue,
       tooltip: label,
       position: PopupMenuPosition.under,

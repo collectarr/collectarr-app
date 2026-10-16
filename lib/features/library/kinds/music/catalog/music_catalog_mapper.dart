@@ -95,9 +95,9 @@ final class MusicCatalogMapper {
       'kind': CatalogMediaKind.music.apiValue,
       'revision': album.revision,
       'title': album.title,
-      if (album.sortTitle != null) 'sort_title': album.sortTitle,
-      if (album.subtitle != null) 'subtitle': album.subtitle,
-      if (album.artist != null) 'artist': album.artist,
+      'sort_title': album.sortTitle,
+      'subtitle': album.subtitle,
+      'artist': album.artist,
       'artist_credits': [
         for (final credit in album.artistCredits)
           {
@@ -109,26 +109,22 @@ final class MusicCatalogMapper {
             if (credit.joinPhrase != null) 'join_phrase': credit.joinPhrase,
           },
       ],
-      if (album.originalReleaseDateParts != null)
-        'original_release_date': album.originalReleaseDateParts!.toJson(),
-      if (album.releaseDateParts != null)
-        'release_date': album.releaseDateParts!.toJson(),
-      if (album.publisher != null) 'label': album.publisher,
-      if (album.barcode != null) 'barcode': album.barcode,
-      if (album.catalogNumber != null) 'catalog_number': album.catalogNumber,
+      'original_release_date': album.originalReleaseDateParts?.toJson(),
+      'release_date': album.releaseDateParts?.toJson(),
+      'label': album.publisher,
+      'barcode': album.barcode,
+      'catalog_number': album.catalogNumber,
       'genres': album.genres,
-      if (album.packaging != null) 'packaging': album.packaging,
-      if (album.countryCode != null) 'country': album.countryCode,
+      'packaging': album.packaging,
+      'country': album.countryCode,
       'extra': album.extra,
-      if (album.boxSet != null) 'box_set': album.boxSet,
+      'box_set': album.boxSet,
       'credits': album.credits.map((credit) => credit.toJson()).toList(),
       'external_links':
           album.externalLinks.map((link) => link.toJson()).toList(),
-      if (album.coverImageUrl != null) 'cover_image_url': album.coverImageUrl,
-      if (album.backCoverImageUrl != null)
-        'back_cover_image_url': album.backCoverImageUrl,
-      if (album.thumbnailImageUrl != null)
-        'thumbnail_image_url': album.thumbnailImageUrl,
+      'cover_image_url': album.coverImageUrl,
+      'back_cover_image_url': album.backCoverImageUrl,
+      'thumbnail_image_url': album.thumbnailImageUrl,
       'discs': [for (final disc in album.discs) _discToCatalogData(disc)],
     };
     fromCatalogPayload(music);

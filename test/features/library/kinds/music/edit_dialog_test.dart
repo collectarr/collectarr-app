@@ -1,3 +1,8 @@
+import 'dart:convert';
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'dart:io';
+import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import '../../../../support/builders/catalog_item_builder.dart';
@@ -27,6 +32,104 @@ void main() {
 
     expect(title, 'Test Album / Test Artist');
     expect(title, isNot(startsWith('Edit')));
+  });
+
+  testWidgets(
+      'Music correction source reflects edited Label in canonical fields',
+      (tester) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final payload = jsonDecode(
+        File('test/support/fixtures/music_core_ui_album.json')
+            .readAsStringSync()) as Map<String, dynamic>;
+    final request = LibraryEditDialogRequest(
+      type: const MusicRegistration(),
+      item: CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson(payload)),
+      libraryEntry: null,
+      accent: Colors.orange,
+    );
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: MaterialApp(
+          home: Builder(
+              builder: (context) => Scaffold(
+                    body: buildMusicAlbumLibraryEditDialog(context, request),
+                  ))),
+    ));
+    await tester.pumpAndSettle();
+    final input = find.byWidgetPredicate((widget) =>
+        widget is TextField && widget.controller?.text == 'Demo Records');
+    await tester.enterText(input, 'UI Demo Records');
+    await tester.pump();
+    final dialog = tester.widget<
+            LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>>(
+        find.byType(LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>));
+    final source = dialog.coreCorrectionSourceBuilder!();
+    expect(source.originalFields['label'], 'Demo Records');
+    expect(source.proposedFields['label'], 'UI Demo Records');
+    expect(source.proposedFields, isNot(contains('publisher')));
+    expect(source.proposedFields['country'], 'United Kingdom');
+    await tester.enterText(
+        find.byWidgetPredicate((widget) =>
+            widget is TextField &&
+            widget.controller?.text == 'UI Demo Records'),
+        '');
+    await tester.pump();
+    expect(dialog.coreCorrectionSourceBuilder!().proposedFields,
+        containsPair('label', null));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
+
+  testWidgets('cancelling an untouched editor closes without a prompt',
+      (tester) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    // The fixture has no stored sort title, which the draft derives on save.
+    final payload = jsonDecode(
+        File('test/support/fixtures/music_core_ui_album.json')
+            .readAsStringSync()) as Map<String, dynamic>;
+    final request = LibraryEditDialogRequest(
+      type: const MusicRegistration(),
+      item: CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson(payload)),
+      libraryEntry: null,
+      accent: Colors.orange,
+    );
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: FilledButton(
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (context) =>
+                    buildMusicAlbumLibraryEditDialog(context, request),
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(
+        find.byType(LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>),
+        findsOneWidget);
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Unsaved changes'), findsNothing);
+    expect(
+        find.byType(LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>),
+        findsNothing);
   });
 
   testWidgets('music links tab exposes editable external links',
@@ -81,7 +184,7 @@ void main() {
 
     final dialogSurface = find.byKey(const ValueKey('library-dialog-surface'));
     expect(tester.getSize(dialogSurface).width, closeTo(1152, 1));
-    expect(tester.getTopLeft(dialogSurface).dy, closeTo(10, 1));
+    expect(tester.getTopLeft(dialogSurface).dy, closeTo(kAppEditorTopInset, 1));
 
     expect(find.text('Credits'), findsOneWidget);
     expect(find.text('Classical'), findsNothing);

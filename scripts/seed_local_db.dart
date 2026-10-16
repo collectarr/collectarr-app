@@ -1,27 +1,34 @@
 import 'dart:io';
 
+import 'package:drift/native.dart';
 import 'package:flutter/widgets.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 
-Future<void> main(List<String> args) async {
+/// Seeds the development fixture into an explicitly named, isolated database.
+///
+/// flutter run -d windows -t scripts/seed_local_db.dart
+/// --dart-define=COLLECTARR_SEED_DB=C:/path/dev-library.sqlite
+///
+/// The application's own database is never opened, reset or replaced.
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  const resetFromBuild = bool.fromEnvironment('COLLECTARR_SEED_RESET');
-  if (args.contains('--reset') || resetFromBuild) {
-    await _resetLocalDatabaseFile();
+  const path = String.fromEnvironment('COLLECTARR_SEED_DB');
+  if (path.isEmpty) {
+    throw ArgumentError('COLLECTARR_SEED_DB must name an isolated database.');
+  }
+  if (File(path).uri.pathSegments.last == 'collectarr-library.sqlite') {
+    throw ArgumentError('Refusing to seed the application database file.');
   }
 
-  final db = LocalDatabase();
+  final db = LocalDatabase(NativeDatabase(File(path)));
   try {
     await seedLocalDatabase(db, force: true);
     final report = await verifyDevSeedDatabase(db);
 
     stdout.writeln(
-      'Local DB seeded. catalog_items=${report.catalogCount} '
+      'Seeded $path. catalog_items=${report.catalogCount} '
       'seed_catalog_items=${report.seededCatalogCount} '
       'library_entries=${report.entryCount} tracking_entries=${report.trackingCount} '
       'item_images_cache=${report.imageCount} '
@@ -41,18 +48,6 @@ Future<void> main(List<String> args) async {
   }
 
   exit(0);
-}
-
-Future<void> _resetLocalDatabaseFile() async {
-  final documentsDirectory = await getApplicationDocumentsDirectory();
-  final databasePath = p.join(documentsDirectory.path, 'collectarr.sqlite');
-  for (final suffix in ['', '-wal', '-shm']) {
-    final file = File('$databasePath$suffix');
-    if (await file.exists()) {
-      await file.delete();
-      stdout.writeln('Removed ${file.path}');
-    }
-  }
 }
 
 String _formatCounts(Map<String, int> counts) {

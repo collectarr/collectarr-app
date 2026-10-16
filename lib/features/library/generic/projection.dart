@@ -288,7 +288,10 @@ List<String> libraryGroupModesForType(
 }
 
 String libraryDefaultGroupMode(LibraryKindRegistration type) {
-  return libraryGroupModesForType(type).first;
+  final modes = libraryGroupModesForType(type);
+  final declared =
+      libraryKindWorkspaceForKind(type.kind).fields.defaultGroup?.value;
+  return declared != null && modes.contains(declared) ? declared : modes.first;
 }
 
 String libraryGroupModeStorageValue(String mode,
@@ -382,6 +385,7 @@ class LibraryProjection {
         const {},
     Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
+    LibrarySortingOptions sorting = const LibrarySortingOptions(),
   }) {
     return const LibraryProjectionService().build(
       shelf: shelf,
@@ -404,6 +408,7 @@ class LibraryProjection {
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
       activeLoanLibraryEntryIds: activeLoanLibraryEntryIds,
       searchTarget: searchTarget,
+      sorting: sorting,
     );
   }
 

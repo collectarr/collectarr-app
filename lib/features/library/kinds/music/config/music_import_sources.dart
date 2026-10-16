@@ -1,3 +1,9 @@
+import '../integrations/import/catraxx_importer.dart';
+import '../integrations/import/discogs_importer.dart';
+import '../integrations/import/delicious_library_importer.dart';
+import '../integrations/import/music_collector_importer.dart';
+import '../integrations/import/clz_music_web_importer.dart';
+import '../integrations/import/music_mapped_csv_importer.dart';
 import 'package:collectarr_app/features/library/config/library_import_capability.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +19,11 @@ const List<KindMappableField> musicMappableFields = [
     label: 'Title',
     aliases: ['Title', 'Album', 'Album Title', 'Release', 'Full Title'],
     isDefault: true,
+  ),
+  KindMappableField(
+    key: 'sort_title',
+    label: 'Sort Title',
+    aliases: ['Sort Title', 'Title Sort', 'Sort'],
   ),
   KindMappableField(
     key: 'release_year',
@@ -57,11 +68,6 @@ const List<KindMappableField> musicMappableFields = [
     aliases: ['Country', 'Release Country'],
   ),
   KindMappableField(
-    key: 'track_count',
-    label: 'Track Count',
-    aliases: ['Tracks', 'Track Count', 'Total Tracks'],
-  ),
-  KindMappableField(
     key: 'disc_count',
     label: 'Discs',
     aliases: ['Discs', 'Disc Count', 'Discs Total'],
@@ -75,11 +81,6 @@ const List<KindMappableField> musicMappableFields = [
     key: 'condition',
     label: 'Media Condition',
     aliases: ['Condition', 'Media Condition', 'Grade'],
-  ),
-  KindMappableField(
-    key: 'location',
-    label: 'Location',
-    aliases: ['Location', 'Location ID', 'Shelf', 'Storage'],
   ),
   KindMappableField(
     key: 'purchase_date',
@@ -115,6 +116,7 @@ final musicImportSources = <LibraryImportSourceDefinition>[
   ),
   const LibraryImportSourceDefinition(
     id: 'discogs',
+    importer: DiscogsImporter(),
     title: 'Discogs',
     assetLogoPath: 'assets/import_logos/discogs.svg',
     fallbackIcon: Icons.album_outlined,
@@ -132,88 +134,26 @@ final musicImportSources = <LibraryImportSourceDefinition>[
     filePrompt: 'Upload your Discogs CSV file:',
   ),
   const LibraryImportSourceDefinition(
-    id: 'catraxx',
-    title: 'CATraxx',
-    assetLogoPath: 'assets/import_logos/catraxx.svg',
-    fallbackIcon: Icons.music_note,
-    isSvg: true,
-    sourceType: LibraryImportSourceType.guidedFile,
-    fileExtensions: ['xml'],
-    description:
-        'To import your list of albums from CATraxx, you need to export an XML file of your albums out of CATraxx.\nHere\'s what to do:',
-    instructions: [
-      'Start CATraxx on your computer.',
-      'Click menu File > Export > XML',
-      'Click "Albums" in the left hand panel and set it to include "All" albums.',
-      'Click "Export" and save the XML file on your computer.',
-      'Upload the "CATraxx_Albums.xml" file below:',
-    ],
-    filePrompt: 'Upload your CATraxx XML file:',
-  ),
-  const LibraryImportSourceDefinition(
     id: 'delicious',
+    importer: DeliciousLibraryImporter(),
     title: 'Delicious Library',
     assetLogoPath: 'assets/import_logos/delicious.png',
     fallbackIcon: Icons.folder_special,
     isSvg: false,
     sourceType: LibraryImportSourceType.guidedFile,
-    fileExtensions: ['txt'],
-    description:
-        'To import your list of albums from Delicious, you need to export a TXT file of your Delicious collection.\nHere\'s what to do:',
-    instructions: [
-      'Start Delicious Library on your computer.',
-      'Click menu File > Export To > Another Application.',
-      'Select Delimited Text and check every box in the Export Fields box.',
-      'For Export, select Entire Library.',
-      'For Seperate multiple values with:, select Comma.',
-      'For Delimiter, select Comma-seperated.',
-      'Check the Export as Unicode box.',
-      'Press the Export button.',
-      'Upload the saved "Library Export xxxx-xx-xx.txt" file below:',
-    ],
-    filePrompt: 'Upload your Delicious TXT file:',
-  ),
-  const LibraryImportSourceDefinition(
-    id: 'orangecd',
-    title: 'OrangeCD',
-    assetLogoPath: 'assets/import_logos/orangecd.png',
-    fallbackIcon: Icons.album_outlined,
-    isSvg: false,
-    sourceType: LibraryImportSourceType.guidedFile,
-    fileExtensions: ['oxl', 'xml'],
-    description:
-        'To import your list of albums from OrangeCD, you need to export an OXL file of your albums out of OrangeCD.\nHere\'s what to do:',
-    instructions: [
-      'Start OrangeCD on your computer.',
-      'Click menu Database > Import and export',
-      'Select the Export to OrangeCD XML option',
-      'Press "next" and save the file somewhere you will be able to find it',
-      'Upload your OrangeCD OXL file below:',
-    ],
-    filePrompt: 'Upload your OrangeCD OXL file:',
-  ),
-  const LibraryImportSourceDefinition(
-    id: 'cdpedia',
-    title: 'CDpedia',
-    assetLogoPath: 'assets/import_logos/cdpedia.png',
-    fallbackIcon: Icons.library_music,
-    isSvg: false,
-    sourceType: LibraryImportSourceType.guidedFile,
     fileExtensions: ['xml'],
     description:
-        'To import your list of albums from CDpedia, you need to export an XML file of your albums out of CDpedia.\nHere\'s what to do:',
+        'Export your Music items from Delicious Library 2 as an XML property list.',
     instructions: [
-      'Start CDpedia on your computer.',
-      'Click menu File > Export',
-      'at the top select the ".cdpedia" tab',
-      'Click the Export button',
-      'Locate the exported folder and find the info.xml file inside it',
-      'Upload the "info.xml" file below:',
+      'Open Delicious Library 2.',
+      'Export your library as XML.',
+      'Upload the XML export below. Delimited TXT exports are not supported.'
     ],
-    filePrompt: 'Upload your CDpedia XML file:',
+    filePrompt: 'Upload your Delicious Library XML file:',
   ),
   const LibraryImportSourceDefinition(
     id: 'musiccollector',
+    importer: MusicCollectorImporter(),
     title: 'Music Collector',
     assetLogoPath: 'assets/import_logos/logo-desktop.png',
     fallbackIcon: Icons.desktop_windows,
@@ -232,6 +172,7 @@ final musicImportSources = <LibraryImportSourceDefinition>[
   ),
   const LibraryImportSourceDefinition(
     id: 'clzweb',
+    importer: ClzMusicWebImporter(),
     title: 'CLZ Music Web',
     assetLogoPath: 'assets/import_logos/clz-music-icon.svg',
     fallbackIcon: Icons.cloud_download_outlined,
@@ -249,9 +190,27 @@ final musicImportSources = <LibraryImportSourceDefinition>[
     ],
     filePrompt: 'Upload your CLZ Music Web XML file:',
   ),
+  const LibraryImportSourceDefinition(
+    id: 'catraxx',
+    importer: CatraxxImporter(),
+    title: 'CATraxx',
+    fallbackIcon: Icons.library_music_outlined,
+    sourceType: LibraryImportSourceType.guidedFile,
+    fileExtensions: ['xml'],
+    description:
+        'To import your list of albums from CATraxx, you need to export an XML file of your albums out of CATraxx.\nHere\'s what to do:',
+    instructions: [
+      'Start CATraxx on your computer.',
+      'Click menu File > Export > XML.',
+      'Choose the Album table, include all albums and select all album and track fields.',
+      'Upload the saved XML file below:',
+    ],
+    filePrompt: 'Upload your CATraxx XML file:',
+  ),
 ];
 
 final musicKindImport = LibraryKindImportCapability(
   sources: musicImportSources,
   mappableFields: musicMappableFields,
+  mappedCsvImporter: const MusicMappedCsvImporter(),
 );

@@ -27,93 +27,56 @@ class MusicAddSearchControls extends StatelessWidget {
       request.advancedFilterState[musicAddDiscFilterId],
     );
     final palette = appPalette(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 6),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+    final menuText = TextStyle(color: palette.textPrimary, fontSize: 14);
+    return PopupMenuButton<MusicAddDiscFilter>(
+      key: const ValueKey('music-add-format-filter'),
+      tooltip: 'Format',
+      initialValue: disc,
+      popUpAnimationStyle: AnimationStyle.noAnimation,
+      position: PopupMenuPosition.under,
+      color: palette.isDark ? const Color(0xff444444) : palette.panelRaised,
+      surfaceTintColor: Colors.transparent,
+      menuPadding: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+            color: palette.isDark ? const Color(0xff666666) : palette.divider),
+      ),
+      onSelected: (value) => _update(musicAddDiscFilterId, value.value),
+      itemBuilder: (context) => [
+        for (final value in MusicAddDiscFilter.values)
+          PopupMenuItem(
+            value: value,
+            height: 30,
+            child: Text(value.label, style: menuText),
+          ),
+      ],
+      child: Container(
+        width: 77,
+        height: 24,
+        padding: const EdgeInsets.only(left: 4, right: 2),
+        decoration: BoxDecoration(
+          color: palette.isDark ? const Color(0xff383838) : palette.field,
+          border: Border.all(color: const Color(0xff767676)),
+        ),
         child: Row(
           children: [
-            Text(
-              'Disc',
-              style: TextStyle(
-                color: palette.textMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(width: 6),
-            _MusicChoiceStrip<MusicAddDiscFilter>(
-              accent: request.accent,
-              selected: disc,
-              values: [
-                for (final value in MusicAddDiscFilter.values)
-                  (value, value.label),
-              ],
-              onSelected: (value) => _update(musicAddDiscFilterId, value.value),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MusicChoiceStrip<T> extends StatelessWidget {
-  const _MusicChoiceStrip({
-    required this.accent,
-    required this.selected,
-    required this.values,
-    required this.onSelected,
-  });
-
-  final Color accent;
-  final T selected;
-  final List<(T, String)> values;
-  final ValueChanged<T> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panelRaised,
-        border: Border.all(color: palette.divider),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var index = 0; index < values.length; index++) ...[
-            if (index > 0)
-              VerticalDivider(
-                width: 1,
-                thickness: 1,
-                color: palette.divider,
-              ),
-            InkWell(
-              mouseCursor: WidgetStateMouseCursor.clickable,
-              onTap: () => onSelected(values[index].$1),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                color: values[index].$1 == selected
-                    ? accent.withValues(alpha: 0.2)
-                    : Colors.transparent,
-                child: Text(
-                  values[index].$2,
-                  style: TextStyle(
-                    color: values[index].$1 == selected
-                        ? accent
-                        : palette.textMuted,
-                    fontSize: 12,
-                    fontWeight: values[index].$1 == selected
-                        ? FontWeight.w900
-                        : FontWeight.w700,
-                  ),
+            Expanded(
+              child: Text(
+                disc.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: palette.textPrimary,
+                  fontSize: 16,
+                  height: 1,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
+            Icon(Icons.keyboard_arrow_down,
+                size: 14, color: palette.textPrimary),
           ],
-        ],
+        ),
       ),
     );
   }

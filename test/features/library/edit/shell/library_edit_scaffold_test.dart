@@ -1,4 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
+import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +15,7 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
     final save =
         tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Save'));
-    expect(save.style!.backgroundColor!.resolve({}), Colors.teal);
+    expect(save.style!.backgroundColor!.resolve({}), const Color(0xFF5EB1DE));
     expect(find.text('Previous'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
     for (final label in ['Previous', 'Next']) {
@@ -27,13 +29,20 @@ void main() {
                   : AppIcons.chevronRight)),
           findsOneWidget);
       final style = tester.widget<OutlinedButton>(button).style!;
+      final shared = dialogActionButtonStyle(tester.element(button));
       expect(style.backgroundColor!.resolve({WidgetState.disabled}),
-          const Color(0xFF232323));
+          shared.backgroundColor!.resolve({WidgetState.disabled}));
       expect(style.backgroundColor!.resolve({WidgetState.hovered}),
-          const Color(0xFF535353));
+          shared.backgroundColor!.resolve({WidgetState.hovered}));
     }
 
     expect(find.text('Cancel'), findsOneWidget);
+    for (final label in ['Previous', 'Next', 'Cancel', 'Save']) {
+      final style = DefaultTextStyle.of(tester.element(find.text(label))).style;
+      expect(style.fontFamily, appFontFamily, reason: label);
+      expect(style.fontSize, 14, reason: label);
+      expect(style.fontWeight, FontWeight.w400, reason: label);
+    }
   });
 
   testWidgets('edit dialog stays top-anchored as its content grows', (

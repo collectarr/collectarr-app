@@ -1,8 +1,16 @@
-import 'package:collectarr_app/ui/theme/library_text_theme.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('tooltips use the active font family alongside form controls', () {
+    final theme = buildLibraryTheme();
+
+    expect(theme.tooltipTheme.textStyle?.fontFamily,
+        theme.textTheme.controlText.fontFamily);
+    expect(theme.tooltipTheme.textStyle?.fontFamily, appFontFamily);
+  });
+
   test('Library text roles expose the supported semantic sizes', () {
     final textTheme = ThemeData().textTheme;
 

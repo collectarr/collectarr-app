@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'dart:convert';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_personal_form_layout.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
@@ -52,6 +53,7 @@ final class _MusicAlbumEditDialog extends ConsumerStatefulWidget {
 final class _MusicAlbumEditDialogState
     extends ConsumerState<_MusicAlbumEditDialog> {
   late final MusicAlbum _album;
+  late final String _initialAlbumJson;
   late final MusicAlbumEditDraft _draft;
   late final MusicAlbumCreditsEditor _creditsEditor;
   late final Future<void> _imagesLoaded;
@@ -69,6 +71,9 @@ final class _MusicAlbumEditDialogState
         .mapTransport((transport) => transport);
     _album = MusicCatalogMapper.mapMetadataItemToMusic(transport);
     _draft = MusicAlbumEditDraft.fromAlbum(_album);
+    // Saving fills derived values such as a missing sort title, so an
+    // untouched draft is compared with its own first output, not the album.
+    _initialAlbumJson = jsonEncode(_draft.toAlbum().toJson());
     _creditsEditor = MusicAlbumCreditsEditor(draft: _draft);
     _customFieldEdits = {
       for (final value in widget.request.customFieldValues)
@@ -116,7 +121,7 @@ final class _MusicAlbumEditDialogState
       maxDialogWidth: 1200,
       insetPadding: EdgeInsets.fromLTRB(
         MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
-        10,
+        kAppEditorTopInset,
         MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
         24,
       ),
@@ -277,19 +282,24 @@ final class _MusicAlbumEditDialogState
           },
         ),
       ),
-      coreCorrectionSourceBuilder: () =>
-          LibraryCoreCorrectionSource.fromTypedFields(
-        request: widget.request,
-        coreCatalogRef: coreCatalogRefForEditRequest(widget.request),
-        originalFields: _album.toJson(),
-        proposedFields: _draft.toAlbum().toJson(),
-      ),
+      coreCorrectionSourceBuilder: () {
+        final coreRef = coreCatalogRefForEditRequest(widget.request);
+        return LibraryCoreCorrectionSource.fromTypedFields(
+          request: widget.request,
+          coreCatalogRef: coreRef,
+          originalFields:
+              MusicCatalogMapper.toCatalogItemDto(_album, ref: coreRef)
+                  .kindData,
+          proposedFields: MusicCatalogMapper.toCatalogItemDto(_draft.toAlbum(),
+                  ref: coreRef)
+              .kindData,
+        );
+      },
       onCancel: () => Navigator.of(context).pop(),
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,
       hasUnsavedChanges: () =>
-          jsonEncode(_album.toJson()) !=
-              jsonEncode(_draft.toAlbum().toJson()) ||
+          _initialAlbumJson != jsonEncode(_draft.toAlbum().toJson()) ||
           _albumImagesDirty ||
           (_listening?.hasChanges ?? false) ||
           jsonEncode(_customFieldEdits) !=

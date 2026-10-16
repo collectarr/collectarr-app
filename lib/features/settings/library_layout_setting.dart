@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
+import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,7 +38,9 @@ class _LibraryLayoutSettingState extends ConsumerState<LibraryLayoutSetting> {
             DropdownButtonFormField<LibraryDetailsLayout>(
           isExpanded: true,
           initialValue: _selection ?? snapshot.data?.detailsLayout,
-          decoration: const InputDecoration(labelText: 'Main screen layout'),
+          // Labelled by its Settings group legend.
+          decoration: settingsSelectDecoration(context),
+          icon: const Icon(Icons.expand_more, size: 16),
           items: const [
             DropdownMenuItem(
                 value: LibraryDetailsLayout.right,

@@ -27,7 +27,7 @@ class LibraryValueChip extends StatelessWidget {
                               style: TextStyle(
                                   color: palette.textPrimary,
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w400,
                                   height: 20 / 14))))),
               SizedBox(
                   width: 24,

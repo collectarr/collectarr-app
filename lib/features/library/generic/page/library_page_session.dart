@@ -44,12 +44,13 @@ final class LibraryPageFacetSession {
   LibraryLinkedMetadataFilter? linkedMetadataFilter;
   LibraryQuickView? quickView;
   LibraryCollectionStatusScope collectionStatusScope =
-      LibraryCollectionStatusScope.all;
+      kDefaultCollectionStatusScope;
   LibraryBucketCompletionScope bucketCompletionScope =
       LibraryBucketCompletionScope.all;
 }
 
 final class LibraryPagePreferencesSession {
+  String? alphabetFieldId;
   LibraryWorkspaceViewState? viewState;
   String? groupMode;
   LibraryFolderPreset? folderPreset;

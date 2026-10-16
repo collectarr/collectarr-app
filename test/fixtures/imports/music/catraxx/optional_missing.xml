@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data date="01/20/2026" longdate="Tuesday, January 20, 2026" unformatteddate="20260120" time="9:00:00 AM" timeshort="9:00 AM" computername="FICTIONAL-PC" username="collector" database="C:\Fictional\Albums.mdb" explorerwidth="0" exploreheight="0" guest="No" dataserver="No" audioplayer="No">
+	<fld>
+		<album>
+			<albumid name="Album ID" use="Yes"/>
+			<title name="Title" use="Yes"/>
+			<artist name="Artist" use="Yes" linktable="ArtistAlbumLink" luptable="ArtistPerson"/>
+			<format name="Format" use="Yes" luptable="Format"/>
+		</album>
+	</fld>
+	<record table="album" id="1">
+		<albumdata audioattached="False" audiofolder="" discogsid="" asin="">
+			<albumid unformatted="1">1</albumid>
+			<title>After &amp; Before</title>
+			<artists/>
+			<format id="-1"/>
+			<released year="" month="" day="" long="" unformatted=""/>
+			<label id="-1"/>
+			<status id="1">Own</status>
+			<genrelist/>
+			<price integer="0" fraction="0" unformatted="0.0">0.00</price>
+			<dateacquired year="" month="" day="" long="" unformatted=""/>
+			<personalrating id="-1"/>
+			<notes/>
+		</albumdata>
+		<trackdata disccount="0" sides="0"/>
+	</record>
+	<record table="album" id="2">
+		<albumdata audioattached="False" audiofolder="" discogsid="" asin="">
+			<albumid unformatted="2">2</albumid>
+			<title>Quiet Morning</title>
+			<artists/>
+			<format id="-1"/>
+			<released year="" month="" day="" long="" unformatted=""/>
+			<label id="-1"/>
+			<status id="1">Own</status>
+			<genrelist/>
+			<price integer="0" fraction="0" unformatted="0.0">0.00</price>
+			<dateacquired year="" month="" day="" long="" unformatted=""/>
+			<personalrating id="-1"/>
+			<notes/>
+		</albumdata>
+		<trackdata disccount="0" sides="0"/>
+	</record>
+</data>

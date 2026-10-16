@@ -1,9 +1,12 @@
 # Typed kind architecture
 
-The application has nine active kinds: Comic, Manga, Book, Game, BoardGame,
-Movie, TV, Anime, and Music. Each kind is rooted at
-`lib/features/library/kinds/<kind>/` and owns its catalog fields, Core mapping,
-local mapping, workspace, editing, and kind-specific tracking behavior.
+The source tree has nine kinds: Comic, Manga, Book, Game, BoardGame, Movie,
+TV, Anime, and Music. Version 1 releases Music only
+(`library_release_scope.dart`); the others stay isolated source modules
+without database tables until each is released with its own migration. Each
+kind is rooted at `lib/features/library/kinds/<kind>/` and owns its catalog
+fields, Core mapping, local mapping, workspace, editing, and kind-specific
+tracking behavior.
 
 The manually maintained application registry at
 `lib/features/library/kinds/registry/collectarr_kind_registry.dart` composes

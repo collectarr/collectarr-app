@@ -1,8 +1,8 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/presentation/music_workspace_formatting.dart';
 import 'package:flutter/material.dart';
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
@@ -24,6 +24,8 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
   );
 }
 
+/// A front or back cover image, listed under Images as in the reference:
+/// a 90 px column with a 79 px image that makes rows 83 px high.
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     musicCoverColumn({
   required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
@@ -32,24 +34,34 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: field.id,
     metadata: field.metadata,
-    displayName: '',
     getValue: field.getValue,
-    cellValue: (context) => context.dto.imageUrl == null
-        ? const SizedBox.shrink()
-        : SizedBox.square(
-            dimension: 32,
-            child: LibraryCoverImage(
-              title: context.dto.primaryLabel,
-              imageUrl: context.dto.imageUrl,
-              fallbackAspectRatio: 1,
-              borderRadius: 2,
-              fit: BoxFit.cover,
-            ),
-          ),
+    cellValue: (context) {
+      final imageUrl = field.getValue(context);
+      return imageUrl == null || imageUrl.isEmpty
+          ? const SizedBox.shrink()
+          : Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: SizedBox.square(
+                  dimension: 79,
+                  child: LibraryCoverImage(
+                    title: context.dto.primaryLabel,
+                    imageUrl: imageUrl,
+                    fallbackAspectRatio: 1,
+                    borderRadius: 0,
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
+            );
+    },
+    group: 'Images',
     allowSortInteraction: false,
     allowGroupInteraction: false,
-    defaultWidth: 42,
-    minWidth: 44,
+    defaultWidth: 90,
+    minWidth: 90,
+    minRowHeight: 83,
   );
 }
 
@@ -61,8 +73,8 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
 }) {
   return columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
     field,
-    cellValue: (context) =>
-        Text(formatMusicPartialDate(context.dto.music.releaseDateParts)),
+    cellValue: (context) => Text(AppFormats.current
+        .formatPartialDate(context.dto.music.releaseDateParts)),
     isNumeric: true,
     defaultWidth: 118,
   );
@@ -94,7 +106,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime>
     id: field.id,
     metadata: field.metadata,
     getValue: field.getValue,
-    cellValue: (context) => Text(formatMusicDate(field.getValue(context))),
+    cellValue: (context) => Text(_formatDate(field.getValue(context))),
     group: 'Personal',
     defaultWidth: 112,
   );
@@ -111,7 +123,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
     id: field.id,
     metadata: field.metadata,
     getValue: field.getValue,
-    cellValue: (context) => Text(formatMusicDate(field.getValue(context))),
+    cellValue: (context) => Text(_formatDate(field.getValue(context))),
     group: 'Personal',
     defaultWidth: 112,
   );
@@ -125,7 +137,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
   return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
     field,
     cellValue: (context) => Text(
-      formatMusicCents(
+      AppFormats.current.formatMoney(
         context.item.entrySummary?.pricePaidCents,
         context.dto.common.currency,
       ),
@@ -185,7 +197,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
 }) {
   return columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
     field,
-    cellValue: (context) => Text(formatMusicDate(field.getValue(context))),
+    cellValue: (context) => Text(_formatDate(field.getValue(context))),
     defaultWidth: 112,
   );
 }
@@ -198,7 +210,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
   return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
     field,
     cellValue: (context) => Text(
-      formatMusicCents(
+      AppFormats.current.formatMoney(
         context.item.entrySummary?.marketValueCents,
         context.dto.common.currency,
       ),
@@ -208,3 +220,6 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
     defaultWidth: 100,
   );
 }
+
+String _formatDate(DateTime? value) =>
+    value == null ? '' : AppFormats.current.formatDate(value);

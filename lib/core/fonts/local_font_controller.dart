@@ -20,9 +20,16 @@ class LocalFontController extends ChangeNotifier {
   static final instance = LocalFontController();
   static const preferencesKey = 'app.localFonts';
   static const maxImportedBytes = 2 * 1024 * 1024;
+
+  /// The bundled family as registered for the UI. Its normal slots carry
+  /// the SemiBold outlines: Flutter paints about 15 % lighter than the
+  /// reference browser rendering, and measured ink of ordinary 14 px text
+  /// matches the reference only at SemiBold. Bold and heavier keep their
+  /// own faces. The bundled files themselves are unchanged.
+  static const bundledFamily = 'Collectarr Sans';
   static const _fallback = {
-    400: 'Regular',
-    500: 'Medium',
+    400: 'SemiBold',
+    500: 'SemiBold',
     600: 'SemiBold',
     700: 'Bold',
     800: 'ExtraBold',
@@ -38,12 +45,19 @@ class LocalFontController extends ChangeNotifier {
   int _generation = 0;
   final _registeredFamilies = <String, String>{};
   String _family = 'Plus Jakarta Sans';
+  String? _bundledRegistration;
   String? _startupError;
-  LocalFontFace? get normalTextFace => faces[500] ?? faces[400];
+  LocalFontFace? get normalTextFace => _normalFace(faces);
+
+  // Normal UI roles prefer a fuller local face. Registration must synchronize
+  // numeric weight and subfamily names so Windows selects these outlines.
+  static LocalFontFace? _normalFace(Map<int, LocalFontFace> faces) =>
+      faces[600] ?? faces[500] ?? faces[400];
   bool get enabled => _enabled;
   String get activeFamily => _family;
   String? get startupError => _startupError;
-  bool get isGilroyActive => _family != 'Plus Jakarta Sans';
+  bool get isGilroyActive =>
+      _family != bundledFamily && _family != 'Plus Jakarta Sans';
   bool get canDiscover => _canDiscover ?? access.canDiscoverLocalFonts;
   bool get hasImported => _imported.isNotEmpty;
   Map<int, LocalFontFace> get faces =>
@@ -207,7 +221,9 @@ class LocalFontController extends ChangeNotifier {
 
   Future<String> _prepareFamily(
       bool enabled, Map<int, LocalFontFace> current) async {
-    if (!enabled || current.isEmpty) return 'Plus Jakarta Sans';
+    if (!enabled || current.isEmpty) {
+      return _bundledRegistration ??= await _registerBundled();
+    }
     final weights = current.keys.toList()..sort();
     final fingerprint =
         weights.map((w) => '$w:${sha256.convert(current[w]!.bytes)}').join('|');
@@ -216,33 +232,49 @@ class LocalFontController extends ChangeNotifier {
     }
     // New contents get a fresh engine alias. Toggle/reuse needs no new fonts.
     final family = 'Collectarr Local Font ${++_generation}';
-    // CLZ declares Gilroy Medium as its CSS 400 face. FontLoader has no CSS
-    // weight override, so register an in-memory copy in the normal text slot.
-    final normalFace = current[500] ?? current[400];
+    // Keep regular/medium UI roles optically consistent across menus, fields
+    // and navigation. Only registration copies change; originals stay intact.
+    final normalFace = _normalFace(current);
     for (final entry in _fallback.entries) {
       if (current.containsKey(entry.key) ||
-          (entry.key == 400 && normalFace != null)) {
+          ((entry.key == 400 || entry.key == 500) && normalFace != null)) {
         continue;
       }
-      final data = await rootBundle
-          .load('assets/fonts/PlusJakartaSans-${entry.value}.ttf');
-      final bytes =
-          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-      await _registerFont(
-          family, entry.key == 900 ? fontBytesAtWeight(bytes, 900) : bytes);
+      await _registerFont(family, await _bundledFace(entry.key));
     }
     if (normalFace != null) {
-      await _registerFont(
-          family,
-          normalFace.weight == 400
-              ? normalFace.bytes
-              : fontBytesAtWeight(normalFace.bytes, 400));
+      for (final weight in [400, 500]) {
+        await _registerFont(
+            family,
+            normalFace.weight == weight
+                ? normalFace.bytes
+                : fontBytesAtWeight(normalFace.bytes, weight));
+      }
     }
     for (final face in current.values) {
-      if (face.weight == 400) continue;
+      if (face.weight == 400 || face.weight == 500) continue;
       await _registerFont(family, face.bytes);
     }
     _registeredFamilies[fingerprint] = family;
     return family;
+  }
+
+  /// A bundled face for [weight], re-weighted where a slot borrows another
+  /// face's outlines (400/500 from SemiBold, 900 from ExtraBold).
+  static Future<Uint8List> _bundledFace(int weight) async {
+    final data = await rootBundle
+        .load('assets/fonts/PlusJakartaSans-${_fallback[weight]}.ttf');
+    final bytes =
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    return weight == 400 || weight == 500 || weight == 900
+        ? fontBytesAtWeight(bytes, weight)
+        : bytes;
+  }
+
+  Future<String> _registerBundled() async {
+    for (final weight in _fallback.keys) {
+      await _registerFont(bundledFamily, await _bundledFace(weight));
+    }
+    return bundledFamily;
   }
 }

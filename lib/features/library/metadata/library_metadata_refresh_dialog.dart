@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
@@ -38,7 +39,7 @@ Future<LibraryMetadataRefreshResult?> showLibraryMetadataRefreshDialog({
   required List<LibraryProjectionView> shownEntries,
   required LibraryProjectionView? selectedEntry,
 }) {
-  return showDialog<LibraryMetadataRefreshResult>(
+  return showAppDialog<LibraryMetadataRefreshResult>(
     context: context,
     builder: (context) => LibraryMetadataRefreshDialog(
       type: type,

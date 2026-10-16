@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
@@ -37,7 +38,7 @@ Future<String?> pickAndStoreLibraryEntryImage({
     }
 
     final selectedType = imageType ??
-        await showDialog<String>(
+        await showAppDialog<String>(
           context: context,
           builder: (context) => SimpleDialog(
             title: const Text('Image type'),

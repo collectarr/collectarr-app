@@ -435,7 +435,7 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
                       padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
                       child: TextField(
                         controller: _searchController,
-                        cursorColor: theme.colorScheme.primary,
+                        cursorColor: appPalette(context).utilityAction,
                         focusNode: _searchFocusNode,
                         onChanged: (query) =>
                             setState(() => _searchQuery = query),
@@ -494,7 +494,9 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
                                 final isSelected = item.value == value;
                                 return Material(
                                   color: isSelected
-                                      ? theme.colorScheme.primaryContainer
+                                      ? appPalette(context)
+                                          .utilityAction
+                                          .withValues(alpha: .22)
                                           .withValues(alpha: 0.42)
                                       : Colors.transparent,
                                   child: InkWell(

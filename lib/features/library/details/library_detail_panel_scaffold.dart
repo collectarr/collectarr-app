@@ -47,7 +47,9 @@ class LibraryDetailPanelScaffold extends StatelessWidget {
           hero,
           const SizedBox(height: 10),
           for (final section in sections) ...[
-            LibraryDetailSection.fromSpec(section, accentColor: accent),
+            LibraryDetailSection.fromSpec(
+              section,
+            ),
           ],
         ],
       ),

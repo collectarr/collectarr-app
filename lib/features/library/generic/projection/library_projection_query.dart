@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_filter_state.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 
 @immutable
 final class LibraryProjectionQuery {
@@ -22,6 +23,7 @@ final class LibraryProjectionQuery {
     this.linkedMetadataFilter,
     this.constrainedItemIds,
     this.collectionEntryIds,
+    this.sorting = const LibrarySortingOptions(),
   });
 
   final String searchQuery;
@@ -38,4 +40,5 @@ final class LibraryProjectionQuery {
   final LibraryLinkedMetadataFilter? linkedMetadataFilter;
   final Set<String>? constrainedItemIds;
   final Set<String>? collectionEntryIds;
+  final LibrarySortingOptions sorting;
 }

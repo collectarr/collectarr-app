@@ -1,11 +1,12 @@
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/reports/library_report_field_dialogs.dart';
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:typed_data';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -39,10 +40,12 @@ class PdfColumnDefinition {
     required this.id,
     required this.label,
     required this.getValue,
+    this.metadata,
     this.widthFlex = 1.0,
     this.defaultVisible = true,
   });
 
+  final LibraryKindFieldMetadata? metadata;
   final String id;
   final String label;
   final String Function(LibraryProjectionView item) getValue;
@@ -54,6 +57,7 @@ class PdfColumnDefinition {
   ) =>
       PdfColumnDefinition(
         id: column.id,
+        metadata: column.metadata,
         label: column.pdfLabel ?? column.label,
         getValue: column.pdfGetValue ?? column.getValue,
         widthFlex: column.pdfWidthFlex ?? 1.0,
@@ -88,7 +92,7 @@ class PdfChildColumnDefinition {
   final bool defaultVisible;
 }
 
-/// Full-page Print to PDF view matching the CLZ Web layout 1:1.
+/// Print configuration and live document preview.
 class LibraryPrintPdfPage extends StatefulWidget {
   const LibraryPrintPdfPage({
     super.key,
@@ -301,420 +305,342 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = libraryAccentForKind(widget.type.kind);
-    final palette = appPalette(context);
+    final accent = appPalette(context).utilityAction;
+    final basePalette = appPalette(context);
+    final palette = basePalette.isDark
+        ? basePalette.copyWith(
+            field: const Color(0xFF444444),
+            divider: const Color(0xFF666666),
+            surface: const Color(0xFF262626),
+            panel: const Color(0xFF383838))
+        : basePalette;
 
     return Scaffold(
       backgroundColor: palette.surface,
       appBar: AppPageHeader(
-          icon: Icons.print_outlined,
+          icon: AppIcons.print,
           leading: AppPageBackButton(
               key: const Key('print_pdf.back'),
               onPressed: () => Navigator.of(context).pop()),
           title: const Text('Print to PDF')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // 1. Pane: Which items + optional child mode + Columns + Sort
-                _buildTopSelectionPane(palette, accent),
-                const SizedBox(height: 16),
-
-                // 2. Pane: Page Setup
-                _buildPageSetupPane(palette, accent),
-                const SizedBox(height: 16),
-
-                // 3. Pane: Preview
-                _buildPreviewPane(palette, accent),
-                const SizedBox(height: 20),
-
-                // 4. Action bar: Generate PDF / Download / Print
-                _buildActionsBar(palette, accent),
-                const SizedBox(height: 40),
-              ],
-            ),
+      body: Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme:
+                Theme.of(context).colorScheme.copyWith(primary: accent),
+            radioTheme: RadioThemeData(
+                fillColor: WidgetStatePropertyAll(palette.textPrimary)),
+            checkboxTheme: CheckboxThemeData(
+                fillColor: WidgetStatePropertyAll(palette.textPrimary),
+                checkColor: WidgetStatePropertyAll(palette.panel),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap),
           ),
-        ),
-      ),
+          child: AppManagementContent(
+              maxWidth: 960,
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // 1. Pane: Which items + optional child mode + Columns + Sort
+                        _buildTopSelectionPane(palette),
+                        const SizedBox(height: 16),
+
+                        // 2. Pane: Page Setup
+                        _buildPageSetupPane(palette),
+                        const SizedBox(height: 16),
+
+                        // 3. Pane: Preview
+                        _buildPreviewPane(palette, accent),
+
+                        const SizedBox(height: 40),
+                      ],
+                    ),
+                  ),
+                ),
+              ))),
     );
   }
 
   // ==========================================
   // SECTION 1: TOP SELECTION & MODES
   // ==========================================
-  Widget _buildTopSelectionPane(AppThemePalette palette, Color accent) {
-    final isWide = MediaQuery.of(context).size.width >= 1050;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+  TextStyle _heading(AppThemePalette palette) => TextStyle(
+      fontFamily: appFontFamily,
+      fontSize: 16,
+      fontWeight: FontWeight.w700,
+      height: 1.1,
+      color: palette.textPrimary);
+
+  ButtonStyle _manageButtonStyle(AppThemePalette palette) =>
+      OutlinedButton.styleFrom(
+        backgroundColor:
+            palette.isDark ? const Color(0xFF494949) : palette.field,
+        foregroundColor: palette.textPrimary,
+        side: BorderSide.none,
+        minimumSize: const Size(0, 32),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        textStyle: TextStyle(
+            fontFamily: appFontFamily,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            height: 20 / 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+        visualDensity: VisualDensity.standard,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      );
+
+  Widget _buildTopSelectionPane(AppThemePalette palette) => Container(
+        padding: const EdgeInsets.all(10),
         color: palette.panel,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: palette.cardBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (isWide)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildSubsetSection(palette)),
-                const SizedBox(width: 16),
-                if (_supportsChildList) ...[
-                  Expanded(child: _buildExportModeSection(palette)),
-                  const SizedBox(width: 16),
-                ],
-                Expanded(child: _buildColumnsSection(palette)),
-                const SizedBox(width: 16),
-                Expanded(child: _buildSortSection(palette)),
-              ],
-            )
-          else ...[
-            _buildSubsetSection(palette),
-            const SizedBox(height: 16),
+        child: LayoutBuilder(builder: (context, constraints) {
+          final selection =
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(child: _buildSubsetSection(palette)),
             if (_supportsChildList) ...[
-              _buildExportModeSection(palette),
-              const SizedBox(height: 16),
+              const SizedBox(width: 30),
+              Expanded(child: _buildExportModeSection(palette)),
             ],
+          ]);
+          final fields =
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             _buildColumnsSection(palette),
             const SizedBox(height: 16),
             _buildSortSection(palette),
-          ],
-        ],
-      ),
-    );
-  }
+          ]);
+          return constraints.maxWidth >= 720
+              ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Expanded(
+                      child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: selection)),
+                  const SizedBox(width: 15),
+                  Expanded(child: fields),
+                ])
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                      selection,
+                      const SizedBox(height: 16),
+                      fields,
+                    ]);
+        }),
+      );
 
-  Widget _buildSubsetSection(AppThemePalette palette) {
-    final plural = _itemLabel;
-    final allCount = _allList.length;
-    final currentCount = widget.items.length;
-    final checkboxedCount = _checkboxedList.length;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Which $plural',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: palette.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: palette.field,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: palette.cardBorder),
-          ),
-          child: Column(
-            children: [
-              _buildRadioRow(
-                title: 'All $plural',
-                count: allCount,
+  Widget _choiceBox(AppThemePalette palette, List<Widget> children) =>
+      Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            border: Border.all(
+                color:
+                    palette.isDark ? const Color(0xFF262626) : palette.divider),
+            borderRadius: BorderRadius.circular(3)),
+        child: Column(children: children),
+      );
+
+  Widget _buildSubsetSection(AppThemePalette palette) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Which $_itemLabel', style: _heading(palette)),
+          const SizedBox(height: 16),
+          _choiceBox(palette, [
+            _buildRadioRow(
+                title: 'All $_itemLabel',
+                count: _allList.length,
                 selected: _subset == PrintSubset.all,
                 onTap: () => setState(() => _subset = PrintSubset.all),
-                palette: palette,
-              ),
-              Divider(height: 1, color: palette.divider),
-              _buildRadioRow(
+                palette: palette),
+            _buildRadioRow(
                 title: 'Current List',
-                count: currentCount,
+                count: widget.items.length,
                 selected: _subset == PrintSubset.currentList,
                 onTap: () => setState(() => _subset = PrintSubset.currentList),
-                palette: palette,
-              ),
-              Divider(height: 1, color: palette.divider),
-              _buildRadioRow(
+                palette: palette),
+            _buildRadioRow(
                 title: 'Checkboxed',
-                count: checkboxedCount,
+                count: _checkboxedList.length,
                 selected: _subset == PrintSubset.checkboxed,
-                disabled: checkboxedCount == 0,
-                onTap: checkboxedCount == 0
-                    ? () {}
-                    : () => setState(() => _subset = PrintSubset.checkboxed),
-                palette: palette,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+                disabled: _checkboxedList.isEmpty,
+                onTap: () => setState(() => _subset = PrintSubset.checkboxed),
+                palette: palette),
+          ]),
+        ],
+      );
 
-  Widget _buildExportModeSection(AppThemePalette palette) {
-    final capability = _exportCapability!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Export mode',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
-            color: palette.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: palette.field,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: palette.cardBorder),
-          ),
-          child: Column(
-            children: [
-              _buildRadioRow(
-                title: capability.itemModeLabel,
+  Widget _buildExportModeSection(AppThemePalette palette) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Export mode', style: _heading(palette)),
+          const SizedBox(height: 16),
+          _choiceBox(palette, [
+            _buildRadioRow(
+                title: _exportCapability!.itemModeLabel,
                 count: widget.items.length,
                 selected: _exportMode == ExportMode.itemList,
                 onTap: () => setState(() => _exportMode = ExportMode.itemList),
-                palette: palette,
-              ),
-              Divider(height: 1, color: palette.divider),
-              _buildRadioRow(
-                title: capability.childModeLabel ??
-                    '${capability.childLabel} list',
+                palette: palette),
+            _buildRadioRow(
+                title: _exportCapability!.childModeLabel ?? '$_childLabel list',
                 count: _totalChildCount,
                 selected: _exportMode == ExportMode.childList,
                 onTap: () => setState(() => _exportMode = ExportMode.childList),
-                palette: palette,
-              ),
-            ],
+                palette: palette),
+          ]),
+        ],
+      );
+
+  Widget _summarySection(AppThemePalette palette, String title,
+          VoidCallback onManage, Widget child) =>
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(children: [
+            Expanded(child: Text(title, style: _heading(palette))),
+            OutlinedButton(
+                onPressed: onManage,
+                style: _manageButtonStyle(palette),
+                child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                  Text('Manage'),
+                  SizedBox(width: 6),
+                  Icon(AppIcons.more, size: 14),
+                ])),
+          ]),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: palette.field,
+                borderRadius: BorderRadius.circular(3),
+                border: Border.all(color: palette.divider)),
+            child: child,
           ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
 
   Widget _buildColumnsSection(AppThemePalette palette) {
-    final activeLabels = _exportMode == ExportMode.itemList
-        ? _availableItemColumns
-            .where((c) => _selectedItemColumnIds.contains(c.id))
-            .map((c) => c.label)
-            .join(', ')
-        : _availableChildColumns
-            .where((c) => _selectedChildColumnIds.contains(c.id))
-            .map((c) => c.label)
-            .join(', ')
-            .trim();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Text(
-                'Visible Columns',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: palette.textPrimary,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 4),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.more_vert, size: 13),
-              label: const Text('Manage', style: TextStyle(fontSize: 11)),
-              style: OutlinedButton.styleFrom(
-                visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              ),
-              onPressed: _showManageColumnsDialog,
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: palette.field,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: palette.cardBorder),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Active columns (${_exportMode == ExportMode.itemList ? _selectedItemColumnIds.length : _selectedChildColumnIds.length})',
-                style: TextStyle(
+    final labels = _exportMode == ExportMode.itemList
+        ? [
+            for (final id in _selectedItemColumnIds)
+              _availableItemColumns.firstWhere((c) => c.id == id).label
+          ]
+        : [
+            for (final id in _selectedChildColumnIds)
+              _availableChildColumns.firstWhere((c) => c.id == id).label
+          ];
+    return _summarySection(
+        palette,
+        'Visible Columns',
+        _showManageColumnsDialog,
+        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text('Active columns (${labels.length})',
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: palette.textPrimary)),
+          Text(labels.isEmpty ? 'None' : labels.join(', '),
+              style: TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: palette.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                activeLabels.isEmpty ? 'None' : activeLabels,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: palette.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+                  fontWeight: FontWeight.w400,
+                  color: palette.textPrimary)),
+        ]));
   }
 
   Widget _buildSortSection(AppThemePalette palette) {
-    final currentSortLabel = _availableItemColumns
+    final label = _availableItemColumns
         .firstWhere((c) => c.id == _sortColumnId,
             orElse: () => _availableItemColumns.first)
         .label;
+    return _summarySection(
+        palette,
+        'Sort Order',
+        _showManageSortDialog,
+        Row(children: [
+          Flexible(
+              child: Text(label,
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: palette.textPrimary))),
+          Icon(
+              _sortAscending ? AppIcons.sortAscending : AppIcons.sortDescending,
+              size: 18,
+              color: palette.textPrimary),
+        ]));
+  }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Text(
-                'Sort Order',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: palette.textPrimary,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 4),
-            OutlinedButton.icon(
-              icon: const Icon(Icons.more_vert, size: 13),
-              label: const Text('Manage', style: TextStyle(fontSize: 11)),
-              style: OutlinedButton.styleFrom(
-                visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              ),
-              onPressed: _showManageSortDialog,
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: palette.field,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: palette.cardBorder),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    currentSortLabel,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: palette.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
+  Widget _buildRadioRow(
+          {required String title,
+          required int count,
+          required bool selected,
+          required VoidCallback onTap,
+          required AppThemePalette palette,
+          bool disabled = false}) =>
+      Semantics(
+          checked: selected,
+          enabled: !disabled,
+          child: InkWell(
+            onTap: disabled ? null : onTap,
+            mouseCursor:
+                disabled ? SystemMouseCursors.basic : SystemMouseCursors.click,
+            child: Container(
+                constraints: const BoxConstraints(minHeight: 36),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+                decoration: BoxDecoration(
+                    color: selected
+                        ? (palette.isDark
+                            ? const Color(0xFF464950)
+                            : palette.highlight)
+                        : null,
+                    borderRadius: BorderRadius.circular(8),
+                    border:
+                        selected ? Border.all(color: palette.divider) : null),
+                child: Row(children: [
+                  Icon(
+                      selected
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                      size: 13,
+                      color:
+                          disabled ? palette.textMuted : palette.textPrimary),
+                  const SizedBox(width: 4),
+                  Expanded(
+                      child: Text(title,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: disabled
+                                  ? palette.textMuted
+                                  : palette.textPrimary))),
+                  const SizedBox(width: 4),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: palette.panel,
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: Text(
-                      _sortAscending ? 'ASC' : 'DESC',
-                      style: const TextStyle(
-                          fontSize: 9, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Sorted by $currentSortLabel (${_sortAscending ? "ascending" : "descending"})',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: palette.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRadioRow({
-    required String title,
-    required int count,
-    required bool selected,
-    required VoidCallback onTap,
-    required AppThemePalette palette,
-    bool disabled = false,
-  }) {
-    return InkWell(
-      onTap: disabled ? null : onTap,
-      borderRadius: BorderRadius.circular(4),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Row(
-          children: [
-            Icon(
-              selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              size: 16,
-              color: disabled
-                  ? palette.textMuted
-                  : (selected ? palette.accent : palette.textSecondary),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: disabled ? palette.textMuted : palette.textPrimary,
-                  fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-            ),
-            Text(
-              count.toString(),
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: disabled ? palette.textMuted : palette.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 2),
+                      decoration: BoxDecoration(
+                          color: selected || disabled
+                              ? palette.textMuted.withValues(alpha: .4)
+                              : palette.textPrimary,
+                          borderRadius: BorderRadius.circular(3)),
+                      child: Text('$count',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: selected || disabled
+                                  ? palette.textPrimary
+                                  : palette.panel))),
+                ])),
+          ));
 
   // ==========================================
   // SECTION 2: PAGE SETUP
   // ==========================================
-  Widget _buildPageSetupPane(AppThemePalette palette, Color accent) {
+  Widget _buildPageSetupPane(AppThemePalette palette) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: palette.panel,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: palette.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -730,14 +656,13 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                   color: palette.textPrimary,
                 ),
               ),
-              TextButton.icon(
-                icon: Icon(
-                  _showMoreSettings ? Icons.expand_less : Icons.expand_more,
-                  size: 16,
-                ),
+              OutlinedButton.icon(
+                style: _manageButtonStyle(palette),
+                iconAlignment: IconAlignment.end,
+                icon: const Icon(AppIcons.more, size: 14),
                 label: Text(
                   _showMoreSettings ? 'Less settings' : 'More settings',
-                  style: const TextStyle(fontSize: 13),
+                  style: const TextStyle(fontSize: 14),
                 ),
                 onPressed: () =>
                     setState(() => _showMoreSettings = !_showMoreSettings),
@@ -790,8 +715,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
       children: [
         Text('Layout',
             style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
                 color: palette.textPrimary)),
         const SizedBox(height: 6),
         RadioGroup<PdfOrientation>(
@@ -799,26 +724,33 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
           onChanged: (v) {
             if (v != null) setState(() => _orientation = v);
           },
-          child: Row(
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 4,
             children: [
               InkWell(
                 onTap: () =>
                     setState(() => _orientation = PdfOrientation.portrait),
                 child: const Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Radio<PdfOrientation>(value: PdfOrientation.portrait),
-                    Text('Portrait', style: TextStyle(fontSize: 13)),
+                    Text('Portrait',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
               InkWell(
                 onTap: () =>
                     setState(() => _orientation = PdfOrientation.landscape),
                 child: const Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Radio<PdfOrientation>(value: PdfOrientation.landscape),
-                    Text('Landscape', style: TextStyle(fontSize: 13)),
+                    Text('Landscape',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
@@ -835,13 +767,13 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
       children: [
         Text('Title',
             style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
                 color: palette.textPrimary)),
         const SizedBox(height: 6),
         TextField(
           controller: _titleController,
-          style: const TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 14),
           decoration: InputDecoration(
             isDense: true,
             contentPadding:
@@ -877,7 +809,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               const SizedBox(width: 6),
               const Flexible(
                 child:
-                    Text('Wrap inside column', style: TextStyle(fontSize: 13)),
+                    Text('Wrap inside column', style: TextStyle(fontSize: 14)),
               ),
             ],
           ),
@@ -896,7 +828,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               ),
               const SizedBox(width: 6),
               const Flexible(
-                child: Text('Cover thumbnails', style: TextStyle(fontSize: 13)),
+                child: Text('Cover thumbnails', style: TextStyle(fontSize: 14)),
               ),
             ],
           ),
@@ -940,11 +872,12 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
       children: [
         Text('Margins',
             style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
                 color: palette.textPrimary)),
         const SizedBox(height: 4),
         DropdownButtonFormField<PdfMarginSetting>(
+          style: Theme.of(context).textTheme.controlText,
           initialValue: _margin,
           isDense: true,
           decoration: InputDecoration(
@@ -964,11 +897,12 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
         const SizedBox(height: 10),
         Text('Font type:',
             style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
                 color: palette.textPrimary)),
         const SizedBox(height: 4),
         DropdownButtonFormField<String>(
+          style: Theme.of(context).textTheme.controlText,
           initialValue: _fontFamily,
           isDense: true,
           decoration: InputDecoration(
@@ -997,11 +931,12 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                 children: [
                   Text('Font size:',
                       style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
                           color: palette.textPrimary)),
                   const SizedBox(height: 4),
                   DropdownButtonFormField<int>(
+                    style: Theme.of(context).textTheme.controlText,
                     initialValue: _fontSize,
                     isDense: true,
                     decoration: InputDecoration(
@@ -1030,8 +965,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                 children: [
                   Text('Color:',
                       style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
                           color: palette.textPrimary)),
                   const SizedBox(height: 4),
                   InkWell(
@@ -1094,14 +1029,14 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               value: _limitRowsPerPage,
               onChanged: (v) => setState(() => _limitRowsPerPage = v ?? false),
             ),
-            const Text('Max rows per page:', style: TextStyle(fontSize: 12)),
+            const Text('Max rows per page:', style: TextStyle(fontSize: 14)),
             const SizedBox(width: 6),
             SizedBox(
               width: 44,
               height: 28,
               child: TextField(
                 keyboardType: TextInputType.number,
-                style: const TextStyle(fontSize: 12),
+                style: const TextStyle(fontSize: 14),
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.zero,
@@ -1145,8 +1080,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
         const SizedBox(height: 6),
         Text('Borders',
             style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
                 color: palette.textPrimary)),
         const SizedBox(height: 6),
         Row(
@@ -1174,7 +1109,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
           ),
           Expanded(
               child: Text(label,
-                  style: const TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 14),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis)),
         ],
@@ -1203,7 +1138,9 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
             child: CustomPaint(painter: _BorderOptionPainter(type)),
           ),
           const SizedBox(height: 3),
-          Text(label, style: const TextStyle(fontSize: 10)),
+          Text(label,
+              style:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
         ],
       ),
     );
@@ -1217,11 +1154,9 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
     final isLandscape = _orientation == PdfOrientation.landscape;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: palette.panel,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: palette.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1241,8 +1176,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFFE9ECEF),
-              borderRadius: BorderRadius.circular(6),
+              color: palette.surface,
+              borderRadius: BorderRadius.circular(3),
               border: Border.all(color: palette.cardBorder),
             ),
             child: Center(
@@ -1319,15 +1254,18 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+          _buildActionsBar(palette, accent),
         ],
       ),
     );
   }
 
   Widget _buildItemPreviewTable(List<LibraryProjectionView> items) {
-    final activeCols = _availableItemColumns
-        .where((c) => _selectedItemColumnIds.contains(c.id))
-        .toList();
+    final activeCols = [
+      for (final id in _selectedItemColumnIds)
+        _availableItemColumns.firstWhere((column) => column.id == id)
+    ];
 
     final border = switch (_borderType) {
       PdfBorderType.none => const TableBorder(),
@@ -1430,9 +1368,10 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   }
 
   Widget _buildChildPreviewTable() {
-    final activeCols = _availableChildColumns
-        .where((c) => _selectedChildColumnIds.contains(c.id))
-        .toList();
+    final activeCols = [
+      for (final id in _selectedChildColumnIds)
+        _availableChildColumns.firstWhere((column) => column.id == id)
+    ];
     final rows = _activeChildRows.take(15).toList();
 
     final border = switch (_borderType) {
@@ -1507,54 +1446,73 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   // SECTION 4: ACTIONS BAR
   // ==========================================
   Widget _buildActionsBar(AppThemePalette palette, Color accent) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        if (_generatedPdfBytes != null) ...[
-          FilledButton.icon(
-            key: const Key('print_pdf.download'),
-            icon: const Icon(Icons.download, size: 16),
-            label: Text('Download file (${_generatedFileSize ?? ""})'),
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF28A745),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            ),
-            onPressed: _downloadPdf,
-          ),
-          const SizedBox(width: 10),
-          OutlinedButton.icon(
-            key: const Key('print_pdf.print'),
-            icon: const Icon(Icons.print, size: 16),
-            label: const Text('Print / Open'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            ),
-            onPressed: _openInSystemPrint,
-          ),
-          const SizedBox(width: 10),
-        ],
-        FilledButton.icon(
-          key: const Key('print_pdf.generate'),
-          icon: _isGenerating
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.white),
-                )
-              : const Icon(Icons.picture_as_pdf, size: 16),
-          label:
-              Text(_isGenerating ? 'Generating file...' : 'Generate PDF file'),
-          style: FilledButton.styleFrom(
-            backgroundColor: accent,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          ),
-          onPressed: _isGenerating ? null : _generatePdf,
-        ),
-      ],
-    );
+    return LayoutBuilder(
+        builder: (context, constraints) => Align(
+            alignment: Alignment.centerRight,
+            child: SizedBox(
+                width: constraints.maxWidth >= 600
+                    ? (constraints.maxWidth - 30) / 2
+                    : constraints.maxWidth,
+                child: Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    if (_generatedPdfBytes != null) ...[
+                      FilledButton.icon(
+                        key: const Key('print_pdf.download'),
+                        icon: const Icon(Icons.download, size: 16),
+                        label:
+                            Text('Download file (${_generatedFileSize ?? ""})'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFF28A745),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                        ),
+                        onPressed: _downloadPdf,
+                      ),
+                      OutlinedButton.icon(
+                        key: const Key('print_pdf.print'),
+                        icon: const Icon(Icons.print, size: 16),
+                        label: const Text('Print / Open'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                        ),
+                        onPressed: _openInSystemPrint,
+                      ),
+                    ],
+                    SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          key: const Key('print_pdf.generate'),
+                          icon: _isGenerating
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: Colors.white),
+                                )
+                              : const Icon(Icons.picture_as_pdf, size: 16),
+                          label: Text(_isGenerating
+                              ? 'Generating file...'
+                              : 'Generate PDF file'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: accent,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            minimumSize: const Size(0, 32),
+                            textStyle: TextStyle(
+                                fontFamily: appFontFamily,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                height: 20 / 14),
+                          ),
+                          onPressed: _isGenerating ? null : _generatePdf,
+                        )),
+                  ],
+                ))));
   }
 
   // ==========================================
@@ -1603,9 +1561,10 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
 
       if (_exportMode == ExportMode.itemList) {
         final items = _activeItems;
-        final activeCols = _availableItemColumns
-            .where((c) => _selectedItemColumnIds.contains(c.id))
-            .toList();
+        final activeCols = [
+          for (final id in _selectedItemColumnIds)
+            _availableItemColumns.firstWhere((column) => column.id == id)
+        ];
 
         final itemsPerPage = _limitRowsPerPage ? _maxRowsPerPage : 35;
         final pages = <List<LibraryProjectionView>>[];
@@ -1718,9 +1677,10 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
       } else {
         // Kind-owned child list export mode
         final rows = _activeChildRows;
-        final activeCols = _availableChildColumns
-            .where((c) => _selectedChildColumnIds.contains(c.id))
-            .toList();
+        final activeCols = [
+          for (final id in _selectedChildColumnIds)
+            _availableChildColumns.firstWhere((column) => column.id == id)
+        ];
 
         final itemsPerPage = _limitRowsPerPage ? _maxRowsPerPage : 40;
         final pages = <List<LibraryExportChildRow>>[];
@@ -1869,152 +1829,38 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   // ==========================================
   Future<void> _showManageColumnsDialog() async {
     final isChild = _exportMode == ExportMode.childList;
-    final availableCols = isChild
-        ? _availableChildColumns.map((c) => (id: c.id, label: c.label)).toList()
-        : _availableItemColumns.map((c) => (id: c.id, label: c.label)).toList();
-
-    var currentSelected = List<String>.from(
-      isChild ? _selectedChildColumnIds : _selectedItemColumnIds,
-    );
-
-    await showDialog<void>(
-      context: context,
-      builder: (dialogCtx) => StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          return AccentAlertDialog(
-            headerIcon: AppIcons.columns,
-            title: const Text('Manage Columns'),
-            content: SizedBox(
-              width: 320,
-              height: 380,
-              child: ListView(
-                children: [
-                  for (final col in availableCols)
-                    CheckboxListTile(
-                      dense: true,
-                      title: Text(col.label),
-                      value: currentSelected.contains(col.id),
-                      onChanged: (checked) {
-                        setDialogState(() {
-                          if (checked == true) {
-                            currentSelected.add(col.id);
-                          } else {
-                            currentSelected.remove(col.id);
-                          }
-                        });
-                      },
-                    ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogCtx).pop(),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () {
-                  setState(() {
-                    if (isChild) {
-                      _selectedChildColumnIds = currentSelected;
-                    } else {
-                      _selectedItemColumnIds = currentSelected;
-                    }
-                  });
-                  Navigator.of(dialogCtx).pop();
-                },
-                child: const Text('Apply'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+    final columns = isChild
+        ? [for (final c in _availableChildColumns) (id: c.id, label: c.label)]
+        : [for (final c in _availableItemColumns) (id: c.id, label: c.label)];
+    final result = await showLibraryReportColumns(context,
+        fields: columns,
+        selected: isChild ? _selectedChildColumnIds : _selectedItemColumnIds);
+    if (!mounted || result == null) return;
+    setState(() {
+      if (isChild) {
+        _selectedChildColumnIds = result.toList();
+      } else {
+        _selectedItemColumnIds = result.toList();
+      }
+      _generatedPdfBytes = null;
+    });
   }
 
   Future<void> _showManageSortDialog() async {
-    var chosenColId = _sortColumnId;
-    var chosenAsc = _sortAscending;
-
-    await showDialog<void>(
-      context: context,
-      builder: (dialogCtx) => StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          return AccentAlertDialog(
-            headerIcon: AppIcons.sortAlpha,
-            title: const Text('Manage Sort Order'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Sort by:',
-                    style:
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 6),
-                DropdownButtonFormField<String>(
-                  initialValue: chosenColId,
-                  items: _availableItemColumns
-                      .map((c) =>
-                          DropdownMenuItem(value: c.id, child: Text(c.label)))
-                      .toList(),
-                  onChanged: (v) =>
-                      setDialogState(() => chosenColId = v ?? chosenColId),
-                ),
-                const SizedBox(height: 12),
-                const Text('Direction:',
-                    style:
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 6),
-                RadioGroup<bool>(
-                  groupValue: chosenAsc,
-                  onChanged: (v) {
-                    if (v != null) setDialogState(() => chosenAsc = v);
-                  },
-                  child: Column(
-                    children: [
-                      InkWell(
-                        onTap: () => setDialogState(() => chosenAsc = true),
-                        child: const Row(
-                          children: [
-                            Radio<bool>(value: true),
-                            Text('Ascending (A-Z, 0-9)'),
-                          ],
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () => setDialogState(() => chosenAsc = false),
-                        child: const Row(
-                          children: [
-                            Radio<bool>(value: false),
-                            Text('Descending (Z-A, 9-0)'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogCtx).pop(),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () {
-                  setState(() {
-                    _sortColumnId = chosenColId;
-                    _sortAscending = chosenAsc;
-                  });
-                  Navigator.of(dialogCtx).pop();
-                },
-                child: const Text('Apply'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+    final result = await showLibraryReportSorts(context,
+        fields: [
+          for (final column in _availableItemColumns
+              .where((column) => column.metadata?.sortable != false))
+            (id: column.id, label: column.label)
+        ],
+        selected: [(id: _sortColumnId, ascending: _sortAscending)],
+        multiple: false);
+    if (!mounted || result == null) return;
+    setState(() {
+      _sortColumnId = result.first.id;
+      _sortAscending = result.first.ascending;
+      _generatedPdfBytes = null;
+    });
   }
 }
 

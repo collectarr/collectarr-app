@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_track_list.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
@@ -155,27 +155,14 @@ class MusicLibraryMediaPresentationBuilder
   }) {
     final album = musicCatalogItemFromCandidate(item);
     final artist = album.artist?.trim();
-    final format = album.formatSummary?.trim();
-    final trackCount = album.discs.isEmpty ? null : album.trackCount;
-    final country = album.countryCode?.trim();
-    final label = album.publisher?.trim();
-    final catalogNumber = album.catalogNumber?.trim();
     final barcode = album.barcode?.trim();
-    final detailParts = <String>[
-      if (format != null && format.isNotEmpty) format,
-      if (country != null && country.isNotEmpty) country,
-      if (label != null && label.isNotEmpty) label,
-      if (trackCount != null)
-        '$trackCount ${trackCount == 1 ? 'track' : 'tracks'}',
-      if (barcode != null && barcode.isNotEmpty) barcode,
-      if (catalogNumber != null && catalogNumber.isNotEmpty) catalogNumber,
-    ];
+    final detail = musicAlbumEditionLine(album);
     return LibraryAddSearchResultDisplay(
       title: album.title,
       secondaryLine: artist?.isNotEmpty == true ? artist : null,
-      year: item.musicCatalogFields.releaseYear ??
-          item.musicCatalogFields.releaseDate?.year,
-      detailLine: detailParts.isEmpty ? null : detailParts.join(' - '),
+      year: item.musicCatalogFields.releaseYear,
+      detailLine: detail.isEmpty ? null : detail,
+      trailingDetail: barcode?.isNotEmpty == true ? barcode : null,
     );
   }
 
@@ -193,7 +180,6 @@ class MusicLibraryMediaPresentationBuilder
       (
         'Released',
         album.releaseDateParts?.isoString ??
-            album.releaseDate?.year.toString() ??
             item.musicCatalogFields.releaseYear?.toString(),
       ),
       ('Format', album.formatSummary),
@@ -224,6 +210,7 @@ class MusicLibraryMediaPresentationBuilder
     final barcode = album?.barcode;
     final publisher = album?.publisher;
     final releaseDate = album?.releaseDate;
+    final releaseParts = album?.releaseDateParts;
     final country = musicCountryName(album?.countryCode);
     final format = album?.formatSummary;
 
@@ -260,8 +247,7 @@ class MusicLibraryMediaPresentationBuilder
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
-              formatPresentationNullableDate(releaseDate) ??
-                  releaseDate?.year.toString(),
+              formatNullableDate(releaseDate) ?? releaseParts?.isoString,
             )),
         if (album != null && album.trackCount > 0)
           LibraryDetailField(
@@ -353,4 +339,19 @@ String _musicDuration(MusicAlbum item) {
   final minutes = totalSeconds ~/ 60;
   final seconds = totalSeconds % 60;
   return '$minutes:${seconds.toString().padLeft(2, '0')}';
+}
+
+/// "CD | 1 disc, 10 tracks", as the reference lists Core results.
+String musicAlbumEditionLine(MusicAlbum album) {
+  final format = album.formatSummary?.trim();
+  final discCount = album.discs.length;
+  final trackCount = album.trackCount;
+  final counts = [
+    if (discCount > 0) '$discCount ${discCount == 1 ? 'disc' : 'discs'}',
+    if (trackCount > 0) '$trackCount ${trackCount == 1 ? 'track' : 'tracks'}',
+  ].join(', ');
+  return [
+    if (format != null && format.isNotEmpty) format,
+    if (counts.isNotEmpty) counts,
+  ].join(' | ');
 }

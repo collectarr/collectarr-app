@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_managed_vo
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 
 /// Manual Add editor for generic album- and disc-scoped Music credits.
@@ -13,11 +14,9 @@ final class MusicAddManualCreditsTab extends StatefulWidget {
   const MusicAddManualCreditsTab({
     super.key,
     required this.draft,
-    required this.accent,
   });
 
   final MusicAddManualDraft draft;
-  final Color accent;
 
   @override
   State<MusicAddManualCreditsTab> createState() =>
@@ -50,11 +49,11 @@ final class _MusicAddManualCreditsTabState
       children: [
         Align(
           alignment: Alignment.centerRight,
-          child: OutlinedButton.icon(
+          child: FilledButton.icon(
             onPressed: _add,
-            icon: const Icon(Icons.add, size: 16),
+            icon: const Icon(Icons.add, size: 14),
             label: const Text('Add credit'),
-            style: OutlinedButton.styleFrom(foregroundColor: widget.accent),
+            style: dialogActionButtonStyle(context, width: 0),
           ),
         ),
         const SizedBox(height: 8),

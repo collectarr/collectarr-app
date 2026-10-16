@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'columns/music_catalog_workspace_columns.dart';
 import 'music_additional_workspace_fields.dart';
 import 'music_workspace_groups.dart';
@@ -24,6 +25,8 @@ final musicLibraryEntryWorkspaceSchema =
     ...MusicPersonalWorkspaceFields.all,
     MusicWorkspaceFields.status,
     MusicWorkspaceFields.cover,
+    MusicWorkspaceFields.backCover,
+    MusicWorkspaceFields.coreId,
   ],
   columns: [
     ...musicCatalogWorkspaceColumns,
@@ -67,7 +70,7 @@ final musicLibraryEntryWorkspaceSchema =
     columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
       MusicPersonalWorkspaceFields.lastListened,
       cellValue: (context) => Text(
-        formatMusicDate(
+        _formatDate(
           MusicPersonalWorkspaceFields.lastListened.getValue(context),
         ),
       ),
@@ -100,25 +103,29 @@ final musicLibraryEntryWorkspaceSchema =
     sortFromField(MusicAdditionalWorkspaceFields.loanTo, group: 'Loan'),
     sortFromField(MusicAdditionalWorkspaceFields.releaseYear),
     sortFromField(MusicAdditionalWorkspaceFields.releaseMonth),
-    sortFromField(MusicAdditionalWorkspaceFields.originalReleaseDate),
+    musicPartialDateSort(
+      MusicAdditionalWorkspaceFields.originalReleaseDate,
+      (dto) => dto.music.originalReleaseDateParts,
+    ),
     sortFromField(MusicAdditionalWorkspaceFields.originalReleaseYear),
     sortFromField(MusicAdditionalWorkspaceFields.originalReleaseMonth),
     sortFromField(MusicCatalogWorkspaceFields.catalogNumber),
     sortFromField(MusicCatalogWorkspaceFields.barcode),
-    if (MusicFieldIdentities.artistSummary.sortable)
-      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicCatalogWorkspaceFields.artistSummary,
-      ),
-    if (MusicFieldIdentities.title.sortable)
-      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicCatalogWorkspaceFields.title,
-      ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+    if (MusicFieldIdentities.artistSummary.sortable) musicArtistSort(),
+    if (MusicFieldIdentities.title.sortable) musicTitleSort(),
+    musicPartialDateSort(
       MusicCatalogWorkspaceFields.releaseDate,
+      (dto) => dto.music.releaseDateParts,
       defaultAscending: false,
     ),
     musicEarliestDiscRecordingDateSort(),
     musicLatestDiscRecordingDateSort(),
+    ...musicImageSorts(),
+    musicFormatSort(),
+    musicGenreSort(),
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.coreId,
+    ),
     if (MusicFieldIdentities.publisher.sortable)
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
         MusicCatalogWorkspaceFields.publisher,
@@ -191,3 +198,6 @@ final musicLibraryEntryWorkspaceSchema =
     MusicCatalogWorkspaceFields.artist.id.value,
   ),
 );
+
+String _formatDate(DateTime? value) =>
+    value == null ? '' : AppFormats.current.formatDate(value);

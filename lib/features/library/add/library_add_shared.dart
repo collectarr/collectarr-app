@@ -70,10 +70,33 @@ ButtonStyle libraryAddOutlinedButtonStyle([Color accent = kAppAccent]) {
     padding: const EdgeInsets.symmetric(horizontal: 12),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     visualDensity: VisualDensity.compact,
-    textStyle: const TextStyle(fontWeight: FontWeight.w600),
+    textStyle: TextStyle(
+        fontFamily: appFontFamily,
+        fontFamilyFallback: kAppFontFamilyFallback,
+        fontSize: 14,
+        fontWeight: FontWeight.w600),
   );
 }
 
 ThemeData buildLibraryAddDialogTheme(Color accent, AppThemePalette palette) {
   return libraryAddDialogTheme(accent, palette: palette);
+}
+
+/// Slate behind the Add dialog's search field and empty results, as in the
+/// reference.
+Color libraryAddSearchBackground(BuildContext context) {
+  final palette = appPalette(context);
+  return palette.isDark ? const Color(0xff595e67) : palette.panel;
+}
+
+/// Results caption and row background.
+Color libraryAddResultsBackground(BuildContext context) {
+  final palette = appPalette(context);
+  return palette.isDark ? const Color(0xff383838) : palette.panelRaised;
+}
+
+/// Rule between results.
+Color libraryAddResultsDivider(BuildContext context) {
+  final palette = appPalette(context);
+  return palette.isDark ? const Color(0xff5d626c) : palette.divider;
 }

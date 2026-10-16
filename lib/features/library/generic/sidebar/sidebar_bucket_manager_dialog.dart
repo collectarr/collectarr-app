@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -50,7 +51,7 @@ Future<void> showLibraryBucketManagerDialog({
       onMergeBucket,
   required Future<int> Function(String currentLabel) onDeleteBucket,
 }) {
-  return showDialog<void>(
+  return showAppDialog<void>(
     context: context,
     builder: (dialogContext) => _LibraryBucketManagerDialog(
       type: type,
@@ -337,7 +338,7 @@ class _LibraryBucketManagerDialogState
 
   Future<void> _renameEntry(LibraryBucketManagerEntry entry) async {
     final controller = TextEditingController(text: entry.label);
-    final nextLabel = await showDialog<String>(
+    final nextLabel = await showAppDialog<String>(
       context: context,
       builder: (context) => AccentAlertDialog(
         headerIcon: AppIcons.inlineEdit,
@@ -384,7 +385,7 @@ class _LibraryBucketManagerDialogState
   }
 
   Future<void> _deleteEntry(LibraryBucketManagerEntry entry) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
           context: context,
           builder: (context) => AccentAlertDialog(
             headerIcon: AppIcons.delete,
@@ -439,7 +440,7 @@ class _LibraryBucketManagerDialogState
       return;
     }
     var targetLabel = candidates.first.label;
-    final confirmedTarget = await showDialog<String>(
+    final confirmedTarget = await showAppDialog<String>(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AccentAlertDialog(

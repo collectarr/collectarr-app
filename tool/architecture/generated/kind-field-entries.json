@@ -2497,9 +2497,7 @@
       "workspaceIdSources": [
         "lib/features/library/kinds/comic/workspace/comic_ids.dart"
       ],
-      "mapperSources": [
-        "lib/features/library/kinds/comic/data/local/comic_local_mapper.dart"
-      ],
+      "mapperSources": [],
       "fields": {
         "addedAt": {
           "symbols": [
@@ -5341,6 +5339,18 @@
             "music.artist_summary"
           ]
         },
+        "backCover": {
+          "symbols": [
+            "backCover",
+            "back_cover"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.back_cover"
+          ]
+        },
         "barcode": {
           "symbols": [
             "barcode"
@@ -5385,6 +5395,18 @@
           "sqlNames": [],
           "workspaceFieldIds": [
             "music.condition"
+          ]
+        },
+        "coreId": {
+          "symbols": [
+            "coreId",
+            "core_id"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.core_id"
           ]
         },
         "country": {

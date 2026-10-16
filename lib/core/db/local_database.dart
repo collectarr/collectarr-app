@@ -37,7 +37,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   // Dormant kind models remain available to their isolated source modules.
   // The release database exposes and creates only shared and Music tables.
@@ -69,9 +69,20 @@ class LocalDatabase extends _$LocalDatabase {
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (migrator) => migrator.createAll(),
-        // Add explicit, ordered upgrade steps when the released schema changes.
-        onUpgrade: (migrator, from, to) => throw StateError(
-          'No released migration exists from schema $from to $to.',
-        ),
+        // Explicit, ordered upgrade steps; each runs once, from the released
+        // schema it follows.
+        onUpgrade: (migrator, from, to) async {
+          if (from < 1 || to > 2) {
+            throw StateError(
+                'No released migration exists from schema $from to $to.');
+          }
+          if (from < 2) {
+            // 2: borrower contact details on pick-list values.
+            await migrator.addColumn(
+                pickListValuesCache, pickListValuesCache.email);
+            await migrator.addColumn(
+                pickListValuesCache, pickListValuesCache.address);
+          }
+        },
       );
 }

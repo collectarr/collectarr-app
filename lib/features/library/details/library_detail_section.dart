@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -16,13 +15,11 @@ class LibraryDetailSection extends StatefulWidget {
     this.headerActions = const [],
     this.collapsible = true,
     this.initiallyExpanded = true,
-    this.accentColor,
   });
 
   factory LibraryDetailSection.fromSpec(
-    LibraryDetailSectionSpec spec, {
-    Color? accentColor,
-  }) {
+    LibraryDetailSectionSpec spec,
+  ) {
     return LibraryDetailSection(
       title: spec.title,
       subtitle: spec.subtitle,
@@ -30,7 +27,6 @@ class LibraryDetailSection extends StatefulWidget {
       chips: spec.chips,
       collapsible: true,
       initiallyExpanded: spec.initiallyExpanded,
-      accentColor: accentColor,
       headerActions: spec.headerActions,
       children: spec.children,
     );
@@ -44,7 +40,6 @@ class LibraryDetailSection extends StatefulWidget {
   final List<Widget> headerActions;
   final bool collapsible;
   final bool initiallyExpanded;
-  final Color? accentColor;
 
   @override
   State<LibraryDetailSection> createState() => _LibraryDetailSectionState();
@@ -62,7 +57,7 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accent = widget.accentColor ?? LibraryAccentScope.accentOf(context);
+    final accent = palette.detailHeading;
     final body = <Widget>[];
     if (widget.fields.isNotEmpty) {
       body.add(LibraryDetailFieldTable(fields: widget.fields));
@@ -85,105 +80,93 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
       }
       body.add(child);
     }
+    // Headings sit directly over their content, as in the reference: the
+    // first table rule separates them, not a heading underline.
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: palette.divider.withValues(alpha: 0.78)),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InkWell(
-                mouseCursor: WidgetStateMouseCursor.clickable,
-                onTap: widget.collapsible
-                    ? () => setState(() => _expanded = !_expanded)
-                    : null,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: accent.withValues(alpha: 0.18)),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.title,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
-                                    ?.copyWith(
-                                      color: accent,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 18,
-                                      letterSpacing: 0,
-                                    ),
-                              ),
-                              if (widget.subtitle != null &&
-                                  widget.subtitle!.trim().isNotEmpty) ...[
-                                const SizedBox(height: 2),
-                                Text(
-                                  widget.subtitle!,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: palette.textMuted,
-                                        fontWeight: FontWeight.w700,
-                                      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            InkWell(
+              mouseCursor: WidgetStateMouseCursor.clickable,
+              onTap: widget.collapsible
+                  ? () => setState(() => _expanded = !_expanded)
+                  : null,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.title,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: accent,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 18,
+                                  letterSpacing: 0,
                                 ),
-                              ],
-                            ],
                           ),
-                        ),
-                        if (widget.headerActions.isNotEmpty) ...[
-                          const SizedBox(width: 8),
-                          Wrap(
-                            spacing: 4,
-                            children: widget.headerActions,
-                          ),
+                          if (widget.subtitle != null &&
+                              widget.subtitle!.trim().isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              widget.subtitle!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: palette.textMuted,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                          ],
                         ],
-                        if (widget.collapsible) ...[
-                          const SizedBox(width: 4),
-                          Icon(
-                            _expanded
-                                ? Icons.keyboard_arrow_down
-                                : Icons.keyboard_arrow_right,
-                            size: 16,
-                            color: palette.textMuted,
-                          ),
-                        ],
-                      ],
+                      ),
                     ),
-                  ),
+                    if (widget.headerActions.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      Wrap(
+                        spacing: 4,
+                        children: widget.headerActions,
+                      ),
+                    ],
+                    if (widget.collapsible) ...[
+                      const SizedBox(width: 4),
+                      Icon(
+                        _expanded
+                            ? Icons.keyboard_arrow_down
+                            : Icons.keyboard_arrow_right,
+                        size: 16,
+                        color: palette.textMuted,
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              AnimatedCrossFade(
-                firstChild: const SizedBox.shrink(),
-                secondChild: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: body,
-                  ),
+            ),
+            AnimatedCrossFade(
+              firstChild: const SizedBox.shrink(),
+              secondChild: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: body,
                 ),
-                crossFadeState: _expanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                duration: const Duration(milliseconds: 180),
               ),
-            ],
-          ),
+              crossFadeState: _expanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 180),
+            ),
+          ],
         ),
       ),
     );

@@ -208,6 +208,11 @@ class PickListValuesCache extends Table {
   BoolColumn get isHidden => boolean().withDefault(const Constant(false))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 
+  /// Contact details of a borrower (the 'borrower' list), as CLZ loaners.
+  /// Added in schema 2.
+  TextColumn get email => text().nullable()();
+  TextColumn get address => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

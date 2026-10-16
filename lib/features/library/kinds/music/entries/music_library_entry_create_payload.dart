@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -37,6 +38,7 @@ final class MusicLibraryEntryCreatePayload
     this.soldAt,
     this.sellPriceCents,
     this.soldTo,
+    this.autocapTitles,
   });
 
   factory MusicLibraryEntryCreatePayload.fromTypedItem(
@@ -70,6 +72,9 @@ final class MusicLibraryEntryCreatePayload
 
   final MusicEntryDetailsDraft details;
   final List<MusicListenEvent> initialListens;
+
+  /// Capitalizes the album and track titles of a Core item being added.
+  final TitleCaseSettings? autocapTitles;
 
   @override
   MusicEntryDetailsDraft get detailsDraft => details;
@@ -116,6 +121,10 @@ final class MusicLibraryEntryCreatePayload
     final localMetadata = Map<String, dynamic>.from(sourceMetadata.toJson())
       ..remove('id')
       ..remove('kind');
+    if (autocapTitles case final titleCase?
+        when !sourceCatalogItem.kindCapability.isPrivateLocal) {
+      _capitalizeTitles(localMetadata, titleCase);
+    }
     final item = MusicLibraryEntry(
       id: LibraryEntryId(id),
       metadata: MusicAlbum.fromJson(localMetadata),
@@ -155,4 +164,33 @@ final class MusicLibraryEntryCreatePayload
     );
     return item;
   }
+}
+
+/// Capitalizes the album title and every track title in album JSON.
+void _capitalizeTitles(
+    Map<String, dynamic> album, TitleCaseSettings titleCase) {
+  if (album['title'] case final String title) {
+    album['title'] = applyTitleCase(title, titleCase);
+  }
+  final discs = album['discs'];
+  if (discs is! List) return;
+  album['discs'] = [
+    for (final disc in discs)
+      if (disc is Map<String, dynamic> && disc['tracks'] is List)
+        {
+          ...disc,
+          'tracks': [
+            for (final track in disc['tracks'] as List)
+              if (track is Map<String, dynamic> && track['title'] is String)
+                {
+                  ...track,
+                  'title': applyTitleCase(track['title'] as String, titleCase),
+                }
+              else
+                track,
+          ],
+        }
+      else
+        disc,
+  ];
 }

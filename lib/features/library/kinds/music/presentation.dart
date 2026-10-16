@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
+import 'workspace/music_alphabet_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
@@ -315,9 +316,12 @@ String musicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final musicLibraryMediaPresentation = LibraryMediaPresentation(
+  alphabetFields: musicAlphabetFields,
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
-    queryHint: 'Enter album, artist, format, or label...',
-    emptySearchMessage: 'Enter an album, artist, format, or label.',
+    queryHint: 'Enter artist and title...',
+    emptySearchMessage: 'Enter an artist and title.',
+    libraryHint: 'Search albums & tracks...',
+    addSearchTabLabel: 'Artist & Title',
   ),
   filterLabels: const LibraryPresentationLabels(
     values: {
@@ -381,6 +385,12 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
         LibrarySortRule(column: MusicFieldIds.title.value, ascending: true)
       ],
     ),
+  ],
+  duplicateColumns: [
+    MusicFieldIds.artistSummary.value,
+    MusicFieldIds.title.value,
+    MusicFieldIds.trackCount.value,
+    MusicFieldIds.addedAt.value,
   ],
   columnFavorites: [
     LibraryTableColumnPreset(label: 'Standard', columns: {

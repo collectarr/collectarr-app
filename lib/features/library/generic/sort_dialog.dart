@@ -1,6 +1,6 @@
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -17,8 +17,10 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
   bool Function(String column)? defaultAscendingForColumn,
   List<String>? availableColumns,
   String title = 'Select Sort Fields',
+  IconData icon = AppIcons.sortAlpha,
   String confirmLabel = 'Save',
   String? description,
+  bool showFavorites = true,
 }) {
   return showAppDialog<List<LibrarySortRule>>(
     context: context,
@@ -28,8 +30,10 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
       defaultAscendingForColumn: defaultAscendingForColumn,
       availableColumns: availableColumns,
       title: title,
+      icon: icon,
       confirmLabel: confirmLabel,
       description: description,
+      showFavorites: showFavorites,
     ),
   );
 }
@@ -41,8 +45,10 @@ class _LibrarySortDialog extends StatefulWidget {
     this.defaultAscendingForColumn,
     this.availableColumns,
     required this.title,
+    required this.icon,
     required this.confirmLabel,
     this.description,
+    required this.showFavorites,
   });
 
   final LibraryKindRegistration type;
@@ -50,8 +56,10 @@ class _LibrarySortDialog extends StatefulWidget {
   final bool Function(String column)? defaultAscendingForColumn;
   final List<String>? availableColumns;
   final String title;
+  final IconData icon;
   final String confirmLabel;
   final String? description;
+  final bool showFavorites;
 
   @override
   State<_LibrarySortDialog> createState() => _LibrarySortDialogState();
@@ -66,12 +74,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   String? _editingPresetId;
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
-  final Map<LibraryTableColumnGroup, bool> _expandedGroups = {
-    LibraryTableColumnGroup.main: true,
-    LibraryTableColumnGroup.value: false,
-    LibraryTableColumnGroup.edition: false,
-    LibraryTableColumnGroup.personal: false,
-  };
+  final Map<String, bool> _expandedGroups = {};
 
   @override
   void initState() {
@@ -81,7 +84,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     _rules = widget.currentRules.isEmpty
         ? [_defaultRule()]
         : List<LibrarySortRule>.from(widget.currentRules);
-    _loadPresets();
+    if (widget.showFavorites) _loadPresets();
   }
 
   @override
@@ -95,56 +98,62 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   Widget build(BuildContext context) {
     final columns = _filteredColumns();
     return LibraryFieldSelectionDialog(
-        icon: AppIcons.sortAlpha,
+        icon: widget.icon,
         title: widget.title,
         accent: widget.type.identity.accent,
         confirmLabel: widget.confirmLabel,
         onSave: _saveAndClose,
-        headerAction: PopupMenuButton<LibrarySortPreset>(
-            tooltip: 'Sorting favorites',
-            icon: const Icon(AppIcons.settings, color: Colors.white, size: 16),
-            enabled: !_loadingPresets,
-            onSelected: _applyPreset,
-            itemBuilder: (context) => [
-                  PopupMenuItem(
-                      enabled: false,
-                      child: TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            _nameFavorite();
-                          },
-                          child: const Text('Save favorite'))),
-                  for (final preset in _combinedPresets)
-                    PopupMenuItem(
-                        value: preset,
-                        child: Row(children: [
-                          Expanded(
-                              child: Tooltip(
-                                  message: _sortRuleSummary(
-                                      widget.type, preset.rules),
-                                  child: Text(preset.label))),
-                          if (preset.isSaved)
-                            IconButton(
-                                tooltip: 'Delete favorite',
-                                icon:
-                                    const Icon(Icons.delete_outline, size: 16),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  _deletePreset(preset.id!);
-                                }),
-                        ])),
-                ]),
+        headerAction: !widget.showFavorites
+            ? null
+            : PopupMenuButton<LibrarySortPreset>(
+                popUpAnimationStyle: AnimationStyle.noAnimation,
+                tooltip: 'Sorting favorites',
+                icon: const Icon(AppIcons.settings,
+                    color: Colors.white, size: 16),
+                enabled: !_loadingPresets,
+                onSelected: _applyPreset,
+                itemBuilder: (context) => [
+                      PopupMenuItem(
+                          enabled: false,
+                          child: TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                _nameFavorite();
+                              },
+                              child: const Text('Save favorite'))),
+                      for (final preset in _combinedPresets)
+                        PopupMenuItem(
+                            value: preset,
+                            child: Row(children: [
+                              Expanded(
+                                  child: Tooltip(
+                                      message: _sortRuleSummary(
+                                          widget.type, preset.rules),
+                                      child: Text(preset.label))),
+                              if (preset.isSaved)
+                                IconButton(
+                                    tooltip: 'Delete favorite',
+                                    icon: const Icon(Icons.delete_outline,
+                                        size: 16),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      _deletePreset(preset.id!);
+                                    }),
+                            ])),
+                    ]),
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(
-              _rules
-                  .map((rule) => _sortColumnLabel(widget.type, rule.column))
-                  .join(' / '),
-              style: librarySelectionFieldStyle.copyWith(
-                  fontSize: 18, height: 1.25)),
+          if (widget.description == null)
+            Text(
+                _rules
+                    .map((rule) => _sortColumnLabel(widget.type, rule.column))
+                    .join(' / '),
+                style: librarySelectionFieldStyle.copyWith(
+                    fontSize: 18, height: 1.25)),
           if (widget.description != null) ...[
-            const SizedBox(height: 8),
-            Text(widget.description!)
+            Text(widget.description!,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w400))
           ],
           const SizedBox(height: 15),
           Expanded(
@@ -156,22 +165,21 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
               const SizedBox(height: 10),
               Expanded(
                   child: ListView(children: [
-                for (final group in [
-                  LibraryTableColumnGroup.images,
-                  ...LibraryTableColumnGroup.values
-                      .where((group) => group != LibraryTableColumnGroup.images)
-                ])
+                for (final group in {
+                  'Images',
+                  'Main',
+                  ...columns
+                      .map((column) => _sortFieldGroup(widget.type, column)),
+                })
                   if (_groupColumns(group, columns).isNotEmpty)
                     LibraryFieldSelectionCategory(
-                        title: _groupLabel(group),
+                        title: group,
                         expanded: _query.isNotEmpty ||
                             (_expandedGroups[group] ??
-                                group == LibraryTableColumnGroup.main ||
-                                    group == LibraryTableColumnGroup.images),
+                                group == 'Main' || group == 'Images'),
                         onToggle: () => setState(() => _expandedGroups[group] =
                             !(_expandedGroups[group] ??
-                                group == LibraryTableColumnGroup.main ||
-                                    group == LibraryTableColumnGroup.images)),
+                                group == 'Main' || group == 'Images')),
                         children: [
                           for (final column in _groupColumns(group, columns))
                             LibraryFieldSelectionCheckbox(
@@ -215,7 +223,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
 
   Future<void> _nameFavorite() async {
     var label = _presetNameController.text;
-    final name = await showDialog<String>(
+    final name = await showAppDialog<String>(
         context: context,
         builder: (context) => AccentAlertDialog(
                 headerIcon: AppIcons.sortAlpha,
@@ -284,7 +292,9 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
             ])
         .toSet();
     return [
-      for (final favorite in librarySortFavoritesForType(widget.type))
+      for (final favorite in librarySortFavoritesForType(widget.type).where(
+          (favorite) =>
+              !_savedPresets.any((preset) => preset.id == favorite.id)))
         if (favorite.rules.every((rule) => available.contains(rule.column)))
           LibrarySortPreset(
             id: favorite.id,
@@ -322,7 +332,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   List<String> _groupColumns(
-    LibraryTableColumnGroup group,
+    String group,
     List<String> columns,
   ) {
     return [
@@ -440,33 +450,13 @@ String _sortRuleSummary(
       .join('  |  ');
 }
 
-LibraryTableColumnGroup _sortFieldGroup(
-  LibraryKindRegistration type,
-  String column,
-) {
+String _sortFieldGroup(LibraryKindRegistration type, String column) {
   final fields = libraryKindWorkspaceForKind(type.kind).workspaceFields;
   final sort = fields.sortDefinitionFor(fields.decodeSortId(column));
-  final matchingColumns = fields.columns.where((definition) =>
+  if (sort.group != 'Main') return sort.group;
+  final matching = fields.columns.where((definition) =>
       definition.id.value == column || definition.sortId?.value == column);
-  final groupStr =
-      (matchingColumns.isEmpty ? sort.group : matchingColumns.first.group)
-          .toLowerCase();
-  return LibraryTableColumnGroup.values.firstWhere(
-    (g) => g.name.toLowerCase() == groupStr,
-    orElse: () => LibraryTableColumnGroup.main,
-  );
-}
-
-String _groupLabel(LibraryTableColumnGroup group) {
-  return switch (group) {
-    LibraryTableColumnGroup.main => 'Main',
-    LibraryTableColumnGroup.value => 'Value',
-    LibraryTableColumnGroup.edition => 'Edition',
-    LibraryTableColumnGroup.personal => 'Personal',
-    LibraryTableColumnGroup.credits => 'Credits',
-    LibraryTableColumnGroup.images => 'Images',
-    LibraryTableColumnGroup.loan => 'Loan',
-  };
+  return matching.firstOrNull?.group ?? sort.group;
 }
 
 bool _defaultSortAscending(

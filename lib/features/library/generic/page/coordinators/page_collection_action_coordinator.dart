@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/features/library/ui/library_item_confirmation.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 // ignore_for_file: use_build_context_synchronously
@@ -203,7 +204,7 @@ class LibraryPageCollectionActionCoordinator {
   }
 
   Future<void> scanBarcodeFlow() async {
-    final scannedCode = await showModalBottomSheet<ScannedCode>(
+    final scannedCode = await showAppBottomSheet<ScannedCode>(
       context: _page.context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -237,8 +238,8 @@ class LibraryPageCollectionActionCoordinator {
     }
   }
 
-  void pickRandomItemFlow(LibraryProjection projection) {
-    final items = projection.filteredItems;
+  /// Selects one of the shown [items] at random and scrolls it into view.
+  void pickRandomItemFlow(List<LibraryProjectionItem> items) {
     if (items.isEmpty) {
       if (!_page.mounted) {
         return;
@@ -250,6 +251,7 @@ class LibraryPageCollectionActionCoordinator {
     }
     final random = items[_random.nextInt(items.length)];
     _page.selectItem(random.target.id);
+    _page.revealItem(random.target.id);
   }
 
   Future<void> bulkEditFlow(LibraryProjection? projection) async {

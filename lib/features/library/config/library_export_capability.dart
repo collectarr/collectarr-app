@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
@@ -7,6 +8,7 @@ ExportColumnDefinition exportColumnFromWorkspaceField<TKind,
   required LibraryFieldDefinition<TKind, TDto, TValue> field,
   required String Function(TValue value) valueFormatter,
   String Function(TValue value)? pdfValueFormatter,
+  String? label,
   bool defaultVisible = true,
   bool includeInPdf = true,
   String? pdfLabel,
@@ -28,7 +30,8 @@ ExportColumnDefinition exportColumnFromWorkspaceField<TKind,
 
   return ExportColumnDefinition(
     id: field.id.value,
-    label: field.label,
+    label: label ?? field.label,
+    metadata: field.metadata,
     getValue: (item) => valueFor(item, valueFormatter),
     defaultVisible: defaultVisible,
     includeInPdf: includeInPdf,
@@ -47,6 +50,7 @@ class ExportColumnDefinition {
     required this.id,
     required this.label,
     required this.getValue,
+    this.metadata,
     this.defaultVisible = true,
     this.includeInPdf = true,
     this.pdfLabel,
@@ -59,6 +63,10 @@ class ExportColumnDefinition {
   final String id;
   final String label;
   final String Function(LibraryProjectionView item) getValue;
+
+  /// Present for workspace-backed columns; capabilities stay owned by the field.
+  /// Standalone report columns expose scalar formatted text.
+  final LibraryKindFieldMetadata? metadata;
   final bool defaultVisible;
   final bool includeInPdf;
   final String? pdfLabel;

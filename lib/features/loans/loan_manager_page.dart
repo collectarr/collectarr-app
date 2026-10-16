@@ -1,5 +1,9 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/app_management_page_scaffold.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/loans/loan_item_dialog.dart';
+import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -21,11 +25,11 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/app_page_tabs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -43,6 +47,20 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   final _barcodeController = TextEditingController();
   final _queryController = TextEditingController();
   var _filter = _LoanFilter.active;
+
+  // The count pill names the library's items ("1 ALBUM").
+  String get _itemSingular => widget.kind == null
+      ? 'item'
+      : libraryKindRegistrationForKind(widget.kind!)
+          .identity
+          .singularLabel
+          .toLowerCase();
+  String get _itemPlural => widget.kind == null
+      ? 'items'
+      : libraryKindRegistrationForKind(widget.kind!)
+          .identity
+          .pluralLabel
+          .toLowerCase();
   var _loading = true;
   int _loadGeneration = 0;
   String? _borrower;
@@ -230,7 +248,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
 
   Future<LibraryEntrySummary?> _pickLibraryEntry(
       List<LibraryEntrySummary> libraryEntries, String title) async {
-    return showDialog<LibraryEntrySummary>(
+    return showAppDialog<LibraryEntrySummary>(
       context: context,
       builder: (context) => _LibraryEntryPickerDialog(
         title: title,
@@ -307,7 +325,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   }
 
   Future<Loan?> _pickLoan(List<Loan> loans, String title) async {
-    return showDialog<Loan>(
+    return showAppDialog<Loan>(
       context: context,
       builder: (context) => _ActiveLoanPickerDialog(
         title: title,
@@ -318,25 +336,20 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
 
   Future<void> _createLoan(LibraryEntrySummary libraryEntry) async {
     try {
-      final catalogTitle = _catalogTitleFor(libraryEntry);
-      final draft = await showDialog<_LoanDraft>(
+      // The same reference "Loan Album" form as the item Loan action.
+      final lent = await showLoanItemDialog(
         context: context,
-        builder: (context) => _LoanCreateDialog(
-          title: catalogTitle,
-          accent: LibraryAccentScope.accentOf(context),
-        ),
+        db: ref.read(localDatabaseProvider),
+        libraryEntryRef: libraryEntry.ref,
+        singularLabel: widget.kind == null
+            ? 'Item'
+            : libraryKindRegistrationForKind(widget.kind!)
+                .identity
+                .singularLabel,
+        title: _catalogTitleFor(libraryEntry),
       );
-      if (draft == null || !mounted) {
-        return;
-      }
-      final loan = Loan(
-          id: DateTime.now().microsecondsSinceEpoch.toString(),
-          libraryEntryRef: libraryEntry.ref,
-          borrowerName: draft.borrowerName,
-          lentDate: draft.lentDate,
-          dueDate: draft.dueDate,
-          notes: draft.notes);
-      await _writeLoan(loan, (repository) => repository.create(loan));
+      if (!lent || !mounted) return;
+      ref.invalidate(shelfProvider);
       await _load();
     } catch (error) {
       if (mounted) {
@@ -387,138 +400,144 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     final now = DateTime.now();
     final borrowers = _loans.map((loan) => loan.borrowerName).toSet().toList()
       ..sort();
-    return Scaffold(
-      backgroundColor: appManagementCanvasColor(context),
-      appBar: AppPageHeader(
-          icon: Icons.people_outline,
-          title: const Text('Loan Manager'),
-          actions: [
-            IconButton(
-              tooltip: 'Refresh loans',
-              onPressed: _load,
-              icon: const Icon(Icons.refresh),
-            ),
-          ]),
-      body: _loading
+    return AppManagementPageScaffold(
+      padding: EdgeInsets.zero,
+      icon: AppIcons.loans,
+      title: 'Loan Manager',
+      actions: [
+        IconButton(
+          tooltip: 'Refresh loans',
+          onPressed: _load,
+          icon: const Icon(Icons.refresh),
+        ),
+      ],
+      child: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
-              child: Center(
-                  child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 960),
-                      child: ListView(
-                        padding: const EdgeInsets.all(12),
-                        children: [
-                          Wrap(
-                              spacing: 16,
-                              runSpacing: 10,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                for (final tab in [
-                                  (
-                                    label: 'Current Loans',
-                                    filter: _LoanFilter.active
-                                  ),
-                                  (
-                                    label: 'Loan History',
-                                    filter: _LoanFilter.returned
-                                  )
-                                ])
-                                  TextButton(
-                                      onPressed: () =>
-                                          setState(() => _filter = tab.filter),
-                                      style: TextButton.styleFrom(
-                                          foregroundColor: _filter == tab.filter
-                                              ? accent
-                                              : appPalette(context).textPrimary,
-                                          shape: const RoundedRectangleBorder(),
-                                          side: BorderSide(
-                                              color: _filter == tab.filter
-                                                  ? accent
-                                                  : Colors.transparent)),
-                                      child: Text(tab.label,
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.w700))),
-                                SizedBox(
-                                    width: 210,
-                                    child: DropdownButtonFormField<String>(
-                                        key: ValueKey(_borrower),
-                                        initialValue: _borrower ?? '',
-                                        isExpanded: true,
-                                        items: [
-                                          const DropdownMenuItem(
-                                              value: '',
-                                              child: Text('all loaners')),
-                                          for (final name in borrowers)
-                                            DropdownMenuItem(
-                                                value: name, child: Text(name))
-                                        ],
-                                        onChanged: (name) => setState(() =>
-                                            _borrower =
-                                                name == '' ? null : name))),
-                                SizedBox(
-                                    width: 210,
-                                    child: TextField(
-                                        controller: _queryController,
-                                        onChanged: (_) => setState(() {}),
-                                        decoration: const InputDecoration(
-                                            hintText: 'Search loans',
-                                            prefixIcon:
-                                                Icon(Icons.search, size: 18),
-                                            isDense: true))),
-                                TextButton.icon(
-                                    onPressed: filteredLoans.isEmpty
-                                        ? null
-                                        : () => _printLoans(filteredLoans),
-                                    icon: const Icon(
-                                        Icons.picture_as_pdf_outlined,
-                                        size: 16),
-                                    label: const Text('print to pdf')),
-                              ]),
-                          const Divider(height: 20),
-                          Text('${filteredLoans.length} items'),
-                          const SizedBox(height: 8),
-                          if (MediaQuery.sizeOf(context).width >= 650 &&
-                              filteredLoans.isNotEmpty)
-                            _loanTable(filteredLoans, accent)
-                          else if (filteredLoans.isEmpty)
-                            const _EmptyLoansState()
-                          else
-                            for (final loan in filteredLoans)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: _LoanRow(
-                                  loan: loan,
-                                  title: _loanTitle(loan),
-                                  accent: accent,
-                                  isOverdue: loan.isOverdueAt(now),
-                                  onReturn: loan.isActive
-                                      ? () => _returnLoan(loan)
-                                      : null,
-                                  onDelete: () => _deleteLoan(loan),
-                                ),
-                              ),
-                          const SizedBox(height: 16),
-                          ExpansionTile(
-                              title: const Text('Lend / return by barcode'),
-                              children: [
-                                _LoanActionStrip(
-                                  barcodeController: _barcodeController,
-                                  filter: _filter,
-                                  onFilterChanged: (value) =>
-                                      setState(() => _filter = value),
-                                  onScanBarcode: _scanBarcode,
-                                  onLoanByBarcode: _loanByBarcode,
-                                  onReturnByBarcode: _returnByBarcode,
-                                ),
-                              ]),
+              child: ListView(
+                padding: const EdgeInsets.all(12),
+                children: [
+                  AppPageTabs(
+                    tabs: const [
+                      AppPageTab(label: 'Current Loans', icon: AppIcons.loans),
+                      AppPageTab(label: 'Loan History', icon: AppIcons.history),
+                    ],
+                    selectedIndex: _filter == _LoanFilter.returned ? 1 : 0,
+                    onSelected: (index) => setState(() => _filter =
+                        index == 1 ? _LoanFilter.returned : _LoanFilter.active),
+                  ),
+                  // The reference keeps loaner filter, print, count and search
+                  // in one 40 px bar on the panel the tabs belong to.
+                  Container(
+                    color: appManagementPanelColor(context),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                    child: LayoutBuilder(builder: (context, constraints) {
+                      final loaners = PopupMenuButton<String>(
+                        popUpAnimationStyle: AnimationStyle.noAnimation,
+                        tooltip: 'Filter by loaner',
+                        position: PopupMenuPosition.under,
+                        onSelected: (name) => setState(
+                            () => _borrower = name == '' ? null : name),
+                        itemBuilder: (_) => [
+                          const PopupMenuItem(
+                              value: '',
+                              height: 30,
+                              child: Text('All Loaners')),
+                          for (final name in borrowers)
+                            PopupMenuItem(
+                                value: name, height: 30, child: Text(name)),
                         ],
-                      ))),
+                        child: _LoanBarButton(
+                            icon: AppIcons.user,
+                            label: _borrower ?? 'All loaners',
+                            caret: true),
+                      );
+                      final print = InkWell(
+                          onTap: filteredLoans.isEmpty
+                              ? null
+                              : () => _printLoans(filteredLoans),
+                          child: const _LoanBarButton(
+                              icon: AppIcons.print, label: 'Print to PDF'));
+                      final count = _LoanCountPill(
+                          count: filteredLoans.length,
+                          singular: _itemSingular,
+                          plural: _itemPlural);
+                      final search = SizedBox(
+                          width: 225,
+                          height: 30,
+                          child: TextField(
+                              controller: _queryController,
+                              onChanged: (_) => setState(() {}),
+                              style: const TextStyle(fontSize: 14),
+                              decoration: settingsSelectDecoration(context)
+                                  .copyWith(
+                                      hintText: 'Search...',
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 7, vertical: 6),
+                                      suffixIcon:
+                                          const Icon(AppIcons.search, size: 13),
+                                      suffixIconConstraints:
+                                          const BoxConstraints(minWidth: 28))));
+                      if (constraints.maxWidth < 640) {
+                        return Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [loaners, print, count, search]);
+                      }
+                      return Row(children: [
+                        loaners,
+                        const SizedBox(width: 5),
+                        print,
+                        Expanded(child: Center(child: count)),
+                        search,
+                      ]);
+                    }),
+                  ),
+                  const SizedBox(height: 8),
+                  if (MediaQuery.sizeOf(context).width >= 650 &&
+                      filteredLoans.isNotEmpty)
+                    _loanTable(filteredLoans)
+                  else if (filteredLoans.isEmpty)
+                    const _EmptyLoansState()
+                  else
+                    for (final loan in filteredLoans)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: _LoanRow(
+                          loan: loan,
+                          title: _loanTitle(loan),
+                          accent: accent,
+                          isOverdue: loan.isOverdueAt(now),
+                          onReturn:
+                              loan.isActive ? () => _returnLoan(loan) : null,
+                          onDelete: () => _deleteLoan(loan),
+                        ),
+                      ),
+                  const SizedBox(height: 16),
+                  ExpansionTile(
+                      title: const Text('Lend / return by barcode'),
+                      children: [
+                        _LoanActionStrip(
+                          barcodeController: _barcodeController,
+                          filter: _filter,
+                          onFilterChanged: (value) =>
+                              setState(() => _filter = value),
+                          onScanBarcode: _scanBarcode,
+                          onLoanByBarcode: _loanByBarcode,
+                          onReturnByBarcode: _returnByBarcode,
+                        ),
+                      ]),
+                ],
+              ),
             ),
     );
   }
 
-  Widget _loanTable(List<Loan> loans, Color accent) => LayoutBuilder(
+  Widget _loanTable(List<Loan> loans) => LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: ConstrainedBox(
@@ -560,31 +579,45 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
                                         title: _loanTitle(loan),
                                         libraryEntryRef: loan.libraryEntryRef)),
                                 const SizedBox(width: 10),
-                                Expanded(child: _loanAlbumFacts(loan, accent)),
+                                Expanded(child: _loanAlbumFacts(loan)),
                               ])))),
                       DataCell(Text(loan.borrowerName)),
                       DataCell(Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                                _filter == _LoanFilter.returned
-                                    ? (loan.returnedDate == null
-                                        ? '-'
-                                        : _fmt(loan.returnedDate!))
-                                    : (loan.dueDate == null
-                                        ? '-'
-                                        : _fmt(loan.dueDate!)),
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    color: loan.isOverdueAt(DateTime.now())
-                                        ? Colors.orange
-                                        : null)),
-                            const SizedBox(height: 4),
+                            // Reference dates: the due (or returned) date
+                            // with a clock, the loan date small and grey
+                            // with a paper plane, in the display format.
                             Row(mainAxisSize: MainAxisSize.min, children: [
-                              const Icon(Icons.send_outlined, size: 14),
+                              Text(
+                                  _filter == _LoanFilter.returned
+                                      ? (loan.returnedDate == null
+                                          ? '-'
+                                          : formatDate(loan.returnedDate!))
+                                      : (loan.dueDate == null
+                                          ? '-'
+                                          : formatDate(loan.dueDate!)),
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: loan.isOverdueAt(DateTime.now())
+                                          ? Colors.orange
+                                          : null)),
                               const SizedBox(width: 5),
-                              Text(_fmt(loan.lentDate))
+                              Icon(
+                                  _filter == _LoanFilter.returned
+                                      ? AppIcons.history
+                                      : AppIcons.loans,
+                                  size: 13),
+                            ]),
+                            const SizedBox(height: 2),
+                            Row(mainAxisSize: MainAxisSize.min, children: [
+                              Text(formatDate(loan.lentDate),
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Color(0xFF999999))),
+                              const SizedBox(width: 5),
+                              const Icon(AppIcons.paperPlane,
+                                  size: 11, color: Color(0xFF999999)),
                             ]),
                             if (loan.notes?.isNotEmpty == true)
                               SizedBox(
@@ -594,20 +627,33 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
                                       overflow: TextOverflow.ellipsis)),
                           ])),
                       DataCell(Row(mainAxisSize: MainAxisSize.min, children: [
+                        // The reference return action: a 30 px blue square.
                         if (loan.isActive)
-                          TextButton(
-                              onPressed: () => _returnLoan(loan),
-                              child: const Text('Return')),
+                          SizedBox.square(
+                            dimension: 30,
+                            child: IconButton(
+                                tooltip: 'Return',
+                                padding: EdgeInsets.zero,
+                                style: IconButton.styleFrom(
+                                    backgroundColor:
+                                        appPalette(context).utilityAction,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(4))),
+                                onPressed: () => _returnLoan(loan),
+                                icon: const Icon(AppIcons.history, size: 14)),
+                          ),
                         IconButton(
                             tooltip: 'Delete loan record',
                             onPressed: () => _deleteLoan(loan),
-                            icon: const Icon(Icons.delete_outline, size: 16))
+                            icon: const Icon(AppIcons.delete, size: 14))
                       ])),
                     ])
                 ],
               ))));
 
-  Widget _loanAlbumFacts(Loan loan, Color accent) {
+  Widget _loanAlbumFacts(Loan loan) {
     final source = ref
         .watch(shelfProvider)
         .asData
@@ -628,9 +674,10 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
           Text(_loanTitle(loan),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: accent, fontWeight: FontWeight.w700)),
+              style:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
           if (card?.contextFacts.firstOrNull case final creator?)
-            Text(creator, style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(creator, style: const TextStyle(fontSize: 12)),
           if (card?.identifierCode case final identifier?)
             Row(children: [
               const Icon(Icons.view_week_outlined, size: 16),
@@ -1095,142 +1142,6 @@ class _ActiveLoanPickerDialog extends StatelessWidget {
   }
 }
 
-class _LoanDraft {
-  const _LoanDraft({
-    required this.borrowerName,
-    required this.lentDate,
-    this.dueDate,
-    this.notes,
-  });
-
-  final String borrowerName;
-  final DateTime lentDate;
-  final DateTime? dueDate;
-  final String? notes;
-}
-
-class _LoanCreateDialog extends StatefulWidget {
-  const _LoanCreateDialog({
-    required this.title,
-    required this.accent,
-  });
-
-  final String title;
-  final Color accent;
-
-  @override
-  State<_LoanCreateDialog> createState() => _LoanCreateDialogState();
-}
-
-class _LoanCreateDialogState extends State<_LoanCreateDialog> {
-  final _borrowerController = TextEditingController();
-  final _notesController = TextEditingController();
-  DateTime _lentDate = DateTime.now();
-  DateTime? _dueDate;
-
-  @override
-  void dispose() {
-    _borrowerController.dispose();
-    _notesController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AccentAlertDialog(
-      headerIcon: AppIcons.loans,
-      title: Text('Loan out ${widget.title}'),
-      content: SizedBox(
-        width: 360,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _borrowerController,
-              autofocus: true,
-              onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(
-                labelText: 'Borrower / contact',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Column(
-              children: [
-                _DatePickerField(
-                  label: 'Lent date',
-                  value: _lentDate,
-                  onChanged: (value) {
-                    if (value != null) setState(() => _lentDate = value);
-                  },
-                ),
-                const SizedBox(height: 12),
-                _DatePickerField(
-                  label: 'Due date',
-                  value: _dueDate,
-                  onChanged: (value) => setState(() => _dueDate = value),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _notesController,
-              maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: 'Notes',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _borrowerController.text.trim().isEmpty
-              ? null
-              : () {
-                  Navigator.of(context).pop(
-                    _LoanDraft(
-                      borrowerName: _borrowerController.text.trim(),
-                      lentDate: _lentDate,
-                      dueDate: _dueDate,
-                      notes: _notesController.text.trim().isEmpty
-                          ? null
-                          : _notesController.text.trim(),
-                    ),
-                  );
-                },
-          style: FilledButton.styleFrom(backgroundColor: widget.accent),
-          child: const Text('Lend'),
-        ),
-      ],
-    );
-  }
-}
-
-class _DatePickerField extends StatelessWidget {
-  const _DatePickerField({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String label;
-  final DateTime? value;
-  final ValueChanged<DateTime?> onChanged;
-
-  @override
-  Widget build(BuildContext context) => LibraryDateFieldButton(
-        label: label,
-        value: value,
-        onChanged: onChanged,
-      );
-}
-
 class _MiniChip extends StatelessWidget {
   const _MiniChip({required this.label});
 
@@ -1261,4 +1172,77 @@ class _EmptyLoansState extends StatelessWidget {
 String _fmt(DateTime dt) {
   final local = dt.toLocal();
   return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+}
+
+/// A loan bar action: icon and small-caps label, as in the reference.
+class _LoanBarButton extends StatelessWidget {
+  const _LoanBarButton(
+      {required this.icon, required this.label, this.caret = false});
+
+  final IconData icon;
+  final String label;
+  final bool caret;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        height: 30,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon, size: 14),
+            const SizedBox(width: 4),
+            Text(label.toUpperCase(),
+                style:
+                    const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+            if (caret) ...[
+              const SizedBox(width: 3),
+              const Icon(AppIcons.caretDown, size: 11),
+            ],
+          ]),
+        ),
+      );
+}
+
+/// Item count between the loan filters and search, as in the reference: a
+/// light #CCC pill with the number in a dark badge.
+class _LoanCountPill extends StatelessWidget {
+  const _LoanCountPill(
+      {required this.count, required this.singular, required this.plural});
+
+  final int count;
+  final String singular;
+  final String plural;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        height: 30,
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFCCCCCC),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Container(
+            constraints: const BoxConstraints(minWidth: 16),
+            height: 18,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFF444444),
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: Text('$count',
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700)),
+          ),
+          const SizedBox(width: 6),
+          Text((count == 1 ? singular : plural).toUpperCase(),
+              style: const TextStyle(
+                  color: Color(0xFF444444),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700)),
+        ]),
+      );
 }

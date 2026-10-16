@@ -75,7 +75,8 @@ void main() {
     expect(find.text('Loan Manager'), findsOneWidget);
     expect(find.text('Alice'), findsOneWidget);
     expect(find.text('Action Comics #1'), findsWidgets);
-    expect(find.text('1 items'), findsOneWidget);
+    expect(find.text('ITEM'), findsOneWidget);
+    expect(find.text('1'), findsWidgets);
     expect(find.text('Current Loans'), findsOneWidget);
     expect(find.text('Loan History'), findsOneWidget);
     expect(find.byType(DataTable), findsOneWidget);
@@ -93,7 +94,7 @@ void main() {
     });
     addTearDown(() => tester.binding.defaultBinaryMessenger
         .setMockMethodCallHandler(printingChannel, null));
-    await tester.tap(find.text('print to pdf'));
+    await tester.tap(find.text('PRINT TO PDF'));
     await pumpUntilSettled(tester);
     expect(exported, isNotNull);
     expect(ascii.decode(exported!.take(4).toList()), '%PDF');
@@ -101,10 +102,10 @@ void main() {
     await tester.tap(find.text('Loan History'));
     await pumpUntilSettled(tester);
     expect(find.text('Alice'), findsNothing);
-    expect(find.text('0 items'), findsOneWidget);
+    expect(find.text('ITEMS'), findsOneWidget);
     await tester.tap(find.text('Current Loans'));
     await pumpUntilSettled(tester);
-    await tester.tap(find.widgetWithText(TextButton, 'Return'));
+    await tester.tap(find.byTooltip('Return'));
     await pumpUntilSettled(tester);
     expect((await loanRepo.getAllLoans()).single.isActive, false);
     final changes = (await SyncQueueRepository(db).readPending()).changes;

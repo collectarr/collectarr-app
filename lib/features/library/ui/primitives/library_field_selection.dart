@@ -1,8 +1,9 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/library_folder_reorder_row.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -37,16 +38,17 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
     return Theme(
       data: Theme.of(context).copyWith(
           colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: accent, onPrimary: appContrastingTextColor(accent)),
+              primary: palette.utilityAction, onPrimary: Colors.white),
           extensions: [
             ...Theme.of(context)
                 .extensions
                 .values
                 .where((extension) => extension is! AppThemePalette),
             palette.copyWith(
-                accent: accent,
+                accent: palette.utilityAction,
                 selection: Color.alphaBlend(
-                    accent.withValues(alpha: .22), palette.panel))
+                    palette.utilityAction.withValues(alpha: .22),
+                    palette.panel))
           ]),
       child: Builder(
           builder: (context) => Dialog(
@@ -54,8 +56,7 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
                 insetPadding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
                 backgroundColor: pickListSurface(context),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6)),
+                shape: appDialogShape,
                 clipBehavior: Clip.antiAlias,
                 child: SizedBox(
                     width: 600,
@@ -72,34 +73,17 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
                               onClose: () => Navigator.of(context).pop()),
                           Expanded(
                               child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 15, 10, 15),
+                                  padding: const EdgeInsets.all(15),
                                   child: child)),
-                          Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                  color: palette.isDark
-                                      ? const Color(0xff383838)
-                                      : palette.panelRaised,
-                                  border: Border(
-                                      top: BorderSide(
-                                          color: pickListDivider(context)))),
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    FilledButton(
-                                        style: pickListButtonStyle(context,
-                                            primary: false, footer: true),
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(),
-                                        child: const Text('Cancel')),
-                                    const SizedBox(width: 10),
-                                    FilledButton(
-                                        style: pickListButtonStyle(context,
-                                            footer: true),
-                                        onPressed: onSave,
-                                        child: Text(confirmLabel)),
-                                  ])),
+                          DialogActionFooter(actions: [
+                            DialogActionButton(
+                                label: 'Cancel',
+                                onPressed: () => Navigator.of(context).pop()),
+                            DialogActionButton(
+                                label: confirmLabel,
+                                primary: true,
+                                onPressed: onSave),
+                          ]),
                         ]))),
               )),
     );
@@ -137,39 +121,61 @@ class LibraryFieldSelectionPanes extends StatelessWidget {
       });
 }
 
-class LibraryFieldSelectionSearch extends StatelessWidget {
+class LibraryFieldSelectionSearch extends StatefulWidget {
   const LibraryFieldSelectionSearch(
-      {super.key, required this.controller, required this.onChanged});
-  final TextEditingController controller;
+      {super.key, this.controller, required this.onChanged});
+  final TextEditingController? controller;
   final ValueChanged<String> onChanged;
   @override
-  Widget build(BuildContext context) => SizedBox(
-      height: 28,
-      child: TextField(
-          controller: controller,
-          style: librarySelectionFieldStyle,
-          cursorColor: LibraryAccentScope.maybeOf(context)?.accent ??
-              appPalette(context).accent,
-          onChanged: onChanged,
-          decoration: pickListInputDecoration(context,
-                  hintText: 'Search fields')
-              .copyWith(
-                  contentPadding: EdgeInsets.zero,
-                  prefixIcon: const Icon(Icons.search, size: 16),
-                  prefixIconConstraints:
-                      const BoxConstraints.tightFor(width: 30, height: 26),
-                  suffixIcon: controller.text.isEmpty
-                      ? null
-                      : IconButton(
-                          tooltip: 'Clear search',
-                          padding: EdgeInsets.zero,
-                          icon: const Icon(Icons.cancel, size: 16),
-                          onPressed: () {
-                            controller.clear();
-                            onChanged('');
-                          }),
-                  suffixIconConstraints:
-                      const BoxConstraints.tightFor(width: 26, height: 26))));
+  State<LibraryFieldSelectionSearch> createState() =>
+      _LibraryFieldSelectionSearchState();
+}
+
+class _LibraryFieldSelectionSearchState
+    extends State<LibraryFieldSelectionSearch> {
+  TextEditingController? _ownedController;
+
+  @override
+  void dispose() {
+    _ownedController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller =
+        widget.controller ?? (_ownedController ??= TextEditingController());
+    return SizedBox(
+        height: 28,
+        child: TextField(
+            controller: controller,
+            style: librarySelectionFieldStyle,
+            cursorColor: appPalette(context).utilityAction,
+            onChanged: (value) {
+              setState(() {});
+              widget.onChanged(value);
+            },
+            decoration: pickListInputDecoration(context,
+                    hintText: 'Search fields')
+                .copyWith(
+                    contentPadding: EdgeInsets.zero,
+                    prefixIcon: const Icon(Icons.search, size: 16),
+                    prefixIconConstraints:
+                        const BoxConstraints.tightFor(width: 30, height: 26),
+                    suffixIcon: controller.text.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: 'Clear search',
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.cancel, size: 16),
+                            onPressed: () {
+                              controller.clear();
+                              setState(() {});
+                              widget.onChanged('');
+                            }),
+                    suffixIconConstraints:
+                        const BoxConstraints.tightFor(width: 26, height: 26))));
+  }
 }
 
 class LibraryFieldSelectionCategory extends StatelessWidget {

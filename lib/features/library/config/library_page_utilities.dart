@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
@@ -33,7 +34,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     required int count,
     String itemLabel = 'items',
   }) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
         headerIcon: AppIcons.delete,
@@ -62,7 +63,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     required String title,
     required String itemLabel,
   }) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
         headerIcon: AppIcons.delete,
@@ -91,7 +92,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     required LibraryKindRegistration type,
     required int selectedCount,
   }) {
-    return showDialog<LibraryBulkEditSelection>(
+    return showAppDialog<LibraryBulkEditSelection>(
       context: context,
       builder: (context) => LibraryBulkEditDialog(
         type: type,

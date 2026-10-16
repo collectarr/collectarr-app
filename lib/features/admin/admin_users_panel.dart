@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -128,7 +129,7 @@ class _AdminUsersPanelState extends ConsumerState<AdminUsersPanel> {
   }
 
   Future<void> _editUser(AdminUser user) async {
-    final draft = await showDialog<_AdminUserDraft>(
+    final draft = await showAppDialog<_AdminUserDraft>(
       context: context,
       builder: (context) => _AdminUserEditorDialog(user: user),
     );

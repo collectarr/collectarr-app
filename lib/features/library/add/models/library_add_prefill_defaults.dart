@@ -6,10 +6,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefillDefaults {
   const PrefillDefaults(
-      {this.locationId, this.tags, this.personalValues = const {}});
+      {this.locationId,
+      this.tags,
+      this.personalValues = const {},
+      this.alwaysShow = true,
+      this.fillPurchaseDateWithToday = false});
   final String? locationId;
   final String? tags;
   final Map<String, dynamic> personalValues;
+  final bool alwaysShow;
+  final bool fillPurchaseDateWithToday;
 
   static Future<PrefillDefaults> load([CatalogMediaKind? kind]) async {
     final prefs = await SharedPreferences.getInstance();
@@ -17,6 +23,12 @@ class PrefillDefaults {
         ? null
         : prefs.getString('collectarr.prefill.${kind.apiValue}.personal');
     return PrefillDefaults(
+        alwaysShow: prefs.getBool(
+                'collectarr.prefill.${kind?.apiValue ?? 'all'}.always_show') ??
+            true,
+        fillPurchaseDateWithToday: prefs.getBool(
+                'collectarr.prefill.${kind?.apiValue ?? 'all'}.purchase_today') ??
+            false,
         locationId: prefs.getString('collectarr.prefill.location_id'),
         tags: prefs.getString('collectarr.prefill.tags'),
         personalValues: raw == null
@@ -26,6 +38,12 @@ class PrefillDefaults {
 
   Future<void> save([CatalogMediaKind? kind]) async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(
+        'collectarr.prefill.${kind?.apiValue ?? 'all'}.always_show',
+        alwaysShow);
+    await prefs.setBool(
+        'collectarr.prefill.${kind?.apiValue ?? 'all'}.purchase_today',
+        fillPurchaseDateWithToday);
     for (final entry in {'location_id': locationId, 'tags': tags}.entries) {
       if (entry.value == null || entry.value!.isEmpty) {
         await prefs.remove('collectarr.prefill.${entry.key}');
@@ -42,6 +60,7 @@ class PrefillDefaults {
   LibraryAddCommonDraft applyTo(LibraryAddCommonDraft draft) => draft.copyWith(
         condition: draft.condition ?? personalValues['condition'] as String?,
         purchaseDate: draft.purchaseDate ??
+            (fillPurchaseDateWithToday ? DateTime.now() : null) ??
             PartialDate.tryParse(personalValues['purchase_date_parts'])
                 ?.asDateTime,
         pricePaidCents: draft.pricePaidCents ??

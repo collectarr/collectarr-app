@@ -29,7 +29,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     if (music == null) return null;
     final secondary = music.publisher?.trim();
     final releaseYear =
-        music.releaseDate?.year ?? music.originalReleaseDate?.year;
+        music.releaseDateParts?.year ?? music.originalReleaseDateParts?.year;
     final inlineFacts = <LibraryStatsInlineFact>[];
     final tracksCount = music.trackCount;
     if (tracksCount > 0) {

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/state/auth_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_shell_brand.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 
@@ -60,10 +62,13 @@ class AppShellAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       iconTheme: const IconThemeData(color: Colors.white, size: 19),
-      flexibleSpace: LibraryAccentChrome(
-        accent: accent,
-        animationDuration: animationsEnabled ? kAppAnimNormal : Duration.zero,
-      ),
+      flexibleSpace: Stack(fit: StackFit.expand, children: [
+        LibraryAccentChrome(
+          accent: accent,
+          animationDuration: animationsEnabled ? kAppAnimNormal : Duration.zero,
+        ),
+        Center(child: _AccountLibraryLabel(kindTitle: type.identity.title)),
+      ]),
       actions: [
         MediaLibraryKindMenu(
           types: types,
@@ -81,6 +86,28 @@ class AppShellAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         const SizedBox(width: 4),
       ],
+    );
+  }
+}
+
+/// "account's music", centered like the reference, while signed in to the
+/// optional Sync account; nothing for a local-only library.
+class _AccountLibraryLabel extends ConsumerWidget {
+  const _AccountLibraryLabel({required this.kindTitle});
+
+  final String kindTitle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final email = ref.watch(authControllerProvider.select((s) => s.email));
+    final account = email?.split('@').first.trim();
+    if (account == null || account.isEmpty) return const SizedBox.shrink();
+    return IgnorePointer(
+      child: Text("$account's ${kindTitle.toLowerCase()}",
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+              color: Colors.white, fontSize: 15, fontWeight: FontWeight.w400)),
     );
   }
 }

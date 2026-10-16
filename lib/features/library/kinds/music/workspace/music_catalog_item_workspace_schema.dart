@@ -18,24 +18,27 @@ final musicCatalogItemWorkspaceSchema =
     ...MusicCatalogWorkspaceFields.all,
     MusicWorkspaceFields.status,
     MusicWorkspaceFields.cover,
+    MusicWorkspaceFields.backCover,
+    MusicWorkspaceFields.coreId,
   ],
   columns: musicCatalogWorkspaceColumns,
   sorts: [
-    if (MusicFieldIdentities.artistSummary.sortable)
-      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicCatalogWorkspaceFields.artistSummary,
-      ),
-    if (MusicFieldIdentities.title.sortable)
-      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicCatalogWorkspaceFields.title,
-      ),
+    if (MusicFieldIdentities.artistSummary.sortable) musicArtistSort(),
+    if (MusicFieldIdentities.title.sortable) musicTitleSort(),
     if (MusicFieldIdentities.releaseDate.sortable)
-      sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      musicPartialDateSort(
         MusicCatalogWorkspaceFields.releaseDate,
+        (dto) => dto.music.releaseDateParts,
         defaultAscending: false,
       ),
     musicEarliestDiscRecordingDateSort(),
     musicLatestDiscRecordingDateSort(),
+    ...musicImageSorts(),
+    musicFormatSort(),
+    musicGenreSort(),
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.coreId,
+    ),
     sortFromField<MusicKind, MusicWorkspaceProjection, num>(
       MusicCatalogWorkspaceFields.trackCount,
       defaultAscending: false,

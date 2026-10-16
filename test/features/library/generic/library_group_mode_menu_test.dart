@@ -2,11 +2,41 @@ import 'package:collectarr_app/features/library/generic/library_group_mode_menu.
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 
 void main() {
+  testWidgets('group menu tooltips remain valid during layout and resizing',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: Align(
+      alignment: Alignment.topLeft,
+      child: LibraryGroupModeMenuButton(
+        type: const MusicRegistration(),
+        folderPreset: null,
+        accent: Colors.orange,
+        icon: Icons.folder,
+        onChanged: (_) {},
+      ),
+    ))));
+    await tester.tap(find.byTooltip('Group By'));
+    await tester.pumpAndSettle();
+    final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await pointer.addPointer();
+    await pointer.moveTo(tester
+        .getCenter(find.byKey(const ValueKey('manageGroupFavoritesButton'))));
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.takeException(), isNull);
+    await tester.binding.setSurfaceSize(const Size(640, 740));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    await pointer.removePointer();
+    await tester.binding.setSurfaceSize(null);
+    await tester.pumpWidget(const SizedBox());
+  });
   testWidgets('folder favorite actions inherit the kind accent',
       (tester) async {
     await tester.pumpWidget(MaterialApp(
@@ -132,7 +162,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Group by'));
+    await tester.tap(find.byTooltip('Group By'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const ValueKey('manageGroupFavoritesButton')));
@@ -177,7 +207,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Group by'));
+    await tester.tap(find.byTooltip('Group By'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('No folders'));
     await tester.pumpAndSettle();
@@ -205,7 +235,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Group by'));
+    await tester.tap(find.byTooltip('Group By'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const ValueKey('manageGroupFavoritesButton')));
@@ -282,7 +312,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Group by'));
+    await tester.tap(find.byTooltip('Group By'));
     await tester.pumpAndSettle();
 
     expect(find.text('Credits'), findsOneWidget);
@@ -312,7 +342,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byTooltip('Group by'));
+    await tester.tap(find.byTooltip('Group By'));
     await tester.pumpAndSettle();
 
     expect(find.text('Credits'), findsOneWidget);

@@ -39,13 +39,17 @@ void main() {
         of: find.byKey(const ValueKey('library-add-query-field')),
         matching: find.byType(EditableText));
     await tester.enterText(queryField, 'Native Core Album');
-    await tester.tap(find.text('Search Albums'));
+    await tester.tap(find.byKey(const ValueKey('library-add-search-button')));
     await pumpUntilSettled(tester);
     expect(api.lastSearchQuery?.query, 'Native Core Album');
     await tester.tap(find
         .byKey(const ValueKey('library-add-search-result-native-core-album')));
     await pumpUntilSettled(tester);
     await tester.tap(find.text('Add to Collection'));
+    await pumpUntilSettled(tester);
+    // Adding confirms the pre-fill settings first, as in the reference.
+    expect(find.text('Pre-fill Settings'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Add'));
     await pumpUntilSettled(tester);
     expect(find.byType(LibraryAddDialog), findsNothing);
     final saved = (await MusicEntryRepository(database).listActive()).single;

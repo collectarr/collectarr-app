@@ -6,6 +6,8 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -535,7 +537,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
         ? renderedAspectRatio
         : widget.fallbackAspectRatio;
     final maxPreviewWidth = size.width * 0.92;
-    final maxPreviewHeight = size.height * 0.92;
+    final maxPreviewHeight = math.max(0.0,
+        math.min(size.height * 0.92, size.height - kAppDialogTopInset - 24));
     final previewWidth = maxPreviewWidth < 420
         ? maxPreviewWidth
         : (size.width * 0.70).clamp(420.0, maxPreviewWidth);
@@ -545,13 +548,13 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
     final effectivePreviewWidth = math.max(0.0, previewWidth);
     final effectivePreviewHeight = math.max(0.0, previewHeight);
     var showBackOnly = _showSecondary;
-    await showGeneralDialog<void>(
+    await showAppDialog<void>(
       context: context,
       barrierLabel: 'Close cover preview',
-      barrierDismissible: true,
+      barrierDismissible: false,
       barrierColor: Colors.transparent,
       transitionDuration: const Duration(milliseconds: 260),
-      pageBuilder: (context, animation, secondaryAnimation) {
+      builder: (context) {
         return SafeArea(
           child: Material(
             color: Colors.transparent,
@@ -561,12 +564,14 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                 Positioned.fill(
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTapDown: (_) => Navigator.of(context).pop(),
+                    onTapDown: (_) {},
                   ),
                 ),
-                Center(
+                Align(
+                  alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.fromLTRB(
+                        24, kAppDialogTopInset, 24, 24),
                     child: StatefulBuilder(
                       builder: (context, setDialogState) {
                         final contentWidth = effectivePreviewWidth - 28;
@@ -698,6 +703,14 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                             ),
                                     ),
                                   ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: LibrarySquareCloseButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                    ),
+                                  ),
                                   if (showSwitchBadges)
                                     Positioned(
                                       left: 8,
@@ -796,107 +809,83 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: interactive ? _openPreview : null,
-            child: AnimatedScale(
-              duration: const Duration(milliseconds: 170),
-              curve: Curves.easeOutCubic,
-              scale: _hovered ? 1.02 : 1,
-              child: Stack(
-                fit: canExpandInBothAxes ? StackFit.expand : StackFit.loose,
-                children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 170),
-                    curve: Curves.easeOutCubic,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        widget.borderRadius + 8,
-                      ),
-                      boxShadow: [
-                        if (_hovered)
-                          BoxShadow(
-                            color: widget.accentColor.withValues(alpha: 0.28),
-                            blurRadius: 18,
-                            spreadRadius: 1.5,
-                            offset: const Offset(0, 6),
-                          ),
-                      ],
-                    ),
-                    child: _CoverFrame(
-                      borderRadius: widget.borderRadius,
-                      child: LibraryCoverImage(
-                        title: widget.title,
-                        itemNumber: widget.itemNumber,
-                        imageUrl: _activeImageUrl,
-                        localBytes: _activeLocalBytes,
-                        libraryEntryRef: widget.libraryEntryRef,
-                        targetCacheWidth: widget.targetCacheWidth,
-                        fallbackAspectRatio: widget.fallbackAspectRatio,
-                        borderRadius: widget.borderRadius,
-                        fit: widget.fit,
-                      ),
-                    ),
+            child: Stack(
+              fit: canExpandInBothAxes ? StackFit.expand : StackFit.loose,
+              children: [
+                _CoverFrame(
+                  borderRadius: widget.borderRadius,
+                  child: LibraryCoverImage(
+                    title: widget.title,
+                    itemNumber: widget.itemNumber,
+                    imageUrl: _activeImageUrl,
+                    localBytes: _activeLocalBytes,
+                    libraryEntryRef: widget.libraryEntryRef,
+                    targetCacheWidth: widget.targetCacheWidth,
+                    fallbackAspectRatio: widget.fallbackAspectRatio,
+                    borderRadius: widget.borderRadius,
+                    fit: widget.fit,
                   ),
-                  if (interactive && hoverCue)
-                    Positioned(
-                      left: 8,
-                      right: 8,
-                      bottom: 8,
-                      child: IgnorePointer(
-                        ignoring: true,
-                        child: Center(
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 140),
-                            opacity: _hovered ? 1 : 0,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
+                ),
+                if (interactive && hoverCue)
+                  Positioned(
+                    left: 8,
+                    right: 8,
+                    bottom: 8,
+                    child: IgnorePointer(
+                      ignoring: true,
+                      child: Center(
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 140),
+                          opacity: _hovered ? 1 : 0,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: controlBackground.withValues(alpha: 0.96),
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
                                 color:
-                                    controlBackground.withValues(alpha: 0.96),
-                                borderRadius: BorderRadius.circular(999),
-                                border: Border.all(
-                                  color:
-                                      widget.accentColor.withValues(alpha: 0.7),
-                                ),
+                                    widget.accentColor.withValues(alpha: 0.7),
                               ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: compactHoverCue ? 8 : 10,
-                                  vertical: compactHoverCue ? 4 : 5,
-                                ),
-                                child: compactHoverCue
-                                    ? Icon(
-                                        Icons.open_in_full,
-                                        size: 14,
-                                        color: widget.accentColor,
-                                      )
-                                    : FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.open_in_full,
-                                              size: 14,
-                                              color: widget.accentColor,
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: compactHoverCue ? 8 : 10,
+                                vertical: compactHoverCue ? 4 : 5,
+                              ),
+                              child: compactHoverCue
+                                  ? Icon(
+                                      Icons.open_in_full,
+                                      size: 14,
+                                      color: widget.accentColor,
+                                    )
+                                  : FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.open_in_full,
+                                            size: 14,
+                                            color: widget.accentColor,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            'Fullscreen',
+                                            style: TextStyle(
+                                              color: controlForeground,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
                                             ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              'Fullscreen',
-                                              style: TextStyle(
-                                                color: controlForeground,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                              ),
+                                    ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         );
@@ -1004,10 +993,42 @@ class LibraryGeneratedCover extends StatelessWidget {
     (Color(0xFF7F5539), Color(0xFFE6CCB2), Color(0xFF201A16)),
   ];
 
+  static const _titleWidth = 86.0;
+
+  /// Shrinks the title until its longest word fits on one line, so the
+  /// fixed-width title box never splits a word.
+  static double _wholeWordFontSize(
+    BuildContext context,
+    String text,
+    TextStyle style,
+  ) {
+    final effective = DefaultTextStyle.of(context).style.merge(style);
+    var widest = 0.0;
+    for (final word in text.split(RegExp(r'\s+'))) {
+      if (word.isEmpty) continue;
+      final painter = TextPainter(
+        text: TextSpan(text: word, style: effective),
+        textDirection: TextDirection.ltr,
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      if (painter.width > widest) widest = painter.width;
+      painter.dispose();
+    }
+    final size = style.fontSize!;
+    return widest <= _titleWidth ? size : size * _titleWidth / widest;
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = _palettes[title.hashCode.abs() % _palettes.length];
     final displayTitle = title.replaceAll(', Vol.', '\nVol.');
+    final titleStyle = TextStyle(
+      color: palette.$3,
+      fontSize: 20,
+      fontWeight: FontWeight.w700,
+      height: 0.95,
+    );
     final cover = ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: DecoratedBox(
@@ -1028,16 +1049,17 @@ class LibraryGeneratedCover extends StatelessWidget {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: SizedBox(
-                  width: 86,
+                  width: _titleWidth,
                   child: Text(
                     displayTitle,
                     maxLines: 4,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: palette.$3,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      height: 0.95,
+                    style: titleStyle.copyWith(
+                      fontSize: _wholeWordFontSize(
+                        context,
+                        displayTitle,
+                        titleStyle,
+                      ),
                     ),
                   ),
                 ),

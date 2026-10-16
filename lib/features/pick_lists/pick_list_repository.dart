@@ -105,6 +105,8 @@ class PickListRepository {
         sortName: value.sortName,
         sortOrder: value.sortOrder,
         isHidden: true,
+        email: value.email,
+        address: value.address,
       ));
 
   Future<List<String>> getValues(String listName, {String? mediaKind}) async {
@@ -187,6 +189,8 @@ class PickListRepository {
             sortOrder: Value(value.sortOrder),
             sortName: Value(value.sortName),
             isHidden: Value(value.isHidden),
+            email: Value(value.email),
+            address: Value(value.address),
           ),
           mode: InsertMode.insertOrReplace,
         );
@@ -197,6 +201,8 @@ class PickListRepository {
       'sort_order': value.sortOrder,
       'sort_name': value.sortName,
       'is_hidden': value.isHidden,
+      'email': value.email,
+      'address': value.address,
     });
   }
 
@@ -488,6 +494,8 @@ class PickListRepository {
       sortOrder: row.sortOrder,
       sortName: row.sortName,
       isHidden: row.isHidden,
+      email: row.email,
+      address: row.address,
     );
   }
 

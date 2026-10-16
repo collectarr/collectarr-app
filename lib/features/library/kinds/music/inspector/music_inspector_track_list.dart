@@ -29,7 +29,6 @@ final class MusicInspectorTrackList extends StatelessWidget {
 
     return LibraryDetailSection(
       title: 'Track List',
-      accentColor: accent,
       children: [
         Text(
           '$playableCount ${playableCount == 1 ? 'track' : 'tracks'}',
@@ -67,7 +66,6 @@ final class MusicInspectorTrackListUnavailable extends StatelessWidget {
   Widget build(BuildContext context) {
     return LibraryDetailSection(
       title: 'Track List',
-      accentColor: accent,
       children: [
         Text(
           '$trackCount tracks found, but the cached metadata does not include the full track list yet.',

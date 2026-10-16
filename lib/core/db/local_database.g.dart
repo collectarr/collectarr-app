@@ -5882,9 +5882,29 @@ class $PickListValuesCacheTable extends PickListValuesCache
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, listName, mediaKind, value, sortName, isHidden, sortOrder];
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+      'email', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _addressMeta =
+      const VerificationMeta('address');
+  @override
+  late final GeneratedColumn<String> address = GeneratedColumn<String>(
+      'address', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        listName,
+        mediaKind,
+        value,
+        sortName,
+        isHidden,
+        sortOrder,
+        email,
+        address
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5929,6 +5949,14 @@ class $PickListValuesCacheTable extends PickListValuesCache
       context.handle(_sortOrderMeta,
           sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
     }
+    if (data.containsKey('email')) {
+      context.handle(
+          _emailMeta, email.isAcceptableOrUnknown(data['email']!, _emailMeta));
+    }
+    if (data.containsKey('address')) {
+      context.handle(_addressMeta,
+          address.isAcceptableOrUnknown(data['address']!, _addressMeta));
+    }
     return context;
   }
 
@@ -5953,6 +5981,10 @@ class $PickListValuesCacheTable extends PickListValuesCache
           .read(DriftSqlType.bool, data['${effectivePrefix}is_hidden'])!,
       sortOrder: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+      email: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}email']),
+      address: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}address']),
     );
   }
 
@@ -5971,6 +6003,11 @@ class PickListValuesCacheData extends DataClass
   final String? sortName;
   final bool isHidden;
   final int sortOrder;
+
+  /// Contact details of a borrower (the 'borrower' list), as CLZ loaners.
+  /// Added in schema 2.
+  final String? email;
+  final String? address;
   const PickListValuesCacheData(
       {required this.id,
       required this.listName,
@@ -5978,7 +6015,9 @@ class PickListValuesCacheData extends DataClass
       required this.value,
       this.sortName,
       required this.isHidden,
-      required this.sortOrder});
+      required this.sortOrder,
+      this.email,
+      this.address});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5993,6 +6032,12 @@ class PickListValuesCacheData extends DataClass
     }
     map['is_hidden'] = Variable<bool>(isHidden);
     map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || email != null) {
+      map['email'] = Variable<String>(email);
+    }
+    if (!nullToAbsent || address != null) {
+      map['address'] = Variable<String>(address);
+    }
     return map;
   }
 
@@ -6009,6 +6054,11 @@ class PickListValuesCacheData extends DataClass
           : Value(sortName),
       isHidden: Value(isHidden),
       sortOrder: Value(sortOrder),
+      email:
+          email == null && nullToAbsent ? const Value.absent() : Value(email),
+      address: address == null && nullToAbsent
+          ? const Value.absent()
+          : Value(address),
     );
   }
 
@@ -6023,6 +6073,8 @@ class PickListValuesCacheData extends DataClass
       sortName: serializer.fromJson<String?>(json['sortName']),
       isHidden: serializer.fromJson<bool>(json['isHidden']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      email: serializer.fromJson<String?>(json['email']),
+      address: serializer.fromJson<String?>(json['address']),
     );
   }
   @override
@@ -6036,6 +6088,8 @@ class PickListValuesCacheData extends DataClass
       'sortName': serializer.toJson<String?>(sortName),
       'isHidden': serializer.toJson<bool>(isHidden),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'email': serializer.toJson<String?>(email),
+      'address': serializer.toJson<String?>(address),
     };
   }
 
@@ -6046,7 +6100,9 @@ class PickListValuesCacheData extends DataClass
           String? value,
           Value<String?> sortName = const Value.absent(),
           bool? isHidden,
-          int? sortOrder}) =>
+          int? sortOrder,
+          Value<String?> email = const Value.absent(),
+          Value<String?> address = const Value.absent()}) =>
       PickListValuesCacheData(
         id: id ?? this.id,
         listName: listName ?? this.listName,
@@ -6055,6 +6111,8 @@ class PickListValuesCacheData extends DataClass
         sortName: sortName.present ? sortName.value : this.sortName,
         isHidden: isHidden ?? this.isHidden,
         sortOrder: sortOrder ?? this.sortOrder,
+        email: email.present ? email.value : this.email,
+        address: address.present ? address.value : this.address,
       );
   PickListValuesCacheData copyWithCompanion(PickListValuesCacheCompanion data) {
     return PickListValuesCacheData(
@@ -6065,6 +6123,8 @@ class PickListValuesCacheData extends DataClass
       sortName: data.sortName.present ? data.sortName.value : this.sortName,
       isHidden: data.isHidden.present ? data.isHidden.value : this.isHidden,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      email: data.email.present ? data.email.value : this.email,
+      address: data.address.present ? data.address.value : this.address,
     );
   }
 
@@ -6077,14 +6137,16 @@ class PickListValuesCacheData extends DataClass
           ..write('value: $value, ')
           ..write('sortName: $sortName, ')
           ..write('isHidden: $isHidden, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('email: $email, ')
+          ..write('address: $address')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, listName, mediaKind, value, sortName, isHidden, sortOrder);
+  int get hashCode => Object.hash(id, listName, mediaKind, value, sortName,
+      isHidden, sortOrder, email, address);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6095,7 +6157,9 @@ class PickListValuesCacheData extends DataClass
           other.value == this.value &&
           other.sortName == this.sortName &&
           other.isHidden == this.isHidden &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.email == this.email &&
+          other.address == this.address);
 }
 
 class PickListValuesCacheCompanion
@@ -6107,6 +6171,8 @@ class PickListValuesCacheCompanion
   final Value<String?> sortName;
   final Value<bool> isHidden;
   final Value<int> sortOrder;
+  final Value<String?> email;
+  final Value<String?> address;
   final Value<int> rowid;
   const PickListValuesCacheCompanion({
     this.id = const Value.absent(),
@@ -6116,6 +6182,8 @@ class PickListValuesCacheCompanion
     this.sortName = const Value.absent(),
     this.isHidden = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.email = const Value.absent(),
+    this.address = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PickListValuesCacheCompanion.insert({
@@ -6126,6 +6194,8 @@ class PickListValuesCacheCompanion
     this.sortName = const Value.absent(),
     this.isHidden = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.email = const Value.absent(),
+    this.address = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         listName = Value(listName),
@@ -6138,6 +6208,8 @@ class PickListValuesCacheCompanion
     Expression<String>? sortName,
     Expression<bool>? isHidden,
     Expression<int>? sortOrder,
+    Expression<String>? email,
+    Expression<String>? address,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6148,6 +6220,8 @@ class PickListValuesCacheCompanion
       if (sortName != null) 'sort_name': sortName,
       if (isHidden != null) 'is_hidden': isHidden,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (email != null) 'email': email,
+      if (address != null) 'address': address,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6160,6 +6234,8 @@ class PickListValuesCacheCompanion
       Value<String?>? sortName,
       Value<bool>? isHidden,
       Value<int>? sortOrder,
+      Value<String?>? email,
+      Value<String?>? address,
       Value<int>? rowid}) {
     return PickListValuesCacheCompanion(
       id: id ?? this.id,
@@ -6169,6 +6245,8 @@ class PickListValuesCacheCompanion
       sortName: sortName ?? this.sortName,
       isHidden: isHidden ?? this.isHidden,
       sortOrder: sortOrder ?? this.sortOrder,
+      email: email ?? this.email,
+      address: address ?? this.address,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6197,6 +6275,12 @@ class PickListValuesCacheCompanion
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
+    if (address.present) {
+      map['address'] = Variable<String>(address.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6213,6 +6297,8 @@ class PickListValuesCacheCompanion
           ..write('sortName: $sortName, ')
           ..write('isHidden: $isHidden, ')
           ..write('sortOrder: $sortOrder, ')
+          ..write('email: $email, ')
+          ..write('address: $address, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -22908,6 +22994,8 @@ typedef $$PickListValuesCacheTableCreateCompanionBuilder
   Value<String?> sortName,
   Value<bool> isHidden,
   Value<int> sortOrder,
+  Value<String?> email,
+  Value<String?> address,
   Value<int> rowid,
 });
 typedef $$PickListValuesCacheTableUpdateCompanionBuilder
@@ -22919,6 +23007,8 @@ typedef $$PickListValuesCacheTableUpdateCompanionBuilder
   Value<String?> sortName,
   Value<bool> isHidden,
   Value<int> sortOrder,
+  Value<String?> email,
+  Value<String?> address,
   Value<int> rowid,
 });
 
@@ -22951,6 +23041,12 @@ class $$PickListValuesCacheTableFilterComposer
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get email => $composableBuilder(
+      column: $table.email, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get address => $composableBuilder(
+      column: $table.address, builder: (column) => ColumnFilters(column));
 }
 
 class $$PickListValuesCacheTableOrderingComposer
@@ -22982,6 +23078,12 @@ class $$PickListValuesCacheTableOrderingComposer
 
   ColumnOrderings<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get email => $composableBuilder(
+      column: $table.email, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get address => $composableBuilder(
+      column: $table.address, builder: (column) => ColumnOrderings(column));
 }
 
 class $$PickListValuesCacheTableAnnotationComposer
@@ -23013,6 +23115,12 @@ class $$PickListValuesCacheTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
+
+  GeneratedColumn<String> get address =>
+      $composableBuilder(column: $table.address, builder: (column) => column);
 }
 
 class $$PickListValuesCacheTableTableManager extends RootTableManager<
@@ -23052,6 +23160,8 @@ class $$PickListValuesCacheTableTableManager extends RootTableManager<
             Value<String?> sortName = const Value.absent(),
             Value<bool> isHidden = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
+            Value<String?> email = const Value.absent(),
+            Value<String?> address = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               PickListValuesCacheCompanion(
@@ -23062,6 +23172,8 @@ class $$PickListValuesCacheTableTableManager extends RootTableManager<
             sortName: sortName,
             isHidden: isHidden,
             sortOrder: sortOrder,
+            email: email,
+            address: address,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -23072,6 +23184,8 @@ class $$PickListValuesCacheTableTableManager extends RootTableManager<
             Value<String?> sortName = const Value.absent(),
             Value<bool> isHidden = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
+            Value<String?> email = const Value.absent(),
+            Value<String?> address = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               PickListValuesCacheCompanion.insert(
@@ -23082,6 +23196,8 @@ class $$PickListValuesCacheTableTableManager extends RootTableManager<
             sortName: sortName,
             isHidden: isHidden,
             sortOrder: sortOrder,
+            email: email,
+            address: address,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:async';
@@ -144,7 +146,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
               tabAlignment: TabAlignment.start,
               tabs: tabs,
             )),
-        body: TabBarView(children: tabViews),
+        body: AppManagementContent(child: TabBarView(children: tabViews)),
       ),
     );
   }
@@ -277,7 +279,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     List<BundleReleaseSummary> bundleReleases,
     List<LibraryAdminCorrectionField> metadataFields,
   ) async {
-    final result = await showDialog<_CanonicalInspectResult>(
+    final result = await showAppDialog<_CanonicalInspectResult>(
       context: context,
       builder: (context) => _CanonicalItemInspectionDialog(
         item: item,
@@ -334,7 +336,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       if (!mounted) {
         return;
       }
-      final correction = await showDialog<AdminBundleReleaseCorrection>(
+      final correction = await showAppDialog<AdminBundleReleaseCorrection>(
         context: context,
         builder: (context) => _BundleReleaseCorrectionDialog(bundle: bundle),
       );
@@ -406,7 +408,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _mediaTypes.isEmpty ? fallbackMediaCatalog : _mediaTypes,
       kind,
     );
-    final correction = await showDialog<_MetadataCorrectionResult>(
+    final correction = await showAppDialog<_MetadataCorrectionResult>(
       context: context,
       builder: (context) => _MetadataCorrectionDialog(
         item: item,
@@ -476,7 +478,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       catalogMediaKindFromApiValue(item.kind),
     );
     if (contributor == null) return;
-    final update = await showDialog<_CoverUpdate>(
+    final update = await showAppDialog<_CoverUpdate>(
       context: context,
       builder: (context) => _CoverInspectionDialog(item: item),
     );
@@ -610,7 +612,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   }
 
   Future<bool> _confirmProposalApproval(AdminMetadataProposal proposal) async {
-    final result = await showDialog<bool>(
+    final result = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
         headerIcon: AppIcons.admin,
@@ -688,7 +690,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   Future<void> _editProposalMetadataAsync(
       AdminMetadataProposal proposal) async {
-    final result = await showDialog<AdminProposalMetadataEditResult>(
+    final result = await showAppDialog<AdminProposalMetadataEditResult>(
       context: context,
       builder: (context) => AdminProposalMetadataEditDialog(proposal: proposal),
     );

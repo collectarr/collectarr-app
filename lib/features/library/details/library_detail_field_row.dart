@@ -25,11 +25,6 @@ class LibraryDetailFieldRow extends StatelessWidget {
       LibraryDensity.compact => 1.5,
       LibraryDensity.dense => 1.0,
     };
-    final resolvedLabelWidth = switch (resolvedDensity) {
-      LibraryDensity.comfortable => labelWidth,
-      LibraryDensity.compact => labelWidth * 0.95,
-      LibraryDensity.dense => labelWidth * 0.9,
-    };
     final palette = appPalette(context);
     final accent = LibraryAccentScope.accentOf(context);
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
@@ -39,13 +34,14 @@ class LibraryDetailFieldRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: resolvedLabelWidth,
+            width: labelWidth,
             child: Text(
               field.label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: palette.textMuted,
-                    fontWeight: FontWeight.w600,
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w700,
                     fontSize: 14,
+                    height: 20 / 14,
                   ),
             ),
           ),
@@ -73,8 +69,9 @@ class LibraryDetailFieldRow extends StatelessWidget {
                                     .bodySmall
                                     ?.copyWith(
                                       color: onSurfaceColor,
-                                      fontWeight: FontWeight.w500,
+                                      fontWeight: FontWeight.w400,
                                       fontSize: 14,
+                                      height: 20 / 14,
                                       decoration: TextDecoration.none,
                                       decorationColor:
                                           accent.withValues(alpha: 0.32),
@@ -90,8 +87,9 @@ class LibraryDetailFieldRow extends StatelessWidget {
                     field.value,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: onSurfaceColor,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w400,
                           fontSize: 14,
+                          height: 20 / 14,
                         ),
                   ),
           ),

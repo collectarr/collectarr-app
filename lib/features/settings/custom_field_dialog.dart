@@ -48,19 +48,17 @@ class CustomFieldDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(3)),
                     visualDensity: VisualDensity.standard,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    textStyle: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w700))),
+                    textStyle: theme.textTheme.controlText)),
             filledButtonTheme: FilledButtonThemeData(
                 style: FilledButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: theme.colorScheme.primary,
+                    backgroundColor: palette.utilityAction,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(3)),
                     visualDensity: VisualDensity.standard,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    textStyle: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w700)))),
+                    textStyle: theme.textTheme.controlText))),
         child: Dialog(
           alignment: Alignment.topCenter,
           insetPadding:

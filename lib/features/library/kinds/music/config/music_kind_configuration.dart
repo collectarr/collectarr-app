@@ -117,6 +117,30 @@ MusicAlbum? musicLinkedMetadata(LibraryWorkspaceContext source) {
   return catalog is MusicWorkspaceData ? catalog.music : null;
 }
 
+LibraryMetadataMatchScore musicMetadataMatchScore(
+    LibraryWorkspaceContext source, CatalogSearchCandidate candidate) {
+  final local = musicLinkedMetadata(source);
+  if (local == null) return LibraryMetadataMatchScore.low;
+  final remote =
+      candidate.kindCapability.mapTransport(MusicCatalogMapper.mapDtoToMusic);
+  String normalize(String value) =>
+      value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+  final sameTitle = normalize(local.title) == normalize(remote.title);
+  final sameArtist = (local.artist?.trim().isNotEmpty ?? false) &&
+      normalize(local.artist!) == normalize(remote.artist ?? '');
+  final barcode = local.barcode?.trim();
+  if (sameTitle &&
+      sameArtist &&
+      barcode != null &&
+      barcode.isNotEmpty &&
+      barcode == remote.barcode?.trim()) {
+    return LibraryMetadataMatchScore.high;
+  }
+  return sameTitle && sameArtist
+      ? LibraryMetadataMatchScore.medium
+      : LibraryMetadataMatchScore.low;
+}
+
 MetadataSearchQuery musicMetadataSearchQuery({
   required LibraryWorkspaceContext source,
   required String title,
@@ -126,7 +150,7 @@ MetadataSearchQuery musicMetadataSearchQuery({
     query: title,
     barcode: metadata?.barcode,
     publisher: metadata?.publisher,
-    year: metadata?.originalReleaseDate?.year,
+    year: metadata?.originalReleaseDateParts?.year,
     limit: 5,
   );
 }

@@ -240,7 +240,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
   }
 
   Future<bool> _confirm(String title, String message, String action) async =>
-      await showDialog<bool>(
+      await showAppDialog<bool>(
           context: context,
           builder: (context) => AccentAlertDialog(
                   headerIcon: AppIcons.pickLists,
@@ -275,7 +275,9 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
         mediaKind: _scopeKind,
         value: edited.value,
         sortName: edited.sortName,
-        sortOrder: value.sortOrder);
+        sortOrder: value.sortOrder,
+        email: edited.email,
+        address: edited.address);
     await _run(() async {
       if (_values.any((candidate) =>
           candidate.id != value.id &&
@@ -530,6 +532,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
     final enabled = !_busy && _selected.length > 1;
     final palette = appPalette(context);
     return PopupMenuButton<PickListValue>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
         enabled: enabled,
         tooltip: 'Choose destination',
         position: PopupMenuPosition.over,

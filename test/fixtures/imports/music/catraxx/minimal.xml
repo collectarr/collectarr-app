@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data date="01/20/2026" longdate="Tuesday, January 20, 2026" unformatteddate="20260120" time="9:00:00 AM" timeshort="9:00 AM" computername="FICTIONAL-PC" username="collector" database="C:\Fictional\Albums.mdb" explorerwidth="0" exploreheight="0" guest="No" dataserver="No" audioplayer="No">
+	<fld>
+		<album>
+			<albumid name="Album ID" use="Yes"/>
+			<title name="Title" use="Yes"/>
+			<artist name="Artist" use="Yes" linktable="ArtistAlbumLink" luptable="ArtistPerson"/>
+			<format name="Format" use="Yes" luptable="Format"/>
+		</album>
+	</fld>
+	<record table="album" id="1">
+		<albumdata audioattached="False" audiofolder="" discogsid="" asin="">
+			<albumid unformatted="1">1</albumid>
+			<disccount unformatted="2">2</disccount>
+			<title>After &amp; Before</title>
+			<titlesort>After &amp; Before</titlesort>
+			<artists formattedname="Mira &quot;Echo&quot; Ionescu" sort="Ionescu, Mira">
+				<artist id="1">
+					<name>Mira &quot;Echo&quot; Ionescu</name>
+					<sortby>Ionescu, Mira</sortby>
+					<country id="-1"/>
+				</artist>
+			</artists>
+			<format id="2">2CD</format>
+			<released year="2025" month="04" day="18" long="Friday, April 18, 2025" unformatted="20250418">04/18/2025</released>
+			<label id="1">Fictional Records</label>
+			<catalognumber>FIC-001</catalognumber>
+			<country id="4">Germany</country>
+			<conditionrecord id="2">Near Mint</conditionrecord>
+			<status id="1">Own</status>
+			<genrelist>
+				<genre id="1">Dream Pop</genre>
+				<genre id="2">Jazz</genre>
+			</genrelist>
+			<primarygenre id="1">Dream Pop</primarygenre>
+			<price integer="12" fraction="50" unformatted="12.5">12.50</price>
+			<value integer="0" fraction="0" unformatted="0.0">0.00</value>
+			<dateacquired year="2026" month="01" day="15" long="Thursday, January 15, 2026" unformatted="20260115">01/15/2026</dateacquired>
+			<acquiredfrom id="1">Fictional Store</acquiredfrom>
+			<personalrating id="9" image="*PR:Album,PersonalRating,9">4</personalrating>
+			<notes>Fictional notes
+Unicode: Şé音 &amp; &quot;quotes&quot;</notes>
+			<live bool="True">Yes</live>
+			<barcode>0000000000017</barcode>
+			<keywords/>
+			<albumauthorcredits>
+				<albumauthorcredit id="2">
+					<name>Ada Fictional</name>
+					<sortby>Fictional, Ada</sortby>
+					<country id="-1"/>
+					<roles>
+						<role id="8">Songwriter</role>
+					</roles>
+				</albumauthorcredit>
+			</albumauthorcredits>
+			<albumproductioncredits/>
+		</albumdata>
+		<trackdata disccount="2" sides="1">
+			<disc audioattached="False">
+				<discno>1</discno>
+				<title>After &amp; Before (Disc 1)</title>
+				<side>
+					<sideno>A</sideno>
+					<title/>
+						<track id="1" playlist="False">
+							<trackid unformatted="1">1</trackid>
+							<albumid unformatted="1">1</albumid>
+							<discno unformatted="1">1</discno>
+							<side>A</side>
+							<index unformatted="1">1</index>
+							<title>Fictional Song 1.1</title>
+							<artists formattedname="Mira &quot;Echo&quot; Ionescu" sort="Ionescu, Mira">
+								<artist id="1">
+									<name>Mira &quot;Echo&quot; Ionescu</name>
+									<sortby>Ionescu, Mira</sortby>
+									<country id="-1"/>
+								</artist>
+							</artists>
+							<length minutes="3" seconds="3">3:03</length>
+						</track>
+						<track id="2" playlist="False">
+							<trackid unformatted="2">2</trackid>
+							<albumid unformatted="1">1</albumid>
+							<discno unformatted="1">1</discno>
+							<side>A</side>
+							<index unformatted="2">2</index>
+							<title>Fictional Song 1.2</title>
+							<artists formattedname="Mira &quot;Echo&quot; Ionescu" sort="Ionescu, Mira">
+								<artist id="1">
+									<name>Mira &quot;Echo&quot; Ionescu</name>
+									<sortby>Ionescu, Mira</sortby>
+									<country id="-1"/>
+								</artist>
+							</artists>
+							<length minutes="3" seconds="3">3:03</length>
+						</track>
+				</side>
+			</disc>
+			<disc audioattached="False">
+				<discno>2</discno>
+				<title>After &amp; Before (Disc 2)</title>
+				<side>
+					<sideno>A</sideno>
+					<title/>
+						<track id="3" playlist="False">
+							<trackid unformatted="3">3</trackid>
+							<albumid unformatted="1">1</albumid>
+							<discno unformatted="2">2</discno>
+							<side>A</side>
+							<index unformatted="1">1</index>
+							<title>Fictional Song 2.1</title>
+							<artists formattedname="Mira &quot;Echo&quot; Ionescu" sort="Ionescu, Mira">
+								<artist id="1">
+									<name>Mira &quot;Echo&quot; Ionescu</name>
+									<sortby>Ionescu, Mira</sortby>
+									<country id="-1"/>
+								</artist>
+							</artists>
+							<length minutes="3" seconds="3">3:03</length>
+						</track>
+						<track id="4" playlist="False">
+							<trackid unformatted="4">4</trackid>
+							<albumid unformatted="1">1</albumid>
+							<discno unformatted="2">2</discno>
+							<side>A</side>
+							<index unformatted="2">2</index>
+							<title>Fictional Song 2.2</title>
+							<artists formattedname="Mira &quot;Echo&quot; Ionescu" sort="Ionescu, Mira">
+								<artist id="1">
+									<name>Mira &quot;Echo&quot; Ionescu</name>
+									<sortby>Ionescu, Mira</sortby>
+									<country id="-1"/>
+								</artist>
+							</artists>
+							<length minutes="3" seconds="3">3:03</length>
+						</track>
+				</side>
+			</disc>
+		</trackdata>
+	</record>
+	<record table="album" id="2">
+		<albumdata audioattached="False" audiofolder="" discogsid="" asin="">
+			<albumid unformatted="2">2</albumid>
+			<disccount unformatted="2">2</disccount>
+			<title>Quiet Morning</title>
+			<titlesort>Quiet Morning</titlesort>
+			<artists formattedname="Mira &quot;Echo&quot; Ionescu" sort="Ionescu, Mira">
+				<artist id="1">
+					<name>Mira &quot;Echo&quot; Ionescu</name>
+					<sortby>Ionescu, Mira</sortby>
+					<country id="-1"/>
+				</artist>
+			</artists>
+			<format id="2">2CD</format>
+			<released year="2025" month="04" day="18" long="Friday, April 18, 2025" unformatted="20250418">04/18/2025</released>
+			<label id="1">Fictional Records</label>
+			<catalognumber>FIC-001</catalognumber>
+			<country id="4">Germany</country>
+			<conditionrecord id="2">Near Mint</conditionrecord>
+			<status id="1">Own</status>
+			<genrelist>
+				<genre id="1">Dream Pop</genre>
+				<genre id="2">Jazz</genre>
+			</genrelist>
+			<primarygenre id="1">Dream Pop</primarygenre>
+			<price integer="12" fraction="50" unformatted="12.5">12.50</price>
+			<value integer="0" fraction="0" unformatted="0.0">0.00</value>
+			<dateacquired year="2026" month="01" day="15" long="Thursday, January 15, 2026" unformatted="20260115">01/15/2026</dateacquired>
+			<acquiredfrom id="1">Fictional Store</acquiredfrom>
+			<personalrating id="9" image="*PR:Album,PersonalRating,9">4</personalrating>
+			<notes>Fictional notes
+Unicode: Şé音 &amp; &quot;quotes&quot;</notes>
+			<live bool="True">Yes</live>
+			<barcode>0000000000017</barcode>
+			<keywords/>
+			<albumauthorcredits>
+				<albumauthorcredit id="2">
+					<name>Ada Fictional</name>
+					<sortby>Fictional, Ada</sortby>
+					<country id="-1"/>
+					<roles>
+						<role id="8">Songwriter</role>
+					</roles>
+				</albumauthorcredit>
+			</albumauthorcredits>
+			<albumproductioncredits/>
+		</albumdata>
+		<trackdata disccount="2" sides="1">
+			<disc audioattached="False">
+				<discno>1</discno>
+				<title>Quiet Morning (Disc 1)</title>
+				<side>
+					<sideno>A</sideno>
+					<title/>
+						<track id="5" playlist="False">
+							<trackid unformatted="5">5</trackid>
+							<albumid unformatted="2">2</albumid>
+							<discno unformatted="1">1</discno>
+							<side>A</side>
+							<index unformatted="1">1</index>
+							<title>Fictional Song 1.1</title>
+							<artists formattedname="Mira &quot;Echo&quot; Ionescu" sort="Ionescu, Mira">
+								<artist id="1">
+									<name>Mira &quot;Echo&quot; Ionescu</name>
+									<sortby>Ionescu, Mira</sortby>
+									<country id="-1"/>
+								</artist>
+							</artists>
+							<length minutes="3" seconds="3">3:03</length>
+						</track>
+						<track id="6" playlist="False">
+							<trackid unformatted="6">6</trackid>
+							<albumid unformatted="2">2</albumid>
+							<discno unformatted="1">1</discno>
+							<side>A</side>
+							<index unformatted="2">2</index>
+							<title>Fictional Song 1.2</title>
+							<artists formattedname="Mira &quot;Echo&quot; Ionescu" sort="Ionescu, Mira">
+								<artist id="1">
+									<name>Mira &quot;Echo&quot; Ionescu</name>
+									<sortby>Ionescu, Mira</sortby>
+									<country id="-1"/>
+								</artist>
+							</artists>
+							<length minutes="3" seconds="3">3:03</length>
+						</track>
+				</side>
+			</disc>
+			<disc audioattached="False">
+				<discno>2</discno>
+				<title>Quiet Morning (Disc 2)</title>
+				<side>
+					<sideno>A</sideno>
+					<title/>
+						<track id="7" playlist="False">
+							<trackid unformatted="7">7</trackid>
+							<albumid unformatted="2">2</albumid>
+							<discno unformatted="2">2</discno>
+							<side>A</side>
+							<index unformatted="1">1</index>
+							<title>Fictional Song 2.1</title>
+							<artists formattedname="Mira &quot;Echo&quot; Ionescu" sort="Ionescu, Mira">
+								<artist id="1">
+									<name>Mira &quot;Echo&quot; Ionescu</name>
+									<sortby>Ionescu, Mira</sortby>
+									<country id="-1"/>
+								</artist>
+							</artists>
+							<length minutes="3" seconds="3">3:03</length>
+						</track>
+						<track id="8" playlist="False">
+							<trackid unformatted="8">8</trackid>
+							<albumid unformatted="2">2</albumid>
+							<discno unformatted="2">2</discno>
+							<side>A</side>
+							<index unformatted="2">2</index>
+							<title>Fictional Song 2.2</title>
+							<artists formattedname="Mira &quot;Echo&quot; Ionescu" sort="Ionescu, Mira">
+								<artist id="1">
+									<name>Mira &quot;Echo&quot; Ionescu</name>
+									<sortby>Ionescu, Mira</sortby>
+									<country id="-1"/>
+								</artist>
+							</artists>
+							<length minutes="3" seconds="3">3:03</length>
+						</track>
+				</side>
+			</disc>
+		</trackdata>
+	</record>
+</data>

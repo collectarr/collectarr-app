@@ -1,0 +1,249 @@
+<?xml version="1.0" ?>
+<collectorz>
+  <data>
+    <musicinfo>
+      <musiclist>
+        <music>
+          <hash>9001</hash>
+          <title>After &amp; Before</title>
+          <artists>
+            <artist>
+              <displayname>Mira &quot;Echo&quot; Ionescu</displayname>
+            </artist>
+          </artists>
+          <label>
+            <displayname>Fictional Records</displayname>
+          </label>
+          <releasedate>
+            <date>2025-04</date>
+          </releasedate>
+          <originalreleasedate>
+            <date>2024</date>
+          </originalreleasedate>
+          <labelnumber>DEMO-001</labelnumber>
+          <upc>9900000000001</upc>
+          <format>
+            <displayname>CD</displayname>
+          </format>
+          <collectionstatus>In Collection</collectionstatus>
+          <quantity>1</quantity>
+          <index>1</index>
+          <myrating>8</myrating>
+          <notes>Fictional notes
+Unicode: Şé音 &amp; &quot;quotes&quot;</notes>
+          <purchasedate>
+            <date>2026/01/15</date>
+          </purchasedate>
+          <purchaseprice>12.50</purchaseprice>
+          <recordingdate>
+            <date>2024</date>
+          </recordingdate>
+          <islive>true</islive>
+          <studios>
+            <studio>
+              <displayname>Fictional Hall</displayname>
+            </studio>
+          </studios>
+          <composers>
+            <composer>
+              <displayname>Alex Example</displayname>
+            </composer>
+          </composers>
+          <genres>
+            <genre>
+              <displayname>Dream Pop</displayname>
+            </genre>
+            <genre>
+              <displayname>Jazz</displayname>
+            </genre>
+          </genres>
+          <credits>
+            <credit>
+              <person>
+                <displayname>Jane Example</displayname>
+              </person>
+              <role>Producer</role>
+            </credit>
+          </credits>
+          <musicians>
+            <musician>
+              <person>
+                <displayname>Sam Example</displayname>
+              </person>
+              <role>Musician</role>
+              <instrument>
+                <displayname>Guitar</displayname>
+              </instrument>
+            </musician>
+          </musicians>
+          <discs>
+            <disc>
+              <index>1</index>
+              <tracks>
+                <track>
+                  <position>1</position>
+                  <title>Song 1.1</title>
+                  <length>183</length>
+                  <composition>Fictional Work</composition>
+                  <hash>track-0-0-0</hash>
+                </track>
+                <track>
+                  <position>2</position>
+                  <title>Song 1.2</title>
+                  <length>183</length>
+                  <composition>Fictional Work</composition>
+                  <hash>track-0-0-1</hash>
+                </track>
+              </tracks>
+              <hash>disc-0-0</hash>
+            </disc>
+            <disc>
+              <index>2</index>
+              <tracks>
+                <track>
+                  <position>1</position>
+                  <title>Song 2.1</title>
+                  <length>183</length>
+                  <composition>Fictional Work</composition>
+                  <hash>track-0-1-0</hash>
+                </track>
+                <track>
+                  <position>2</position>
+                  <title>Song 2.2</title>
+                  <length>183</length>
+                  <composition>Fictional Work</composition>
+                  <hash>track-0-1-1</hash>
+                </track>
+              </tracks>
+              <hash>disc-0-1</hash>
+            </disc>
+          </discs>
+          <soundtypes>
+            <soundtype>
+              <displayname>Stereo</displayname>
+            </soundtype>
+          </soundtypes>
+        </music>
+        <music>
+          <hash>9002</hash>
+          <title>Quiet Morning</title>
+          <artists>
+            <artist>
+              <displayname>The Daylights</displayname>
+            </artist>
+          </artists>
+          <label>
+            <displayname>Fictional Records</displayname>
+          </label>
+          <releasedate>
+            <date>2025-04</date>
+          </releasedate>
+          <originalreleasedate>
+            <date>2024</date>
+          </originalreleasedate>
+          <labelnumber>DEMO-001</labelnumber>
+          <upc>9900000000001</upc>
+          <format>
+            <displayname>CD</displayname>
+          </format>
+          <collectionstatus>In Collection</collectionstatus>
+          <quantity>1</quantity>
+          <index>2</index>
+          <myrating>8</myrating>
+          <notes>Fictional notes
+Unicode: Şé音 &amp; &quot;quotes&quot;</notes>
+          <purchasedate>
+            <date>2026/01/15</date>
+          </purchasedate>
+          <purchaseprice>12.50</purchaseprice>
+          <recordingdate>
+            <date>2024</date>
+          </recordingdate>
+          <islive>true</islive>
+          <studios>
+            <studio>
+              <displayname>Fictional Hall</displayname>
+            </studio>
+          </studios>
+          <composers>
+            <composer>
+              <displayname>Alex Example</displayname>
+            </composer>
+          </composers>
+          <genres>
+            <genre>
+              <displayname>Dream Pop</displayname>
+            </genre>
+            <genre>
+              <displayname>Jazz</displayname>
+            </genre>
+          </genres>
+          <credits>
+            <credit>
+              <person>
+                <displayname>Jane Example</displayname>
+              </person>
+              <role>Producer</role>
+            </credit>
+          </credits>
+          <musicians>
+            <musician>
+              <person>
+                <displayname>Sam Example</displayname>
+              </person>
+              <role>Musician</role>
+              <instrument>
+                <displayname>Guitar</displayname>
+              </instrument>
+            </musician>
+          </musicians>
+          <discs>
+            <disc>
+              <index>1</index>
+              <tracks>
+                <track>
+                  <position>1</position>
+                  <title>Song 1.1</title>
+                  <length>183</length>
+                  <composition>Fictional Work</composition>
+                  <hash>track-1-0-0</hash>
+                </track>
+                <track>
+                  <position>2</position>
+                  <title>Song 1.2</title>
+                  <length>183</length>
+                  <composition>Fictional Work</composition>
+                  <hash>track-1-0-1</hash>
+                </track>
+              </tracks>
+              <hash>disc-1-0</hash>
+            </disc>
+            <disc>
+              <index>2</index>
+              <tracks>
+                <track>
+                  <position>1</position>
+                  <title>Song 2.1</title>
+                  <length>183</length>
+                  <composition>Fictional Work</composition>
+                  <hash>track-1-1-0</hash>
+                </track>
+                <track>
+                  <position>2</position>
+                  <title>Song 2.2</title>
+                  <length>183</length>
+                  <composition>Fictional Work</composition>
+                  <hash>track-1-1-1</hash>
+                </track>
+              </tracks>
+              <hash>disc-1-1</hash>
+            </disc>
+          </discs>
+          <soundtypes>
+            <soundtype>
+              <displayname>Stereo</displayname>
+            </soundtype>
+          </soundtypes>
+        </music>
+      </musiclist>
+    </musicinfo>

@@ -1,7 +1,10 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_responsive_field_layout.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_provider.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -12,13 +15,16 @@ import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_dr
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/ui/single_value_pick_field.dart';
 
 class PrefillSettingsDialog extends ConsumerStatefulWidget {
-  const PrefillSettingsDialog({super.key, required this.accent, this.kind});
+  const PrefillSettingsDialog(
+      {super.key, required this.accent, this.kind, this.confirmLabel});
 
   final Color accent;
   final CatalogMediaKind? kind;
+  final String? confirmLabel;
 
   @override
   ConsumerState<PrefillSettingsDialog> createState() =>
@@ -27,7 +33,11 @@ class PrefillSettingsDialog extends ConsumerStatefulWidget {
 
 class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   final _tagsController = TextEditingController();
+  final _conditionController = TextEditingController();
+  bool _alwaysShow = true;
+  bool _fillToday = false;
   bool _loaded = false;
+  bool _showAdditionalFields = false;
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
   LibraryEntryEditDraft? _personalDraft;
@@ -41,6 +51,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   @override
   void dispose() {
     _tagsController.dispose();
+    _conditionController.dispose();
     _personalDraft?.dispose();
     super.dispose();
   }
@@ -51,6 +62,10 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     if (!mounted) return;
     setState(() {
       _tagsController.text = defaults.tags ?? '';
+      _conditionController.text =
+          defaults.personalValues['condition'] as String? ?? '';
+      _alwaysShow = defaults.alwaysShow;
+      _fillToday = defaults.fillPurchaseDateWithToday;
       _availableLocations = locations;
       _selectedLocationId = defaults.locationId;
       if (widget.kind case final kind?) {
@@ -69,13 +84,11 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: appPalette(context).panel,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-        side: BorderSide(color: widget.accent.withValues(alpha: 0.3)),
-      ),
+      alignment: const Alignment(0, -.9),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-            maxWidth: widget.kind == null ? 440 : 900, maxHeight: 720),
+            maxWidth: widget.kind == null ? 440 : 800, maxHeight: 720),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -91,32 +104,97 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                       child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Default values applied when adding new items to your collection.',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: appPalette(context).textMuted,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _locationField(),
-                    const SizedBox(height: 10),
-                    _textField('Tags', _tagsController,
-                        hint: 'Comma-separated tags'),
-                    if (_personalDraft case final draft?) ...[
-                      const SizedBox(height: 16),
-                      LibraryEntryPersonalSection(draft: draft),
-                      const SizedBox(height: 12),
-                      LibraryEntryStatusStrip(draft: draft),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  LibraryResponsiveFieldLayout(
+                    maxColumns: 2,
+                    columnBreakpoints: const {2: 600},
+                    spacing: 30,
+                    runSpacing: 15,
+                    children: [
+                      _locationField(),
+                      if (_personalDraft case final draft?)
+                        LibraryFormField(
+                            label: 'Condition',
+                            child: SingleValuePickField(
+                                showInlineLabel: false,
+                                controller: _conditionController,
+                                options: libraryEditPresentationForKind(
+                                        draft.record.kind)
+                                    .conditions,
+                                label: 'Condition',
+                                onChanged: (value) =>
+                                    draft.set('condition', value))),
                     ],
+                  ),
+                  if (_personalDraft case final draft?) ...[
+                    const SizedBox(height: 15),
+                    LibraryEntryPersonalSection(
+                        draft: draft,
+                        layoutBuilder: (fields, _) =>
+                            LibraryResponsiveFieldLayout(
+                              maxColumns: 2,
+                              columnBreakpoints: const {2: 600},
+                              spacing: 30,
+                              runSpacing: 15,
+                              children: [
+                                if (fields['purchase_date'] case final field?)
+                                  field,
+                                Align(
+                                    alignment: Alignment.bottomLeft,
+                                    child: SizedBox(
+                                        height: 55,
+                                        child: Align(
+                                            alignment: Alignment.bottomLeft,
+                                            child: _checkbox(
+                                                'Fill purchase date with today',
+                                                _fillToday,
+                                                (value) => setState(() =>
+                                                    _fillToday = value))))),
+                                if (fields['purchase_store'] case final field?)
+                                  field,
+                                if (fields['price_paid_cents']
+                                    case final field?)
+                                  field,
+                                if (_showAdditionalFields)
+                                  if (fields['currency'] case final field?)
+                                    field,
+                              ],
+                            )),
                   ],
-                ),
+                  if (_showAdditionalFields) ...[
+                    const SizedBox(height: 15),
+                    LibraryFormField(
+                        label: 'Tags',
+                        child: LibraryTextFormControl(
+                            controller: _tagsController)),
+                  ],
+                  const SizedBox(height: 25),
+                  SizedBox(
+                      width: double.infinity,
+                      child: Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 10,
+                          runSpacing: 8,
+                          children: [
+                            Row(mainAxisSize: MainAxisSize.min, children: [
+                              IconButton(
+                                  tooltip: 'Additional Fields',
+                                  onPressed: () => setState(() =>
+                                      _showAdditionalFields =
+                                          !_showAdditionalFields),
+                                  icon: const Icon(Icons.settings, size: 18)),
+                              _checkbox(
+                                  'Always show this screen',
+                                  _alwaysShow,
+                                  (value) =>
+                                      setState(() => _alwaysShow = value)),
+                            ]),
+                            TextButton(
+                                onPressed: _clearAll,
+                                child: const Text('Clear All')),
+                          ])),
+                ]),
               ))),
             _footer(),
           ],
@@ -130,85 +208,75 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       title: 'Pre-fill Settings',
       accent: widget.accent,
       icon: Icons.auto_fix_high,
-      trailing: TextButton(
-        onPressed: () {
-          setState(() {
-            _selectedLocationId = null;
-            _tagsController.clear();
-            _personalDraft?.reset();
-          });
-        },
-        child: const Text(
-          'Clear all',
-          style: TextStyle(fontSize: 13, color: Colors.white),
-        ),
-      ),
     );
   }
 
+  void _clearAll() => setState(() {
+        _selectedLocationId = null;
+        _tagsController.clear();
+        _personalDraft?.reset();
+        _conditionController.clear();
+        _fillToday = false;
+      });
+
+  Widget _checkbox(String label, bool value, ValueChanged<bool> onChanged) =>
+      Row(mainAxisSize: MainAxisSize.min, children: [
+        SizedBox(
+            width: 24,
+            height: 24,
+            child: Checkbox(
+                value: value,
+                onChanged: (value) {
+                  if (value != null) onChanged(value);
+                })),
+        const SizedBox(width: 5),
+        Flexible(
+            child: GestureDetector(
+                onTap: () => onChanged(!value),
+                child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: Text(label,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w400))))),
+      ]);
+
   Widget _locationField() {
     final label = locationPathForId(_availableLocations, _selectedLocationId);
-    return Row(
-      children: [
-        SizedBox(
-          width: 100,
-          child: Text(
-            'Location',
-            style:
-                TextStyle(fontSize: 13, color: appPalette(context).textMuted),
-          ),
-        ),
-        Expanded(
-          child: InkWell(
-            mouseCursor: WidgetStateMouseCursor.clickable,
-            onTap: _pickLocation,
-            borderRadius: BorderRadius.circular(4),
-            child: Container(
-              height: 34,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: appPalette(context).panelRaised,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: appPalette(context).divider),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.place,
-                      size: 16, color: appPalette(context).textMuted),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      label ?? 'No location selected',
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: label == null ? Colors.white38 : Colors.white,
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    label == null ? Icons.expand_more : Icons.chevron_right,
-                    size: 16,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        if (label != null) ...[
-          const SizedBox(width: 6),
-          IconButton(
-            tooltip: 'Clear location',
-            onPressed: () {
-              setState(() {
-                _selectedLocationId = null;
-              });
-            },
-            icon: const Icon(Icons.clear, size: 16),
-          ),
-        ],
-      ],
-    );
+    return LibraryFormField(
+        label: 'Location',
+        child: SizedBox(
+            height: 34,
+            child: Row(children: [
+              Expanded(
+                  child: InkWell(
+                onTap: _pickLocation,
+                mouseCursor: SystemMouseCursors.click,
+                child: Container(
+                  height: 34,
+                  padding: const EdgeInsets.symmetric(horizontal: 7),
+                  decoration: BoxDecoration(
+                      color: appPalette(context).field,
+                      border: Border.all(color: appPalette(context).divider),
+                      borderRadius: BorderRadius.circular(4)),
+                  child: Row(children: [
+                    Expanded(
+                        child: Text(label ?? '',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 14))),
+                    const Icon(Icons.arrow_drop_down, size: 18)
+                  ]),
+                ),
+              )),
+              IconButton(
+                  tooltip: 'Manage Locations',
+                  onPressed: _pickLocation,
+                  icon: const Icon(Icons.list, size: 18)),
+              if (label != null)
+                IconButton(
+                    tooltip: 'Clear location',
+                    onPressed: () => setState(() => _selectedLocationId = null),
+                    icon: const Icon(Icons.clear, size: 16)),
+            ])));
   }
 
   Future<void> _pickLocation() async {
@@ -231,97 +299,59 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     });
   }
 
-  Widget _textField(
-    String label,
-    TextEditingController controller, {
-    String? hint,
-  }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 100,
-          child: Text(
-            label,
-            style:
-                TextStyle(fontSize: 13, color: appPalette(context).textMuted),
-          ),
-        ),
-        Expanded(
-          child: TextField(
-            controller: controller,
-            style: TextStyle(
-                fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle:
-                  TextStyle(fontSize: 13, color: appPalette(context).textMuted),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              filled: true,
-              fillColor: appPalette(context).panelRaised,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(4),
-                borderSide: BorderSide(color: appPalette(context).divider),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(4),
-                borderSide: BorderSide(color: appPalette(context).divider),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(4),
-                borderSide: BorderSide(color: widget.accent),
-              ),
-              isDense: true,
-            ),
-          ),
-        ),
-      ],
+  Future<void> _save() async {
+    final defaults = PrefillDefaults(
+      alwaysShow: _alwaysShow,
+      fillPurchaseDateWithToday: _fillToday,
+      locationId: _selectedLocationId,
+      tags: _tagsController.text.isEmpty ? null : _tagsController.text,
+      personalValues: Map.of(_personalDraft?.values ?? const {}),
     );
+    await defaults.save(widget.kind);
+    if (mounted) Navigator.of(context).pop(defaults);
   }
 
-  Widget _footer() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: appPalette(context).divider),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          DialogActionButtons.cancel(
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+  Widget _footer() => Padding(
+        padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+        child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+          TextButton(
+              style: TextButton.styleFrom(
+                  foregroundColor: appPalette(context).textPrimary),
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel')),
           const SizedBox(width: 8),
-          DialogActionButtons.save(
-            accent: widget.accent,
-            onPressed: () async {
-              final defaults = PrefillDefaults(
-                locationId: _selectedLocationId,
-                tags:
-                    _tagsController.text.isEmpty ? null : _tagsController.text,
-                personalValues: Map.of(_personalDraft?.values ?? const {}),
-              );
-              await defaults.save(widget.kind);
-              if (mounted) Navigator.of(context).pop(defaults);
-            },
-          ),
-        ],
-      ),
-    );
-  }
+          SizedBox(
+              width: 150,
+              height: 40,
+              child: FilledButton(
+                  style: FilledButton.styleFrom(
+                      backgroundColor: appPalette(context).utilityAction,
+                      foregroundColor: Colors.white,
+                      textStyle: TextStyle(
+                          fontFamily: appFontFamily,
+                          fontFamilyFallback: kAppFontFamilyFallback,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400)),
+                  onPressed: _save,
+                  child: Text(widget.confirmLabel ?? 'Save'))),
+        ]),
+      );
 }
 
 Future<PrefillDefaults?> showPrefillSettingsDialog({
   required BuildContext context,
   required Color accent,
   CatalogMediaKind? kind,
+  String? confirmLabel,
 }) {
-  return showDialog<PrefillDefaults>(
+  return showAppDialog<PrefillDefaults>(
     context: context,
     builder: (context) => Theme(
-        data: libraryAccentTheme(context, accent),
-        child: PrefillSettingsDialog(accent: accent, kind: kind)),
+        data: editDialogTheme(
+            seedColor: accent,
+            palette: appPalette(context),
+            compactDesktop: true),
+        child: PrefillSettingsDialog(
+            accent: accent, kind: kind, confirmLabel: confirmLabel)),
   );
 }

@@ -10,6 +10,7 @@ class LibraryCardPresentation {
     this.itemNumber,
     this.variant,
     this.releaseDate,
+    this.suggestionDetail,
     this.format,
     this.synopsis,
     this.seriesTitle,
@@ -26,6 +27,10 @@ class LibraryCardPresentation {
   final String? itemNumber;
   final String? variant;
   final DateTime? releaseDate;
+
+  /// Second line of a toolbar search suggestion, such as a release year that
+  /// is known even when the date is partial.
+  final String? suggestionDetail;
   final String? format;
   final String? synopsis;
   final String? seriesTitle;

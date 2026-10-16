@@ -1,6 +1,6 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,10 +29,10 @@ class LibraryFormField extends StatelessWidget {
               Expanded(
                   child: Text(label,
                       style: TextStyle(
-                        color: appPalette(context).textMuted,
-                        fontSize: 12,
+                        color: appPalette(context).textPrimary,
+                        fontSize: 13,
                         fontWeight: kAppBoldFontWeight,
-                        height: 20 / 12,
+                        height: 20 / 14,
                         letterSpacing: 0,
                       ).merge(labelStyle))),
               if (action != null) action!,
@@ -98,9 +98,7 @@ class LibraryTextFormControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveAccent = LibraryAccentScope.maybeOf(context)?.accent ??
-        Theme.of(context).textSelectionTheme.cursorColor ??
-        appPalette(context).accent;
+    final effectiveAccent = appPalette(context).utilityAction;
     final effectiveCursorColor = cursorColor ?? effectiveAccent;
     return TextFormField(
       controller: controller,
@@ -128,7 +126,9 @@ class LibraryTextFormControl extends StatelessWidget {
         constraints: BoxConstraints(minHeight: minimumHeight),
         contentPadding: (maxLines == 1 &&
                 minimumHeight == LibraryMetrics.defaultFieldHeight)
-            ? const EdgeInsets.symmetric(horizontal: 7, vertical: 6)
+            // The outline and fill follow the content, not the minimum
+            // height, so the padding itself makes the 34 px field.
+            ? const EdgeInsets.symmetric(horizontal: 7, vertical: 7)
             : decoration?.contentPadding,
       ),
     );
@@ -136,9 +136,14 @@ class LibraryTextFormControl extends StatelessWidget {
 }
 
 class LibraryFormGroup extends StatelessWidget {
-  const LibraryFormGroup({super.key, required this.title, required this.child});
+  const LibraryFormGroup(
+      {super.key,
+      required this.title,
+      required this.child,
+      this.titleSize = 16.8});
   final String title;
   final Widget child;
+  final double titleSize;
   @override
   Widget build(BuildContext context) => Stack(children: [
         Padding(
@@ -159,10 +164,10 @@ class LibraryFormGroup extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 7),
                   child: Text(title,
                       style: TextStyle(
-                          color: appPalette(context).textMuted,
+                          color: appPalette(context).textPrimary,
                           fontWeight: FontWeight.w700,
-                          fontSize: 16.8,
-                          height: 24 / 16.8))),
+                          fontSize: titleSize,
+                          height: 24 / titleSize))),
             )),
       ]);
 }
@@ -229,11 +234,15 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
   }
 
   @override
-  Widget build(BuildContext context) => Row(children: [
-        for (var i = 0; i < 3; i++) ...[
-          if (i > 0)
+  Widget build(BuildContext context) {
+    // Parts are stored year, month, day; Settings chooses the entry order.
+    final order = dateEntryPartOrder(AppFormats.current.dateEntry);
+    return Row(children: [
+      for (var position = 0; position < 3; position++)
+        for (final i in [order[position]]) ...[
+          if (position > 0)
             Container(
-              key: ValueKey('partial-date-separator-$i'),
+              key: ValueKey('partial-date-separator-$position'),
               width: 8,
               height: 1,
               color: appPalette(context).divider,
@@ -242,7 +251,7 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
               flex: i == 0 ? 3 : 2,
               child: LibraryTextFormControl(
                 controller: _controllers[i],
-                focusNode: i == 0 ? widget.focusNode : null,
+                focusNode: position == 0 ? widget.focusNode : null,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 inputFormatters: [
@@ -268,8 +277,16 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
                 onChanged: (_) => widget.onChanged(_read()),
               )),
         ],
-      ]);
+    ]);
+  }
 }
+
+/// Indexes of year (0), month (1) and day (2) in the on-screen order.
+List<int> dateEntryPartOrder(DateEntryOrder order) => switch (order) {
+      DateEntryOrder.yearMonthDay => const [0, 1, 2],
+      DateEntryOrder.dayMonthYear => const [2, 1, 0],
+      DateEntryOrder.monthDayYear => const [1, 2, 0],
+    };
 
 /// CLZ-style mutually exclusive choices; shared by enum and boolean fields.
 class LibrarySegmentedField<T> extends StatelessWidget {

@@ -103,8 +103,7 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
         palette.isDark ? _clzEditTabBackground : palette.surface;
     final activeBackground =
         palette.isDark ? _clzEditTabHighlight : palette.panelRaised;
-    final idleForeground =
-        palette.isDark ? const Color(0xFFC8C8C8) : palette.textMuted;
+    final idleForeground = palette.textPrimary;
     final foreground = selected || highlighted
         ? (palette.isDark ? Colors.white : palette.textPrimary)
         : idleForeground;

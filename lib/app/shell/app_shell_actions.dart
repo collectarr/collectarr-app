@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/app/help/user_manual.dart';
+import 'package:collectarr_app/app/help/help_links.dart';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
@@ -14,7 +15,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
 import 'package:collectarr_app/features/library/reports/collection_export_csv_txt.dart';
 import 'package:collectarr_app/features/library/reports/collection_import_data.dart';
-import 'package:collectarr_app/features/library/export/integration_export_dialog.dart';
+import 'package:collectarr_app/features/library/reports/library_export_xml_flow.dart';
 import 'package:collectarr_app/features/library/metadata/library_link_items_page.dart';
 import 'package:collectarr_app/features/library/sharing/collection_cloud_sharing_page.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
@@ -166,9 +167,6 @@ class AppShellActions {
       case DrawerAction.settings:
         _goToSettingsSection(SettingsSection.appearance, type.kind);
         return;
-      case DrawerAction.libraries:
-        context.go(AppRoutes.forKind(AppRoutes.libraries, type.kind.apiValue));
-        return;
       case DrawerAction.calendar:
         context.go(AppRoutes.forKind(AppRoutes.calendar, type.kind.apiValue));
         return;
@@ -196,11 +194,15 @@ class AppShellActions {
         });
         return;
       case DrawerAction.exportXml:
-        await _withShelf((shelf) => showIntegrationExportDialog(
+        await _withShelf((shelf) => exportLibraryEntriesXml(
               context: context,
               type: type,
-              shelfState: shelf.forKind(type.kind),
-              format: ExportFormat.xml,
+              database: ref.read(localDatabaseProvider),
+              entries: [
+                for (final entry in shelf.entries)
+                  if (entry.mediaKind == type.kind)
+                    if (entry.libraryEntryRef case final entryRef?) entryRef
+              ],
             ));
         return;
       case DrawerAction.importData:
@@ -224,6 +226,15 @@ class AppShellActions {
         return;
       case DrawerAction.userManual:
         await openUserManual(context, kind: type.kind);
+        return;
+      case DrawerAction.community:
+        await openCommunity(context);
+        return;
+      case DrawerAction.contactSupport:
+        await openContactSupport(context);
+        return;
+      case DrawerAction.whatsNew:
+        await openWhatsNew(context);
         return;
       case DrawerAction.keyboardShortcuts:
         showKeyboardShortcutsDialog(context);

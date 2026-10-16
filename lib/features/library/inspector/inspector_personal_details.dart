@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 
@@ -43,7 +45,6 @@ class InspectorCollectionFields extends StatelessWidget {
     required this.secondaryOptions,
     required this.onConditionChanged,
     required this.onSecondaryChanged,
-    required this.accent,
   });
 
   final bool enabled;
@@ -53,7 +54,6 @@ class InspectorCollectionFields extends StatelessWidget {
   final List<String> secondaryOptions;
   final ValueChanged<String?>? onConditionChanged;
   final ValueChanged<String?>? onSecondaryChanged;
-  final Color accent;
 
   @override
   Widget build(BuildContext context) {
@@ -177,11 +177,9 @@ class _InspectorPersonalDetailsEditorState
 
   @override
   Widget build(BuildContext context) {
-    final accent = widget.accent;
     final palette = appPalette(context);
     return LibraryDetailSection(
       title: 'Personal details',
-      accentColor: accent,
       children: [
         const LibraryDetailFieldRow(
           field: LibraryDetailField(
@@ -307,7 +305,7 @@ class _InspectorPersonalDetailsEditorState
     _priceController.text = item.pricePaidCents == null
         ? ''
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
-    _currencyController.text = item.currency ?? 'USD';
+    _currencyController.text = item.currency ?? AppFormats.current.currency;
     _notesController.text = item.notes ?? '';
     _purchaseStoreController.text = item.purchaseStore ?? '';
     _selectedLocationId = item.locationId;
@@ -467,7 +465,6 @@ class _InspectorTrackingDetailsEditorState
     final accent = widget.accent;
     return LibraryDetailSection(
       title: 'Tracking details',
-      accentColor: accent,
       children: [
         const LibraryDetailFieldRow(
           field: LibraryDetailField(
@@ -678,7 +675,7 @@ class _InspectorTrackingDetailsEditorState
   }
 
   Future<void> _stopTracking() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
         headerIcon: AppIcons.warning,
