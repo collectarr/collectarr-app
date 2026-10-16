@@ -212,6 +212,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
                         ),
                         dense: true,
                         trailing: PopupMenuButton<_FolderAction>(
+                          popUpAnimationStyle: AnimationStyle.noAnimation,
                           icon: const Icon(Icons.more_horiz, size: 18),
                           tooltip: 'Folder actions',
                           onSelected: (action) async {

@@ -194,6 +194,7 @@ class LibrarySidebarHeader extends StatelessWidget {
                       width: 30,
                       height: 30,
                       child: PopupMenuButton<int>(
+                        popUpAnimationStyle: AnimationStyle.noAnimation,
                         tooltip: 'More folder actions',
                         padding: EdgeInsets.zero,
                         icon: Icon(Icons.more_horiz,

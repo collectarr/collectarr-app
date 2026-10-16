@@ -503,6 +503,7 @@ class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
             palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright,
       ),
       child: PopupMenuButton<LibrarySearchTarget>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
         key: const ValueKey('library-search-target-button'),
         tooltip: 'Search scope',
         onSelected: widget.onSelected,

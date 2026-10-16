@@ -984,6 +984,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                   onSearchTargetChanged != null) ...[
                 const SizedBox(width: 6),
                 PopupMenuButton<LibrarySearchTarget>(
+                  popUpAnimationStyle: AnimationStyle.noAnimation,
                   tooltip: 'Search scope',
                   color: libraryToolbarMenuSurface(context),
                   shape: libraryToolbarDropdownMenuShape(context),

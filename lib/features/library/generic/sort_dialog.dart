@@ -106,6 +106,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
         headerAction: !widget.showFavorites
             ? null
             : PopupMenuButton<LibrarySortPreset>(
+                popUpAnimationStyle: AnimationStyle.noAnimation,
                 tooltip: 'Sorting favorites',
                 icon: const Icon(AppIcons.settings,
                     color: Colors.white, size: 16),

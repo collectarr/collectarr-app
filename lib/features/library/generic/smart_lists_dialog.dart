@@ -507,6 +507,8 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
                                   onTap: () =>
                                       setState(() => _selectedListId = list.id),
                                   trailing: PopupMenuButton<_SmartListAction>(
+                                    popUpAnimationStyle:
+                                        AnimationStyle.noAnimation,
                                     icon:
                                         const Icon(Icons.more_horiz, size: 18),
                                     tooltip: 'Smart list actions',

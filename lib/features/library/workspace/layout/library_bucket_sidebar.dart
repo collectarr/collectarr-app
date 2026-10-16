@@ -619,6 +619,7 @@ class _SidebarStatusScopeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<LibraryBucketCompletionScope>(
+      popUpAnimationStyle: AnimationStyle.noAnimation,
       tooltip: scope.label,
       initialValue: scope,
       onSelected: onSelected,

@@ -24,7 +24,7 @@ void main() {
     expect(route!.animation!.value, closeTo(.5, .01));
     expect(
         find.byWidgetPredicate(
-            (widget) => widget is Container && widget.color == Colors.black54),
+            (widget) => widget is Container && widget.color == kAppDialogBarrierColor),
         findsOneWidget);
     await tester.pumpAndSettle();
     route!.navigator!.pop();

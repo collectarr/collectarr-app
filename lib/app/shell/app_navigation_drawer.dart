@@ -33,12 +33,13 @@ Future<void> showAppNavigationDrawer({
   required bool animationsEnabled,
   required void Function(BuildContext, DrawerAction) onSelected,
 }) =>
+    // As in the reference menu, a click on the overlay closes the drawer;
+    // it holds no edits, unlike modal panels.
     showAppDialog<void>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       useSafeArea: false,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black54,
       transitionDuration:
           animationsEnabled && !MediaQuery.disableAnimationsOf(context)
               ? appNavigationSlideDuration

@@ -85,4 +85,36 @@ void main() {
     expect(header, findsNothing);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('a click on the overlay closes the navigation', (tester) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: Builder(
+      builder: (context) => TextButton(
+        onPressed: () => showAppNavigationDrawer(
+          context: context,
+          type: defaultLibraryKindRegistry.require(CatalogMediaKind.music),
+          selectedAction: null,
+          isAdmin: false,
+          accent: Colors.orange,
+          addLabel: 'Add Albums from Core',
+          animationsEnabled: false,
+          onSelected: (context, _) => Navigator.of(context).pop(),
+        ),
+        child: const Text('Open'),
+      ),
+    ))));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('drawer.header')), findsOneWidget);
+
+    await tester.tapAt(const Offset(1000, 450));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('drawer.header')), findsNothing);
+  });
 }

@@ -401,6 +401,7 @@ class LibraryBody extends StatelessWidget {
                 Row(children: [
                   if (!canShowSidebar)
                     PopupMenuButton<String>(
+                      popUpAnimationStyle: AnimationStyle.noAnimation,
                       tooltip: 'Folders',
                       onSelected: (bucket) => onBucketChanged(
                           bucket == genericAllBucketLabel(type)

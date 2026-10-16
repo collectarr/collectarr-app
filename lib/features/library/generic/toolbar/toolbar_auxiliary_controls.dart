@@ -599,6 +599,7 @@ class _SortFavoritesManagerDialogState
               padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
               child: Row(children: [
                 PopupMenuButton<LibrarySortFavorite>(
+                  popUpAnimationStyle: AnimationStyle.noAnimation,
                   tooltip: 'Add Favorite',
                   onSelected: (favorite) =>
                       setState(() => _pinnedFavorites.add(favorite)),
@@ -805,6 +806,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
             return Align(
                 alignment: Alignment.centerLeft,
                 child: PopupMenuButton<String>(
+                  popUpAnimationStyle: AnimationStyle.noAnimation,
                   tooltip: 'Filter A–Z',
                   onSelected: select,
                   itemBuilder: (_) => [
@@ -855,6 +857,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
               if (options != null) ...[
                 const SizedBox(width: 10),
                 PopupMenuButton<String>(
+                  popUpAnimationStyle: AnimationStyle.noAnimation,
                   tooltip: 'Alphabet Options',
                   position: PopupMenuPosition.under,
                   color: palette.isDark

@@ -7,6 +7,9 @@ const ShapeBorder appDialogShape = RoundedRectangleBorder(
   borderRadius: BorderRadius.all(Radius.circular(6)),
 );
 
+/// Modal backdrop: black at 50 %, as in the reference.
+const Color kAppDialogBarrierColor = Color(0x80000000);
+
 const double kAppDialogTopInset = 30;
 
 /// Item editors sit higher than other modals, as in the reference.
@@ -60,7 +63,7 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
     required WidgetBuilder builder,
     CapturedThemes? capturedThemes,
     super.barrierDismissible = false,
-    Color? barrierColor = Colors.black54,
+    Color? barrierColor = kAppDialogBarrierColor,
     super.barrierLabel,
     bool useSafeArea = true,
     super.settings,
@@ -70,7 +73,7 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
     Duration? transitionDuration,
     RouteTransitionsBuilder? transitionBuilder,
   }) : super(
-          barrierColor: barrierColor ?? Colors.black54,
+          barrierColor: barrierColor ?? kAppDialogBarrierColor,
           transitionDuration: transitionDuration ??
               (animationsEnabled ? appDialogFadeDuration : Duration.zero),
           transitionBuilder: transitionBuilder ?? _buildTransitions,
@@ -159,7 +162,7 @@ Future<T?> showAppDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   bool barrierDismissible = false,
-  Color? barrierColor = Colors.black54,
+  Color? barrierColor = kAppDialogBarrierColor,
   String? barrierLabel,
   bool useSafeArea = true,
   bool useRootNavigator = true,

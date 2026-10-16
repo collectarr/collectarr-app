@@ -312,6 +312,7 @@ class _MusicListenEventTile extends ConsumerWidget {
             ),
           ),
           PopupMenuButton<String>(
+            popUpAnimationStyle: AnimationStyle.noAnimation,
             tooltip: 'Event actions',
             padding: EdgeInsets.zero,
             iconSize: 18,

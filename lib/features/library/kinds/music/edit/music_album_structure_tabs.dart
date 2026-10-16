@@ -468,6 +468,7 @@ final class _MusicAlbumStructureTabState
                   color: Colors.white.withValues(alpha: 0.35),
                 ),
                 PopupMenuButton<MusicDiscId>(
+                  popUpAnimationStyle: AnimationStyle.noAnimation,
                   tooltip: 'Move selected tracks to another disc',
                   onSelected: (destinationId) {
                     _change(() {

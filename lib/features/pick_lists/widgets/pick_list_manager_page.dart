@@ -530,6 +530,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
     final enabled = !_busy && _selected.length > 1;
     final palette = appPalette(context);
     return PopupMenuButton<PickListValue>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
         enabled: enabled,
         tooltip: 'Choose destination',
         position: PopupMenuPosition.over,
