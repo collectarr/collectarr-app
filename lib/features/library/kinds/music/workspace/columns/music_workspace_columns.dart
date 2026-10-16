@@ -24,7 +24,8 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
   );
 }
 
-/// A front or back cover thumbnail, listed under Images as in the reference.
+/// A front or back cover image, listed under Images as in the reference:
+/// a 90 px column with a 79 px image that makes rows 83 px high.
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     musicCoverColumn({
   required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
@@ -33,28 +34,34 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: field.id,
     metadata: field.metadata,
-    displayName: '',
     getValue: field.getValue,
     cellValue: (context) {
       final imageUrl = field.getValue(context);
       return imageUrl == null || imageUrl.isEmpty
           ? const SizedBox.shrink()
-          : SizedBox.square(
-              dimension: 32,
-              child: LibraryCoverImage(
-                title: context.dto.primaryLabel,
-                imageUrl: imageUrl,
-                fallbackAspectRatio: 1,
-                borderRadius: 2,
-                fit: BoxFit.cover,
+          : Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: SizedBox.square(
+                  dimension: 79,
+                  child: LibraryCoverImage(
+                    title: context.dto.primaryLabel,
+                    imageUrl: imageUrl,
+                    fallbackAspectRatio: 1,
+                    borderRadius: 0,
+                    fit: BoxFit.fill,
+                  ),
+                ),
               ),
             );
     },
     group: 'Images',
     allowSortInteraction: false,
     allowGroupInteraction: false,
-    defaultWidth: 42,
-    minWidth: 44,
+    defaultWidth: 90,
+    minWidth: 90,
+    minRowHeight: 83,
   );
 }
 

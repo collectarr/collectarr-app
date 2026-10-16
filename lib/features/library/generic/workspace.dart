@@ -363,10 +363,12 @@ class LibraryWorkspace extends ConsumerWidget {
               target: schemaNode,
             );
         final heights = <String, double>{};
-        final effectiveRowHeight = math.max(
+        final effectiveRowHeight = [
           22.0,
           density.tableRowHeight + (preferences.gridSpacing - 10.0) * 1.5,
-        );
+          for (final column in visibleColumns)
+            workspace.columnMinRowHeight(column, target: schemaNode) ?? 0,
+        ].reduce(math.max);
         double heightFor(LibraryProjectionItem item) =>
             heights.putIfAbsent(item.target.id, () {
               final measure = TextPainter(

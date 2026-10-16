@@ -86,6 +86,8 @@ abstract interface class LibraryKindWorkspace {
       {LibraryTargetRef? target});
   double defaultTableColumnWidth(LibraryFieldIdRuntime column,
       {LibraryTargetRef? target});
+  double? columnMinRowHeight(LibraryFieldIdRuntime column,
+      {LibraryTargetRef? target});
   String columnLabel(LibraryFieldIdRuntime column, {LibraryTargetRef? target});
   String columnDisplayName(LibraryFieldIdRuntime column,
       {LibraryTargetRef? target});
@@ -366,6 +368,14 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
       {LibraryTargetRef? target}) {
     return defaultPlannedMediaTableColumnWidth(
         _fieldsForOptionalTarget(target), column);
+  }
+
+  @override
+  double? columnMinRowHeight(LibraryFieldIdRuntime column,
+      {LibraryTargetRef? target}) {
+    return _fieldsForOptionalTarget(target)
+        .findColumnDefinition(column)
+        ?.minRowHeight;
   }
 
   @override
