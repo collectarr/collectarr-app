@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/anchored_calendar.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -622,57 +623,6 @@ class ValueContextChip extends StatelessWidget {
   }
 }
 
-const List<String> kLibraryCurrencyCodes = <String>[
-  'USD',
-  'SGD',
-  'EUR',
-  'GBP',
-  'RON',
-  'CHF',
-  'JPY',
-  'CAD',
-  'AUD',
-  'NZD',
-  'SEK',
-  'NOK',
-  'DKK',
-  'PLN',
-  'CZK',
-  'HUF',
-  'TRY',
-  'INR',
-  'BRL',
-  'MXN',
-];
-
-String libraryCurrencySymbol(String? currency) {
-  final normalized = currency?.trim().toUpperCase() ?? '';
-  return switch (normalized) {
-    'USD' => r'$',
-    'SGD' => r'S$',
-    'EUR' => '€',
-    'GBP' => '£',
-    'RON' => 'lei',
-    'CHF' => 'CHF',
-    'JPY' => '¥',
-    'CAD' => r'$',
-    'AUD' => r'$',
-    'NZD' => r'$',
-    'SEK' => 'kr',
-    'NOK' => 'kr',
-    'DKK' => 'kr',
-    'PLN' => 'zł',
-    'CZK' => 'Kč',
-    'HUF' => 'Ft',
-    'TRY' => '₺',
-    'INR' => '₹',
-    'BRL' => 'R\$',
-    'MXN' => r'$',
-    _ when normalized.isNotEmpty => normalized,
-    _ => '¤',
-  };
-}
-
 class LibraryCurrencyField extends StatelessWidget {
   const LibraryCurrencyField({
     super.key,
@@ -680,7 +630,7 @@ class LibraryCurrencyField extends StatelessWidget {
     this.label = 'Currency',
     this.enabled = true,
     this.onChanged,
-    this.currencyCodes = kLibraryCurrencyCodes,
+    this.currencyCodes = kCurrencyCodes,
   });
 
   final TextEditingController controller;
@@ -707,7 +657,7 @@ class LibraryCurrencyField extends StatelessWidget {
             for (final code in items)
               LibraryFieldOption<String>(
                 value: code,
-                label: '${libraryCurrencySymbol(code)} $code',
+                label: '${currencySymbol(code)} $code',
               ),
           ],
           openPicker: (
@@ -823,36 +773,25 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                 ),
                 child: Row(
                   children: [
-                    Expanded(
-                      flex: 3,
-                      child: _datePartField(
-                        palette: palette,
-                        key: _partKey('year'),
-                        controller: _yearController,
-                        hintText: 'YYYY',
-                        focusNode: widget.focusNode,
+                    for (final (position, part)
+                        in dateEntryPartOrder(AppFormats.current.dateEntry)
+                            .indexed) ...[
+                      if (position > 0) _dateConnector(palette),
+                      Expanded(
+                        flex: part == 0 ? 3 : 2,
+                        child: _datePartField(
+                          palette: palette,
+                          key: _partKey(['year', 'month', 'day'][part]),
+                          controller: [
+                            _yearController,
+                            _monthController,
+                            _dayController
+                          ][part],
+                          hintText: ['YYYY', 'MM', 'DD'][part],
+                          focusNode: position == 0 ? widget.focusNode : null,
+                        ),
                       ),
-                    ),
-                    _dateConnector(palette),
-                    Expanded(
-                      flex: 2,
-                      child: _datePartField(
-                        palette: palette,
-                        key: _partKey('month'),
-                        controller: _monthController,
-                        hintText: 'MM',
-                      ),
-                    ),
-                    _dateConnector(palette),
-                    Expanded(
-                      flex: 2,
-                      child: _datePartField(
-                        palette: palette,
-                        key: _partKey('day'),
-                        controller: _dayController,
-                        hintText: 'DD',
-                      ),
-                    ),
+                    ],
                     const SizedBox(width: 4),
                     IconButton(
                       tooltip: 'Pick with calendar',

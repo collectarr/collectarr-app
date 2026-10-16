@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'dart:async';
 
@@ -5,7 +6,6 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
@@ -289,10 +289,10 @@ class _LibraryEntryPersonalSectionState
         return LibraryDropdownPickField<String>(
           label: field.label,
           value: _draft.text(field.key).trim().isEmpty
-              ? 'USD'
+              ? AppFormats.current.currency
               : _draft.text(field.key).trim().toUpperCase(),
           options: [
-            for (final code in kLibraryCurrencyCodes)
+            for (final code in kCurrencyCodes)
               LibraryFieldOption(value: code, label: code),
           ],
           onChanged: (value) => _draft.set(field.key, value),
@@ -321,7 +321,7 @@ class _LibraryEntryPersonalSectionState
         label: field.label,
         amountMinorUnits: _draft.number(field.key),
         currency: field.currencyFieldKey == null
-            ? 'USD'
+            ? AppFormats.current.currency
             : _draft.text(field.currencyFieldKey!).trim(),
         onChanged: (amount) => _draft.set(field.key, amount),
       );

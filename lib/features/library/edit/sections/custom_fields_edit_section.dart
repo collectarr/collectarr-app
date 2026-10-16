@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/anchored_calendar.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -429,7 +430,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
         validator: validator,
         decoration: InputDecoration(
             prefixText: def.valueType == CustomFieldValueType.currency
-                ? '${libraryCurrencySymbol(_display[def.id]?.currencyCode ?? 'USD')} '
+                ? '${currencySymbol(_display[def.id]?.currencyCode ?? AppFormats.current.currency)} '
                 : null,
             suffixText: suffixText,
             helperText: widget.preview ? null : _scopeLabel(def.targetScope)),

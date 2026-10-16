@@ -1,5 +1,6 @@
 import 'ebay_search_preferences.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,6 +49,7 @@ class UiPreferences {
     this.autocapAsYouType = false,
     this.titleCaseMethod = TitleCaseMethod.eachWordWithExceptions,
     this.titleCaseExceptions = defaultTitleCaseExceptions,
+    this.formats = const AppFormats(),
     this.showEbayLinks = true,
     this.ebayWishlistOnly = false,
     this.ebayToolbar = true,
@@ -104,6 +106,9 @@ class UiPreferences {
   final TitleCaseMethod titleCaseMethod;
   final List<String> titleCaseExceptions;
 
+  /// Settings > Localization: date, number and currency display.
+  final AppFormats formats;
+
   TitleCaseSettings get titleCase => TitleCaseSettings(
       method: titleCaseMethod, exceptions: titleCaseExceptions);
   final bool showEbayLinks;
@@ -145,6 +150,7 @@ class UiPreferences {
     bool? autocapAsYouType,
     TitleCaseMethod? titleCaseMethod,
     List<String>? titleCaseExceptions,
+    AppFormats? formats,
     bool? showEbayLinks,
     bool? ebayWishlistOnly,
     bool? ebayToolbar,
@@ -186,6 +192,7 @@ class UiPreferences {
       autocapAsYouType: autocapAsYouType ?? this.autocapAsYouType,
       titleCaseMethod: titleCaseMethod ?? this.titleCaseMethod,
       titleCaseExceptions: titleCaseExceptions ?? this.titleCaseExceptions,
+      formats: formats ?? this.formats,
       showEbayLinks: showEbayLinks ?? this.showEbayLinks,
       ebayWishlistOnly: ebayWishlistOnly ?? this.ebayWishlistOnly,
       ebayToolbar: ebayToolbar ?? this.ebayToolbar,
@@ -247,6 +254,11 @@ class UiPreferencesStore {
   static const autocapAsYouTypeKey = '$_prefix.autocap_as_you_type';
   static const titleCaseMethodKey = '$_prefix.title_case_method';
   static const titleCaseExceptionsKey = '$_prefix.title_case_exceptions';
+  static const dateDisplayFormatKey = '$_prefix.date_display_format';
+  static const dateEntryOrderKey = '$_prefix.date_entry_order';
+  static const numberFormatKey = '$_prefix.number_format';
+  static const defaultCurrencyKey = '$_prefix.default_currency';
+  static const currencyDisplayKey = '$_prefix.currency_display';
 
   static const showEbayLinksKey = '$_prefix.show_ebay_links';
 
@@ -302,6 +314,19 @@ class UiPreferencesStore {
           TitleCaseMethod.eachWordWithExceptions,
       titleCaseExceptions: prefs.getStringList(titleCaseExceptionsKey) ??
           defaultTitleCaseExceptions,
+      formats: AppFormats(
+        date: _named(
+            DateDisplayFormat.values,
+            prefs.getString(dateDisplayFormatKey),
+            DateDisplayFormat.monthDayYear),
+        dateEntry: _named(DateEntryOrder.values,
+            prefs.getString(dateEntryOrderKey), DateEntryOrder.yearMonthDay),
+        number: _named(NumberFormatStyle.values,
+            prefs.getString(numberFormatKey), NumberFormatStyle.plain),
+        currency: prefs.getString(defaultCurrencyKey) ?? 'USD',
+        currencyDisplay: _named(CurrencyDisplay.values,
+            prefs.getString(currencyDisplayKey), CurrencyDisplay.code),
+      ),
       showEbayLinks: prefs.getBool(showEbayLinksKey) ?? true,
       ebayWishlistOnly: prefs.getBool(ebayWishlistOnlyKey) ?? false,
       ebayToolbar: prefs.getBool(ebayToolbarKey) ?? true,
@@ -353,6 +378,12 @@ class UiPreferencesStore {
     await prefs.setString(titleCaseMethodKey, preferences.titleCaseMethod.name);
     await prefs.setStringList(
         titleCaseExceptionsKey, preferences.titleCaseExceptions);
+    final formats = preferences.formats;
+    await prefs.setString(dateDisplayFormatKey, formats.date.name);
+    await prefs.setString(dateEntryOrderKey, formats.dateEntry.name);
+    await prefs.setString(numberFormatKey, formats.number.name);
+    await prefs.setString(defaultCurrencyKey, formats.currency);
+    await prefs.setString(currencyDisplayKey, formats.currencyDisplay.name);
     await prefs.setBool(showEbayLinksKey, preferences.showEbayLinks);
     await prefs.setBool(ebayWishlistOnlyKey, preferences.ebayWishlistOnly);
     await prefs.setBool(ebayToolbarKey, preferences.ebayToolbar);
@@ -466,6 +497,9 @@ class UiPreferencesController extends Notifier<UiPreferences> {
   Future<void> setTitleCaseExceptions(List<String> value) =>
       _update((s) => s.copyWith(titleCaseExceptions: value));
 
+  Future<void> setFormats(AppFormats value) =>
+      _update((s) => s.copyWith(formats: value));
+
   Future<void> setShowEbayLinks(bool value) =>
       _update((s) => s.copyWith(showEbayLinks: value));
 
@@ -490,3 +524,6 @@ class UiPreferencesController extends Notifier<UiPreferences> {
   Future<void> resetDefaults() =>
       _update((_) => const UiPreferences(isLoaded: true));
 }
+
+T _named<T extends Enum>(List<T> values, String? name, T fallback) =>
+    values.where((value) => value.name == name).firstOrNull ?? fallback;

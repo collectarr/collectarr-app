@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -231,11 +232,15 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
   }
 
   @override
-  Widget build(BuildContext context) => Row(children: [
-        for (var i = 0; i < 3; i++) ...[
-          if (i > 0)
+  Widget build(BuildContext context) {
+    // Parts are stored year, month, day; Settings chooses the entry order.
+    final order = dateEntryPartOrder(AppFormats.current.dateEntry);
+    return Row(children: [
+      for (var position = 0; position < 3; position++)
+        for (final i in [order[position]]) ...[
+          if (position > 0)
             Container(
-              key: ValueKey('partial-date-separator-$i'),
+              key: ValueKey('partial-date-separator-$position'),
               width: 8,
               height: 1,
               color: appPalette(context).divider,
@@ -244,7 +249,7 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
               flex: i == 0 ? 3 : 2,
               child: LibraryTextFormControl(
                 controller: _controllers[i],
-                focusNode: i == 0 ? widget.focusNode : null,
+                focusNode: position == 0 ? widget.focusNode : null,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 inputFormatters: [
@@ -270,8 +275,16 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
                 onChanged: (_) => widget.onChanged(_read()),
               )),
         ],
-      ]);
+    ]);
+  }
 }
+
+/// Indexes of year (0), month (1) and day (2) in the on-screen order.
+List<int> dateEntryPartOrder(DateEntryOrder order) => switch (order) {
+      DateEntryOrder.yearMonthDay => const [0, 1, 2],
+      DateEntryOrder.dayMonthYear => const [2, 1, 0],
+      DateEntryOrder.monthDayYear => const [1, 2, 0],
+    };
 
 /// CLZ-style mutually exclusive choices; shared by enum and boolean fields.
 class LibrarySegmentedField<T> extends StatelessWidget {

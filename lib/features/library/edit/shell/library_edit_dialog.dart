@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
@@ -767,14 +768,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                     label: 'Currency',
                     value:
                         _draft.personal.wishlistCurrencyController.text.isEmpty
-                            ? 'USD'
+                            ? AppFormats.current.currency
                             : _draft.personal.wishlistCurrencyController.text,
-                    options: const [
-                      LibraryFieldOption(value: 'USD', label: 'USD'),
-                      LibraryFieldOption(value: 'EUR', label: 'EUR'),
-                      LibraryFieldOption(value: 'GBP', label: 'GBP'),
-                      LibraryFieldOption(value: 'RON', label: 'RON'),
-                      LibraryFieldOption(value: 'JPY', label: 'JPY'),
+                    options: [
+                      for (final code in kCurrencyCodes)
+                        LibraryFieldOption(value: code, label: code),
                     ],
                     openPicker: (
                             {required label,
@@ -789,7 +787,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                     onChanged: (val) {
                       setState(() {
                         _draft.personal.wishlistCurrencyController.text =
-                            val ?? 'USD';
+                            val ?? AppFormats.current.currency;
                       });
                     },
                   ),

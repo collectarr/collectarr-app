@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
@@ -134,17 +135,9 @@ String? buildLibraryEntryContextLabel(
   return parts.where((value) => value.isNotEmpty).join('  ·  ');
 }
 
-String formatMoney(int? cents, String? currency) {
-  if (cents == null) {
-    return '';
-  }
-  final sign = cents < 0 ? '-' : '';
-  final absolute = cents.abs();
-  final whole = absolute ~/ 100;
-  final fraction = (absolute % 100).toString().padLeft(2, '0');
-  final prefix = currency == null || currency.isEmpty ? '' : '$currency ';
-  return '$prefix$sign$whole.$fraction';
-}
+/// A price in the currency display and number format from Settings.
+String formatMoney(int? cents, String? currency) =>
+    AppFormats.current.formatMoney(cents, currency);
 
 List<String> libraryCreatorNameList(List<Map<String, dynamic>>? creators) {
   if (creators == null || creators.isEmpty) {
@@ -194,10 +187,8 @@ List<(String, String)> libraryCreatorsGroupedByRole(
   return rows;
 }
 
-String formatDate(DateTime value) {
-  final local = value.toLocal();
-  return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
-}
+/// A date in the display format from Settings.
+String formatDate(DateTime value) => AppFormats.current.formatDate(value);
 
 String? formatNullableDate(DateTime? value) {
   return value == null ? null : formatDate(value);

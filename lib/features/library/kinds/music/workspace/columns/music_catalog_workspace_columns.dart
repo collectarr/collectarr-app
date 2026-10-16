@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/utils/sort_title.dart';
 import 'package:flutter/material.dart';
 import '../presentation/music_sort_value_cell.dart';
@@ -20,7 +21,8 @@ final musicCatalogWorkspaceColumns =
             field.metadata.valueType.name == 'partialDate',
         cellValue: (c) => Text(
             field == MusicAdditionalWorkspaceFields.originalReleaseDate
-                ? formatMusicPartialDate(c.dto.music.originalReleaseDateParts)
+                ? AppFormats.current
+                    .formatPartialDate(c.dto.music.originalReleaseDateParts)
                 : formatMusicCell(field.getValue(c))),
         defaultWidth: 118),
   for (final field in [

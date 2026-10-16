@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'columns/music_catalog_workspace_columns.dart';
 import 'music_additional_workspace_fields.dart';
 import 'music_workspace_groups.dart';
@@ -67,7 +68,7 @@ final musicLibraryEntryWorkspaceSchema =
     columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
       MusicPersonalWorkspaceFields.lastListened,
       cellValue: (context) => Text(
-        formatMusicDate(
+        _formatDate(
           MusicPersonalWorkspaceFields.lastListened.getValue(context),
         ),
       ),
@@ -189,3 +190,6 @@ final musicLibraryEntryWorkspaceSchema =
     MusicCatalogWorkspaceFields.artist.id.value,
   ),
 );
+
+String _formatDate(DateTime? value) =>
+    value == null ? '' : AppFormats.current.formatDate(value);

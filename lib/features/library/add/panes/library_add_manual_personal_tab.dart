@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -94,7 +95,7 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
           key: ValueKey('manual-${field.key}'),
           label: field.label,
           amountMinorUnits: current.pricePaidCents,
-          currency: current.currency ?? 'USD',
+          currency: current.currency ?? AppFormats.current.currency,
           controller: request.priceController,
           onChanged: (amount) => _updateCommon(pricePaidCents: amount),
         );
@@ -106,9 +107,10 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
         _expectFieldKey(field, 'currency');
         return LibraryDropdownPickField<String>(
           label: field.label,
-          value: (current.currency ?? 'USD').toUpperCase(),
+          value:
+              (current.currency ?? AppFormats.current.currency).toUpperCase(),
           options: [
-            for (final code in kLibraryCurrencyCodes)
+            for (final code in kCurrencyCodes)
               LibraryFieldOption(value: code, label: code),
           ],
           onChanged: (value) => _updateCommon(currency: value),

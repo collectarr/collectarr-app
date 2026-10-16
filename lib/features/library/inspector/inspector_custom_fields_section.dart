@@ -1,5 +1,5 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -84,7 +84,7 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
                         CustomFieldMultiValueDisplay.list
                 ? parseCustomFieldMultiValues(value).join('\n')
                 : def.valueType == CustomFieldValueType.currency
-                    ? '${libraryCurrencySymbol(data.display[def.id]?.currencyCode ?? 'USD')} $value'
+                    ? '${currencySymbol(data.display[def.id]?.currencyCode ?? AppFormats.current.currency)} $value'
                     : displayCustomFieldValue(def, value),
           ),
         );

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:flutter/material.dart';
 
@@ -41,7 +42,7 @@ final class LibraryMoneyAmountField extends StatelessWidget {
 
   String get _currencyCode {
     final value = currency.trim().toUpperCase();
-    return value.isEmpty ? 'USD' : value;
+    return value.isEmpty ? AppFormats.current.currency : value;
   }
 
   String get _formattedAmount => amountMinorUnits == null

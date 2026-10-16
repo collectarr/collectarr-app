@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/features/settings/title_case_exceptions_dialog.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
@@ -721,6 +722,57 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       preferences.showInspectorBackCover,
                       controller.setShowInspectorBackCover),
                 ])),
+            _SettingsPanel(
+                icon: Icons.language,
+                title: 'Localization',
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                          "Language: English. Dates use this device's time zone."),
+                      const SizedBox(height: 12),
+                      _formatDropdown<String>(
+                        label: 'Currency',
+                        value: preferences.formats.currency,
+                        values: kCurrencyCodes,
+                        labelOf: (code) => code,
+                        onChanged: (code) => controller.setFormats(
+                            preferences.formats.copyWith(currency: code)),
+                      ),
+                      _formatDropdown<CurrencyDisplay>(
+                        label: 'Currency display',
+                        value: preferences.formats.currencyDisplay,
+                        values: CurrencyDisplay.values,
+                        labelOf: (value) => value.example,
+                        onChanged: (value) => controller.setFormats(preferences
+                            .formats
+                            .copyWith(currencyDisplay: value)),
+                      ),
+                      _formatDropdown<NumberFormatStyle>(
+                        label: 'Number format',
+                        value: preferences.formats.number,
+                        values: NumberFormatStyle.values,
+                        labelOf: (value) => value.example,
+                        onChanged: (value) => controller.setFormats(
+                            preferences.formats.copyWith(number: value)),
+                      ),
+                      _formatDropdown<DateDisplayFormat>(
+                        label: 'Date format (for displaying)',
+                        value: preferences.formats.date,
+                        values: DateDisplayFormat.values,
+                        labelOf: (value) => value.example,
+                        onChanged: (value) => controller.setFormats(
+                            preferences.formats.copyWith(date: value)),
+                      ),
+                      _formatDropdown<DateEntryOrder>(
+                        label: 'Date format (when editing)',
+                        value: preferences.formats.dateEntry,
+                        values: DateEntryOrder.values,
+                        labelOf: (value) => value.label,
+                        onChanged: (value) => controller.setFormats(
+                            preferences.formats.copyWith(dateEntry: value)),
+                      ),
+                    ])),
             _SettingsPanel(
                 icon: Icons.menu,
                 title: 'List view',
@@ -1602,6 +1654,30 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return 'Session expires ${_formatSyncTime(expiresAt)}';
   }
 }
+
+/// A labelled dropdown for one Settings > Localization format.
+Widget _formatDropdown<T>({
+  required String label,
+  required T value,
+  required List<T> values,
+  required String Function(T value) labelOf,
+  required ValueChanged<T> onChanged,
+}) =>
+    Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: DropdownButtonFormField<T>(
+        isExpanded: true,
+        initialValue: value,
+        decoration: InputDecoration(labelText: label),
+        items: [
+          for (final option in values)
+            DropdownMenuItem(value: option, child: Text(labelOf(option))),
+        ],
+        onChanged: (selected) {
+          if (selected != null) onChanged(selected);
+        },
+      ),
+    );
 
 /// A blue group label inside a settings panel, as in the reference.
 class _SettingsSubheading extends StatelessWidget {

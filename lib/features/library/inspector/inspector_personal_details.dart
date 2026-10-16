@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
@@ -304,7 +305,7 @@ class _InspectorPersonalDetailsEditorState
     _priceController.text = item.pricePaidCents == null
         ? ''
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
-    _currencyController.text = item.currency ?? 'USD';
+    _currencyController.text = item.currency ?? AppFormats.current.currency;
     _notesController.text = item.notes ?? '';
     _purchaseStoreController.text = item.purchaseStore ?? '';
     _selectedLocationId = item.locationId;

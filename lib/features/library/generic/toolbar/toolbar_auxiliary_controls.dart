@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'library_alphabet_options.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
@@ -1208,7 +1209,7 @@ class LibraryCollectionValueChip extends StatelessWidget {
   final String? currency;
 
   String _fmt(int cents) {
-    final cur = currency ?? 'USD';
+    final cur = currency ?? AppFormats.current.currency;
     return '${(cents / 100).toStringAsFixed(2)} $cur';
   }
 

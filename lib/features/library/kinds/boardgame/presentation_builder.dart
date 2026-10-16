@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -216,8 +216,7 @@ class BoardGameLibraryMediaPresentationBuilder
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
-              formatPresentationNullableDate(releaseDate) ??
-                  releaseDate?.year.toString(),
+              formatNullableDate(releaseDate) ?? releaseDate?.year.toString(),
             )),
         if (metadata?.minPlayers != null || metadata?.maxPlayers != null)
           LibraryDetailField(

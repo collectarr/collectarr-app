@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_listening_edit_draft.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -81,7 +82,8 @@ class _MusicAddPersonalPaneState extends State<MusicAddPersonalPane> {
           'market_value_cents': LibraryMoneyAmountField(
               label: 'Current Value',
               amountMinorUnits: draft.marketValueCents,
-              currency: request.commonDraft?.currency ?? 'USD',
+              currency:
+                  request.commonDraft?.currency ?? AppFormats.current.currency,
               onChanged: (value) =>
                   update(draft.copyWith(marketValueCents: value))),
           'last_cleaned_date': LibraryFormField(
