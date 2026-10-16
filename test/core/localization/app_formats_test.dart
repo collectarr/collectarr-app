@@ -17,8 +17,8 @@ void main() {
     expect(formats.formatPartialDate(const PartialDate(year: 2014, month: 3)),
         '03/2014');
     expect(
-        formats.formatPartialDate(
-            const PartialDate(year: 2014, month: 3, day: 5)),
+        formats
+            .formatPartialDate(const PartialDate(year: 2014, month: 3, day: 5)),
         '05/03/2014');
     expect(formats.formatPartialDate(null), '');
   });

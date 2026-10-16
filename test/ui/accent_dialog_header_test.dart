@@ -7,7 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('AccentDialogHeader', () {
-    testWidgets('renders white title, flat accent chrome, and white close button',
+    testWidgets(
+        'renders white title, flat accent chrome, and white close button',
         (tester) async {
       var closed = false;
 

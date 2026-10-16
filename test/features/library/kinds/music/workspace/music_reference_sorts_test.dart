@@ -2,7 +2,8 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('music offers the reference Images, Format, Genre and Core ID sorts', () {
+  test('music offers the reference Images, Format, Genre and Core ID sorts',
+      () {
     final fields = musicKindWorkspace.fields;
     final available = musicKindWorkspace.availableSortColumnIdsForAllTargets;
 
