@@ -107,9 +107,11 @@ ThemeData editDialogTheme({
       filled: true,
       fillColor: palette.isDark ? const Color(0xFF444444) : palette.surface,
       isDense: true,
+      // Outline and fill follow the content height, so the padding makes
+      // the 34 px reference field; the constraint alone does not.
       contentPadding: EdgeInsets.symmetric(
         horizontal: 7,
-        vertical: 6,
+        vertical: 7,
       ),
       constraints: const BoxConstraints(
         minHeight: LibraryMetrics.defaultFieldHeight,
@@ -391,20 +393,22 @@ class EditTab extends StatelessWidget {
               final iconTheme = IconTheme.of(context);
               return SvgPicture.asset(
                 svgAsset!,
-                width: iconTheme.size ?? 16,
-                height: iconTheme.size ?? 16,
+                width: iconTheme.size ?? 14,
+                height: iconTheme.size ?? 14,
                 colorFilter: iconTheme.color != null
                     ? ColorFilter.mode(iconTheme.color!, BlendMode.srcIn)
                     : null,
               );
             },
           )
-        : Icon(icon, size: 16);
+        : Icon(icon, size: 14);
 
+    // A fixed-width icon box, as in the reference tabs: wide glyphs such as
+    // the people icon no longer run into their label.
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        iconWidget,
+        SizedBox(width: 18, child: Center(child: iconWidget)),
         const SizedBox(width: 3),
         Text(label),
       ],

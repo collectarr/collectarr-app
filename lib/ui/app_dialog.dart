@@ -8,6 +8,9 @@ const ShapeBorder appDialogShape = RoundedRectangleBorder(
 );
 
 const double kAppDialogTopInset = 30;
+
+/// Item editors sit higher than other modals, as in the reference.
+const double kAppEditorTopInset = 10;
 const Alignment kDefaultDialogAlignment = Alignment.topCenter;
 const EdgeInsets kAppDialogInsets =
     EdgeInsets.fromLTRB(24, kAppDialogTopInset, 24, 24);

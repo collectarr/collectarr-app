@@ -126,7 +126,9 @@ class LibraryTextFormControl extends StatelessWidget {
         constraints: BoxConstraints(minHeight: minimumHeight),
         contentPadding: (maxLines == 1 &&
                 minimumHeight == LibraryMetrics.defaultFieldHeight)
-            ? const EdgeInsets.symmetric(horizontal: 7, vertical: 6)
+            // The outline and fill follow the content, not the minimum
+            // height, so the padding itself makes the 34 px field.
+            ? const EdgeInsets.symmetric(horizontal: 7, vertical: 7)
             : decoration?.contentPadding,
       ),
     );

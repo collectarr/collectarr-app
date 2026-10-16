@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'dart:io';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
@@ -183,7 +184,7 @@ void main() {
 
     final dialogSurface = find.byKey(const ValueKey('library-dialog-surface'));
     expect(tester.getSize(dialogSurface).width, closeTo(1152, 1));
-    expect(tester.getTopLeft(dialogSurface).dy, closeTo(30, 1));
+    expect(tester.getTopLeft(dialogSurface).dy, closeTo(kAppEditorTopInset, 1));
 
     expect(find.text('Credits'), findsOneWidget);
     expect(find.text('Classical'), findsNothing);

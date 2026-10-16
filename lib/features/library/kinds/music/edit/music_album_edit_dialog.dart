@@ -121,7 +121,7 @@ final class _MusicAlbumEditDialogState
       maxDialogWidth: 1200,
       insetPadding: EdgeInsets.fromLTRB(
         MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
-        kAppDialogTopInset,
+        kAppEditorTopInset,
         MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
         24,
       ),

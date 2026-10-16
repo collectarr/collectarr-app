@@ -263,7 +263,12 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           hintText: widget.hint,
           helperText: widget.helperText,
           errorText: widget.errorText,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 7),
+          // The outline follows the content, so the padding around the
+          // 20 px text line makes the full field height.
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 7,
+            vertical: (fieldHeight - 20) / 2,
+          ),
           constraints: BoxConstraints(
             minHeight: fieldHeight,
           ),
