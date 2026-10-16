@@ -48,10 +48,13 @@ Keep these when matching the reference visually.
 | Schema changes | Opaque | Versioned contracts and explicit, ordered migrations |
 | Fonts | Proprietary Gilroy | Bundled OFL Plus Jakarta Sans; a user-supplied local font can be loaded |
 | Sort titles | Filled in by CLZ Core | Core derives them for new Music items and corrected titles; the app applies the same rule to local Add, Edit and imports |
-| Shell top bar | Flat accent | Accent gradient, kept at the owner's request |
 | Header account | Always signed in to CLZ | Shows "account's music" only while signed in to the optional Sync account |
 | Links | The eBay link beside the cover is white | Every link uses the shared link blue |
 | List header | No sort indicator | Shared-blue caret and priority number on sorted columns |
+| Chrome icons | Dialog and editor titles only | Kind icons in the top bar and dialog headers, kept at the owner's request |
+| Narrow windows | Folder panel and details keep their widths; the list collapses to nothing and details run off-screen | Folder panel keeps its width, details shrink to their minimum, the list keeps at least 320 px |
+| Settings | One page | The reference page is Appearance > Customization; Connection, Libraries, Proposals, Data, Account, Logs, Covers & layout and Typography are added tabs |
+| Played History | Mark as listened records today | A date beside the button records listens on other days |
 
 ## Fixed in the 2026-10-15/16 passes
 
@@ -95,6 +98,17 @@ Keep these when matching the reference visually.
 | Editor | Cancel on an untouched album with no stored sort title asked to discard changes, because the draft derives the sort title | Changes are compared with the draft's own first output; regression test added |
 | Column chooser | Cover listed under Main; thin 14 px preset name field | Images group with Back Cover and Front Cover; 34 px 18/700 preset name |
 | Sort fields | No Images group, Format or Genre sort | Has Back/Has Front under Images, Format and Genre under Main |
+| Chrome | Diagonal dark gradient over the accent in the top bar, dialog and editor headers | Flat kind accent; kind icons kept |
+| Alphabet bar | Blue "All" pill; 12 px letters in 28 px slots; "0-9" wrapped at 1280 px | "All" plain; only a chosen letter gets the 30 px blue pill (5 px radius); 14 px letters, labels never wrap |
+| Cover columns | 42 px unlabelled thumbnails | Labelled 90 px Back/Front Cover columns with a 79 px image; rows grow to 83 px |
+| Details Personal | Separate purchase rows; Quantity and Collection status repeated from the header | One "Purchased" row ("On <date> at <store> for <price>") |
+| Details track list | No "Report data error" link | Grey "Report data error >" under the tracks opens the editor (Propose to Core) for Core albums |
+| Editor rating | Small stars in a bordered box with a 0/10 counter | Ten 28 px stars, #BBBBBB/#F4B30A, hover preview, no counter |
+| Played History | Framed group, "Total Plays", headphones icon | Plain label "(total plays: N)" over a 32 px blue button |
+| Statistics | 890 px page, bold summary, small legend squares with counts, 80 px recent rows without track data | 958 px page, bold figures in regular sentences with signed and price/value lines, 40 × 12 legend swatches, 100 px recent rows with tracks and length |
+| Settings | Tabbed sub-pages, floating-label near-black selects, Material checkbox tiles | Reference two-column page with blue legends, 34 px #444 selects, compact checkboxes and radios; opens first |
+| Resize | Narrow windows shrank the folder panel first, and that clamped width was saved | Folder panel keeps its width; the stored width survives a narrow window |
+| Motion | 17 menus animated; 54 % backdrop; list rows faded on hover; drawer ignored overlay clicks | Menus open instantly; 50 % backdrop; instant row hover; overlay click closes the drawer (200 ms linear dialogs and drawer, as in CLZ) |
 
 ## Open differences
 
@@ -105,23 +119,18 @@ items come from earlier audits and must be re-checked before closing.
 
 | Priority | Surface | CLZ | Collectarr |
 | --- | --- | --- | --- |
-| P2 | Alphabet bar | “All” is plain bold text | Blue “All” pill; the Artist/Composer/Title field chooser matches |
-| P2 | Editor header | Flat accent 38 px bar, title only | Accent gradient with the kind icon |
-| P2 | Cover columns | 90 px Back/Front Cover columns with 80 px images and header labels | 42 px thumbnails without header labels |
 | P2 | Search | Search field only | Extra barcode, cover-search and random-pick buttons |
 
 ### Functionality
 
 | Priority | Area | CLZ | Collectarr |
 | --- | --- | --- | --- |
-| P2 | Localization | Application language, time zone, time display format | English only; device time zone; durations as minutes:seconds |
-| P2 | Editor rating | Ten large stars | Small stars with a 0/10 counter |
+| P2 | Localization | Application language, time zone, time display format | English only; device time zone (shown read-only); no time display format |
+| P2 | Settings Behaviour | "Adding from Core" opens Add/Update from Core settings | Not on the Settings page; prefill settings open from Add |
 | P2 | Sort fields | Back/Front Cover and Core AlbumID sorts | Not offered; adds Status, Tracks, Purchase date and Personal/Recording/Activity/Loan/Value groups |
-| P2 | Details Personal | One "Purchased" row ("On Oct 04, 2026"); no Quantity or Collection status rows | Separate purchase date/store rows; shows Quantity and Collection status |
 | P2 | Imports | Also Music Label, CATraxx, OrangeCD, CDpedia | Not offered until authentic export fixtures are verified (see [import/export](import-export.md)) |
 | P2 | Loans | Borrower profiles with email, address and sort name *(carried over)* | Borrower names, filters and history only |
-| P2 | Report data error | Link under the track list | Corrections are proposed to Core from the editor |
-| P2 | Statistics | Signed-album count, price/value line, track count and length per recent addition | Price/value line shown only with values; no per-addition track count/length |
+| P2 | Statistics | Price/value line always shown | Shown only when prices or values exist |
 
 ### Typography and visuals *(carried over)*
 
@@ -130,9 +139,6 @@ not Gilroy. Compare with a user-supplied local font before changing weights.
 
 - Calendar: CLZ uses a compact anchored month (14/700 header, blue weekdays,
   14/400 days); ours keeps a separate modal with a large date header.
-- Settings: CLZ is one centered two-column page with 34 px #444 selects and
-  compact checkboxes; ours adds category and Appearance tab bars, near-black
-  floating-label selects and wider checkbox spacing.
 - Icon systems are still mixed in Settings sub-tabs and picker actions.
 - My Images intake: CLZ 164 × 300 tile, 18/700 #666 instruction on the body
   color; ours is lighter with 14 px text.
@@ -148,7 +154,7 @@ and Pick Lists were opened and match in structure; Pick Lists opens the Artist
 list directly instead of an empty selector. Opening a menu
 does not establish its save behavior.
 
-The toolbar pills, default status filter and detail panel were re-checked side
-by side on 2026-10-16. The Settings panels, Loan Manager, editor Personal tab,
-drawer and header label are covered by tests but have not been re-checked in
-the browser yet.
+The toolbar pills, default status filter, detail panel, editor Personal tab,
+Settings, Statistics, drawer and window resizing (1844, 1280, 1024 and 800 px)
+were re-checked side by side on 2026-10-16. The Loan Manager and header label
+are covered by tests but have not been re-checked in the browser yet.

@@ -23,6 +23,10 @@
 - Cancelling an untouched album editor no longer asks to discard changes.
 - Wrapped Artist and Title cells in the list grow their rows instead of being cut off.
 - The details track list, field tables, header and section columns, the album editor's fields and the Add button follow the reference sizes and colours.
+- App chrome uses the flat kind accent instead of a gradient; kind icons stay.
+- Settings > Appearance is laid out like the reference page, and Settings opens on it.
+- Statistics, the alphabet bar, cover columns, the editor rating and Played History, and the details Personal section follow the reference; a "Report data error" link opens the editor for Core albums.
+- The folder panel keeps its width when the window narrows, menus open instantly, and a click beside the navigation drawer closes it.
 
 ### 📚 Docs
 - Replaced dated audit, plan and QA reports with one living [CLZ parity report](docs/clz-parity.md) and a concise architecture status.
