@@ -7,6 +7,7 @@ abstract final class MusicFieldIds {
   static const cover = LibraryFieldId<MusicKind, String?>('music.cover');
   static const backCover =
       LibraryFieldId<MusicKind, String?>('music.back_cover');
+  static const coreId = LibraryFieldId<MusicKind, String?>('music.core_id');
   static const artist = LibraryFieldId<MusicKind, Iterable<String>>(
       MusicFieldIdentities.artistId);
   static const artistSummary = LibraryFieldId<MusicKind, String?>(

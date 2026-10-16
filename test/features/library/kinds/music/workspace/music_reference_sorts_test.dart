@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('music offers the reference Images, Format and Genre sorts', () {
+  test('music offers the reference Images, Format, Genre and Core ID sorts', () {
     final fields = musicKindWorkspace.fields;
     final available = musicKindWorkspace.availableSortColumnIdsForAllTargets;
 
@@ -11,6 +11,7 @@ void main() {
       ('music.has_front', 'Has Front', 'Images'),
       ('music.format_summary', 'Format', 'Main'),
       ('music.genre', 'Genre', 'Main'),
+      ('music.core_id', 'Core ID', 'Main'),
     ]) {
       expect(available, contains(id));
       final sort = fields.sortDefinitionForId(fields.decodeSortId(id))!;

@@ -53,6 +53,10 @@ final musicCatalogWorkspaceColumns =
   musicCoverColumn(field: MusicWorkspaceFields.cover),
   musicCoverColumn(field: MusicWorkspaceFields.backCover),
   columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+    MusicWorkspaceFields.coreId,
+    defaultWidth: 110,
+  ),
+  columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
     MusicCatalogWorkspaceFields.artistSummary,
     defaultWidth: 160,
     cellValue: (c) => MusicSortValueCell(

@@ -26,6 +26,7 @@ final musicLibraryEntryWorkspaceSchema =
     MusicWorkspaceFields.status,
     MusicWorkspaceFields.cover,
     MusicWorkspaceFields.backCover,
+    MusicWorkspaceFields.coreId,
   ],
   columns: [
     ...musicCatalogWorkspaceColumns,
@@ -122,6 +123,9 @@ final musicLibraryEntryWorkspaceSchema =
     ...musicImageSorts(),
     musicFormatSort(),
     musicGenreSort(),
+    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+      MusicWorkspaceFields.coreId,
+    ),
     if (MusicFieldIdentities.publisher.sortable)
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
         MusicCatalogWorkspaceFields.publisher,

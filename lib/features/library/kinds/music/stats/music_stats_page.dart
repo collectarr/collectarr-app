@@ -84,10 +84,13 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
         valueTotals[currency] = (valueTotals[currency] ?? 0) + value * quantity;
       }
     }
-    String money(Map<String, int> totals) => (totals.keys.toList()..sort())
-        .map((currency) => AppFormats.current.formatMoney(totals[currency],
-            currency == 'Unspecified currency' ? null : currency))
-        .join(' + ');
+    // Always shown, as in the reference: no prices read as zero.
+    String money(Map<String, int> totals) => totals.isEmpty
+        ? AppFormats.current.formatMoney(0, AppFormats.current.currency)
+        : (totals.keys.toList()..sort())
+            .map((currency) => AppFormats.current.formatMoney(totals[currency],
+                currency == 'Unspecified currency' ? null : currency))
+            .join(' + ');
     final signed = MusicStatsCapability.totalSignedCopies(entries);
     final sections = <Widget>[
       _StatsSection(
@@ -214,26 +217,13 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
                                 ),
                               ]),
                             ],
-                            if (purchaseTotals.isNotEmpty ||
-                                valueTotals.isNotEmpty) ...[
-                              const SizedBox(height: 14),
-                              _SummaryLine(fontSize: 18, parts: [
-                                ('purchase price: ', false),
-                                (
-                                  purchaseTotals.isEmpty
-                                      ? '?'
-                                      : money(purchaseTotals),
-                                  true
-                                ),
-                                (' / current value: ', false),
-                                (
-                                  valueTotals.isEmpty
-                                      ? '?'
-                                      : money(valueTotals),
-                                  true
-                                ),
-                              ]),
-                            ],
+                            const SizedBox(height: 14),
+                            _SummaryLine(fontSize: 18, parts: [
+                              ('purchase price: ', false),
+                              (money(purchaseTotals), true),
+                              (' / current value: ', false),
+                              (money(valueTotals), true),
+                            ]),
                           ])),
                       const SizedBox(height: 20),
                       LayoutBuilder(
