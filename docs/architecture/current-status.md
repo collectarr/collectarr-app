@@ -87,8 +87,10 @@ Gilroy is never bundled.
 
 - Standalone activity controls (outside the editor) are separate commands
   without a shared busy/error/repeat-submit pass.
-- Field parity with CLZ is verified for Music only. The other kinds' field
-  ledgers in `catalog-item-field-ledgers/` are provisional.
+- Field parity with CLZ is verified for Music only. The CLZ Games Edit form
+  is captured in the [Game ledger](catalog-item-field-ledgers/game.md) with its
+  gaps; the other kinds' ledgers in `catalog-item-field-ledgers/` are
+  provisional.
 - Native pointer-driven comparison with the reference is done on Web; Windows
   rendering is checked separately.
 - With `--kinds=all`, two unreleased-kind tests fail: the Manga preferences

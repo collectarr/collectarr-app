@@ -44,6 +44,7 @@
 - Replaced dated audit, plan and QA reports with one living [CLZ parity report](docs/clz-parity.md) and a concise architecture status.
 - Removed scripts that reset or seeded the real database, and the obsolete Collectarr Sans font tooling.
 - The CLZ parity report records the search, Add dialog and Export to XML comparison.
+- The Game field ledger maps every CLZ Games editor field (Games, Hardware and Toys) and lists the gaps to close before Game is released.
 
 
 ## What's Changed
