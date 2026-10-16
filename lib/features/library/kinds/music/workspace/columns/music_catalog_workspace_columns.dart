@@ -51,6 +51,7 @@ final musicCatalogWorkspaceColumns =
         defaultWidth: 150),
   musicStatusColumn(field: MusicWorkspaceFields.status),
   musicCoverColumn(field: MusicWorkspaceFields.cover),
+  musicCoverColumn(field: MusicWorkspaceFields.backCover),
   columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
     MusicCatalogWorkspaceFields.artistSummary,
     defaultWidth: 160,

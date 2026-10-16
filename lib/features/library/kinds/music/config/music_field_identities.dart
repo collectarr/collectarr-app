@@ -80,6 +80,7 @@ abstract final class MusicFieldIdentities {
     sourcePath: 'genres',
     searchable: true,
     filterable: true,
+    sortable: true,
     groupable: true,
     exportable: true,
     editable: true,
@@ -96,6 +97,7 @@ abstract final class MusicFieldIdentities {
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.derived,
     sourcePath: 'format_summary',
+    sortable: true,
     exportable: true,
   );
 

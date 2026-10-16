@@ -28,7 +28,8 @@ void main() {
         find.byType(LibraryColumnChooserDialog));
     expect(dialog.primaryColumn, isNull);
     expect(dialog.availableColumns, contains('music.added_at'));
-    expect(dialog.columnLabel('music.cover'), 'Cover');
+    expect(dialog.columnLabel('music.cover'), 'Front Cover');
+    expect(dialog.columnLabel('music.back_cover'), 'Back Cover');
     expect(dialog.presets.map((preset) => preset.label),
         containsAll(['Essential', 'Reference']));
     expect(

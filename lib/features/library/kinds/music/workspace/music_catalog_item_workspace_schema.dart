@@ -18,6 +18,7 @@ final musicCatalogItemWorkspaceSchema =
     ...MusicCatalogWorkspaceFields.all,
     MusicWorkspaceFields.status,
     MusicWorkspaceFields.cover,
+    MusicWorkspaceFields.backCover,
   ],
   columns: musicCatalogWorkspaceColumns,
   sorts: [
@@ -31,6 +32,9 @@ final musicCatalogItemWorkspaceSchema =
       ),
     musicEarliestDiscRecordingDateSort(),
     musicLatestDiscRecordingDateSort(),
+    ...musicImageSorts(),
+    musicFormatSort(),
+    musicGenreSort(),
     sortFromField<MusicKind, MusicWorkspaceProjection, num>(
       MusicCatalogWorkspaceFields.trackCount,
       defaultAscending: false,

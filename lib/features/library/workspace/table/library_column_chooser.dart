@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/generic/library_folder_reorder_l
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class LibraryColumnChooserDialog extends StatefulWidget {
   const LibraryColumnChooserDialog({
@@ -142,16 +143,27 @@ class _LibraryColumnChooserDialogState
           SizedBox(
               height: 34,
               child: Builder(
+                  // The preset name fills the 34 px field at 18/700, as in
+                  // the reference.
                   builder: (context) => TextField(
                       controller: _presetNameController,
-                      style: librarySelectionFieldStyle,
+                      style: librarySelectionFieldStyle.copyWith(fontSize: 18),
                       cursorColor: appPalette(context).utilityAction,
                       onChanged: (_) => _nameEdited = true,
+                      // Expanding fills the 34 px box; the name stays one
+                      // line.
+                      expands: true,
+                      maxLines: null,
+                      textAlignVertical: TextAlignVertical.center,
+                      textInputAction: TextInputAction.done,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp(r'[\r\n]')),
+                      ],
                       decoration: pickListInputDecoration(context,
                               hintText: 'My List View columns')
                           .copyWith(
                               contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 6))))),
+                                  horizontal: 7, vertical: 0))))),
           const SizedBox(height: 15),
           const Text('Columns', style: TextStyle(height: 20 / 14)),
           const SizedBox(height: 5),

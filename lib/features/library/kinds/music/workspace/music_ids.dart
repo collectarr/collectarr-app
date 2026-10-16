@@ -5,6 +5,8 @@ import 'package:collectarr_app/features/library/kinds/music/config/music_field_i
 abstract final class MusicFieldIds {
   static const status = LibraryFieldId<MusicKind, String?>('music.status');
   static const cover = LibraryFieldId<MusicKind, String?>('music.cover');
+  static const backCover =
+      LibraryFieldId<MusicKind, String?>('music.back_cover');
   static const artist = LibraryFieldId<MusicKind, Iterable<String>>(
       MusicFieldIdentities.artistId);
   static const artistSummary = LibraryFieldId<MusicKind, String?>(

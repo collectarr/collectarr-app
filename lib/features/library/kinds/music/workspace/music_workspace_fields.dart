@@ -19,4 +19,11 @@ abstract final class MusicWorkspaceFields {
     metadata: MusicWorkspaceFieldMetadata.cover,
     getValue: (context) => context.dto.imageUrl,
   );
+
+  static final backCover =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
+    id: MusicFieldIds.backCover,
+    metadata: MusicWorkspaceFieldMetadata.backCover,
+    getValue: (context) => context.dto.music.backCoverImageUrl,
+  );
 }

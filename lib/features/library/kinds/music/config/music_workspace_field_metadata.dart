@@ -31,11 +31,20 @@ abstract final class MusicWorkspaceFieldMetadata {
 
   static const cover = LibraryKindFieldMetadata(
     id: 'music.cover',
-    label: 'Cover',
+    label: 'Front Cover',
     valueType: LibraryFieldValueType.text,
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.derived,
     sourcePath: 'cover',
+  );
+
+  static const backCover = LibraryKindFieldMetadata(
+    id: 'music.back_cover',
+    label: 'Back Cover',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'back_cover',
   );
 
   static const grade = LibraryKindFieldMetadata(
@@ -284,6 +293,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     addedAt,
     addedMonth,
     addedYear,
+    backCover,
     condition,
     cover,
     collectionStatus,

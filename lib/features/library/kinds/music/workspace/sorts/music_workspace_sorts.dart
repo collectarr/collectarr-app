@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/utils/sort_title.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_additional_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -23,6 +24,53 @@ LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicStatusSort() {
     },
     label: 'Status',
   );
+}
+
+/// Has Back and Has Front, listed under Images as in the reference.
+List<LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>>
+    musicImageSorts() => [
+          for (final field in [
+            MusicAdditionalWorkspaceFields.hasBack,
+            MusicAdditionalWorkspaceFields.hasFront,
+          ])
+            LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+              id: LibrarySortId<MusicKind>(field.id.value),
+              label: field.label,
+              group: 'Images',
+              compare: (left, right) => (field.getValue(left) ? 1 : 0)
+                  .compareTo(field.getValue(right) ? 1 : 0),
+            ),
+        ];
+
+/// The album format summary, labelled Format as in the reference.
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicFormatSort() =>
+    LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+      id: LibrarySortId<MusicKind>(
+        MusicCatalogWorkspaceFields.formatSummary.id.value,
+      ),
+      label: 'Format',
+      compare: (left, right) => _compareNullableText(
+        left.dto.facts.formatSummary,
+        right.dto.facts.formatSummary,
+      ),
+    );
+
+/// Albums sort by their first genre.
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicGenreSort() =>
+    LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+      id: LibrarySortId<MusicKind>(MusicCatalogWorkspaceFields.genre.id.value),
+      label: MusicCatalogWorkspaceFields.genre.label,
+      compare: (left, right) => _compareNullableText(
+        MusicCatalogWorkspaceFields.genreValues(left.dto).firstOrNull,
+        MusicCatalogWorkspaceFields.genreValues(right.dto).firstOrNull,
+      ),
+    );
+
+int _compareNullableText(String? left, String? right) {
+  final a = left?.trim().toLowerCase() ?? '';
+  final b = right?.trim().toLowerCase() ?? '';
+  if (a.isEmpty || b.isEmpty) return a.isEmpty ? (b.isEmpty ? 0 : 1) : -1;
+  return a.compareTo(b);
 }
 
 LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>

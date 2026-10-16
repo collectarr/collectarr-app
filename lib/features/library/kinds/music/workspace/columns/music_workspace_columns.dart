@@ -24,6 +24,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
   );
 }
 
+/// A front or back cover thumbnail, listed under Images as in the reference.
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     musicCoverColumn({
   required LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>
@@ -34,18 +35,22 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     metadata: field.metadata,
     displayName: '',
     getValue: field.getValue,
-    cellValue: (context) => context.dto.imageUrl == null
-        ? const SizedBox.shrink()
-        : SizedBox.square(
-            dimension: 32,
-            child: LibraryCoverImage(
-              title: context.dto.primaryLabel,
-              imageUrl: context.dto.imageUrl,
-              fallbackAspectRatio: 1,
-              borderRadius: 2,
-              fit: BoxFit.cover,
-            ),
-          ),
+    cellValue: (context) {
+      final imageUrl = field.getValue(context);
+      return imageUrl == null || imageUrl.isEmpty
+          ? const SizedBox.shrink()
+          : SizedBox.square(
+              dimension: 32,
+              child: LibraryCoverImage(
+                title: context.dto.primaryLabel,
+                imageUrl: imageUrl,
+                fallbackAspectRatio: 1,
+                borderRadius: 2,
+                fit: BoxFit.cover,
+              ),
+            );
+    },
+    group: 'Images',
     allowSortInteraction: false,
     allowGroupInteraction: false,
     defaultWidth: 42,
