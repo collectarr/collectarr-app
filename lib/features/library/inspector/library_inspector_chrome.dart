@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_view_co
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
+import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -271,39 +272,44 @@ class _InspectorBarButton extends StatelessWidget {
         enabled: onPressed != null,
         onTap: onPressed,
         excludeSemantics: true,
-        child: InkWell(
-          mouseCursor: onPressed == null
-              ? SystemMouseCursors.basic
-              : SystemMouseCursors.click,
-          onTap: onPressed,
-          hoverColor: palette.isDark ? const Color(0xFF464950) : null,
-          borderRadius: BorderRadius.circular(4),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (icon != null) ...[
-                  Icon(
-                    icon,
-                    size: 14,
-                    color: onPressed != null ? foreground : disabledColor,
-                  ),
-                  if (label != null || labelContent != null)
-                    const SizedBox(width: 6),
-                ],
-                if (labelContent != null)
-                  labelContent!
-                else if (label != null)
-                  Text(
-                    label!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
+        child: AppClickTarget(
+          onClick: onPressed,
+          builder: (context, hovered) => DecoratedBox(
+            decoration: BoxDecoration(
+              color: hovered
+                  ? palette.isDark
+                      ? const Color(0xFF464950)
+                      : Theme.of(context).hoverColor
+                  : null,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[
+                    Icon(
+                      icon,
+                      size: 14,
                       color: onPressed != null ? foreground : disabledColor,
                     ),
-                  ),
-              ],
+                    if (label != null || labelContent != null)
+                      const SizedBox(width: 6),
+                  ],
+                  if (labelContent != null)
+                    labelContent!
+                  else if (label != null)
+                    Text(
+                      label!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: onPressed != null ? foreground : disabledColor,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),

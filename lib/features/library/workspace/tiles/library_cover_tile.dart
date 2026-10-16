@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -289,19 +290,18 @@ class LibraryTileHoverActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Tooltip(
         message: tooltip,
-        child: Material(
-          color: const Color(0xffdddddd),
-          borderRadius: BorderRadius.circular(4),
-          child: InkWell(
-            onTap: onTap,
-            mouseCursor: SystemMouseCursors.click,
-            borderRadius: BorderRadius.circular(4),
-            hoverColor: Colors.white.withValues(alpha: 0.25),
-            child: SizedBox(
-                width: 26,
-                height: 24,
-                child: Icon(icon, size: 14, color: const Color(0xff444444))),
-          ),
+        child: AppClickTarget(
+          onClick: onTap,
+          builder: (context, hovered) => Container(
+              width: 26,
+              height: 24,
+              decoration: BoxDecoration(
+                  color: hovered
+                      ? Color.alphaBlend(Colors.white.withValues(alpha: 0.25),
+                          const Color(0xffdddddd))
+                      : const Color(0xffdddddd),
+                  borderRadius: BorderRadius.circular(4)),
+              child: Icon(icon, size: 14, color: const Color(0xff444444))),
         ),
       );
 }

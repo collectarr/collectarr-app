@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryColumnWidthFor = double Function(String column);
@@ -765,16 +766,17 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                 child: Center(
                   child: Tooltip(
                     message: 'Edit',
-                    child: InkResponse(
-                      mouseCursor: SystemMouseCursors.click,
-                      onTap: onEditEntry == null
+                    child: AppClickTarget(
+                      onClick: onEditEntry == null
                           ? null
                           : () => onEditEntry!(entry),
-                      radius: 12,
-                      child: Icon(
-                        AppIcons.inlineEdit,
-                        size: 14,
-                        color: rowControlColor,
+                      builder: (context, _) => SizedBox.square(
+                        dimension: 24,
+                        child: Icon(
+                          AppIcons.inlineEdit,
+                          size: 14,
+                          color: rowControlColor,
+                        ),
                       ),
                     ),
                   ),
