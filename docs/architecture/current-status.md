@@ -83,38 +83,6 @@ Gilroy is never bundled.
 - Kind registration and generated artifacts:
   [kind registration](kind-registration-codegen.md).
 
-## Cleanup backlog
-
-These `lib/` files are imported by nothing in `lib/`, `test/`, `tool/`,
-`integration_test/` or `benchmark/` (checked 2026-10-15). Delete them, then
-repeat the scan, since their own imports may become unused:
-
-- core: `api/api_client_catalog.dart`, `logging/perf_trace.dart`,
-  `models/money.dart`, `strings/ui_strings.dart`
-- collection: `covers/cover_offline_storage.dart`,
-  `services/metadata_override_resolver.dart`
-- library: `add/controllers/library_add_prefill.dart`,
-  `detail/activity_timeline_section.dart`, `detail/folder_assignment_dialog.dart`,
-  `detail/library_metadata_corrections_section.dart`,
-  `edit/fields/editable_field_contracts.dart`, `generic/page/library_page.dart`,
-  `home/home_rail.dart`, `inspector/library_inspector_actions.dart`,
-  `inspector/library_inspector_shared_sections.dart`,
-  `metadata/metadata_correction_host.dart`, `stats/insurance_value.dart`,
-  `ui/library_panel_scaffold.dart`, `ui/primitives/library_pick_list_tags.dart`,
-  `workspace/layout/library_grouped_shelf_view.dart`,
-  `workspace/tiles/library_compact_meta_pill.dart`
-- kinds: `anime/anime_domain.dart`, `book/book_domain.dart`,
-  `comic/comic_domain.dart`, `game/game_domain.dart`, `manga/manga_domain.dart`,
-  `movie/movie_domain.dart`, `movie/domain/movie_watch_state.dart`,
-  `shared/video/library_video_specs_section.dart`, `tv/edit/tv_edit_tabs.dart`,
-  `tv/edit/tv_entry_edit_schema.dart`
-- pick lists: `pick_list_service.dart`, `widgets/pick_list_multi_value_field.dart`,
-  `widgets/pick_list_value_field.dart`
-- settings: `settings_library_nav_widgets.dart`; updater: `app_update_panel.dart`
-
-Unreleased kinds' `lib/dev/seeds/*_seeds.dart` are discovered by
-`tool/generate_kind_registries.dart` and are not dead.
-
 ## Known limits
 
 - Standalone activity controls (outside the editor) are separate commands
@@ -123,3 +91,6 @@ Unreleased kinds' `lib/dev/seeds/*_seeds.dart` are discovered by
   ledgers in `catalog-item-field-ledgers/` are provisional.
 - Native pointer-driven comparison with the reference is done on Web; Windows
   rendering is checked separately.
+- With `--kinds=all`, two unreleased-kind tests fail: the Manga preferences
+  isolation test needs the unregistered Comic kind, and the TV watch-session
+  sync test does not persist. Released-kind runs are unaffected.
