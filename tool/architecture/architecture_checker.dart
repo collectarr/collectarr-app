@@ -213,6 +213,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'addedAt',
     'purchaseDate',
     'wishlist',
+    // Item-image types are a shared vocabulary for every kind's images, also
+    // when a kind names a column after one.
+    'back_cover',
   };
 
   // Permanent ownership boundary, replacing the historical cleanup proof scan.
