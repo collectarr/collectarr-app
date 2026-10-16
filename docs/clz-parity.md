@@ -133,14 +133,16 @@ items come from earlier audits and must be re-checked before closing.
 | --- | --- | --- | --- |
 | P2 | Imports | Also Music Label, CATraxx, OrangeCD, CDpedia | Not offered: no public schema or sample export exists (see [import/export](import-export.md)) |
 
-### Typography *(carried over)*
+### Typography
 
 Equal CSS and Flutter weights do not paint identically, and the bundled face is
 not Gilroy. Compare with a user-supplied local font before changing weights.
 
-- Gilroy 400 paints about as heavy as our 600 (folder rows, list cells,
-  letters and calendar days look bolder in CLZ). Weights stay as measured
-  until a local Gilroy is loaded and compared.
+- Resolved 2026-10-16: CLZ's CSS 400 is Gilroy Medium, and Flutter paints
+  outlines about 15 % lighter than the browser, so normal text now uses
+  SemiBold outlines in both the bundled and the local-Gilroy family (see
+  [local font loading](architecture/local-font-loading.md)). Regular list
+  text measures within 5 % of CLZ, bold within 3 %.
 
 ## Not yet compared live
 

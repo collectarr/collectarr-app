@@ -5,7 +5,18 @@ committed, downloaded from CLZ, or sent through catalog/library sync.
 
 Normal UI roles (400 and 500) use the local SemiBold face when available,
 then Medium, then Regular. This is an optical adjustment for Flutter rendering:
-matching the reference's CSS weight alone left ordinary text visibly lighter.
+the reference serves Gilroy Medium for its CSS weight 400 and Bold for 700, but
+Flutter paints the same outlines about 15 % lighter than the browser does.
+Measured ink of identical 14 px strings (2026-10-16): the reference's regular
+text 4.60, Gilroy Medium in Flutter 3.93, Gilroy SemiBold 4.53.
+
+The bundled family follows the same rule. It is registered as
+`Collectarr Sans` with Plus Jakarta Sans SemiBold outlines, re-weighted, in
+its 400 and 500 slots; 600, 700 and 800 keep their own faces and 900 uses
+ExtraBold. Measured ink: Jakarta Regular 3.75, Medium 4.15, SemiBold 4.65
+against the reference's 4.60; Jakarta Bold matches the reference's bold within
+about 4 %. The asset files are unchanged and `Plus Jakarta Sans` remains the
+text fallback.
 Bold headings retain their own face. Registration changes copies in memory;
 the imported files, saved face identities and bundled fallback stay unchanged.
 Registration synchronizes the numeric OS/2 weight with legacy/typographic
