@@ -22,7 +22,7 @@ LibraryCardPresentation buildMusicCardPresentation(
     seriesTitle: musicCardArtist(item),
     identifierCode: music?.music.barcode,
     releaseDate: music?.music.releaseDate,
-    releaseYear: music?.music.releaseDateParts?.year,
+    suggestionDetail: music?.music.releaseDateParts?.year?.toString(),
     format: music?.facts.formatSummary,
     contextFacts: [
       musicCardArtist(item),

@@ -44,7 +44,7 @@ class LibraryPageToolbarController {
           id: item.target.id,
           title: title,
           label: label,
-          subtitle: (card.releaseYear ?? card.releaseDate?.year)?.toString(),
+          subtitle: card.suggestionDetail ?? card.releaseDate?.year.toString(),
           imageUrl: item.dto.imageUrl,
           libraryEntryRef: item.source.libraryEntryRef,
         ),
