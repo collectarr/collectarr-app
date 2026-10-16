@@ -287,11 +287,14 @@ class LibraryBody extends StatelessWidget {
             minWidth: kLibraryDetailsMinWidth,
             maxWidth: kLibraryPaneStoredMaxWidth,
           );
+          // As in the reference, the folder panel keeps its width when the
+          // window narrows; the details pane gives way first, down to its
+          // minimum.
           final maxSidebarWidth = resolveLibrarySidebarMaxWidth(
             viewportWidth: constraints.maxWidth,
             workspaceMinWidth: workspaceMinWidth,
             hasRightDetails: detailsLayout == LibraryDetailsLayout.right,
-            rightDetailsWidth: requestedDetailsWidth,
+            rightDetailsWidth: kLibraryDetailsMinWidth,
             minWidth: sidebarMinWidth,
           );
           final sidebarWidth = clampLibraryPaneWidth(
@@ -545,8 +548,14 @@ class LibraryBody extends StatelessWidget {
           );
           _postLayoutSnapshotIfNeeded(
             context,
+            // The stored width survives a narrow window; only the drawn
+            // panel is clamped, as in the reference.
             snapshot: LibraryLayoutSnapshot(
-              sidebarWidth: sidebarWidth,
+              sidebarWidth: clampLibraryPaneWidth(
+                viewState.sidebarWidth,
+                minWidth: sidebarMinWidth,
+                maxWidth: kLibraryPaneStoredMaxWidth,
+              ),
               inspectorWidth: requestedDetailsWidth,
               detailsHeight: viewState.detailsHeight,
               coverSize: viewState.coverSize,
