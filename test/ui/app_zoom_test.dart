@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/app_zoom.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -55,5 +56,42 @@ void main() {
         tester.getSize(find.byKey(const ValueKey('inner_container')));
     expect(resetSize, const Size(1920, 1080));
     expect(find.text('100%'), findsOneWidget);
+  });
+
+  testWidgets('Ctrl + wheel zooms over a scrollable instead of scrolling it',
+      (tester) async {
+    tester.view.physicalSize = const Size(800, 600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    final controller = ScrollController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(MaterialApp(
+      home: AppZoomWrapper(
+        child: ListView.builder(
+          controller: controller,
+          itemCount: 100,
+          itemBuilder: (_, index) =>
+              SizedBox(height: 40, child: Text('$index')),
+        ),
+      ),
+    ));
+
+    final center = tester.getCenter(find.byType(ListView));
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendEventToBinding(PointerScrollEvent(
+        position: center, scrollDelta: const Offset(0, -100)));
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pump();
+
+    expect(find.text('105%'), findsOneWidget);
+    expect(controller.offset, 0);
+
+    await tester.sendEventToBinding(PointerScrollEvent(
+        position: center, scrollDelta: const Offset(0, 100)));
+    await tester.pump();
+    expect(controller.offset, greaterThan(0));
   });
 }
