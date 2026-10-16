@@ -2,7 +2,16 @@
 
 ## Unreleased
 
+### ✨ Features
+- Settings gains Sorting (sort titles and sort names), Auto Capitalization (when adding from Core, as you type, method and exceptions) and Localization (currency, currency display, number format, date display and entry order).
+- Albums get automatic sort titles ("Wall, The") on Add, Edit and import; Core derives them for new catalog items.
+- Libraries open on the In Collection status filter, and the header shows the signed-in Sync account.
+
 ### 🐛 Fixes
+- Albums without covers no longer show another entry's Core cover in Covers/Shelves.
+- The details backdrop no longer flashes while resizing, and details covers keep their size.
+- Release Year exports, statistics and date sorting now work for year-only dates.
+- Find Duplicates, Loan Manager, the toolbar count and filter pills, the Personal tab and the navigation drawer follow the reference layout.
 - Music folders now default to Artist instead of the first available group (Has Back).
 - “Wrap column content” wraps long list values instead of cutting them after one line.
 - The details panel keeps the last selected album after returning from a tool page and otherwise shows the first album.

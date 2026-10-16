@@ -5,7 +5,7 @@ workflows and density, a stricter data model, and no proprietary code, fonts or
 assets. CLZ is a reference only. This is the single living comparison; update
 it instead of adding dated audit files.
 
-Last full pass: 2026-10-15, 1844 × 945, signed-in CLZ Music Web in Opera and a
+Last full pass: 2026-10-15/16, 1844 × 945, signed-in CLZ Music Web in Opera and a
 release Web build of `ui-improvements` with the same albums imported.
 
 ## How to compare
@@ -47,8 +47,11 @@ Keep these when matching the reference visually.
 | Views | List, Vertical/Horizontal Cards, Covers, Shelves | Adds Flow Carousel |
 | Schema changes | Opaque | Versioned contracts and explicit, ordered migrations |
 | Fonts | Proprietary Gilroy | Bundled OFL Plus Jakarta Sans; a user-supplied local font can be loaded |
+| Sort titles | Filled in by CLZ Core | Core derives them for new Music items and corrected titles; the app applies the same rule to local Add, Edit and imports |
+| Shell top bar | Flat accent | Accent gradient, kept at the owner's request |
+| Header account | Always signed in to CLZ | Shows "account's music" only while signed in to the optional Sync account |
 
-## Fixed in the 2026-10-15 pass
+## Fixed in the 2026-10-15/16 passes
 
 | Surface | Problem | Fix |
 | --- | --- | --- |
@@ -66,6 +69,18 @@ Keep these when matching the reference visually.
 | Partial dates | Year-only release dates (the usual import case) left Release Year/Original Year exports, Print to PDF, statistics, technical details and Core match searches without a year | Years are read from the date parts |
 | Page tabs | Statistics and Loan Manager used accent-outlined buttons as tabs | Shared folder tabs: active #383838, inactive #131313 with dimmed text |
 | Details track list | Spanned the whole panel | One third of a wide panel, as in the reference |
+| Shelves/Covers | An album without covers showed the Core cover of another entry linked to the same Core item | The album's own cover is authoritative; regression test added |
+| Details backdrop/cover | The backdrop reloaded (flashed) while resizing the panel, and the cover changed size with it | Fixed decode width; covers keep 210 px (430 px side by side) |
+| Folder panel | Only [None] closed the special rows | The last special row ([All …] or [None]) gets the 5 px gap |
+| Collection status scope | No sign of an active filter; libraries opened on All | 2 px shared-blue outline when not All; libraries open on In Collection |
+| Find Duplicates | Centered band with off-screen Keep/Remove | Full-width reference table: grey group rows, blue Keep, red Remove, gaps between groups, Artist/Title/Tracks/Added Date |
+| Sort titles | Empty unless typed; title sorting was case-sensitive and ignored them | Filled automatically (Core and app); sorting uses them case-insensitively |
+| Release date sorting | Year-only dates sorted as missing | Ordered by the partial date parts |
+| Settings | No Sorting, Auto Capitalization or Localization | All three panels, with sort-title/name options, autocap method and exceptions, and date/number/currency formats |
+| Toolbar | Plain count text; Material scope chip; "Search albums..." | #4A4A4A count pill, shared-blue scope pill, "Search albums & tracks..." |
+| Navigation drawer | Optional sections expanded | Maintenance, Import / Export and Help start collapsed |
+| Editor Personal tab | Two columns; currency code in price fields | Three columns on wide editors; the currency symbol follows the display setting |
+| Loan Manager | Loose controls under accent tabs | Loaner filter, PRINT TO PDF, count pill and search in one bar on the tabbed panel |
 
 ## Open differences
 
@@ -76,29 +91,19 @@ items come from earlier audits and must be re-checked before closing.
 
 | Priority | Surface | CLZ | Collectarr |
 | --- | --- | --- | --- |
-| P2 | Header | Collection owner name centered; apps and account icons | Brand only; apps, sync and settings icons |
-| P2 | Collection status scope | Blue toggle “☑ In Collection”, default In Collection | Icon + “All” dropdown, default All |
 | P2 | Alphabet bar | “All” is plain bold text | Blue “All” pill; the Artist/Composer/Title field chooser matches |
-| P2 | Count | Bold “40 albums” pill | Plain “10 albums” next to Tools |
-| P2 | Search | “Search albums & tracks…” | “Search albums…”; extra barcode, cover-search and random-pick buttons |
-| P2 | Navigation drawer | Maintenance, Import / Export and Help collapsed by default | Expanded by default; the open tooltip covers the Collection heading |
-| P2 | Editor placement | Dialog top at y=10; 34 px inputs; main tab 548 px tall | Top at y=30; 32 px inputs; ~580 px |
-| P2 | Find Duplicates toolbar | Full-width, left-aligned, columns button at far right | Centered 930 px band |
-| P2 | Shell top bar | Flat accent *(carried over)* | Gradient |
+| P2 | Editor placement | Editor top at y=10 (other modals ~28); 34 px inputs | All modals share a 30 px top; 32 px inputs |
+| P2 | Search | Search field only | Extra barcode, cover-search and random-pick buttons |
 
 ### Functionality
 
 | Priority | Area | CLZ | Collectarr |
 | --- | --- | --- | --- |
-| P1 | Settings → Localization | Language, time zone, currency and currency display, number format, display/editing date formats, time format | Not available |
-| P1 | Settings → Sorting | Ignore/show sort titles and sort names for persons | Not available |
-| P1 | Settings → Auto Capitalization | When adding from Core / as you type, method and exception list | Only the editor's Aa action |
-| P1 | Sort Title | Pre-filled from Title | Empty until entered; show Title as a live hint or pre-fill on Add |
-| P2 | Editor Personal tab | Three columns; currency symbol inside price inputs; ten large rating stars | Two columns; currency chosen under Additional Personal Details; small stars with a 0/10 counter |
+| P2 | Localization | Application language, time zone, time display format | English only; device time zone; durations as minutes:seconds |
+| P2 | Editor rating | Ten large stars | Small stars with a 0/10 counter |
 | P2 | Sort fields | Images group (Back/Front Cover, Has Back/Front), Format, Core AlbumID | No Images group or Format sort; adds Status, Tracks, Purchase date and Personal/Recording/Activity/Loan/Value groups |
 | P2 | Imports | Also Music Label, CATraxx, OrangeCD, CDpedia | Not offered until authentic export fixtures are verified (see [import/export](import-export.md)) |
 | P2 | Loans | Borrower profiles with email, address and sort name *(carried over)* | Borrower names, filters and history only |
-| P2 | Loan Manager layout | Loaner filter, print, count pill, search and barcode inside the panel above an Album / Loaned To / Due Date table | Separate dropdown, search and print controls above a card list; lend/return by barcode in its own section |
 | P2 | Report data error | Link under the track list | Corrections are proposed to Core from the editor |
 | P2 | Statistics | Signed-album count, price/value line, track count and length per recent addition | Price/value line shown only with values; no per-addition track count/length |
 
@@ -126,3 +131,7 @@ flows and Windows native rendering. Shelves, Print to PDF, Manage Collections
 and Pick Lists were opened and match in structure; Pick Lists opens the Artist
 list directly instead of an empty selector. Opening a menu
 does not establish its save behavior.
+
+The 2026-10-16 changes (Settings panels, toolbar pills, Loan Manager, Personal
+tab, drawer, header label, default status filter, cover fixes) are covered by
+tests but have not been re-checked side by side in the browser yet.
