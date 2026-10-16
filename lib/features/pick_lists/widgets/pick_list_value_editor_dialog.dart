@@ -53,19 +53,28 @@ class _PickListValueEditorDialogState
     extends State<_PickListValueEditorDialog> {
   late final TextEditingController _controller;
   late final TextEditingController _sortName;
+  late final TextEditingController _email;
+  late final TextEditingController _address;
   String? _nameError;
+
+  // Borrowers carry contact details, as CLZ loaners do.
+  bool get _isBorrower => widget.listName == 'borrower';
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.existing?.value ?? '');
     _sortName = TextEditingController(text: widget.existing?.sortName ?? '');
+    _email = TextEditingController(text: widget.existing?.email ?? '');
+    _address = TextEditingController(text: widget.existing?.address ?? '');
   }
 
   @override
   void dispose() {
     _controller.dispose();
     _sortName.dispose();
+    _email.dispose();
+    _address.dispose();
     super.dispose();
   }
 
@@ -86,6 +95,12 @@ class _PickListValueEditorDialogState
         aliases: widget.existing?.aliases ?? const [],
         isSystem: widget.existing?.isSystem ?? false,
         sortOrder: widget.existing?.sortOrder ?? 0,
+        email: _isBorrower && _email.text.trim().isNotEmpty
+            ? _email.text.trim()
+            : null,
+        address: _isBorrower && _address.text.trim().isNotEmpty
+            ? _address.text.trim()
+            : null,
       ),
     );
   }
@@ -128,6 +143,26 @@ class _PickListValueEditorDialogState
                               labelText: 'Sort Name',
                               hintText: 'Defaults to Name',
                               border: OutlineInputBorder())),
+                      if (_isBorrower) ...[
+                        const SizedBox(height: 12),
+                        TextField(
+                            controller: _email,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (_) => _submit(),
+                            decoration: const InputDecoration(
+                                labelText: 'Email',
+                                border: OutlineInputBorder())),
+                        const SizedBox(height: 12),
+                        TextField(
+                            controller: _address,
+                            minLines: 3,
+                            maxLines: 5,
+                            decoration: const InputDecoration(
+                                labelText: 'Address',
+                                alignLabelWithHint: true,
+                                border: OutlineInputBorder())),
+                      ],
                     ]),
                   ),
                   Padding(

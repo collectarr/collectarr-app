@@ -7,9 +7,9 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 1);
+    expect(db.schemaVersion, 2);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 1);
+    expect(version.data.values.single, 2);
 
     final tables = await db
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
@@ -67,4 +67,27 @@ void main() {
       );
     },
   );
+
+  test('upgrades a schema 1 database by adding borrower contact columns',
+      () async {
+    // A released schema 1 pick-list table with one borrower.
+    final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
+      raw.execute('CREATE TABLE pick_list_values_cache ('
+          'id TEXT NOT NULL PRIMARY KEY, list_name TEXT NOT NULL, '
+          'media_kind TEXT NULL, value TEXT NOT NULL, sort_name TEXT NULL, '
+          'is_hidden INTEGER NOT NULL DEFAULT 0, '
+          'sort_order INTEGER NOT NULL DEFAULT 0)');
+      raw.execute("INSERT INTO pick_list_values_cache (id, list_name, value) "
+          "VALUES ('b1', 'borrower', 'Alex')");
+      raw.execute('PRAGMA user_version = 1');
+    }));
+    addTearDown(db.close);
+
+    final row = await db.select(db.pickListValuesCache).getSingle();
+    expect(row.value, 'Alex');
+    expect(row.email, isNull);
+    expect(row.address, isNull);
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.single, 2);
+  });
 }

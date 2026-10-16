@@ -275,7 +275,9 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
         mediaKind: _scopeKind,
         value: edited.value,
         sortName: edited.sortName,
-        sortOrder: value.sortOrder);
+        sortOrder: value.sortOrder,
+        email: edited.email,
+        address: edited.address);
     await _run(() async {
       if (_values.any((candidate) =>
           candidate.id != value.id &&
