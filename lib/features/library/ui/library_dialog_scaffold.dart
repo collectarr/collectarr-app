@@ -54,6 +54,7 @@ class LibraryDialogScaffold extends StatelessWidget {
     this.insetPadding,
     this.alignment,
     this.body,
+    this.overlay,
   }) : assert(
           header != null || title != null || body != null,
           'LibraryDialogScaffold requires a header, title, or body.',
@@ -86,6 +87,10 @@ class LibraryDialogScaffold extends StatelessWidget {
 
   /// Main body content widget.
   final Widget? body;
+
+  /// Drawn over the whole surface, header included, such as a sheet that
+  /// dims the dialog behind it.
+  final Widget? overlay;
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +148,7 @@ class LibraryDialogScaffold extends StatelessWidget {
       );
     }
 
-    final scaffoldColumn = Column(
+    final column = Column(
       mainAxisSize: expandBody || windowClass.isCompact
           ? MainAxisSize.max
           : MainAxisSize.min,
@@ -158,6 +163,9 @@ class LibraryDialogScaffold extends StatelessWidget {
         if (footer != null) footer!,
       ],
     );
+    final scaffoldColumn = overlay == null
+        ? column
+        : Stack(children: [column, Positioned.fill(child: overlay!)]);
 
     final inheritedAlignment = ModalDialogDepthScope.parentAlignmentOf(context);
     final resolvedAlignment =

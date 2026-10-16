@@ -155,26 +155,14 @@ class MusicLibraryMediaPresentationBuilder
   }) {
     final album = musicCatalogItemFromCandidate(item);
     final artist = album.artist?.trim();
-    final format = album.formatSummary?.trim();
-    final trackCount = album.discs.isEmpty ? null : album.trackCount;
-    final country = album.countryCode?.trim();
-    final label = album.publisher?.trim();
-    final catalogNumber = album.catalogNumber?.trim();
     final barcode = album.barcode?.trim();
-    final detailParts = <String>[
-      if (format != null && format.isNotEmpty) format,
-      if (country != null && country.isNotEmpty) country,
-      if (label != null && label.isNotEmpty) label,
-      if (trackCount != null)
-        '$trackCount ${trackCount == 1 ? 'track' : 'tracks'}',
-      if (barcode != null && barcode.isNotEmpty) barcode,
-      if (catalogNumber != null && catalogNumber.isNotEmpty) catalogNumber,
-    ];
+    final detail = musicAlbumEditionLine(album);
     return LibraryAddSearchResultDisplay(
       title: album.title,
       secondaryLine: artist?.isNotEmpty == true ? artist : null,
       year: item.musicCatalogFields.releaseYear,
-      detailLine: detailParts.isEmpty ? null : detailParts.join(' - '),
+      detailLine: detail.isEmpty ? null : detail,
+      trailingDetail: barcode?.isNotEmpty == true ? barcode : null,
     );
   }
 
@@ -351,4 +339,19 @@ String _musicDuration(MusicAlbum item) {
   final minutes = totalSeconds ~/ 60;
   final seconds = totalSeconds % 60;
   return '$minutes:${seconds.toString().padLeft(2, '0')}';
+}
+
+/// "CD | 1 disc, 10 tracks", as the reference lists Core results.
+String musicAlbumEditionLine(MusicAlbum album) {
+  final format = album.formatSummary?.trim();
+  final discCount = album.discs.length;
+  final trackCount = album.trackCount;
+  final counts = [
+    if (discCount > 0) '$discCount ${discCount == 1 ? 'disc' : 'discs'}',
+    if (trackCount > 0) '$trackCount ${trackCount == 1 ? 'track' : 'tracks'}',
+  ].join(', ');
+  return [
+    if (format != null && format.isNotEmpty) format,
+    if (counts.isNotEmpty) counts,
+  ].join(' | ');
 }

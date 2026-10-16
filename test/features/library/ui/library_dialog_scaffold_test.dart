@@ -21,7 +21,7 @@ void main() {
             builder: (_) => LibraryDialogScaffold(
               title: const Text('Add Albums'),
               contextBar: LibraryAddModeTab(
-                icon: Icons.search,
+                icon: const Icon(Icons.search),
                 label: 'Search',
                 onTap: () => taps++,
               ),

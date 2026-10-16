@@ -1,34 +1,5 @@
 import 'library_add_pane_dependencies.dart';
 
-class LibraryAddPaneResizeDivider extends StatelessWidget {
-  const LibraryAddPaneResizeDivider({super.key, this.onDragDelta});
-
-  final ValueChanged<double>? onDragDelta;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return MouseRegion(
-      cursor: SystemMouseCursors.resizeColumn,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onHorizontalDragUpdate: onDragDelta == null
-            ? null
-            : (details) => onDragDelta!(details.delta.dx),
-        child: Tooltip(
-          message: 'Resize results pane',
-          child: SizedBox(
-            width: 10,
-            child: Center(
-              child: Container(width: 2, color: palette.divider),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class LibraryAddPreviewPane extends ConsumerWidget {
   const LibraryAddPreviewPane({
     super.key,

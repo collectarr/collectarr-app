@@ -31,6 +31,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_bottom_bar.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_confirm_sheet.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
@@ -104,7 +105,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   double? _dialogWidth;
   double? _dialogHeight;
 
-  double _resultsPaneWidth = 500;
   bool _isClosing = false;
   bool _manualDialogOpen = false;
   bool _hasOpenedManualDialog = false;
@@ -132,30 +132,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
   }
 
-  double _clampedResultsPaneWidth(double totalWidth) {
-    return LibraryAddDialogLayout.clampResultsPaneWidth(
-      totalWidth: totalWidth,
-      requestedWidth: _resultsPaneWidth,
-    );
-  }
-
-  void _resizeResultsPane(double delta, double totalWidth) {
-    setState(() {
-      _resultsPaneWidth = LibraryAddDialogLayout.clampResultsPaneWidth(
-        totalWidth: totalWidth,
-        requestedWidth: _clampedResultsPaneWidth(totalWidth) + delta,
-      );
-    });
-  }
-
   @override
   void initState() {
     super.initState();
     _manualCustomFieldDefinitions =
         List<CustomFieldDefinition>.of(widget.customFieldDefinitions);
-    if (libraryUiPolicyForKind(widget.type.kind).wideDialog) {
-      _resultsPaneWidth = 720;
-    }
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
     _identifierController =
         TextEditingController(text: widget.initialIdentifier ?? '');
@@ -709,6 +690,22 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
   }
 
+  /// Adds the checked results, or only the confirmed one from the sheet.
+  Future<void> _add({required bool selectedOnly}) async {
+    if (!await _showPrefillSettings(confirmAdd: true) || !mounted) return;
+    final success =
+        await _controller.submitCurrentSelection(selectedOnly: selectedOnly);
+    if (!success || !mounted) return;
+    final submittedIds = _controller.lastSubmittedItemIds;
+    if (submittedIds.isEmpty) {
+      _controller.reportSubmissionError(
+        'The items were saved but their local identities were not returned.',
+      );
+      return;
+    }
+    _closeDialog(_addResult(submittedIds));
+  }
+
   void _selectAddMode(LibraryAddDialogMode mode) {
     _controller.setMode(mode);
   }
@@ -798,6 +795,36 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
     final palette = appPalette(context);
     final dialogTheme = buildLibraryAddDialogTheme(accent, palette);
+    final kindControls = state.mode == LibraryAddDialogMode.search
+        ? addCapability.search.presentation.controlsBuilder
+            ?.call(context, modeBarRequest)
+        : null;
+
+    LibraryAddBottomBar bottomBar({required bool selectedOnly}) =>
+        LibraryAddBottomBar(
+          request: LibraryAddBottomBarRequest(
+            accent: accent,
+            selectedItem: selectedItem,
+            addTarget: state.target,
+            collectionStatus:
+                state.commonDraft.collectionStatus ?? 'In Collection',
+            onCollectionStatusChanged: (status) {
+              _controller.updateCommonDraft(
+                (draft) => draft.copyWith(collectionStatus: status),
+              );
+              _controller.setTarget(status == 'Wish List'
+                  ? LibraryAddTarget.wishlist
+                  : LibraryAddTarget.entry);
+            },
+            addCount: selectedOnly ? 1 : checkedSelectionCount,
+            hasCheckedSelection: !selectedOnly && hasCheckedSelection,
+            isAdding: state.isAdding ||
+                state.submitState.isLoading ||
+                state.search.isBusy,
+            onPrefillSettings: _showPrefillSettings,
+            onAdd: () => _add(selectedOnly: selectedOnly),
+          ),
+        );
 
     return LibraryDialogScaffold(
       accent: accent,
@@ -818,8 +845,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           (_dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight) + delta,
         );
       }),
+      insetPadding: const EdgeInsets.fromLTRB(
+          32, kAppEditorTopInset, 32, kAppEditorTopInset),
       header: AccentDialogHeader(
-        title: 'Add ${widget.type.identity.pluralLabel}',
+        title: 'Add ${widget.type.identity.pluralLabel} By:',
         icon: widget.type.identity.icon,
         onClose: _closeDialog,
       ),
@@ -871,165 +900,61 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               onAdvancedFilterChanged: _controller.updateAdvancedFilter,
               advancedFilterDescriptors:
                   modeBarRequest.advancedFilterDescriptors,
-              kindSpecificPaneBuilder: modeBarRequest.kindSpecificPaneBuilder,
+              onPrefillSettings: _showPrefillSettings,
             ),
           ),
-          if (state.search.error != null)
-            Material(
-              color: palette.panel,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        state.search.error!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
         ],
       ),
-      body: switch (state.mode) {
-        LibraryAddDialogMode.search ||
-        LibraryAddDialogMode.identifier =>
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final searchPaneWidget = LibraryAddSearchPane(
-                type: widget.type,
-                isBusy: state.search.isBusy,
-                isLoadingMoreResults: state.search.isLoadingMoreResults,
-                hasMoreResults: state.search.hasMoreResults,
-                loadMoreError: state.search.loadMoreError,
-                onLoadMoreResults: _controller.loadMoreResults,
-                error: state.search.error,
-                accent: accent,
-                selectionColor: (state.target == LibraryAddTarget.wishlist
-                        ? LibraryCollectionStatusScope.wishList
-                        : state.target == LibraryAddTarget.track
-                            ? LibraryCollectionStatusScope.notInCollection
-                            : libraryCollectionStatusFromValue(
-                                state.commonDraft.collectionStatus))
-                    .color,
-                results: visibleCore,
-                selectedResultId: state.selection.selectedResultId,
-                checkedResultIds: state.selection.checkedResultIds,
-                entryCatalogRefs: entryByCatalogRef.keys.toSet(),
-                coreMatchSummary: (item) => addCapability.search.presentation
-                    .coreMatchSummary(item, searchContext),
-                resultPolicy: resultPolicy,
-                resultPolicyState: state.selection.resultPolicyState,
-                onResultPolicyOptionChanged: _controller.setResultPolicyOption,
-                onSelectResult: _controller.selectResult,
-                onToggleResultCheck: _controller.toggleCheckedResult,
-              );
-
-              final previewPaneWidget = LibraryAddPreviewPane(
+      body: LibraryAddSearchPane(
+        type: widget.type,
+        isBusy: state.search.isBusy,
+        isLoadingMoreResults: state.search.isLoadingMoreResults,
+        hasMoreResults: state.search.hasMoreResults,
+        loadMoreError: state.search.loadMoreError,
+        onLoadMoreResults: _controller.loadMoreResults,
+        error: state.search.error,
+        accent: accent,
+        selectionColor: (state.target == LibraryAddTarget.wishlist
+                ? LibraryCollectionStatusScope.wishList
+                : state.target == LibraryAddTarget.track
+                    ? LibraryCollectionStatusScope.notInCollection
+                    : libraryCollectionStatusFromValue(
+                        state.commonDraft.collectionStatus))
+            .color,
+        results: visibleCore,
+        selectedResultId: state.selection.selectedResultId,
+        checkedResultIds: state.selection.checkedResultIds,
+        entryCatalogRefs: entryByCatalogRef.keys.toSet(),
+        coreMatchSummary: (item) => addCapability.search.presentation
+            .coreMatchSummary(item, searchContext),
+        resultPolicy: resultPolicy,
+        resultPolicyState: state.selection.resultPolicyState,
+        onResultPolicyOptionChanged: _controller.setResultPolicyOption,
+        onSelectResult: _controller.selectResult,
+        onToggleResultCheck: _controller.toggleCheckedResult,
+        searched: state.search.coreSearchGeneration > 0,
+        headerTrailing: kindControls,
+      ),
+      overlay: selectedItem == null
+          ? null
+          : LibraryAddConfirmSheet(
+              accent: accent,
+              onDismiss: _controller.clearSelectedResult,
+              content: LibraryAddPreviewPane(
                 type: widget.type,
                 accent: accent,
                 isWideLayout: isWideLayout,
                 previewPaneBuilder: addCapability.previewPaneBuilder,
                 item: selectedItem,
-                isFetchingPreview: selectedItem != null &&
-                    state.preview.pendingHydratedResultRefs
-                        .contains(selectedItem.reference),
-                searched: state.search.results.isNotEmpty,
-              );
-
-              if (constraints.maxWidth < 720) {
-                final searchHeight = constraints.maxHeight > 400
-                    ? 300.0
-                    : constraints.maxHeight * 0.5;
-                return Column(
-                  children: [
-                    SizedBox(
-                      height: searchHeight,
-                      child: searchPaneWidget,
-                    ),
-                    Expanded(child: previewPaneWidget),
-                  ],
-                );
-              }
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(
-                    width: _clampedResultsPaneWidth(constraints.maxWidth),
-                    child: searchPaneWidget,
-                  ),
-                  LibraryAddPaneResizeDivider(
-                    onDragDelta: (delta) => _resizeResultsPane(
-                      delta,
-                      constraints.maxWidth,
-                    ),
-                  ),
-                  Expanded(child: previewPaneWidget),
-                ],
-              );
-            },
-          ),
-      },
-      footer: () {
-        final bottomBarRequest = LibraryAddBottomBarRequest(
-          accent: accent,
-          selectedItem: selectedItem,
-          addTarget: state.target,
-          collectionStatus:
-              state.commonDraft.collectionStatus ?? 'In Collection',
-          onCollectionStatusChanged: (status) {
-            _controller.updateCommonDraft(
-              (draft) => draft.copyWith(collectionStatus: status),
-            );
-            _controller.setTarget(status == 'Wish List'
-                ? LibraryAddTarget.wishlist
-                : LibraryAddTarget.entry);
-          },
-          addCount: checkedSelectionCount > 0
-              ? checkedSelectionCount
-              : (selectedItem == null ? 0 : 1),
-          hasCheckedSelection: hasCheckedSelection,
-          isAdding: state.isAdding ||
-              state.submitState.isLoading ||
-              state.search.isBusy,
-          onPrefillSettings: _showPrefillSettings,
-          onAdd: selectedItem == null && !hasCheckedSelection
-              ? null
-              : () async {
-                  if (!await _showPrefillSettings(confirmAdd: true) ||
-                      !mounted) {
-                    return;
-                  }
-                  final success = await _controller.submitCurrentSelection();
-                  if (success && mounted) {
-                    final submittedIds = _controller.lastSubmittedItemIds;
-                    if (submittedIds.isEmpty) {
-                      _controller.reportSubmissionError(
-                        'The items were saved but their local identities were not returned.',
-                      );
-                      return;
-                    }
-                    _closeDialog(
-                      _addResult(submittedIds),
-                    );
-                  }
-                },
-        );
-        return LibraryAddBottomBar(
-          request: bottomBarRequest,
-        );
-      }(),
+                isFetchingPreview: state.preview.pendingHydratedResultRefs
+                    .contains(selectedItem.reference),
+                searched: true,
+              ),
+              footer: bottomBar(selectedOnly: true),
+            ),
+      footer: hasCheckedSelection && selectedItem == null
+          ? bottomBar(selectedOnly: false)
+          : null,
     );
   }
 }

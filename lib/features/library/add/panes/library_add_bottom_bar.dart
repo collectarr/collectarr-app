@@ -26,56 +26,34 @@ class LibraryAddBottomBar extends StatelessWidget {
 
   Widget _buildResponsiveMenu(BuildContext context) {
     final palette = appPalette(context);
-    final hasSelection = hasCheckedSelection || selectedItem != null;
-    final effectiveCount = addCount > 0 ? addCount : (hasSelection ? 1 : 0);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border(top: BorderSide(color: palette.divider)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          kLibraryDialogFooterHorizontalPadding,
-          kLibraryDialogFooterVerticalPadding,
-          kLibraryDialogFooterHorizontalPadding,
-          kLibraryDialogFooterVerticalPadding,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                LibraryAddResultBadge(
-                    effectiveCount > 0
-                        ? '$effectiveCount selected'
-                        : '0 selected',
-                    accent: accent),
-              ],
+    return Container(
+      color: palette.isDark ? const Color(0xff383838) : palette.panelRaised,
+      padding: const EdgeInsets.all(7),
+      child: Row(
+        children: [
+          if (hasCheckedSelection)
+            Text(
+              '$addCount selected',
+              key: const ValueKey('library-add-selected-count'),
+              style: TextStyle(color: palette.textPrimary, fontSize: 14),
             ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: LibraryAddStatusButton(
-                collectionStatus: addTarget == LibraryAddTarget.wishlist
-                    ? LibraryCollectionStatusScope.wishList
-                    : addTarget == LibraryAddTarget.track
-                        ? LibraryCollectionStatusScope.notInCollection
-                        : libraryCollectionStatusFromValue(
-                            request.collectionStatus),
-                isBusy: isAdding,
-                onPrefillSettings: request.onPrefillSettings,
-                onAdd: onAdd,
-                onStatusChanged: request.onCollectionStatusChanged == null
-                    ? null
-                    : (status) => request.onCollectionStatusChanged!(
-                        libraryCollectionStatusValue(status)),
-              ),
-            ),
-          ],
-        ),
+          const Spacer(),
+          LibraryAddStatusButton(
+            collectionStatus: addTarget == LibraryAddTarget.wishlist
+                ? LibraryCollectionStatusScope.wishList
+                : addTarget == LibraryAddTarget.track
+                    ? LibraryCollectionStatusScope.notInCollection
+                    : libraryCollectionStatusFromValue(
+                        request.collectionStatus),
+            isBusy: isAdding,
+            onPrefillSettings: request.onPrefillSettings,
+            onAdd: onAdd,
+            onStatusChanged: request.onCollectionStatusChanged == null
+                ? null
+                : (status) => request.onCollectionStatusChanged!(
+                    libraryCollectionStatusValue(status)),
+          ),
+        ],
       ),
     );
   }

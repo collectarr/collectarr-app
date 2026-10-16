@@ -318,9 +318,10 @@ String musicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 final musicLibraryMediaPresentation = LibraryMediaPresentation(
   alphabetFields: musicAlphabetFields,
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
-    queryHint: 'Enter album, artist, format, or label...',
-    emptySearchMessage: 'Enter an album, artist, format, or label.',
+    queryHint: 'Enter artist and title...',
+    emptySearchMessage: 'Enter an artist and title.',
     libraryHint: 'Search albums & tracks...',
+    addSearchTabLabel: 'Artist & Title',
   ),
   filterLabels: const LibraryPresentationLabels(
     values: {

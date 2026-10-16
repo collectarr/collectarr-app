@@ -36,7 +36,8 @@ void main() {
               )),
     ))));
     await tester.pump();
-    expect(find.text('Track List'), findsOneWidget);
+    expect(find.text('After the Rain'), findsWidgets);
+    expect(find.text('The Paper Moons'), findsOneWidget);
     expect(find.text('Disc #1'), findsOneWidget);
     expect(find.text('Disc #2'), findsOneWidget);
     expect(find.text('First Light'), findsOneWidget);

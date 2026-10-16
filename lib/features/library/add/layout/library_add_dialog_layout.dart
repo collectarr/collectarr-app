@@ -1,16 +1,16 @@
-/// Layout rules shared by the Add dialog shell and its resizable panes.
+/// Layout rules shared by the Add dialog shell.
 class LibraryAddDialogLayout {
   const LibraryAddDialogLayout._();
 
-  static const defaultDialogWidth = 1320.0;
-  static const defaultDialogHeight = 860.0;
-  static const minDialogWidth = 760.0;
+  /// One column of results, as in the reference.
+  static const defaultDialogWidth = 690.0;
+
+  /// Fills the window height; the dialog clamps it to the space available.
+  static const defaultDialogHeight = maxDialogHeight;
+  static const minDialogWidth = 520.0;
   static const maxDialogWidth = 1800.0;
   static const minDialogHeight = 560.0;
   static const maxDialogHeight = 1200.0;
-
-  static const minResultsPaneWidth = 320.0;
-  static const minPreviewPaneWidth = 320.0;
 
   static double clampDialogWidth(double width) {
     return width.clamp(minDialogWidth, maxDialogWidth).toDouble();
@@ -18,18 +18,5 @@ class LibraryAddDialogLayout {
 
   static double clampDialogHeight(double height) {
     return height.clamp(minDialogHeight, maxDialogHeight).toDouble();
-  }
-
-  static double clampResultsPaneWidth({
-    required double totalWidth,
-    required double requestedWidth,
-  }) {
-    final maxResultsWidth = (totalWidth - minPreviewPaneWidth).clamp(
-      minResultsPaneWidth,
-      totalWidth,
-    );
-    return requestedWidth
-        .clamp(minResultsPaneWidth, maxResultsWidth)
-        .toDouble();
   }
 }

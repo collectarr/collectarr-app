@@ -25,9 +25,9 @@ void main() {
     final musicLabels = musicKindPresentation.searchFieldLabels;
     final movieLabels = movieKindPresentation.searchFieldLabels;
 
-    expect(musicLabels.queryHint, 'Enter album, artist, format, or label...');
-    expect(musicLabels.emptySearchMessage,
-        'Enter an album, artist, format, or label.');
+    expect(musicLabels.queryHint, 'Enter artist and title...');
+    expect(musicLabels.addSearchTabLabel, 'Artist & Title');
+    expect(musicLabels.emptySearchMessage, 'Enter an artist and title.');
     expect(
         movieLabels.queryHint, 'Search by title, studio, year, or release...');
   });

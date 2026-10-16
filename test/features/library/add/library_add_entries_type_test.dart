@@ -33,7 +33,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Manual'));
+    await tester.tap(find.text('Add Manually'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Add to Collection'), findsWidgets);

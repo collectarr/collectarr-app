@@ -1230,17 +1230,50 @@ class _MusicInspectorCredits extends StatelessWidget {
   }
 }
 
+/// A catalog album's discs as detail tables, without entry storage, as the
+/// Add dialog's confirm sheet shows them.
+class MusicCatalogDiscTables extends StatelessWidget {
+  const MusicCatalogDiscTables({super.key, required this.album});
+
+  final MusicAlbum album;
+
+  @override
+  Widget build(BuildContext context) {
+    final groups = _groupTracksByDisc([
+      for (final disc in album.discs)
+        for (final track in disc.tracks)
+          MusicTrackListEntry(discNumber: disc.discNumber, track: track),
+    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final group in groups)
+          Padding(
+            padding: EdgeInsets.only(top: group == groups.first ? 0 : 10),
+            child: _MusicDiscTable(
+              disc: album.discs
+                  .firstWhere((disc) => disc.discNumber == group.discNumber),
+              tracks: group.tracks,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 class _MusicDiscTable extends StatelessWidget {
   const _MusicDiscTable({
     required this.disc,
-    required this.storage,
+    this.storage,
     required this.tracks,
     this.highlightTerms = const <String>[],
     this.onFilterByValue,
   });
 
   final MusicDisc disc;
-  final MusicEntryDiscStorageView storage;
+
+  /// The entry's storage for this disc; catalog albums have none.
+  final MusicEntryDiscStorageView? storage;
   final List<MusicTrackListEntry> tracks;
   final List<String> highlightTerms;
   final ValueChanged<String>? onFilterByValue;
@@ -1263,7 +1296,9 @@ class _MusicDiscTable extends StatelessWidget {
                         disc.title?.isNotEmpty == true
                             ? disc.title!
                             : 'Disc #${disc.discNumber}',
-                        if (storage.label != '-') '(${storage.label})',
+                        if (storage case final storage?
+                            when storage.label != '-')
+                          '(${storage.label})',
                         if (disc.matrixNumberSideA?.isNotEmpty == true ||
                             disc.matrixNumberSideB?.isNotEmpty == true)
                           '(${[

@@ -26,12 +26,16 @@ class LibraryAddSearchResultDisplay {
     required this.title,
     required this.secondaryLine,
     required this.detailLine,
+    this.trailingDetail,
     this.year,
   });
 
   final String title;
   final String? secondaryLine;
   final String? detailLine;
+
+  /// Right-aligned on the detail line, such as a barcode.
+  final String? trailingDetail;
   final int? year;
 }
 

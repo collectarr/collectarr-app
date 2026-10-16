@@ -21,29 +21,5 @@ void main() {
         LibraryAddDialogLayout.maxDialogHeight,
       );
     });
-
-    test('keeps enough room for the preview pane', () {
-      expect(
-        LibraryAddDialogLayout.clampResultsPaneWidth(
-          totalWidth: 1000,
-          requestedWidth: 200,
-        ),
-        LibraryAddDialogLayout.minResultsPaneWidth,
-      );
-      expect(
-        LibraryAddDialogLayout.clampResultsPaneWidth(
-          totalWidth: 1000,
-          requestedWidth: 900,
-        ),
-        680,
-      );
-      expect(
-        LibraryAddDialogLayout.clampResultsPaneWidth(
-          totalWidth: 500,
-          requestedWidth: 450,
-        ),
-        LibraryAddDialogLayout.minResultsPaneWidth,
-      );
-    });
   });
 }
