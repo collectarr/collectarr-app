@@ -114,8 +114,13 @@ class _LibraryImageIntakeState extends State<LibraryImageIntake> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final borderColor =
-        _dragging ? Theme.of(context).colorScheme.primary : palette.textMuted;
+    // Reference intake: a #666 dashed outline and instruction on the body
+    // colour; the drop target turns accent while dragging.
+    final borderColor = _dragging
+        ? Theme.of(context).colorScheme.primary
+        : palette.isDark
+            ? const Color(0xFF666666)
+            : palette.textMuted;
     return SizedBox(
       width: widget.width,
       height: widget.height,
@@ -149,7 +154,8 @@ class _LibraryImageIntakeState extends State<LibraryImageIntake> {
                     width: widget.width,
                     height: widget.height,
                     duration: const Duration(milliseconds: 120),
-                    color: _dragging ? palette.surfaceBright : palette.surface,
+                    color:
+                        _dragging ? palette.surfaceBright : Colors.transparent,
                     padding: const EdgeInsets.all(15),
                     child: _busy
                         ? const Center(child: CircularProgressIndicator())

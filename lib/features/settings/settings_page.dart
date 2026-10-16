@@ -112,13 +112,14 @@ final _deviceIdentityProvider = FutureProvider.autoDispose<String>((ref) async {
 // Appearance holds the reference Settings page, so it comes first and opens
 // by default; connection and data tabs are Collectarr additions.
 enum SettingsSection {
-  appearance('Appearance', Icons.palette_outlined),
-  connection('Connection', Icons.route_outlined),
-  libraries('Libraries', Icons.view_comfy_alt_outlined),
-  proposals('Proposals', Icons.fact_check_outlined),
-  data('Data', Icons.backup_outlined),
-  account('Account', Icons.account_circle_outlined),
-  logs('Logs', Icons.bug_report_outlined);
+  // Font Awesome glyphs, as everywhere else in the app chrome.
+  appearance('Appearance', AppIcons.palette),
+  connection('Connection', AppIcons.plug),
+  libraries('Libraries', AppIcons.layerGroup),
+  proposals('Proposals', AppIcons.clipboardCheck),
+  data('Data', AppIcons.database),
+  account('Account', AppIcons.user),
+  logs('Logs', AppIcons.bug);
 
   const SettingsSection(this.title, this.icon);
   final String title;

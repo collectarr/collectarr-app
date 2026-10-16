@@ -223,9 +223,10 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
               child: SizedBox(
                 width: _suffixButtonExtent,
                 height: LibraryDensityScope.of(context).metrics.fieldHeight - 2,
+                // A small Font Awesome caret, as the reference select arrow.
                 child: Icon(
                   icon,
-                  size: 18,
+                  size: 12,
                 ),
               ),
             ),
@@ -286,7 +287,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                 _suffixAction(
                   tooltip: 'Pick ${widget.label}',
                   onPressed: () => _openInlinePicker(normalizedOptions),
-                  icon: Icons.arrow_drop_down,
+                  icon: AppIcons.caretDown,
                 ),
                 if (hasBrowseAction)
                   PickListFieldButton(

@@ -208,6 +208,25 @@ abstract final class AppIcons {
   static const IconData upload =
       IconData(0xf093, fontFamily: _solid, fontPackage: _fontPackage);
 
+  // --- Settings sections ---
+  static const IconData plug =
+      IconData(0xf1e6, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData layerGroup =
+      IconData(0xf5fd, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData clipboardCheck =
+      IconData(0xf46c, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData database =
+      IconData(0xf1c0, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData user =
+      IconData(0xf007, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData bug =
+      IconData(0xf188, fontFamily: _solid, fontPackage: _fontPackage);
+
+  static const IconData paperPlane =
+      IconData(0xf1d8, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData history =
+      IconData(0xf1da, fontFamily: _solid, fontPackage: _fontPackage);
+
   // --- Rating ---
   static const IconData star =
       IconData(0xf005, fontFamily: _solid, fontPackage: _fontPackage);

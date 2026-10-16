@@ -137,7 +137,10 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
         Text(
           widget.helperText,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: appPalette(context).textMuted,
+                // White at 70 %, as the reference helper line.
+                color: appPalette(context).isDark
+                    ? Colors.white70
+                    : appPalette(context).textMuted,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
