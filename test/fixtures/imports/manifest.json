@@ -26,5 +26,12 @@
     "optional": "music/clz_web/optional_missing.xml",
     "invalid": "music/clz_web/truncated.xml",
     "origin": "XML shape checked against a CLZ Music Web export from the authenticated reference browser on 2026-10-15; fictional values."
+  },
+  "music.catraxx": {
+    "kind": "music",
+    "minimal": "music/catraxx/minimal.xml",
+    "optional": "music/catraxx/optional_missing.xml",
+    "invalid": "music/catraxx/truncated.xml",
+    "origin": "XML shape checked against the CATraxx 9.59 XML export engine (DataServer GenerateXML of the vendor sample database) on 2026-10-16; fictional values."
   }
 }

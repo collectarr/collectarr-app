@@ -131,7 +131,7 @@ items come from earlier audits and must be re-checked before closing.
 
 | Priority | Area | CLZ | Collectarr |
 | --- | --- | --- | --- |
-| P2 | Imports | Also Music Label, CATraxx, OrangeCD, CDpedia | Not offered: no public schema or sample export exists (see [import/export](import-export.md)) |
+| P2 | Imports | Also Music Label, OrangeCD, CDpedia | Not offered: no public schema or sample export exists (see [import/export](import-export.md)); CATraxx XML is imported |
 
 ### Typography
 

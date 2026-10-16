@@ -16,7 +16,7 @@ void main() {
       final sourceIds = capability.sources.map((s) => s.id).toList();
       expect(sourceIds, contains('text'));
       expect(sourceIds, contains('discogs'));
-      expect(sourceIds, isNot(contains('catraxx')));
+      expect(sourceIds, contains('catraxx'));
       expect(sourceIds, contains('delicious'));
       expect(sourceIds, isNot(contains('orangecd')));
       expect(sourceIds, isNot(contains('cdpedia')));
@@ -73,7 +73,7 @@ void main() {
       // Main sources
       expect(find.text('Import a Text or CSV file'), findsOneWidget);
       expect(find.text('Discogs'), findsOneWidget);
-      expect(find.text('CATraxx'), findsNothing);
+      expect(find.text('CATraxx'), findsOneWidget);
       expect(find.text('Delicious Library'), findsOneWidget);
       expect(find.text('OrangeCD'), findsNothing);
       expect(find.text('CDpedia'), findsNothing);

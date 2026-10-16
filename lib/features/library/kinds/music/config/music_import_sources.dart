@@ -1,3 +1,4 @@
+import '../integrations/import/catraxx_importer.dart';
 import '../integrations/import/discogs_importer.dart';
 import '../integrations/import/delicious_library_importer.dart';
 import '../integrations/import/music_collector_importer.dart';
@@ -188,6 +189,23 @@ final musicImportSources = <LibraryImportSourceDefinition>[
       'Upload the saved XML file below:',
     ],
     filePrompt: 'Upload your CLZ Music Web XML file:',
+  ),
+  const LibraryImportSourceDefinition(
+    id: 'catraxx',
+    importer: CatraxxImporter(),
+    title: 'CATraxx',
+    fallbackIcon: Icons.library_music_outlined,
+    sourceType: LibraryImportSourceType.guidedFile,
+    fileExtensions: ['xml'],
+    description:
+        'To import your list of albums from CATraxx, you need to export an XML file of your albums out of CATraxx.\nHere\'s what to do:',
+    instructions: [
+      'Start CATraxx on your computer.',
+      'Click menu File > Export > XML.',
+      'Choose the Album table, include all albums and select all album and track fields.',
+      'Upload the saved XML file below:',
+    ],
+    filePrompt: 'Upload your CATraxx XML file:',
   ),
 ];
 

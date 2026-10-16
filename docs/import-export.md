@@ -46,20 +46,38 @@ artwork paths, loans and provider-specific custom fields are not automatically
 restored by these external importers. Keep the original export. Use Collectarr
 CSV with its complete entry payload for Collectarr backups.
 
+## CATraxx
+
+The CATraxx importer reads an XML export of the Album table: a `<data>` root
+with field definitions and one `<record table="album">` per album, holding
+`<albumdata>` and its discs, sides and tracks under `<trackdata>`. The layout
+was taken from CATraxx 9.59, exporting the vendor sample database through its
+XML export engine (Data Server `GenerateXML`); the File > Export > XML window
+of the program itself has not yet been captured separately.
+
+- A counted format such as `2CD` or `2LP` gives each disc the format `CD` or
+  `LP`; vinyl sides become track positions (`A1`, `B1`).
+- Dates use their year, month and day attributes, so partial dates stay
+  partial. Amounts of 0.00, the CATraxx value for unset, are not imported.
+- Personal Rating (0-5 in half steps) doubles onto the /10 scale. Status
+  Own, Ordered, Wanted, For Sale and Sold map to collection statuses; other
+  values fail with a diagnostic.
+- Album credits (author, conductor, production, studio, band members and
+  guests) keep their CATraxx role. Notes stored as rich text that the export
+  left as references are skipped. Images, loans and custom fields are not
+  imported.
+
 ## Sources awaiting verified exports
 
-CATraxx XML, OrangeCD OXL, CDpedia XML and Music Label's Netwalk Musica
-`export.xml` are not advertised until an actual export fixture and parser
-contract are verified. Delicious delimited TXT is also not accepted. A generic
-parser is not substituted for these formats. Unreleased Books/Comics/Movies
-import sources have not been reintroduced.
+OrangeCD OXL, CDpedia XML and Music Label's Netwalk Musica `export.xml` are not
+advertised until an actual export fixture and parser contract are verified.
+Delicious delimited TXT is also not accepted. A generic parser is not
+substituted for these formats. Unreleased Books/Comics/Movies import sources
+have not been reintroduced.
 
 A 2026-10-16 search found no published schema, DTD or sample file for any of
 them; their vendors document only how to export:
 
-- [CATraxx Export to XML](https://fnprg.com/catraxx/helpfile/using_workingwithdatabases_importexport_db_exportxml.htm)
-  and its [Data Server FAQ](https://www.fnprg.com/catraxx/faq/power_users.htm)
-  describe the export window and `GenerateXML`, not the element layout.
 - [OrangeCD's news](https://www.firetongue.com/oldnews.html) records the OXL
   database dump (6.0.2, 2006) without a format description.
 - [CDpedia importing](https://bruji.com/help/cdpedia/adding/importing.html)

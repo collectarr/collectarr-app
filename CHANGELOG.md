@@ -9,6 +9,7 @@
 - Music sorting adds Has Back, Has Front, Format and Genre, and the list can show a Back Cover column.
 - Borrowers have a sort name, email and address; Loan opens a lend form with a loaner picker and a due date two weeks out.
 - Music adds a Core ID column and sort; Settings can open Add/Update from Core settings.
+- Music imports CATraxx XML exports with discs, vinyl sides, tracks, credits, ratings and purchase details.
 
 ### 🐛 Fixes
 - Albums without covers no longer show another entry's Core cover in Covers/Shelves.

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:collectarr_app/features/library/kinds/music/config/music_import_sources.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/integrations/import/catraxx_importer.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/import/discogs_importer.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/import/music_mapped_csv_importer.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
@@ -91,6 +92,62 @@ void main() {
       }
     });
   }
+  group('CATraxx', () {
+    const importer = CatraxxImporter();
+    final raw = File('test/fixtures/imports/music/catraxx/minimal.xml')
+        .readAsStringSync();
+    (MusicAlbum, Map<String, dynamic>) first(String source) {
+      final record = LibraryEntryRecord.fromJson(
+          importer.parse(source).first.fullEntryPayload!);
+      return (MusicAlbum.fromJson(record.catalogData), record.personalData);
+    }
+
+    test('counted formats, tracks, credits and the half-star rating map over',
+        () {
+      final (album, personal) = first(raw);
+      expect(album.discs.map((d) => d.format), ['CD', 'CD']);
+      expect(album.discs.map((d) => d.title),
+          ['After & Before (Disc 1)', 'After & Before (Disc 2)']);
+      expect(album.discs.map((d) => d.tracks.length), [2, 2]);
+      expect(album.discs.first.tracks.first.position, '1');
+      expect(album.discs.first.tracks.first.durationMs, 183000);
+      expect(album.discs.first.isLive, isTrue);
+      expect(album.publisher, 'Fictional Records');
+      expect(album.releaseDateParts!.month, 4);
+      expect(album.credits.single.role, 'Songwriter');
+      expect(personal['rating'], 8);
+      expect(personal['media_condition'], 'Near Mint');
+      expect(personal['purchase_store'], 'Fictional Store');
+      // CATraxx stores an unset value as 0.00.
+      expect(personal['market_value_cents'], isNull);
+    });
+
+    test('vinyl sides become side positions', () {
+      final sided = raw
+          .replaceFirst('sides="1"', 'sides="2"')
+          .replaceFirst('2CD', '2LP')
+          .replaceFirst(
+              '</side>\n\t\t\t</disc>',
+              '</side>\n\t\t\t\t<side>\n\t\t\t\t\t<sideno>B</sideno>\n'
+                  '\t\t\t\t\t<track id="99"><side>B</side><index>1</index>'
+                  '<title>Flip</title></track>\n\t\t\t\t</side>\n\t\t\t</disc>');
+      final (album, _) = first(sided);
+      expect(album.discs.first.format, 'LP');
+      expect(
+          album.discs.first.tracks.map((t) => t.position), ['A1', 'A2', 'B1']);
+    });
+
+    test('other tables, unknown statuses and bad ratings are refused', () {
+      for (final source in [
+        raw.replaceAll('table="album"', 'table="track"'),
+        raw.replaceFirst('>Own<', '>Borrowed<'),
+        raw.replaceFirst('>4</personalrating>', '>4.2</personalrating>'),
+      ]) {
+        expect(() => importer.parse(source),
+            throwsA(isA<LibraryImportFormatException>()));
+      }
+    });
+  });
   for (final file in ['quoted_multiline.csv', 'unicode.csv']) {
     test('Discogs $file preserves quoted multiline and Unicode values', () {
       final row = const DiscogsImporter()
