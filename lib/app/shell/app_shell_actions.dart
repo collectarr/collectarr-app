@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
 import 'package:collectarr_app/features/library/reports/collection_export_csv_txt.dart';
 import 'package:collectarr_app/features/library/reports/collection_import_data.dart';
-import 'package:collectarr_app/features/library/export/integration_export_dialog.dart';
+import 'package:collectarr_app/features/library/reports/library_export_xml_flow.dart';
 import 'package:collectarr_app/features/library/metadata/library_link_items_page.dart';
 import 'package:collectarr_app/features/library/sharing/collection_cloud_sharing_page.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
@@ -194,11 +194,15 @@ class AppShellActions {
         });
         return;
       case DrawerAction.exportXml:
-        await _withShelf((shelf) => showIntegrationExportDialog(
+        await _withShelf((shelf) => exportLibraryEntriesXml(
               context: context,
               type: type,
-              shelfState: shelf.forKind(type.kind),
-              format: ExportFormat.xml,
+              database: ref.read(localDatabaseProvider),
+              entries: [
+                for (final entry in shelf.entries)
+                  if (entry.mediaKind == type.kind)
+                    if (entry.libraryEntryRef case final entryRef?) entryRef
+              ],
             ));
         return;
       case DrawerAction.importData:

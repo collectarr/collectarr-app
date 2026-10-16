@@ -35,6 +35,8 @@ abstract final class AppIcons {
       IconData(0xf02a, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData warning =
       IconData(0xf071, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData circleExclamation =
+      IconData(0xf06a, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData location =
       IconData(0xf3c5, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData sync =

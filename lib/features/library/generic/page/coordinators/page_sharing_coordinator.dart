@@ -1,6 +1,5 @@
-import 'package:collectarr_app/features/library/reports/library_export_xml_page.dart';
+import 'package:collectarr_app/features/library/reports/library_export_xml_flow.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/reports/collection_export_csv_txt.dart';
@@ -43,12 +42,11 @@ class LibraryPageSharingCoordinator {
             item.source.libraryEntryRef != null)
           item.source.libraryEntryRef!
     ];
-    if (entries.isEmpty) return;
-    Navigator.of(_page.context).push(MaterialPageRoute<void>(
-        builder: (_) => LibraryExportXmlPage(
-            type: _page.type,
-            database: _page.ref.read(localDatabaseProvider),
-            entries: entries)));
+    exportLibraryEntriesXml(
+        context: _page.context,
+        type: _page.type,
+        database: _page.ref.read(localDatabaseProvider),
+        entries: entries);
   }
 
   void shareCollectionFlow(LibraryProjection projection) {
