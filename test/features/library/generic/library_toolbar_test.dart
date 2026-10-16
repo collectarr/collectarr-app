@@ -143,7 +143,7 @@ void main() {
 
     final aButton =
         find.ancestor(of: find.text('A'), matching: find.byType(InkWell)).first;
-    expect(tester.getSize(aButton).width, greaterThanOrEqualTo(28));
+    expect(tester.getSize(aButton).width, greaterThanOrEqualTo(22));
   });
 
   test('alpha jump bar groups symbol and numeric titles separately', () {

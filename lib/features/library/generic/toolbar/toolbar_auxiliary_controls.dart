@@ -784,11 +784,19 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
       'Y',
       'Z'
     ];
+    // Reference slot widths at 14 px: letters 24, All 32, 0-9 34.
+    double slotWidth(String label) => switch (label) {
+          'All' => 32,
+          '0-9' => 34,
+          _ => 24,
+        };
+    final designWidth =
+        ['All', ...alphabet].fold<double>(0, (sum, l) => sum + slotWidth(l));
     void select(String value) => onLetterSelected(
         value == 'All' || value == selectedLetter ? null : value);
     final palette = appPalette(context);
     return SizedBox(
-        height: 28,
+        height: 30,
         child: LayoutBuilder(builder: (context, constraints) {
           final scale = MediaQuery.textScalerOf(context).scale(12) / 12;
           final options = alphabetOptions;
@@ -829,11 +837,14 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
               for (final label in ['All', ...alphabet])
                 _AlphabetLetterButton(
                   label: label,
-                  width: (label == 'All' ? 44 : 28) *
+                  width: slotWidth(label) *
                       scale *
-                      ((constraints.maxWidth - optionsWidth) / (828 * scale))
+                      ((constraints.maxWidth - optionsWidth) /
+                              (designWidth * scale))
                           .clamp(0.0, 1.0),
-                  isSelected: label == (selectedLetter ?? 'All'),
+                  // As in the reference, only a chosen letter is highlighted;
+                  // All stays plain text.
+                  isSelected: label != 'All' && label == selectedLetter,
                   isAvailable: label == 'All' || available.contains(label),
                   accent: palette.utilityAction,
                   palette: palette,
@@ -938,7 +949,7 @@ class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
 
     return SizedBox(
       width: widget.width,
-      height: 26,
+      height: 30,
       child: MouseRegion(
         cursor: canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
         onEnter: (_) => setState(() => _hovered = true),
@@ -947,18 +958,22 @@ class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
           mouseCursor:
               canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
           onTap: widget.onTap,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(5),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 1),
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(5),
             ),
             child: Center(
+              // Labels never wrap ("0-9") when the bar is squeezed.
               child: Text(
                 widget.label,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.visible,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: isSelected || _hovered
                       ? FontWeight.w700
                       : FontWeight.w600,
