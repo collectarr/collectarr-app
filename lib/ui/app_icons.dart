@@ -198,8 +198,8 @@ abstract final class AppIcons {
       IconData(0xf0c9, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData viewHorizontalCards =
       IconData(0xf03a, fontFamily: _solid, fontPackage: _fontPackage);
-  static const IconData viewCovers =
-      IconData(0xf00a, fontFamily: _solid, fontPackage: _fontPackage);
+  static const String viewCoversSvg = 'assets/icons/view-covers.svg';
+  static const String viewShelvesSvg = 'assets/icons/view-shelves.svg';
   static const String viewVerticalCardsSvg = 'assets/icons/cards-black.svg';
 
   // --- Cover Actions ---

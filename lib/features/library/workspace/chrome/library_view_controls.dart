@@ -491,31 +491,26 @@ String _viewModeTooltip(LibraryViewMode mode) {
   return '${_viewModeLabel(mode)} View';
 }
 
-IconData _viewModeIcon(LibraryViewMode mode) {
-  return switch (mode) {
-    LibraryViewMode.grid => AppIcons.viewCovers,
-    LibraryViewMode.card => Icons.view_module,
-    LibraryViewMode.horizontalCards => AppIcons.viewHorizontalCards,
-    LibraryViewMode.cardFlow => Icons.view_carousel,
-    LibraryViewMode.list => AppIcons.viewList,
-    LibraryViewMode.shelves => Icons.shelves,
-  };
-}
-
 Widget buildViewModeGlyph(
   LibraryViewMode mode, {
   required Color color,
   double size = 16,
 }) {
-  if (mode == LibraryViewMode.card) {
-    return SvgPicture.asset(
-      AppIcons.viewVerticalCardsSvg,
-      width: size,
-      height: size,
-      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-    );
-  }
-  return Icon(_viewModeIcon(mode), size: size, color: color);
+  Widget svg(String asset) => SvgPicture.asset(
+        asset,
+        width: size,
+        height: size,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      );
+  Widget icon(IconData data) => Icon(data, size: size, color: color);
+  return switch (mode) {
+    LibraryViewMode.list => icon(AppIcons.viewList),
+    LibraryViewMode.card => svg(AppIcons.viewVerticalCardsSvg),
+    LibraryViewMode.horizontalCards => icon(AppIcons.viewHorizontalCards),
+    LibraryViewMode.grid => svg(AppIcons.viewCoversSvg),
+    LibraryViewMode.shelves => svg(AppIcons.viewShelvesSvg),
+    LibraryViewMode.cardFlow => icon(Icons.view_carousel),
+  };
 }
 
 String _detailsLayoutMenuLabel(LibraryDetailsLayout layout) {
