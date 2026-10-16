@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### 🧰 CI & Build
+- `dart run tool/ci_check.dart` runs the same checks as CI before a push, stage by stage.
+
 ## 1.1.0 - 2026-10-16
 
 ### ✨ Features
