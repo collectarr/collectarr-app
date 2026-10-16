@@ -320,6 +320,7 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter album, artist, format, or label...',
     emptySearchMessage: 'Enter an album, artist, format, or label.',
+    libraryHint: 'Search albums & tracks...',
   ),
   filterLabels: const LibraryPresentationLabels(
     values: {

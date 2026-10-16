@@ -588,7 +588,9 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: LibraryToolbarSearch(
                     controller: searchController,
-                    hintText:
+                    hintText: libraryPresentationForKind(type.kind)
+                            .searchFieldLabels
+                            .libraryHint ??
                         'Search ${type.identity.pluralLabel.toLowerCase()}...',
                     onScanBarcode: onScan,
                     onScanCover: onScanCover,
@@ -958,7 +960,10 @@ class LibraryCompactToolbarContent extends StatelessWidget {
             final search = SearchBar(
               controller: searchController,
               constraints: const BoxConstraints.tightFor(height: 36),
-              hintText: 'Search ${type.identity.pluralLabel.toLowerCase()}...',
+              hintText: libraryPresentationForKind(type.kind)
+                      .searchFieldLabels
+                      .libraryHint ??
+                  'Search ${type.identity.pluralLabel.toLowerCase()}...',
               leading: const Icon(Icons.search),
               trailing: searchActive
                   ? [

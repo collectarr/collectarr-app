@@ -2,10 +2,15 @@ class LibraryMediaSearchFieldLabels {
   const LibraryMediaSearchFieldLabels({
     required this.queryHint,
     required this.emptySearchMessage,
+    this.libraryHint,
   });
 
   final String queryHint;
   final String emptySearchMessage;
+
+  /// Placeholder of the library toolbar search; the generic "Search items..."
+  /// when null.
+  final String? libraryHint;
 }
 
 class LibraryMediaPreviewLabels {
