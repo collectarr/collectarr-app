@@ -46,7 +46,9 @@ class _LibraryFindDuplicatesPageState
   final _kept = <String>{};
   final _collapsed = <String>{};
   late final _workspace = libraryKindWorkspaceForKind(widget.type.kind);
-  late final _fields = _workspace.fields;
+  // Duplicates are always local entries, so personal columns such as Added
+  // Date are available alongside catalog ones.
+  late final _fields = _workspace.libraryEntryFields;
   late final _columns = _fields.columns;
   late final List<String> _defaultColumns = [
     for (final id

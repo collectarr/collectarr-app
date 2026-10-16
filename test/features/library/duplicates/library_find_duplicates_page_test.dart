@@ -115,6 +115,7 @@ void main() {
     await tester.tap(find.byKey(const Key('duplicates.find')));
     await tester.pumpAndSettle();
     expect(find.text('1 duplicates found:'), findsOneWidget);
+    expect(find.text('Added Date'), findsOneWidget);
     final keep = find.widgetWithText(FilledButton, 'Keep 2');
     await tester.ensureVisible(keep);
     await tester.tap(keep);
