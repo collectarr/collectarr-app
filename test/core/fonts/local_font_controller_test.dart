@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:io';
 import 'dart:convert';
 import 'package:collectarr_app/core/fonts/font_weight.dart';
