@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -15,6 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
     show LibraryEditTextField;
@@ -726,24 +728,67 @@ class _MusicInspectorTracks extends StatelessWidget {
           highlightTerms: highlightTerms,
           onFilterByValue: inspector.onFilterByValue,
         );
+    // Core data errors are corrected through the editor's Propose to Core,
+    // so the reference link opens the editor for albums that came from Core.
+    final onReport = inspector.onEdit != null &&
+            (inspector.item.target is CatalogTargetRef ||
+                inspector.libraryEntry?.sourceCatalogRef != null)
+        ? inspector.onEdit
+        : null;
     // A wide panel lays discs out three abreast, as in the reference, so
     // durations stay next to their titles and every disc is visible at once.
     return LayoutBuilder(builder: (context, constraints) {
       final columns = constraints.maxWidth >= _wideTrackPanelWidth ? 3 : 1;
       final width = (constraints.maxWidth - _discGap * (columns - 1)) / columns;
-      return Wrap(
-        spacing: _discGap,
-        runSpacing: _discGap,
-        children: [
-          for (final group in groups)
-            SizedBox(width: width, child: disc(group)),
-        ],
-      );
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Wrap(
+          spacing: _discGap,
+          runSpacing: _discGap,
+          children: [
+            for (final group in groups)
+              SizedBox(width: width, child: disc(group)),
+          ],
+        ),
+        if (onReport != null)
+          SizedBox(
+            width: width,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _ReportDataErrorLink(onTap: onReport),
+            ),
+          ),
+      ]);
     });
   }
 
   static const _discGap = 20.0;
   static const _wideTrackPanelWidth = 900.0;
+}
+
+class _ReportDataErrorLink extends StatelessWidget {
+  const _ReportDataErrorLink({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    const style = TextStyle(
+      color: Color(0xFF888888),
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+    );
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 6),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          const Text('Report data error', style: style),
+          const SizedBox(width: 5),
+          Icon(AppIcons.caretRight, size: 12, color: style.color),
+        ]),
+      ),
+    );
+  }
 }
 
 class _MusicDiscDetails extends StatelessWidget {
@@ -1070,9 +1115,12 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
     final entry = MusicLibraryEntryProjection.fromDispatch(
       inspector.libraryEntryDispatch,
     );
+    final purchased = _purchasedSummary(entry);
     final personalRows = <(String, String)>[
+      // Purchase facts read as one row, as in the reference; quantity and
+      // collection status already show in the header.
+      if (purchased != null) ('Purchased', purchased),
       ('Index', entry?.personal.indexNumber?.toString() ?? '-'),
-      if (entry != null) ('Quantity', entry.personal.quantity.toString()),
       if (entry?.personal.rating != null)
         ('My Rating', '${entry!.personal.rating}/10'),
       if (entry?.personal.ownerLabel != null)
@@ -1095,26 +1143,11 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
         ('Grade', entry!.personal.grade!),
       if (source.locationPath?.trim().isNotEmpty == true)
         ('Location', source.locationPath!),
-      if (entry?.personal.collectionStatus?.trim().isNotEmpty == true)
-        (
-          'Collection status',
-          libraryCollectionStatusFromValue(entry!.personal.collectionStatus)
-              .label
-        ),
-      if (entry?.personal.pricePaidCents != null)
-        (
-          'Price paid',
-          formatMoney(entry!.personal.pricePaidCents, entry.personal.currency)
-        ),
       if (entry?.personal.sellPriceCents != null)
         (
           'Sell price',
           formatMoney(entry!.personal.sellPriceCents, entry.personal.currency)
         ),
-      if (entry?.personal.purchaseDate != null)
-        ('Purchase date', formatDate(entry!.personal.purchaseDate!)),
-      if (entry?.personal.purchaseStore?.trim().isNotEmpty == true)
-        ('Purchase store', entry!.personal.purchaseStore!),
       if (entry?.personal.details.signedBy?.trim().isNotEmpty == true)
         ('Signed by', entry!.personal.details.signedBy!),
       if (entry?.personal.details.lastCleanedDate != null)
@@ -1140,6 +1173,22 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
       fields: asFacts(personalRows),
     );
   }
+}
+
+/// "On Oct 04, 2026 at Store for \$12.00", leaving out unknown parts.
+String? _purchasedSummary(MusicLibraryEntry? entry) {
+  final personal = entry?.personal;
+  if (personal == null) return null;
+  final store = personal.purchaseStore?.trim();
+  final parts = [
+    if (personal.purchaseDate case final date?) 'on ${formatDate(date)}',
+    if (store != null && store.isNotEmpty) 'at $store',
+    if (personal.pricePaidCents != null)
+      'for ${formatMoney(personal.pricePaidCents, personal.currency)}',
+  ];
+  if (parts.isEmpty) return null;
+  final text = parts.join(' ');
+  return text[0].toUpperCase() + text.substring(1);
 }
 
 class _MusicInspectorCredits extends StatelessWidget {
