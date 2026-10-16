@@ -3,6 +3,11 @@
 - Follow the user's instructions over this file.
 - Use conventional commit titles. For real changes, add a body: what changed,
   why, and how it was checked. Do not use one-line commits for whole stages.
+- Keep each commit to one fix, feature, refactor or docs change; split mixed
+  work into separate commits instead of one commit per session.
+- Update `CHANGELOG.md` under "Unreleased" in the same commit: one short,
+  user-facing line in the matching section (Features, Fixes, Refactors, Docs),
+  describing the effect rather than files or internals.
 - No legacy support, compatibility layers, deprecated aliases or dead code.
 - After the initial Music baseline, change schemas with explicit ordered
   migrations. Never reset a database to make an upgrade work.

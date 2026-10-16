@@ -10,6 +10,10 @@
 - Borrowers have a sort name, email and address; Loan opens a lend form with a loaner picker and a due date two weeks out.
 - Music adds a Core ID column and sort; Settings can open Add/Update from Core settings.
 - Music imports CATraxx XML exports with discs, vinyl sides, tracks, credits, ratings and purchase details.
+- Export to XML asks for confirmation like the reference and saves complete albums, from the menu and from a selection.
+- The search field, its suggestions (cover, “Artist - Title”, year, View all results) and the search scope menu follow the reference; the barcode button looks like a scanner.
+- Random pick scrolls the chosen album into view and only picks among the albums shown.
+- The Add dialog follows the reference: one column with Artist & Title and Barcode tabs, Add Manually, compact results with checkboxes and a “Confirm your selection” sheet.
 
 ### 🐛 Fixes
 - Albums without covers no longer show another entry's Core cover in Covers/Shelves.
@@ -32,10 +36,14 @@
 - The folder panel keeps its width when the window narrows, menus open instantly, and a click beside the navigation drawer closes it.
 - Date pickers, the Loan Manager, My Images and Statistics prices follow the reference; icons are Font Awesome throughout.
 - Synced pick-list values keep their sort name and hidden state.
+- The Covers and Shelves icons in the View menu match the reference.
+- Edit buttons open the editor even if the pointer moves while the button is pressed.
+- Ctrl + mouse wheel zooms wherever the pointer is, also over lists and panels.
 
 ### 📚 Docs
 - Replaced dated audit, plan and QA reports with one living [CLZ parity report](docs/clz-parity.md) and a concise architecture status.
 - Removed scripts that reset or seeded the real database, and the obsolete Collectarr Sans font tooling.
+- The CLZ parity report records the search, Add dialog and Export to XML comparison.
 
 
 ## What's Changed
