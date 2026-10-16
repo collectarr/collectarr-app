@@ -141,6 +141,7 @@ items come from earlier audits and must be re-checked before closing.
 
 | Priority | Area | CLZ | Collectarr |
 | --- | --- | --- | --- |
+| P1 | Light theme | Light content areas (white list, light grey folder panel and details) under the dark top bar and toolbars; captured on CLZ Games Web 2026-10-16 | Only the dark theme has been compared; light theme not yet matched |
 | P2 | Imports | Also Music Label, OrangeCD, CDpedia | Not offered: no public schema or sample export exists (see [import/export](import-export.md)); CATraxx XML is imported |
 
 ### Typography
