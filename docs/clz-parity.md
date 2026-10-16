@@ -138,6 +138,10 @@ items come from earlier audits and must be re-checked before closing.
 Equal CSS and Flutter weights do not paint identically, and the bundled face is
 not Gilroy. Compare with a user-supplied local font before changing weights.
 
+- Gilroy 400 paints about as heavy as our 600 (folder rows, list cells,
+  letters and calendar days look bolder in CLZ). Weights stay as measured
+  until a local Gilroy is loaded and compared.
+
 ## Not yet compared live
 
 Transfer Field Data, Re-Assign Index, every custom-field subtype editor and
