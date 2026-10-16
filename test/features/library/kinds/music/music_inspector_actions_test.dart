@@ -196,7 +196,7 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('Loan'));
       await tester.pumpAndSettle();
-      expect(find.text('Loans'), findsWidgets);
+      expect(find.text('Loan Album'), findsWidgets);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump(const Duration(milliseconds: 1));

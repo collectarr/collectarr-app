@@ -20,7 +20,6 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_refres
 import 'package:collectarr_app/features/library/metadata/library_link_items_page.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
-import 'package:collectarr_app/features/library/inspector/inspector_loan_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
@@ -35,8 +34,8 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/features/loans/loan_item_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -132,16 +131,18 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final onDuplicate = activeLibraryEntry == null
         ? null
         : () => _duplicateLibraryEntry(selected, activeLibraryEntry);
+    // Loan opens the reference "Loan Album" form directly; returns and
+    // history live in the Loan Manager.
     final onLoan = activeLibraryEntry == null || widget.db == null
         ? null
-        : () => _showEntrySectionDialog(
-              context,
-              title: 'Loans',
-              child: InspectorLoanSection(
-                libraryEntryRef: activeLibraryEntry.ref,
-                db: widget.db!,
-                accent: widget.accent,
-              ),
+        : () => showLoanItemDialog(
+              context: context,
+              db: widget.db!,
+              libraryEntryRef: activeLibraryEntry.ref,
+              singularLabel: widget.type.identity.singularLabel,
+              title: selected.dto.primaryLabel,
+              subtitle: selected.dto.secondaryLabel,
+              imageUrl: selected.dto.imageUrl,
             );
     void onRefreshMetadata() => _refreshSelectedEntryMetadata(selected);
     void onShare() => _shareInspectorEntry(selected);
@@ -418,24 +419,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                                   ]))))),
                 ]),
               )),
-    );
-  }
-
-  Future<void> _showEntrySectionDialog(
-    BuildContext context, {
-    required String title,
-    required Widget child,
-  }) {
-    return showAppDialog<void>(
-      context: context,
-      builder: (context) => LibraryDialogScaffold(
-        headerIcon: AppIcons.tabDetails,
-        title: Text(
-          title,
-        ),
-        onClose: () => Navigator.of(context).pop(),
-        body: SingleChildScrollView(child: child),
-      ),
     );
   }
 
