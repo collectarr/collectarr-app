@@ -44,7 +44,7 @@ final class LibraryPageFacetSession {
   LibraryLinkedMetadataFilter? linkedMetadataFilter;
   LibraryQuickView? quickView;
   LibraryCollectionStatusScope collectionStatusScope =
-      LibraryCollectionStatusScope.all;
+      kDefaultCollectionStatusScope;
   LibraryBucketCompletionScope bucketCompletionScope =
       LibraryBucketCompletionScope.all;
 }

@@ -75,8 +75,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       _session.facets.linkedMetadataFilter != null ||
       _session.facets.selectedBucket != null ||
       _session.facets.selectedLetter != null ||
-      _session.facets.collectionStatusScope !=
-          LibraryCollectionStatusScope.all ||
+      _session.facets.collectionStatusScope != kDefaultCollectionStatusScope ||
       _session.facets.quickView != null ||
       _session.preferences.activeSmartListId != null ||
       _session.selection.filterSelection.hasActiveFilters;

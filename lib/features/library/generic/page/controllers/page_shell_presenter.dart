@@ -284,7 +284,7 @@ abstract final class LibraryPageShellPresenter {
       collectionStatusScope: state._session.facets.collectionStatusScope,
       bucketCompletionScope: effectiveBucketCompletionScope,
       collectionStatusScopeLabel: state._session.facets.collectionStatusScope ==
-              LibraryCollectionStatusScope.all
+              kDefaultCollectionStatusScope
           ? null
           : state._session.facets.collectionStatusScope.label,
       linkedMetadataFilterLabel:

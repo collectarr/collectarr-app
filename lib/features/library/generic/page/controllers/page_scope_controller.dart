@@ -238,7 +238,7 @@ abstract final class _LibraryScopeControllerOps {
       state._session.facets.selectedLetter = null;
       state._session.facets.linkedMetadataFilter = null;
       state._session.facets.collectionStatusScope =
-          LibraryCollectionStatusScope.all;
+          kDefaultCollectionStatusScope;
       state._session.facets.bucketCompletionScope =
           LibraryBucketCompletionScope.all;
       state._session.facets.quickView = null;
@@ -264,7 +264,7 @@ abstract final class _LibraryScopeControllerOps {
     if (snapshot.linkedMetadataFilter != null) {
       return snapshot.linkedMetadataFilter!.chipLabel;
     }
-    if (snapshot.collectionStatusScope != LibraryCollectionStatusScope.all) {
+    if (snapshot.collectionStatusScope != kDefaultCollectionStatusScope) {
       return snapshot.collectionStatusScope.label;
     }
     if (snapshot.bucketCompletionScope != LibraryBucketCompletionScope.all) {

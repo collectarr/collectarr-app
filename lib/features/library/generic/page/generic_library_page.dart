@@ -528,7 +528,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   void _toggleCollectionStatusScope(LibraryCollectionStatusScope scope) {
     _setCollectionStatusScope(
       _session.facets.collectionStatusScope == scope
-          ? LibraryCollectionStatusScope.all
+          ? kDefaultCollectionStatusScope
           : scope,
     );
   }

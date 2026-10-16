@@ -254,7 +254,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._session.selection.value = LibrarySelectionState.empty();
       state._session.selection.filterSelection = LibraryFilterSelection.none;
       state._session.facets.collectionStatusScope =
-          LibraryCollectionStatusScope.all;
+          kDefaultCollectionStatusScope;
       state._session.facets.bucketCompletionScope =
           LibraryBucketCompletionScope.all;
       state._session.preferences.activeSmartListId = null;

@@ -8,6 +8,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 void main() {
+  test('libraries open on In Collection and keep an explicit All', () {
+    final opened =
+        LibraryRouteState.fromUri(Uri.parse('/libraries?kind=music'));
+    expect(opened.collectionStatusScope,
+        LibraryCollectionStatusScope.inCollection);
+    expect(opened.hasExplicitViewState, isFalse);
+
+    const all = LibraryRouteState(
+        kind: 'music', collectionStatusScope: LibraryCollectionStatusScope.all);
+    final uri =
+        all.toUri(Uri.parse('/libraries'), type: const MusicRegistration());
+    expect(LibraryRouteState.fromUri(uri).collectionStatusScope,
+        LibraryCollectionStatusScope.all);
+  });
+
   test('library route state round-trips Smart List field operators', () {
     final state = LibraryRouteState(
       kind: 'music',
