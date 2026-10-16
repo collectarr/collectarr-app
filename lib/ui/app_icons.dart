@@ -33,6 +33,11 @@ abstract final class AppIcons {
       IconData(0xf02e, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData barcode =
       IconData(0xf02a, fontFamily: _solid, fontPackage: _fontPackage);
+  static const String barcodeScanSvg = 'assets/icons/barcode-scan.svg';
+  static const IconData dice =
+      IconData(0xf522, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData camera =
+      IconData(0xf030, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData warning =
       IconData(0xf071, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData circleExclamation =

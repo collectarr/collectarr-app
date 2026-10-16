@@ -10,6 +10,7 @@ class LibraryCardPresentation {
     this.itemNumber,
     this.variant,
     this.releaseDate,
+    this.releaseYear,
     this.format,
     this.synopsis,
     this.seriesTitle,
@@ -26,6 +27,9 @@ class LibraryCardPresentation {
   final String? itemNumber;
   final String? variant;
   final DateTime? releaseDate;
+
+  /// Release year, also known when the date is only partial.
+  final int? releaseYear;
   final String? format;
   final String? synopsis;
   final String? seriesTitle;
