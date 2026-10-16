@@ -41,16 +41,20 @@ Users can configure their preferred update channel in **Settings → Updates**:
 
 ---
 
-## 3. Repository Version Alignment
+## 3. Publishing a Release
 
-To prevent version downgrades or workflow failures:
+A release is one run of the **Release** workflow (`.github/workflows/release.yml`, *Run workflow* on `main`):
 
-1. **`pubspec.yaml`**: Holds the authoritative app version (`version: X.Y.Z-channel.N+B`).
-2. **GitHub Releases**: Tags are prefixed with `v` (e.g. `v0.2.1-beta.1`).
-3. **Release Workflow (`.github/workflows/release.yml`)**:
-   - Validates that `pubspec.yaml` matches the planned release tag before publishing artifacts.
-   - Pushes Docker containers to GHCR (`ghcr.io/collectarr/collectarr-app-web`).
-   - Builds Windows (`.exe` / `.zip`), Linux (`.deb` / `.tar.gz`), Android (`.apk`), and macOS (`.dmg` / `.zip`).
+1. **Version**: picked from the conventional commits since the last stable tag: a breaking change (`!` or `BREAKING CHANGE:`) raises MAJOR, `feat` raises MINOR, `fix`/`perf` raise PATCH; other types do not release. The *version* input overrides it and may be a prerelease such as `1.2.0-beta.1`.
+2. **Changelog and pubspec**: the "Unreleased" entries of `CHANGELOG.md` move under `## X.Y.Z - date`, and `pubspec.yaml` gets `version: X.Y.Z+N` with the build number raised. The workflow commits this as `chore(release): X.Y.Z` on `main` and tags it `vX.Y.Z`.
+3. **GitHub release**: created from the tag with the moved changelog entries as notes; prereleases are marked as such and never become *Latest*.
+4. **Downloads**: Windows (`.exe` / `.zip`), Linux (`.deb` / `.tar.gz`), Android (`.apk`), macOS (`.dmg` / `.zip`, when `COLLECTARR_ENABLE_MACOS_RELEASE` is `true`), a web bundle, and the `ghcr.io/collectarr/collectarr-app-web` image are built from the tag and attached.
+
+*Dry run* shows the version and notes in the run summary without committing. *Backfill version* rebuilds and attaches the downloads of an existing release.
+
+Run `dart run tool/prepare_release.dart --check` locally to preview the next release.
+
+**Setup**: `main` requires reviewed pull requests, so the workflow pushes the release commit with the `RELEASE_TOKEN` secret: a fine-grained personal access token of a repository admin with *Contents: read and write* on this repository (admins may bypass the review rule). Without it, only dry runs work.
 
 ---
 
