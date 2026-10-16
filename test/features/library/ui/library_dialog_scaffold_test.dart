@@ -72,12 +72,12 @@ void main() {
     expect(find.text('Body'), findsOneWidget);
     expect(find.byIcon(AppIcons.close), findsOneWidget);
 
-    final headerBox =
-        tester.widgetList<DecoratedBox>(find.byType(DecoratedBox)).firstWhere(
-              (box) =>
-                  box.decoration is BoxDecoration &&
-                  (box.decoration as BoxDecoration).gradient != null,
-            );
-    expect((headerBox.decoration as BoxDecoration).gradient, isNotNull);
+    // The header is flat kind accent, as in the reference.
+    final decorations = tester
+        .widgetList<DecoratedBox>(find.byType(DecoratedBox))
+        .map((box) => box.decoration)
+        .whereType<BoxDecoration>();
+    expect(decorations.any((d) => d.color == Colors.deepPurple), isTrue);
+    expect(decorations.every((d) => d.gradient == null), isTrue);
   });
 }

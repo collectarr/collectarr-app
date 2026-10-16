@@ -34,33 +34,6 @@ Color libraryDefaultAccentForKind(CatalogMediaKind kind) {
   return libraryKindRegistrationForKind(kind).identity.accent;
 }
 
-LinearGradient libraryChromeGradient(
-  Color accent, {
-  AlignmentGeometry begin = Alignment.topLeft,
-  AlignmentGeometry end = Alignment.bottomRight,
-  Brightness brightness = Brightness.dark,
-}) {
-  final isDark = brightness == Brightness.dark;
-  return LinearGradient(
-    begin: begin,
-    end: end,
-    colors: [
-      Color.alphaBlend(
-        isDark
-            ? Colors.black.withValues(alpha: 0.34)
-            : Colors.white.withValues(alpha: 0.42),
-        accent,
-      ),
-      Color.alphaBlend(
-        isDark
-            ? Colors.black.withValues(alpha: 0.62)
-            : Colors.white.withValues(alpha: 0.20),
-        accent,
-      ),
-    ],
-  );
-}
-
 Color libraryChromeBorderColor(
   Color accent, {
   Brightness brightness = Brightness.dark,
@@ -103,9 +76,9 @@ class AnimatedLibraryChrome extends StatelessWidget {
         final animatedAccent = color ?? accent;
         final palette = appPalette(context);
         return DecoratedBox(
+          // Flat kind accent, as in the reference chrome.
           decoration: BoxDecoration(
-            gradient: libraryChromeGradient(animatedAccent,
-                brightness: palette.brightness),
+            color: animatedAccent,
             border: borderBuilder?.call(animatedAccent, palette.brightness),
           ),
           child: child,
