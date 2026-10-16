@@ -59,6 +59,7 @@ Keep these when matching the reference visually.
 | Localization | Application language, time zone and a time display format | English only and the device time zone, shown read-only; Music lengths keep m:ss and h:mm:ss, which CLZ Music shows regardless of its time format |
 | Sort fields | Back/Front Cover sorts | Has Back/Has Front cover the same need; no separate cover sorts |
 | Loan Manager | Current loans only | Also deletes loan records and lends or returns by barcode |
+| Add dialog | Search field only | Advanced artist, label and year fields toggle beside the field; cover search sits in the tab row |
 
 ## Fixed in the 2026-10-15/16 passes
 
@@ -121,6 +122,15 @@ Keep these when matching the reference visually.
 | Icons | Material icons in Settings tabs, picker carets and loan tabs | Font Awesome throughout |
 | My Images | Lighter tile and helper line | #666 dashed tile and instruction on the body colour; helper white at 70 % |
 | Motion | 17 menus animated; 54 % backdrop; list rows faded on hover; drawer ignored overlay clicks | Menus open instantly; 50 % backdrop; instant row hover; overlay click closes the drawer (200 ms linear dialogs and drawer, as in CLZ) |
+| View menu | Covers used a table glyph, Shelves a Material shelf icon | Own SVG glyphs drawn like the reference: a 3 × 3 square grid and an upright shelf unit |
+| Export to XML | The drawer opened an "Export Collection" dialog with a title-only XML; the selection opened a page of XML text | Both show the reference's centred compact confirm (icon, title, message, Cancel/Export) and then save the complete XML |
+| Edit buttons | A press that moved more than 18 px before release did not open the editor | Detail toolbar buttons and the list and tile pencils click on release over the button, as browsers do; regression test added |
+| Search field | 34 px with an accent border, 12.5 px text, Material barcode, cover and dice glyphs | 30 px #444 field without border, 14 px text and #999 placeholder; a barcode-in-frame glyph, Font Awesome camera and dice |
+| Search suggestions | Near-black panel with the title only and a format line | #383838 list flush under the field: 40 px cover, bold "Artist - Title", year, ruled rows, #464950 hover, "View all results ›" |
+| Search scope menu | 26 px rows with 13 px icons, opened right-aligned to the button | 30 px rows, 16 px icons, regular weight, left-aligned under the button |
+| Zoom | Ctrl + wheel over a list or panel scrolled it instead of zooming | Ctrl/⌘ + wheel zooms wherever the pointer is; regression test added |
+| Random pick | Selected an album that could be off-screen or outside the chosen letter | Picks among the shown albums and scrolls List, Cards, Covers and Shelves to it |
+| Add dialog | 1320 px two-pane dialog: "Search by" tabs, Manual and Scan links, format chips, side preview, "0 selected" footer | 690 px full-height column 10 px from the top: "Add Albums By:", folder tabs (Artist & Title, Barcode, settings gear), "Add Manually ›", 34 px field with a blue Search button, "N Results" caption with the format select, 71 px rows (cover, title, artist, "CD \| 1 disc, 10 tracks", barcode, checkbox), a "Confirm your selection" sheet over a dimmed dialog; the footer appears only for checked results |
 
 ## Open differences
 
@@ -146,6 +156,8 @@ not Gilroy. Compare with a user-supplied local font before changing weights.
 
 ## Not yet compared live
 
+Add dialog results and the confirm sheet: the comparison build has no Core
+server, so they were checked in widget renders against CLZ measurements.
 Transfer Field Data, Re-Assign Index, every custom-field subtype editor and
 validation state, populated My Images, the Manage Collections/Pick Lists save
 flows and Windows native rendering. Shelves, Print to PDF, Manage Collections
