@@ -407,59 +407,76 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
               child: ListView(
                 padding: const EdgeInsets.all(12),
                 children: [
-                  Wrap(
-                      spacing: 16,
-                      runSpacing: 10,
+                  AppPageTabs(
+                    tabs: const [
+                      AppPageTab(label: 'Current Loans', icon: Icons.schedule),
+                      AppPageTab(label: 'Loan History', icon: Icons.history),
+                    ],
+                    selectedIndex: _filter == _LoanFilter.returned ? 1 : 0,
+                    onSelected: (index) => setState(() => _filter =
+                        index == 1 ? _LoanFilter.returned : _LoanFilter.active),
+                  ),
+                  // The reference keeps loaner filter, print, count and search
+                  // in one bar on the panel the tabs belong to.
+                  Container(
+                    color: appManagementPanelColor(context),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 6,
                       crossAxisAlignment: WrapCrossAlignment.center,
+                      alignment: WrapAlignment.spaceBetween,
                       children: [
-                        AppPageTabs(
-                          tabs: const [
-                            AppPageTab(
-                                label: 'Current Loans', icon: Icons.schedule),
-                            AppPageTab(
-                                label: 'Loan History', icon: Icons.history),
-                          ],
-                          selectedIndex:
-                              _filter == _LoanFilter.returned ? 1 : 0,
-                          onSelected: (index) => setState(() => _filter =
-                              index == 1
-                                  ? _LoanFilter.returned
-                                  : _LoanFilter.active),
-                        ),
+                        Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              SizedBox(
+                                  width: 180,
+                                  child: DropdownButtonFormField<String>(
+                                      key: ValueKey(_borrower),
+                                      initialValue: _borrower ?? '',
+                                      isExpanded: true,
+                                      decoration: const InputDecoration(
+                                          prefixIcon:
+                                              Icon(Icons.person, size: 16),
+                                          isDense: true),
+                                      items: [
+                                        const DropdownMenuItem(
+                                            value: '',
+                                            child: Text('All loaners')),
+                                        for (final name in borrowers)
+                                          DropdownMenuItem(
+                                              value: name, child: Text(name))
+                                      ],
+                                      onChanged: (name) => setState(() =>
+                                          _borrower =
+                                              name == '' ? null : name))),
+                              TextButton.icon(
+                                  onPressed: filteredLoans.isEmpty
+                                      ? null
+                                      : () => _printLoans(filteredLoans),
+                                  icon: const Icon(AppIcons.print, size: 14),
+                                  label: const Text('PRINT TO PDF',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700))),
+                            ]),
+                        _LoanCountPill(count: filteredLoans.length),
                         SizedBox(
-                            width: 210,
-                            child: DropdownButtonFormField<String>(
-                                key: ValueKey(_borrower),
-                                initialValue: _borrower ?? '',
-                                isExpanded: true,
-                                items: [
-                                  const DropdownMenuItem(
-                                      value: '', child: Text('all loaners')),
-                                  for (final name in borrowers)
-                                    DropdownMenuItem(
-                                        value: name, child: Text(name))
-                                ],
-                                onChanged: (name) => setState(() =>
-                                    _borrower = name == '' ? null : name))),
-                        SizedBox(
-                            width: 210,
+                            width: 220,
                             child: TextField(
                                 controller: _queryController,
                                 onChanged: (_) => setState(() {}),
                                 decoration: const InputDecoration(
-                                    hintText: 'Search loans',
-                                    prefixIcon: Icon(Icons.search, size: 18),
+                                    hintText: 'Search...',
+                                    suffixIcon: Icon(Icons.search, size: 18),
                                     isDense: true))),
-                        TextButton.icon(
-                            onPressed: filteredLoans.isEmpty
-                                ? null
-                                : () => _printLoans(filteredLoans),
-                            icon: const Icon(Icons.picture_as_pdf_outlined,
-                                size: 16),
-                            label: const Text('print to pdf')),
-                      ]),
-                  const Divider(height: 20),
-                  Text('${filteredLoans.length} items'),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   if (MediaQuery.sizeOf(context).width >= 650 &&
                       filteredLoans.isNotEmpty)
@@ -1243,4 +1260,26 @@ class _EmptyLoansState extends StatelessWidget {
 String _fmt(DateTime dt) {
   final local = dt.toLocal();
   return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+}
+
+/// Item count shown between the loan filters and search, as in the reference.
+class _LoanCountPill extends StatelessWidget {
+  const _LoanCountPill({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        height: 26,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: appPalette(context).isDark
+              ? const Color(0xFF4A4A4A)
+              : appPalette(context).panelRaised,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text('$count ${count == 1 ? 'ITEM' : 'ITEMS'}',
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+      );
 }
