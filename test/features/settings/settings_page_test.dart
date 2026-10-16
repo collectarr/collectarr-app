@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -40,7 +41,7 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           theme: ThemeData(platform: TargetPlatform.windows),
-          home: const SettingsPage(),
+          home: const SettingsPage(initialSection: SettingsSection.connection),
         ),
       ),
     );
@@ -140,7 +141,7 @@ void main() {
     await tester.tap(find.text('Appearance'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Application skin'), findsOneWidget);
+    expect(find.text('Application Skin'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
   });
 
@@ -159,7 +160,7 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           theme: ThemeData(platform: TargetPlatform.windows),
-          home: const SettingsPage(),
+          home: const SettingsPage(initialSection: SettingsSection.connection),
         ),
       ),
     );
@@ -172,7 +173,7 @@ void main() {
     await tester.tap(find.text('Appearance'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Application skin'), findsOneWidget);
+    expect(find.text('Application Skin'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
   });
 
@@ -191,7 +192,7 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           theme: ThemeData(platform: TargetPlatform.android),
-          home: const SettingsPage(),
+          home: const SettingsPage(initialSection: SettingsSection.connection),
         ),
       ),
     );
@@ -217,21 +218,21 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           theme: ThemeData(platform: TargetPlatform.windows),
-          home: const SettingsPage(),
+          home: const SettingsPage(initialSection: SettingsSection.connection),
         ),
       ),
     );
     await pumpUntilSettled(tester);
 
     await _openSettingsTab(tester, 'Appearance');
-    final animationTile = find.widgetWithText(CheckboxListTile, 'Animations');
+    final animationTile = find.widgetWithText(SettingsCheck, 'Animations');
     expect(animationTile, findsOneWidget);
-    expect(tester.widget<CheckboxListTile>(animationTile).value, isTrue);
+    expect(tester.widget<SettingsCheck>(animationTile).value, isTrue);
 
     await tester.tap(animationTile);
     await pumpUntilSettled(tester);
 
-    expect(tester.widget<CheckboxListTile>(animationTile).value, isFalse);
+    expect(tester.widget<SettingsCheck>(animationTile).value, isFalse);
     final prefs = await SharedPreferences.getInstance();
     expect(
       prefs.getBool(UiPreferencesStore.animationsEnabledKey),
@@ -287,7 +288,9 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           theme: ThemeData(platform: TargetPlatform.windows),
-          home: SettingsPage(showWebSyncWarning: true),
+          home: SettingsPage(
+              showWebSyncWarning: true,
+              initialSection: SettingsSection.connection),
         ),
       ),
     );
@@ -329,7 +332,7 @@ void main() {
         ],
         child: MaterialApp(
           theme: ThemeData(platform: TargetPlatform.windows),
-          home: const SettingsPage(),
+          home: const SettingsPage(initialSection: SettingsSection.connection),
         ),
       ),
     );
@@ -380,7 +383,8 @@ void main() {
             ),
           ),
         ],
-        child: const MaterialApp(home: SettingsPage()),
+        child: const MaterialApp(
+            home: SettingsPage(initialSection: SettingsSection.connection)),
       ),
     );
     await pumpUntilSettled(tester);
@@ -419,7 +423,7 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           theme: ThemeData(platform: TargetPlatform.windows),
-          home: const SettingsPage(),
+          home: const SettingsPage(initialSection: SettingsSection.connection),
         ),
       ),
     );
@@ -454,7 +458,7 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           theme: ThemeData(platform: TargetPlatform.windows),
-          home: const SettingsPage(),
+          home: const SettingsPage(initialSection: SettingsSection.connection),
         ),
       ),
     );
@@ -489,7 +493,7 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           theme: ThemeData(platform: TargetPlatform.windows),
-          home: const SettingsPage(),
+          home: const SettingsPage(initialSection: SettingsSection.connection),
         ),
       ),
     );

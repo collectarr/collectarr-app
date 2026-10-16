@@ -1,5 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
-import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/features/settings/title_case_exceptions_dialog.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
@@ -43,6 +43,7 @@ import 'package:collectarr_app/features/library/providers/selected_library_provi
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
+import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -107,10 +108,12 @@ final _deviceIdentityProvider = FutureProvider.autoDispose<String>((ref) async {
   return DeviceIdentity().getOrCreate();
 });
 
+// Appearance holds the reference Settings page, so it comes first and opens
+// by default; connection and data tabs are Collectarr additions.
 enum SettingsSection {
+  appearance('Appearance', Icons.palette_outlined),
   connection('Connection', Icons.route_outlined),
   libraries('Libraries', Icons.view_comfy_alt_outlined),
-  appearance('Appearance', Icons.palette_outlined),
   proposals('Proposals', Icons.fact_check_outlined),
   data('Data', Icons.backup_outlined),
   account('Account', Icons.account_circle_outlined),
@@ -152,12 +155,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   List<Map<String, dynamic>> _syncDevices = const [];
   ConnectionSettings? _lastSyncedSettings;
   Timer? _connectionSaveDebounce;
-  SettingsSection _selectedSection = SettingsSection.connection;
+  SettingsSection _selectedSection = SettingsSection.appearance;
 
   @override
   void initState() {
     super.initState();
-    _selectedSection = widget.initialSection ?? SettingsSection.connection;
+    _selectedSection = widget.initialSection ?? SettingsSection.appearance;
   }
 
   @override
@@ -289,10 +292,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         ])))
                     .toList(),
               )),
+          // Room for the reference 958 px page plus its 16 px margins.
           body: AppManagementContent(
+              maxWidth: 990,
               child: TabBarView(
-            children: SettingsSection.values.map(buildSection).toList(),
-          )),
+                children: SettingsSection.values.map(buildSection).toList(),
+              )),
         ),
       ),
     );
@@ -637,20 +642,308 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Widget _buildAppearanceSection(UiPreferences preferences) {
     final controller = ref.read(uiPreferencesProvider.notifier);
-    Widget toggle(String label, bool value, ValueChanged<bool> onChanged) =>
-        CheckboxListTile(
-            controlAffinity: ListTileControlAffinity.leading,
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            title: Text(label,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
-            value: value,
-            onChanged: (value) {
-              if (value != null) onChanged(value);
-            });
+    final kindIdentity = libraryKindRegistrationForKind(
+            catalogMediaKindFromValue(ref.watch(selectedLibraryKindProvider)))
+        .identity;
+    final kindPlural = kindIdentity.pluralLabel.toLowerCase();
+    final kindSingular = kindIdentity.singularLabel.toLowerCase();
+    // The reference Settings page: Customization, Localization and
+    // Behaviour on the left; Sorting, Auto Capitalization and eBay links on
+    // the right.
+    final customization = _SettingsPanel(
+        icon: Icons.palette_outlined,
+        title: 'Customization',
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          SettingsGroupPair(
+            left: SettingsGroup(
+              legend: 'Application Skin',
+              child: SettingsSelect<ThemeMode>(
+                value: ref.watch(appThemeModeProvider),
+                values: const [
+                  ThemeMode.system,
+                  ThemeMode.light,
+                  ThemeMode.dark
+                ],
+                labelOf: (mode) => switch (mode) {
+                  ThemeMode.system => 'System',
+                  ThemeMode.light => 'Light',
+                  ThemeMode.dark => 'Dark',
+                },
+                onChanged: (mode) =>
+                    ref.read(appThemeModeProvider.notifier).setMode(mode),
+              ),
+            ),
+            right: SettingsGroup(
+              legend: 'Template for Details Panel',
+              child: SettingsSelect<DetailsPanelTemplate>(
+                value: preferences.detailsPanelTemplate,
+                values: DetailsPanelTemplate.values,
+                labelOf: (value) => value == DetailsPanelTemplate.application
+                    ? 'Follow application'
+                    : value.name[0].toUpperCase() + value.name.substring(1),
+                onChanged: controller.setDetailsPanelTemplate,
+              ),
+            ),
+          ),
+          SettingsGroupPair(
+            left: const SettingsGroup(
+                legend: 'Main Screen Layout', child: LibraryLayoutSetting()),
+            right: const SizedBox.shrink(),
+          ),
+          const SettingsLegend('Details Panel'),
+          SettingsCheck(
+              label: 'Show backdrop',
+              value: preferences.showInspectorBackdrop,
+              onChanged: controller.setShowInspectorBackdrop),
+          SettingsCheck(
+              label: 'Show back cover if space is available',
+              value: preferences.showInspectorBackCover,
+              onChanged: controller.setShowInspectorBackCover),
+          const SizedBox(height: 10),
+          const SettingsLegend('List View'),
+          SettingsCheck(
+              label: 'Wrap column content',
+              value: preferences.wrapColumnContent,
+              onChanged: controller.setWrapColumnContent),
+          SettingsCheck(
+              label: 'Auto-size column widths',
+              value: preferences.autoSizeColumns,
+              onChanged: controller.setAutoSizeColumns),
+          SettingsCheck(
+              label: 'Show Collection Status indicators',
+              value: preferences.showCollectionIndicators,
+              onChanged: controller.setShowCollectionIndicators),
+          SettingsCheck(
+              label: 'Show pencil icons (for editing)',
+              value: preferences.showEditIcons,
+              onChanged: controller.setShowEditIcons),
+          const SizedBox(height: 10),
+          const SettingsLegend('Motion'),
+          SettingsCheck(
+              label: 'Animations',
+              value: preferences.animationsEnabled,
+              onChanged: controller.setAnimationsEnabled),
+        ]));
+    final localization = _SettingsPanel(
+        icon: Icons.language,
+        title: 'Localization',
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          // Collectarr is English-only and follows the device time zone; the
+          // fields show that instead of offering choices.
+          SettingsGroup(
+            legend: 'Application Language',
+            child: SettingsSelect<String>(
+                value: 'English',
+                values: const ['English'],
+                labelOf: (value) => value,
+                onChanged: null),
+          ),
+          SettingsGroup(
+            legend: 'Time zone',
+            child: SettingsSelect<String>(
+                value: 'Device time zone',
+                values: const ['Device time zone'],
+                labelOf: (value) => value,
+                onChanged: null),
+          ),
+          SettingsGroupPair(
+            left: SettingsGroup(
+              legend: 'Currency',
+              child: SettingsSelect<String>(
+                value: preferences.formats.currency,
+                values: kCurrencyCodes,
+                labelOf: (code) => code,
+                onChanged: (code) => controller
+                    .setFormats(preferences.formats.copyWith(currency: code)),
+              ),
+            ),
+            right: SettingsGroup(
+              legend: 'Currency display',
+              child: SettingsSelect<CurrencyDisplay>(
+                value: preferences.formats.currencyDisplay,
+                values: CurrencyDisplay.values,
+                labelOf: (value) => value.example,
+                onChanged: (value) => controller.setFormats(
+                    preferences.formats.copyWith(currencyDisplay: value)),
+              ),
+            ),
+          ),
+          SettingsGroup(
+            legend: 'Number format',
+            child: SettingsSelect<NumberFormatStyle>(
+              value: preferences.formats.number,
+              values: NumberFormatStyle.values,
+              labelOf: (value) => value.example,
+              onChanged: (value) => controller
+                  .setFormats(preferences.formats.copyWith(number: value)),
+            ),
+          ),
+          SettingsGroupPair(
+            left: SettingsGroup(
+              legend: 'Date format (for displaying)',
+              child: SettingsSelect<DateDisplayFormat>(
+                value: preferences.formats.date,
+                values: DateDisplayFormat.values,
+                labelOf: (value) => value.example,
+                onChanged: (value) => controller
+                    .setFormats(preferences.formats.copyWith(date: value)),
+              ),
+            ),
+            right: SettingsGroup(
+              legend: 'Date format (when editing)',
+              child: SettingsSelect<DateEntryOrder>(
+                value: preferences.formats.dateEntry,
+                values: DateEntryOrder.values,
+                labelOf: (value) => value.label,
+                onChanged: (value) => controller
+                    .setFormats(preferences.formats.copyWith(dateEntry: value)),
+              ),
+            ),
+          ),
+        ]));
+    final behaviour = _SettingsPanel(
+        icon: Icons.help_outline,
+        title: 'Behaviour',
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const SettingsLegend('Ask for confirmation'),
+          SettingsCheck(
+              label: 'when removing $kindPlural',
+              value: preferences.confirmRemoval,
+              onChanged: controller.setConfirmRemoval),
+          SettingsCheck(
+              label: 'when duplicating $kindPlural',
+              value: preferences.confirmDuplication,
+              onChanged: controller.setConfirmDuplication),
+        ]));
+    final sorting = _SettingsPanel(
+        icon: Icons.sort_by_alpha,
+        title: 'Sorting',
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const SettingsLegend('When sorting...'),
+          SettingsCheck(
+              label: 'ignore sort titles',
+              value: preferences.ignoreSortTitles,
+              onChanged: controller.setIgnoreSortTitles),
+          SettingsCheck(
+              label: 'ignore sort names for Persons',
+              value: preferences.ignoreSortNames,
+              onChanged: controller.setIgnoreSortNames),
+          const SizedBox(height: 10),
+          const SettingsLegend('When displaying...'),
+          SettingsCheck(
+              label: 'show sort titles',
+              value: preferences.showSortTitles,
+              onChanged: controller.setShowSortTitles),
+          SettingsCheck(
+              label: 'show sort names for Persons',
+              value: preferences.showSortNames,
+              onChanged: controller.setShowSortNames),
+        ]));
+    final autoCap = _SettingsPanel(
+        icon: Icons.text_format,
+        title: 'Auto Capitalization',
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          SettingsLegend('Auto Cap $kindSingular titles'),
+          SettingsCheck(
+              label: 'when adding from Core',
+              value: preferences.autocapFromCore,
+              onChanged: controller.setAutocapFromCore),
+          SettingsCheck(
+              label: 'as you type in edit screen',
+              value: preferences.autocapAsYouType,
+              onChanged: controller.setAutocapAsYouType),
+          const SizedBox(height: 10),
+          SettingsGroup(
+            legend: 'Auto Cap Method',
+            child: SettingsSelect<TitleCaseMethod>(
+              value: preferences.titleCaseMethod,
+              values: TitleCaseMethod.values,
+              labelOf: (method) => method.label,
+              onChanged: controller.setTitleCaseMethod,
+            ),
+          ),
+          SettingsBlockButton(
+            label: 'Manage Exceptions',
+            onPressed: preferences.titleCaseMethod !=
+                    TitleCaseMethod.eachWordWithExceptions
+                ? null
+                : () async {
+                    final updated = await showTitleCaseExceptionsDialog(context,
+                        exceptions: preferences.titleCaseExceptions);
+                    if (updated != null) {
+                      await controller.setTitleCaseExceptions(updated);
+                    }
+                  },
+          ),
+        ]));
+    final ebay = _SettingsPanel(
+        icon: Icons.shopping_bag_outlined,
+        title: 'eBay search links',
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const SettingsLegend('Show/Hide eBay links'),
+          SettingsRadio<bool>(
+              label: 'Show eBay links',
+              value: true,
+              groupValue: preferences.showEbayLinks,
+              onChanged: controller.setShowEbayLinks),
+          SettingsRadio<bool>(
+              label: 'Hide all eBay links',
+              value: false,
+              groupValue: preferences.showEbayLinks,
+              onChanged: controller.setShowEbayLinks),
+          const SizedBox(height: 10),
+          const SettingsLegend('Show based on Collection Status'),
+          SettingsRadio<bool>(
+              label: 'Show for all entries',
+              value: false,
+              groupValue: preferences.ebayWishlistOnly,
+              onChanged: controller.setEbayWishlistOnly),
+          SettingsRadio<bool>(
+              label: 'Show for Wish List entries only',
+              value: true,
+              groupValue: preferences.ebayWishlistOnly,
+              onChanged: controller.setEbayWishlistOnly),
+          const SizedBox(height: 10),
+          const SettingsLegend('eBay link position'),
+          SettingsCheck(
+              label: 'Toolbar',
+              value: preferences.ebayToolbar,
+              onChanged: controller.setEbayToolbar),
+          SettingsCheck(
+              label: 'Details panel: next to cover',
+              value: preferences.ebayNextToCover,
+              onChanged: controller.setEbayNextToCover),
+          SettingsCheck(
+              label: 'Details panel: Links section',
+              value: preferences.ebayLinksSection,
+              onChanged: controller.setEbayLinksSection),
+          const SizedBox(height: 10),
+          const SettingsLegend('eBay search filter'),
+          for (final filter in EbaySearchFilter.values)
+            SettingsRadio<EbaySearchFilter>(
+                label: filter.label,
+                value: filter,
+                groupValue: preferences.ebaySearchFilter,
+                onChanged: controller.setEbaySearchFilter),
+          const SizedBox(height: 10),
+          SettingsGroup(
+            legend: 'eBay region',
+            child: SettingsSelect<EbayRegion>(
+              value: preferences.ebayRegion,
+              values: EbayRegion.values,
+              labelOf: (region) => region.label,
+              onChanged: controller.setEbayRegion,
+            ),
+          ),
+        ]));
     return DefaultTabController(
-      length: 4,
+      length: 3,
       child: Column(children: [
         const TabBar(
             isScrollable: true,
@@ -659,282 +952,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               Tab(text: 'Customization'),
               Tab(text: 'Covers & layout'),
               Tab(text: 'Typography'),
-              Tab(text: 'Behaviour & links'),
             ]),
         Expanded(
             child: TabBarView(children: [
-          _SettingsTabBody(twoColumns: true, children: [
-            _SettingsPanel(
-                icon: Icons.palette_outlined,
-                title: 'Application',
-                child: Column(children: [
-                  DropdownButtonFormField<ThemeMode>(
-                    initialValue: ref.watch(appThemeModeProvider),
-                    decoration:
-                        const InputDecoration(labelText: 'Application skin'),
-                    items: const [
-                      DropdownMenuItem(
-                          value: ThemeMode.system, child: Text('System')),
-                      DropdownMenuItem(
-                          value: ThemeMode.light, child: Text('Light')),
-                      DropdownMenuItem(
-                          value: ThemeMode.dark, child: Text('Dark')),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        ref.read(appThemeModeProvider.notifier).setMode(value);
-                      }
-                    },
-                  ),
-                  toggle('Animations', preferences.animationsEnabled,
-                      controller.setAnimationsEnabled),
-                ])),
-            _SettingsPanel(
-                icon: Icons.view_sidebar,
-                title: 'Details panel',
-                child: Column(children: [
-                  DropdownButtonFormField<DetailsPanelTemplate>(
-                    isExpanded: true,
-                    initialValue: preferences.detailsPanelTemplate,
-                    decoration: const InputDecoration(
-                        labelText: 'Template for Details Panel'),
-                    items: DetailsPanelTemplate.values
-                        .map((value) => DropdownMenuItem(
-                            value: value,
-                            child: Text(
-                                value == DetailsPanelTemplate.application
-                                    ? 'Follow application'
-                                    : value.name[0].toUpperCase() +
-                                        value.name.substring(1))))
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.setDetailsPanelTemplate(value);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  const LibraryLayoutSetting(),
-                  toggle('Show backdrop', preferences.showInspectorBackdrop,
-                      controller.setShowInspectorBackdrop),
-                  toggle(
-                      'Show back cover if space is available',
-                      preferences.showInspectorBackCover,
-                      controller.setShowInspectorBackCover),
-                ])),
-            _SettingsPanel(
-                icon: Icons.language,
-                title: 'Localization',
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                          "Language: English. Dates use this device's time zone."),
-                      const SizedBox(height: 12),
-                      _formatDropdown<String>(
-                        label: 'Currency',
-                        value: preferences.formats.currency,
-                        values: kCurrencyCodes,
-                        labelOf: (code) => code,
-                        onChanged: (code) => controller.setFormats(
-                            preferences.formats.copyWith(currency: code)),
-                      ),
-                      _formatDropdown<CurrencyDisplay>(
-                        label: 'Currency display',
-                        value: preferences.formats.currencyDisplay,
-                        values: CurrencyDisplay.values,
-                        labelOf: (value) => value.example,
-                        onChanged: (value) => controller.setFormats(preferences
-                            .formats
-                            .copyWith(currencyDisplay: value)),
-                      ),
-                      _formatDropdown<NumberFormatStyle>(
-                        label: 'Number format',
-                        value: preferences.formats.number,
-                        values: NumberFormatStyle.values,
-                        labelOf: (value) => value.example,
-                        onChanged: (value) => controller.setFormats(
-                            preferences.formats.copyWith(number: value)),
-                      ),
-                      _formatDropdown<DateDisplayFormat>(
-                        label: 'Date format (for displaying)',
-                        value: preferences.formats.date,
-                        values: DateDisplayFormat.values,
-                        labelOf: (value) => value.example,
-                        onChanged: (value) => controller.setFormats(
-                            preferences.formats.copyWith(date: value)),
-                      ),
-                      _formatDropdown<DateEntryOrder>(
-                        label: 'Date format (when editing)',
-                        value: preferences.formats.dateEntry,
-                        values: DateEntryOrder.values,
-                        labelOf: (value) => value.label,
-                        onChanged: (value) => controller.setFormats(
-                            preferences.formats.copyWith(dateEntry: value)),
-                      ),
-                    ])),
-            _SettingsPanel(
-                icon: Icons.menu,
-                title: 'List view',
-                child: Column(children: [
-                  toggle('Wrap column content', preferences.wrapColumnContent,
-                      controller.setWrapColumnContent),
-                  toggle('Auto-size column widths', preferences.autoSizeColumns,
-                      controller.setAutoSizeColumns),
-                  toggle(
-                      'Show Collection Status indicators',
-                      preferences.showCollectionIndicators,
-                      controller.setShowCollectionIndicators),
-                  toggle('Show pencil icons (for editing)',
-                      preferences.showEditIcons, controller.setShowEditIcons),
-                ])),
-            _TabResetActions(
+          _SettingsTabBody.columns(
+            left: [customization, localization, behaviour],
+            right: [sorting, autoCap, ebay],
+            footer: _TabResetActions(
                 label: 'Reset appearance defaults',
                 onReset: _resetAppearanceDefaults),
-          ]),
+          ),
           _buildCoverAppearanceSection(preferences),
           const _SettingsTabBody(twoColumns: true, children: [
             _SettingsPanel(
                 icon: Icons.text_fields_outlined,
                 title: 'Typography',
                 child: LocalFontSettingsPanel()),
-          ]),
-          _SettingsTabBody(twoColumns: true, children: [
-            _SettingsPanel(
-                icon: Icons.help_outline,
-                title: 'Ask for confirmation',
-                child: Column(children: [
-                  toggle('When removing items', preferences.confirmRemoval,
-                      controller.setConfirmRemoval),
-                  toggle(
-                      'When duplicating items',
-                      preferences.confirmDuplication,
-                      controller.setConfirmDuplication),
-                ])),
-            _SettingsPanel(
-                icon: Icons.sort_by_alpha,
-                title: 'Sorting',
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const _SettingsSubheading('When sorting...'),
-                      toggle('Ignore sort titles', preferences.ignoreSortTitles,
-                          controller.setIgnoreSortTitles),
-                      toggle(
-                          'Ignore sort names for persons',
-                          preferences.ignoreSortNames,
-                          controller.setIgnoreSortNames),
-                      const SizedBox(height: 8),
-                      const _SettingsSubheading('When displaying...'),
-                      toggle('Show sort titles', preferences.showSortTitles,
-                          controller.setShowSortTitles),
-                      toggle(
-                          'Show sort names for persons',
-                          preferences.showSortNames,
-                          controller.setShowSortNames),
-                    ])),
-            _SettingsPanel(
-                icon: Icons.text_format,
-                title: 'Auto Capitalization',
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const _SettingsSubheading('Auto Cap album titles'),
-                      toggle(
-                          'When adding from Core',
-                          preferences.autocapFromCore,
-                          controller.setAutocapFromCore),
-                      toggle(
-                          'As you type in edit screen',
-                          preferences.autocapAsYouType,
-                          controller.setAutocapAsYouType),
-                      const SizedBox(height: 8),
-                      const _SettingsSubheading('Auto Cap Method'),
-                      DropdownButtonFormField<TitleCaseMethod>(
-                        isExpanded: true,
-                        initialValue: preferences.titleCaseMethod,
-                        items: [
-                          for (final method in TitleCaseMethod.values)
-                            DropdownMenuItem(
-                                value: method, child: Text(method.label)),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            controller.setTitleCaseMethod(value);
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          style: dialogActionButtonStyle(context),
-                          onPressed: preferences.titleCaseMethod !=
-                                  TitleCaseMethod.eachWordWithExceptions
-                              ? null
-                              : () async {
-                                  final updated =
-                                      await showTitleCaseExceptionsDialog(
-                                          context,
-                                          exceptions:
-                                              preferences.titleCaseExceptions);
-                                  if (updated != null) {
-                                    await controller
-                                        .setTitleCaseExceptions(updated);
-                                  }
-                                },
-                          child: const Text('Manage Exceptions'),
-                        ),
-                      ),
-                    ])),
-            _SettingsPanel(
-                icon: Icons.shopping_bag_outlined,
-                title: 'eBay search links',
-                child: Column(children: [
-                  DropdownButtonFormField<EbaySearchFilter>(
-                    isExpanded: true,
-                    initialValue: preferences.ebaySearchFilter,
-                    decoration:
-                        const InputDecoration(labelText: 'Listings filter'),
-                    items: EbaySearchFilter.values
-                        .map((value) => DropdownMenuItem(
-                            value: value, child: Text(value.label)))
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) controller.setEbaySearchFilter(value);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<EbayRegion>(
-                    isExpanded: true,
-                    initialValue: preferences.ebayRegion,
-                    decoration: const InputDecoration(labelText: 'eBay region'),
-                    items: EbayRegion.values
-                        .map((value) => DropdownMenuItem(
-                            value: value, child: Text(value.label)))
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) controller.setEbayRegion(value);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  toggle('Show eBay links', preferences.showEbayLinks,
-                      controller.setShowEbayLinks),
-                  toggle(
-                      'Show for Wish List entries only',
-                      preferences.ebayWishlistOnly,
-                      controller.setEbayWishlistOnly),
-                  toggle('Toolbar', preferences.ebayToolbar,
-                      controller.setEbayToolbar),
-                  toggle(
-                      'Details panel: next to cover',
-                      preferences.ebayNextToCover,
-                      controller.setEbayNextToCover),
-                  toggle(
-                      'Details panel: Links section',
-                      preferences.ebayLinksSection,
-                      controller.setEbayLinksSection),
-                ])),
           ]),
         ])),
       ]),
@@ -1655,93 +1688,100 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 }
 
-/// A labelled dropdown for one Settings > Localization format.
-Widget _formatDropdown<T>({
-  required String label,
-  required T value,
-  required List<T> values,
-  required String Function(T value) labelOf,
-  required ValueChanged<T> onChanged,
-}) =>
-    Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: DropdownButtonFormField<T>(
-        isExpanded: true,
-        initialValue: value,
-        decoration: InputDecoration(labelText: label),
-        items: [
-          for (final option in values)
-            DropdownMenuItem(value: option, child: Text(labelOf(option))),
-        ],
-        onChanged: (selected) {
-          if (selected != null) onChanged(selected);
-        },
-      ),
-    );
-
-/// A blue group label inside a settings panel, as in the reference.
-class _SettingsSubheading extends StatelessWidget {
-  const _SettingsSubheading(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 2),
-        child: Text(label,
-            style: TextStyle(
-                color: appPalette(context).utilityAction,
-                fontSize: 13,
-                fontWeight: FontWeight.w700)),
-      );
-}
-
 class _SettingsTabBody extends StatelessWidget {
-  const _SettingsTabBody({required this.children, this.twoColumns = false});
+  const _SettingsTabBody({required this.children, this.twoColumns = false})
+      : left = const [],
+        right = const [],
+        footer = null;
+
+  /// Explicit reference columns: a 958 px page, 32 px between the columns
+  /// and 37 px between boxes.
+  const _SettingsTabBody.columns({
+    required this.left,
+    required this.right,
+    this.footer,
+  })  : children = const [],
+        twoColumns = true;
 
   final List<Widget> children;
   final bool twoColumns;
+  final List<Widget> left;
+  final List<Widget> right;
+  final Widget? footer;
 
-  @override
-  Widget build(BuildContext context) =>
+  Widget _explicitColumns(BuildContext context) =>
       LayoutBuilder(builder: (context, constraints) {
-        final wide = twoColumns && constraints.maxWidth >= 800;
+        Widget column(List<Widget> boxes) =>
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              for (final box in boxes)
+                Padding(padding: const EdgeInsets.only(bottom: 37), child: box)
+            ]);
+        final wide = constraints.maxWidth >= 800;
         return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             child: Center(
                 child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 960),
-                    child: wide
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                                for (var column = 0; column < 2; column++) ...[
-                                  if (column != 0) const SizedBox(width: 28),
-                                  Expanded(
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.stretch,
-                                          children: [
-                                        for (var index = column;
-                                            index < children.length;
-                                            index += 2)
-                                          Padding(
-                                              padding: const EdgeInsets.only(
-                                                  bottom: 20),
-                                              child: children[index])
-                                      ])),
-                                ],
-                              ])
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                                for (final child in children)
-                                  Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 20),
-                                      child: child)
-                              ]))));
+                    constraints: const BoxConstraints(maxWidth: 958),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (wide)
+                            Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(child: column(left)),
+                                  const SizedBox(width: 32),
+                                  Expanded(child: column(right)),
+                                ])
+                          else
+                            column([...left, ...right]),
+                          if (footer != null) footer!,
+                        ]))));
       });
+
+  @override
+  Widget build(BuildContext context) => left.isNotEmpty || right.isNotEmpty
+      ? _explicitColumns(context)
+      : LayoutBuilder(builder: (context, constraints) {
+          final wide = twoColumns && constraints.maxWidth >= 800;
+          return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                  child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 960),
+                      child: wide
+                          ? Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                  for (var column = 0;
+                                      column < 2;
+                                      column++) ...[
+                                    if (column != 0) const SizedBox(width: 28),
+                                    Expanded(
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.stretch,
+                                            children: [
+                                          for (var index = column;
+                                              index < children.length;
+                                              index += 2)
+                                            Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 20),
+                                                child: children[index])
+                                        ])),
+                                  ],
+                                ])
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                  for (final child in children)
+                                    Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 20),
+                                        child: child)
+                                ]))));
+        });
 }
 
 class _TabResetActions extends StatelessWidget {
@@ -1781,25 +1821,20 @@ class _SettingsPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: libraryWorkspaceBackgroundColor(context),
+      // Reference settings boxes: 10 px padding, a 22/700 title and no rule.
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700, fontSize: 22),
-                  ),
-                ),
-              ],
+            Text(
+              title,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700, fontSize: 22),
             ),
-            const Divider(height: 18),
+            const SizedBox(height: 15),
             child,
           ],
         ),
