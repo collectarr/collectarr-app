@@ -175,7 +175,8 @@ class LibraryPageToolbarController {
             onClearFilters: _s._clearFilters,
             onRandomPick: (value) {
               if (value == null) return;
-              _s._collectionActionCoordinator.pickRandomItemFlow(value);
+              _s._collectionActionCoordinator
+                  .pickRandomItemFlow(_s._visibleItems(value));
             },
             onSmartLists: (value) =>
                 _s._dialogCoordinator.showSmartListsFlow(value),

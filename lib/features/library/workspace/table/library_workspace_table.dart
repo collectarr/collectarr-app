@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_reveal.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:flutter/material.dart';
 
@@ -57,6 +58,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
     this.headerHeight = 30,
     this.rowHeight = 38,
     this.rowHeightFor,
+    this.entryIdOf,
     this.columnSpacing = 10,
     this.horizontalMargin = 8,
     this.selectionRailWidth = 3,
@@ -105,6 +107,9 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final double headerHeight;
   final double rowHeight;
   final double Function(T entry)? rowHeightFor;
+
+  /// Identifies entries for reveal requests from [LibraryRevealScope].
+  final String Function(T entry)? entryIdOf;
   final double columnSpacing;
   final double horizontalMargin;
   final double selectionRailWidth;
@@ -124,8 +129,26 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
       _LibraryWorkspaceTableState<T>();
 }
 
-class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
+class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
+    with LibraryRevealListener {
   final _scrollController = ScrollController();
+  double _rowHeight = 0;
+
+  @override
+  void revealItem(String itemId) {
+    final entryIdOf = widget.entryIdOf;
+    if (entryIdOf == null) return;
+    final index =
+        widget.entries.indexWhere((entry) => entryIdOf(entry) == itemId);
+    if (index < 0) return;
+    double heightOf(T entry) => widget.rowHeightFor?.call(entry) ?? _rowHeight;
+    var leading = 0.0;
+    for (var i = 0; i < index; i++) {
+      leading += heightOf(widget.entries[i]);
+    }
+    revealScrollExtent(_scrollController,
+        leading: leading, extent: heightOf(widget.entries[index]));
+  }
 
   @override
   void dispose() {
@@ -140,6 +163,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
     final densityScale = densityMetrics.scale;
     final resolvedHeaderHeight = widget.headerHeight * densityScale;
     final resolvedRowHeight = widget.rowHeight * densityScale;
+    _rowHeight = resolvedRowHeight;
     final resolvedColumnSpacing = widget.columnSpacing * densityScale;
     final resolvedHorizontalMargin = widget.horizontalMargin * densityScale;
     final palette = appPalette(context);

@@ -415,6 +415,7 @@ class LibraryWorkspace extends ConsumerWidget {
                   wrap: preferences.wrapColumnContent,
                   child: LibraryWorkspaceTable<LibraryProjectionItem>(
                     entries: items,
+                    entryIdOf: (item) => item.target.id,
                     columns: [
                       for (final column in visibleColumns) column.value
                     ],

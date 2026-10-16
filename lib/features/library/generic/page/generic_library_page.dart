@@ -61,6 +61,7 @@ import 'package:collectarr_app/features/library/selection/library_selection_stat
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_reveal.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
@@ -147,6 +148,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   final LibraryPageSession _session = LibraryPageSession();
   final _searchStateKey = const Uuid().v4();
   final _searchController = TextEditingController();
+  final _revealController = LibraryRevealController();
   WidgetRef get _pageRef => ref;
 
   final _detailHydrationInFlight = <String>{};
@@ -231,8 +233,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void dispose() {
     _LibraryPageLifecycleControllerOps.dispose(this);
+    _revealController.dispose();
     super.dispose();
   }
+
+  List<LibraryProjectionItem> _visibleItems(LibraryProjection projection) =>
+      libraryItemsForLetter(projection.filteredItems, _alphabetField,
+          _session.facets.selectedLetter);
 
   void _onSearchChanged(String value) =>
       _searchControllerOps.onSearchChanged(value);
@@ -318,6 +325,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       mutateSidebarScope: _mutateSidebarScope,
       updateViewState: _updateViewState,
       selectItem: _selectItem,
+      revealItem: _revealController.reveal,
       syncRouteState: _syncRouteState,
       bulkActions: bulkActions,
       confirmBulkRemove: confirmBulkRemove,

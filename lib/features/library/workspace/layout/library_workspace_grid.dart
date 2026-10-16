@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/features/library/workspace/layout/library_reveal.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -55,8 +56,10 @@ class LibraryWorkspaceGrid<T> extends StatefulWidget {
       _LibraryWorkspaceGridState<T>();
 }
 
-class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
+class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>>
+    with LibraryRevealListener {
   final _scrollController = ScrollController();
+  ({int crossAxisCount, double rowExtent, double top})? _layout;
   final _selectionRectNotifier = ValueNotifier<Rect?>(null);
   int? _stableCrossAxisCount;
   bool _freezeCrossAxisCount = false;
@@ -75,6 +78,22 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
     _selectionRectNotifier.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void revealItem(String itemId) {
+    final layout = _layout;
+    final itemIdOf = widget.itemIdOf;
+    if (layout == null || itemIdOf == null || !widget.scrollable) return;
+    final index = widget.items.indexWhere((item) => itemIdOf(item) == itemId);
+    if (index < 0) return;
+    revealScrollExtent(
+      _scrollController,
+      leading: layout.top +
+          (index ~/ layout.crossAxisCount) *
+              (layout.rowExtent + widget.mainAxisSpacing),
+      extent: layout.rowExtent,
+    );
   }
 
   @override
@@ -130,6 +149,11 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
         final extraRightPadding = math.max(0.0, gridWidth - usedGridWidth);
         final effectivePadding = padding.copyWith(
           right: padding.right + extraRightPadding,
+        );
+        _layout = (
+          crossAxisCount: crossAxisCount,
+          rowExtent: mainAxisExtent,
+          top: effectivePadding.top,
         );
         final rowCount = (widget.items.length / crossAxisCount).ceil();
         final nestedGridHeight = widget.shrinkWrap && !widget.scrollable

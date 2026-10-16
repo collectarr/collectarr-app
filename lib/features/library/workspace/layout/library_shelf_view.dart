@@ -6,9 +6,10 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'library_reveal.dart';
 import 'library_shelf_backdrop.dart';
 
-class LibraryShelfView<T> extends ConsumerWidget {
+class LibraryShelfView<T> extends ConsumerStatefulWidget {
   const LibraryShelfView({
     super.key,
     required this.items,
@@ -49,18 +50,54 @@ class LibraryShelfView<T> extends ConsumerWidget {
   final double itemSpacing;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LibraryShelfView<T>> createState() =>
+      _LibraryShelfViewState<T>();
+}
+
+class _LibraryShelfViewState<T> extends ConsumerState<LibraryShelfView<T>>
+    with LibraryRevealListener {
+  final _scrollController = ScrollController();
+  ({int booksPerShelf, double pitch})? _layout;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void revealItem(String itemId) {
+    final layout = _layout;
+    if (layout == null) return;
+    final index = widget.items
+        .indexWhere((item) => widget.entryOf(item).target.id == itemId);
+    if (index < 0) return;
+    revealScrollExtent(
+      _scrollController,
+      leading: (index ~/ layout.booksPerShelf) * layout.pitch,
+      extent: layout.pitch,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final items = widget.items;
+    final emptyBuilder = widget.emptyBuilder;
+    final backgroundColor = widget.backgroundColor;
+    final bookWidth = widget.bookWidth;
+    final shelfHeight = widget.shelfHeight;
+    final itemSpacing = widget.itemSpacing;
     final style = ref.watch(libraryShelfStyleProvider).value ??
         LibraryShelfStyle.woodLight;
     if (items.isEmpty && emptyBuilder != null) {
-      final empty = emptyBuilder!(context);
+      final empty = emptyBuilder(context);
       return ColoredBox(
           color: backgroundColor ?? style.background, child: empty);
     }
     return LayoutBuilder(
       builder: (context, constraints) {
         const shelfOverhang = 8.0;
-        final bookHorizontalPadding = this.bookHorizontalPadding;
+        final bookHorizontalPadding = widget.bookHorizontalPadding;
         const bookInnerInset = 8.0;
         final availableShelfWidth =
             math.max(1.0, constraints.maxWidth - (shelfOverhang * 2));
@@ -89,26 +126,31 @@ class LibraryShelfView<T> extends ConsumerWidget {
             (i + booksPerShelf).clamp(0, items.length),
           ));
         }
+        _layout = (
+          booksPerShelf: booksPerShelf,
+          pitch: effectiveShelfHeight + 20,
+        );
         final listView = ListView.builder(
+          controller: _scrollController,
           padding: const EdgeInsets.only(bottom: 24),
           itemCount: shelves.length,
           itemBuilder: (context, shelfIndex) {
             return _ShelfRow(
               books: shelves[shelfIndex],
-              entryOf: entryOf,
-              isActive: isActive,
-              isSelected: isSelected,
-              selectionEnabled: selectionEnabled,
-              onTap: onTap,
-              onToggleSelectionItem: onToggleSelectionItem,
-              onDoubleTap: onDoubleTap,
-              onSecondaryTapUp: onSecondaryTapUp,
-              accent: accent,
+              entryOf: widget.entryOf,
+              isActive: widget.isActive,
+              isSelected: widget.isSelected,
+              selectionEnabled: widget.selectionEnabled,
+              onTap: widget.onTap,
+              onToggleSelectionItem: widget.onToggleSelectionItem,
+              onDoubleTap: widget.onDoubleTap,
+              onSecondaryTapUp: widget.onSecondaryTapUp,
+              accent: widget.accent,
               shelfHeight: effectiveShelfHeight,
               bookWidth: effectiveBookWidth,
               style: style,
               itemSpacing: itemSpacing,
-              fallbackCoverAspectRatio: fallbackCoverAspectRatio,
+              fallbackCoverAspectRatio: widget.fallbackCoverAspectRatio,
             );
           },
         );
