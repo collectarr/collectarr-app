@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
+import 'package:collectarr_app/ui/app_press_tap.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -130,68 +131,71 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                   ),
                 ],
         ),
-        child: Material(
-          color: Colors.transparent,
-          child: MouseRegion(
-            onEnter: (_) => _setHovered(true),
-            onExit: (_) => _setHovered(false),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                InkWell(
-                  mouseCursor: WidgetStateMouseCursor.clickable,
-                  hoverColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  splashFactory: NoSplash.splashFactory,
-                  onTap: widget.onTap,
-                  onDoubleTap: widget.onDoubleTap,
-                  onSecondaryTapUp: widget.onSecondaryTapUp,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: LibraryInteractiveCover(
-                          title: dto.primaryLabel,
-                          itemNumber: presentation.itemNumber,
-                          imageUrl: dto.imageUrl,
-                          libraryEntryRef: item.source.libraryEntryRef,
-                          targetCacheWidth: targetCacheWidth,
-                          fallbackAspectRatio: widget.fallbackCoverAspectRatio,
-                          accentColor: widget.accentColor,
-                          fit: BoxFit.cover,
-                          enableFullscreen: false,
-                          enableSecondaryControl: false,
+        child: AppPressTap(
+            onTap: widget.onTap,
+            builder: (context, onReleaseTap) => Material(
+                  color: Colors.transparent,
+                  child: MouseRegion(
+                    onEnter: (_) => _setHovered(true),
+                    onExit: (_) => _setHovered(false),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        InkWell(
+                          mouseCursor: WidgetStateMouseCursor.clickable,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          splashFactory: NoSplash.splashFactory,
+                          onTap: onReleaseTap,
+                          onDoubleTap: widget.onDoubleTap,
+                          onSecondaryTapUp: widget.onSecondaryTapUp,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: LibraryInteractiveCover(
+                                  title: dto.primaryLabel,
+                                  itemNumber: presentation.itemNumber,
+                                  imageUrl: dto.imageUrl,
+                                  libraryEntryRef: item.source.libraryEntryRef,
+                                  targetCacheWidth: targetCacheWidth,
+                                  fallbackAspectRatio:
+                                      widget.fallbackCoverAspectRatio,
+                                  accentColor: widget.accentColor,
+                                  fit: BoxFit.cover,
+                                  enableFullscreen: false,
+                                  enableSecondaryControl: false,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (showEditButton)
-                  Positioned(
-                    top: 4,
-                    right: 5,
-                    child: LibraryTileHoverActionButton(
-                      icon: AppIcons.inlineEdit,
-                      tooltip: 'Edit',
-                      onTap: widget.onEditTap!,
+                        if (showEditButton)
+                          Positioned(
+                            top: 4,
+                            right: 5,
+                            child: LibraryTileHoverActionButton(
+                              icon: AppIcons.inlineEdit,
+                              tooltip: 'Edit',
+                              onTap: widget.onEditTap!,
+                            ),
+                          ),
+                        if (showSelectionToggle)
+                          Positioned(
+                            left: 5,
+                            bottom: badgeBottom,
+                            child: LibraryTileSelectionToggleButton(
+                              onTap: widget.onSelectionToggleTap,
+                              child: LibraryTileSelectionToggle(
+                                selected: selected,
+                                accentColor: resolvedSelectionColor,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                if (showSelectionToggle)
-                  Positioned(
-                    left: 5,
-                    bottom: badgeBottom,
-                    child: LibraryTileSelectionToggleButton(
-                      onTap: widget.onSelectionToggleTap,
-                      child: LibraryTileSelectionToggle(
-                        selected: selected,
-                        accentColor: resolvedSelectionColor,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
+                )),
       ),
     );
   }
@@ -265,14 +269,15 @@ class LibraryTileSelectionToggleButton extends StatelessWidget {
       color: Colors.transparent,
       child: Semantics(
         button: true,
-        child: GestureDetector(
+        child: AppPressClaim(
+            child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onTap,
           child: MouseRegion(
             cursor: SystemMouseCursors.click,
             child: child,
           ),
-        ),
+        )),
       ),
     );
   }
