@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
+import 'package:collectarr_app/ui/app_press_tap.dart';
 import 'package:flutter/material.dart';
 
 class LibraryTableInkRow extends StatelessWidget {
@@ -62,30 +63,32 @@ class LibraryTableInkRow extends StatelessWidget {
           ),
         ),
       ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          mouseCursor: WidgetStateMouseCursor.clickable,
+      child: AppPressTap(
           onTap: onTap,
-          onDoubleTap: onDoubleTap,
-          onSecondaryTapUp: onSecondaryTapUp,
-          hoverColor: selected ? Colors.transparent : hoverColor,
-          // Row hover changes instantly, as in the reference list.
-          hoverDuration: Duration.zero,
-          // A keyboard-focused row must not hide the selection fill.
-          focusColor: selected ? Colors.transparent : hoverColor,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              resolvedHorizontalMargin,
-              resolvedVerticalPadding,
-              (resolvedHorizontalMargin - selectionRailWidth)
-                  .clamp(0.0, double.infinity),
-              resolvedVerticalPadding,
-            ),
-            child: child,
-          ),
-        ),
-      ),
+          builder: (context, onReleaseTap) => Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  mouseCursor: WidgetStateMouseCursor.clickable,
+                  onTap: onReleaseTap,
+                  onDoubleTap: onDoubleTap,
+                  onSecondaryTapUp: onSecondaryTapUp,
+                  hoverColor: selected ? Colors.transparent : hoverColor,
+                  // Row hover changes instantly, as in the reference list.
+                  hoverDuration: Duration.zero,
+                  // A keyboard-focused row must not hide the selection fill.
+                  focusColor: selected ? Colors.transparent : hoverColor,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      resolvedHorizontalMargin,
+                      resolvedVerticalPadding,
+                      (resolvedHorizontalMargin - selectionRailWidth)
+                          .clamp(0.0, double.infinity),
+                      resolvedVerticalPadding,
+                    ),
+                    child: child,
+                  ),
+                ),
+              )),
     );
   }
 }

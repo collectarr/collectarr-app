@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import 'package:collectarr_app/ui/app_press_tap.dart';
 import 'package:flutter/material.dart';
 
 /// Click target that fires the moment the primary button is pressed on it,
@@ -39,6 +40,7 @@ class _AppClickTargetState extends State<AppClickTarget> {
         behavior: HitTestBehavior.opaque,
         onPointerDown: enabled
             ? (event) {
+                claimAppPress(event.pointer);
                 if (event.buttons == kPrimaryButton) widget.onClick?.call();
               }
             : null,

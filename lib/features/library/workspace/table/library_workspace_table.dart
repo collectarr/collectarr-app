@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_reveal.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
+import 'package:collectarr_app/ui/app_press_tap.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryColumnWidthFor = double Function(String column);
@@ -635,7 +636,8 @@ class _LibraryTableCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = checked || indeterminate;
-    return InkWell(
+    return AppPressClaim(
+        child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(3),
       child: Container(
@@ -657,7 +659,7 @@ class _LibraryTableCheckbox extends StatelessWidget {
               )
             : null,
       ),
-    );
+    ));
   }
 }
 

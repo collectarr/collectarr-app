@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_ti
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_press_tap.dart';
 import 'package:flutter/material.dart';
 
 enum LibraryCardLayout { vertical, horizontal }
@@ -129,122 +130,134 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
               ? palette.utilityAction
               : selectedColor)
           : palette.panelRaised,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+      child: AppPressTap(
           onTap: onTap,
-          onDoubleTap: onDoubleTap,
-          onSecondaryTapUp: onSecondaryTapUp,
-          mouseCursor: SystemMouseCursors.click,
-          hoverColor: selected ? Colors.transparent : palette.surfaceBright,
-          highlightColor: Colors.transparent,
-          splashFactory: NoSplash.splashFactory,
-          child: Stack(children: [
-            Padding(
-                padding: const EdgeInsets.all(4),
-                child: Row(children: [
-                  SizedBox(
-                      width: coverWidth,
-                      child: _buildCover(
-                          context: context,
-                          coverCacheWidth: coverCacheWidth,
-                          presentation: presentation,
-                          fit: BoxFit.contain,
-                          borderRadius: 0)),
-                  const SizedBox(width: 4),
-                  Expanded(
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                        Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                  child: Text(item.dto.primaryLabel,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.15,
-                                          color: selected
-                                              ? Colors.white
-                                              : palette.link))),
-                              if (presentation.compactBadges.isNotEmpty)
-                                Padding(
-                                    padding: const EdgeInsets.only(left: 6),
-                                    child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          for (final badge
-                                              in presentation.compactBadges)
-                                            Row(
-                                                mainAxisSize: MainAxisSize.min,
+          builder: (context, onReleaseTap) => Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onReleaseTap,
+                  onDoubleTap: onDoubleTap,
+                  onSecondaryTapUp: onSecondaryTapUp,
+                  mouseCursor: SystemMouseCursors.click,
+                  hoverColor:
+                      selected ? Colors.transparent : palette.surfaceBright,
+                  highlightColor: Colors.transparent,
+                  splashFactory: NoSplash.splashFactory,
+                  child: Stack(children: [
+                    Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Row(children: [
+                          SizedBox(
+                              width: coverWidth,
+                              child: _buildCover(
+                                  context: context,
+                                  coverCacheWidth: coverCacheWidth,
+                                  presentation: presentation,
+                                  fit: BoxFit.contain,
+                                  borderRadius: 0)),
+                          const SizedBox(width: 4),
+                          Expanded(
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                          child: Text(item.dto.primaryLabel,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w400,
+                                                  height: 1.15,
+                                                  color: selected
+                                                      ? Colors.white
+                                                      : palette.link))),
+                                      if (presentation.compactBadges.isNotEmpty)
+                                        Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 6),
+                                            child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
                                                 children: [
-                                                  Icon(badge.icon,
-                                                      size: 12,
-                                                      color: Colors.white),
-                                                  const SizedBox(width: 2),
-                                                  Text(badge.label,
-                                                      style: const TextStyle(
-                                                          fontSize: 12,
-                                                          fontWeight:
-                                                              FontWeight.w700,
-                                                          color: Colors.white)),
-                                                ]),
-                                        ])),
-                            ]),
-                        if (presentation.seriesTitle?.isNotEmpty == true)
-                          Text(presentation.seriesTitle!,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white)),
-                        if (customFieldBadges.isNotEmpty)
-                          Text(customFieldBadges.join(' | '),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.white)),
-                        const Spacer(),
-                        Text(
-                            [
-                              presentation.format,
-                              presentation.releaseDate?.year.toString()
-                            ].whereType<String>().join(' \u2013 '),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white)),
-                      ])),
-                ])),
-            if (_hovered || selectionMode || checked)
-              Positioned(
-                  left: 0,
-                  bottom: 0,
-                  child: LibraryTileSelectionToggleButton(
-                      onTap: onSelectionToggleTap,
-                      child: LibraryTileSelectionToggle(
-                          selected: checked,
-                          accentColor: palette.utilityAction,
-                          integrated: true,
-                          highlighted: selected))),
-            if (_hovered && onEditTap != null)
-              Positioned(
-                  right: 5,
-                  top: 5,
-                  child: LibraryTileHoverActionButton(
-                      icon: AppIcons.inlineEdit,
-                      tooltip: 'Edit',
-                      onTap: onEditTap!)),
-          ]),
-        ),
-      ),
+                                                  for (final badge
+                                                      in presentation
+                                                          .compactBadges)
+                                                    Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          Icon(badge.icon,
+                                                              size: 12,
+                                                              color:
+                                                                  Colors.white),
+                                                          const SizedBox(
+                                                              width: 2),
+                                                          Text(badge.label,
+                                                              style: const TextStyle(
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  color: Colors
+                                                                      .white)),
+                                                        ]),
+                                                ])),
+                                    ]),
+                                if (presentation.seriesTitle?.isNotEmpty ==
+                                    true)
+                                  Text(presentation.seriesTitle!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white)),
+                                if (customFieldBadges.isNotEmpty)
+                                  Text(customFieldBadges.join(' | '),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontSize: 12, color: Colors.white)),
+                                const Spacer(),
+                                Text(
+                                    [
+                                      presentation.format,
+                                      presentation.releaseDate?.year.toString()
+                                    ].whereType<String>().join(' \u2013 '),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white)),
+                              ])),
+                        ])),
+                    if (_hovered || selectionMode || checked)
+                      Positioned(
+                          left: 0,
+                          bottom: 0,
+                          child: LibraryTileSelectionToggleButton(
+                              onTap: onSelectionToggleTap,
+                              child: LibraryTileSelectionToggle(
+                                  selected: checked,
+                                  accentColor: palette.utilityAction,
+                                  integrated: true,
+                                  highlighted: selected))),
+                    if (_hovered && onEditTap != null)
+                      Positioned(
+                          right: 5,
+                          top: 5,
+                          child: LibraryTileHoverActionButton(
+                              icon: AppIcons.inlineEdit,
+                              tooltip: 'Edit',
+                              onTap: onEditTap!)),
+                  ]),
+                ),
+              )),
     ));
   }
 
@@ -278,111 +291,120 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
             width: 1,
           ),
         ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            mouseCursor: WidgetStateMouseCursor.clickable,
-            hoverColor: selected ? Colors.transparent : palette.surfaceBright,
-            highlightColor: Colors.transparent,
-            splashFactory: NoSplash.splashFactory,
+        child: AppPressTap(
             onTap: onTap,
-            onDoubleTap: onDoubleTap,
-            onSecondaryTapUp: onSecondaryTapUp,
-            child: Stack(
-              children: [
-                Padding(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            _buildCover(
-                              context: context,
-                              coverCacheWidth: coverCacheWidth,
-                              presentation: presentation,
-                              fit: BoxFit.cover,
-                              borderRadius: 0,
-                            ),
-                            if (customFieldBadges.isNotEmpty)
-                              Text(customFieldBadges.join(' | '),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: selected
-                                          ? Colors.white
-                                          : mutedColor)),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
-                        child: SizedBox(
-                            height: 57,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                    child: Text(item.dto.primaryLabel,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            color: titleColor,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w700,
-                                            height: 1.4))),
-                                Row(children: [
-                                  Expanded(
-                                      child: Text(
-                                          presentation.seriesTitle ?? '',
+            builder: (context, onReleaseTap) => Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    mouseCursor: WidgetStateMouseCursor.clickable,
+                    hoverColor:
+                        selected ? Colors.transparent : palette.surfaceBright,
+                    highlightColor: Colors.transparent,
+                    splashFactory: NoSplash.splashFactory,
+                    onTap: onReleaseTap,
+                    onDoubleTap: onDoubleTap,
+                    onSecondaryTapUp: onSecondaryTapUp,
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.zero,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    _buildCover(
+                                      context: context,
+                                      coverCacheWidth: coverCacheWidth,
+                                      presentation: presentation,
+                                      fit: BoxFit.cover,
+                                      borderRadius: 0,
+                                    ),
+                                    if (customFieldBadges.isNotEmpty)
+                                      Text(customFieldBadges.join(' | '),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                               fontSize: 12,
-                                              color: palette.textPrimary))),
-                                  if (presentation.releaseDate != null)
-                                    Text('${presentation.releaseDate!.year}',
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: palette.textPrimary)),
-                                ]),
-                              ],
-                            )),
-                      ),
-                    ],
-                  ),
-                ),
-                if (_hovered || selectionMode || checked)
-                  Positioned(
-                    left: 0,
-                    top: 0,
-                    child: LibraryTileSelectionToggleButton(
-                      onTap: onSelectionToggleTap,
-                      child: LibraryTileSelectionToggle(
-                        selected: checked,
-                        accentColor: palette.utilityAction,
-                        integrated: true,
-                        highlighted: selected,
-                      ),
+                                              color: selected
+                                                  ? Colors.white
+                                                  : mutedColor)),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
+                                child: SizedBox(
+                                    height: 57,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                            child: Text(item.dto.primaryLabel,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: titleColor,
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w700,
+                                                    height: 1.4))),
+                                        Row(children: [
+                                          Expanded(
+                                              child: Text(
+                                                  presentation.seriesTitle ??
+                                                      '',
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: palette
+                                                          .textPrimary))),
+                                          if (presentation.releaseDate != null)
+                                            Text(
+                                                '${presentation.releaseDate!.year}',
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color:
+                                                        palette.textPrimary)),
+                                        ]),
+                                      ],
+                                    )),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (_hovered || selectionMode || checked)
+                          Positioned(
+                            left: 0,
+                            top: 0,
+                            child: LibraryTileSelectionToggleButton(
+                              onTap: onSelectionToggleTap,
+                              child: LibraryTileSelectionToggle(
+                                selected: checked,
+                                accentColor: palette.utilityAction,
+                                integrated: true,
+                                highlighted: selected,
+                              ),
+                            ),
+                          ),
+                        if (_hovered && onEditTap != null)
+                          Positioned(
+                            top: 4,
+                            right: 5,
+                            child: LibraryTileHoverActionButton(
+                              icon: AppIcons.inlineEdit,
+                              tooltip: 'Edit',
+                              onTap: onEditTap!,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                if (_hovered && onEditTap != null)
-                  Positioned(
-                    top: 4,
-                    right: 5,
-                    child: LibraryTileHoverActionButton(
-                      icon: AppIcons.inlineEdit,
-                      tooltip: 'Edit',
-                      onTap: onEditTap!,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
+                )),
       ),
     );
   }
