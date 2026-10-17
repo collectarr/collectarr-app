@@ -237,7 +237,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
             ),
             Expanded(
               child: ColoredBox(
-                color: libraryWorkspaceBackgroundColor(context),
+                color: libraryViewBackgroundColor(context),
                 child: ScrollbarTheme(
                   data: ScrollbarThemeData(
                     thickness: const WidgetStatePropertyAll<double>(6.0),

@@ -4,6 +4,7 @@
 
 ### 🐛 Fixes
 - Edit and the other toolbar buttons react as soon as you press them, even if the mouse moves afterwards.
+- Covers, cards, Card Flow and List use the #131313 background in dark mode; Shelves keeps the shelf style's own background.
 
 ### 🧰 CI & Build
 - `dart run tool/ci_check.dart` runs the same checks as CI before a push, stage by stage.
