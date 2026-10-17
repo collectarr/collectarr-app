@@ -101,6 +101,10 @@ Keep these when matching the reference visually.
 | Details Personal | "Added"/"Modified" as dates | "Added Date"/"Modified Date" with time, as in the reference |
 | Editor | Opened 30 px from the top; inputs painted 32 px (the outline follows the content box, not `minHeight`); Artist rows 36 px; tab icons ran into wide labels | 10 px from the top; text, pick-list and name fields paint 34 px; fixed 18 px tab icon boxes |
 | Editor | Cancel on an untouched album with no stored sort title asked to discard changes, because the draft derives the sort title | Changes are compared with the draft's own first output; regression test added |
+| Cards | Horizontal title in the link blue, format and year bold, track count and length as two icon badges, no status chip; vertical cards edge-to-edge with white details | Horizontal: #5EB1DE title, 14/400 "CD – 2006", bold "♪ n" over a plain 12/400 length, 21 px status chip bottom right. Vertical: 5 px cover inset, #EBEBEB 13/700 title, #9E9E9E 12 px artist and year, status chip on the cover; selected cards turn #5EB1DE with white text |
+| Browsing background | #383838 behind covers, cards, Card Flow and List | #131313 in dark mode in every view except Shelves, which keeps the shelf style |
+| Selection | Items drew unselected until the mouse button was released | Mouse press selects at once; touch and pen select on release |
+| Editor | Floating field labels painted at 75% of 13 px (about 10 px) | Labels paint 13/700 white as in the reference |
 | Column chooser | Cover listed under Main; thin 14 px preset name field | Images group with Back Cover and Front Cover; 34 px 18/700 preset name |
 | Sort fields | No Images group, Format or Genre sort | Has Back/Has Front under Images, Format and Genre under Main |
 | Chrome | Diagonal dark gradient over the accent in the top bar, dialog and editor headers | Flat kind accent; kind icons kept |

@@ -5,6 +5,8 @@
 ### 🐛 Fixes
 - Edit and the other toolbar buttons react as soon as you press them, even if the mouse moves afterwards.
 - Clicking a cover, card or list row with the mouse selects it on press, not on release, so it no longer looks unselected while the button is held.
+- Horizontal and vertical cards follow the reference: link-blue titles, regular details, plain length under the track count, a collection status chip, an inset cover and muted artist and year.
+- Editor field labels are 13 px bold like the reference instead of about 10 px.
 - Covers, cards, Card Flow and List use the #131313 background in dark mode; Shelves keeps the shelf style's own background.
 
 ### 🧰 CI & Build
