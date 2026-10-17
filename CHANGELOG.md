@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### 🐛 Fixes
+- Edit and the other toolbar buttons react as soon as you press them, even if the mouse moves afterwards.
+
 ### 🧰 CI & Build
 - `dart run tool/ci_check.dart` runs the same checks as CI before a push, stage by stage.
 - CI runs checks, unit tests and the Linux integration flows as parallel jobs, so one run shows every failure.

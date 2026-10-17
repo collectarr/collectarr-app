@@ -17,22 +17,14 @@ void main() {
     return () => clicks;
   }
 
-  testWidgets('a press that moves within the target still clicks',
+  testWidgets('clicks on press, even if the pointer then leaves the target',
       (tester) async {
     final clicks = await pump(tester);
     final gesture = await tester.startGesture(const Offset(5, 15),
         kind: PointerDeviceKind.mouse);
-    await gesture.moveTo(const Offset(70, 20));
-    await gesture.up();
     expect(clicks(), 1);
-  });
-
-  testWidgets('releasing outside the target cancels the click', (tester) async {
-    final clicks = await pump(tester);
-    final gesture = await tester.startGesture(const Offset(5, 15),
-        kind: PointerDeviceKind.mouse);
     await gesture.moveTo(const Offset(200, 15));
     await gesture.up();
-    expect(clicks(), 0);
+    expect(clicks(), 1);
   });
 }
