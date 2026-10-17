@@ -174,7 +174,8 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                                   height: 1.15,
                                                   color: selected
                                                       ? Colors.white
-                                                      : palette.link))),
+                                                      : palette
+                                                          .utilityAction))),
                                       if (presentation.compactBadges.isNotEmpty)
                                         Padding(
                                             padding:
@@ -190,17 +191,24 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                                         mainAxisSize:
                                                             MainAxisSize.min,
                                                         children: [
-                                                          Icon(badge.icon,
-                                                              size: 12,
-                                                              color:
-                                                                  Colors.white),
-                                                          const SizedBox(
-                                                              width: 2),
+                                                          if (badge.icon !=
+                                                              null) ...[
+                                                            Icon(badge.icon,
+                                                                size: 12,
+                                                                color: Colors
+                                                                    .white),
+                                                            const SizedBox(
+                                                                width: 2),
+                                                          ],
                                                           Text(badge.label,
-                                                              style: const TextStyle(
+                                                              style: TextStyle(
                                                                   fontSize: 12,
-                                                                  fontWeight:
-                                                                      FontWeight
+                                                                  fontWeight: badge
+                                                                              .icon ==
+                                                                          null
+                                                                      ? FontWeight
+                                                                          .w400
+                                                                      : FontWeight
                                                                           .w700,
                                                                   color: Colors
                                                                       .white)),
@@ -232,10 +240,15 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w700,
+                                        fontWeight: FontWeight.w400,
                                         color: Colors.white)),
                               ])),
                         ])),
+                    Positioned(
+                        right: 7,
+                        bottom: 6,
+                        child:
+                            _CardStatusBadge(item: item, selected: selected)),
                     if (_hovered || selectionMode || checked)
                       Positioned(
                           left: 0,
@@ -278,7 +291,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
             ? libraryWorkspaceSelectionBackground(context)
             : selectedColor)
         : palette.panelRaised;
-    final titleColor = kLibraryCardTitleColor;
+    final titleColor =
+        selected ? kLibraryCardTitleColor : kLibraryCardTitleIdle;
+    final detailColor = selected ? Colors.white : kLibraryCardDetailIdle;
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -312,26 +327,35 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    _buildCover(
-                                      context: context,
-                                      coverCacheWidth: coverCacheWidth,
-                                      presentation: presentation,
-                                      fit: BoxFit.cover,
-                                      borderRadius: 0,
-                                    ),
-                                    if (customFieldBadges.isNotEmpty)
-                                      Text(customFieldBadges.join(' | '),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: selected
-                                                  ? Colors.white
-                                                  : mutedColor)),
-                                  ],
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(5, 5, 5, 0),
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      _buildCover(
+                                        context: context,
+                                        coverCacheWidth: coverCacheWidth,
+                                        presentation: presentation,
+                                        fit: BoxFit.cover,
+                                        borderRadius: 0,
+                                      ),
+                                      Positioned(
+                                          right: 5,
+                                          bottom: 5,
+                                          child: _CardStatusBadge(
+                                              item: item, selected: selected)),
+                                      if (customFieldBadges.isNotEmpty)
+                                        Text(customFieldBadges.join(' | '),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: selected
+                                                    ? Colors.white
+                                                    : mutedColor)),
+                                    ],
+                                  ),
                                 ),
                               ),
                               Padding(
@@ -361,15 +385,13 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                                       TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                       fontSize: 12,
-                                                      color: palette
-                                                          .textPrimary))),
+                                                      color: detailColor))),
                                           if (presentation.releaseDate != null)
                                             Text(
                                                 '${presentation.releaseDate!.year}',
                                                 style: TextStyle(
                                                     fontSize: 12,
-                                                    color:
-                                                        palette.textPrimary)),
+                                                    color: detailColor)),
                                         ]),
                                       ],
                                     )),
@@ -446,5 +468,42 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     if (pixelRatio <= 0) return null;
     final rawWidth = coverWidth * pixelRatio;
     return ((rawWidth / 64).ceil() * 64).toInt();
+  }
+}
+
+/// Collection status chip shown on cards, as in the reference.
+class _CardStatusBadge extends StatelessWidget {
+  const _CardStatusBadge({required this.item, required this.selected});
+
+  final LibraryProjectionView item;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final source = item.source;
+    final (IconData, Color, String)? status = source.loans.isNotEmpty
+        ? (Icons.schedule_rounded, Colors.amber.shade700, 'On Loan')
+        : source.isWishlisted
+            ? (Icons.bookmark_outline_rounded, Colors.orange, 'Wishlist')
+            : source.isEntry
+                ? (Icons.check, palette.utilityAction, 'In Collection')
+                : null;
+    if (status == null) return const SizedBox.shrink();
+    final (icon, color, label) = status;
+    return Tooltip(
+      message: label,
+      child: Container(
+        width: 21,
+        height: 21,
+        decoration: BoxDecoration(
+          color: selected
+              ? Color.alphaBlend(Colors.black.withValues(alpha: 0.35), color)
+              : color,
+          borderRadius: BorderRadius.circular(3),
+        ),
+        child: Icon(icon, size: 15, color: Colors.white),
+      ),
+    );
   }
 }

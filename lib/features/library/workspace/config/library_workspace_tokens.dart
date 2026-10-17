@@ -35,6 +35,8 @@ const kLibraryToolbarPopupItemHeight = 32.0;
 const kLibraryToolbarPopupSectionHeaderHeight = 20.0;
 const kLibraryDenseControlHeight = 32.0;
 const kLibraryCardTitleColor = Colors.white;
+const kLibraryCardTitleIdle = Color(0xFFEBEBEB);
+const kLibraryCardDetailIdle = Color(0xFF9E9E9E);
 
 class LibraryWorkspaceDensityScope extends InheritedWidget {
   const LibraryWorkspaceDensityScope({

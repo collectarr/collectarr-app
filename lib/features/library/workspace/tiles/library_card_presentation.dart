@@ -53,8 +53,9 @@ class LibraryCardPresentation {
 
 /// A single compact pill shown inside a card.
 class LibraryCardBadge {
-  const LibraryCardBadge({required this.icon, required this.label});
+  const LibraryCardBadge({this.icon, required this.label});
 
-  final IconData icon;
+  /// Leading icon; a badge without one is a plain secondary line.
+  final IconData? icon;
   final String label;
 }
