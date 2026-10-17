@@ -115,7 +115,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
             onTap: _focusNode.requestFocus,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                  color: libraryWorkspaceBackgroundColor(context)),
+                  color: libraryViewBackgroundColor(context)),
               child: Stack(
                 fit: StackFit.expand,
                 children: [

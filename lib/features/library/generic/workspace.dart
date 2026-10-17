@@ -192,7 +192,7 @@ class LibraryWorkspace extends ConsumerWidget {
           selectedIds: selectedIds,
           itemIdOf: (item) => item.target.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: libraryWorkspaceBackgroundColor(context),
+          backgroundColor: libraryViewBackgroundColor(context),
           itemBuilder: (context, item) => LibraryCoverTile(
             key: ValueKey(item.target.id),
             item: item,
@@ -230,7 +230,7 @@ class LibraryWorkspace extends ConsumerWidget {
           selectedIds: selectedIds,
           itemIdOf: (item) => item.target.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: libraryWorkspaceBackgroundColor(context),
+          backgroundColor: libraryViewBackgroundColor(context),
           itemBuilder: (context, item) => LibraryWorkspaceCard(
             key: ValueKey(item.target.id),
             item: item,
@@ -258,7 +258,7 @@ class LibraryWorkspace extends ConsumerWidget {
           cardTileHeight: cardTileHeight,
           cardCoverWidth: cardCoverWidth,
           spacing: gridSpacing,
-          backgroundColor: libraryWorkspaceBackgroundColor(context),
+          backgroundColor: libraryViewBackgroundColor(context),
         ),
       LibraryViewMode.cardFlow => LibraryFlowCarousel(
           items: items,
@@ -405,7 +405,7 @@ class LibraryWorkspace extends ConsumerWidget {
         final hasPartialSelection =
             items.any((item) => selectedIds.contains(item.target.id));
         return ColoredBox(
-          color: libraryWorkspaceBackgroundColor(context),
+          color: libraryViewBackgroundColor(context),
           child: _LibraryHorizontalScrollbar(
             child: SizedBox(
               width: contentWidth,

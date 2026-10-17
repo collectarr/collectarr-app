@@ -574,7 +574,7 @@ class LibraryBody extends StatelessWidget {
             onLayoutSnapshotChanged: onLayoutSnapshotChanged,
           );
           return ColoredBox(
-            color: libraryWorkspaceBackgroundColor(context),
+            color: libraryViewBackgroundColor(context),
             child: canShowSidebar
                 ? _LibrarySidebarResizableLayout(
                     sidebar: sidebar,
