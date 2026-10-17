@@ -9,8 +9,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Each job runs one stage of tool/ci_check.dart, the script that runs the
+# same checks locally, so a failure in one does not hide the others.
 jobs:
-  flutter:
+  checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -23,39 +29,24 @@ jobs:
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile
 
-      - name: Check code formatting
-        run: dart format --output=none --set-exit-if-changed .
+      - name: Format, generated files, contracts, boundaries and analyze
+        run: dart run tool/ci_check.dart checks
 
-      - name: Generate Drift table composition and dev seed registry
-        run: dart run tool/generate_kind_registries.dart
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
 
-      - name: Generate kind field entry manifest
-        run: dart run tool/generate_kind_field_entries.dart
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
 
-      - name: Verify pinned Music catalog contract and mapper
-        run: dart run tool/check_music_catalog_contract.dart
-
-      - name: Verify generated Catalog Item v1 field schema
-        run: dart run tool/generate_catalog_item_v1_fields.dart --check
-
-      - name: Generate Drift code
-        run: dart run build_runner build
-
-      - name: Verify generated files are clean
-        run: git diff --exit-code
-
-      - name: Check library kind boundaries
-        run: dart run tool/check_library_kind_boundaries.dart
-
-      - name: Analyze
-        run: flutter analyze --fatal-warnings --fatal-infos
+      - name: Install dependencies
+        run: flutter pub get --enforce-lockfile
 
       - name: Run unit and widget tests
-        run: |
-          set -o pipefail
-          mkdir -p build
-          dart run tool/run_tests.dart -- --coverage --reporter json | tee build/test-results.jsonl
-          dart run tool/testing/report_test_timings.dart build/test-results.jsonl
+        run: dart run tool/ci_check.dart tests --report
 
       - name: Save informational test coverage
         if: always()
@@ -68,16 +59,26 @@ jobs:
             build/test-results.jsonl
           if-no-files-found: warn
 
+  integration-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+
+      - name: Install dependencies
+        run: flutter pub get --enforce-lockfile
+
       - name: Install Linux integration test dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libsecret-1-dev libjsoncpp-dev xvfb
 
       - name: Run native navigation, Core add and persistence flows
-        run: |
-          for flow in integration_test/*_test.dart; do
-            xvfb-run -a flutter test "$flow" -d linux
-          done
+        run: xvfb-run -a dart run tool/ci_check.dart integration --device linux
 
   test-windows-fonts:
     runs-on: windows-latest

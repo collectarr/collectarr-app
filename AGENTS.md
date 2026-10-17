@@ -6,8 +6,16 @@
 - Keep each commit to one fix, feature, refactor or docs change; split mixed
   work into separate commits instead of one commit per session.
 - Update `CHANGELOG.md` under "Unreleased" in the same commit: one short,
-  user-facing line in the matching section (Features, Fixes, Refactors, Docs),
-  describing the effect rather than files or internals.
+  user-facing line in the matching section (Features, Fixes, Refactors, Docs,
+  CI & Build), describing the effect rather than files or internals. The
+  Release workflow turns these entries into the release notes.
+- Run `dart run tool/ci_check.dart` before pushing; it runs the same checks as
+  CI (add `--integration` for the native flows).
+- Merge pull requests with several commits using "Rebase and merge", so each
+  conventional commit reaches `main` and sets the next version; squash only
+  single-change pull requests.
+- Release by running the Release workflow on `main`
+  (`docs/versioning-policy.md`); do not bump versions or tag by hand.
 - No legacy support, compatibility layers, deprecated aliases or dead code.
 - After the initial Music baseline, change schemas with explicit ordered
   migrations. Never reset a database to make an upgrade work.

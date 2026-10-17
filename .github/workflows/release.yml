@@ -1,137 +1,146 @@
 name: Release
 
+# One run publishes a release: Prepare picks the version from the
+# conventional commits since the last tag, moves the Unreleased changelog
+# entries under it, commits and tags that on main and creates the GitHub
+# release with those entries as notes; the jobs below build and attach the
+# downloads. Pushing to the protected main branch needs the RELEASE_TOKEN
+# secret (see docs/versioning-policy.md).
+
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
-      force_publish_existing:
-        description: Backfill assets and containers for an existing release tag
+      version:
+        description: Version to release without leading v; empty picks it from the commits
+        required: false
+        type: string
+      dry_run:
+        description: Only show the version and notes the release would get
         required: false
         default: false
         type: boolean
-      release_version:
-        description: Existing release version without leading v (required when force_publish_existing is true)
+      backfill_version:
+        description: Rebuild and attach the downloads of an existing release (version without v)
         required: false
         type: string
 
 permissions:
   contents: write
-  issues: write
-  pull-requests: write
   packages: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 env:
   METADATA_BASE_URL: ${{ secrets.COLLECTARR_METADATA_BASE_URL || 'http://127.0.0.1:8010' }}
 
 jobs:
-  release:
+  prepare:
     runs-on: ubuntu-latest
     outputs:
-      release_published: ${{ steps.release_context.outputs.release_published }}
-      release_version: ${{ steps.release_context.outputs.release_version }}
+      version: ${{ steps.result.outputs.version }}
+      publish: ${{ steps.result.outputs.publish }}
     steps:
+      - name: Require the release token
+        if: inputs.backfill_version == '' && !inputs.dry_run
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -z "$RELEASE_TOKEN" ]; then
+            echo "::error title=Missing RELEASE_TOKEN::Add a token that may push to main as the RELEASE_TOKEN secret (docs/versioning-policy.md)."
+            exit 1
+          fi
+
       - uses: actions/checkout@v7
+        if: inputs.backfill_version == ''
         with:
+          ref: main
           fetch-depth: 0
-          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref_name }}
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 22
-
-      - name: Read Flutter app version
-        id: app_version
-        shell: bash
-        run: |
-          version="$(sed -n 's/^version: //p' pubspec.yaml | cut -d'+' -f1)"
-          if [ -z "$version" ]; then
-            echo "::error title=Missing pubspec version::Could not read version from pubspec.yaml"
-            exit 1
-          fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-
-      - name: Preview release version
-        id: semantic_preview
-        uses: cycjimmy/semantic-release-action@v6
-        with:
-          dry_run: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Resolve release context
-        id: release_context
-        shell: bash
-        run: |
-          if [ "${{ inputs.force_publish_existing }}" = "true" ]; then
-            version="${{ inputs.release_version }}"
-            if [ -z "$version" ]; then
-              echo "::error title=Missing release version::Set release_version when force_publish_existing is true."
-              exit 1
-            fi
-            echo "release_published=true" >> "$GITHUB_OUTPUT"
-            echo "release_version=$version" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event_name }}" = "release" ] && [ "${{ github.event.action }}" = "published" ]; then
-            tag="${{ github.event.release.tag_name }}"
-            version="${tag#v}"
-            if [ -z "$version" ]; then
-              echo "::error title=Missing release tag::Could not resolve version from release tag."
-              exit 1
-            fi
-            echo "release_published=true" >> "$GITHUB_OUTPUT"
-            echo "release_version=$version" >> "$GITHUB_OUTPUT"
-          elif [ "${{ steps.semantic_preview.outputs.new_release_published }}" = "true" ]; then
-            echo "release_published=true" >> "$GITHUB_OUTPUT"
-            echo "release_version=${{ steps.semantic_preview.outputs.new_release_version }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "release_published=false" >> "$GITHUB_OUTPUT"
-            echo "release_version=" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Verify Flutter app version matches release version
-        if: steps.release_context.outputs.release_published == 'true' && !inputs.force_publish_existing && github.event_name != 'release'
-        shell: bash
-        run: |
-          expected="${{ steps.release_context.outputs.release_version }}"
-          actual="${{ steps.app_version.outputs.version }}"
-          if [ "$actual" != "$expected" ]; then
-            echo "::error title=pubspec.yaml version mismatch::pubspec.yaml is $actual but semantic-release plans $expected. Update pubspec.yaml before running the release workflow."
-            exit 1
-          fi
-
-      - name: Release
-        if: steps.release_context.outputs.release_published == 'true' && !inputs.force_publish_existing && github.event_name != 'release'
-        uses: cycjimmy/semantic-release-action@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_TOKEN || github.token }}
 
       - name: Set up Flutter
-        if: steps.release_context.outputs.release_published == 'true'
+        if: inputs.backfill_version == ''
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.7'
 
       - name: Install dependencies
-        if: steps.release_context.outputs.release_published == 'true'
+        if: inputs.backfill_version == ''
+        run: flutter pub get --enforce-lockfile
+
+      - name: Prepare version, changelog and notes
+        id: prepare
+        if: inputs.backfill_version == ''
+        run: |
+          args=(--notes "$RUNNER_TEMP/release-notes.md")
+          if [ -n "${{ inputs.version }}" ]; then args+=(--version "${{ inputs.version }}"); fi
+          dart run tool/prepare_release.dart "${args[@]}"
+          {
+            echo "## v$(sed -n 's/^version=//p' "$GITHUB_OUTPUT" | tail -1)"
+            cat "$RUNNER_TEMP/release-notes.md"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit, tag and push
+        if: inputs.backfill_version == '' && !inputs.dry_run
+        env:
+          VERSION: ${{ steps.prepare.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(release): $VERSION"
+          git tag -a "v$VERSION" -m "v$VERSION"
+          git push --atomic origin HEAD:main "v$VERSION"
+
+      - name: Create the GitHub release
+        if: inputs.backfill_version == '' && !inputs.dry_run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.prepare.outputs.version }}
+        run: |
+          channel=--latest
+          if [[ "$VERSION" == *-* ]]; then channel=--prerelease; fi
+          gh release create "v$VERSION" --verify-tag "$channel"             --title "v$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md"
+
+      - name: Result
+        id: result
+        run: |
+          if [ -n "${{ inputs.backfill_version }}" ]; then
+            echo "version=${{ inputs.backfill_version }}" >> "$GITHUB_OUTPUT"
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ steps.prepare.outputs.version }}" >> "$GITHUB_OUTPUT"
+            echo "publish=${{ !inputs.dry_run }}" >> "$GITHUB_OUTPUT"
+          fi
+
+  release-web:
+    needs: prepare
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: v${{ needs.prepare.outputs.version }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+
+      - name: Install dependencies
         run: flutter pub get --enforce-lockfile
 
       - name: Generate Drift code
-        if: steps.release_context.outputs.release_published == 'true'
         run: dart run build_runner build
 
       - name: Build web bundle
-        if: steps.release_context.outputs.release_published == 'true'
         run: |
-          flutter build web --release \
-            --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL
+          flutter build web --release             --dart-define=COLLECTARR_API_BASE_URL=$METADATA_BASE_URL
 
       - name: Set up Docker Buildx
-        if: steps.release_context.outputs.release_published == 'true'
         uses: docker/setup-buildx-action@v4
 
       - name: Log in to GHCR
-        if: steps.release_context.outputs.release_published == 'true'
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -139,37 +148,33 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push web image
-        if: steps.release_context.outputs.release_published == 'true'
         uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile.web
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/collectarr-app-web:v${{ steps.release_context.outputs.release_version }}
-            ghcr.io/${{ github.repository_owner }}/collectarr-app-web:latest
+            ghcr.io/${{ github.repository_owner }}/collectarr-app-web:v${{ needs.prepare.outputs.version }}
+            ${{ !contains(needs.prepare.outputs.version, '-') && format('ghcr.io/{0}/collectarr-app-web:latest', github.repository_owner) || '' }}
 
       - name: Upload web bundle asset
-        if: steps.release_context.outputs.release_published == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_VERSION: ${{ steps.release_context.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         shell: bash
         run: |
           mkdir -p dist
           (cd build/web && zip -r ../../dist/collectarr-web-v${RELEASE_VERSION}.zip .)
           gh release upload "v${RELEASE_VERSION}" "dist/collectarr-web-v${RELEASE_VERSION}.zip" --clobber
 
-      - name: No release needed
-        if: steps.release_context.outputs.release_published != 'true'
-        run: echo "No releasable changes detected."
-
   release-android:
-    needs: release
-    if: needs.release.outputs.release_published == 'true'
+    needs: prepare
+    if: needs.prepare.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: v${{ needs.prepare.outputs.version }}
 
       - name: Set up Java
         uses: actions/setup-java@v6
@@ -195,7 +200,7 @@ jobs:
       - name: Upload Android assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         shell: bash
         run: |
           mkdir -p dist
@@ -203,11 +208,13 @@ jobs:
           gh release upload "v${RELEASE_VERSION}" dist/collectarr-android-v${RELEASE_VERSION}.apk --clobber
 
   release-windows:
-    needs: release
-    if: needs.release.outputs.release_published == 'true'
+    needs: prepare
+    if: needs.prepare.outputs.publish == 'true'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: v${{ needs.prepare.outputs.version }}
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -259,7 +266,7 @@ jobs:
       - name: Package Windows portable artifact
         shell: pwsh
         env:
-          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath "dist/collectarr-windows-portable-v$env:RELEASE_VERSION.zip" -Force
@@ -271,7 +278,7 @@ jobs:
       - name: Package Windows installer
         shell: pwsh
         env:
-          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           $iss = @"
           [Setup]
@@ -305,7 +312,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           gh release upload "v$env:RELEASE_VERSION" `
             "dist/collectarr-windows-portable-v$env:RELEASE_VERSION.zip" `
@@ -313,11 +320,13 @@ jobs:
             --clobber
 
   release-macos:
-    needs: release
-    if: needs.release.outputs.release_published == 'true' && vars.COLLECTARR_ENABLE_MACOS_RELEASE == 'true'
+    needs: prepare
+    if: needs.prepare.outputs.publish == 'true' && vars.COLLECTARR_ENABLE_MACOS_RELEASE == 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: v${{ needs.prepare.outputs.version }}
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -335,7 +344,7 @@ jobs:
 
       - name: Package macOS portable artifact
         env:
-          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         shell: bash
         run: |
           mkdir -p dist
@@ -348,7 +357,7 @@ jobs:
 
       - name: Package macOS installer
         env:
-          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         shell: bash
         run: |
           app_path="$(find build/macos/Build/Products/Release -maxdepth 1 -name "*.app" | head -n 1)"
@@ -361,7 +370,7 @@ jobs:
       - name: Upload macOS asset
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         shell: bash
         run: |
           gh release upload "v${RELEASE_VERSION}" \
@@ -370,11 +379,13 @@ jobs:
             --clobber
 
   release-linux:
-    needs: release
-    if: needs.release.outputs.release_published == 'true'
+    needs: prepare
+    if: needs.prepare.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: v${{ needs.prepare.outputs.version }}
 
       - name: Install Linux build dependencies
         run: |
@@ -397,7 +408,7 @@ jobs:
 
       - name: Package Linux portable artifact
         env:
-          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         shell: bash
         run: |
           mkdir -p dist
@@ -405,7 +416,7 @@ jobs:
 
       - name: Package Linux installer (.deb)
         env:
-          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         shell: bash
         run: |
           mkdir -p pkgroot/DEBIAN pkgroot/usr/lib/collectarr-app pkgroot/usr/bin
@@ -434,7 +445,7 @@ jobs:
       - name: Upload Linux assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_VERSION: ${{ needs.release.outputs.release_version }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
         shell: bash
         run: |
           gh release upload "v${RELEASE_VERSION}" \

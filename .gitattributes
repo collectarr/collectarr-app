@@ -1,3 +1,5 @@
 # Preserve canonical bytes used by pinned contract checksums on every platform.
 /tool/core_contracts/*.json text eol=lf
 /lib/core/api/generated/catalog_item_v1_fields.dart text eol=lf
+# Import fixtures are parsed byte for byte; keep LF on Windows checkouts too.
+/test/fixtures/** text=auto eol=lf

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### 🧰 CI & Build
+- `dart run tool/ci_check.dart` runs the same checks as CI before a push, stage by stage.
+- CI runs checks, unit tests and the Linux integration flows as parallel jobs, so one run shows every failure.
+- A release is one run of the Release workflow: it picks the version from the commits, moves these changelog entries under it, tags, publishes the notes and builds the downloads.
+- Pull requests with several commits are merged with "Rebase and merge", so every change reaches main and the release notes.
+- Test fixtures keep LF line endings on Windows checkouts, so the import tests pass there as on CI.
+
 ## 1.1.0 - 2026-10-16
 
 ### ✨ Features
