@@ -26,6 +26,9 @@ const Color kEditPanelRaised = kAppPanelRaised;
 const Color kEditToolbar = kAppToolbar;
 const Color kEditDivider = kAppDivider;
 const Color kEditTextMuted = kAppTextMuted;
+
+/// Style size whose floating label (scaled to 75%) paints at 13 px.
+const double kEditFloatingLabelStyleSize = 13 / 0.75;
 const Color kEditChartBar = kAppAccentLight;
 const Color kEditValueChip = kAppPanel;
 const Color kEditValueChipBorder = kAppSurfaceBright;
@@ -119,14 +122,16 @@ ThemeData editDialogTheme({
       floatingLabelBehavior: compactDesktop
           ? FloatingLabelBehavior.always
           : FloatingLabelBehavior.auto,
+      // A floating label is painted at 75% of its style size, so the style is
+      // enlarged to draw the reference's 13 px label.
       labelStyle: TextStyle(
         color: palette.textPrimary,
-        fontSize: 13,
+        fontSize: compactDesktop ? kEditFloatingLabelStyleSize : 13,
         fontWeight: kAppBoldFontWeight,
       ),
       floatingLabelStyle: TextStyle(
         color: palette.textPrimary,
-        fontSize: 13,
+        fontSize: compactDesktop ? kEditFloatingLabelStyleSize : 13,
         fontWeight: kAppBoldFontWeight,
       ),
       hintStyle: TextStyle(
@@ -751,13 +756,11 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final labelStyle =
-        Theme.of(context).inputDecorationTheme.floatingLabelStyle ??
-            TextStyle(
-              color: palette.accent,
-              fontSize: 13,
-              fontWeight: kAppBoldFontWeight,
-            );
+    final labelStyle = TextStyle(
+      color: palette.textPrimary,
+      fontSize: 13,
+      fontWeight: kAppBoldFontWeight,
+    );
     final scaledLabelHeight =
         MediaQuery.textScalerOf(context).scale(labelStyle.fontSize ?? 13) * 1.2;
     final fieldTopPadding = (scaledLabelHeight / 2).clamp(8.0, 100.0);
