@@ -34,11 +34,7 @@ LibraryCardPresentation buildMusicCardPresentation(
           icon: Icons.music_note_outlined,
           label: '$tracks',
         ),
-      if (duration != null)
-        LibraryCardBadge(
-          icon: Icons.schedule,
-          label: duration,
-        ),
+      if (duration != null) LibraryCardBadge(label: duration),
     ],
   );
 }
