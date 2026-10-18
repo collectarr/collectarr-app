@@ -63,6 +63,7 @@
 - Covers, cards, Card Flow and List use the #131313 background in dark mode; Shelves keeps the shelf style's own background.
 
 ### 🧰 CI & Build
+- The generated macOS plugin registrant no longer shows up as modified on Windows.
 - `dart run tool/ci_check.dart` runs the same checks as CI before a push, stage by stage.
 - CI runs checks, unit tests and the Linux integration flows as parallel jobs, so one run shows every failure.
 - A release is one run of the Release workflow: it picks the version from the commits, moves these changelog entries under it, tags, publishes the notes and builds the downloads.
