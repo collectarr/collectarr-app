@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- Keyboard Shortcuts shows each combination as key caps with arrow glyphs, and its Close button matches the other dialog buttons.
 - Settings tabs (Appearance, Connection and the rest) are centered.
 - Selects in Settings and Manage Pick Lists open a compact #444 list with 25 px rows like the reference.
 - Grey buttons (Cancel, Previous, Next) lighten slightly on hover like the reference, and the dialog header close button shows a clear hover highlight.

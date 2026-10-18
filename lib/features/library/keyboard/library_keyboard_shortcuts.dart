@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
@@ -111,62 +112,123 @@ class _KeyboardShortcutsDialog extends StatelessWidget {
         icon: Icons.keyboard,
       ),
       content: SizedBox(
-        width: 360,
+        width: 380,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _shortcutRow(context, 'Ctrl+F', 'Search'),
-            _shortcutRow(context, 'Ctrl+N', 'Add item'),
-            _shortcutRow(context, 'Ctrl+B', 'Scan barcode'),
-            _shortcutRow(context, 'F5 / Ctrl+R', 'Refresh'),
-            _shortcutRow(context, 'Ctrl+A', 'Select all'),
-            _shortcutRow(context, 'Escape', 'Clear / Close'),
-            _shortcutRow(context, 'Delete', 'Remove item'),
-            _shortcutRow(context, '↓ / J', 'Next item'),
-            _shortcutRow(context, '↑ / K', 'Previous item'),
-            _shortcutRow(context, 'Ctrl+I', 'Toggle inspector'),
+            _shortcutRow(context, 'Search', [
+              ['Ctrl', 'F']
+            ]),
+            _shortcutRow(context, 'Add item', [
+              ['Ctrl', 'N']
+            ]),
+            _shortcutRow(context, 'Scan barcode', [
+              ['Ctrl', 'B']
+            ]),
+            _shortcutRow(context, 'Refresh', [
+              ['F5'],
+              ['Ctrl', 'R']
+            ]),
+            _shortcutRow(context, 'Select all', [
+              ['Ctrl', 'A']
+            ]),
+            _shortcutRow(context, 'Clear / Close', [
+              ['Esc']
+            ]),
+            _shortcutRow(context, 'Remove item', [
+              ['Del']
+            ]),
+            _shortcutRow(context, 'Next item', [
+              [Icons.arrow_downward],
+              ['J']
+            ]),
+            _shortcutRow(context, 'Previous item', [
+              [Icons.arrow_upward],
+              ['K']
+            ]),
+            _shortcutRow(context, 'Toggle inspector', [
+              ['Ctrl', 'I']
+            ]),
           ],
         ),
       ),
       actions: [
-        TextButton(
+        DialogActionButton(
+          label: 'Close',
           onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
         ),
       ],
     );
   }
 
+  /// One shortcut: each alternative is a chord of key caps, a [String] label
+  /// or an [IconData] glyph.
   Widget _shortcutRow(
-      BuildContext context, String shortcut, String description) {
+      BuildContext context, String description, List<List<Object>> chords) {
     final palette = appPalette(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          SizedBox(
-            width: 100,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: palette.panelRaised,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: palette.divider),
-              ),
-              child: Text(
-                shortcut,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Text(description, style: const TextStyle(fontSize: 13)),
+          Expanded(
+              child: Text(description,
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w400))),
+          for (var i = 0; i < chords.length; i++) ...[
+            if (i > 0)
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Text('or',
+                      style:
+                          TextStyle(fontSize: 12, color: palette.textMuted))),
+            for (var k = 0; k < chords[i].length; k++) ...[
+              if (k > 0)
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: Text('+',
+                        style:
+                            TextStyle(fontSize: 12, color: palette.textMuted))),
+              _KeyCap(chords[i][k]),
+            ],
+          ],
         ],
       ),
+    );
+  }
+}
+
+/// A raised key cap showing a key name or an arrow glyph.
+class _KeyCap extends StatelessWidget {
+  const _KeyCap(this.keyLabel);
+
+  final Object keyLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final border = palette.isDark ? const Color(0xFF666666) : palette.divider;
+    return Container(
+      constraints: const BoxConstraints(minWidth: 26, minHeight: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 7),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: palette.isDark ? const Color(0xFF444444) : palette.surface,
+        borderRadius: BorderRadius.circular(4),
+        border: Border(
+          left: BorderSide(color: border),
+          top: BorderSide(color: border),
+          right: BorderSide(color: border),
+          bottom: BorderSide(color: border, width: 2),
+        ),
+      ),
+      child: keyLabel is IconData
+          ? Icon(keyLabel as IconData, size: 14, color: palette.textPrimary)
+          : Text(keyLabel as String,
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  height: 1,
+                  color: palette.textPrimary)),
     );
   }
 }
