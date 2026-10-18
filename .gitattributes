@@ -3,3 +3,5 @@
 /lib/core/api/generated/catalog_item_v1_fields.dart text eol=lf
 # Import fixtures are parsed byte for byte; keep LF on Windows checkouts too.
 /test/fixtures/** text=auto eol=lf
+# Flutter regenerates this file with LF; CRLF conversion keeps it permanently modified on Windows.
+/macos/Flutter/GeneratedPluginRegistrant.swift text eol=lf
