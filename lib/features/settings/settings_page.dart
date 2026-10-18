@@ -1,21 +1,10 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/localization/app_formats.dart';
-import 'package:collectarr_app/features/settings/title_case_exceptions_dialog.dart';
-import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
-import 'ebay_search_preferences.dart';
-import 'package:collectarr_app/features/settings/library_layout_setting.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:collectarr_app/core/device/device_identity.dart';
-import 'package:collectarr_app/features/settings/local_font_settings_panel.dart';
-import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
@@ -24,41 +13,30 @@ import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
-import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
 import 'package:collectarr_app/features/settings/settings_proposal_history.dart';
-import 'package:collectarr_app/features/settings/database_backup.dart';
-import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
-import 'package:collectarr_app/features/settings/core_data_settings_dialog.dart';
-import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
-import 'package:collectarr_app/features/settings/ui_preferences.dart';
-import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
-import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:file_selector/file_selector.dart';
+import 'package:collectarr_app/features/settings/settings_account_section.dart';
+import 'package:collectarr_app/features/settings/settings_appearance_section.dart';
+import 'package:collectarr_app/features/settings/settings_data_section.dart';
+import 'package:collectarr_app/features/settings/settings_layout.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -103,10 +81,6 @@ ThemeData _settingsTheme(BuildContext context) {
 final _metadataProposalHistoryProvider =
     FutureProvider.autoDispose<List<MetadataProposalRecord>>((ref) async {
   return const MetadataProposalStore().read();
-});
-
-final _deviceIdentityProvider = FutureProvider.autoDispose<String>((ref) async {
-  return DeviceIdentity().getOrCreate();
 });
 
 // Appearance holds the reference Settings page, so it comes first and opens
@@ -186,16 +160,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(connectionSettingsProvider);
-    final auth = ref.watch(authControllerProvider);
     final sync = ref.watch(syncControllerProvider);
     final mediaCatalog = ref.watch(mediaCatalogProvider).maybeWhen(
           data: (catalog) => catalog,
           orElse: () => fallbackMediaCatalog,
         );
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
-    final uiPreferences = ref.watch(uiPreferencesProvider);
     final metadataProposalHistory = ref.watch(_metadataProposalHistoryProvider);
-    final deviceId = ref.watch(_deviceIdentityProvider);
     final accent = appPalette(context).utilityAction;
     final isAndroidPlatform =
         Theme.of(context).platform == TargetPlatform.android;
@@ -207,13 +178,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return _buildSectionContent(
         section: section,
         settings: settings,
-        auth: auth,
         sync: sync,
         mediaCatalog: mediaCatalog,
         navPreferences: navPreferences,
-        uiPreferences: uiPreferences,
         metadataProposalHistory: metadataProposalHistory,
-        deviceId: deviceId,
         isAndroidPlatform: isAndroidPlatform,
       );
     }
@@ -317,13 +285,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget _buildSectionContent({
     required SettingsSection section,
     required ConnectionSettings settings,
-    required AuthState auth,
     required SyncState sync,
     required List<CatalogMediaType> mediaCatalog,
     required LibraryNavPreferences navPreferences,
-    required UiPreferences uiPreferences,
     required AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
-    required AsyncValue<String> deviceId,
     required bool isAndroidPlatform,
   }) {
     switch (section) {
@@ -333,13 +298,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         return _buildLibrariesSection(
             mediaCatalog, navPreferences, isAndroidPlatform);
       case SettingsSection.appearance:
-        return _buildAppearanceSection(uiPreferences);
+        return const SettingsAppearanceSection();
       case SettingsSection.proposals:
         return _buildProposalsSection(metadataProposalHistory);
       case SettingsSection.data:
-        return _buildDataSection();
+        return const SettingsDataSection();
       case SettingsSection.account:
-        return _buildAccountSection(auth, deviceId);
+        return const SettingsAccountSection();
       case SettingsSection.logs:
         return _buildLogsSection();
     }
@@ -349,9 +314,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ConnectionSettings settings,
     SyncState sync,
   ) {
-    return _SettingsTabBody(
+    return SettingsTabBody(
       children: [
-        _SettingsPanel(
+        SettingsPanel(
           icon: Icons.dns_outlined,
           title: 'Metadata server',
           child: Column(
@@ -383,7 +348,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ],
           ),
         ),
-        _SettingsPanel(
+        SettingsPanel(
           icon: Icons.cloud_sync_outlined,
           title: 'Personal sync service',
           child: Column(
@@ -495,7 +460,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
         ),
         if (sync.syncLog.isNotEmpty)
-          _SettingsPanel(
+          SettingsPanel(
             icon: Icons.history_outlined,
             title: 'Sync history',
             child: Column(
@@ -515,7 +480,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          _formatSyncTime(entry.timestamp),
+                          formatSettingsTime(entry.timestamp),
                           style: const TextStyle(fontSize: 12),
                         ),
                         const SizedBox(width: 8),
@@ -546,7 +511,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ],
             ),
           ),
-        _SettingsPanel(
+        SettingsPanel(
           icon: Icons.qr_code_2_outlined,
           title: 'Device pairing',
           child: Wrap(
@@ -576,7 +541,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ],
           ),
         ),
-        _TabResetActions(
+        SettingsResetAction(
           label: 'Reset connection defaults',
           onReset: _resetConnectionDefaults,
         ),
@@ -589,9 +554,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     LibraryNavPreferences navPreferences,
     bool isAndroidPlatform,
   ) {
-    return _SettingsTabBody(
+    return SettingsTabBody(
       children: [
-        _SettingsPanel(
+        SettingsPanel(
           icon: Icons.view_list_outlined,
           title: 'Library customization',
           child: Column(
@@ -617,7 +582,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
         ),
         if (!isAndroidPlatform)
-          _SettingsPanel(
+          SettingsPanel(
             icon: Icons.keyboard_command_key,
             title: 'Keyboard shortcuts',
             child: Column(
@@ -642,484 +607,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Widget _buildAppearanceSection(UiPreferences preferences) {
-    final controller = ref.read(uiPreferencesProvider.notifier);
-    final kindIdentity = libraryKindRegistrationForKind(
-            catalogMediaKindFromValue(ref.watch(selectedLibraryKindProvider)))
-        .identity;
-    final kindPlural = kindIdentity.pluralLabel.toLowerCase();
-    final kindSingular = kindIdentity.singularLabel.toLowerCase();
-    // The reference Settings page: Customization, Localization and
-    // Behaviour on the left; Sorting, Auto Capitalization and eBay links on
-    // the right.
-    final customization = _SettingsPanel(
-        icon: Icons.palette_outlined,
-        title: 'Customization',
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          SettingsGroupPair(
-            left: SettingsGroup(
-              legend: 'Application Skin',
-              child: SettingsSelect<ThemeMode>(
-                value: ref.watch(appThemeModeProvider),
-                values: const [
-                  ThemeMode.system,
-                  ThemeMode.light,
-                  ThemeMode.dark
-                ],
-                labelOf: (mode) => switch (mode) {
-                  ThemeMode.system => 'System',
-                  ThemeMode.light => 'Light',
-                  ThemeMode.dark => 'Dark',
-                },
-                onChanged: (mode) =>
-                    ref.read(appThemeModeProvider.notifier).setMode(mode),
-              ),
-            ),
-            right: SettingsGroup(
-              legend: 'Template for Details Panel',
-              child: SettingsSelect<DetailsPanelTemplate>(
-                value: preferences.detailsPanelTemplate,
-                values: DetailsPanelTemplate.values,
-                labelOf: (value) => value == DetailsPanelTemplate.application
-                    ? 'Follow application'
-                    : value.name[0].toUpperCase() + value.name.substring(1),
-                onChanged: controller.setDetailsPanelTemplate,
-              ),
-            ),
-          ),
-          SettingsGroupPair(
-            left: const SettingsGroup(
-                legend: 'Main Screen Layout', child: LibraryLayoutSetting()),
-            right: const SizedBox.shrink(),
-          ),
-          const SettingsLegend('Details Panel'),
-          SettingsCheck(
-              label: 'Show backdrop',
-              value: preferences.showInspectorBackdrop,
-              onChanged: controller.setShowInspectorBackdrop),
-          SettingsCheck(
-              label: 'Show back cover if space is available',
-              value: preferences.showInspectorBackCover,
-              onChanged: controller.setShowInspectorBackCover),
-          const SizedBox(height: 10),
-          const SettingsLegend('List View'),
-          SettingsCheck(
-              label: 'Wrap column content',
-              value: preferences.wrapColumnContent,
-              onChanged: controller.setWrapColumnContent),
-          SettingsCheck(
-              label: 'Auto-size column widths',
-              value: preferences.autoSizeColumns,
-              onChanged: controller.setAutoSizeColumns),
-          SettingsCheck(
-              label: 'Show Collection Status indicators',
-              value: preferences.showCollectionIndicators,
-              onChanged: controller.setShowCollectionIndicators),
-          SettingsCheck(
-              label: 'Show pencil icons (for editing)',
-              value: preferences.showEditIcons,
-              onChanged: controller.setShowEditIcons),
-          const SizedBox(height: 10),
-          const SettingsLegend('Motion'),
-          SettingsCheck(
-              label: 'Animations',
-              value: preferences.animationsEnabled,
-              onChanged: controller.setAnimationsEnabled),
-        ]));
-    final localization = _SettingsPanel(
-        icon: Icons.language,
-        title: 'Localization',
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          // Collectarr is English-only and follows the device time zone; the
-          // fields show that instead of offering choices.
-          SettingsGroup(
-            legend: 'Application Language',
-            child: SettingsSelect<String>(
-                value: 'English',
-                values: const ['English'],
-                labelOf: (value) => value,
-                onChanged: null),
-          ),
-          SettingsGroup(
-            legend: 'Time zone',
-            child: SettingsSelect<String>(
-                value: 'Device time zone',
-                values: const ['Device time zone'],
-                labelOf: (value) => value,
-                onChanged: null),
-          ),
-          SettingsGroupPair(
-            left: SettingsGroup(
-              legend: 'Currency',
-              child: SettingsSelect<String>(
-                value: preferences.formats.currency,
-                values: kCurrencyCodes,
-                labelOf: (code) => code,
-                onChanged: (code) => controller
-                    .setFormats(preferences.formats.copyWith(currency: code)),
-              ),
-            ),
-            right: SettingsGroup(
-              legend: 'Currency display',
-              child: SettingsSelect<CurrencyDisplay>(
-                value: preferences.formats.currencyDisplay,
-                values: CurrencyDisplay.values,
-                labelOf: (value) => value.example,
-                onChanged: (value) => controller.setFormats(
-                    preferences.formats.copyWith(currencyDisplay: value)),
-              ),
-            ),
-          ),
-          SettingsGroup(
-            legend: 'Number format',
-            child: SettingsSelect<NumberFormatStyle>(
-              value: preferences.formats.number,
-              values: NumberFormatStyle.values,
-              labelOf: (value) => value.example,
-              onChanged: (value) => controller
-                  .setFormats(preferences.formats.copyWith(number: value)),
-            ),
-          ),
-          SettingsGroupPair(
-            left: SettingsGroup(
-              legend: 'Date format (for displaying)',
-              child: SettingsSelect<DateDisplayFormat>(
-                value: preferences.formats.date,
-                values: DateDisplayFormat.values,
-                labelOf: (value) => value.example,
-                onChanged: (value) => controller
-                    .setFormats(preferences.formats.copyWith(date: value)),
-              ),
-            ),
-            right: SettingsGroup(
-              legend: 'Date format (when editing)',
-              child: SettingsSelect<DateEntryOrder>(
-                value: preferences.formats.dateEntry,
-                values: DateEntryOrder.values,
-                labelOf: (value) => value.label,
-                onChanged: (value) => controller
-                    .setFormats(preferences.formats.copyWith(dateEntry: value)),
-              ),
-            ),
-          ),
-        ]));
-    final behaviour = _SettingsPanel(
-        icon: Icons.help_outline,
-        title: 'Behaviour',
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const SettingsLegend('Ask for confirmation'),
-          SettingsCheck(
-              label: 'when removing $kindPlural',
-              value: preferences.confirmRemoval,
-              onChanged: controller.setConfirmRemoval),
-          SettingsCheck(
-              label: 'when duplicating $kindPlural',
-              value: preferences.confirmDuplication,
-              onChanged: controller.setConfirmDuplication),
-          const SizedBox(height: 10),
-          const SettingsLegend('Adding from Core'),
-          SettingsBlockButton(
-            label: 'Add/Update from Core settings',
-            onPressed: () => showCoreDataSettingsDialog(
-                context: context,
-                accent: kindIdentity.accent,
-                kind: kindIdentity.kind),
-          ),
-        ]));
-    final sorting = _SettingsPanel(
-        icon: Icons.sort_by_alpha,
-        title: 'Sorting',
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const SettingsLegend('When sorting...'),
-          SettingsCheck(
-              label: 'ignore sort titles',
-              value: preferences.ignoreSortTitles,
-              onChanged: controller.setIgnoreSortTitles),
-          SettingsCheck(
-              label: 'ignore sort names for Persons',
-              value: preferences.ignoreSortNames,
-              onChanged: controller.setIgnoreSortNames),
-          const SizedBox(height: 10),
-          const SettingsLegend('When displaying...'),
-          SettingsCheck(
-              label: 'show sort titles',
-              value: preferences.showSortTitles,
-              onChanged: controller.setShowSortTitles),
-          SettingsCheck(
-              label: 'show sort names for Persons',
-              value: preferences.showSortNames,
-              onChanged: controller.setShowSortNames),
-        ]));
-    final autoCap = _SettingsPanel(
-        icon: Icons.text_format,
-        title: 'Auto Capitalization',
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          SettingsLegend('Auto Cap $kindSingular titles'),
-          SettingsCheck(
-              label: 'when adding from Core',
-              value: preferences.autocapFromCore,
-              onChanged: controller.setAutocapFromCore),
-          SettingsCheck(
-              label: 'as you type in edit screen',
-              value: preferences.autocapAsYouType,
-              onChanged: controller.setAutocapAsYouType),
-          const SizedBox(height: 10),
-          SettingsGroup(
-            legend: 'Auto Cap Method',
-            child: SettingsSelect<TitleCaseMethod>(
-              value: preferences.titleCaseMethod,
-              values: TitleCaseMethod.values,
-              labelOf: (method) => method.label,
-              onChanged: controller.setTitleCaseMethod,
-            ),
-          ),
-          SettingsBlockButton(
-            label: 'Manage Exceptions',
-            onPressed: preferences.titleCaseMethod !=
-                    TitleCaseMethod.eachWordWithExceptions
-                ? null
-                : () async {
-                    final updated = await showTitleCaseExceptionsDialog(context,
-                        exceptions: preferences.titleCaseExceptions);
-                    if (updated != null) {
-                      await controller.setTitleCaseExceptions(updated);
-                    }
-                  },
-          ),
-        ]));
-    final ebay = _SettingsPanel(
-        icon: Icons.shopping_bag_outlined,
-        title: 'eBay search links',
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const SettingsLegend('Show/Hide eBay links'),
-          SettingsRadio<bool>(
-              label: 'Show eBay links',
-              value: true,
-              groupValue: preferences.showEbayLinks,
-              onChanged: controller.setShowEbayLinks),
-          SettingsRadio<bool>(
-              label: 'Hide all eBay links',
-              value: false,
-              groupValue: preferences.showEbayLinks,
-              onChanged: controller.setShowEbayLinks),
-          const SizedBox(height: 10),
-          const SettingsLegend('Show based on Collection Status'),
-          SettingsRadio<bool>(
-              label: 'Show for all entries',
-              value: false,
-              groupValue: preferences.ebayWishlistOnly,
-              onChanged: controller.setEbayWishlistOnly),
-          SettingsRadio<bool>(
-              label: 'Show for Wish List entries only',
-              value: true,
-              groupValue: preferences.ebayWishlistOnly,
-              onChanged: controller.setEbayWishlistOnly),
-          const SizedBox(height: 10),
-          const SettingsLegend('eBay link position'),
-          SettingsCheck(
-              label: 'Toolbar',
-              value: preferences.ebayToolbar,
-              onChanged: controller.setEbayToolbar),
-          SettingsCheck(
-              label: 'Details panel: next to cover',
-              value: preferences.ebayNextToCover,
-              onChanged: controller.setEbayNextToCover),
-          SettingsCheck(
-              label: 'Details panel: Links section',
-              value: preferences.ebayLinksSection,
-              onChanged: controller.setEbayLinksSection),
-          const SizedBox(height: 10),
-          const SettingsLegend('eBay search filter'),
-          for (final filter in EbaySearchFilter.values)
-            SettingsRadio<EbaySearchFilter>(
-                label: filter.label,
-                value: filter,
-                groupValue: preferences.ebaySearchFilter,
-                onChanged: controller.setEbaySearchFilter),
-          const SizedBox(height: 10),
-          SettingsGroup(
-            legend: 'eBay region',
-            child: SettingsSelect<EbayRegion>(
-              value: preferences.ebayRegion,
-              values: EbayRegion.values,
-              labelOf: (region) => region.label,
-              onChanged: controller.setEbayRegion,
-            ),
-          ),
-        ]));
-    return DefaultTabController(
-      length: 3,
-      child: Column(children: [
-        const TabBar(
-            isScrollable: true,
-            tabAlignment: TabAlignment.center,
-            tabs: [
-              Tab(text: 'Customization'),
-              Tab(text: 'Covers & layout'),
-              Tab(text: 'Typography'),
-            ]),
-        Expanded(
-            child: TabBarView(children: [
-          _SettingsTabBody.columns(
-            left: [customization, localization, behaviour],
-            right: [sorting, autoCap, ebay],
-            footer: _TabResetActions(
-                label: 'Reset appearance defaults',
-                onReset: _resetAppearanceDefaults),
-          ),
-          _buildCoverAppearanceSection(preferences),
-          const _SettingsTabBody(twoColumns: true, children: [
-            _SettingsPanel(
-                icon: Icons.text_fields_outlined,
-                title: 'Typography',
-                child: LocalFontSettingsPanel()),
-          ]),
-        ])),
-      ]),
-    );
-  }
-
-  Widget _buildCoverAppearanceSection(UiPreferences uiPreferences) {
-    return _SettingsTabBody(
-      children: [
-        _SettingsPanel(
-          icon: Icons.motion_photos_auto_outlined,
-          title: 'Appearance',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Cover grid',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.grid_view_sharp),
-                title: const Text('Flat covers'),
-                subtitle: const Text(
-                  'Remove the shadow from cover tiles.',
-                ),
-                value: uiPreferences.flatCovers,
-                onChanged: (value) => ref
-                    .read(uiPreferencesProvider.notifier)
-                    .setFlatCovers(value),
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.title),
-                title: const Text('Show titles in grid'),
-                subtitle: const Text(
-                  'Show title text below covers in grid view.',
-                ),
-                value: uiPreferences.showCoverTitles,
-                onChanged: (value) => ref
-                    .read(uiPreferencesProvider.notifier)
-                    .setShowCoverTitles(value),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.space_bar),
-                title: const Text('Grid spacing'),
-                subtitle: Slider(
-                  value: uiPreferences.gridSpacing.clamp(4.0, 24.0),
-                  min: 4,
-                  max: 24,
-                  divisions: 20,
-                  label:
-                      '${uiPreferences.gridSpacing.clamp(4.0, 24.0).round()} px',
-                  onChanged: (value) => ref
-                      .read(uiPreferencesProvider.notifier)
-                      .setGridSpacing(value.roundToDouble()),
-                ),
-              ),
-              const Divider(height: 24),
-              Text('Card view',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.photo_size_select_large),
-                title: const Text('Card cover width'),
-                subtitle: Slider(
-                  value: uiPreferences.cardCoverWidth.clamp(60.0, 120.0),
-                  min: 60,
-                  max: 120,
-                  divisions: 12,
-                  label:
-                      '${uiPreferences.cardCoverWidth.clamp(60.0, 120.0).round()} px',
-                  onChanged: (value) => ref
-                      .read(uiPreferencesProvider.notifier)
-                      .setCardCoverWidth(value.roundToDouble()),
-                ),
-              ),
-              const Divider(height: 24),
-              Text('Layout',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.add_circle_outline),
-                title: const Text('Floating Add button'),
-                subtitle: const Text(
-                  'Use a floating action button instead of inline toolbar button.',
-                ),
-                value: uiPreferences.fabAddButton,
-                onChanged: (value) => ref
-                    .read(uiPreferencesProvider.notifier)
-                    .setFabAddButton(value),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.density_small),
-                title: const Text('Sidebar row padding'),
-                subtitle: Slider(
-                  value: uiPreferences.sidebarRowPadding.clamp(0.0, 8.0),
-                  min: 0,
-                  max: 8,
-                  divisions: 8,
-                  label:
-                      '${uiPreferences.sidebarRowPadding.clamp(0.0, 8.0).round()} px',
-                  onChanged: (value) => ref
-                      .read(uiPreferencesProvider.notifier)
-                      .setSidebarRowPadding(value.roundToDouble()),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: _resetAppearanceDefaults,
-                  icon: const Icon(Icons.restart_alt),
-                  label: const Text('Reset appearance defaults'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildProposalsSection(
     AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
   ) {
-    return _SettingsTabBody(
+    return SettingsTabBody(
       children: [
-        _SettingsPanel(
+        SettingsPanel(
           icon: Icons.outbox_outlined,
           title: 'Metadata proposals',
           child: SettingsMetadataProposalHistory(
@@ -1132,213 +625,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Widget _buildDataSection() {
-    return _SettingsTabBody(
-      children: [
-        _SettingsPanel(
-          icon: Icons.backup_outlined,
-          title: 'Local backup',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Import or export your local collection as Collectarr CSV, CLZ-friendly CSV, or ComicInfo.xml. Personal fields stored on this device stay in the exported data.',
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  FilledButton.tonalIcon(
-                    onPressed: () => _showImportExportWizard(initialIndex: 1),
-                    icon: const Icon(Icons.upload_file_outlined),
-                    label: const Text('Import collection'),
-                  ),
-                  FilledButton.tonalIcon(
-                    onPressed: () => _showImportExportWizard(initialIndex: 0),
-                    icon: const Icon(Icons.download_outlined),
-                    label: const Text('Export collection'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () => _copyBackup(clzFriendly: false),
-                    icon: const Icon(Icons.copy_all),
-                    label: const Text('Copy Collectarr export'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () => _copyBackup(clzFriendly: true),
-                    icon: const Icon(Icons.table_view),
-                    label: const Text('Copy CLZ-friendly export'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _copySyncBackupGuide,
-                    icon: const Icon(Icons.description_outlined),
-                    label: const Text('Copy sync backup guide'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        _SettingsPanel(
-          icon: Icons.save_outlined,
-          title: 'Database backup & restore',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Create a full JSON backup of your local database, or restore from a previous backup. '
-                'This includes all collection, wishlist, tracking, custom fields, locations, smart lists, and queue data.',
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  FilledButton.tonalIcon(
-                    onPressed: _backupDatabase,
-                    icon: const Icon(Icons.save_alt_outlined),
-                    label: const Text('Backup to JSON'),
-                  ),
-                  FilledButton.tonalIcon(
-                    onPressed: _restoreDatabase,
-                    icon: const Icon(Icons.restore_outlined),
-                    label: const Text('Restore from JSON'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        _SettingsPanel(
-          icon: Icons.delete_forever_outlined,
-          title: 'Clear database',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Permanently delete ALL local data including collection, wishlist, tracking, custom fields, and settings. '
-                'This cannot be undone.',
-              ),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: FilledButton.tonalIcon(
-                  onPressed: _clearDatabase,
-                  icon: const Icon(Icons.delete_forever),
-                  label: const Text('Clear entire database'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor:
-                        Theme.of(context).colorScheme.errorContainer,
-                    foregroundColor:
-                        Theme.of(context).colorScheme.onErrorContainer,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAccountSection(
-    AuthState auth,
-    AsyncValue<String> deviceId,
-  ) {
-    return _SettingsTabBody(
-      children: [
-        _SettingsPanel(
-          icon: Icons.devices_outlined,
-          title: 'Device identity',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SelectableText(deviceId.value ?? 'Loading device id...'),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: deviceId.isLoading ? null : _regenerateDeviceId,
-                  icon: const Icon(Icons.refresh_outlined),
-                  label: const Text('Regenerate device id'),
-                ),
-              ),
-            ],
-          ),
-        ),
-        _SettingsPanel(
-          icon: Icons.account_circle_outlined,
-          title: 'Account',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SelectableText(auth.email ?? 'Not signed in'),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (auth.token != null || auth.isExpired)
-                    SettingsStatusChip(
-                      icon: auth.isExpired
-                          ? Icons.lock_clock_outlined
-                          : Icons.verified_user_outlined,
-                      label: _sessionStatusLabel(auth),
-                      isError: auth.isExpired,
-                    ),
-                  if (auth.isAuthenticated)
-                    SettingsStatusChip(
-                      icon: auth.isAdmin
-                          ? Icons.admin_panel_settings_outlined
-                          : Icons.person_outline,
-                      label: auth.isAdmin ? 'Core admin' : 'Standard account',
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                auth.isAuthenticated
-                    ? auth.isAdmin
-                        ? 'Full admin access: dashboard, logs, system management, and all catalog operations.'
-                        : 'Catalog search, proposals, and corrections are available. Admin-only tools (dashboard, logs) are hidden.'
-                    : 'You can browse the app and send metadata proposals without signing in. Admin sign in is only needed for admin/server features.',
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (auth.isAuthenticated) ...[
-                    OutlinedButton.icon(
-                      onPressed: _refreshAccountPermissions,
-                      icon: const Icon(Icons.manage_accounts_outlined),
-                      label: const Text('Refresh permissions'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: () =>
-                          ref.read(authControllerProvider.notifier).logout(),
-                      icon: const Icon(Icons.logout),
-                      label: const Text('Sign out'),
-                    ),
-                  ] else
-                    FilledButton.icon(
-                      onPressed: () => context.go(AppRoutes.auth),
-                      icon: const Icon(Icons.login),
-                      label: const Text('Admin sign in'),
-                    ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildLogsSection() {
-    return const _SettingsTabBody(
+    return const SettingsTabBody(
       children: [
-        _SettingsPanel(
+        SettingsPanel(
           icon: Icons.bug_report_outlined,
           title: 'Application log',
           child: AppLogViewerPanel(),
@@ -1354,320 +644,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     setState(update);
   }
 
-  Future<void> _resetAppearanceDefaults() async {
-    await ref.read(uiPreferencesProvider.notifier).resetDefaults();
-    if (mounted) {
-      _showToast('Appearance defaults restored', tone: AppToastTone.success);
-    }
-  }
-
-  Future<void> _refreshAccountPermissions() async {
-    try {
-      await ref.read(authControllerProvider.notifier).refreshCurrentUser();
-      if (!mounted) {
-        return;
-      }
-      final auth = ref.read(authControllerProvider);
-      _showToast(
-        auth.isAdmin
-            ? 'Account permissions refreshed: admin'
-            : 'Account permissions refreshed: standard account',
-        tone: AppToastTone.success,
-      );
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      _showToast(
-        'Could not refresh permissions: ${_describeError(error)}',
-        tone: AppToastTone.error,
-      );
-    }
-  }
-
-  Future<void> _copyBackup({required bool clzFriendly}) async {
-    final state = await ref.read(shelfProvider.future);
-    final db = ref.read(localDatabaseProvider);
-    final cfRepo = CustomFieldRepository(db);
-    final cfDefs = await cfRepo.listDefinitions();
-    final cfValues = await cfRepo.listAllValues();
-    final entryRecordsByRef = await LibraryEntryStore(db).findByRefs(
-      state.entries
-          .map((entry) => entry.libraryEntryRef)
-          .whereType<LibraryEntryRef>(),
-    );
-    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
-    final data = clzFriendly
-        ? csv.exportClzFriendlyShelf(
-            state.entries,
-            customFieldDefinitions: cfDefs,
-            customFieldValuesByItem: cfValues,
-            entryRecordsByRef: entryRecordsByRef,
-          )
-        : csv.exportShelf(
-            state.entries,
-            customFieldDefinitions: cfDefs,
-            customFieldValuesByItem: cfValues,
-            entryRecordsByRef: entryRecordsByRef,
-          );
-    await Clipboard.setData(ClipboardData(text: data));
-    if (!mounted) {
-      return;
-    }
-    _showToast(
-      clzFriendly
-          ? 'CLZ-friendly CSV backup copied'
-          : 'Collectarr CSV backup copied',
-      tone: AppToastTone.success,
-    );
-  }
-
-  Future<void> _showImportExportWizard({required int initialIndex}) async {
-    final state = await ref.read(shelfProvider.future);
-    final db = ref.read(localDatabaseProvider);
-    final cfRepo = CustomFieldRepository(db);
-    final cfDefs = await cfRepo.listDefinitions();
-    final cfValues = await cfRepo.listAllValues();
-    final entryRecordsByRef = await LibraryEntryStore(db).findByRefs(
-      state.entries
-          .map((entry) => entry.libraryEntryRef)
-          .whereType<LibraryEntryRef>(),
-    );
-    if (!mounted) {
-      return;
-    }
-    final imported = await showAppDialog<int>(
-      context: context,
-      builder: (context) => ImportExportWizardDialog(
-        entries: state.entries,
-        profiles: collectionCsvKindProfiles,
-        initialIndex: initialIndex,
-        customFieldDefinitions: cfDefs,
-        customFieldValuesByItem: cfValues,
-        entryRecordsByRef: entryRecordsByRef,
-      ),
-    );
-    if (imported != null && mounted) {
-      _showToast(
-        'Imported $imported rows into your collection',
-        tone: AppToastTone.success,
-      );
-    }
-  }
-
-  Future<void> _copySyncBackupGuide() async {
-    final guide = [
-      'Sync backup',
-      '1. Stop collectarr-sync.',
-      '2. Copy collectarr-sync.db plus -wal/-shm sidecars if present.',
-      '3. Store the backup with the SYNC_API_KEY used by your devices.',
-      '4. Restore while collectarr-sync is stopped, then run Check sync service.',
-      '5. If conflicts appear after restore, choose Keep service or Keep local in Settings.',
-      '',
-      'Docker:',
-      'docker compose --profile sync stop sync',
-      'docker compose --profile sync cp sync:/data ./collectarr-sync-data',
-      'Compress-Archive -Path .\\collectarr-sync-data\\* -DestinationPath .\\collectarr-sync-data.zip -Force',
-      '',
-      'Restore:',
-      'docker compose --profile sync stop sync',
-      'docker compose --profile sync cp ./collectarr-sync-data/. sync:/data',
-      'docker compose --profile sync start sync',
-    ].join('\n');
-    await Clipboard.setData(ClipboardData(text: guide));
-    if (!mounted) {
-      return;
-    }
-    _showToast('Sync backup guide copied', tone: AppToastTone.success);
-  }
-
   Future<void> _clearProposalHistory() async {
     await const MetadataProposalStore().clear();
     if (mounted) {
       ref.invalidate(_metadataProposalHistoryProvider);
       setState(() {});
-      _showToast('Local proposal history cleared', tone: AppToastTone.success);
+      showSettingsToast('Local proposal history cleared',
+          tone: AppToastTone.success);
     }
-  }
-
-  Future<void> _regenerateDeviceId() async {
-    await DeviceIdentity().regenerate();
-    ref.invalidate(_deviceIdentityProvider);
-    if (mounted) {
-      _showToast('Device id regenerated', tone: AppToastTone.success);
-    }
-  }
-
-  Future<void> _backupDatabase() async {
-    try {
-      final db = ref.read(localDatabaseProvider);
-      final backup = DatabaseBackup(db);
-      final json = await backup.exportJson();
-      final now = DateTime.now();
-      final stamp =
-          '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}'
-          '_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}';
-      final fileName = 'collectarr_backup_$stamp.json';
-      final location = await getSaveLocation(
-        suggestedName: fileName,
-        acceptedTypeGroups: [
-          const XTypeGroup(label: 'JSON', extensions: ['json']),
-        ],
-      );
-      if (location == null) return;
-      final file = XFile.fromData(
-        utf8.encode(json),
-        mimeType: 'application/json',
-        name: fileName,
-      );
-      await file.saveTo(location.path);
-      if (mounted) {
-        _showToast('Backup saved', tone: AppToastTone.success);
-      }
-    } catch (e) {
-      if (mounted) {
-        _showToast('Backup failed: ${_describeError(e)}',
-            tone: AppToastTone.error);
-      }
-    }
-  }
-
-  Future<void> _restoreDatabase() async {
-    try {
-      final file = await openFile(
-        acceptedTypeGroups: [
-          const XTypeGroup(label: 'JSON', extensions: ['json']),
-        ],
-      );
-      if (file == null) return;
-      if (!mounted) return;
-      final confirmed = await showAppDialog<bool>(
-        context: context,
-        builder: (ctx) => AccentAlertDialog(
-          headerIcon: AppIcons.backupRestore,
-          title: const Text('Restore database'),
-          content: const Text(
-            'This will replace ALL local data with the backup contents. '
-            'Any current data will be lost. Pending sync changes contained in '
-            'the backup will be kept and uploaded on the next sync. Continue?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('Restore'),
-            ),
-          ],
-        ),
-      );
-      if (confirmed != true || !mounted) return;
-      final content = await file.readAsString();
-      final data = jsonDecode(content);
-      if (data is! Map<String, dynamic>) {
-        _showToast('Invalid backup file', tone: AppToastTone.error);
-        return;
-      }
-      await LocalDatabaseMaintenanceCoordinator(ref).restore(data);
-      if (mounted) {
-        _showToast('Database restored', tone: AppToastTone.success);
-      }
-    } catch (e) {
-      if (mounted) {
-        _showToast('Restore failed: ${_describeError(e)}',
-            tone: AppToastTone.error);
-      }
-    }
-  }
-
-  Future<void> _clearDatabase() async {
-    final firstConfirm = await showAppDialog<bool>(
-      context: context,
-      builder: (ctx) => AccentAlertDialog(
-        headerIcon: AppIcons.delete,
-        title: const Text('Clear database'),
-        content: const Text(
-          'This will permanently delete ALL local data. '
-          'This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-              foregroundColor: Theme.of(ctx).colorScheme.onError,
-            ),
-            child: const Text('Continue'),
-          ),
-        ],
-      ),
-    );
-    if (firstConfirm != true || !mounted) return;
-
-    final secondConfirm = await showAppDialog<bool>(
-      context: context,
-      builder: (ctx) => AccentAlertDialog(
-        headerIcon: AppIcons.delete,
-        title: const Text('Are you absolutely sure?'),
-        content: const Text(
-          'All collection data, tracking history, custom fields, '
-          'locations, smart lists, reading queues, and pending sync changes '
-          'will be permanently erased. Remote sync data remains and will be '
-          'pulled again the next time you sync.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-              foregroundColor: Theme.of(ctx).colorScheme.onError,
-            ),
-            child: const Text('Yes, delete everything'),
-          ),
-        ],
-      ),
-    );
-    if (secondConfirm != true || !mounted) return;
-
-    try {
-      await LocalDatabaseMaintenanceCoordinator(ref).clear();
-      if (mounted) {
-        _showToast('Database cleared', tone: AppToastTone.success);
-      }
-    } catch (e) {
-      if (mounted) {
-        _showToast('Clear failed: ${_describeError(e)}',
-            tone: AppToastTone.error);
-      }
-    }
-  }
-
-  void _showToast(String message, {AppToastTone tone = AppToastTone.info}) {
-    if (!mounted) {
-      return;
-    }
-    showAppToast(context, message, tone: tone);
-  }
-
-  String _describeError(Object error) {
-    final text = error.toString().trim();
-    if (text.startsWith('Exception: ')) {
-      return text.substring('Exception: '.length);
-    }
-    if (text.startsWith('StateError: ')) {
-      return text.substring('StateError: '.length);
-    }
-    return text;
   }
 
   AppToastTone _syncResultTone(SyncState sync) {
@@ -1678,178 +662,5 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return AppToastTone.info;
     }
     return AppToastTone.success;
-  }
-
-  String _formatSyncTime(DateTime value) {
-    final local = value.toLocal();
-    final hour = local.hour.toString().padLeft(2, '0');
-    final minute = local.minute.toString().padLeft(2, '0');
-    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} $hour:$minute';
-  }
-
-  String _sessionStatusLabel(AuthState auth) {
-    if (auth.isExpired) {
-      return 'Session expired';
-    }
-    final expiresAt = auth.expiresAt;
-    if (expiresAt == null) {
-      return 'Session expiry unavailable';
-    }
-    return 'Session expires ${_formatSyncTime(expiresAt)}';
-  }
-}
-
-class _SettingsTabBody extends StatelessWidget {
-  const _SettingsTabBody({required this.children, this.twoColumns = false})
-      : left = const [],
-        right = const [],
-        footer = null;
-
-  /// Explicit reference columns: a 958 px page, 32 px between the columns
-  /// and 37 px between boxes.
-  const _SettingsTabBody.columns({
-    required this.left,
-    required this.right,
-    this.footer,
-  })  : children = const [],
-        twoColumns = true;
-
-  final List<Widget> children;
-  final bool twoColumns;
-  final List<Widget> left;
-  final List<Widget> right;
-  final Widget? footer;
-
-  Widget _explicitColumns(BuildContext context) =>
-      LayoutBuilder(builder: (context, constraints) {
-        Widget column(List<Widget> boxes) =>
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              for (final box in boxes)
-                Padding(padding: const EdgeInsets.only(bottom: 37), child: box)
-            ]);
-        final wide = constraints.maxWidth >= 800;
-        return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-            child: Center(
-                child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 958),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (wide)
-                            Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(child: column(left)),
-                                  const SizedBox(width: 32),
-                                  Expanded(child: column(right)),
-                                ])
-                          else
-                            column([...left, ...right]),
-                          if (footer != null) footer!,
-                        ]))));
-      });
-
-  @override
-  Widget build(BuildContext context) => left.isNotEmpty || right.isNotEmpty
-      ? _explicitColumns(context)
-      : LayoutBuilder(builder: (context, constraints) {
-          final wide = twoColumns && constraints.maxWidth >= 800;
-          return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                  child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 960),
-                      child: wide
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                  for (var column = 0;
-                                      column < 2;
-                                      column++) ...[
-                                    if (column != 0) const SizedBox(width: 28),
-                                    Expanded(
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.stretch,
-                                            children: [
-                                          for (var index = column;
-                                              index < children.length;
-                                              index += 2)
-                                            Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 20),
-                                                child: children[index])
-                                        ])),
-                                  ],
-                                ])
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                  for (final child in children)
-                                    Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 20),
-                                        child: child)
-                                ]))));
-        });
-}
-
-class _TabResetActions extends StatelessWidget {
-  const _TabResetActions({
-    required this.label,
-    required this.onReset,
-  });
-
-  final String label;
-  final VoidCallback onReset;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: OutlinedButton.icon(
-        onPressed: onReset,
-        icon: const Icon(Icons.restart_alt),
-        label: Text(label),
-      ),
-    );
-  }
-}
-
-class _SettingsPanel extends StatelessWidget {
-  const _SettingsPanel({
-    required this.icon,
-    required this.title,
-    required this.child,
-  });
-
-  final IconData icon;
-  final String title;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: libraryWorkspaceBackgroundColor(context),
-      // Reference settings boxes: 10 px padding, a 22/700 title and no rule.
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700, fontSize: 22),
-            ),
-            const SizedBox(height: 15),
-            child,
-          ],
-        ),
-      ),
-    );
   }
 }
