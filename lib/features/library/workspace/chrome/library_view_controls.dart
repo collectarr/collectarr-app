@@ -293,6 +293,34 @@ class LibraryGroupPresentationToggle extends StatelessWidget {
   }
 }
 
+/// Insets the track so the thumb at either end still sits inside the slider's
+/// own box. Padding around the Slider would leave those ends outside the area
+/// that takes presses, so the thumb could only be grabbed near its centre.
+class _InsetTrackShape extends RoundedRectSliderTrackShape {
+  const _InsetTrackShape();
+
+  static const _inset = 11.0;
+
+  @override
+  Rect getPreferredRect({
+    required RenderBox parentBox,
+    Offset offset = Offset.zero,
+    required SliderThemeData sliderTheme,
+    bool isEnabled = false,
+    bool isDiscrete = false,
+  }) {
+    final rect = super.getPreferredRect(
+      parentBox: parentBox,
+      offset: offset,
+      sliderTheme: sliderTheme,
+      isEnabled: isEnabled,
+      isDiscrete: isDiscrete,
+    );
+    return Rect.fromLTRB(
+        rect.left + _inset, rect.top, rect.right - _inset, rect.bottom);
+  }
+}
+
 class LibraryRangeSlider extends StatelessWidget {
   const LibraryRangeSlider(
       {super.key,
@@ -317,8 +345,8 @@ class LibraryRangeSlider extends StatelessWidget {
           overlayShape: SliderComponentShape.noOverlay,
           thumbShape: const RoundSliderThumbShape(
               enabledThumbRadius: 8, elevation: 0, pressedElevation: 0),
-          trackShape: const RoundedRectSliderTrackShape(),
-          padding: const EdgeInsets.symmetric(horizontal: 11),
+          trackShape: const _InsetTrackShape(),
+          padding: EdgeInsets.zero,
           showValueIndicator: ShowValueIndicator.never,
         ),
         child: Slider(

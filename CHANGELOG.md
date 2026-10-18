@@ -8,6 +8,7 @@
 - Add/Update from Core Settings is a dialog with Add from Core and Update from Core tabs: choose per non-personal field whether Add downloads it and whether Update skips, fills or replaces it.
 
 ### 🐛 Fixes
+- The cover size and spacing sliders can be grabbed anywhere on the round handle, including at the minimum and maximum, instead of only at its centre.
 - A manual album can be added and edited with an empty title, as in the reference.
 - The Covers tab of the album editor shows the same compact disc icon when the front or back cover is missing.
 - Entries without a cover show a dark tile with their kind's icon (compact disc for albums, book, film, TV, gamepad, dice) instead of a coloured title card.
