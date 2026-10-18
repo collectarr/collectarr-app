@@ -5,3 +5,7 @@
 /test/fixtures/** text=auto eol=lf
 # Flutter regenerates this file with LF; CRLF conversion keeps it permanently modified on Windows.
 /macos/Flutter/GeneratedPluginRegistrant.swift text eol=lf
+# Kind registry and field-entry generators write LF; keep them LF on Windows too.
+/lib/features/library/kinds/registry/collectarr_kind_database_tables.g.dart text eol=lf
+/lib/dev/seeds/collectarr_dev_seed_registry.g.dart text eol=lf
+/tool/architecture/generated/kind-field-entries.json text eol=lf
