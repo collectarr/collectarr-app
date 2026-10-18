@@ -98,7 +98,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   late final TextEditingController _queryController;
   late final TextEditingController _identifierController;
-  late final TextEditingController _catalogNumberController;
+  late final TextEditingController _codeQueryController;
 
   List<StorageLocation> _availableLocations = const [];
   List<String> _conditionOptions = const [];
@@ -145,7 +145,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
     _identifierController =
         TextEditingController(text: widget.initialIdentifier ?? '');
-    _catalogNumberController = TextEditingController();
+    _codeQueryController = TextEditingController();
 
     _manualDraft = LibraryAddManualDraft(
       customFieldValues: widget.customFieldValues,
@@ -307,7 +307,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _manualDraft.dispose();
     _queryController.dispose();
     _identifierController.dispose();
-    _catalogNumberController.dispose();
+    _codeQueryController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -902,10 +902,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               mode: state.mode,
               queryController: _queryController,
               identifierController: _identifierController,
-              catalogNumberController:
-                  addCapability.search.input.searchesCatalogNumber
-                      ? _catalogNumberController
-                      : null,
+              codeSearchTab: addCapability.search.input.codeSearchTab,
+              codeQueryController: _codeQueryController,
               isSearching: state.search.isBusy,
               onModeChanged: _selectAddMode,
               onSearch: () {
@@ -929,8 +927,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 identifierCode: _identifierController.text,
               ),
               onScanBarcode: _scanBarcode,
-              onSearchCatalogNumber: () {
-                _controller.updateCatalogNumber(_catalogNumberController.text);
+              onSearchCode: () {
+                _controller.updateCodeQuery(_codeQueryController.text);
                 _controller.executeSearch();
               },
               onManual: () => _openManualDialog(accent, addCapability),

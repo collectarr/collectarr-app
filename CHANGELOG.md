@@ -62,6 +62,9 @@
 - Editor field labels are 13 px bold like the reference instead of about 10 px.
 - Covers, cards, Card Flow and List use the #131313 background in dark mode; Shelves keeps the shelf style's own background.
 
+### ♻️ Refactors
+- Kinds now declare their own extra Add search tab, such as Music's Catalog No., instead of the shared Add dialog knowing about catalog numbers.
+
 ### 🧰 CI & Build
 - The generated macOS plugin registrant no longer shows up as modified on Windows.
 - `dart run tool/ci_check.dart` runs the same checks as CI before a push, stage by stage.

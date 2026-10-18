@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_dialog_tokens.dar
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-enum LibraryAddDialogMode { search, identifier, catalogNumber }
+enum LibraryAddDialogMode { search, identifier, code }
 
 class LibraryCoverScanPrefillBanner extends StatelessWidget {
   const LibraryCoverScanPrefillBanner({super.key, required this.result});
