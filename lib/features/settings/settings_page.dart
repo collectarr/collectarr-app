@@ -280,7 +280,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               title: const Text('Settings'),
               bottom: TabBar(
                 isScrollable: true,
-                tabAlignment: TabAlignment.start,
+                tabAlignment: TabAlignment.center,
                 labelColor: appPalette(context).textPrimary,
                 unselectedLabelColor: appPalette(context).textSecondary,
                 indicatorColor: accent,
@@ -958,7 +958,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       child: Column(children: [
         const TabBar(
             isScrollable: true,
-            tabAlignment: TabAlignment.start,
+            tabAlignment: TabAlignment.center,
             tabs: [
               Tab(text: 'Customization'),
               Tab(text: 'Covers & layout'),
