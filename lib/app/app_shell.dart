@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/backups/automatic_backup_controller.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -57,6 +58,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       }
       _didRequestInitialOnlineFirstSync = true;
       ref.read(syncControllerProvider.notifier).syncOnlineFirstIfEnabled();
+      ref.read(automaticBackupProvider.notifier).backUpIfDue();
     });
   }
 

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### ✨ Features
+- Automatic backups: the desktop and mobile apps copy the whole database once a day at startup and before every restore or clear, keep the copies for a chosen period (one week to forever), and restore any of them from Settings > Data.
 - Folders are ordered by Sort Name while still showing the real name, so an artist named "Akira Yamaoka" with Sort Name "Yamaoka, Akira" sits among the Ys; a Sort Name set in Manage Pick Lists orders any folder, and the Settings option to ignore sort names turns this off.
 - Manage Pick Lists fills a value's Sort Name from its Name as you type ("The End Records" gives "End Records, The"), as the album editor does for Sort Title, until you type a Sort Name of your own.
 - Settings has an Updates tab to check for, download and install new versions on the Stable, Beta or Nightly channel; when a newer version is found at startup, a download button appears in the header right of Sync.
