@@ -29,7 +29,11 @@ class LibraryFormField extends StatelessWidget {
               Expanded(
                   child: Text(label,
                       style: TextStyle(
-                        color: appPalette(context).textPrimary,
+                        // The reference draws labels white at 70% (#C4C4C4
+                        // on the dialog panel).
+                        color: appPalette(context)
+                            .textPrimary
+                            .withValues(alpha: 0.7),
                         fontSize: 13,
                         fontWeight: kAppBoldFontWeight,
                         height: 20 / 14,
@@ -164,7 +168,9 @@ class LibraryFormGroup extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 7),
                   child: Text(title,
                       style: TextStyle(
-                          color: appPalette(context).textPrimary,
+                          color: appPalette(context).isDark
+                              ? const Color(0xFF999999)
+                              : appPalette(context).textMuted,
                           fontWeight: FontWeight.w700,
                           fontSize: titleSize,
                           height: 24 / titleSize))),

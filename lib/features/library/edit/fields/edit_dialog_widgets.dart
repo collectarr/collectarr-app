@@ -125,12 +125,12 @@ ThemeData editDialogTheme({
       // A floating label is painted at 75% of its style size, so the style is
       // enlarged to draw the reference's 13 px label.
       labelStyle: TextStyle(
-        color: palette.textPrimary,
+        color: palette.textPrimary.withValues(alpha: 0.7),
         fontSize: compactDesktop ? kEditFloatingLabelStyleSize : 13,
         fontWeight: kAppBoldFontWeight,
       ),
       floatingLabelStyle: TextStyle(
-        color: palette.textPrimary,
+        color: palette.textPrimary.withValues(alpha: 0.7),
         fontSize: compactDesktop ? kEditFloatingLabelStyleSize : 13,
         fontWeight: kAppBoldFontWeight,
       ),
@@ -757,7 +757,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final labelStyle = TextStyle(
-      color: palette.textPrimary,
+      color: palette.textPrimary.withValues(alpha: 0.7),
       fontSize: 13,
       fontWeight: kAppBoldFontWeight,
     );
