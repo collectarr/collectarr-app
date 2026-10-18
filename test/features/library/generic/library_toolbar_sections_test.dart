@@ -51,20 +51,21 @@ void main() {
       ),
     );
 
-    expect(find.text('Cancel'), findsOneWidget);
+    // Icon-only Cancel, Edit and Remove, as in the reference.
+    expect(find.byTooltip('Cancel'), findsOneWidget);
     expect(find.text('All'), findsOneWidget);
-    expect(find.text('3 of 12 selected'), findsOneWidget);
-    expect(find.text('Edit'), findsOneWidget);
-    expect(find.text('Remove'), findsOneWidget);
-    expect(find.text('Print to PDF'), findsOneWidget);
+    expect(find.text('3 of 12'), findsOneWidget);
+    expect(find.byTooltip('Edit'), findsOneWidget);
+    expect(find.byTooltip('Remove'), findsOneWidget);
+    expect(find.text('Print to PDF'), findsNothing);
     expect(find.text('Duplicate'), findsNothing);
     expect(find.text('Loan'), findsNothing);
     expect(find.text('Move to entry'), findsNothing);
     expect(find.text('Move to wishlist'), findsNothing);
     expect(find.text('Update values'), findsNothing);
 
-    // Verify full-height dividers: 1 after Cancel, 1 before Print to PDF, 1 before More.
-    expect(find.byType(LibrarySelectionToolbarDivider), findsNWidgets(3));
+    // Full-height dividers: one after Cancel and one before More.
+    expect(find.byType(LibrarySelectionToolbarDivider), findsNWidgets(2));
 
     final bandDecoratedBox = tester.widget<DecoratedBox>(
       find
@@ -76,7 +77,8 @@ void main() {
     );
     final decoration = bandDecoratedBox.decoration as BoxDecoration;
     final border = decoration.border as Border;
-    expect(border.top, isNot(BorderSide.none));
+    expect(border.top, BorderSide.none);
+    expect(border.bottom, isNot(BorderSide.none));
     // Flat accent chrome, as in the reference.
     expect(decoration.gradient, isNull);
     expect(decoration.color, isNotNull);
@@ -86,6 +88,7 @@ void main() {
     await tester.tap(find.byType(LibrarySelectionMoreIcon));
     await tester.pumpAndSettle();
 
+    expect(find.text('Print to PDF'), findsOneWidget);
     expect(find.text('Duplicate'), findsOneWidget);
     expect(find.text('Merge Albums'), findsOneWidget);
     expect(find.text('Loan'), findsOneWidget);
@@ -349,16 +352,15 @@ void main() {
       ),
     );
 
-    expect(find.text('Cancel'), findsOneWidget);
+    expect(find.byTooltip('Cancel'), findsOneWidget);
     expect(find.text('All'), findsOneWidget);
-    expect(find.text('Edit'), findsOneWidget);
-    expect(find.text('Remove'), findsOneWidget);
-    expect(find.text('Print to PDF'), findsOneWidget);
-    expect(find.text('5 of 20 selected'), findsOneWidget);
+    expect(find.byTooltip('Edit'), findsOneWidget);
+    expect(find.byTooltip('Remove'), findsOneWidget);
+    expect(find.text('5 of 20'), findsOneWidget);
 
-    final cancelPos = tester.getTopLeft(find.text('Cancel'));
-    final editPos = tester.getTopLeft(find.text('Edit'));
-    final countPos = tester.getTopLeft(find.text('5 of 20 selected'));
+    final cancelPos = tester.getTopLeft(find.byTooltip('Cancel'));
+    final editPos = tester.getTopLeft(find.byTooltip('Edit'));
+    final countPos = tester.getTopLeft(find.text('5 of 20'));
 
     // Cancel is at the left, Edit is in the middle, Count is on the right
     expect(cancelPos.dx < editPos.dx, isTrue);

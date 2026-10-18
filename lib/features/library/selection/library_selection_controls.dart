@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
 enum _BulkAction {
+  printToPdf,
   exportCsvTxt,
   exportXml,
   exportCovrPrice,
@@ -151,7 +152,7 @@ class LibrarySelectionControls extends StatelessWidget {
       minimumSize: onAccent ? Size.zero : null,
       tapTargetSize: onAccent ? MaterialTapTargetSize.shrinkWrap : null,
       textStyle: onAccent
-          ? const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)
+          ? const TextStyle(fontSize: 14, fontWeight: FontWeight.w400)
           : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(onAccent ? 4 : 6),
@@ -305,6 +306,7 @@ class LibrarySelectionControls extends StatelessWidget {
             : const Icon(Icons.more_horiz, size: 18),
         onSelected: (action) {
           final callback = switch (action) {
+            _BulkAction.printToPdf => callbacks.onPrintToPdf,
             _BulkAction.exportCsvTxt => callbacks.onExportCsvTxt,
             _BulkAction.exportXml => callbacks.onExportXml,
             _BulkAction.exportCovrPrice => null,
@@ -322,6 +324,12 @@ class LibrarySelectionControls extends StatelessWidget {
         },
         itemBuilder: (context) => onAccent
             ? [
+                accentMenuItem(
+                  value: _BulkAction.printToPdf,
+                  icon: AppIcons.print,
+                  label: 'Print to PDF',
+                  enabled: callbacks.onPrintToPdf != null,
+                ),
                 accentMenuItem(
                   value: _BulkAction.exportCsvTxt,
                   icon: AppIcons.exportCsv,
@@ -451,28 +459,39 @@ class LibrarySelectionControls extends StatelessWidget {
     );
 
     if (onAccent) {
+      Widget iconAction({
+        required String tooltip,
+        required IconData icon,
+        required VoidCallback? onPressed,
+      }) =>
+          Tooltip(
+            message: tooltip,
+            child: TextButton(
+              onPressed: onPressed,
+              style: baseStyle.copyWith(
+                minimumSize: const WidgetStatePropertyAll(Size(28, 30)),
+                padding: const WidgetStatePropertyAll(
+                    EdgeInsets.symmetric(horizontal: 6)),
+                foregroundColor: WidgetStatePropertyAll(onPressed == null
+                    ? Colors.white.withValues(alpha: 0.45)
+                    : Colors.white),
+              ),
+              child: Icon(icon, size: 14),
+            ),
+          );
       return Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          actionButton(
-            onPressed: callbacks.onBulkEdit,
+          iconAction(
+            tooltip: 'Edit',
             icon: AppIcons.edit,
-            label: 'Edit',
+            onPressed: callbacks.onBulkEdit,
           ),
-          actionButton(
-            onPressed: callbacks.onBulkRemove,
+          iconAction(
+            tooltip: 'Remove',
             icon: AppIcons.delete,
-            label: 'Remove',
-          ),
-          LibrarySelectionToolbarDivider(
-            dividerLeft: dividerLeft,
-            dividerRight: dividerRight,
-          ),
-          actionButton(
-            onPressed: callbacks.onPrintToPdf,
-            icon: AppIcons.print,
-            label: 'Print to PDF',
+            onPressed: callbacks.onBulkRemove,
           ),
           LibrarySelectionToolbarDivider(
             dividerLeft: dividerLeft,
