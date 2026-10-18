@@ -60,9 +60,9 @@ void main() {
     expect(find.text('Help'), findsOneWidget);
     final sectionText = tester.widget<Text>(find.text('Maintenance'));
     expect(sectionText.style?.fontSize, 14);
-    expect(sectionText.style?.fontWeight, FontWeight.w900);
+    expect(sectionText.style?.fontWeight, FontWeight.w700);
     final entryText = tester.widget<Text>(find.text('Manage Collections'));
-    expect(entryText.style?.fontWeight, FontWeight.w700);
+    expect(entryText.style?.fontWeight, FontWeight.w400);
     expect(entryText.style?.fontSize, 14);
     expect(sectionText.style?.color?.a, closeTo(0.4, 0.01));
     expect(
