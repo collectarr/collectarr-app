@@ -7,6 +7,7 @@
 - Add/Update from Core Settings is a dialog with Add from Core and Update from Core tabs: choose per non-personal field whether Add downloads it and whether Update skips, fills or replaces it.
 
 ### 🐛 Fixes
+- Drawer sections open and close over 350 ms with the reference's ease curve, and drawer headers have no hover highlight and no click ripple.
 - Dialogs slide down a quarter of their height while fading in and slide back up while fading out, like the reference's modals.
 - Add/Update from Core Settings for Music also lists Disc Details, Tracks, Credits, Artist Credits and External Links, which the flat field schema left out.
 - Horizontal cards are exactly as tall as their cover plus 4 px padding at any cover size, with no empty bands above or below.

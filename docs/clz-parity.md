@@ -124,7 +124,7 @@ Keep these when matching the reference visually.
 | Statistics | 890 px page, bold summary, small legend squares with counts, 80 px recent rows without track data | 958 px page, bold figures in regular sentences with signed and price/value lines, 40 × 12 legend swatches, 100 px recent rows with tracks and length |
 | Settings | Tabbed sub-pages, floating-label near-black selects, Material checkbox tiles | Reference two-column page with blue legends, 34 px #444 selects, compact checkboxes and radios; opens first |
 | Resize | Narrow windows shrank the folder panel first, and that clamped width was saved | Folder panel keeps its width; the stored width survives a narrow window |
-| Settings Behaviour | No "Adding from Core" | "Add/Update from Core settings" opens the prefill settings |
+| Settings Behaviour | No "Adding from Core" | "Add/Update from Core settings" opens the two-tab Core settings dialog |
 | Core ID | No Core AlbumID column or sort | Core ID column and sort from the album's Core reference |
 | Statistics | Price/value line only with values | Always shown; zero without prices |
 | Loans | Free-text borrower; loans list dialog before the lend form; due date unset; return as orange text | Reference "Loan Album" form with a loaner picker, due date two weeks later (calendar days); borrowers have sort name, email and address (schema 2); one-row Loan Manager bar, #CCC count pill, white titles, clock/plane dates, blue return square |
@@ -142,6 +142,7 @@ Keep these when matching the reference visually.
 | Zoom | Ctrl + wheel over a list or panel scrolled it instead of zooming | Ctrl/⌘ + wheel zooms wherever the pointer is; regression test added |
 | Random pick | Selected an album that could be off-screen or outside the chosen letter | Picks among the shown albums and scrolls List, Cards, Covers and Shelves to it |
 | Add dialog | 1320 px two-pane dialog: "Search by" tabs, Manual and Scan links, format chips, side preview, "0 selected" footer | 690 px full-height column 10 px from the top: "Add Albums By:", folder tabs (Artist & Title, Barcode, settings gear), "Add Manually ›", 34 px field with a blue Search button, "N Results" caption with the format select, 71 px rows (cover, title, artist, "CD \| 1 disc, 10 tracks", barcode, checkbox), a "Confirm your selection" sheet over a dimmed dialog; the footer appears only for checked results |
+| Sidebar sections | Opened over 200 ms with an ease-in-out curve, the header lit on hover and rippled on click | 350 ms CSS `ease`, chevron turns in 100 ms, no header hover and no ripple |
 
 ## Open differences
 

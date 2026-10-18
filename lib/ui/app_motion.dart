@@ -6,3 +6,8 @@ const appDialogTransitionDuration = Duration(milliseconds: 300);
 const appBackdropFadeDuration = Duration(milliseconds: 100);
 const appReorderReturnDuration = Duration(milliseconds: 100);
 const appNavigationSlideDuration = Duration(milliseconds: 200);
+
+/// Drawer sections open and close over 350 ms with the CSS `ease` curve, and
+/// their chevron turns over 100 ms, as in the reference menu.
+const appDrawerCollapseDuration = Duration(milliseconds: 350);
+const appDrawerChevronDuration = Duration(milliseconds: 100);
