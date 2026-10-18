@@ -68,14 +68,6 @@ class ItemImagesCacheRepository {
     return row?.imageData;
   }
 
-  /// Delete all images for a collection item.
-  Future<void> deleteByLibraryEntryRef(LibraryEntryRef libraryEntryRef) async {
-    requireKnownLibraryEntryRef(libraryEntryRef);
-    await (_db.delete(_db.itemImagesCache)
-          ..where((row) => row.libraryEntryRefKey.equals(libraryEntryRef.key)))
-        .go();
-  }
-
   /// Delete a specific image by id.
   Future<void> deleteById(String id) async {
     await (_db.delete(_db.itemImagesCache)..where((row) => row.id.equals(id)))

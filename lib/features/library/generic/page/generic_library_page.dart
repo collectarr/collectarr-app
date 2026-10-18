@@ -175,8 +175,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         projection,
         item: item,
       ),
-      showAddDialog: ({identifierCode}) =>
-          _dialogCoordinator.showAddDialogFlow(identifierCode: identifierCode),
     );
     _metadataCoordinator = LibraryPageMetadataCoordinator(
       coordinatorContext,

@@ -18,10 +18,6 @@ class LibraryAccentData {
 
   Color get actionAccent => libraryAccentActionColor(accent);
 
-  Color chromeBorderColor({Brightness brightness = Brightness.dark}) {
-    return libraryChromeBorderColor(accent, brightness: brightness);
-  }
-
   Color get selectedFill => accent.withValues(alpha: 0.10);
 }
 

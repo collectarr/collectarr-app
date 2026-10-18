@@ -32,10 +32,6 @@ TrackingSourceType? trackingSourceTypeFromValue(Object? value) {
   return null;
 }
 
-String? trackingSourceTypeApiValue(Object? value) {
-  return trackingSourceTypeFromValue(value)?.apiValue;
-}
-
 String? normalizeTrackingSourceType(String? value) {
   final normalized = value?.trim().toLowerCase();
   if (normalized == null || normalized.isEmpty) {
@@ -77,8 +73,4 @@ String? normalizeTrackingSourceType(String? value) {
     default:
       return null;
   }
-}
-
-String trackingSourceTypeLabel(Object? value) {
-  return trackingSourceTypeFromValue(value)?.label ?? 'Unknown';
 }

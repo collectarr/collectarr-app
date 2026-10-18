@@ -54,8 +54,6 @@ final class LibraryKindRegistry {
 
   LibraryKindRegistration? tryGet(CatalogMediaKind kind) => _byKind[kind];
 
-  LibraryKindRegistration getByKind(CatalogMediaKind kind) => require(kind);
-
   List<LibraryKindRegistration> get allKinds =>
       List.unmodifiable(_byKind.values);
 }

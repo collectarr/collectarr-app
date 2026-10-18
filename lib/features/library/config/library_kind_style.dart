@@ -5,8 +5,6 @@ import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-const Color kLibraryFallbackAccent = kAppAccent;
-
 ThemeData libraryAccentTheme(BuildContext context, Color accent) {
   final theme = Theme.of(context);
   final palette = appPalette(context);

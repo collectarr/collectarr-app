@@ -18,15 +18,6 @@ class ReadingQueueRepository {
         .toList();
   }
 
-  /// Check if an item is in the queue.
-  Future<bool> isInQueue(LibraryEntryRef ref) async {
-    requireKnownLibraryEntryRef(ref);
-    final row = await (_db.select(_db.readingQueueCache)
-          ..where((t) => t.libraryEntryRefKey.equals(ref.key)))
-        .getSingleOrNull();
-    return row != null;
-  }
-
   Future<int?> positionFor(LibraryEntryRef ref) async {
     requireKnownLibraryEntryRef(ref);
     final row = await (_db.select(_db.readingQueueCache)

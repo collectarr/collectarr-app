@@ -243,26 +243,10 @@ Color librarySelectionToolbarBorder(BuildContext context) =>
           alpha: appPalette(context).isDark ? 0.92 : 0.82,
         );
 
-Color librarySelectionToolbarPrimaryAction(BuildContext context) =>
-    Color.alphaBlend(
-      appPalette(context).accent.withValues(
-            alpha: appPalette(context).isDark ? 0.34 : 0.18,
-          ),
-      librarySelectionToolbarSurface(context),
-    );
-
 Color librarySelectionToolbarSecondaryAction(BuildContext context) =>
     Color.alphaBlend(
       appPalette(context).textPrimary.withValues(
             alpha: appPalette(context).isDark ? 0.12 : 0.08,
-          ),
-      librarySelectionToolbarSurface(context),
-    );
-
-Color librarySelectionToolbarCountChip(BuildContext context) =>
-    Color.alphaBlend(
-      appPalette(context).textPrimary.withValues(
-            alpha: appPalette(context).isDark ? 0.16 : 0.09,
           ),
       librarySelectionToolbarSurface(context),
     );

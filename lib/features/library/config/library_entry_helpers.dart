@@ -9,12 +9,6 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 
-String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
-  final kind = item.source.mediaKind;
-  if (kind.isUnknown) return null;
-  return libraryHierarchyForKind(kind).contractDiagnosticLabel(item);
-}
-
 /// Returns tracking state owned by the local entry represented by [item].
 List<TrackingSummary> libraryTrackingSummariesForItem(
   LibraryProjectionView item,
@@ -138,25 +132,6 @@ String? buildLibraryEntryContextLabel(
 /// A price in the currency display and number format from Settings.
 String formatMoney(int? cents, String? currency) =>
     AppFormats.current.formatMoney(cents, currency);
-
-List<String> libraryCreatorNameList(List<Map<String, dynamic>>? creators) {
-  if (creators == null || creators.isEmpty) {
-    return const <String>[];
-  }
-  final seen = <String>{};
-  final values = <String>[];
-  for (final creator in creators) {
-    final name = creator['name']?.toString().trim();
-    if (name == null || name.isEmpty) {
-      continue;
-    }
-    final key = name.toLowerCase();
-    if (seen.add(key)) {
-      values.add(name);
-    }
-  }
-  return values;
-}
 
 List<(String, String)> libraryCreatorsGroupedByRole(
   List<Map<String, dynamic>>? creators,

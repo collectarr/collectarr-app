@@ -1,13 +1,10 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
     hide formatDate;
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 /// Owns the semantic mutation boundary for the edit shell.
 ///
@@ -127,42 +124,6 @@ final class LibraryEditSessionController {
     LibraryEditSelection selection,
   ) {
     return catalogItemSession.applySelectionEdits(selection);
-  }
-
-  LibraryAddCommonDraft buildCommonEntryDraft(LibraryEditShellState state) {
-    return LibraryAddCommonDraft(
-      condition: emptyToNull(state.personal.conditionController.text),
-      purchaseDate: parseDate(state.personal.purchaseDateController.text),
-      pricePaidCents: parseMoneyCents(state.personal.priceController.text),
-      currency: emptyToNull(state.personal.currencyController.text),
-      personalNotes: emptyToNull(state.personal.notesController.text),
-      locationId: state.personal.selectedLocationId,
-      purchaseStore: emptyToNull(
-        state.personal.purchaseStoreController.text,
-      ),
-      collectionStatus: state.personal.collectionStatus,
-      tags: emptyToNull(state.personal.tagsController.text),
-    );
-  }
-
-  JsonEncodable buildEntryDetails(LibraryEditShellState state) {
-    return entrySession.toDetailsDraft();
-  }
-
-  AddLibraryEntryCommand buildEntryAddCommand(LibraryEditShellState state) {
-    return libraryAddForKind(state.type.kind).buildCommandFromDetails(
-      state.kindItem,
-      buildCommonEntryDraft(state),
-      buildEntryDetails(state),
-      kindValue: emptyToNull(state.personal.gradeController.text),
-      tracking: LibraryAddTrackingDraft(
-        readStatus: emptyToNull(state.tracking.trackingController.text),
-        notes: emptyToNull(state.tracking.trackingNotesController.text),
-        rating: parseInt(state.tracking.ratingController.text),
-        startedAt: state.tracking.startedAt,
-        finishedAt: state.tracking.finishedAt,
-      ),
-    );
   }
 
   LibraryEntryUpdateRequest buildEntryUpdateCommand(

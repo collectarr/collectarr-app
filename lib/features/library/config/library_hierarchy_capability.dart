@@ -43,7 +43,4 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
 
   String childrenTitle(int count) =>
       childrenTitleBuilder?.call(count) ?? 'Contents ($count)';
-
-  String? contractDiagnosticLabel(LibraryProjectionView item) =>
-      contractDiagnosticLabelBuilder?.call(item);
 }

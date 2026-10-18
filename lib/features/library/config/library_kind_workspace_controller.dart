@@ -8,10 +8,6 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter/material.dart';
 
 class LibraryKindWorkspaceController extends LibraryNoopBrowserDelegate {
-  void closeAllKindDrilldowns() {
-    closeItemDrilldown();
-  }
-
   @override
   bool canOpenItemDetailDrilldown(
     LibraryKindRegistration type,

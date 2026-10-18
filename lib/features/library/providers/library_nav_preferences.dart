@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -55,8 +54,6 @@ class LibraryNavPreferences {
   bool isHidden(String kind) => hiddenKinds.contains(_normalizeKind(kind));
 
   bool isVisible(String kind) => !isHidden(kind);
-
-  int? accentHexForKind(String kind) => accentHexByKind[_normalizeKind(kind)];
 }
 
 class LibraryNavPreferencesStore {
@@ -152,49 +149,8 @@ class LibraryNavPreferencesController extends Notifier<LibraryNavPreferences> {
     _cachedLibraryAccentHexByKind = state.accentHexByKind;
   }
 
-  Future<void> setPlacement(LibraryNavPlacement placement) async {
-    await _save(state.copyWith(placement: placement));
-  }
-
   Future<void> toggleCollapsed() async {
     await _save(state.copyWith(collapsed: !state.collapsed));
-  }
-
-  Future<void> setOrder(List<String> order) async {
-    await _save(
-      state.copyWith(order: [
-        for (final kind in order)
-          if (_normalizeKind(kind).isNotEmpty) _normalizeKind(kind),
-      ]),
-    );
-  }
-
-  Future<void> setKindVisible(String kind, bool visible) async {
-    final normalized = _normalizeKind(kind);
-    if (normalized.isEmpty) {
-      return;
-    }
-    final hidden = {...state.hiddenKinds};
-    if (visible) {
-      hidden.remove(normalized);
-    } else {
-      hidden.add(normalized);
-    }
-    await _save(state.copyWith(hiddenKinds: hidden));
-  }
-
-  Future<void> setKindAccent(String kind, Color? color) async {
-    final normalized = _normalizeKind(kind);
-    if (normalized.isEmpty) {
-      return;
-    }
-    final accents = {...state.accentHexByKind};
-    if (color == null) {
-      accents.remove(normalized);
-    } else {
-      accents[normalized] = color.toARGB32();
-    }
-    await _save(state.copyWith(accentHexByKind: accents));
   }
 
   Future<void> reset() async {

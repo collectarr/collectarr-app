@@ -52,4 +52,3 @@ LibraryStatsColors libraryStatsColors(BuildContext context) {
 }
 
 const double kLibraryStatsCardWidth = 260;
-const double kLibraryStatsDialogWideBreakpoint = 760;

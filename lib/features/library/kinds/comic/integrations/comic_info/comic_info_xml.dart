@@ -64,29 +64,6 @@ class ComicInfoXml {
     return builder.buildDocument().toXmlString(pretty: true);
   }
 
-  /// Parse a ComicInfo.xml string into a partial metadata item + notes map.
-  ComicInfoData deserialize(String xmlString) {
-    final split = splitForImport(xmlString);
-
-    return ComicInfoData(
-      title: split.canonical.title,
-      seriesTitle: split.canonical.seriesTitle,
-      itemNumber: split.canonical.itemNumber,
-      volumeNumber: split.canonical.volumeNumber,
-      synopsis: split.canonical.synopsis,
-      publisher: split.canonical.publisher,
-      releaseDate: split.canonical.releaseDate,
-      releaseYear: split.canonical.releaseYear,
-      physicalFormatLabel: split.canonical.physicalFormatLabel,
-      notes: split.personal.notes,
-      tags: split.personal.tags,
-      rating: split.personal.rating,
-      canonical: split.canonical,
-      personal: split.personal,
-      unknownFields: split.unknownFields,
-    );
-  }
-
   /// Split ComicInfo.xml into canonical metadata and local personal state.
   ComicInfoImportSplit splitForImport(String xmlString) {
     final document = XmlDocument.parse(xmlString);

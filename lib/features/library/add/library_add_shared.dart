@@ -58,7 +58,6 @@ class LibraryCoverScanPrefillBanner extends StatelessWidget {
   }
 }
 
-const double kLibraryAddControlHeight = 34;
 const double kLibraryAddModeControlHeight = 36;
 
 ButtonStyle libraryAddOutlinedButtonStyle([Color accent = kAppAccent]) {

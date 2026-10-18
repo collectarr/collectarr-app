@@ -46,12 +46,6 @@ LibraryPersonalFieldContributor personalFieldContributorFor(
   return contributor;
 }
 
-bool isPersonalLibraryField(String key) =>
-    libraryPersonalFields.any((field) => field.key == key);
-
-bool isSyncablePersonalField(String key) =>
-    librarySyncablePersonalFields.any((field) => field.key == key);
-
 List<PersonalLibraryFieldSpec> _deduplicateFields(
   Iterable<PersonalLibraryFieldSpec> fields,
 ) {

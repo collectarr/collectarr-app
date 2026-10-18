@@ -200,12 +200,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     );
   }
 
-  void setResultPolicyState(LibraryAddResultPolicyState value) {
-    state = state.copyWith(
-      selection: state.selection.copyWith(resultPolicyState: value),
-    );
-  }
-
   Future<void> scanCover(BuildContext context) async {
     if (state.search.isScanningCover) return;
     state = state.copyWith(
@@ -354,28 +348,10 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     state = state.copyWith(manualDraft: update(state.manualDraft));
   }
 
-  void setDefaultCondition(String condition) {
-    state = state.copyWith(defaultCondition: condition);
-  }
-
-  void setDefaultPurchaseDate(DateTime? date) {
-    state = state.copyWith(
-      defaultPurchaseDate: date,
-      clearDefaultPurchaseDate: date == null,
-    );
-  }
-
   void setDefaultLocationId(String? locationId) {
     state = state.copyWith(
       defaultLocationId: locationId,
       clearDefaultLocationId: locationId == null,
-    );
-  }
-
-  void setDefaultReadStatus(String? readStatus) {
-    state = state.copyWith(
-      defaultReadStatus: readStatus,
-      clearDefaultReadStatus: readStatus == null,
     );
   }
 
@@ -397,13 +373,6 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     state = state.copyWith(
       search: state.search.copyWith(error: message),
       submitState: const AsyncValue.data(null),
-    );
-  }
-
-  void setPhysicalFormatId(String? formatId) {
-    state = state.copyWith(
-      physicalFormatId: formatId,
-      clearPhysicalFormatId: formatId == null,
     );
   }
 

@@ -1,5 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-
 enum LibraryDuplicateCriterion {
   automatic,
   title,
@@ -44,6 +42,3 @@ String? normalizeLibraryDuplicateIdentifier(Object? value) {
       ? null
       : normalized.toLowerCase();
 }
-
-typedef LibraryDuplicateCandidateBuilder = List<LibraryDuplicateCandidate>
-    Function(LibraryWorkspaceContext entry);

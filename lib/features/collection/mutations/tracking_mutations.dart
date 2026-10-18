@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
@@ -189,19 +188,6 @@ final class TrackingMutations {
     );
   }
 
-  Future<void> syncTrackingUnit(TrackingUnitSummary unit) async {
-    final now = DateTime.now().toUtc();
-    final updated = unit.copyWith(updatedAt: now);
-    await mutationRunner.run(
-      action: () async {
-        await trackingUnits.upsert(updated);
-        await syncQueue
-            .enqueue(_syncChangeForTrackingUnit(updated, 'upsert', now));
-      },
-      eventsToEmit: const [TrackingChanged()],
-    );
-  }
-
   SyncChange _syncChangeForTrackingState(
       TrackingStorageSyncRecord record, String action, DateTime now) {
     return SyncChange(
@@ -210,18 +196,6 @@ final class TrackingMutations {
       entityId: record.ref.id,
       action: action,
       payload: record.payload,
-      clientChangedAt: now,
-    );
-  }
-
-  SyncChange _syncChangeForTrackingUnit(
-      TrackingUnitSummary unit, String action, DateTime now) {
-    return SyncChange(
-      id: 'tracking_unit:${unit.id}:$action:${now.millisecondsSinceEpoch}',
-      entityType: 'tracking_unit',
-      entityId: unit.id,
-      action: action,
-      payload: unit.toSyncPayload(),
       clientChangedAt: now,
     );
   }

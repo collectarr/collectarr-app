@@ -36,11 +36,6 @@ final class LibraryMetadataCorrectionValues {
     _values.remove(key);
     _clearedKeys.remove(key);
   }
-
-  Map<String, Object?> toSerialized() => {
-        ..._values,
-        for (final key in _clearedKeys) key: null,
-      };
 }
 
 /// Structural metadata supplied to the correction form host.

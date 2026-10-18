@@ -1,4 +1,3 @@
-import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/features/library/ui/library_item_confirmation.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 // ignore_for_file: use_build_context_synchronously
@@ -9,8 +8,6 @@ import 'package:collectarr_app/features/library/collections/library_collections_
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'dart:math' as math;
 
-import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
-import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -33,15 +30,12 @@ class LibraryPageCollectionActionCoordinator {
     this._page, {
     required LibraryPageEditDialogLauncher showEditDialog,
     required LibraryPageCompareMetadataWithServer compareMetadataWithServer,
-    required LibraryPageAddDialogLauncher showAddDialog,
   })  : _showEditDialog = showEditDialog,
-        _compareMetadataWithServer = compareMetadataWithServer,
-        _showAddDialog = showAddDialog;
+        _compareMetadataWithServer = compareMetadataWithServer;
 
   final LibraryPageCoordinatorContext _page;
   final LibraryPageEditDialogLauncher _showEditDialog;
   final LibraryPageCompareMetadataWithServer _compareMetadataWithServer;
-  final LibraryPageAddDialogLauncher _showAddDialog;
 
   bool _isNonServerMetadataId(String id) {
     final normalized = id.trim().toLowerCase();
@@ -200,41 +194,6 @@ class LibraryPageCollectionActionCoordinator {
             );
           }
         }
-    }
-  }
-
-  Future<void> scanBarcodeFlow() async {
-    final scannedCode = await showAppBottomSheet<ScannedCode>(
-      context: _page.context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) => BarcodeScanSheet(
-        title:
-            'Scan ${_page.type.identity.singularLabel.toLowerCase()} barcode',
-        description:
-            'Scan or enter a barcode, UPC, or ISBN. Collectarr will open Add ${_page.type.identity.pluralLabel} with this code prefilled.',
-        manualLabel:
-            '${_page.type.identity.singularLabel} barcode / UPC / ISBN',
-        submitLabel: 'Continue to Add ${_page.type.identity.pluralLabel}',
-        leadingIcon: _page.type.identity.icon,
-      ),
-    );
-    if (scannedCode != null && _page.mounted) {
-      final barcode = resolveLibraryBarcodeForKind(
-        _page.type.kind,
-        scannedCode.value,
-      );
-      if (barcode == null) {
-        ScaffoldMessenger.of(_page.context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'This code is not supported for ${_page.type.identity.pluralLabel.toLowerCase()}.',
-            ),
-          ),
-        );
-        return;
-      }
-      await _showAddDialog(identifierCode: barcode);
     }
   }
 

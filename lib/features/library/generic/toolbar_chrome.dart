@@ -8,8 +8,6 @@ import 'package:flutter/material.dart';
 export 'package:collectarr_app/features/library/config/library_media_presentation_models.dart'
     show LibrarySortFavorite;
 
-const double kLibraryToolbarCompactBreakpoint = 760;
-
 /// The status filter a library opens with: albums in the collection, as in
 /// the reference. Clearing filters returns here rather than to All.
 const kDefaultCollectionStatusScope = LibraryCollectionStatusScope.inCollection;

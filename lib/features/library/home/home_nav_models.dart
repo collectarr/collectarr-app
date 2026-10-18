@@ -25,19 +25,6 @@ class LibraryNavGroup {
     }
     return false;
   }
-
-  String? activeChildLabel(String selectedKind) {
-    if (!hasChildren) {
-      return null;
-    }
-    final selected =
-        _firstWhereOrNull(types, (type) => type.kind == selectedKind);
-    if (selected == null) {
-      return null;
-    }
-    final childLabel = libraryNavLabel(selected);
-    return childLabel == label ? null : childLabel;
-  }
 }
 
 class _LibraryNavGroupSpec {

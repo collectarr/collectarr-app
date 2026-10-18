@@ -1,13 +1,8 @@
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
-import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/music/entries/music_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 import 'music_additional_workspace_fields.dart';
@@ -224,44 +219,4 @@ abstract final class MusicPersonalWorkspaceFields {
     signedBy,
     lastCleaned,
   ];
-
-  static LibraryEntryGroupBucketValueMutator conditionBucketValueMutator() {
-    return (item, currentLabel, {String? replacement}) {
-      if (item is! LibraryEntryDispatch ||
-          item.kind != CatalogMediaKind.music ||
-          item.value is! MusicLibraryEntry) {
-        return null;
-      }
-      final entry = item.value as MusicLibraryEntry;
-      if (entry.personal.condition?.trim() != currentLabel.trim()) return null;
-      final next = replacement?.trim();
-      return UpdateLibraryEntryCommand(
-        libraryEntryRef: LibraryEntryRef(
-          kind: CatalogMediaKind.music,
-          id: LibraryEntryId(entry.id.value),
-        ),
-        payload: MusicLibraryEntryUpdatePayload(
-          condition: next == null || next.isEmpty
-              ? const Patch.clear()
-              : Patch.set(next),
-          grade: const Patch.unchanged(),
-          purchaseDate: const Patch.unchanged(),
-          pricePaidCents: const Patch.unchanged(),
-          currency: const Patch.unchanged(),
-          personalNotes: const Patch.unchanged(),
-          locationId: const Patch.unchanged(),
-          purchaseStore: const Patch.unchanged(),
-          collectionStatus: const Patch.unchanged(),
-          isDigital: const Patch.unchanged(),
-          tags: const Patch.unchanged(),
-          soldAt: const Patch.unchanged(),
-          sellPriceCents: const Patch.unchanged(),
-          soldTo: const Patch.unchanged(),
-          marketValueCents: const Patch.unchanged(),
-          indexNumber: const Patch.unchanged(),
-          details: const Patch.unchanged(),
-        ),
-      );
-    };
-  }
 }

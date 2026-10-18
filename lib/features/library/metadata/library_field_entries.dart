@@ -1,11 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-enum LibraryFieldEntryPolicy {
-  canonicalMetadata,
-  personalLibrary,
-  syncablePersonal,
-}
-
 enum PersonalLibraryFieldEditor {
   condition,
   partialDate,
