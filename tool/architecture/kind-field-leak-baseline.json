@@ -102,7 +102,7 @@
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/edit/fields/edit_dialog_widgets.dart",
+                        "path":  "lib/features/library/edit/fields/edit_layout_widgets.dart",
                         "surface":  "member-declaration",
                         "symbol":  "cover"
                     },
