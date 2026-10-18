@@ -21,14 +21,12 @@ class AppShellAppBar extends StatelessWidget implements PreferredSizeWidget {
       required this.types,
       required this.animationsEnabled,
       required this.onKindSelected,
-      required this.onOpenNavigation,
-      required this.onSettings});
+      required this.onOpenNavigation});
   final LibraryKindRegistration type;
   final Color accent;
   final List<CatalogMediaType> types;
   final bool animationsEnabled;
   final ValueChanged<CatalogMediaType> onKindSelected;
-  final VoidCallback onSettings;
   final VoidCallback onOpenNavigation;
   @override
   Size get preferredSize => const Size.fromHeight(shellAppBarHeight);
@@ -76,14 +74,6 @@ class AppShellAppBar extends StatelessWidget implements PreferredSizeWidget {
           onSelected: onKindSelected,
         ),
         SyncActionButton(style: toolbarIconStyle),
-        IconButton(
-          key: const Key('nav.settings'),
-          tooltip: 'Settings',
-          visualDensity: VisualDensity.compact,
-          style: toolbarIconStyle,
-          onPressed: onSettings,
-          icon: const Icon(AppIcons.settings),
-        ),
         const SizedBox(width: 4),
       ],
     );
