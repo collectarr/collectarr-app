@@ -66,13 +66,6 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
     ),
   ),
   resultPolicy: const LibraryAddResultPolicy.identity(),
-  coreDataFields: const [
-    (key: 'discs', label: 'Disc Details'),
-    (key: 'discs.tracks', label: 'Tracks'),
-    (key: 'credits', label: 'Credits'),
-    (key: 'artist_credits', label: 'Artist Credits'),
-    (key: 'external_links', label: 'External Links'),
-  ],
   manualPaneBuilder: buildMusicAddManualPane,
   previewPaneBuilder: buildMusicAddPreview,
   chrome: musicAddChrome,

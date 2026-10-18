@@ -2,12 +2,12 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "a2577d5c92b8cbfb0340b1def12ead811426b09a",
+  "coreCommit": "d0b219a327dcd38127b12cadbb0192c81a81f045",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form"
   },
-  "generatedAt": "2026-10-13T13:52:28.564295Z",
+  "generatedAt": "2026-10-18T13:21:19.210709Z",
   "kinds": {
     "music": {
       "additionalProperties": false,
@@ -20,7 +20,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Artist"
         },
         "artist_credits": {
           "anyOf": [
@@ -82,7 +83,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Artist credits"
         },
         "back_cover_image_url": {
           "anyOf": [
@@ -102,7 +104,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Barcode"
         },
         "box_set": {
           "anyOf": [
@@ -112,7 +115,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Box set"
         },
         "catalog_number": {
           "anyOf": [
@@ -122,7 +126,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Catalog number"
         },
         "country": {
           "anyOf": [
@@ -132,7 +137,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Country"
         },
         "cover_image_url": {
           "anyOf": [
@@ -142,7 +148,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Cover URL"
         },
         "credits": {
           "anyOf": [
@@ -216,7 +223,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Credits"
         },
         "discs": {
           "anyOf": [
@@ -306,7 +314,8 @@
                       {
                         "type": "null"
                       }
-                    ]
+                    ],
+                    "title": "Credits"
                   },
                   "disc_number": {
                     "type": "integer"
@@ -526,7 +535,8 @@
                       {
                         "type": "null"
                       }
-                    ]
+                    ],
+                    "title": "Tracks"
                   },
                   "vinyl_weight_grams": {
                     "anyOf": [
@@ -554,7 +564,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Discs"
         },
         "external_links": {
           "anyOf": [
@@ -599,18 +610,21 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "External links"
         },
         "extra": {
           "items": {
             "type": "string"
           },
+          "title": "Extra",
           "type": "array"
         },
         "genres": {
           "items": {
             "type": "string"
           },
+          "title": "Genres",
           "type": "array"
         },
         "label": {
@@ -621,7 +635,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Label"
         },
         "original_release_date": {
           "anyOf": [
@@ -650,7 +665,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Original release date"
         },
         "packaging": {
           "anyOf": [
@@ -660,7 +676,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Packaging"
         },
         "release_date": {
           "anyOf": [
@@ -689,7 +706,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Release date"
         },
         "sort_title": {
           "anyOf": [
@@ -699,7 +717,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Sort title"
         },
         "subtitle": {
           "anyOf": [
@@ -709,7 +728,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Subtitle"
         },
         "thumbnail_image_url": {
           "anyOf": [
@@ -719,10 +739,12 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Thumbnail URL"
         },
         "title": {
           "minLength": 1,
+          "title": "Title",
           "type": "string"
         }
       },

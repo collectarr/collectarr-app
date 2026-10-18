@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/core_data/core_data_settings.dart';
 import 'package:collectarr_app/features/settings/core_data_settings_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -128,20 +127,20 @@ void main() {
     ]);
   });
 
-  testWidgets('dialog saves a field switched to No on the Add tab',
-      (tester) async {
-    tester.view.physicalSize = const Size(1280, 1024);
+  Future<void> pumpDialog(WidgetTester tester, CatalogMediaKind kind) async {
+    tester.view.physicalSize = const Size(1280, 4000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(const ProviderScope(
-        child: MaterialApp(
-            home: Scaffold(
-                body: CoreDataSettingsDialog(
-      accent: Colors.orange,
-      kind: CatalogMediaKind.music,
-    )))));
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: CoreDataSettingsDialog(accent: Colors.orange, kind: kind))));
     await tester.pumpAndSettle();
+  }
+
+  testWidgets('dialog saves a field switched to No on the Add tab',
+      (tester) async {
+    await pumpDialog(tester, CatalogMediaKind.music);
 
     expect(find.text('Add/Update from Core Settings'), findsOneWidget);
     expect(find.text('Add from Core'), findsOneWidget);
@@ -156,5 +155,31 @@ void main() {
 
     final saved = await CoreDataSettings.load(CatalogMediaKind.music);
     expect(saved.skippedDownloads, hasLength(1));
+  });
+
+  testWidgets('dialog lists the lists Core describes, with their nested lists',
+      (tester) async {
+    await pumpDialog(tester, CatalogMediaKind.music);
+
+    expect(find.text('Discs'), findsOneWidget);
+    expect(find.text('Tracks'), findsOneWidget);
+    expect(find.text('Credits'), findsNWidgets(2));
+    expect(find.text('External links'), findsOneWidget);
+    expect(find.text('Back cover image url'), findsOneWidget);
+    expect(find.text('Title'), findsNothing);
+    expect(tester.getTopLeft(find.text('Tracks')).dx,
+        greaterThan(tester.getTopLeft(find.text('Discs')).dx));
+
+    await tester.tap(find.text('Update from Core'));
+    await tester.pump();
+    expect(find.text('Title'), findsOneWidget);
+  });
+
+  testWidgets('dialog says so when Core has no catalog for the kind',
+      (tester) async {
+    await pumpDialog(tester, CatalogMediaKind.book);
+
+    expect(find.text('Core has no catalog for this kind yet.'), findsOneWidget);
+    expect(find.text('Download'), findsNothing);
   });
 }
