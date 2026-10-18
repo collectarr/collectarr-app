@@ -11,6 +11,8 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_block_button.dart';
+import 'package:collectarr_app/ui/app_progress_dialog.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -1453,64 +1455,28 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                 width: constraints.maxWidth >= 600
                     ? (constraints.maxWidth - 30) / 2
                     : constraints.maxWidth,
-                child: Wrap(
-                  alignment: WrapAlignment.end,
-                  spacing: 10,
-                  runSpacing: 10,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    AppBlockButton(
+                      key: const Key('print_pdf.generate'),
+                      label: _isGenerating
+                          ? 'Generating file...'
+                          : 'Generate PDF file',
+                      icon: _isGenerating ? AppBlockButtonIcon.spinner : null,
+                      color: accent,
+                      onPressed: _isGenerating ? null : _generatePdf,
+                    ),
                     if (_generatedPdfBytes != null) ...[
-                      FilledButton.icon(
+                      const SizedBox(height: 20),
+                      AppBlockButton(
                         key: const Key('print_pdf.download'),
-                        icon: const Icon(Icons.download, size: 16),
-                        label:
-                            Text('Download file (${_generatedFileSize ?? ""})'),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF28A745),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
-                        ),
+                        label: 'Download file (${_generatedFileSize ?? ""})',
+                        icon: AppBlockButtonIcon.download,
+                        color: kAppSuccessGreen,
                         onPressed: _downloadPdf,
                       ),
-                      OutlinedButton.icon(
-                        key: const Key('print_pdf.print'),
-                        icon: const Icon(Icons.print, size: 16),
-                        label: const Text('Print / Open'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
-                        ),
-                        onPressed: _openInSystemPrint,
-                      ),
                     ],
-                    SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          key: const Key('print_pdf.generate'),
-                          icon: _isGenerating
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2, color: Colors.white),
-                                )
-                              : const Icon(Icons.picture_as_pdf, size: 16),
-                          label: Text(_isGenerating
-                              ? 'Generating file...'
-                              : 'Generate PDF file'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: accent,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            minimumSize: const Size(0, 32),
-                            textStyle: TextStyle(
-                                fontFamily: appFontFamily,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                height: 20 / 14),
-                          ),
-                          onPressed: _isGenerating ? null : _generatePdf,
-                        )),
                   ],
                 ))));
   }
@@ -1520,6 +1486,14 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   // ==========================================
   Future<void> _generatePdf() async {
     setState(() => _isGenerating = true);
+    await runWithProgressDialog(
+        context: context,
+        title: 'Print to PDF',
+        message: 'Generating your PDF file...',
+        task: _buildPdf);
+  }
+
+  Future<void> _buildPdf() async {
     try {
       final doc = pw.Document(
         title: _titleController.text.trim(),
@@ -1813,15 +1787,6 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
     final filename =
         '${_titleController.text.trim().replaceAll(RegExp(r"[^\w\s-]"), "")}.pdf';
     await Printing.sharePdf(bytes: bytes, filename: filename);
-  }
-
-  Future<void> _openInSystemPrint() async {
-    final bytes = _generatedPdfBytes;
-    if (bytes == null) return;
-    await Printing.layoutPdf(
-      onLayout: (_) => bytes,
-      name: _titleController.text.trim(),
-    );
   }
 
   // ==========================================
