@@ -61,7 +61,7 @@ Keep these when matching the reference visually.
 | Loan Manager | Current loans only | Also deletes loan records and lends or returns by barcode |
 | Add dialog | Search field only | Advanced artist, label and year fields toggle beside the field; cover search sits in the tab row |
 | Number order | Text compares character by character: 12 before 2, Raft 10 before Raft 2 (checked on CLZ Music Web, 2026-10-18) | Digit runs compare by value: 2 before 12, Raft 2 before Raft 10 |
-| Sort Names | Shown only on the person lists (Artist, Composer, Conductor, Musician, Engineer, Producer, Songwriter, Signee) and Box Set; the other lists store one but hide it, so "The End Records" stays under T | Every pick list shows its Sort Name, and every pick-list folder is ordered by it |
+| Sort Names | Shown only on the person lists (Artist, Composer, Conductor, Musician, Engineer, Producer, Songwriter, Signee) and Box Set; the other lists store one but hide it, so "The End Records" stays under T | Every pick list shows its Sort Name, fills it from the Name as it is typed (the article rule, as for Sort Title), and every pick-list folder is ordered by it |
 
 ## Fixed in the 2026-10-15/16 passes
 
