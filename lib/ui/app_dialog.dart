@@ -169,6 +169,39 @@ class _DialogSlideTransition extends StatefulWidget {
 
 class _DialogSlideTransitionState extends State<_DialogSlideTransition> {
   final GlobalKey _pageKey = GlobalKey();
+  late CurvedAnimation _fade;
+  late CurvedAnimation _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _curve();
+  }
+
+  @override
+  void didUpdateWidget(_DialogSlideTransition oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.animation == widget.animation) return;
+    _disposeCurves();
+    _curve();
+  }
+
+  @override
+  void dispose() {
+    _disposeCurves();
+    super.dispose();
+  }
+
+  void _curve() {
+    _fade = CurvedAnimation(
+        parent: widget.animation, curve: const Interval(0, 0.5));
+    _slide = CurvedAnimation(parent: widget.animation, curve: Curves.easeOut);
+  }
+
+  void _disposeCurves() {
+    _fade.dispose();
+    _slide.dispose();
+  }
 
   /// Height of the dialog box inside the full-screen page, else the page.
   double _dialogHeight() {
@@ -193,16 +226,12 @@ class _DialogSlideTransitionState extends State<_DialogSlideTransition> {
 
   @override
   Widget build(BuildContext context) {
-    final fade = CurvedAnimation(
-        parent: widget.animation, curve: const Interval(0, 0.5));
-    final slide =
-        CurvedAnimation(parent: widget.animation, curve: Curves.easeOut);
     return FadeTransition(
-      opacity: fade,
+      opacity: _fade,
       child: AnimatedBuilder(
-        animation: slide,
+        animation: _slide,
         builder: (context, child) => Transform.translate(
-          offset: Offset(0, -0.25 * _dialogHeight() * (1 - slide.value)),
+          offset: Offset(0, -0.25 * _dialogHeight() * (1 - _slide.value)),
           child: child,
         ),
         child: KeyedSubtree(key: _pageKey, child: widget.child),
