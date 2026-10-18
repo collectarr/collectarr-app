@@ -152,10 +152,10 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
           (definition) => definition.listName == 'collection_status');
       definitions.sort(
           (a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
+      // As in the reference, no list is selected until one is chosen.
       final definition = definitions
-              .where((item) => item.listName == _selectedListName)
-              .firstOrNull ??
-          definitions.firstOrNull;
+          .where((item) => item.listName == _selectedListName)
+          .firstOrNull;
       final kind = definition?.listName == 'locations'
           ? null
           : definition?.mediaKind ?? widget.initialMediaKind;
@@ -400,7 +400,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                                           : Icons.close),
                                       onPressed: () =>
                                           setState(() => _search.clear())))),
-                          middle: fromSelection
+                          middle: fromSelection || definition == null
                               ? null
                               : PickListCount(
                                   count: visible.length,
@@ -414,6 +414,11 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                                       initialValue: _selectedListName,
                                       isExpanded: true,
                                       isDense: true,
+                                      hint: Text('Select a list...',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: palette.textPrimary)),
                                       decoration:
                                           pickListInputDecoration(context),
                                       style: TextStyle(
@@ -460,26 +465,32 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                       Flexible(
                           fit: FlexFit.loose,
                           child: SizedBox(
-                              height: math.max(1, visible.length) * 48.0 + 48,
+                              height: definition == null
+                                  ? 32.0
+                                  : math.max(1, visible.length) * 48.0 + 48,
                               child: _loading
                                   ? const Center(
                                       child: CircularProgressIndicator())
-                                  : PickListValuesTable(
-                                      key: ValueKey(_selectedListName),
-                                      values: visible,
-                                      usageCounts: _counts,
-                                      mode: _mergeMode
-                                          ? PickListTableMode.merge
-                                          : PickListTableMode.manage,
-                                      selectedIds: _selected,
-                                      enabled: !_busy,
-                                      onSelect: (value) => setState(() {
-                                            if (!_selected.add(value.id)) {
-                                              _selected.remove(value.id);
-                                            }
-                                          }),
-                                      onEdit: _edit,
-                                      onDelete: _delete))),
+                                  : definition == null
+                                      ? const PickListPlaceholder(
+                                          'Select a pick list to manage in the '
+                                          'top right dropdown menu...')
+                                      : PickListValuesTable(
+                                          key: ValueKey(_selectedListName),
+                                          values: visible,
+                                          usageCounts: _counts,
+                                          mode: _mergeMode
+                                              ? PickListTableMode.merge
+                                              : PickListTableMode.manage,
+                                          selectedIds: _selected,
+                                          enabled: !_busy,
+                                          onSelect: (value) => setState(() {
+                                                if (!_selected.add(value.id)) {
+                                                  _selected.remove(value.id);
+                                                }
+                                              }),
+                                          onEdit: _edit,
+                                          onDelete: _delete))),
                       Padding(
                           padding: const EdgeInsets.all(10),
                           child: Row(children: [
