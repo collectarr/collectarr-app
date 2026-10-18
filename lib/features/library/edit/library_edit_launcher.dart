@@ -27,9 +27,25 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   final database = ProviderScope.containerOf(context, listen: false)
       .read(localDatabaseProvider);
 
+  Future<LibraryEntryEditDraft?> loadDraft(
+      LibraryEditDialogRequest request) async {
+    final entryRef =
+        request.target?.libraryEntryRef ?? request.kindItem.libraryEntryRef;
+    if (entryRef == null) return null;
+    final key = entryRef.key;
+    if (sessions.containsKey(key)) return sessions[key];
+    final entry = await LibraryEntryStore(database)
+        .find(entryRef.kind, entryRef.id.value);
+    if (entry == null) return null;
+    final draft = LibraryEntryEditDraft(entry);
+    sessions[key] = draft;
+    return draft;
+  }
+
   LibraryEditDialogBuilder builderForRequest(
-    LibraryEditDialogRequest currentRequest,
-  ) {
+    LibraryEditDialogRequest currentRequest, {
+    ({LibraryEntryEditDraft? draft})? preloaded,
+  }) {
     final currentCapability =
         libraryEditPresentationForKind(currentRequest.type.kind);
     final currentBuilder = currentCapability.editRegistry.builderForTarget(
@@ -39,19 +55,8 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
           request: nextRequest,
           builder: currentBuilder,
           onCommit: onCommit,
-          load: () async {
-            final entryRef = nextRequest.target?.libraryEntryRef ??
-                nextRequest.kindItem.libraryEntryRef;
-            if (entryRef == null) return null;
-            final key = entryRef.key;
-            if (sessions.containsKey(key)) return sessions[key];
-            final entry = await LibraryEntryStore(database)
-                .find(entryRef.kind, entryRef.id.value);
-            if (entry == null) return null;
-            final draft = LibraryEntryEditDraft(entry);
-            sessions[key] = draft;
-            return draft;
-          },
+          preloaded: preloaded,
+          load: () => loadDraft(nextRequest),
         );
   }
 
@@ -60,6 +65,7 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
     if (requestListenable != null) {
       return _SwitchingLibraryEditDialog(
         requestListenable: requestListenable,
+        loadDraft: loadDraft,
         builderForRequest: builderForRequest,
       );
     }
@@ -106,10 +112,14 @@ class _LibraryEntryEditorFrame extends StatefulWidget {
       {required this.request,
       required this.builder,
       required this.load,
+      this.preloaded,
       this.onCommit});
   final LibraryEditDialogRequest request;
   final LibraryEditDialogBuilder builder;
   final Future<LibraryEntryEditDraft?> Function() load;
+
+  /// A draft already loaded, so the editor shows at once with no spinner.
+  final ({LibraryEntryEditDraft? draft})? preloaded;
   final Future<void> Function(LibraryEditSelection result)? onCommit;
   @override
   State<_LibraryEntryEditorFrame> createState() =>
@@ -117,46 +127,56 @@ class _LibraryEntryEditorFrame extends StatefulWidget {
 }
 
 class _LibraryEntryEditorFrameState extends State<_LibraryEntryEditorFrame> {
-  late final Future<LibraryEntryEditDraft?> _draft = widget.load();
+  late final Future<LibraryEntryEditDraft?> _draft =
+      widget.preloaded == null ? widget.load() : Future.value(null);
   @override
-  Widget build(BuildContext context) => FutureBuilder<LibraryEntryEditDraft?>(
-        future: _draft,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return AccentAlertDialog(
-              headerIcon: AppIcons.warning,
-              title: const Text('Could not open entry'),
-              content: Text('${snapshot.error}'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Close'),
-                ),
-              ],
-            );
-          }
-          return LibraryEntryEditScope(
-              draft: snapshot.data,
-              onCommit: widget.onCommit,
-              child: Builder(
-                  builder: (ctx) => widget.builder(ctx, widget.request)));
-        },
-      );
+  Widget build(BuildContext context) {
+    final preloaded = widget.preloaded;
+    if (preloaded != null) return _scoped(preloaded.draft);
+    return FutureBuilder<LibraryEntryEditDraft?>(
+      future: _draft,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return AccentAlertDialog(
+            headerIcon: AppIcons.warning,
+            title: const Text('Could not open entry'),
+            content: Text('${snapshot.error}'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        }
+        return _scoped(snapshot.data);
+      },
+    );
+  }
+
+  Widget _scoped(LibraryEntryEditDraft? draft) => LibraryEntryEditScope(
+      draft: draft,
+      onCommit: widget.onCommit,
+      child: Builder(builder: (ctx) => widget.builder(ctx, widget.request)));
 }
 
 class _SwitchingLibraryEditDialog extends StatefulWidget {
   const _SwitchingLibraryEditDialog({
     required this.requestListenable,
+    required this.loadDraft,
     required this.builderForRequest,
   });
 
   final ValueListenable<LibraryEditDialogRequest> requestListenable;
+  final Future<LibraryEntryEditDraft?> Function(
+      LibraryEditDialogRequest request) loadDraft;
   final LibraryEditDialogBuilder Function(
-    LibraryEditDialogRequest request,
-  ) builderForRequest;
+    LibraryEditDialogRequest request, {
+    ({LibraryEntryEditDraft? draft})? preloaded,
+  }) builderForRequest;
 
   @override
   State<_SwitchingLibraryEditDialog> createState() =>
@@ -166,6 +186,8 @@ class _SwitchingLibraryEditDialog extends StatefulWidget {
 class _SwitchingLibraryEditDialogState
     extends State<_SwitchingLibraryEditDialog> {
   late LibraryEditDialogRequest _request;
+  ({LibraryEntryEditDraft? draft})? _preloaded;
+  int _switches = 0;
 
   @override
   void initState() {
@@ -183,9 +205,17 @@ class _SwitchingLibraryEditDialogState
     widget.requestListenable.addListener(_onRequestChanged);
   }
 
-  void _onRequestChanged() {
-    if (!mounted) return;
-    setState(() => _request = widget.requestListenable.value);
+  /// Loads the next item's draft before swapping, so the open dialog is never
+  /// replaced by a spinner that lets the page behind show through.
+  Future<void> _onRequestChanged() async {
+    final next = widget.requestListenable.value;
+    final switchId = ++_switches;
+    final draft = await widget.loadDraft(next);
+    if (!mounted || switchId != _switches) return;
+    setState(() {
+      _request = next;
+      _preloaded = (draft: draft);
+    });
   }
 
   @override
@@ -197,7 +227,8 @@ class _SwitchingLibraryEditDialogState
   @override
   Widget build(BuildContext context) => KeyedSubtree(
         key: ObjectKey(_request),
-        child: widget.builderForRequest(_request)(context, _request),
+        child: widget.builderForRequest(_request, preloaded: _preloaded)(
+            context, _request),
       );
 }
 
