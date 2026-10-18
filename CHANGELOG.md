@@ -7,6 +7,7 @@
 
 ### 🐛 Fixes
 - Horizontal cards are exactly as tall as their cover plus 4 px padding at any cover size, with no empty bands above or below.
+- Add Albums tabs share one colour with unselected ones at half opacity, and Add Manually has no hover highlight, as in the reference.
 - Add Albums no longer has Advanced fields, and a search shows a spinner over "Searching..." like the reference.
 - XML, CSV/TXT and PDF exports show a progress window while generating; Download file sits under Generate at the same width, and the PDF page no longer has a Print / Open button.
 - Covers and vertical cards drop the extra border, padding and heavy shadow and use the reference's thin black shadow.
