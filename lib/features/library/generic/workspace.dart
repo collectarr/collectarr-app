@@ -156,7 +156,7 @@ class LibraryWorkspace extends ConsumerWidget {
     final cardCoverWidth =
         (uiPrefs.cardCoverWidth * cardScale).clamp(60.0, 164.0).toDouble();
     final cardTileWidth = (430.0 * cardScale).clamp(312.0, 620.0).toDouble();
-    final cardTileHeight = (110.0 * cardScale).clamp(100.0, 184.0).toDouble();
+    final cardTileHeight = (100.0 * cardScale).clamp(100.0, 184.0).toDouble();
     final standardVerticalTileWidth =
         ((viewState.coverSize + 54) * density.cardScaleFactor)
             .clamp(160.0, 244.0)
