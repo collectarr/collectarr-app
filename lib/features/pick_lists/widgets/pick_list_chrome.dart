@@ -102,6 +102,26 @@ class PickListToolbar extends StatelessWidget {
       }));
 }
 
+/// Italic hint row shown while no pick list is chosen.
+class PickListPlaceholder extends StatelessWidget {
+  const PickListPlaceholder(this.message, {super.key});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) => Container(
+      alignment: Alignment.topCenter,
+      padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
+      decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: pickListDivider(context)))),
+      child: Text(message,
+          style: TextStyle(
+              fontSize: 14,
+              fontStyle: FontStyle.italic,
+              color: appPalette(context).isDark
+                  ? const Color(0xffcccccc)
+                  : appPalette(context).textMuted)));
+}
+
 class PickListCount extends StatelessWidget {
   const PickListCount({super.key, required this.count, required this.label});
   final int count;

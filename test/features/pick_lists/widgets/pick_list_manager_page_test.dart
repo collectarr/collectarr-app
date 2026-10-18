@@ -97,4 +97,34 @@ void main() {
     expect(find.text('Package/Sleeve Condition list'), findsOneWidget);
     expect(find.text('Near Mint'), findsWidgets);
   });
+
+  testWidgets('manager starts with no list selected', (tester) async {
+    tester.view.physicalSize = kDesktopTestSize;
+    tester.view.devicePixelRatio = kDesktopTestDPR;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await PickListRepository(db)
+        .addValue('music.genre', 'Audit Jazz', mediaKind: 'music');
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: PickListManagerPage(
+                db: db,
+                registry: defaultPickListRegistry,
+                initialMediaKind: 'music'))));
+    await pumpUntilSettled(tester);
+    expect(find.text('Manage Pick Lists'), findsOneWidget);
+    expect(find.text('Select a list...'), findsOneWidget);
+    expect(find.textContaining('Select a pick list to manage'), findsOneWidget);
+    expect(find.byTooltip('Edit Audit Jazz'), findsNothing);
+    expect(
+        tester
+            .widget<FilledButton>(
+                find.widgetWithText(FilledButton, 'Merge Mode'))
+            .onPressed,
+        isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
 }
