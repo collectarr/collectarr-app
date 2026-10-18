@@ -1,12 +1,13 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
-import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/multi_pick_list_select_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Managed choices with an independently ordered selection in the item draft.
-/// Creating a dictionary value is explicit; cancelling selection adds no row.
+/// Choices are picked together in one multi-select dialog; creating a
+/// dictionary value is explicit and cancelling changes nothing.
 class LibraryOrderedPickListField extends ConsumerWidget {
   const LibraryOrderedPickListField(
       {super.key,
@@ -34,11 +35,11 @@ class LibraryOrderedPickListField extends ConsumerWidget {
         values: values,
         onChanged: onChanged,
         rowTrailingBuilder: rowTrailingBuilder,
-        pickValue: () async {
+        pickValues: (current) async {
           final db = ref.read(localDatabaseProvider);
           final choices = await loadOptions?.call(db) ?? const <String>[];
           if (!context.mounted) return null;
-          return showPickListSelectDialog(
+          final picked = await showMultiPickListSelectDialog(
               context: context,
               label: label,
               options: [
@@ -46,10 +47,12 @@ class LibraryOrderedPickListField extends ConsumerWidget {
                 ...choices,
                 for (final value in values) value.name
               ],
+              selectedValues: current.toSet(),
               listName: listName,
               mediaKind: mediaKind,
               allowUserValues: true,
               db: db);
+          return picked?.toList();
         },
       );
 }

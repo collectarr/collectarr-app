@@ -8,6 +8,7 @@
 - Add/Update from Core Settings is a dialog with Add from Core and Update from Core tabs: choose per non-personal field whether Add downloads it and whether Update skips, fills or replaces it.
 
 ### 🐛 Fixes
+- Artist, Signed By and other name lists pick several names in one dialog with square check boxes and a Save button, instead of closing after each pick; the + , × and search icons use the reference's softer colours.
 - Previous/Next in the edit dialog swaps to the next item in place, with no flash of the page behind it.
 - Link Albums follows the reference: a centered 960 px page with a tinted header (progress bar attached to Find matches, unlinked count, match-score counts, bulk link button) and 92 px covers in the table.
 - Drawer sections open and close over 350 ms with the reference's ease curve, and drawer headers have no hover highlight and no click ripple.

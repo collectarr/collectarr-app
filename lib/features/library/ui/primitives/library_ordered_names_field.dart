@@ -24,11 +24,12 @@ class LibraryOrderedNamesField extends StatefulWidget {
       required this.values,
       required this.onChanged,
       this.rowTrailingBuilder,
-      this.pickValue});
+      this.pickValues});
   final Widget Function(LibraryNamedValue value)? rowTrailingBuilder;
 
-  /// When supplied, names are selected from a list rather than typed inline.
-  final Future<String?> Function()? pickValue;
+  /// When supplied, names are chosen from a multi-select list rather than typed
+  /// inline; it receives the current names and returns the full new selection.
+  final Future<List<String>?> Function(List<String> current)? pickValues;
   final String label;
   final List<LibraryNamedValue> values;
   final ValueChanged<List<LibraryNamedValue>> onChanged;
@@ -42,7 +43,7 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
 
   Future<void> _add() async {
     if (_picking) return;
-    final picker = widget.pickValue;
+    final picker = widget.pickValues;
     if (picker == null) {
       widget.onChanged([
         ...widget.values,
@@ -52,15 +53,22 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
     }
     setState(() => _picking = true);
     try {
-      final name = await picker();
-      if (!mounted || name == null || name.trim().isEmpty) return;
-      if (widget.values.any((value) =>
-          normalizePickListValue(value.name) == normalizePickListValue(name))) {
-        return;
-      }
+      final names =
+          await picker([for (final value in widget.values) value.name]);
+      if (!mounted || names == null) return;
+      final chosen = {for (final name in names) normalizePickListValue(name)};
+      final kept = [
+        for (final value in widget.values)
+          if (chosen.contains(normalizePickListValue(value.name))) value
+      ];
+      final known = {
+        for (final value in kept) normalizePickListValue(value.name)
+      };
       widget.onChanged([
-        ...widget.values,
-        LibraryNamedValue(id: const Uuid().v4(), name: name.trim())
+        ...kept,
+        for (final name in names)
+          if (name.trim().isNotEmpty && known.add(normalizePickListValue(name)))
+            LibraryNamedValue(id: const Uuid().v4(), name: name.trim())
       ]);
     } catch (_) {
       if (mounted) {
@@ -119,7 +127,8 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
             child: IconButton(
                 tooltip: 'Remove ${widget.label}',
                 padding: EdgeInsets.zero,
-                icon: const Icon(Icons.close, size: 17),
+                color: palette.textMuted.withValues(alpha: .7),
+                icon: const Icon(Icons.close, size: 16),
                 onPressed: () => _remove(value.id))),
         if (widget.rowTrailingBuilder != null)
           widget.rowTrailingBuilder!(value),
@@ -149,14 +158,15 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
               tooltip: 'Add ${widget.label}',
               padding: EdgeInsets.zero,
               onPressed: _picking ? null : _add,
-              icon: const Icon(Icons.add, size: 18),
+              color: appPalette(context).textPrimary.withValues(alpha: .7),
+              icon: const Icon(Icons.add, size: 16),
             )),
         child: widget.values.isEmpty
             ? SizedBox(
                 height: LibraryMetrics.defaultFieldHeight,
                 child: OutlinedButton(
                     onPressed: _picking ? null : _add,
-                    style: widget.pickValue == null
+                    style: widget.pickValues == null
                         ? null
                         : OutlinedButton.styleFrom(
                             backgroundColor: appPalette(context).field,
@@ -171,7 +181,7 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
                 physics: const NeverScrollableScrollPhysics(),
                 buildDefaultDragHandles: false,
                 itemCount: widget.values.length,
-                proxyDecorator: widget.pickValue == null
+                proxyDecorator: widget.pickValues == null
                     ? null
                     : (child, index, animation) => AnimatedBuilder(
                         animation: animation,
@@ -188,7 +198,9 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
                 },
                 itemBuilder: (context, index) {
                   final value = widget.values[index];
-                  if (widget.pickValue != null) return _pickedRow(value, index);
+                  if (widget.pickValues != null) {
+                    return _pickedRow(value, index);
+                  }
                   return Padding(
                       key: ValueKey(value.id),
                       padding: const EdgeInsets.only(bottom: 4),

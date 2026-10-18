@@ -135,21 +135,21 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                                       SizedBox(
                                           width: 36,
                                           child: selecting
-                                              ? (widget.mode ==
-                                                      PickListTableMode
-                                                          .singleSelect
+                                              ? (widget.mode == PickListTableMode.singleSelect
                                                   ? Icon(selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
                                                       size: 18,
                                                       color: selected
                                                           ? palette.accent
                                                           : palette.textMuted)
-                                                  : Checkbox(
-                                                      value: selected,
-                                                      onChanged: onTap == null
-                                                          ? null
-                                                          : (_) => onTap(value),
-                                                      visualDensity: VisualDensity
-                                                          .compact))
+                                                  : Icon(
+                                                      selected
+                                                          ? Icons
+                                                              .check_box_outlined
+                                                          : Icons
+                                                              .check_box_outline_blank,
+                                                      size: 18,
+                                                      color:
+                                                          palette.textPrimary))
                                               : IconButton(
                                                   style: IconButton.styleFrom(
                                                       backgroundColor:
