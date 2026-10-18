@@ -8,6 +8,7 @@
 - Add/Update from Core Settings is a dialog with Add from Core and Update from Core tabs: choose per non-personal field whether Add downloads it and whether Update skips, fills or replaces it.
 
 ### 🐛 Fixes
+- Item Spacing in Horizontal Cards only changes the gap between cards, like Covers; the margin to the window edges stays fixed.
 - The cover size and spacing sliders can be grabbed anywhere on the round handle, including at the minimum and maximum, instead of only at its centre.
 - A manual album can be added and edited with an empty title, as in the reference.
 - The Covers tab of the album editor shows the same compact disc icon when the front or back cover is missing.

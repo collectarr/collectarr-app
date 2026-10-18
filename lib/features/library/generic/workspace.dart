@@ -33,6 +33,10 @@ double libraryWorkspaceGridMainAxisExtent({
   return coverSize * libraryViewProfileForKind(type.kind).coverGridHeightFactor;
 }
 
+/// Space between the grid and the workspace edges: fixed in every view, so
+/// Item Spacing only changes the gaps between items.
+const _kWorkspaceGridPadding = EdgeInsets.all(10);
+
 class LibraryWorkspace extends ConsumerWidget {
   const LibraryWorkspace({
     super.key,
@@ -139,7 +143,6 @@ class LibraryWorkspace extends ConsumerWidget {
     final uiPrefs = ref.watch(uiPreferencesProvider);
     final palette = appPalette(context);
     final gridSpacing = uiPrefs.gridSpacing;
-    const gridPadding = EdgeInsets.all(10);
     final registration = type;
     final defaultCoverSize =
         libraryViewProfileForKind(registration.kind).defaultCoverSize;
@@ -186,7 +189,7 @@ class LibraryWorkspace extends ConsumerWidget {
           initialCrossAxisCount: initialCrossAxisCount,
           crossAxisSpacing: gridSpacing,
           mainAxisSpacing: gridSpacing,
-          padding: gridPadding,
+          padding: _kWorkspaceGridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
           itemIdOf: (item) => item.target.id,
@@ -224,7 +227,7 @@ class LibraryWorkspace extends ConsumerWidget {
               : standardVerticalTileHeight,
           crossAxisSpacing: gridSpacing,
           mainAxisSpacing: gridSpacing,
-          padding: gridPadding,
+          padding: _kWorkspaceGridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
           itemIdOf: (item) => item.target.id,
@@ -557,7 +560,8 @@ class LibraryWorkspace extends ConsumerWidget {
         // while allowing the grid to wrap cards into additional rows when
         // the workspace is narrower than the preferred tile width.
         final availableTileWidth = constraints.hasBoundedWidth
-            ? math.max(1.0, constraints.maxWidth - (spacing * 2))
+            ? math.max(
+                1.0, constraints.maxWidth - _kWorkspaceGridPadding.horizontal)
             : cardTileWidth;
         final tileWidth = math.min(cardTileWidth, availableTileWidth);
         final tileCoverWidth = math.min(
@@ -574,7 +578,7 @@ class LibraryWorkspace extends ConsumerWidget {
               8,
           crossAxisSpacing: spacing,
           mainAxisSpacing: spacing,
-          padding: EdgeInsets.all(spacing),
+          padding: _kWorkspaceGridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
           itemIdOf: (item) => item.target.id,
