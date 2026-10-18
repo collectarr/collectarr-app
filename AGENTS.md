@@ -39,3 +39,18 @@
 - Do not bundle Gilroy. Load only fonts supplied locally by the user.
 - Run correctness tests with `dart run tool/run_tests.dart`. Disabling kind
   tests must keep shared correctness, contracts and architecture checks active.
+
+## Token Efficiency
+
+- Keep tool output short. Only retrieve what is needed.
+- Search with `rg` before reading files.
+- Read only relevant lines. Use offset/limit instead of reading entire files.
+- Avoid reading the same content multiple times.
+- Limit Bash output using `head`, `tail`, or `grep`.
+- Never dump large files, logs, or directories.
+- Use `git diff` to inspect changes instead of re-reading files.
+- Run targeted tests first. Show only relevant errors.
+- Expand searches or output limits when needed for correctness.
+- Preserve important findings across context compaction.
+
+**Rule:** Minimize token usage without sacrificing correctness.
