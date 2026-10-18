@@ -10,8 +10,11 @@ ButtonStyle dialogActionButtonStyle(BuildContext context,
           ? const Color(0xff494949)
           : palette.panelRaised;
   final hover = HSLColor.fromColor(background);
-  final hoverBackground =
-      hover.withLightness((hover.lightness - .07).clamp(0.0, 1.0)).toColor();
+  // The reference lifts a grey button by 10 levels (#494949 to #535353) and
+  // darkens everything else slightly.
+  final hoverBackground = !primary && palette.isDark
+      ? Color.alphaBlend(Colors.white.withValues(alpha: .055), background)
+      : hover.withLightness((hover.lightness - .07).clamp(0.0, 1.0)).toColor();
   return FilledButton.styleFrom(
           backgroundColor: background,
           foregroundColor:

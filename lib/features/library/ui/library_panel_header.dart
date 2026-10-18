@@ -117,6 +117,8 @@ class LibraryPanelHeader extends StatelessWidget {
                   style: IconButton.styleFrom(
                     foregroundColor: fg,
                     backgroundColor: Colors.transparent,
+                    hoverColor: fg.withValues(alpha: 0.22),
+                    highlightColor: fg.withValues(alpha: 0.32),
                     side: BorderSide.none,
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(24, 24),

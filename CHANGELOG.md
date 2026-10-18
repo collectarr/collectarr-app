@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- Grey buttons (Cancel, Previous, Next) lighten slightly on hover like the reference, and the dialog header close button shows a clear hover highlight.
 - The Alphabet Options button sits behind a thin divider after the letters, as in the reference.
 - A clicked cover in Covers and Shelves fills with the selection blue instead of staying black until another item is selected.
 - The Settings button is gone from the top right; Settings stays in the navigation drawer, as in the reference.
