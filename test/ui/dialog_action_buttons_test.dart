@@ -29,6 +29,12 @@ void main() {
         const Color(0xff494949));
     expect(tester.widget<FilledButton>(ok).style!.backgroundColor!.resolve({}),
         const Color(0xff5eb1de));
+    final cancelStyle = tester.widget<FilledButton>(cancel).style!;
+    final cancelHover =
+        cancelStyle.backgroundColor!.resolve({WidgetState.hovered})!;
+    expect(cancelHover.computeLuminance(),
+        greaterThan(const Color(0xff494949).computeLuminance()));
+    expect(cancelHover.r * 255, closeTo(0x53, 1));
     final style = tester.widget<FilledButton>(ok).style!;
     final hovered = style.backgroundColor!.resolve({WidgetState.hovered})!;
     expect(hovered.computeLuminance(),
