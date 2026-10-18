@@ -1,15 +1,14 @@
 import 'dart:io';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/platform/app_data_directory_native.dart';
 import 'package:collectarr_app/features/settings/backups/automatic_backup.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
-AutomaticBackupStore createAutomaticBackupStore() =>
-    FileAutomaticBackupStore(() async => Directory(
-        p.join((await getApplicationSupportDirectory()).path, 'backups')));
+AutomaticBackupStore createAutomaticBackupStore() => FileAutomaticBackupStore(
+    () async => Directory(p.join((await appDataDirectory()).path, 'backups')));
 
 /// Backups as SQLite files in a folder next to the database.
 final class FileAutomaticBackupStore implements AutomaticBackupStore {
