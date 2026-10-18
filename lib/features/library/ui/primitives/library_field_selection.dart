@@ -383,13 +383,15 @@ class LibrarySelectedFieldRow extends StatelessWidget {
       required this.label,
       required this.onRemove,
       required this.removeTooltip,
-      this.direction,
+      this.ascending,
       this.onToggleDirection,
       this.handleKey});
   final String label;
   final VoidCallback? onRemove;
   final String removeTooltip;
-  final String? direction;
+
+  /// Sort direction shown by the ASC/DESC switch; null hides the switch.
+  final bool? ascending;
   final VoidCallback? onToggleDirection;
   final Key? handleKey;
   @override
@@ -411,9 +413,9 @@ class LibrarySelectedFieldRow extends StatelessWidget {
                   style: librarySelectionFieldStyle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis)),
-          if (direction != null)
+          if (ascending case final ascending?)
             _SortDirectionSwitch(
-                ascending: direction == 'ASC', onTap: onToggleDirection),
+                ascending: ascending, onTap: onToggleDirection),
           Tooltip(
               message: removeTooltip,
               child: MouseRegion(

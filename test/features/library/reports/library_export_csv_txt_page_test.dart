@@ -67,7 +67,7 @@ void main() {
     expect(preview()[2], contains('Zebra'));
     await tester.tap(find.text('Manage').last);
     await pumpUntilSettled(tester);
-    await tester.tap(find.text('A-Z').last);
+    await tester.tap(find.text('ASC').last);
     await tester.tap(find.text('Cancel'));
     await pumpUntilSettled(tester);
     expect(preview()[1], contains('Alpha'));
