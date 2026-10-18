@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/natural_text_compare.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/utils/sort_title.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_additional_workspace_fields.dart';
@@ -67,10 +68,10 @@ LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicGenreSort() =>
     );
 
 int _compareNullableText(String? left, String? right) {
-  final a = left?.trim().toLowerCase() ?? '';
-  final b = right?.trim().toLowerCase() ?? '';
+  final a = left?.trim() ?? '';
+  final b = right?.trim() ?? '';
   if (a.isEmpty || b.isEmpty) return a.isEmpty ? (b.isEmpty ? 0 : 1) : -1;
-  return a.compareTo(b);
+  return compareNaturalText(a, b);
 }
 
 LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>
@@ -128,7 +129,7 @@ LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicTitleSort() =>
       id: LibrarySortId<MusicKind>(MusicCatalogWorkspaceFields.title.id.value),
       label: MusicCatalogWorkspaceFields.title.label,
       compare: (left, right) =>
-          _sortTitleOf(left).compareTo(_sortTitleOf(right)),
+          compareNaturalText(_sortTitleOf(left), _sortTitleOf(right)),
     );
 
 String _sortTitleOf(
