@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/projection/library_search_index.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
 import 'dart:math' as math;
 
@@ -714,17 +715,24 @@ class _MusicInspectorTracks extends StatelessWidget {
     if (groups.isEmpty) {
       return const SizedBox.shrink();
     }
-    final rawQuery = inspector.searchQuery?.trim().toLowerCase();
-    final highlightTerms = inspector.searchTarget.includesTracks
-        ? _musicSearchTerms(rawQuery)
-        : const <String>[];
+    final pattern = LibrarySearchPattern.parse(inspector.searchQuery ?? '');
+    final terms = _musicSearchTerms(pattern.text);
+    final highlight = !inspector.searchTarget.includesTracks || pattern.isEmpty
+        ? null
+        : switch (pattern.regExp) {
+            final regExp? => (MusicTrackListEntry track) =>
+                regExp.hasMatch(track.title) ||
+                regExp.hasMatch(track.artist ?? ''),
+            null => (MusicTrackListEntry track) =>
+                _matchesTrackTerms(track, terms),
+          };
 
     Widget disc(_DiscTrackGroup group) => _MusicDiscTable(
           disc: model.discs
               .firstWhere((disc) => disc.discNumber == group.discNumber),
           storage: model.storageForDisc(group.discNumber),
           tracks: group.tracks,
-          highlightTerms: highlightTerms,
+          highlight: highlight,
           onFilterByValue: inspector.onFilterByValue,
         );
     // Core data errors are corrected through the editor's Propose to Core,
@@ -1265,7 +1273,7 @@ class _MusicDiscTable extends StatelessWidget {
     required this.disc,
     this.storage,
     required this.tracks,
-    this.highlightTerms = const <String>[],
+    this.highlight,
     this.onFilterByValue,
   });
 
@@ -1274,7 +1282,9 @@ class _MusicDiscTable extends StatelessWidget {
   /// The entry's storage for this disc; catalog albums have none.
   final MusicEntryDiscStorageView? storage;
   final List<MusicTrackListEntry> tracks;
-  final List<String> highlightTerms;
+
+  /// Tracks the quick search found, shown highlighted.
+  final bool Function(MusicTrackListEntry track)? highlight;
   final ValueChanged<String>? onFilterByValue;
 
   @override
@@ -1325,7 +1335,7 @@ class _MusicDiscTable extends StatelessWidget {
             track: tracks[index],
             striped: index.isOdd,
             last: index == tracks.length - 1,
-            highlight: _matchesTrackTerms(tracks[index], highlightTerms),
+            highlight: highlight?.call(tracks[index]) ?? false,
             onFilterByValue: onFilterByValue,
           ),
       ],
