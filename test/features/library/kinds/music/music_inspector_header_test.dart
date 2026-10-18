@@ -24,7 +24,6 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 MusicLibraryEntry _createFixture(
