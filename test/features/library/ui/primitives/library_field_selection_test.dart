@@ -54,7 +54,7 @@ void main() {
       update = setState;
       return LibrarySelectedFieldRow(
           label: 'Artist',
-          direction: ascending ? 'ASC' : 'DESC',
+          ascending: ascending,
           onToggleDirection: () => update(() => ascending = !ascending),
           onRemove: () => removed = true,
           removeTooltip: 'Remove');

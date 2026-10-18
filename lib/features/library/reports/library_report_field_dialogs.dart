@@ -83,7 +83,7 @@ Future<List<({String id, bool ascending})>?> showLibraryReportSorts(
                       label: fields
                           .firstWhere((field) => field.id == chosen[index].id)
                           .label,
-                      direction: chosen[index].ascending ? 'A-Z' : 'Z-A',
+                      ascending: chosen[index].ascending,
                       onToggleDirection: () => update(() => chosen[index] = (
                             id: chosen[index].id,
                             ascending: !chosen[index].ascending

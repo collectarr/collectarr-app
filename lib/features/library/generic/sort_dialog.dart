@@ -211,7 +211,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                       handleKey:
                           ValueKey('selected-sort-${rule.column}-handle'),
                       label: _sortColumnLabel(widget.type, rule.column),
-                      direction: rule.ascending ? 'ASC' : 'DESC',
+                      ascending: rule.ascending,
                       onToggleDirection: () => setState(() => _rules[index] =
                           rule.copyWith(ascending: !rule.ascending)),
                       removeTooltip: _rules.length > 1
