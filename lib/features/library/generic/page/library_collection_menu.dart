@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -34,17 +33,26 @@ class _LibraryCollectionMenuState extends State<LibraryCollectionMenu> {
         overlayChildBuilder: _menu,
         child: Tooltip(
             message: 'Collections',
-            child: InkWell(
-              key: const ValueKey('library-collection-menu'),
-              mouseCursor: SystemMouseCursors.click,
-              onTap: () => _overlay.toggle(),
-              child: LibraryToolbarHoverSurface(
-                  child: SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: Icon(AppIcons.menu,
-                          size: 14, color: appPalette(context).textPrimary))),
-            )),
+            child: Builder(builder: (context) {
+              final palette = appPalette(context);
+              return InkWell(
+                key: const ValueKey('library-collection-menu'),
+                mouseCursor: SystemMouseCursors.click,
+                onTap: () => _overlay.toggle(),
+                borderRadius: BorderRadius.circular(4),
+                hoverColor: palette.isDark
+                    ? const Color(0xff383838)
+                    : palette.surfaceBright,
+                highlightColor: Colors.transparent,
+                splashFactory: NoSplash.splashFactory,
+                child: SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: Icon(AppIcons.menu,
+                        size: 16,
+                        color: palette.textPrimary.withValues(alpha: .75))),
+              );
+            })),
       );
 
   Widget _menu(BuildContext context, OverlayChildLayoutInfo info) {
@@ -136,14 +144,27 @@ class _LibraryCollectionMenuState extends State<LibraryCollectionMenu> {
                                       color: collection.id == widget.activeId
                                           ? widget.accent
                                           : null,
-                                      child: Text(collection.name,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style:
-                                              collection.id == widget.activeId
-                                                  ? const TextStyle(
-                                                      color: Colors.white)
-                                                  : null)),
+                                      child: Row(children: [
+                                        // A gutter for the check mark keeps every
+                                        // name aligned, as in the reference.
+                                        SizedBox(
+                                            width: 22,
+                                            child:
+                                                collection.id == widget.activeId
+                                                    ? const Icon(AppIcons.check,
+                                                        size: 12,
+                                                        color: Colors.white)
+                                                    : null),
+                                        Expanded(
+                                            child: Text(collection.name,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: collection.id ==
+                                                        widget.activeId
+                                                    ? const TextStyle(
+                                                        color: Colors.white)
+                                                    : null)),
+                                      ])),
                                 item(
                                     height: 33,
                                     onTap: widget.onManage,
