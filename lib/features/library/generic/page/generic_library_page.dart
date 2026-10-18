@@ -69,7 +69,6 @@ import 'package:collectarr_app/features/library/workspace/layout/library_layout_
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/state/library_workspace_providers.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_toolbar_presenter.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/library_toolbar_action_registry.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_search_controller.dart';
@@ -158,11 +157,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   bool _isScanningCover = false;
   int _activeLoanIdsLoadToken = 0;
   ProviderSubscription<AsyncValue<ShelfState>>? _shelfSubscription;
-  late final workspaceKey = LibraryWorkspaceKey(
-    kind: widget.type.kind,
-  );
-  ProviderSubscription<LibraryFilterState>? _filtersSubscription;
-  ProviderSubscription<LibraryViewConfigState>? _viewConfigSubscription;
   LibraryKindBrowserDelegate _kindBrowserDelegate =
       LibraryNoopBrowserDelegate();
 
