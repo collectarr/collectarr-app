@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/utils/natural_text_compare.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -102,7 +103,7 @@ final class LibraryFacetBucketService {
     ]..sort((a, b) {
         if (a.title == libraryEmptyGroupLabel) return -1;
         if (b.title == libraryEmptyGroupLabel) return 1;
-        return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+        return compareNaturalText(a.title, b.title);
       });
 
     return FacetBuckets(

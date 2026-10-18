@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/utils/natural_text_compare.dart';
+
 /// Shared label for items without a value for the selected grouping field.
 const libraryEmptyGroupLabel = '[None]';
 
@@ -6,7 +8,7 @@ int compareLibraryGroupBuckets(String first, String second) {
   if (first == second) return 0;
   if (first == libraryEmptyGroupLabel) return -1;
   if (second == libraryEmptyGroupLabel) return 1;
-  return first.compareTo(second);
+  return compareNaturalText(first, second);
 }
 
 /// Normalize scalar and multi-value group projections into distinct buckets.

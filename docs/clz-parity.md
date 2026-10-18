@@ -67,6 +67,7 @@ Keep these when matching the reference visually.
 | --- | --- | --- |
 | Folder panel | A fresh library grouped by **Has Back** because fallbacks took the first group; Music declares Artist | Fallbacks resolve the kind's declared default group |
 | Cover placeholders | Coloured generated cover with the title and, before that, titles split mid-word | A dark tile with the kind's Font Awesome icon (compact disc, book, film, TV, gamepad, open book, dice), like the reference's per-kind placeholder; comics keep their #number badge |
+| Folder and text sorting | Folders sorted by raw text: capitals first, Raft 10 before Raft 2, accented names after Z | Case- and accent-insensitive natural order for folders and Music's Title, Format and Genre sorts. Still open: folders do not yet use pick list Sort Names ("The Beatles" sorts under T) |
 | Item Spacing edges | Horizontal Cards grew its outer margin with the slider | A fixed 10 px margin in every grid view; the slider only sets the gaps between items |
 | Untitled albums | Add Manually and the editor refused an empty title | Music allows an empty title in both; other kinds still require one |
 | List view | “Wrap column content” never wrapped: an ellipsis truncates after one line even without `maxLines`, leaving taller rows with cut text | Wrapped cells clip instead of ellipsizing; regression test added |
