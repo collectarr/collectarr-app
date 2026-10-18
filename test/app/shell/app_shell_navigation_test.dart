@@ -104,14 +104,17 @@ void main() {
               .widget<AppNavigationDrawer>(find.byType(AppNavigationDrawer))
               .selectedAction,
           DrawerAction.printToPdf);
+      // The selected entry is drawn in the kind accent at regular weight.
       expect(
           tester
               .widget<Text>(find.descendant(
                   of: find.byType(AppNavigationDrawer),
                   matching: find.text('Print to PDF')))
               .style
-              ?.fontWeight,
-          FontWeight.w700);
+              ?.color,
+          tester
+              .widget<AppNavigationDrawer>(find.byType(AppNavigationDrawer))
+              .accent);
       await tester.tap(find.text('Find Duplicates'));
       await pumpUntilSettled(tester);
       expect(find.byKey(const Key('print_pdf.back')), findsNothing);
