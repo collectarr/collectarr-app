@@ -75,7 +75,7 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
   }) : super(
           barrierColor: barrierColor ?? kAppDialogBarrierColor,
           transitionDuration: transitionDuration ??
-              (animationsEnabled ? appDialogFadeDuration : Duration.zero),
+              (animationsEnabled ? appDialogTransitionDuration : Duration.zero),
           transitionBuilder: transitionBuilder ?? _buildTransitions,
           pageBuilder: (buildContext, animation, secondaryAnimation) {
             final pageChild = Builder(builder: builder);
@@ -150,9 +150,63 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
+    return _DialogSlideTransition(animation: animation, child: child);
+  }
+}
+
+/// Fades the dialog over the first half of the transition while it slides
+/// from a quarter of its own height above its place, as the reference's
+/// modals do on open and close.
+class _DialogSlideTransition extends StatefulWidget {
+  const _DialogSlideTransition({required this.animation, required this.child});
+
+  final Animation<double> animation;
+  final Widget child;
+
+  @override
+  State<_DialogSlideTransition> createState() => _DialogSlideTransitionState();
+}
+
+class _DialogSlideTransitionState extends State<_DialogSlideTransition> {
+  final GlobalKey _pageKey = GlobalKey();
+
+  /// Height of the dialog box inside the full-screen page, else the page.
+  double _dialogHeight() {
+    final root = _pageKey.currentContext?.findRenderObject();
+    if (root is! RenderBox || !root.hasSize) return 0;
+    double? found;
+    void visit(RenderObject object) {
+      if (found != null) return;
+      if (object is RenderBox &&
+          object != root &&
+          object.hasSize &&
+          object.size.height < root.size.height) {
+        found = object.size.height;
+        return;
+      }
+      object.visitChildren(visit);
+    }
+
+    root.visitChildren(visit);
+    return found ?? root.size.height;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final fade = CurvedAnimation(
+        parent: widget.animation, curve: const Interval(0, 0.5));
+    final slide =
+        CurvedAnimation(parent: widget.animation, curve: Curves.easeOut);
     return FadeTransition(
-      opacity: animation,
-      child: child,
+      opacity: fade,
+      child: AnimatedBuilder(
+        animation: slide,
+        builder: (context, child) => Transform.translate(
+          offset: Offset(0, -0.25 * _dialogHeight() * (1 - slide.value)),
+          child: child,
+        ),
+        child: KeyedSubtree(key: _pageKey, child: widget.child),
+      ),
     );
   }
 }
