@@ -84,7 +84,7 @@ class LibraryAddSearchCapability {
 class LibraryAddSearchInputCapability {
   const LibraryAddSearchInputCapability({
     this.initialAdvancedFilters = const {},
-    required this.advancedFilterDescriptorsBuilder,
+    this.advancedFilterDescriptorsBuilder = _noAdvancedFilters,
     this.searchInputPredicate,
   });
 
@@ -96,6 +96,11 @@ class LibraryAddSearchInputCapability {
   bool hasSearchInput(LibraryAddSearchContext context) =>
       searchInputPredicate?.call(context) ?? context.hasAnyInput;
 }
+
+List<LibraryAddAdvancedFilterField<String>> _noAdvancedFilters(
+  LibraryAddModeBarRequest request,
+) =>
+    const [];
 
 typedef LibraryAddSearchInputPredicate = bool Function(
   LibraryAddSearchContext context,

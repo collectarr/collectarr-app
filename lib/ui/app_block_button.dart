@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_spinner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -24,11 +25,8 @@ class AppBlockButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final working = icon == AppBlockButtonIcon.spinner;
     final leading = switch (icon) {
-      AppBlockButtonIcon.spinner => const SizedBox(
-          width: 14,
-          height: 14,
-          child: CircularProgressIndicator(
-              strokeWidth: 2, color: Color(0xffbfbfbf))),
+      AppBlockButtonIcon.spinner =>
+        const AppSpinner(size: 14, color: Color(0xffbfbfbf)),
       AppBlockButtonIcon.download =>
         const Icon(Icons.download, size: 16, color: Colors.white),
       AppBlockButtonIcon.copy =>

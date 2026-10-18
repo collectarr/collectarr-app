@@ -19,6 +19,8 @@ abstract final class AppIcons {
       IconData(0xf07a, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData collectionStatusSold =
       IconData(0xf0e3, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData spinner =
+      IconData(0xf1ce, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData minus =
       IconData(0xf068, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData coverIndicator =

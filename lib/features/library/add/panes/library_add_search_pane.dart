@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/app_spinner.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 
 import 'library_add_pane_dependencies.dart';
@@ -367,7 +368,7 @@ class _SearchResultsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final notice = _SearchPaneNoticeStack(error: error);
     if (isBusy && results.isEmpty) {
-      return const Center(child: Text('Searching...'));
+      return const _SearchingPlaceholder();
     }
     if (results.isEmpty) {
       return ListView(padding: EdgeInsets.zero, children: [notice]);
@@ -788,6 +789,36 @@ class _ResultCheckbox extends StatelessWidget {
                 ? const Icon(AppIcons.check, size: 16, color: Colors.white)
                 : null,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Spinner over "Searching..." in the reference's dark placeholder grey,
+/// shown while a search has no results yet.
+class _SearchingPlaceholder extends StatelessWidget {
+  const _SearchingPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    const color = Color(0xff2e3035);
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+                height: 80,
+                child: Center(child: AppSpinner(size: 56, color: color))),
+            Text('Searching...',
+                style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    height: 40 / 28,
+                    color: color)),
+          ],
         ),
       ),
     );

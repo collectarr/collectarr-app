@@ -4,9 +4,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
 
 const musicAddDiscFilterId = LibraryAddFilterId('music.search.disc');
-const musicAddArtistFilterId = LibraryAddFilterId('music.artist');
-const musicAddLabelFilterId = LibraryAddFilterId('music.label');
-const musicAddYearFilterId = LibraryAddFilterId('music.year');
 
 enum MusicAddDiscFilter {
   all('all', 'All'),
@@ -43,12 +40,6 @@ bool musicAddHasSearchInput(LibraryAddSearchContext context) {
   if (context.query.trim().isNotEmpty ||
       context.identifierCode.trim().isNotEmpty) {
     return true;
-  }
-  for (final entry in context.advancedFilters.entries) {
-    if (entry.key == musicAddDiscFilterId) {
-      continue;
-    }
-    if (entry.value.hasValue) return true;
   }
   return musicAddDiscFilterFor(context) != MusicAddDiscFilter.all;
 }
