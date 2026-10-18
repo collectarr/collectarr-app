@@ -10,6 +10,7 @@
 - Add/Update from Core Settings is a dialog with Add from Core and Update from Core tabs: choose per non-personal field whether Add downloads it and whether Update skips, fills or replaces it.
 
 ### 🐛 Fixes
+- Dragging a collection in Manage Collections no longer shows a shadow around the row.
 - Collection tabs keep their new order while a move is being saved instead of flashing the old one.
 - The collections button is transparent with a dark hover and a lighter 16 px icon, and the active collection has a check mark in the menu.
 - Folders and Music's Title, Artist, Format and Genre sorts ignore letter case and accents, as the reference does, and put numbers in natural order (Raft 2 before Raft 10, where the reference puts Raft 10 first).
