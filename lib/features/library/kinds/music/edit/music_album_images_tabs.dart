@@ -490,25 +490,16 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
   }
 }
 
+/// The album placeholder icon used for missing covers across the app.
 final class _NoCoverPreview extends StatelessWidget {
   const _NoCoverPreview();
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.image_outlined,
-              size: 38,
-              color: appPalette(context).textMuted,
-            ),
-            SizedBox(height: 6),
-            Text(
-              'No cover image',
-              style: TextStyle(color: appPalette(context).textMuted),
-            ),
-          ],
+        child: Icon(
+          AppIcons.compactDisc,
+          size: 56,
+          color: appPalette(context).textMuted.withValues(alpha: .35),
         ),
       );
 }
