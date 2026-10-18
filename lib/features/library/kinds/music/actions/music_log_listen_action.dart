@@ -2,7 +2,7 @@ import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_target_action_capability.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
+import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart'
     show LibraryEditTextField;
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';

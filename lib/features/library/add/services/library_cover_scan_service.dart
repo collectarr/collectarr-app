@@ -6,7 +6,7 @@ import 'dart:ui' as ui;
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
+import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart'
     show LibraryEditTextField;
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/foundation.dart';

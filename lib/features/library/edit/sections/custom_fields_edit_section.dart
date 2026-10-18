@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_vocabulary
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';

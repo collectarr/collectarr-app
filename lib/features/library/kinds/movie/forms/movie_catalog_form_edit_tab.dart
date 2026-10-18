@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/forms/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';

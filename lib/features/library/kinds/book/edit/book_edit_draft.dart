@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
@@ -6,7 +7,7 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_summary_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_draft.dart';

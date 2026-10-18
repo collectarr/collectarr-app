@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/core/localization/app_formats.dart';
@@ -18,8 +19,6 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
-    show LibraryEditTextField;
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
