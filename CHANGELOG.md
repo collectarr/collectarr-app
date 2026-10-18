@@ -12,6 +12,7 @@
 - Add/Update from Core Settings is a dialog with Add from Core and Update from Core tabs: choose per non-personal field whether Add downloads it and whether Update skips, fills or replaces it.
 
 ### 🐛 Fixes
+- Sidebar entries now show the hand cursor on hover.
 - Dragging a collection in Manage Collections no longer shows a shadow around the row.
 - Collection tabs keep their new order while a move is being saved instead of flashing the old one.
 - The collections button is transparent with a dark hover and a lighter 16 px icon, and the active collection has a check mark in the menu.
