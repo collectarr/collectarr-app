@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_credit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_named_detail_list.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
 import 'package:flutter/material.dart';
 
 class TvEditCrewTab extends StatelessWidget {

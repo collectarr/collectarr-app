@@ -1,4 +1,5 @@
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';

@@ -1,6 +1,8 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_summary_widgets.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';

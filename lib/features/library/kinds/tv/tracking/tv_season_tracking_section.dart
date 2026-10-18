@@ -14,7 +14,8 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_un
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_summary_card.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_summary_widgets.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

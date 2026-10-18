@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/forms/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';

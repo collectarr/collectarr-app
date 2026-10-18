@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_cont
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_credits_editor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_characters_editor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
 import 'package:flutter/material.dart';
 
 class MovieEditCastTab extends StatelessWidget {
