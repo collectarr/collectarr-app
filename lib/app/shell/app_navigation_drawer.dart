@@ -208,6 +208,8 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
       child: InkWell(
         key: key,
         onTap: () => widget.onSelected(context, action),
+        splashFactory: NoSplash.splashFactory,
+        highlightColor: Colors.transparent,
         hoverColor: palette.isDark ? const Color(0x26FFFFFF) : null,
         child: Container(
           color: selected
@@ -279,7 +281,10 @@ class _DrawerCollapsibleSectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      hoverColor: const Color(0x26FFFFFF),
+      splashFactory: NoSplash.splashFactory,
+      highlightColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      mouseCursor: SystemMouseCursors.click,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         child: Row(
@@ -292,8 +297,8 @@ class _DrawerCollapsibleSectionLabel extends StatelessWidget {
             ),
             AnimatedRotation(
               turns: isExpanded ? 0.5 : 0.0,
-              duration: kAppAnimFast,
-              curve: Curves.easeInOut,
+              duration: appDrawerChevronDuration,
+              curve: Curves.linear,
               child: Icon(
                 AppIcons.chevronDown,
                 size: 11,
@@ -322,8 +327,8 @@ class _DrawerCollapsibleSection extends StatelessWidget {
       tween: Tween(end: isExpanded ? 1 : 0),
       duration: MediaQuery.disableAnimationsOf(context)
           ? Duration.zero
-          : kAppAnimNormal,
-      curve: Curves.easeInOut,
+          : appDrawerCollapseDuration,
+      curve: Curves.ease,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
