@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.2.0 - 2026-10-18
+
 ### ✨ Features
 - The search box accepts regular expressions after "matches:" (for example `matches: ^the\s`), ignoring letter case, as the old Music Collector did; matching tracks are highlighted, and an invalid expression outlines the box in red with the reason on hover.
 - Automatic backups: the desktop and mobile apps copy the whole database once a day at startup and before every restore or clear, keep the copies for a chosen period (one week to forever), and restore any of them from Settings > Data.
