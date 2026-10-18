@@ -21,7 +21,7 @@ class LibraryWorkspaceCard extends StatefulWidget {
     this.selectedColor = kAppSelection,
     this.accentColor = kAppAccent,
     this.mutedTextColor = kAppTextMuted,
-    this.coverWidth = 72,
+    this.coverWidth = 92,
     this.cardLayout = LibraryCardLayout.horizontal,
     this.selectionMode = false,
     this.checked = false,
@@ -147,15 +147,16 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                     Padding(
                         padding: const EdgeInsets.all(4),
                         child: Row(children: [
-                          SizedBox(
-                              width: coverWidth,
+                          ConstrainedBox(
+                              constraints: BoxConstraints(maxWidth: coverWidth),
                               child: _buildCover(
                                   context: context,
                                   coverCacheWidth: coverCacheWidth,
                                   presentation: presentation,
                                   fit: BoxFit.contain,
-                                  borderRadius: 0)),
-                          const SizedBox(width: 4),
+                                  borderRadius: 0,
+                                  intrinsicSize: true)),
+                          const SizedBox(width: 5),
                           Expanded(
                               child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -443,22 +444,38 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     required LibraryCardPresentation presentation,
     required BoxFit fit,
     required double borderRadius,
+    bool intrinsicSize = false,
   }) {
-    final cover = LibraryInteractiveCover(
-      title: item.dto.primaryLabel,
-      itemNumber: presentation.itemNumber,
-      imageUrl: item.dto.imageUrl,
-      libraryEntryRef: item.source.libraryEntryRef,
-      targetCacheWidth: coverCacheWidth,
-      fallbackAspectRatio: 1 /
-          libraryViewProfileForKind(item.source.mediaKind)
-              .coverGridHeightFactor,
-      accentColor: accentColor,
-      fit: fit,
-      borderRadius: borderRadius,
-      enableFullscreen: false,
-      enableSecondaryControl: false,
-    );
+    // Intrinsic covers size to the image's own aspect ratio within the
+    // incoming constraints, so no empty bands remain beside or below it.
+    final Widget cover = intrinsicSize
+        ? LibraryCoverImage(
+            title: item.dto.primaryLabel,
+            itemNumber: presentation.itemNumber,
+            imageUrl: item.dto.imageUrl,
+            libraryEntryRef: item.source.libraryEntryRef,
+            targetCacheWidth: coverCacheWidth,
+            fallbackAspectRatio: 1 /
+                libraryViewProfileForKind(item.source.mediaKind)
+                    .coverGridHeightFactor,
+            fit: fit,
+            borderRadius: borderRadius,
+          )
+        : LibraryInteractiveCover(
+            title: item.dto.primaryLabel,
+            itemNumber: presentation.itemNumber,
+            imageUrl: item.dto.imageUrl,
+            libraryEntryRef: item.source.libraryEntryRef,
+            targetCacheWidth: coverCacheWidth,
+            fallbackAspectRatio: 1 /
+                libraryViewProfileForKind(item.source.mediaKind)
+                    .coverGridHeightFactor,
+            accentColor: accentColor,
+            fit: fit,
+            borderRadius: borderRadius,
+            enableFullscreen: false,
+            enableSecondaryControl: false,
+          );
     final wrapOverlay = presentation.coverOverlayBuilder;
     return wrapOverlay != null ? wrapOverlay(cover) : cover;
   }
