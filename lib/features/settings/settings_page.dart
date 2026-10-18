@@ -35,6 +35,7 @@ import 'package:collectarr_app/features/settings/settings_account_section.dart';
 import 'package:collectarr_app/features/settings/settings_appearance_section.dart';
 import 'package:collectarr_app/features/settings/settings_data_section.dart';
 import 'package:collectarr_app/features/settings/settings_layout.dart';
+import 'package:collectarr_app/features/settings/settings_updates_section.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -93,6 +94,7 @@ enum SettingsSection {
   proposals('Proposals', AppIcons.clipboardCheck),
   data('Data', AppIcons.database),
   account('Account', AppIcons.user),
+  updates('Updates', AppIcons.appUpdate),
   logs('Logs', AppIcons.bug);
 
   const SettingsSection(this.title, this.icon);
@@ -305,6 +307,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         return const SettingsDataSection();
       case SettingsSection.account:
         return const SettingsAccountSection();
+      case SettingsSection.updates:
+        return const SettingsUpdatesSection();
       case SettingsSection.logs:
         return _buildLogsSection();
     }
