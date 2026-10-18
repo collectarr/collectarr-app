@@ -14,7 +14,7 @@
 ### 🐛 Fixes
 - Sidebar entries now show the hand cursor on hover.
 - Collection tabs switch colour instantly and no longer show a press ripple, hover highlight or drag shadow.
-- On Windows the library and its backups now live in `%APPDATA%\Collectarr` instead of a doubled `Collectarr\Collectarr` folder.
+- On Windows the library and its backups now live in `%APPDATA%\Collectarr` instead of a doubled `Collectarr\Collectarr` folder. Existing data is not moved: before starting this version, close Collectarr and move `collectarr-library.sqlite` (with any `-wal` and `-shm` files) and the `backups` folder from `%APPDATA%\Collectarr\Collectarr` up into `%APPDATA%\Collectarr`.
 - Dragging a collection in Manage Collections no longer shows a shadow around the row.
 - Collection tabs keep their new order while a move is being saved instead of flashing the old one.
 - The collections button is transparent with a dark hover and a lighter 16 px icon, and the active collection has a check mark in the menu.
