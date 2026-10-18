@@ -3,6 +3,7 @@ import 'pick_list_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:collectarr_app/ui/app_select.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -410,10 +411,8 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                               : SizedBox(
                                   width: 200,
                                   height: 32,
-                                  child: DropdownButtonFormField<String>(
-                                      initialValue: _selectedListName,
-                                      isExpanded: true,
-                                      isDense: true,
+                                  child: AppSelect<String>(
+                                      value: _selectedListName,
                                       hint: Text('Select a list...',
                                           style: TextStyle(
                                               fontSize: 14,
@@ -425,13 +424,9 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
                                           color: palette.textPrimary),
-                                      items: [
+                                      options: [
                                         for (final item in _definitions)
-                                          DropdownMenuItem(
-                                              value: item.listName,
-                                              child: Text('${item.label} list',
-                                                  overflow:
-                                                      TextOverflow.ellipsis))
+                                          (item.listName, '${item.label} list')
                                       ],
                                       onChanged: _busy
                                           ? null
