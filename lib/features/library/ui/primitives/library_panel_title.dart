@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_close_button.dart';
 import 'package:flutter/material.dart';
 
 /// Standard panel or dialog header for Library UI.
@@ -91,14 +92,7 @@ class LibraryPanelTitle extends StatelessWidget {
           ],
           if (onClose != null) ...[
             const SizedBox(width: 8),
-            IconButton(
-              style: const ButtonStyle(
-                mouseCursor: WidgetStateMouseCursor.clickable,
-              ),
-              icon: const Icon(Icons.close, size: 18),
-              onPressed: onClose,
-              tooltip: 'Close',
-            ),
+            AppCloseButton(onPressed: onClose, size: 32, iconSize: 18),
           ],
         ],
       ),

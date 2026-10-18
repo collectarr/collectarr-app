@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
+import 'package:collectarr_app/ui/app_close_button.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -85,11 +86,10 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const Spacer(),
-                IconButton(
-                  tooltip: 'Close',
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
-                ),
+                AppCloseButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    size: 40,
+                    iconSize: 24),
               ],
             ),
             if (widget.description != null) ...[
