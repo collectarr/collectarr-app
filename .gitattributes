@@ -9,3 +9,9 @@
 /lib/features/library/kinds/registry/collectarr_kind_database_tables.g.dart text eol=lf
 /lib/dev/seeds/collectarr_dev_seed_registry.g.dart text eol=lf
 /tool/architecture/generated/kind-field-entries.json text eol=lf
+# Drift and Flutter regenerate these with LF on every platform.
+/lib/core/db/local_database.g.dart text eol=lf
+/linux/flutter/generated_plugin_registrant.* text eol=lf
+/linux/flutter/generated_plugins.cmake text eol=lf
+/windows/flutter/generated_plugin_registrant.* text eol=lf
+/windows/flutter/generated_plugins.cmake text eol=lf
