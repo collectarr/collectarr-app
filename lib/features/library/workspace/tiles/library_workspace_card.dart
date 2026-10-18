@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -500,15 +503,24 @@ class _CardStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final source = item.source;
+    final entry = source.libraryEntrySummary;
+    if (source.loans.isEmpty && entry != null) {
+      // The entry's own Collection Status, in its fixed colour.
+      final scope = libraryCollectionStatusFromValue(entry.collectionStatus);
+      return Tooltip(
+        message: scope.label,
+        child: Opacity(
+          opacity: selected ? 0.85 : 1,
+          child: LibraryCollectionStatusIcon(collectionStatus: scope, size: 21),
+        ),
+      );
+    }
     final (IconData, Color, String)? status = source.loans.isNotEmpty
         ? (Icons.schedule_rounded, Colors.amber.shade700, 'On Loan')
         : source.isWishlisted
             ? (Icons.bookmark_outline_rounded, Colors.orange, 'Wishlist')
-            : source.isEntry
-                ? (Icons.check, palette.utilityAction, 'In Collection')
-                : null;
+            : null;
     if (status == null) return const SizedBox.shrink();
     final (icon, color, label) = status;
     return Tooltip(

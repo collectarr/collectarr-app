@@ -16,6 +16,8 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
 import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_row.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
@@ -29,13 +31,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 const _selected = Color(0xff2a7fd4);
 const _probe = Key('probe');
 
-LibraryProjectionItem _item() {
+LibraryProjectionItem _item({String? collectionStatus}) {
   final entry = MusicLibraryEntry(
     id: const LibraryEntryId('a'),
     sourceCatalogRef:
         const CatalogItemRef(kind: CatalogMediaKind.music, id: 'catalog-a'),
     updatedAt: DateTime.utc(2026, 10, 10),
-    personal: const MusicPersonalData(indexNumber: 1),
+    personal:
+        MusicPersonalData(indexNumber: 1, collectionStatus: collectionStatus),
     metadata: MusicAlbum(title: 'Album'),
   );
   final summary = MusicLibraryEntryProjection.toSummary(entry);
@@ -171,5 +174,31 @@ void main() {
         tester, find.byType(LibraryTableInkRow), const Offset(200, 14));
 
     expect(color, _selected);
+  });
+
+  testWidgets('a card shows the collection status of its entry',
+      (tester) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final item = _item(collectionStatus: 'For Sale');
+    await tester.pumpWidget(_host(
+        db,
+        (selected, select) => SizedBox(
+              width: 400,
+              height: 88,
+              child: LibraryWorkspaceCard(
+                  item: item, selected: false, onTap: select),
+            )));
+    await tester.pumpAndSettle();
+
+    expect(
+        tester
+            .widget<LibraryCollectionStatusIcon>(
+                find.byType(LibraryCollectionStatusIcon))
+            .collectionStatus,
+        LibraryCollectionStatusScope.forSale);
+    expect(find.byTooltip('For Sale'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 1));
   });
 }

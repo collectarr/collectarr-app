@@ -12,6 +12,7 @@
 - Drawer sections open and close over 350 ms with the reference's ease curve, and drawer headers have no hover highlight and no click ripple.
 - Dialogs slide down a quarter of their height while fading in and slide back up while fading out, like the reference's modals.
 - A card or list row clicked with the mouse still over it turns blue at once instead of black until the pointer leaves.
+- Cards show each entry's Collection Status (In Collection, For Sale, On Wish List, On Order, Sold, Not in Collection) with its icon, colour and tooltip, and follow changes made in the edit dialog, instead of always showing In Collection.
 - The sort fields in the CSV/TXT and PDF export settings show ASC for ascending fields instead of always DESC.
 - Add/Update from Core Settings lists every field and list Core describes for the kind, under the names Core gives them, with Tracks and disc Credits indented under Discs; kinds Core has no catalog for say so instead of showing an empty table.
 - Horizontal cards are exactly as tall as their cover plus 4 px padding at any cover size, with no empty bands above or below.

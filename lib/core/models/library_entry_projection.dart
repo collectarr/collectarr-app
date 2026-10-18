@@ -23,6 +23,7 @@ final class LibraryEntrySummary {
     this.purchaseStore,
     this.pricePaidCents,
     this.currency,
+    this.collectionStatus,
     this.soldAt,
     this.soldTo,
     this.sellPriceCents,
@@ -44,6 +45,10 @@ final class LibraryEntrySummary {
   final String? purchaseStore;
   final int? pricePaidCents;
   final String? currency;
+
+  /// The entry's Collection Status value, such as "For Sale"; null reads as
+  /// In Collection.
+  final String? collectionStatus;
   final DateTime? soldAt;
   final String? soldTo;
   final int? sellPriceCents;
@@ -77,6 +82,7 @@ final class LibraryEntrySummary {
       purchaseStore: purchaseStore,
       pricePaidCents: pricePaidCents,
       currency: currency,
+      collectionStatus: collectionStatus,
       soldAt: soldAt,
       soldTo: soldTo,
       sellPriceCents: sellPriceCents,
