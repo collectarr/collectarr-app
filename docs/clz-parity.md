@@ -67,6 +67,7 @@ Keep these when matching the reference visually.
 | --- | --- | --- |
 | Folder panel | A fresh library grouped by **Has Back** because fallbacks took the first group; Music declares Artist | Fallbacks resolve the kind's declared default group |
 | Cover placeholders | Coloured generated cover with the title and, before that, titles split mid-word | A dark tile with the kind's Font Awesome icon (compact disc, book, film, TV, gamepad, open book, dice), like the reference's per-kind placeholder; comics keep their #number badge |
+| Item Spacing edges | Horizontal Cards grew its outer margin with the slider | A fixed 10 px margin in every grid view; the slider only sets the gaps between items |
 | Untitled albums | Add Manually and the editor refused an empty title | Music allows an empty title in both; other kinds still require one |
 | List view | “Wrap column content” never wrapped: an ellipsis truncates after one line even without `maxLines`, leaving taller rows with cut text | Wrapped cells clip instead of ellipsizing; regression test added |
 | Details panel | Returning from a tool page showed “No album selected”; first-item selection only ran in debug Web | Restores the last selected album for the kind, otherwise selects the first visible one |
