@@ -13,12 +13,16 @@ Future<bool> showAppMessageDialog({
   required String title,
   required String message,
   required String confirmLabel,
+  bool showCancel = true,
 }) async =>
     await showAppDialog<bool>(
       context: context,
       barrierDismissible: true,
       builder: (context) => AppMessageDialog(
-          title: title, message: message, confirmLabel: confirmLabel),
+          title: title,
+          message: message,
+          confirmLabel: confirmLabel,
+          showCancel: showCancel),
     ) ==
     true;
 
@@ -27,10 +31,12 @@ class AppMessageDialog extends StatelessWidget {
       {super.key,
       required this.title,
       required this.message,
-      required this.confirmLabel});
+      required this.confirmLabel,
+      this.showCancel = true});
   final String title;
   final String message;
   final String confirmLabel;
+  final bool showCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -74,9 +80,11 @@ class AppMessageDialog extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    DialogActionButtons.cancel(
-                        onPressed: () => Navigator.pop(context, false)),
-                    const SizedBox(width: 5),
+                    if (showCancel) ...[
+                      DialogActionButtons.cancel(
+                          onPressed: () => Navigator.pop(context, false)),
+                      const SizedBox(width: 5),
+                    ],
                     DialogActionButton(
                         label: confirmLabel,
                         primary: true,

@@ -310,8 +310,8 @@ void main() {
     await tester.tap(generateBtn);
     await pumpUntilSettled(tester);
 
-    // Should now show Download file and Print / Open
+    // Download file sits under Generate; there is no separate print action.
     expect(find.textContaining('Download file'), findsOneWidget);
-    expect(find.text('Print / Open'), findsOneWidget);
+    expect(find.text('Print / Open'), findsNothing);
   });
 }

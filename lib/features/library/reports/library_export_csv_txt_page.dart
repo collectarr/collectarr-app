@@ -11,6 +11,8 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:collectarr_app/ui/app_block_button.dart';
+import 'package:collectarr_app/ui/app_progress_dialog.dart';
 
 enum ExportSubset { all, currentList, checkboxed }
 
@@ -385,10 +387,14 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
 
   Future<void> _handleGenerate() async {
     setState(() => _isGenerating = true);
-    await Future<void>.delayed(const Duration(milliseconds: 150));
-    final content = _generateFullExportContent();
-    final bytes = utf8.encode(content);
-    final kb = bytes.length / 1024;
+    final type = _fileType == ExportFileType.csv ? 'CSV' : 'TXT';
+    final content = await runWithProgressDialog(
+        context: context,
+        title: 'Export to $type',
+        message: 'Generating your $type file...',
+        task: () async => _generateFullExportContent());
+    if (!mounted) return;
+    final kb = utf8.encode(content).length / 1024;
     final sizeStr = kb >= 1024
         ? '${(kb / 1024).toStringAsFixed(1)} MB'
         : '${kb.toStringAsFixed(1)} KB';
@@ -428,8 +434,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   }
 
   void _handleCopyToClipboard() {
-    final content = _generatedContent ?? _generateFullExportContent();
-    Clipboard.setData(ClipboardData(text: content));
+    Clipboard.setData(ClipboardData(text: _generatedContent!));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Export content copied to clipboard')),
     );
@@ -1417,83 +1422,29 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_generatedContent == null) ...[
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                onPressed: _isGenerating ? null : _handleGenerate,
-                child: _isGenerating
-                    ? const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            'Generating file...',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      )
-                    : const Text(
-                        'Generate file',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-              ),
-            ] else ...[
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4CAE4C),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
+            AppBlockButton(
+              key: const Key('export_csv.generate'),
+              label: _isGenerating ? 'Generating file...' : 'Generate file',
+              icon: _isGenerating ? AppBlockButtonIcon.spinner : null,
+              color: accent,
+              onPressed: _isGenerating ? null : _handleGenerate,
+            ),
+            if (_generatedContent != null) ...[
+              const SizedBox(height: 20),
+              AppBlockButton(
+                key: const Key('export_csv.download'),
+                label: 'Download file ($_generatedFileSize)',
+                icon: AppBlockButtonIcon.download,
+                color: kAppSuccessGreen,
                 onPressed: _handleDownload,
-                icon: const Icon(Icons.download, size: 18),
-                label: Text(
-                  'Download file (${_generatedFileSize ?? '0 KB'})',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
               ),
               const SizedBox(height: 10),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: palette.textPrimary,
-                  side: BorderSide(color: palette.cardBorder),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
+              AppBlockButton(
+                key: const Key('export_csv.copy'),
+                label: 'Copy to clipboard',
+                icon: AppBlockButtonIcon.copy,
+                color: palette.field,
                 onPressed: _handleCopyToClipboard,
-                icon: const Icon(Icons.copy, size: 16),
-                label: const Text(
-                  'Copy to clipboard',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                ),
               ),
             ],
           ],
