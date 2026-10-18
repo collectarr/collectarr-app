@@ -534,6 +534,7 @@ class LibraryBody extends StatelessWidget {
                     folderPreset!,
                     expandedNodeIds: folderTreeExpandedNodeIds,
                     selectedNodeId: folderTreeSelectedNodeId,
+                    sorting: projection.sorting,
                   ),
             selectedTreeNodeId: folderTreeSelectedNodeId,
             expandedTreeNodeIds: folderTreeExpandedNodeIds,

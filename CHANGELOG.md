@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### ✨ Features
+- Folders are ordered by Sort Name while still showing the real name, so an artist named "Akira Yamaoka" with Sort Name "Yamaoka, Akira" sits among the Ys; a Sort Name set in Manage Pick Lists orders any folder, and the Settings option to ignore sort names turns this off.
 - Settings has an Updates tab to check for, download and install new versions on the Stable, Beta or Nightly channel; when a newer version is found at startup, a download button appears in the header right of Sync.
 - Add Albums has a Catalog No. tab that searches Core by catalog number, and the Barcode field has the scan button from the main search bar.
 - Add/Update from Core Settings is a dialog with Add from Core and Update from Core tabs: choose per non-personal field whether Add downloads it and whether Update skips, fills or replaces it.
@@ -10,7 +11,7 @@
 ### 🐛 Fixes
 - Collection tabs keep their new order while a move is being saved instead of flashing the old one.
 - The collections button is transparent with a dark hover and a lighter 16 px icon, and the active collection has a check mark in the menu.
-- Folders and Music's Title, Format and Genre sorts ignore letter case and accents and put numbers in natural order (Raft 2 before Raft 10, Édith with the Es), as the reference does.
+- Folders and Music's Title, Artist, Format and Genre sorts ignore letter case and accents, as the reference does, and put numbers in natural order (Raft 2 before Raft 10, where the reference puts Raft 10 first).
 - Horizontal Cards no longer overflow at small cover sizes, and the Cover Size slider keeps enlarging them across its whole range instead of stopping partway.
 - Item Spacing in Horizontal Cards only changes the gap between cards, like Covers; the margin to the window edges stays fixed.
 - The cover size and spacing sliders can be grabbed anywhere on the round handle, including at the minimum and maximum, instead of only at its centre.

@@ -149,15 +149,14 @@ LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicArtistSort() =>
           MusicCatalogWorkspaceFields.artistSummary.id.value),
       label: MusicCatalogWorkspaceFields.artistSummary.label,
       compare: (left, right) =>
-          _artistSortKey(left).compareTo(_artistSortKey(right)),
+          compareNaturalText(_artistSortKey(left), _artistSortKey(right)),
     );
 
 String _artistSortKey(
         LibraryProjectionContext<MusicWorkspaceProjection> context) =>
-    (context.sorting.useSortNames
-            ? musicArtistSortName(context.dto)
-            : _artistDisplay(context.dto))
-        .toLowerCase();
+    context.sorting.useSortNames
+        ? musicArtistSortName(context.dto)
+        : _artistDisplay(context.dto);
 
 String _artistDisplay(MusicWorkspaceProjection dto) =>
     dto.music.artist ?? dto.facts.primaryArtist ?? '';
@@ -169,11 +168,17 @@ String musicArtistSortName(MusicWorkspaceProjection dto) {
     ..sort((a, b) => a.sequence.compareTo(b.sequence));
   if (credits.isEmpty) return automaticSortTitle(_artistDisplay(dto));
   return credits
-      .map((credit) => credit.sortName?.trim().isNotEmpty == true
-          ? credit.sortName!.trim()
-          : automaticSortTitle(credit.creditedName))
+      .map(
+          (credit) => musicCreditSortName(credit.creditedName, credit.sortName))
       .join(' / ');
 }
+
+/// A credited person's sort name, falling back to the name with a leading
+/// article moved to the end ("Beatles, The").
+String musicCreditSortName(String name, String? sortName) =>
+    sortName?.trim().isNotEmpty == true
+        ? sortName!.trim()
+        : automaticSortTitle(name.trim());
 
 /// Release dates are partial; ordering by their DateTime view would drop
 /// every year-only date.

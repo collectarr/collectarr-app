@@ -22,9 +22,14 @@ class LibraryBucket {
     this.startYear,
     this.entryCount,
     this.missingNumbers = const <int>[],
+    this.sortKey,
   });
 
   final String title;
+
+  /// What the folder is ordered by, when it differs from [title]: its Sort
+  /// Name ("Yamaoka, Akira" for "Akira Yamaoka").
+  final String? sortKey;
   final int count;
   final String? coverUrl;
   final int? startYear;
@@ -210,13 +215,14 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
         // Keep original order (already alphabetical from projection).
         break;
       case LibraryFolderSortMode.byCount:
-        items.sort(
-            (a, b) => _compareFolders(a.title, a.count, b.title, b.count));
+        items.sort((a, b) => _compareFolders(
+            a.title, a.sortKey, a.count, b.title, b.sortKey, b.count));
     }
     return items;
   }
 
-  int _compareFolders(String a, int aCount, String b, int bCount) {
+  int _compareFolders(String a, String? aSortKey, int aCount, String b,
+      String? bSortKey, int bCount) {
     if (a == b) return 0;
     if (a == widget.allBucketLabel) return -1;
     if (b == widget.allBucketLabel) return 1;
@@ -227,7 +233,8 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
       final countOrder = bCount.compareTo(aCount);
       if (countOrder != 0) return countOrder;
     }
-    return compareLibraryGroupBuckets(a, b);
+    return compareLibraryGroupBuckets(a, b,
+        firstSortKey: aSortKey, secondSortKey: bSortKey);
   }
 
   List<LibraryFolderTreeNode> _filteredSortedTree(
@@ -277,8 +284,10 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
     final sorted = nodes.toList(growable: true);
     sorted.sort((a, b) => _compareFolders(
           a.label,
+          a.sortKey,
           a.count,
           b.label,
+          b.sortKey,
           b.count,
         ));
     return [
