@@ -4,11 +4,13 @@ final class LibraryAddSearchContext {
   LibraryAddSearchContext({
     this.query = '',
     this.identifierCode = '',
+    this.catalogNumber = '',
     Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilters = const {},
   }) : advancedFilters = Map.unmodifiable(advancedFilters);
 
   final String query;
   final String identifierCode;
+  final String catalogNumber;
   final Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilters;
 
   LibraryAddFilterValue? valueFor(LibraryAddFilterId id) => advancedFilters[id];
@@ -19,7 +21,9 @@ final class LibraryAddSearchContext {
   }
 
   bool get hasAnyInput {
-    if (query.trim().isNotEmpty || identifierCode.trim().isNotEmpty) {
+    if (query.trim().isNotEmpty ||
+        identifierCode.trim().isNotEmpty ||
+        catalogNumber.trim().isNotEmpty) {
       return true;
     }
     return advancedFilters.values.any((value) => value.hasValue);

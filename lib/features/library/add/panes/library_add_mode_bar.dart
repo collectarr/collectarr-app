@@ -55,6 +55,7 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.mode,
     required this.queryController,
     required this.identifierController,
+    this.catalogNumberController,
     required this.isSearching,
     required this.onModeChanged,
     required this.onSearch,
@@ -67,6 +68,8 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.isScanningCover,
     required this.onScanCover,
     required this.onLookupIdentifier,
+    required this.onScanBarcode,
+    required this.onSearchCatalogNumber,
     required this.onManual,
     required this.showAdvanced,
     required this.onToggleAdvanced,
@@ -82,6 +85,9 @@ class LibraryAddModeBar extends StatefulWidget {
   final LibraryAddDialogMode mode;
   final TextEditingController queryController;
   final TextEditingController identifierController;
+
+  /// Set when the kind searches Core by catalog number (adds that tab).
+  final TextEditingController? catalogNumberController;
   final bool isSearching;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
@@ -94,6 +100,8 @@ class LibraryAddModeBar extends StatefulWidget {
   final bool isScanningCover;
   final VoidCallback onScanCover;
   final VoidCallback onLookupIdentifier;
+  final VoidCallback onScanBarcode;
+  final VoidCallback onSearchCatalogNumber;
   final VoidCallback onManual;
   final bool showAdvanced;
   final VoidCallback onToggleAdvanced;
@@ -463,6 +471,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
           searchLabel: searchLabels.addSearchTabLabel,
           mode: widget.mode,
           onModeChanged: widget.onModeChanged,
+          showCatalogNumber: widget.catalogNumberController != null,
           onManual: widget.onManual,
           onCoreDataSettings: widget.onCoreDataSettings,
           onScanCover: widget.canScanCover && !widget.isScanningCover
@@ -517,6 +526,17 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                             hintText: 'Enter barcode...',
                             keyboardType: TextInputType.number,
                             onSubmitted: widget.onLookupIdentifier,
+                            trailing: _LibraryAddScanBarcodeButton(
+                                onPressed: widget.onScanBarcode),
+                          ),
+                        LibraryAddDialogMode.catalogNumber =>
+                          _LibraryAddModeTextField(
+                            fieldKey: const ValueKey(
+                                'library-add-catalog-number-field'),
+                            controller: widget.catalogNumberController!,
+                            label: 'Catalog No.',
+                            hintText: 'Enter catalog number...',
+                            onSubmitted: widget.onSearchCatalogNumber,
                           ),
                       },
                     ),
@@ -525,9 +545,13 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                       isBusy: widget.isSearching,
                       onPressed: isBusy
                           ? null
-                          : widget.mode == LibraryAddDialogMode.search
-                              ? _handleSearch
-                              : widget.onLookupIdentifier,
+                          : switch (widget.mode) {
+                              LibraryAddDialogMode.search => _handleSearch,
+                              LibraryAddDialogMode.identifier =>
+                                widget.onLookupIdentifier,
+                              LibraryAddDialogMode.catalogNumber =>
+                                widget.onSearchCatalogNumber,
+                            },
                     ),
                   ],
                 ),
@@ -554,6 +578,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
     required this.searchLabel,
     required this.mode,
     required this.onModeChanged,
+    required this.showCatalogNumber,
     required this.onManual,
     this.onCoreDataSettings,
     this.onScanCover,
@@ -562,6 +587,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
   final String searchLabel;
   final LibraryAddDialogMode mode;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
+  final bool showCatalogNumber;
   final VoidCallback onManual;
   final VoidCallback? onCoreDataSettings;
   final VoidCallback? onScanCover;
@@ -600,6 +626,14 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                     selected: mode == LibraryAddDialogMode.identifier,
                     onTap: () => onModeChanged(LibraryAddDialogMode.identifier),
                   ),
+                  if (showCatalogNumber)
+                    LibraryAddModeTab(
+                      icon: const Icon(AppIcons.tags),
+                      label: 'Catalog No.',
+                      selected: mode == LibraryAddDialogMode.catalogNumber,
+                      onTap: () =>
+                          onModeChanged(LibraryAddDialogMode.catalogNumber),
+                    ),
                   if (onCoreDataSettings != null)
                     _LibraryAddModeIconButton(
                       icon: AppIcons.settings,
@@ -781,6 +815,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
     required this.onSubmitted,
     this.onChanged,
     this.keyboardType,
+    this.trailing,
   });
 
   final Key fieldKey;
@@ -790,6 +825,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
   final VoidCallback onSubmitted;
   final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -824,6 +860,9 @@ class _LibraryAddModeTextField extends StatelessWidget {
             focusedBorder: InputBorder.none,
             disabledBorder: InputBorder.none,
             semanticCounterText: label,
+            suffixIcon: trailing,
+            suffixIconConstraints:
+                const BoxConstraints(minWidth: 34, minHeight: 34),
             hintText: hintText,
             hintStyle: TextStyle(
               color:
@@ -832,6 +871,38 @@ class _LibraryAddModeTextField extends StatelessWidget {
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The barcode glyph of the main search bar, opening the scanner.
+class _LibraryAddScanBarcodeButton extends StatelessWidget {
+  const _LibraryAddScanBarcodeButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: 'Scan barcode',
+      child: InkWell(
+        mouseCursor: WidgetStateMouseCursor.clickable,
+        onTap: onPressed,
+        splashFactory: NoSplash.splashFactory,
+        child: SizedBox(
+          width: 34,
+          height: 34,
+          child: Center(
+            child: SvgPicture.asset(
+              AppIcons.barcodeScanSvg,
+              width: 22,
+              height: 18,
+              colorFilter: ColorFilter.mode(
+                  appPalette(context).textPrimary, BlendMode.srcIn),
+            ),
           ),
         ),
       ),

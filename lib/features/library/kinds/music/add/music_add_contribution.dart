@@ -51,6 +51,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
             LibraryAddOptionFilterValue(MusicAddDiscFilter.all.value),
       },
       searchInputPredicate: musicAddHasSearchInput,
+      searchesCatalogNumber: true,
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: buildMusicCoreSearchInput,
@@ -92,6 +93,7 @@ MetadataSearchQuery buildMusicCoreSearchInput(
   return MetadataSearchQuery(
     query: optionalMusicText(context.query),
     barcode: optionalMusicText(context.identifierCode),
+    catalogNumber: optionalMusicText(context.catalogNumber),
     limit: limit,
   );
 }

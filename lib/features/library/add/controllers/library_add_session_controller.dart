@@ -149,6 +149,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     return LibraryAddSearchContext(
       query: query ?? state.search.query,
       identifierCode: state.search.identifierCode,
+      catalogNumber: state.search.catalogNumber,
       advancedFilters: state.search.advancedFilters,
     );
   }

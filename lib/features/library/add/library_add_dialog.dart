@@ -1,3 +1,6 @@
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
+import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/settings/core_data_settings_dialog.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
@@ -95,6 +98,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   late final TextEditingController _queryController;
   late final TextEditingController _identifierController;
+  late final TextEditingController _catalogNumberController;
 
   List<StorageLocation> _availableLocations = const [];
   List<String> _conditionOptions = const [];
@@ -141,6 +145,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
     _identifierController =
         TextEditingController(text: widget.initialIdentifier ?? '');
+    _catalogNumberController = TextEditingController();
 
     _manualDraft = LibraryAddManualDraft(
       customFieldValues: widget.customFieldValues,
@@ -302,6 +307,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _manualDraft.dispose();
     _queryController.dispose();
     _identifierController.dispose();
+    _catalogNumberController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -712,6 +718,25 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _closeDialog(_addResult(submittedIds));
   }
 
+  Future<void> _scanBarcode() async {
+    final kind = widget.type;
+    final scanned = await showAppBottomSheet<ScannedCode>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => BarcodeScanSheet(
+        title: 'Scan ${kind.identity.singularLabel.toLowerCase()} barcode',
+        description: 'Scan or enter a barcode, UPC, or ISBN.',
+        manualLabel: '${kind.identity.singularLabel} barcode / UPC / ISBN',
+        submitLabel: 'Search',
+        leadingIcon: kind.identity.icon,
+      ),
+    );
+    if (scanned == null || !mounted) return;
+    _controller.updateIdentifier(scanned.value);
+    await _controller.lookupIdentifier(identifierCode: scanned.value);
+  }
+
   void _selectAddMode(LibraryAddDialogMode mode) {
     _controller.setMode(mode);
   }
@@ -877,6 +902,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               mode: state.mode,
               queryController: _queryController,
               identifierController: _identifierController,
+              catalogNumberController:
+                  addCapability.search.input.searchesCatalogNumber
+                      ? _catalogNumberController
+                      : null,
               isSearching: state.search.isBusy,
               onModeChanged: _selectAddMode,
               onSearch: () {
@@ -899,6 +928,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               onLookupIdentifier: () => _controller.lookupIdentifier(
                 identifierCode: _identifierController.text,
               ),
+              onScanBarcode: _scanBarcode,
+              onSearchCatalogNumber: () {
+                _controller.updateCatalogNumber(_catalogNumberController.text);
+                _controller.executeSearch();
+              },
               onManual: () => _openManualDialog(accent, addCapability),
               showAdvanced: state.search.showAdvancedSearch,
               onToggleAdvanced: _controller.toggleAdvancedSearch,
