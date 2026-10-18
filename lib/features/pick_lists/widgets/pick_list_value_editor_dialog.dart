@@ -2,6 +2,7 @@ import 'pick_list_chrome.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
+import 'package:collectarr_app/core/utils/sort_title.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -56,6 +57,7 @@ class _PickListValueEditorDialogState
   late final TextEditingController _sortName;
   late final TextEditingController _email;
   late final TextEditingController _address;
+  late String _lastName;
   String? _nameError;
 
   // Borrowers carry contact details, as CLZ loaners do.
@@ -68,6 +70,19 @@ class _PickListValueEditorDialogState
     _sortName = TextEditingController(text: widget.existing?.sortName ?? '');
     _email = TextEditingController(text: widget.existing?.email ?? '');
     _address = TextEditingController(text: widget.existing?.address ?? '');
+    _lastName = _controller.text;
+    _controller.addListener(_followName);
+  }
+
+  /// The Sort Name follows the Name as the editor's Sort Title follows the
+  /// title, until someone types a Sort Name of their own.
+  void _followName() {
+    final name = _controller.text;
+    if (name == _lastName) return;
+    final sortName =
+        followTitleChange(_lastName.trim(), name.trim(), _sortName.text.trim());
+    _lastName = name;
+    if (sortName != _sortName.text.trim()) _sortName.text = sortName;
   }
 
   @override
@@ -85,13 +100,14 @@ class _PickListValueEditorDialogState
       setState(() => _nameError = 'Enter a name.');
       return;
     }
+    final sortName = _sortName.text.trim();
     Navigator.of(context).pop(
       PickListValue(
         id: widget.existing?.id ?? const Uuid().v4(),
         listName: widget.listName,
         mediaKind: widget.mediaKind,
         value: value,
-        sortName: _sortName.text.trim().isEmpty ? null : _sortName.text.trim(),
+        sortName: sortName.isEmpty || sortName == value ? null : sortName,
         displayLabel: widget.existing?.displayLabel,
         aliases: widget.existing?.aliases ?? const [],
         isSystem: widget.existing?.isSystem ?? false,
