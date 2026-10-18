@@ -160,6 +160,9 @@ not Gilroy. Compare with a user-supplied local font before changing weights.
   SemiBold outlines in both the bundled and the local-Gilroy family (see
   [local font loading](architecture/local-font-loading.md)). Regular list
   text measures within 5 % of CLZ, bold within 3 %.
+- Resolved 2026-10-18: local Gilroy Bold measured 19 % lighter than CLZ's bold
+  in the Windows engine (the earlier 3 % figure was the bundled face), so the
+  700 slot now uses Black outlines (within 5 %), or ExtraBold (within 10 %).
 
 ## Not yet compared live
 

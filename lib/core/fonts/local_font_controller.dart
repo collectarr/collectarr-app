@@ -53,6 +53,12 @@ class LocalFontController extends ChangeNotifier {
   // numeric weight and subfamily names so Windows selects these outlines.
   static LocalFontFace? _normalFace(Map<int, LocalFontFace> faces) =>
       faces[600] ?? faces[500] ?? faces[400];
+
+  // Bold UI text paints about 19 % lighter in Flutter than the reference's
+  // Gilroy Bold in the browser; Black outlines land within 5 %, ExtraBold
+  // within 10 %. Black and ExtraBold also keep their own slots.
+  static LocalFontFace? _boldFace(Map<int, LocalFontFace> faces) =>
+      faces[900] ?? faces[800];
   bool get enabled => _enabled;
   String get activeFamily => _family;
   String? get startupError => _startupError;
@@ -235,9 +241,11 @@ class LocalFontController extends ChangeNotifier {
     // Keep regular/medium UI roles optically consistent across menus, fields
     // and navigation. Only registration copies change; originals stay intact.
     final normalFace = _normalFace(current);
+    final boldFace = _boldFace(current);
     for (final entry in _fallback.entries) {
       if (current.containsKey(entry.key) ||
-          ((entry.key == 400 || entry.key == 500) && normalFace != null)) {
+          ((entry.key == 400 || entry.key == 500) && normalFace != null) ||
+          (entry.key == 700 && boldFace != null)) {
         continue;
       }
       await _registerFont(family, await _bundledFace(entry.key));
@@ -251,8 +259,15 @@ class LocalFontController extends ChangeNotifier {
                 : fontBytesAtWeight(normalFace.bytes, weight));
       }
     }
+    if (boldFace != null) {
+      await _registerFont(family, fontBytesAtWeight(boldFace.bytes, 700));
+    }
     for (final face in current.values) {
-      if (face.weight == 400 || face.weight == 500) continue;
+      if (face.weight == 400 ||
+          face.weight == 500 ||
+          (face.weight == 700 && boldFace != null)) {
+        continue;
+      }
       await _registerFont(family, face.bytes);
     }
     _registeredFamilies[fingerprint] = family;

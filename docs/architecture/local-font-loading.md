@@ -17,7 +17,16 @@ ExtraBold. Measured ink: Jakarta Regular 3.75, Medium 4.15, SemiBold 4.65
 against the reference's 4.60; Jakarta Bold matches the reference's bold within
 about 4 %. The asset files are unchanged and `Plus Jakarta Sans` remains the
 text fallback.
-Bold headings retain their own face. Registration changes copies in memory;
+Bold text (700) is lighter in Flutter than in the reference for local Gilroy
+too. Measured in the Windows engine at 14 px (2026-10-18) with the reference's
+bold at 2194 units of ink: Bold 1773 (-19 %), ExtraBold 1968 (-10 %), Black
+2083 (-5 %), Heavy 2261 (+3 %, but 1.4 % narrower). The 700 slot therefore
+registers a re-weighted copy of the local Black face, or ExtraBold when Black
+is missing; Black and ExtraBold keep their own slots, and a family with only
+Bold keeps Bold. Normal text measured SemiBold 1574 against the reference's
+1524 (+3 %) and Medium 1337 (-12 %), which confirms the 400/500 rule above.
+The bundled Plus Jakarta Sans family is unchanged.
+Bold headings otherwise retain their own face. Registration changes copies in memory;
 the imported files, saved face identities and bundled fallback stay unchanged.
 Registration synchronizes the numeric OS/2 weight with legacy/typographic
 subfamily names. DirectWrite can infer weight from those names; an inconsistent

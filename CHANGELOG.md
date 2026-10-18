@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- Bold text with local Gilroy is as heavy as in the reference instead of about 19 % lighter; restart the app after updating.
 - Editor field names are white at 70% (about #C4C4C4) and fieldset titles are grey, as in the reference.
 - The selection toolbar is the shared blue with icon-only Cancel, Edit and Remove, a divider before the more menu (Print to PDF moved into it) and an "N of M" counter, as in the reference.
 - Loan opens the Loan Album page under the Loan Manager header, for one item or a selection, instead of a dialog.
