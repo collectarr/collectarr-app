@@ -284,7 +284,11 @@ class _LibraryColumnChooserDialogState
           LibraryFieldSelectionCategory(
               key: ValueKey('column-group-${group.name}'),
               title: _groupLabel(group),
-              selected: grouped[group]!.every(_selected.contains),
+              check: grouped[group]!.every(_selected.contains)
+                  ? LibraryFieldCheckState.all
+                  : grouped[group]!.any(_selected.contains)
+                      ? LibraryFieldCheckState.some
+                      : LibraryFieldCheckState.none,
               expanded: _query.isNotEmpty ||
                   (_expandedGroups[group] ??
                       group == LibraryTableColumnGroup.main ||
