@@ -132,11 +132,15 @@ final class _CollectionsDialog extends ConsumerWidget {
                               data: (values) => ReorderableListView.builder(
                                   shrinkWrap: true,
                                   buildDefaultDragHandles: false,
-                                  // The default proxy adds an elevation
-                                  // shadow along the row's edges.
+                                  // No elevation shadow, and the row's own 1 px
+                                  // right and bottom border lines are cut off:
+                                  // lifted out of the table they read as a
+                                  // highlight along those edges.
                                   proxyDecorator: (child, _, __) => Material(
                                       type: MaterialType.transparency,
-                                      child: child),
+                                      child: ClipRect(
+                                          clipper: const _DragRowClipper(),
+                                          child: child)),
                                   itemCount: values.length,
                                   onReorderItem: (oldIndex, newIndex) async {
                                     final ids =
@@ -460,3 +464,15 @@ ButtonStyle _collectionButtonStyle(BuildContext context) =>
     pickListButtonStyle(context, footer: true).copyWith(
       foregroundColor: const WidgetStatePropertyAll(Colors.white),
     );
+
+/// Cuts the 1 px border lines off the right and bottom of a dragged row.
+class _DragRowClipper extends CustomClipper<Rect> {
+  const _DragRowClipper();
+
+  @override
+  Rect getClip(Size size) =>
+      Rect.fromLTRB(0, 0, size.width - 1, size.height - 1);
+
+  @override
+  bool shouldReclip(_DragRowClipper oldClipper) => false;
+}
