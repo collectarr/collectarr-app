@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- A clicked cover in Covers and Shelves fills with the selection blue instead of staying black until another item is selected.
 - The Settings button is gone from the top right; Settings stays in the navigation drawer, as in the reference.
 - Edit and the other toolbar buttons react as soon as you press them, even if the mouse moves afterwards.
 - Clicking a cover, card or list row with the mouse selects it on press, not on release, so it no longer looks unselected while the button is held.

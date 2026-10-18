@@ -94,7 +94,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
         clipBehavior: Clip.antiAlias,
         padding: flat ? EdgeInsets.zero : tilePadding,
         decoration: BoxDecoration(
-          color: selected
+          color: selected || active
               ? resolvedSelectedColor
               : (flat ? Colors.transparent : palette.field),
           borderRadius: flat ? BorderRadius.zero : kAppRadiusSmall,
