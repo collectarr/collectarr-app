@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/features/library/collections/library_collections_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/app_sortable_row.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,30 +49,26 @@ class LibraryCollectionTabBar extends ConsumerWidget {
                 ),
                 const SizedBox(width: 3),
                 Expanded(
-                  child: ReorderableListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    buildDefaultDragHandles: false,
-                    itemCount: values.length,
-                    onReorderItem: (oldIndex, newIndex) async {
+                  child: AppSortableRow(
+                    onReorder: (oldIndex, newIndex) {
                       final ids = values.map((c) => c.id).toList();
                       final id = ids.removeAt(oldIndex);
                       ids.insert(newIndex, id);
-                      await repo.reorder(mediaKind, ids);
+                      unawaited(repo.reorder(mediaKind, ids));
                     },
-                    itemBuilder: (_, index) {
-                      final collection = values[index];
-                      return ReorderableDragStartListener(
-                        key:
-                            ValueKey('library-collection-tab-${collection.id}'),
-                        index: index,
-                        child: LibraryCollectionTab(
-                          label: collection.name,
-                          isActive: collection.id == activeId,
-                          accent: accent,
-                          onTap: () => select(collection),
+                    children: [
+                      for (final collection in values)
+                        KeyedSubtree(
+                          key: ValueKey(
+                              'library-collection-tab-${collection.id}'),
+                          child: LibraryCollectionTab(
+                            label: collection.name,
+                            isActive: collection.id == activeId,
+                            accent: accent,
+                            onTap: () => select(collection),
+                          ),
                         ),
-                      );
-                    },
+                    ],
                   ),
                 ),
               ],
@@ -103,8 +100,11 @@ class LibraryCollectionTab extends StatelessWidget {
         : palette.isDark
             ? const Color(0xFF131313)
             : palette.surfaceSubtle;
-    final foreground =
-        isActive || palette.isDark ? Colors.white : palette.textPrimary;
+    final foreground = isActive
+        ? Colors.white
+        : palette.isDark
+            ? const Color(0xBFFFFFFF)
+            : palette.textPrimary;
     return Align(
       alignment: Alignment.topLeft,
       child: Padding(
