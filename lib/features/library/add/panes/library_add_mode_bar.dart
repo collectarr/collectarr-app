@@ -623,6 +623,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
               onPressed: onManual,
               style: TextButton.styleFrom(
                 foregroundColor: palette.textPrimary,
+                overlayColor: Colors.transparent,
                 minimumSize: const Size(0, 30),
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -664,19 +665,22 @@ class _LibraryAddModeIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        mouseCursor: WidgetStateMouseCursor.clickable,
-        onTap: onPressed,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-        child: SizedBox(
-          width: 38,
-          height: 30,
-          child: Icon(icon, size: 14, color: appPalette(context).textPrimary),
-        ),
-      ),
-    );
+    return Opacity(
+        opacity: 0.5,
+        child: Tooltip(
+          message: tooltip,
+          child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
+            onTap: onPressed,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+            child: SizedBox(
+              width: 38,
+              height: 30,
+              child:
+                  Icon(icon, size: 14, color: appPalette(context).textPrimary),
+            ),
+          ),
+        ));
   }
 }
 

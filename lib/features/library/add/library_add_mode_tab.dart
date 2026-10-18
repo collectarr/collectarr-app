@@ -23,7 +23,7 @@ class LibraryAddModeTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final background = palette.isDark
-        ? (selected ? const Color(0xff666666) : const Color(0xff505050))
+        ? const Color(0xff666666)
         : (selected ? palette.panelRaised : palette.panel);
     final tab = Material(
       color: background,
@@ -61,7 +61,11 @@ class LibraryAddModeTab extends StatelessWidget {
     );
     return Padding(
       padding: const EdgeInsets.only(right: 3),
-      child: tooltip == null ? tab : Tooltip(message: tooltip, child: tab),
+      // Unselected tabs share the selected colour at half opacity.
+      child: Opacity(
+        opacity: selected ? 1 : 0.5,
+        child: tooltip == null ? tab : Tooltip(message: tooltip, child: tab),
+      ),
     );
   }
 }
