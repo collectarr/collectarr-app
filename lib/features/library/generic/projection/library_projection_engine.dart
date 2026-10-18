@@ -123,6 +123,7 @@ class LibraryProjectionEngine {
           type,
           groupId,
           index: index,
+          sorting: query.sorting,
         );
 
     return LibraryProjection(
@@ -131,6 +132,7 @@ class LibraryProjectionEngine {
       buckets: buckets,
       selectedItem: librarySelectedItem(filteredItems, query.selectedItemId),
       counts: counts,
+      sorting: query.sorting,
     );
   }
 }

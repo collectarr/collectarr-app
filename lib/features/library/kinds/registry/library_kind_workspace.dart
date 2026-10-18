@@ -138,6 +138,12 @@ abstract interface class LibraryKindWorkspace {
     LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
   );
+
+  /// Sort names [item] carries for its folder values of [groupId].
+  Map<String, String> groupBucketSortNamesForEntry(
+    LibraryProjectionView item,
+    LibraryGroupIdRuntime groupId,
+  );
   Object? columnValue(
     LibraryProjectionView item,
     LibraryFieldIdRuntime columnId,
@@ -553,6 +559,16 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     validateProjection(item);
     final targetFields = _typedFieldsForTarget(item.target);
     return targetFields.getGroupSequenceValue(item, groupId);
+  }
+
+  @override
+  Map<String, String> groupBucketSortNamesForEntry(
+    LibraryProjectionView item,
+    LibraryGroupIdRuntime groupId,
+  ) {
+    validateProjection(item);
+    final targetFields = _typedFieldsForTarget(item.target);
+    return targetFields.getGroupBucketSortNames(item, groupId);
   }
 
   @override

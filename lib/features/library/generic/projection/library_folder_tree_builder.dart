@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 
 class LibraryFolderTreeBuilder {
   const LibraryFolderTreeBuilder({
@@ -16,6 +17,7 @@ class LibraryFolderTreeBuilder {
     Set<String> expandedNodeIds = const {},
     String? selectedNodeId,
     LibraryProjectionIndex? index,
+    LibrarySortingOptions sorting = const LibrarySortingOptions(),
   }) {
     final nodes = _buildFolderTreeNodes(
       items,
@@ -26,6 +28,7 @@ class LibraryFolderTreeBuilder {
       expandedNodeIds: expandedNodeIds,
       selectedNodeId: selectedNodeId,
       index: index,
+      sorting: sorting,
     );
     return [
       LibraryFolderTreeNode(
@@ -49,6 +52,7 @@ class LibraryFolderTreeBuilder {
     required Set<String> expandedNodeIds,
     required String? selectedNodeId,
     LibraryProjectionIndex? index,
+    required LibrarySortingOptions sorting,
   }) {
     if (depth >= modes.length) {
       return const <LibraryFolderTreeNode>[];
@@ -64,7 +68,7 @@ class LibraryFolderTreeBuilder {
                 ) ??
             DynamicLibraryGroupId(groupMode));
     final buckets = groupingEngine
-        .buildBuckets(items, type, groupId, index: index)
+        .buildBuckets(items, type, groupId, index: index, sorting: sorting)
         .where((bucket) => bucket.title != genericAllBucketLabel(type));
     final children = <LibraryFolderTreeNode>[];
 
@@ -86,6 +90,7 @@ class LibraryFolderTreeBuilder {
         expandedNodeIds: expandedNodeIds,
         selectedNodeId: selectedNodeId,
         index: index,
+        sorting: sorting,
       );
       final id = libraryFolderTreeNodeId(modes: modes, buckets: nextPath);
       children.add(
@@ -96,6 +101,7 @@ class LibraryFolderTreeBuilder {
           cumulativeCount: bucket.count,
           groupMode: groupMode,
           bucketValue: bucket.title,
+          sortKey: bucket.sortKey,
           children: subtree,
           isExpanded: expandedNodeIds.contains(id),
         ),

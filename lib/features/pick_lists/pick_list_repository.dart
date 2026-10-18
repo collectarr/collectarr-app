@@ -7,13 +7,21 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import 'pick_list_definition_contributor.dart';
 import 'models/pick_list_value.dart';
 
 const _entityType = 'pick_list_value';
+
+/// [PickListRepository.watchSortNames] for one media kind.
+final pickListSortNamesProvider = StreamProvider.autoDispose
+    .family<Map<String, Map<String, String>>, String>((ref, mediaKind) =>
+        PickListRepository(ref.watch(localDatabaseProvider))
+            .watchSortNames(mediaKind));
 
 class PickListRepository {
   PickListRepository(
@@ -68,6 +76,30 @@ class PickListRepository {
         },
       );
     return values;
+  }
+
+  /// Sort Names set on [mediaKind]'s and the shared lists, by list name and
+  /// then by normalized value. A kind's own value wins over a shared one.
+  Stream<Map<String, Map<String, String>>> watchSortNames(String mediaKind) {
+    final query = _db.select(_db.pickListValuesCache)
+      ..where((table) =>
+          table.sortName.isNotNull() &
+          (table.mediaKind.isNull() | table.mediaKind.equals(mediaKind)));
+    return query.watch().map((rows) {
+      final sortNames = <String, Map<String, String>>{};
+      final fromKind = <String, Set<String>>{};
+      for (final row in rows) {
+        final sortName = row.sortName!.trim();
+        if (sortName.isEmpty) continue;
+        final value = normalizePickListValue(row.value);
+        final ownKind = fromKind.putIfAbsent(row.listName, () => <String>{});
+        if (row.mediaKind == null && ownKind.contains(value)) continue;
+        if (row.mediaKind != null) ownKind.add(value);
+        sortNames.putIfAbsent(row.listName, () => <String, String>{})[value] =
+            sortName;
+      }
+      return sortNames;
+    });
   }
 
   Future<List<String>> entryOptions(String listName,

@@ -114,6 +114,9 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
             sequenceValue: group.sequenceValue == null
                 ? null
                 : (context) => group.sequenceValue!(typedContext(context)),
+            bucketSortNames: group.bucketSortNames == null
+                ? null
+                : (context) => group.bucketSortNames!(typedContext(context)),
             subgroupKey: group.subgroupKey == null
                 ? null
                 : (context) => group.subgroupKey!(typedContext(context)),
@@ -308,6 +311,19 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       dto: item.dto as TDto,
     );
     return sequenceValue(context);
+  }
+
+  Map<String, String> getGroupBucketSortNames(
+    LibraryProjectionView item,
+    LibraryGroupIdRuntime groupId,
+  ) {
+    final sortNames = findGroupDefinition(groupId)?.bucketSortNames;
+    if (sortNames == null) return const {};
+    return sortNames(LibraryProjectionContext<TDto>(
+      item: item.source.item,
+      personal: item.source.personal,
+      dto: item.dto as TDto,
+    ));
   }
 
   Object? getColumnValue(

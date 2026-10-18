@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -180,10 +181,14 @@ int _hashStringMap(Map<String, String> value) {
 
 final libraryProjectionProvider = Provider.autoDispose
     .family<LibraryProjection, LibraryProjectionRequest>((ref, request) {
+  final pickListSortNames =
+      ref.watch(pickListSortNamesProvider(request.type.kind.apiValue)).value ??
+          const <String, Map<String, String>>{};
   final sorting = ref.watch(uiPreferencesProvider.select((p) =>
       LibrarySortingOptions(
           useSortTitles: !p.ignoreSortTitles,
-          useSortNames: !p.ignoreSortNames)));
+          useSortNames: !p.ignoreSortNames,
+          pickListSortNames: pickListSortNames)));
   return LibraryProjection.fromShelf(
     sorting: sorting,
     shelf: request.shelf,

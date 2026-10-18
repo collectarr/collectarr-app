@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
+import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 
 final _sequenceNumberRegExp = RegExp(r'^\s*(\d+)');
 
@@ -62,9 +64,20 @@ class LibraryGroupingEngine {
     LibraryKindRegistration type,
     LibraryGroupIdRuntime groupId, {
     LibraryProjectionIndex? index,
+    LibrarySortingOptions sorting = const LibrarySortingOptions(),
   }) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
     final allBucketLabel = genericAllBucketLabel(type);
+    final vocabulary =
+        (workspace.fieldsForGroupModeAcrossTargets(groupId.value) ??
+                workspace.fields)
+            .findGroupDefinition(groupId)
+            ?.bucketVocabulary;
+    final pickListSortNames = sorting.useSortNames && vocabulary != null
+        ? sorting.pickListSortNames[vocabulary.value] ??
+            const <String, String>{}
+        : const <String, String>{};
+    final itemSortNames = <String, String>{};
     final counts = <String, int>{allBucketLabel: items.length};
     final hasSequence = workspace.groupModeSupportsCompletion(groupId);
     final entryCounts = hasSequence
@@ -78,8 +91,15 @@ class LibraryGroupingEngine {
     final entryNumbers = hasSequence ? <String, Set<int>>{} : null;
 
     for (final item in items) {
+      final sortNames = sorting.useSortNames
+          ? workspace.groupBucketSortNamesForEntry(item, groupId)
+          : const <String, String>{};
       for (final bucket in bucketsForItem(item, type, groupId, index: index)) {
         counts[bucket] = (counts[bucket] ?? 0) + 1;
+        if (sortNames[bucket] case final sortName?
+            when sortName.trim().isNotEmpty) {
+          itemSortNames.putIfAbsent(bucket, () => sortName.trim());
+        }
         final number = hasSequence
             ? _parseWholeNumber(
                 workspace.groupSequenceValueForEntry(item, groupId),
@@ -132,6 +152,8 @@ class LibraryGroupingEngine {
           startYear: startYears[entry.key],
           entryCount: entryCounts?[entry.key],
           missingNumbers: gapNumbers[entry.key] ?? const <int>[],
+          sortKey: pickListSortNames[normalizePickListValue(entry.key)] ??
+              itemSortNames[entry.key],
         ),
     ];
 
@@ -142,7 +164,8 @@ class LibraryGroupingEngine {
       if (b.title == allBucketLabel) {
         return 1;
       }
-      return compareLibraryGroupBuckets(a.title, b.title);
+      return compareLibraryGroupBuckets(a.title, b.title,
+          firstSortKey: a.sortKey, secondSortKey: b.sortKey);
     });
 
     return buckets;

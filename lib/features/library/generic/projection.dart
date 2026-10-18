@@ -58,12 +58,16 @@ class LibraryFolderTreeNode {
     required this.cumulativeCount,
     required this.groupMode,
     this.bucketValue,
+    this.sortKey,
     required this.children,
     required this.isExpanded,
   });
 
   final String id;
   final String label;
+
+  /// What the folder is ordered by, when it differs from [label].
+  final String? sortKey;
   final int count;
   final int cumulativeCount;
   final String groupMode;
@@ -80,12 +84,14 @@ class LibraryFolderTreeNode {
     int? cumulativeCount,
     String? groupMode,
     String? bucketValue,
+    String? sortKey,
     List<LibraryFolderTreeNode>? children,
     bool? isExpanded,
   }) {
     return LibraryFolderTreeNode(
       id: id ?? this.id,
       label: label ?? this.label,
+      sortKey: sortKey ?? this.sortKey,
       count: count ?? this.count,
       cumulativeCount: cumulativeCount ?? this.cumulativeCount,
       groupMode: groupMode ?? this.groupMode,
@@ -342,6 +348,7 @@ class LibraryProjection {
     required this.buckets,
     required this.selectedItem,
     required this.counts,
+    this.sorting = const LibrarySortingOptions(),
   });
 
   factory LibraryProjection.forItem(LibraryProjectionView view) {
@@ -417,6 +424,10 @@ class LibraryProjection {
   final List<LibraryBucket> buckets;
   final LibraryProjectionItem? selectedItem;
   final LibraryToolbarCounts counts;
+
+  /// The sort settings this projection was built with; folder trees built
+  /// from it order their folders the same way.
+  final LibrarySortingOptions sorting;
 }
 
 List<LibraryBucket> libraryBucketsForItems(
@@ -527,6 +538,7 @@ List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
   LibraryFolderPreset preset, {
   Set<String> expandedNodeIds = const {},
   String? selectedNodeId,
+  LibrarySortingOptions sorting = const LibrarySortingOptions(),
 }) {
   return const LibraryFolderTreeBuilder().buildTree(
     items: items,
@@ -534,6 +546,7 @@ List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
     preset: preset,
     expandedNodeIds: expandedNodeIds,
     selectedNodeId: selectedNodeId,
+    sorting: sorting,
   );
 }
 

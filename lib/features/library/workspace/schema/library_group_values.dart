@@ -3,12 +3,21 @@ import 'package:collectarr_app/core/utils/natural_text_compare.dart';
 /// Shared label for items without a value for the selected grouping field.
 const libraryEmptyGroupLabel = '[None]';
 
-/// Sort the empty group before named groups, as in CLZ's folder list.
-int compareLibraryGroupBuckets(String first, String second) {
+/// Sort the empty group before named groups, as in CLZ's folder list. Named
+/// groups follow their sort keys (a Sort Name such as "Yamaoka, Akira"), and
+/// then their names.
+int compareLibraryGroupBuckets(
+  String first,
+  String second, {
+  String? firstSortKey,
+  String? secondSortKey,
+}) {
   if (first == second) return 0;
   if (first == libraryEmptyGroupLabel) return -1;
   if (second == libraryEmptyGroupLabel) return 1;
-  return compareNaturalText(first, second);
+  final bySortKey =
+      compareNaturalText(firstSortKey ?? first, secondSortKey ?? second);
+  return bySortKey != 0 ? bySortKey : compareNaturalText(first, second);
 }
 
 /// Normalize scalar and multi-value group projections into distinct buckets.

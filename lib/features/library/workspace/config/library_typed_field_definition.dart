@@ -101,6 +101,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.bucketVocabulary,
     this.supportsJump = false,
     this.sequenceValue,
+    this.bucketSortNames,
     this.bucketManagerListLabel,
     this.drilldownChildId,
     this.folderSetLabel,
@@ -127,6 +128,11 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final bool hasSequenceValue;
   final bool hasSubgroupKey;
   final String? Function(LibraryProjectionContext<TDto> context)? sequenceValue;
+
+  /// Sort names the item itself carries for its folder values (for example a
+  /// credit's "Adams, Bryan"), keyed by the value as [getValue] returns it.
+  final Map<String, String> Function(LibraryProjectionContext<TDto> context)?
+      bucketSortNames;
   final String? bucketManagerListLabel;
   final String? drilldownChildId;
   final String? folderSetLabel;
@@ -152,6 +158,8 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     VocabularyId<String>? bucketVocabulary,
     bool? supportsJump,
     String? Function(LibraryProjectionContext<TDto> context)? sequenceValue,
+    Map<String, String> Function(LibraryProjectionContext<TDto> context)?
+        bucketSortNames,
     String? bucketManagerListLabel,
     String? drilldownChildId,
     String? folderSetLabel,
@@ -172,6 +180,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
       bucketVocabulary: bucketVocabulary ?? this.bucketVocabulary,
       supportsJump: supportsJump ?? this.supportsJump,
       sequenceValue: sequenceValue ?? this.sequenceValue,
+      bucketSortNames: bucketSortNames ?? this.bucketSortNames,
       bucketManagerListLabel:
           bucketManagerListLabel ?? this.bucketManagerListLabel,
       drilldownChildId: drilldownChildId ?? this.drilldownChildId,

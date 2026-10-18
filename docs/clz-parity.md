@@ -60,6 +60,8 @@ Keep these when matching the reference visually.
 | Sort fields | Back/Front Cover sorts | Has Back/Has Front cover the same need; no separate cover sorts |
 | Loan Manager | Current loans only | Also deletes loan records and lends or returns by barcode |
 | Add dialog | Search field only | Advanced artist, label and year fields toggle beside the field; cover search sits in the tab row |
+| Number order | Text compares character by character: 12 before 2, Raft 10 before Raft 2 (checked on CLZ Music Web, 2026-10-18) | Digit runs compare by value: 2 before 12, Raft 2 before Raft 10 |
+| Sort Names | Shown only on the person lists (Artist, Composer, Conductor, Musician, Engineer, Producer, Songwriter, Signee) and Box Set; the other lists store one but hide it, so "The End Records" stays under T | Every pick list shows its Sort Name, and every pick-list folder is ordered by it |
 
 ## Fixed in the 2026-10-15/16 passes
 
@@ -69,7 +71,7 @@ Keep these when matching the reference visually.
 | Cover placeholders | Coloured generated cover with the title and, before that, titles split mid-word | A dark tile with the kind's Font Awesome icon (compact disc, book, film, TV, gamepad, open book, dice), like the reference's per-kind placeholder; comics keep their #number badge |
 | Collection tab reorder | The tabs flashed their old order until the save returned | The dropped order is kept until the saved order arrives. The drag look (tilt, shadow, sliding neighbours) stays Flutter's, a deliberate choice; the reference's jQuery sortable has no tilt and no sliding |
 | Collections button | Filled surface, 14 px bright icon, no check mark | Transparent, #383838 on hover, 16 px icon at 75 %, check mark on the active collection |
-| Folder and text sorting | Folders sorted by raw text: capitals first, Raft 10 before Raft 2, accented names after Z | Case- and accent-insensitive natural order for folders and Music's Title, Format and Genre sorts. Still open: folders do not yet use pick list Sort Names ("The Beatles" sorts under T) |
+| Folder and text sorting | Folders sorted by raw text: capitals first, Raft 10 before Raft 2, accented names after Z, and Sort Names ignored | Case- and accent-insensitive natural order for folders and Music's Title, Artist, Format and Genre sorts. Folders keep their real names but follow Sort Names, as in the reference ("Akira Yamaoka" sits with the Ys as "Yamaoka, Akira"): the pick list's, then for Music artists and credits the credit's or the article rule; Settings can ignore them |
 | Item Spacing edges | Horizontal Cards grew its outer margin with the slider | A fixed 10 px margin in every grid view; the slider only sets the gaps between items |
 | Untitled albums | Add Manually and the editor refused an empty title | Music allows an empty title in both; other kinds still require one |
 | List view | “Wrap column content” never wrapped: an ellipsis truncates after one line even without `maxLines`, leaving taller rows with cut text | Wrapped cells clip instead of ellipsizing; regression test added |
