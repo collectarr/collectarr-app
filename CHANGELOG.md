@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### ✨ Features
+- Add/Update from Core Settings is a dialog with Add from Core and Update from Core tabs: choose per non-personal field whether Add downloads it and whether Update skips, fills or replaces it.
+
 ### 🐛 Fixes
 - Add Albums no longer has Advanced fields, and a search shows a spinner over "Searching..." like the reference.
 - XML, CSV/TXT and PDF exports show a progress window while generating; Download file sits under Generate at the same width, and the PDF page no longer has a Print / Open button.

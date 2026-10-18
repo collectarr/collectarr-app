@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/core_data/core_data_settings.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
@@ -78,11 +79,15 @@ final class LibraryAddSubmissionService {
   const LibraryAddSubmissionService({
     this.prefillLoader,
     this.autocapLoader,
+    this.coreDataLoader,
   });
   final Future<PrefillDefaults> Function(CatalogMediaKind)? prefillLoader;
 
   /// Title capitalization for items added from Core, or null to keep them.
   final Future<TitleCaseSettings?> Function()? autocapLoader;
+
+  /// The kind's Add from Core field choices, or null to download everything.
+  final Future<CoreDataSettings> Function(CatalogMediaKind)? coreDataLoader;
 
   Future<void> _applyPersonalDefaults(LibraryEntryMutations mutations,
       LibraryEntryRef ref, PrefillDefaults? defaults,
@@ -121,9 +126,11 @@ final class LibraryAddSubmissionService {
     final candidates = [for (final item in request.items) item.candidate];
     final defaults = await prefillLoader?.call(request.kind);
     final autocapTitles = await autocapLoader?.call();
+    final coreData = await coreDataLoader?.call(request.kind);
     final itemIds = await const LibraryAddCoordinator().add(
       LibraryAddBatchRequest(
         autocapTitles: autocapTitles,
+        coreData: coreData ?? const CoreDataSettings(),
         dependencies: LibraryAddMutationDependencies(
           catalog: request.catalog,
           entryMutations: request.entryMutations,
@@ -171,9 +178,13 @@ final class LibraryAddSubmissionService {
         ? null
         : await prefillLoader?.call(items.first.summary.kind);
     final autocapTitles = await autocapLoader?.call();
+    final coreData = items.isEmpty
+        ? null
+        : await coreDataLoader?.call(items.first.summary.kind);
     final itemIds = await const LibraryAddCoordinator().add(
       LibraryAddBatchRequest(
         autocapTitles: autocapTitles,
+        coreData: coreData ?? const CoreDataSettings(),
         dependencies: request.dependencies,
         items: items,
         target: request.target,
