@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- Loan opens the Loan Album page under the Loan Manager header, for one item or a selection, instead of a dialog.
 - Field lists in Re-Assign Index Values, Sort and column dialogs have no click ripple.
 - Close buttons in dialog headers and panels have no hover, press or ripple effect, as in the reference.
 - The folder list on the left no longer shows a click ripple, as in the reference.

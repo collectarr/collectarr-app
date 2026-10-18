@@ -105,6 +105,7 @@ Keep these when matching the reference visually.
 | Browsing background | #383838 behind covers, cards, Card Flow and List | #131313 in dark mode in every view except Shelves, which keeps the shelf style |
 | Selection | Items drew unselected until the mouse button was released | Mouse press selects at once; touch and pen select on release |
 | Editor | Floating field labels painted at 75% of 13 px (about 10 px) | Labels paint 13/700 white as in the reference |
+| Loan | The item and selection Loan actions opened dialogs (a single-item form and a separate batch dialog) | Both open the routed Loan Album page under the Loan Manager header: item rows, Loaned To, Notes, Loan Date, Due Date two weeks out, blue "Loan Album" button; the selection lends every selected entry |
 | Column chooser | Cover listed under Main; thin 14 px preset name field | Images group with Back Cover and Front Cover; 34 px 18/700 preset name |
 | Sort fields | No Images group, Format or Genre sort | Has Back/Has Front under Images, Format and Genre under Main |
 | Chrome | Diagonal dark gradient over the accent in the top bar, dialog and editor headers | Flat kind accent; kind icons kept |

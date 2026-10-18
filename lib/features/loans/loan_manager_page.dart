@@ -1,7 +1,7 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_management_page_scaffold.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/loans/loan_item_dialog.dart';
+import 'package:collectarr_app/features/loans/loan_add_page.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -336,17 +336,21 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
 
   Future<void> _createLoan(LibraryEntrySummary libraryEntry) async {
     try {
-      // The same reference "Loan Album" form as the item Loan action.
-      final lent = await showLoanItemDialog(
-        context: context,
-        db: ref.read(localDatabaseProvider),
-        libraryEntryRef: libraryEntry.ref,
-        singularLabel: widget.kind == null
-            ? 'Item'
-            : libraryKindRegistrationForKind(widget.kind!)
-                .identity
-                .singularLabel,
-        title: _catalogTitleFor(libraryEntry),
+      final lent = await showLoanAddPage(
+        context,
+        LoanAddRequest(
+          db: ref.read(localDatabaseProvider),
+          kind: libraryEntry.ref.kind,
+          singularLabel: widget.kind == null
+              ? 'Item'
+              : libraryKindRegistrationForKind(widget.kind!)
+                  .identity
+                  .singularLabel,
+          entries: [
+            LoanAddEntry(
+                ref: libraryEntry.ref, title: _catalogTitleFor(libraryEntry)),
+          ],
+        ),
       );
       if (!lent || !mounted) return;
       ref.invalidate(shelfProvider);

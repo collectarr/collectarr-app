@@ -34,7 +34,10 @@ import 'package:collectarr_app/features/library/workspace/entry/personal_overlay
 import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
+import 'package:collectarr_app/core/routing/app_router.dart';
+import 'package:collectarr_app/features/loans/loan_add_page.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -142,8 +145,15 @@ void main() {
           counts: const LibraryToolbarCounts());
       await tester.pumpWidget(ProviderScope(
           overrides: [localDatabaseProvider.overrideWithValue(db)],
-          child: MaterialApp(
-              home: Scaffold(
+          child: MaterialApp.router(
+              routerConfig: GoRouter(routes: [
+            GoRoute(
+                path: AppRoutes.loanAdd,
+                builder: (context, state) =>
+                    LoanAddPage(request: state.extra! as LoanAddRequest)),
+            GoRoute(
+              path: '/',
+              builder: (context, state) => Scaffold(
                   body: SizedBox(
                       width: 350,
                       child: LibraryInspector(
@@ -158,7 +168,9 @@ void main() {
                         onAddWishlist: null,
                         onRemoveWishlist: null,
                         onEdit: (_) {},
-                      ))))));
+                      ))),
+            ),
+          ]))));
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(find.text('Credits'), 300,
           scrollable: find.byType(Scrollable).first);
@@ -196,6 +208,7 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('Loan'));
       await tester.pumpAndSettle();
+      expect(find.text('Loan Manager'), findsOneWidget);
       expect(find.text('Loan Album'), findsWidgets);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
