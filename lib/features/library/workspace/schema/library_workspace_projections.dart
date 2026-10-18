@@ -73,7 +73,7 @@ class PersonalEntryProjection {
               ? personalUpdatedAt
               : entryUpdatedAt,
       tags: null,
-      collectionStatus: null,
+      collectionStatus: item.entrySummary?.collectionStatus,
       notes: item.entrySummary?.notes,
     );
   }

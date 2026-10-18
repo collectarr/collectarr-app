@@ -27,6 +27,7 @@ final class MusicLibraryEntryProjection {
       purchaseStore: item.personal.purchaseStore,
       pricePaidCents: item.personal.pricePaidCents,
       currency: item.personal.currency,
+      collectionStatus: item.personal.collectionStatus,
       soldAt: item.personal.soldAt,
       soldTo: item.personal.soldTo,
       sellPriceCents: item.personal.sellPriceCents,
