@@ -149,6 +149,7 @@ Keep these when matching the reference visually.
 | Core settings | Only the flat schema fields | Rows come from Core's Catalog Item contract with Core's titles: every field plus Discs, Credits, Artist credits and External links, with each disc's Tracks and Credits indented under Discs. Kinds without a Core catalog show a message |
 | Dialog motion | Fade only | Fade over 150 ms while sliding from a quarter of the dialog's height over 300 ms; reversed on close |
 | Selection under the pointer | A card or list row clicked while hovered turned black until the pointer left it | Turns the selection blue at once; pixel regression test for cards and rows |
+| Artist pick list | Closed after each pick (single select) with round radios; + , × and search icons brighter than the reference | Multi-select “Select Artists” with square check boxes and one Save; + is white at 70 %, × and search are grey, at 16 px |
 
 ## Open differences
 

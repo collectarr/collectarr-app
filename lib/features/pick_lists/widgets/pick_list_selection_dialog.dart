@@ -2,6 +2,7 @@ import 'pick_list_chrome.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import '../models/pick_list_value.dart';
@@ -242,7 +243,9 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       PickListHeader(
-                          title: 'Select ${widget.label}',
+                          title: widget.multiple
+                              ? 'Select ${widget.pluralLabel ?? pickListPluralLabel(widget.label)}'
+                              : 'Select ${widget.label}',
                           onClose: () => Navigator.pop(context)),
                       PickListToolbar(
                           search: TextField(
@@ -259,7 +262,10 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
                                               Colors.transparent,
                                           side: BorderSide.none),
                                       padding: EdgeInsets.zero,
-                                      iconSize: 18,
+                                      iconSize: 16,
+                                      color: appPalette(context)
+                                          .textMuted
+                                          .withValues(alpha: .65),
                                       icon: Icon(query.isEmpty
                                           ? Icons.search
                                           : Icons.close),
