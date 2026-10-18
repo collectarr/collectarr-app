@@ -31,7 +31,7 @@ extension _SettingsConnectionActions on _SettingsPageState {
         );
     unawaited(ref.read(syncControllerProvider.notifier).refreshPendingCount());
     if (mounted && notify != null) {
-      _showToast(notify, tone: AppToastTone.success);
+      showSettingsToast(notify, tone: AppToastTone.success);
     }
   }
 
@@ -48,13 +48,13 @@ extension _SettingsConnectionActions on _SettingsPageState {
       if (!mounted) {
         return;
       }
-      _showToast('Pairing code copied', tone: AppToastTone.success);
+      showSettingsToast('Pairing code copied', tone: AppToastTone.success);
     } catch (error) {
       if (!mounted) {
         return;
       }
-      _showToast(
-        'Could not copy pairing code: ${_describeError(error)}',
+      showSettingsToast(
+        'Could not copy pairing code: ${describeSettingsError(error)}',
         tone: AppToastTone.error,
       );
     }
@@ -123,11 +123,11 @@ extension _SettingsConnectionActions on _SettingsPageState {
       });
       unawaited(
           ref.read(syncControllerProvider.notifier).refreshPendingCount());
-      _showToast('Pairing settings applied', tone: AppToastTone.success);
+      showSettingsToast('Pairing settings applied', tone: AppToastTone.success);
     } catch (error) {
       if (mounted) {
-        _showToast(
-          'Invalid pairing code: ${_describeError(error)}',
+        showSettingsToast(
+          'Invalid pairing code: ${describeSettingsError(error)}',
           tone: AppToastTone.error,
         );
       }
@@ -144,7 +144,8 @@ extension _SettingsConnectionActions on _SettingsPageState {
     });
     unawaited(ref.read(syncControllerProvider.notifier).refreshPendingCount());
     if (mounted) {
-      _showToast('Connection defaults restored', tone: AppToastTone.success);
+      showSettingsToast('Connection defaults restored',
+          tone: AppToastTone.success);
     }
   }
 
@@ -188,7 +189,7 @@ extension _SettingsConnectionActions on _SettingsPageState {
       return;
     }
     final sync = ref.read(syncControllerProvider);
-    _showToast(_syncResultMessage(sync), tone: _syncResultTone(sync));
+    showSettingsToast(_syncResultMessage(sync), tone: _syncResultTone(sync));
   }
 
   Future<void> _keepLocalConflict(SyncRejectedChange change) async {
@@ -199,7 +200,7 @@ extension _SettingsConnectionActions on _SettingsPageState {
       return;
     }
     final pendingCount = ref.read(syncControllerProvider).pendingCount;
-    _showToast(
+    showSettingsToast(
       queued
           ? 'Local version queued for the next sync. ${_pendingSyncLabel(pendingCount)} ready to upload.'
           : 'Local version is no longer available for that conflict.',
