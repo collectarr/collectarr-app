@@ -156,7 +156,6 @@ class LibraryWorkspace extends ConsumerWidget {
     final cardCoverWidth =
         (uiPrefs.cardCoverWidth * cardScale).clamp(60.0, 164.0).toDouble();
     final cardTileWidth = (430.0 * cardScale).clamp(312.0, 620.0).toDouble();
-    final cardTileHeight = (100.0 * cardScale).clamp(100.0, 184.0).toDouble();
     final standardVerticalTileWidth =
         ((viewState.coverSize + 54) * density.cardScaleFactor)
             .clamp(160.0, 244.0)
@@ -255,7 +254,6 @@ class LibraryWorkspace extends ConsumerWidget {
         ),
       LibraryViewMode.horizontalCards => _buildHorizontalCards(
           cardTileWidth: cardTileWidth,
-          cardTileHeight: cardTileHeight,
           cardCoverWidth: cardCoverWidth,
           spacing: gridSpacing,
           backgroundColor: libraryViewBackgroundColor(context),
@@ -545,7 +543,6 @@ class LibraryWorkspace extends ConsumerWidget {
 
   Widget _buildHorizontalCards({
     required double cardTileWidth,
-    required double cardTileHeight,
     required double cardCoverWidth,
     required double spacing,
     required Color backgroundColor,
@@ -571,7 +568,10 @@ class LibraryWorkspace extends ConsumerWidget {
           items: items,
           emptyBuilder: _emptyBuilder,
           maxCrossAxisExtent: tileWidth,
-          mainAxisExtent: cardTileHeight,
+          // The card hugs its cover: cover height plus the 4 px padding.
+          mainAxisExtent: tileCoverWidth *
+                  libraryViewProfileForKind(type.kind).coverGridHeightFactor +
+              8,
           crossAxisSpacing: spacing,
           mainAxisSpacing: spacing,
           padding: EdgeInsets.all(spacing),
