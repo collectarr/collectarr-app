@@ -36,6 +36,22 @@ abstract final class AppIcons {
   static const IconData barcode =
       IconData(0xf02a, fontFamily: _solid, fontPackage: _fontPackage);
   static const String barcodeScanSvg = 'assets/icons/barcode-scan.svg';
+  static const IconData compactDisc =
+      IconData(0xf51f, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData book =
+      IconData(0xf02d, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData tvScreen =
+      IconData(0xf26c, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData film =
+      IconData(0xf008, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData gamepad =
+      IconData(0xf11b, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData bookOpen =
+      IconData(0xf518, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData bookReader =
+      IconData(0xf5da, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData photoFilm =
+      IconData(0xf87c, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData dice =
       IconData(0xf522, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData camera =

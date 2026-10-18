@@ -11,6 +11,7 @@ class LibraryKindIdentity {
     required this.pluralLabel,
     required this.title,
     required this.icon,
+    required this.coverPlaceholderIcon,
     required this.accent,
     required this.preferencePrefix,
     this.routeSegments = const [],
@@ -31,6 +32,9 @@ class LibraryKindIdentity {
   final String pluralLabel;
   final String title;
   final IconData icon;
+
+  /// Shown on the dark tile that stands in for a missing cover.
+  final IconData coverPlaceholderIcon;
   final Color accent;
   final String preferencePrefix;
   final List<String> routeSegments;

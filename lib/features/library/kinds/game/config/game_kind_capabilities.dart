@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import '../game_module_dependencies.dart';
 import 'game_kind_configuration.dart';
 import '../data/game_catalog_transport_codec.dart';
@@ -30,6 +31,7 @@ final gameKindIdentity = const LibraryKindIdentity(
   pluralLabel: 'Games',
   title: 'Games',
   icon: Icons.sports_esports,
+  coverPlaceholderIcon: AppIcons.gamepad,
   accent: Color(0xFFF64458),
   preferencePrefix: 'games',
   routeSegments: ['games', 'game'],

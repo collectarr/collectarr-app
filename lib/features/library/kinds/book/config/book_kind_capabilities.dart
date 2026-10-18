@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import '../book_module_dependencies.dart';
 import 'book_kind_configuration.dart';
 import '../data/book_catalog_transport_codec.dart';
@@ -43,6 +44,7 @@ final bookKindIdentity = const LibraryKindIdentity(
   pluralLabel: 'Books',
   title: 'Books',
   icon: Icons.book_outlined,
+  coverPlaceholderIcon: AppIcons.book,
   accent: Color(0xFFC78446),
   preferencePrefix: 'books',
   routeSegments: ['books', 'book'],

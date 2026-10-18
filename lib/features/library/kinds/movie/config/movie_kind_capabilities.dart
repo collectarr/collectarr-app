@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import '../movie_module_dependencies.dart';
 import 'movie_kind_configuration.dart';
 import '../data/movie_catalog_transport_codec.dart';
@@ -72,6 +73,7 @@ final movieKindIdentity = const LibraryKindIdentity(
   pluralLabel: 'Movies',
   title: 'Movies',
   icon: Icons.movie_outlined,
+  coverPlaceholderIcon: AppIcons.film,
   accent: Color(0xFF42AA55),
   preferencePrefix: 'movies',
   routeSegments: ['movies', 'movie'],

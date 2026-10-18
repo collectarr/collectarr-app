@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import '../tv_module_dependencies.dart';
 import 'tv_kind_configuration.dart';
 import '../add/tv_add_contribution.dart';
@@ -75,6 +76,7 @@ final tvKindIdentity = const LibraryKindIdentity(
   pluralLabel: 'TV Shows',
   title: 'TV',
   icon: Icons.tv_outlined,
+  coverPlaceholderIcon: AppIcons.tvScreen,
   accent: Color(0xFF00A7A0),
   preferencePrefix: 'tv',
   routeSegments: ['tv', 'tv-shows', 'tvshows'],

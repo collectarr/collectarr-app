@@ -148,11 +148,8 @@ void main() {
         // 1. Artist (large, primary)
         expect(find.text('Cannibal Corpse'), findsOneWidget);
 
-        // 2. Title uses the shared detail-heading blue. A missing cover's
-        // placeholder also shows the title, so ignore that copy.
-        final titles = find.text('The Bleeding').evaluate().where((element) =>
-            element.findAncestorWidgetOfExactType<LibraryGeneratedCover>() ==
-            null);
+        // 2. Title uses the shared detail-heading blue.
+        final titles = find.text('The Bleeding').evaluate();
         expect(titles, hasLength(1));
         final titleWidget = titles.single.widget as Text;
         expect(titleWidget.style?.color, const Color(0xFF71AFD9));

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import '../comic_module_dependencies.dart';
 import 'comic_kind_configuration.dart';
 import '../actions/comic_missing_issues_action.dart';
@@ -26,6 +27,7 @@ final comicKindIdentity = const LibraryKindIdentity(
   pluralLabel: 'Comics',
   title: 'Comics',
   icon: Icons.collections_bookmark_outlined,
+  coverPlaceholderIcon: AppIcons.bookOpen,
   accent: Color(0xFF44BFE7),
   preferencePrefix: 'comics',
   routeSegments: ['comics', 'comic'],
