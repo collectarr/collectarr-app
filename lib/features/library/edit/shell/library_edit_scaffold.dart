@@ -14,6 +14,7 @@ import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart' show listEquals;
+import 'package:collectarr_app/ui/app_close_button.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
@@ -437,21 +438,8 @@ class _LibraryEditTitleBar extends StatelessWidget {
         backgroundColor: Colors.transparent,
         foregroundColor: foreground,
         borderColor: Colors.transparent,
-        trailing: IconButton(
-          tooltip: 'Close',
-          onPressed: isBusy ? null : onClose,
-          constraints: const BoxConstraints.tightFor(width: 24, height: 24),
-          padding: EdgeInsets.zero,
-          visualDensity: VisualDensity.standard,
-          style: IconButton.styleFrom(
-            foregroundColor: Colors.white,
-            padding: EdgeInsets.zero,
-            minimumSize: const Size(24, 24),
-            maximumSize: const Size(24, 24),
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          icon: const Icon(AppIcons.close, size: 16, color: Colors.white),
-        ),
+        trailing: AppCloseButton(
+            onPressed: isBusy ? null : onClose, color: Colors.white),
         minHeight: headerMinHeight,
         padding: const EdgeInsets.fromLTRB(15, 6, 10, 6),
         child: Row(
