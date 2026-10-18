@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter/gestures.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../support/fixtures/test_constants.dart';
@@ -11,11 +13,15 @@ import '../../../../support/fixtures/test_constants.dart';
 const _tinyPngBase64 =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX9kAAAAASUVORK5CYII=';
 
+Future<void> _pump(WidgetTester tester, Widget app) =>
+    tester.pumpWidget(ProviderScope(child: app));
+
 void main() {
   testWidgets('narrow interactive covers keep the hover cue compact', (
     tester,
   ) async {
-    await tester.pumpWidget(
+    await _pump(
+      tester,
       MaterialApp(
         home: Scaffold(
           body: Center(
@@ -47,7 +53,8 @@ void main() {
   testWidgets('wide interactive covers still show the full hover label', (
     tester,
   ) async {
-    await tester.pumpWidget(
+    await _pump(
+      tester,
       MaterialApp(
         home: Scaffold(
           body: Center(
@@ -82,7 +89,8 @@ void main() {
   testWidgets('ultra narrow interactive covers do not overflow on hover', (
     tester,
   ) async {
-    await tester.pumpWidget(
+    await _pump(
+      tester,
       MaterialApp(
         home: Scaffold(
           body: Center(
@@ -109,9 +117,10 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('generated cover displays media title and item number',
+  testWidgets('missing cover shows the kind icon and item number',
       (tester) async {
-    await tester.pumpWidget(
+    await _pump(
+      tester,
       const MaterialApp(
         home: SizedBox(
           width: 120,
@@ -124,7 +133,8 @@ void main() {
       ),
     );
 
-    expect(find.text('The Amazing Spider-Man\nVol. 4'), findsOneWidget);
+    expect(find.byIcon(AppIcons.compactDisc), findsOneWidget);
+    expect(find.textContaining('Spider-Man'), findsNothing);
     expect(find.text('#15A'), findsOneWidget);
   });
 
@@ -132,7 +142,8 @@ void main() {
       'interactive cover preview stays open outside and closes explicitly', (
     tester,
   ) async {
-    await tester.pumpWidget(
+    await _pump(
+      tester,
       MaterialApp(
         home: Scaffold(
           body: Center(
@@ -170,7 +181,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(
+    await _pump(
+      tester,
       MaterialApp(
         home: Scaffold(
           body: Center(
@@ -209,7 +221,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(
+    await _pump(
+      tester,
       MaterialApp(
         home: Scaffold(
           body: Center(
@@ -247,7 +260,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(
+    await _pump(
+      tester,
       MaterialApp(
         home: Scaffold(
           body: Center(
@@ -279,7 +293,8 @@ void main() {
   testWidgets('secondary cover control can be disabled for shelf covers', (
     tester,
   ) async {
-    await tester.pumpWidget(
+    await _pump(
+      tester,
       MaterialApp(
         home: Scaffold(
           body: Center(
@@ -306,7 +321,8 @@ void main() {
   });
 
   testWidgets('hover cue can be disabled for inspector covers', (tester) async {
-    await tester.pumpWidget(
+    await _pump(
+      tester,
       MaterialApp(
         home: Scaffold(
           body: Center(

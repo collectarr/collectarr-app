@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/library_square_close_button.dart';
@@ -59,7 +62,6 @@ class LibraryCoverImage extends ConsumerWidget {
 
     final fallbackCover = showPlaceholder
         ? LibraryGeneratedCover(
-            title: title,
             itemNumber: itemNumber,
             borderRadius: borderRadius,
             aspectRatio: fallbackAspectRatio,
@@ -975,9 +977,10 @@ class _CoverFrame extends StatelessWidget {
   }
 }
 
-class LibraryGeneratedCover extends StatelessWidget {
+/// The dark tile standing in for a missing cover: the active kind's icon,
+/// plus the item number where the kind has one.
+class LibraryGeneratedCover extends ConsumerWidget {
   const LibraryGeneratedCover({
-    required this.title,
     this.itemNumber,
     this.borderRadius = 4,
     this.aspectRatio = 2 / 3,
@@ -985,92 +988,28 @@ class LibraryGeneratedCover extends StatelessWidget {
     super.key,
   });
 
-  final String title;
   final String? itemNumber;
   final double borderRadius;
   final double aspectRatio;
   final BoxFit fit;
 
-  static const _palettes = [
-    (Color(0xFF145DA0), Color(0xFFB1D4E0), Color(0xFFFFFFFF)),
-    (Color(0xFFB22222), Color(0xFFFFD166), Color(0xFFFFFFFF)),
-    (Color(0xFF2D6A4F), Color(0xFF95D5B2), Color(0xFFFFFFFF)),
-    (Color(0xFF3D348B), Color(0xFFF7B801), Color(0xFFFFFFFF)),
-    (Color(0xFF22223B), Color(0xFFC9ADA7), Color(0xFFFFFFFF)),
-    (Color(0xFF7F5539), Color(0xFFE6CCB2), Color(0xFF201A16)),
-  ];
-
-  static const _titleWidth = 86.0;
-
-  /// Shrinks the title until its longest word fits on one line, so the
-  /// fixed-width title box never splits a word.
-  static double _wholeWordFontSize(
-    BuildContext context,
-    String text,
-    TextStyle style,
-  ) {
-    final effective = DefaultTextStyle.of(context).style.merge(style);
-    var widest = 0.0;
-    for (final word in text.split(RegExp(r'\s+'))) {
-      if (word.isEmpty) continue;
-      final painter = TextPainter(
-        text: TextSpan(text: word, style: effective),
-        textDirection: TextDirection.ltr,
-        textScaler: MediaQuery.textScalerOf(context),
-        maxLines: 1,
-      )..layout();
-      if (painter.width > widest) widest = painter.width;
-      painter.dispose();
-    }
-    final size = style.fontSize!;
-    return widest <= _titleWidth ? size : size * _titleWidth / widest;
-  }
-
   @override
-  Widget build(BuildContext context) {
-    final palette = _palettes[title.hashCode.abs() % _palettes.length];
-    final displayTitle = title.replaceAll(', Vol.', '\nVol.');
-    final titleStyle = TextStyle(
-      color: palette.$3,
-      fontSize: 20,
-      fontWeight: FontWeight.w700,
-      height: 0.95,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final kind =
+        catalogMediaKindFromValue(ref.watch(selectedLibraryKindProvider));
+    final icon =
+        defaultLibraryKindRegistry.require(kind).identity.coverPlaceholderIcon;
+    final palette = appPalette(context);
     final cover = ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
-      child: DecoratedBox(
-        decoration: BoxDecoration(color: palette.$1),
+      child: ColoredBox(
+        color: palette.panelRaised,
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Container(height: 18, color: palette.$2),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(height: 28, color: const Color(0x33000000)),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 24, 8, 34),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: SizedBox(
-                  width: _titleWidth,
-                  child: Text(
-                    displayTitle,
-                    maxLines: 4,
-                    textAlign: TextAlign.center,
-                    style: titleStyle.copyWith(
-                      fontSize: _wholeWordFontSize(
-                        context,
-                        displayTitle,
-                        titleStyle,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            Center(
+              child: Icon(icon,
+                  size: 72, color: palette.textMuted.withValues(alpha: .35)),
             ),
             if (itemNumber != null)
               Positioned(
@@ -1078,7 +1017,7 @@ class LibraryGeneratedCover extends StatelessWidget {
                 bottom: 6,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: palette.$2,
+                    color: palette.divider,
                     borderRadius: BorderRadius.circular(3),
                   ),
                   child: Padding(
@@ -1087,9 +1026,7 @@ class LibraryGeneratedCover extends StatelessWidget {
                     child: Text(
                       '#$itemNumber',
                       style: TextStyle(
-                        color: palette.$3 == const Color(0xFFFFFFFF)
-                            ? kAppPanel
-                            : palette.$3,
+                        color: palette.textPrimary,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import '../boardgame_module_dependencies.dart';
 import 'boardgame_kind_configuration.dart';
 import '../data/boardgame_catalog_transport_codec.dart';
@@ -35,6 +36,7 @@ final boardGameKindIdentity = const LibraryKindIdentity(
   pluralLabel: 'Board Games',
   title: 'Board Games',
   icon: Icons.casino_outlined,
+  coverPlaceholderIcon: AppIcons.dice,
   accent: Color(0xFFE0A52B),
   preferencePrefix: 'boardgames',
   routeSegments: ['board-games', 'boardgames', 'boardgame'],

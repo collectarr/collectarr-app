@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import '../actions/music_merge_albums.dart';
 import '../music_module_dependencies.dart';
 import 'music_kind_configuration.dart';
@@ -103,6 +104,7 @@ final musicKindIdentity = const LibraryKindIdentity(
   pluralLabel: 'Albums',
   title: 'Music',
   icon: Icons.music_note,
+  coverPlaceholderIcon: AppIcons.compactDisc,
   accent: Color(0xFFF2932F),
   preferencePrefix: 'music',
   routeSegments: ['music'],

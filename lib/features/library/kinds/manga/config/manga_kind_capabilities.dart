@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import '../manga_module_dependencies.dart';
 import 'manga_kind_configuration.dart';
 import '../data/manga_catalog_transport_codec.dart';
@@ -80,6 +81,7 @@ final mangaKindIdentity = const LibraryKindIdentity(
   pluralLabel: 'Manga',
   title: 'Manga',
   icon: Icons.import_contacts_outlined,
+  coverPlaceholderIcon: AppIcons.bookReader,
   accent: Color(0xFFFF6F91),
   preferencePrefix: 'manga',
   routeSegments: ['manga'],

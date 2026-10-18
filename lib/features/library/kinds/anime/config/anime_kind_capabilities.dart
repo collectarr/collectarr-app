@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import '../anime_module_dependencies.dart';
 import 'anime_kind_configuration.dart';
 import '../add/anime_add_contribution.dart';
@@ -74,6 +75,7 @@ final animeKindIdentity = const LibraryKindIdentity(
   pluralLabel: 'Anime',
   title: 'Anime',
   icon: Icons.movie_filter_outlined,
+  coverPlaceholderIcon: AppIcons.photoFilm,
   accent: Color(0xFFC94DFF),
   preferencePrefix: 'anime',
   routeSegments: ['anime'],
