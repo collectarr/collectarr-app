@@ -8,6 +8,9 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
+import 'package:collectarr_app/features/settings/backups/automatic_backup.dart';
+import 'package:collectarr_app/features/settings/backups/automatic_backup_controller.dart';
+import 'package:collectarr_app/features/settings/settings_backups_panel.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
@@ -80,6 +83,7 @@ class _SettingsDataSectionState extends ConsumerState<SettingsDataSection> {
             ],
           ),
         ),
+        const SettingsAutomaticBackupsPanel(),
         SettingsPanel(
           icon: Icons.save_outlined,
           title: 'Database backup & restore',
@@ -286,10 +290,11 @@ class _SettingsDataSectionState extends ConsumerState<SettingsDataSection> {
         builder: (ctx) => AccentAlertDialog(
           headerIcon: AppIcons.backupRestore,
           title: const Text('Restore database'),
-          content: const Text(
+          content: Text(
             'This will replace ALL local data with the backup contents. '
-            'Any current data will be lost. Pending sync changes contained in '
-            'the backup will be kept and uploaded on the next sync. Continue?',
+            '${_keptCopyNote('Current data will be lost.')} Pending sync '
+            'changes contained in the backup will be kept and uploaded on the '
+            'next sync. Continue?',
           ),
           actions: [
             TextButton(
@@ -310,6 +315,8 @@ class _SettingsDataSectionState extends ConsumerState<SettingsDataSection> {
         showSettingsToast('Invalid backup file', tone: AppToastTone.error);
         return;
       }
+      await _backUpBefore(AutomaticBackupReason.beforeRestore);
+      if (!mounted) return;
       await LocalDatabaseMaintenanceCoordinator(ref).restore(data);
       if (mounted) {
         showSettingsToast('Database restored', tone: AppToastTone.success);
@@ -322,15 +329,34 @@ class _SettingsDataSectionState extends ConsumerState<SettingsDataSection> {
     }
   }
 
+  /// Where Automatic backups exist, the data is copied there first.
+  String _keptCopyNote(String withoutBackups) =>
+      ref.read(automaticBackupProvider.notifier).isSupported
+          ? 'A copy of the current data is kept in Automatic backups first.'
+          : withoutBackups;
+
+  /// Keeps a copy of the data a restore or clear is about to replace. If the
+  /// copy fails, the error stops the operation before anything changes.
+  Future<void> _backUpBefore(AutomaticBackupReason reason) async {
+    final backups = ref.read(automaticBackupProvider.notifier);
+    if (!backups.isSupported) return;
+    try {
+      await backups.backUp(reason: reason);
+    } catch (error) {
+      throw StateError('Could not back up the current data first, so '
+          'nothing was changed: ${describeSettingsError(error)}');
+    }
+  }
+
   Future<void> _clearDatabase() async {
     final firstConfirm = await showAppDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
         headerIcon: AppIcons.delete,
         title: const Text('Clear database'),
-        content: const Text(
-          'This will permanently delete ALL local data. '
-          'This action cannot be undone.',
+        content: Text(
+          'This will delete ALL local data. '
+          '${_keptCopyNote('This action cannot be undone.')}',
         ),
         actions: [
           TextButton(
@@ -380,6 +406,8 @@ class _SettingsDataSectionState extends ConsumerState<SettingsDataSection> {
     if (secondConfirm != true || !mounted) return;
 
     try {
+      await _backUpBefore(AutomaticBackupReason.beforeClear);
+      if (!mounted) return;
       await LocalDatabaseMaintenanceCoordinator(ref).clear();
       if (mounted) {
         showSettingsToast('Database cleared', tone: AppToastTone.success);
