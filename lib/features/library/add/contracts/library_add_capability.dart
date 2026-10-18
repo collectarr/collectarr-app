@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/core_data/core_data_settings.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -180,6 +181,10 @@ abstract interface class LibraryAddCapability<
   TDraft createInitialDraft();
   LibraryKindAddDraft createManualDraft();
 
+  /// Structured parts of an entry (tracks, credits and the like) that Core data
+  /// settings can include or skip, beyond the flat schema fields.
+  List<CoreDataField> get coreDataFields => const [];
+
   /// Kind-entry validation copy for a manual candidate that could not be
   /// created. The generic host renders this value but never infers a kind
   /// name or entity terminology itself.
@@ -261,10 +266,13 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.digitalCopyFlagBuilder,
     required this.coreCatalogProjectionBuilder,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
+    this.coreDataFields = const [],
   });
 
   @override
   final CatalogMediaKind kind;
+  @override
+  final List<CoreDataField> coreDataFields;
   final TDraft Function() initialDraftBuilder;
   final LibraryKindAddDraft Function()? manualDraftBuilder;
   final LibraryAddManualCandidateBuilder? manualCandidateBuilder;

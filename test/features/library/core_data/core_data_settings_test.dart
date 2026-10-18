@@ -77,6 +77,57 @@ void main() {
     expect(book.skippedDownloads, isEmpty);
   });
 
+  test('skipping tracks keeps discs but drops their tracks on Add', () {
+    const settings = CoreDataSettings(skippedDownloads: {'discs.tracks'});
+    final result = settings.withoutSkippedDownloads({
+      'title': 'A',
+      'discs': [
+        {
+          'disc_number': 1,
+          'tracks': [1, 2]
+        },
+      ],
+    });
+    expect(result['discs'], [
+      {'disc_number': 1},
+    ]);
+  });
+
+  test('tracks follow their own update mode inside replaced discs', () {
+    const settings = CoreDataSettings(
+      updateModes: {
+        'discs': CoreUpdateMode.replace,
+        'discs.tracks': CoreUpdateMode.skip
+      },
+    );
+    final result = settings.applyUpdate(
+      entryData: {
+        'discs': [
+          {
+            'disc_number': 1,
+            'tracks': ['old']
+          },
+        ],
+      },
+      coreData: {
+        'discs': [
+          {
+            'disc_number': 1,
+            'title': 'New',
+            'tracks': ['new']
+          },
+        ],
+      },
+    );
+    expect(result['discs'], [
+      {
+        'disc_number': 1,
+        'title': 'New',
+        'tracks': ['old']
+      },
+    ]);
+  });
+
   testWidgets('dialog saves a field switched to No on the Add tab',
       (tester) async {
     tester.view.physicalSize = const Size(1280, 1024);

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/core_data/core_data_settings.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -11,9 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Which tab of the dialog opens first.
 enum CoreDataSettingsTab { add, update }
-
-/// One non-personal field the dialog lets the user control.
-typedef CoreDataField = ({String key, String label});
 
 /// Opens Add/Update from Core Settings; returns whether it was saved.
 Future<bool> showCoreDataSettingsDialog({
@@ -62,7 +60,7 @@ class _CoreDataSettingsDialogState
 
   Future<void> _load() async {
     final settings = await CoreDataSettings.load(widget.kind);
-    final fields = await _fieldsForKind();
+    final fields = await _allFields();
     if (!mounted) return;
     setState(() {
       _skipped = {...settings.skippedDownloads};
@@ -92,6 +90,18 @@ class _CoreDataSettingsDialogState
       for (final field in kCanonicalMetadataFields)
         if (!kCoreDataLockedFields.contains(field.key))
           (key: field.key, label: field.label),
+    ];
+  }
+
+  /// Schema fields plus the structured parts the kind stores with an entry
+  /// (tracks, credits and the like), which the flat schema does not list.
+  Future<List<CoreDataField>> _allFields() async {
+    final listed = await _fieldsForKind();
+    final known = {for (final field in listed) field.key};
+    return [
+      ...listed,
+      for (final field in libraryAddForKind(widget.kind).coreDataFields)
+        if (!known.contains(field.key)) field,
     ];
   }
 
