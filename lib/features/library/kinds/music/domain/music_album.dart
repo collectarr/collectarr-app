@@ -153,7 +153,7 @@ final class MusicAlbum implements JsonEncodable {
     _validateContainedIdentity(discs, credits, artistCredits);
     return MusicAlbum(
       id: _catalogItemRef(json['id']),
-      title: _requiredText(json['title'], 'title'),
+      title: _title(json['title']),
       sortTitle: _optionalText(json['sort_title'], 'sort_title'),
       subtitle: _optionalText(json['subtitle'], 'subtitle'),
       artist: _optionalText(json['artist'], 'artist'),
@@ -288,6 +288,14 @@ CatalogItemRef? _catalogItemRef(Object? value) {
     kind: CatalogMediaKind.music,
     id: _requiredText(value, 'id'),
   );
+}
+
+/// A local album may have no title, as in the reference; text is still trimmed.
+String _title(Object? value) {
+  if (value is! String || value != value.trim()) {
+    throw const FormatException('Local Music title must be trimmed text.');
+  }
+  return value;
 }
 
 String _requiredText(Object? value, String field) {

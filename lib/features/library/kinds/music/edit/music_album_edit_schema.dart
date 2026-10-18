@@ -13,7 +13,6 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
     return musicEditHeaderTitle(title: item.title, artist: item.artist);
   },
   validate: (_, draft) {
-    if (draft.values.title.trim().isEmpty) return 'Title is required';
     if (draft.discList.hasUnclassifiedFormat) {
       return 'Choose a family for each custom disc format';
     }
