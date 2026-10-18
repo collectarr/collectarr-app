@@ -55,7 +55,7 @@ Keep these when matching the reference visually.
 | Narrow windows | Folder panel and details keep their widths; the list collapses to nothing and details run off-screen | Folder panel keeps its width, details shrink to their minimum, the list keeps at least 320 px |
 | Settings | One page | The reference page is Appearance > Customization; Connection, Libraries, Proposals, Data, Account, Logs, Covers & layout and Typography are added tabs |
 | Played History | Mark as listened records today | A date beside the button records listens on other days |
-| Search | Search field only | Extra barcode, cover-search and random-pick buttons |
+| Search | Search field only; regular expressions only in the old desktop app | Extra barcode, cover-search and random-pick buttons; "matches:" regular expressions in the local search, never sent to Core |
 | Localization | Application language, time zone and a time display format | English only and the device time zone, shown read-only; Music lengths keep m:ss and h:mm:ss, which CLZ Music shows regardless of its time format |
 | Sort fields | Back/Front Cover sorts | Has Back/Has Front cover the same need; no separate cover sorts |
 | Loan Manager | Current loans only | Also deletes loan records and lends or returns by barcode |

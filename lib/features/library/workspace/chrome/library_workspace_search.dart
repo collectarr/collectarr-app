@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
+import 'package:collectarr_app/features/library/generic/projection/library_search_index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -85,9 +86,27 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
   final GlobalKey _searchBarKey = GlobalKey();
   bool _dismissed = false;
 
+  /// Why the "matches:" expression in the box is invalid, if it is.
+  String? _patternError;
+
+  void _checkPattern() {
+    final error =
+        LibrarySearchPattern.parse(widget.controller.text).regExpError;
+    if (error != _patternError) setState(() => _patternError = error);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_checkPattern);
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
+    widget.controller.addListener(_checkPattern);
+    _patternError =
+        LibrarySearchPattern.parse(widget.controller.text).regExpError;
     if (widget.suggestions.isNotEmpty && widget.onSuggestionSelected != null) {
       _overlayController.show();
     }
@@ -96,6 +115,12 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
   @override
   void didUpdateWidget(covariant LibraryToolbarSearch oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.controller != oldWidget.controller) {
+      oldWidget.controller.removeListener(_checkPattern);
+      widget.controller.addListener(_checkPattern);
+      _patternError =
+          LibrarySearchPattern.parse(widget.controller.text).regExpError;
+    }
     if (widget.suggestions != oldWidget.suggestions) {
       _dismissed = false;
     }
@@ -274,115 +299,126 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
                     overlayChildBuilder: _buildSuggestionsOverlay,
                     child: CompositedTransformTarget(
                       link: _layerLink,
-                      child: DecoratedBox(
-                        key: _searchBarKey,
-                        decoration: BoxDecoration(
-                          color: inputBackground,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: SizedBox(
-                          height: inputHeight,
-                          child: Stack(
-                            children: [
-                              Positioned.fill(
-                                child: TextField(
-                                  key: widget.textFieldKey,
-                                  controller: widget.controller,
-                                  cursorColor: palette.utilityAction,
-                                  onChanged: widget.onChanged,
-                                  onSubmitted: widget.onSearch,
-                                  style: textStyle,
-                                  textAlignVertical: TextAlignVertical.center,
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    filled: false,
-                                    hintText: widget.hintText,
-                                    hintStyle: textStyle?.copyWith(
-                                      color: palette.isDark
-                                          ? const Color(0xff999999)
-                                          : palette.textMuted,
-                                    ),
-                                    border: InputBorder.none,
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                    contentPadding: EdgeInsets.fromLTRB(
-                                      showSearchScope ? 50 : 8,
-                                      5,
-                                      4,
-                                      5,
-                                    ),
-                                    suffixIconConstraints: BoxConstraints(
-                                      minWidth: inlineActionsWidth,
-                                      maxWidth: inlineActionsWidth,
-                                      minHeight: inputHeight,
-                                      maxHeight: inputHeight,
-                                    ),
-                                    suffixIcon: Padding(
-                                      padding: const EdgeInsets.only(right: 2),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          _ToolbarSearchInlineAction(
-                                            tooltip: widget.searchActive
-                                                ? 'Clear search'
-                                                : 'Search',
-                                            onPressed: widget.searchActive
-                                                ? () =>
-                                                    widget.onClearSearch?.call()
-                                                : () => widget.onSearch(
-                                                    widget.controller.text),
-                                            child: Icon(
-                                              widget.searchActive
-                                                  ? AppIcons.close
-                                                  : AppIcons.search,
-                                              size: 14,
-                                              color: iconColor,
-                                            ),
-                                          ),
-                                          if (widget.onScanBarcode != null)
+                      child: Tooltip(
+                        message: _patternError == null
+                            ? ''
+                            : 'Invalid regular expression: ${_patternError!}',
+                        child: DecoratedBox(
+                          key: _searchBarKey,
+                          decoration: BoxDecoration(
+                            color: inputBackground,
+                            borderRadius: BorderRadius.circular(4),
+                            border: _patternError == null
+                                ? null
+                                : Border.all(color: palette.errorBorder),
+                          ),
+                          child: SizedBox(
+                            height: inputHeight,
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: TextField(
+                                    key: widget.textFieldKey,
+                                    controller: widget.controller,
+                                    cursorColor: palette.utilityAction,
+                                    onChanged: widget.onChanged,
+                                    onSubmitted: widget.onSearch,
+                                    style: textStyle,
+                                    textAlignVertical: TextAlignVertical.center,
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      filled: false,
+                                      hintText: widget.hintText,
+                                      hintStyle: textStyle?.copyWith(
+                                        color: palette.isDark
+                                            ? const Color(0xff999999)
+                                            : palette.textMuted,
+                                      ),
+                                      border: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                      contentPadding: EdgeInsets.fromLTRB(
+                                        showSearchScope ? 50 : 8,
+                                        5,
+                                        4,
+                                        5,
+                                      ),
+                                      suffixIconConstraints: BoxConstraints(
+                                        minWidth: inlineActionsWidth,
+                                        maxWidth: inlineActionsWidth,
+                                        minHeight: inputHeight,
+                                        maxHeight: inputHeight,
+                                      ),
+                                      suffixIcon: Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 2),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
                                             _ToolbarSearchInlineAction(
-                                              tooltip: 'Scan barcode',
-                                              onPressed: widget.onScanBarcode!,
-                                              child: SvgPicture.asset(
-                                                AppIcons.barcodeScanSvg,
-                                                key: const ValueKey(
-                                                    'library-search-barcode-glyph'),
-                                                width: 22,
-                                                height: 18,
-                                                colorFilter: ColorFilter.mode(
-                                                    iconColor, BlendMode.srcIn),
+                                              tooltip: widget.searchActive
+                                                  ? 'Clear search'
+                                                  : 'Search',
+                                              onPressed: widget.searchActive
+                                                  ? () => widget.onClearSearch
+                                                      ?.call()
+                                                  : () => widget.onSearch(
+                                                      widget.controller.text),
+                                              child: Icon(
+                                                widget.searchActive
+                                                    ? AppIcons.close
+                                                    : AppIcons.search,
+                                                size: 14,
+                                                color: iconColor,
                                               ),
                                             ),
-                                          if (widget.onScanCover != null)
-                                            _ToolbarSearchInlineAction(
-                                              tooltip: 'Search by cover',
-                                              onPressed: widget.onScanCover!,
-                                              child: Icon(AppIcons.camera,
-                                                  size: 14, color: iconColor),
-                                            ),
-                                          if (widget.onRandomPick != null)
-                                            _ToolbarSearchInlineAction(
-                                              tooltip: 'Random pick',
-                                              onPressed: widget.onRandomPick!,
-                                              child: Icon(AppIcons.dice,
-                                                  size: 14, color: iconColor),
-                                            ),
-                                        ],
+                                            if (widget.onScanBarcode != null)
+                                              _ToolbarSearchInlineAction(
+                                                tooltip: 'Scan barcode',
+                                                onPressed:
+                                                    widget.onScanBarcode!,
+                                                child: SvgPicture.asset(
+                                                  AppIcons.barcodeScanSvg,
+                                                  key: const ValueKey(
+                                                      'library-search-barcode-glyph'),
+                                                  width: 22,
+                                                  height: 18,
+                                                  colorFilter: ColorFilter.mode(
+                                                      iconColor,
+                                                      BlendMode.srcIn),
+                                                ),
+                                              ),
+                                            if (widget.onScanCover != null)
+                                              _ToolbarSearchInlineAction(
+                                                tooltip: 'Search by cover',
+                                                onPressed: widget.onScanCover!,
+                                                child: Icon(AppIcons.camera,
+                                                    size: 14, color: iconColor),
+                                              ),
+                                            if (widget.onRandomPick != null)
+                                              _ToolbarSearchInlineAction(
+                                                tooltip: 'Random pick',
+                                                onPressed: widget.onRandomPick!,
+                                                child: Icon(AppIcons.dice,
+                                                    size: 14, color: iconColor),
+                                              ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              if (showSearchScope)
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: _ToolbarSearchScopeButton(
-                                    selected: widget.searchTarget,
-                                    options: widget.searchTargetOptions,
-                                    onSelected: widget.onSearchTargetChanged!,
+                                if (showSearchScope)
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: _ToolbarSearchScopeButton(
+                                      selected: widget.searchTarget,
+                                      options: widget.searchTargetOptions,
+                                      onSelected: widget.onSearchTargetChanged!,
+                                    ),
                                   ),
-                                ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

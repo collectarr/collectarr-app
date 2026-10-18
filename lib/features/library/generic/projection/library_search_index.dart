@@ -3,6 +3,62 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/foundation.dart';
 
+/// What the quick search box asks for: text the values contain, or, after a
+/// "matches:" prefix as in CLZ, a regular expression they match. Both ignore
+/// letter case.
+@immutable
+final class LibrarySearchPattern {
+  const LibrarySearchPattern._({
+    required this.text,
+    this.regExp,
+    this.regExpError,
+  });
+
+  /// The prefix that turns the rest of the query into a regular expression.
+  static const regExpPrefix = 'matches:';
+
+  static LibrarySearchPattern? _last;
+  static String? _lastQuery;
+
+  /// Parses [query]; the last parse is reused, so filtering a whole list
+  /// compiles its expression once.
+  factory LibrarySearchPattern.parse(String query) {
+    if (query == _lastQuery) return _last!;
+    final trimmed = query.trim();
+    final LibrarySearchPattern pattern;
+    if (trimmed.toLowerCase().startsWith(regExpPrefix)) {
+      final source = trimmed.substring(regExpPrefix.length).trim();
+      RegExp? regExp;
+      String? error;
+      try {
+        regExp = source.isEmpty ? null : RegExp(source, caseSensitive: false);
+      } on FormatException catch (exception) {
+        error = exception.message;
+      }
+      pattern =
+          LibrarySearchPattern._(text: '', regExp: regExp, regExpError: error);
+    } else {
+      pattern = LibrarySearchPattern._(text: trimmed.toLowerCase());
+    }
+    _lastQuery = query;
+    return _last = pattern;
+  }
+
+  /// Lower-cased text to look for, when the query is not an expression.
+  final String text;
+  final RegExp? regExp;
+
+  /// Why the expression after "matches:" is not valid; nothing matches then.
+  final String? regExpError;
+
+  bool get isEmpty => text.isEmpty && regExp == null && regExpError == null;
+
+  bool matches(String value) {
+    if (regExpError != null) return false;
+    return regExp?.hasMatch(value) ?? value.toLowerCase().contains(text);
+  }
+}
+
 @immutable
 final class LibrarySearchDocument {
   const LibrarySearchDocument({
@@ -19,13 +75,13 @@ final class LibrarySearchDocument {
     String query, {
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
-    final trimmed = query.trim().toLowerCase();
-    if (trimmed.isEmpty) return true;
+    final pattern = LibrarySearchPattern.parse(query);
+    if (pattern.isEmpty) return true;
     for (final token in [
       if (searchTarget.includesMedia) ...normalizedTokens,
       if (searchTarget.includesTracks) ...containedTokens,
     ]) {
-      if (token.contains(trimmed)) return true;
+      if (pattern.matches(token)) return true;
     }
     return false;
   }

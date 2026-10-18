@@ -187,4 +187,32 @@ void main() {
     expect(tester.getSize(find.byType(LibraryToolbarSearch)).width, 380);
     expect(tester.getSize(find.byType(TextField)).width, 380);
   });
+
+  testWidgets('an invalid "matches:" expression is marked on the field',
+      (tester) async {
+    final controller = TextEditingController(text: 'matches:(');
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: SizedBox(
+          width: 600,
+          child: LibraryToolbarSearch(
+            controller: controller,
+            hintText: 'Search albums...',
+            onSearch: (_) {},
+            selectionColor: Colors.cyan,
+          ),
+        ),
+      ),
+    ));
+
+    Tooltip tooltip() => tester.widget<Tooltip>(find
+        .ancestor(of: find.byType(TextField), matching: find.byType(Tooltip))
+        .first);
+    expect(tooltip().message, startsWith('Invalid regular expression'));
+
+    controller.text = 'matches:(fixed)';
+    await tester.pump();
+    expect(tooltip().message, isEmpty);
+  });
 }
