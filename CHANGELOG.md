@@ -10,6 +10,7 @@
 - Link Albums follows the reference: a centered 960 px page with a tinted header (progress bar attached to Find matches, unlinked count, match-score counts, bulk link button) and 92 px covers in the table.
 - Drawer sections open and close over 350 ms with the reference's ease curve, and drawer headers have no hover highlight and no click ripple.
 - Dialogs slide down a quarter of their height while fading in and slide back up while fading out, like the reference's modals.
+- A card or list row clicked with the mouse still over it turns blue at once instead of black until the pointer leaves.
 - Add/Update from Core Settings lists every field and list Core describes for the kind, under the names Core gives them, with Tracks and disc Credits indented under Discs; kinds Core has no catalog for say so instead of showing an empty table.
 - Horizontal cards are exactly as tall as their cover plus 4 px padding at any cover size, with no empty bands above or below.
 - Add Albums tabs share one colour with unselected ones at half opacity, and Add Manually has no hover highlight, as in the reference.

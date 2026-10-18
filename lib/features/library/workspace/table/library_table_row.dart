@@ -72,11 +72,14 @@ class LibraryTableInkRow extends StatelessWidget {
                   onTap: onReleaseTap,
                   onDoubleTap: onDoubleTap,
                   onSecondaryTapUp: onSecondaryTapUp,
-                  hoverColor: selected ? Colors.transparent : hoverColor,
+                  // A highlight keeps the alpha it appeared with, so turning
+                  // it transparent on selection paints opaque black; a
+                  // selected row repaints its own fill instead.
+                  hoverColor: selected ? selectedColor : hoverColor,
                   // Row hover changes instantly, as in the reference list.
                   hoverDuration: Duration.zero,
                   // A keyboard-focused row must not hide the selection fill.
-                  focusColor: selected ? Colors.transparent : hoverColor,
+                  focusColor: selected ? selectedColor : hoverColor,
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       resolvedHorizontalMargin,
