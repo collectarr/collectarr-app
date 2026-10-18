@@ -93,6 +93,10 @@ class _LibraryCollectionTabBarState
                   child: ReorderableListView.builder(
                     scrollDirection: Axis.horizontal,
                     buildDefaultDragHandles: false,
+                    // The default proxy adds an elevation shadow that shows as
+                    // a lighter rim on the dragged tab's edges.
+                    proxyDecorator: (child, _, __) =>
+                        Material(type: MaterialType.transparency, child: child),
                     itemCount: values.length,
                     onReorderItem: (oldIndex, newIndex) =>
                         _reorder(repo, values, oldIndex, newIndex),
@@ -158,18 +162,20 @@ class LibraryCollectionTab extends StatelessWidget {
         padding: const EdgeInsets.only(right: 3),
         child: SizedBox(
           height: 27,
-          child: Material(
-            color: background,
-            borderRadius:
-                const BorderRadius.vertical(bottom: Radius.circular(4)),
-            child: InkWell(
-              mouseCursor: WidgetStateMouseCursor.clickable,
+          // Plain box, no ink: the active colour switches instantly and
+          // pressing or hovering draws no splash or highlight.
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: onTap,
-              borderRadius:
-                  const BorderRadius.vertical(bottom: Radius.circular(4)),
               child: Container(
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                    color: background,
+                    borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(4))),
                 child: Text(label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
