@@ -84,7 +84,9 @@ void main() {
       await tester.tap(find.text('Music'));
       await pumpUntilSettled(tester);
 
-      await tester.tap(find.byKey(const Key('nav.settings')));
+      await tester.tap(find.byKey(const Key('app.open-navigation')));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.text('Settings'));
       await pumpUntilSettled(tester);
       expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
       expect(find.byType(AppPageHeader), findsOneWidget);
@@ -94,7 +96,6 @@ void main() {
       await pumpUntilSettled(tester);
       expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
       expect(find.byKey(const Key('nav.library-kind-picker')), findsOneWidget);
-      expect(find.byKey(const Key('nav.settings')), findsOneWidget);
       expect(find.byType(AppPageHeader), findsOneWidget);
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
@@ -163,7 +164,6 @@ void main() {
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byKey(const Key('app.open-navigation')), findsOneWidget);
       expect(find.byKey(const Key('app.kind-icon')), findsOneWidget);
-      expect(find.byKey(const Key('nav.settings')), findsOneWidget);
 
       Future<void> openDrawer() async {
         await tester.tap(find.byKey(const Key('app.open-navigation')));
@@ -195,7 +195,9 @@ void main() {
       expect(find.byType(AppShell), findsOneWidget);
 
       // Navigate to Settings
-      await tester.tap(find.byKey(const Key('nav.settings')));
+      await tester.tap(find.byKey(const Key('app.open-navigation')));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.text('Settings'));
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
 
@@ -234,7 +236,6 @@ void main() {
 
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byKey(const Key('app.open-navigation')), findsOneWidget);
-      expect(find.byKey(const Key('nav.settings')), findsOneWidget);
 
       // Mandatory keys must be present in drawer on mobile
       await tester.tap(find.byKey(const Key('app.open-navigation')));
@@ -249,7 +250,9 @@ void main() {
       expect(find.byType(AppShell), findsOneWidget);
 
       // Navigate to Settings
-      await tester.tap(find.byKey(const Key('nav.settings')));
+      await tester.tap(find.byKey(const Key('app.open-navigation')));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.text('Settings'));
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
 

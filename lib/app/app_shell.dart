@@ -125,8 +125,6 @@ class _AppShellState extends ConsumerState<AppShell> {
               });
             },
           )),
-          onSettings: () =>
-              context.go(AppRoutes.forKind(AppRoutes.settings, activeLibrary)),
         ),
         body: Stack(
           children: [

@@ -51,7 +51,6 @@ void main() {
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byKey(const Key('app.open-navigation')), findsOneWidget);
       expect(find.byKey(const Key('app.brand-title')), findsOneWidget);
-      expect(find.byKey(const Key('nav.settings')), findsOneWidget);
 
       Future<void> openDrawer() async {
         await tester.tap(find.byKey(const Key('app.open-navigation')));
@@ -63,7 +62,6 @@ void main() {
       expect(find.byKey(const Key('nav.library')), findsNothing);
       expect(find.byKey(const Key('nav.more')), findsOneWidget);
       expect(find.byKey(const Key('nav.calendar')), findsOneWidget);
-      expect(find.byKey(const Key('nav.settings')), findsOneWidget);
 
       // Dismiss navigation without changing the current library.
       Navigator.of(tester.element(find.byKey(const Key('nav.more')))).pop();
@@ -82,7 +80,9 @@ void main() {
       expect(find.byType(AppShell), findsOneWidget);
 
       // Navigate to Settings
-      await tester.tap(find.byKey(const Key('nav.settings')));
+      await tester.tap(find.byKey(const Key('app.open-navigation')));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.text('Settings'));
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
 
@@ -117,7 +117,6 @@ void main() {
 
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byKey(const Key('app.open-navigation')), findsOneWidget);
-      expect(find.byKey(const Key('nav.settings')), findsOneWidget);
 
       // Mandatory keys must be present on mobile
       await tester.tap(find.byKey(const Key('app.open-navigation')));
@@ -129,7 +128,9 @@ void main() {
       await pumpUntilSettled(tester);
 
       // Navigate to Settings
-      await tester.tap(find.byKey(const Key('nav.settings')));
+      await tester.tap(find.byKey(const Key('app.open-navigation')));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.text('Settings'));
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
 
