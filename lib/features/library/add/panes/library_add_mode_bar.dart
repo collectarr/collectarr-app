@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -55,7 +56,8 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.mode,
     required this.queryController,
     required this.identifierController,
-    this.catalogNumberController,
+    this.codeSearchTab,
+    this.codeQueryController,
     required this.isSearching,
     required this.onModeChanged,
     required this.onSearch,
@@ -69,7 +71,7 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.onScanCover,
     required this.onLookupIdentifier,
     required this.onScanBarcode,
-    required this.onSearchCatalogNumber,
+    required this.onSearchCode,
     required this.onManual,
     required this.showAdvanced,
     required this.onToggleAdvanced,
@@ -86,8 +88,9 @@ class LibraryAddModeBar extends StatefulWidget {
   final TextEditingController queryController;
   final TextEditingController identifierController;
 
-  /// Set when the kind searches Core by catalog number (adds that tab).
-  final TextEditingController? catalogNumberController;
+  /// Set with [codeQueryController] when the kind adds a code search tab.
+  final LibraryAddCodeSearchTab? codeSearchTab;
+  final TextEditingController? codeQueryController;
   final bool isSearching;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
@@ -101,7 +104,7 @@ class LibraryAddModeBar extends StatefulWidget {
   final VoidCallback onScanCover;
   final VoidCallback onLookupIdentifier;
   final VoidCallback onScanBarcode;
-  final VoidCallback onSearchCatalogNumber;
+  final VoidCallback onSearchCode;
   final VoidCallback onManual;
   final bool showAdvanced;
   final VoidCallback onToggleAdvanced;
@@ -471,7 +474,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
           searchLabel: searchLabels.addSearchTabLabel,
           mode: widget.mode,
           onModeChanged: widget.onModeChanged,
-          showCatalogNumber: widget.catalogNumberController != null,
+          codeSearchTab: widget.codeSearchTab,
           onManual: widget.onManual,
           onCoreDataSettings: widget.onCoreDataSettings,
           onScanCover: widget.canScanCover && !widget.isScanningCover
@@ -529,14 +532,12 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                             trailing: _LibraryAddScanBarcodeButton(
                                 onPressed: widget.onScanBarcode),
                           ),
-                        LibraryAddDialogMode.catalogNumber =>
-                          _LibraryAddModeTextField(
-                            fieldKey: const ValueKey(
-                                'library-add-catalog-number-field'),
-                            controller: widget.catalogNumberController!,
-                            label: 'Catalog No.',
-                            hintText: 'Enter catalog number...',
-                            onSubmitted: widget.onSearchCatalogNumber,
+                        LibraryAddDialogMode.code => _LibraryAddModeTextField(
+                            fieldKey: const ValueKey('library-add-code-field'),
+                            controller: widget.codeQueryController!,
+                            label: widget.codeSearchTab!.label,
+                            hintText: widget.codeSearchTab!.hintText,
+                            onSubmitted: widget.onSearchCode,
                           ),
                       },
                     ),
@@ -549,8 +550,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                               LibraryAddDialogMode.search => _handleSearch,
                               LibraryAddDialogMode.identifier =>
                                 widget.onLookupIdentifier,
-                              LibraryAddDialogMode.catalogNumber =>
-                                widget.onSearchCatalogNumber,
+                              LibraryAddDialogMode.code => widget.onSearchCode,
                             },
                     ),
                   ],
@@ -578,7 +578,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
     required this.searchLabel,
     required this.mode,
     required this.onModeChanged,
-    required this.showCatalogNumber,
+    required this.codeSearchTab,
     required this.onManual,
     this.onCoreDataSettings,
     this.onScanCover,
@@ -587,7 +587,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
   final String searchLabel;
   final LibraryAddDialogMode mode;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
-  final bool showCatalogNumber;
+  final LibraryAddCodeSearchTab? codeSearchTab;
   final VoidCallback onManual;
   final VoidCallback? onCoreDataSettings;
   final VoidCallback? onScanCover;
@@ -626,13 +626,12 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                     selected: mode == LibraryAddDialogMode.identifier,
                     onTap: () => onModeChanged(LibraryAddDialogMode.identifier),
                   ),
-                  if (showCatalogNumber)
+                  if (codeSearchTab case final tab?)
                     LibraryAddModeTab(
                       icon: const Icon(AppIcons.tags),
-                      label: 'Catalog No.',
-                      selected: mode == LibraryAddDialogMode.catalogNumber,
-                      onTap: () =>
-                          onModeChanged(LibraryAddDialogMode.catalogNumber),
+                      label: tab.label,
+                      selected: mode == LibraryAddDialogMode.code,
+                      onTap: () => onModeChanged(LibraryAddDialogMode.code),
                     ),
                   if (onCoreDataSettings != null)
                     _LibraryAddModeIconButton(

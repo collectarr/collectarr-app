@@ -57,9 +57,9 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     );
   }
 
-  void updateCatalogNumber(String catalogNumber) {
+  void updateCodeQuery(String codeQuery) {
     state = state.copyWith(
-      search: state.search.copyWith(catalogNumber: catalogNumber),
+      search: state.search.copyWith(codeQuery: codeQuery),
     );
   }
 

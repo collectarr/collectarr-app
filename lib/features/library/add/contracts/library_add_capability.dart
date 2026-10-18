@@ -81,18 +81,26 @@ class LibraryAddSearchCapability {
   final LibraryAddSearchPresentationCapability presentation;
 }
 
+/// An Add tab that searches Core by one typed code, labelled by the kind.
+class LibraryAddCodeSearchTab {
+  const LibraryAddCodeSearchTab({required this.label, required this.hintText});
+
+  final String label;
+  final String hintText;
+}
+
 class LibraryAddSearchInputCapability {
   const LibraryAddSearchInputCapability({
     this.initialAdvancedFilters = const {},
     this.advancedFilterDescriptorsBuilder = _noAdvancedFilters,
     this.searchInputPredicate,
-    this.searchesCatalogNumber = false,
+    this.codeSearchTab,
   });
 
   final Map<LibraryAddFilterId, LibraryAddFilterValue> initialAdvancedFilters;
 
-  /// Whether Add offers a Catalog No. tab that searches Core by catalog number.
-  final bool searchesCatalogNumber;
+  /// An extra tab that searches Core by a code the kind names.
+  final LibraryAddCodeSearchTab? codeSearchTab;
   final LibraryAddAdvancedFilterDescriptorsBuilder
       advancedFilterDescriptorsBuilder;
   final LibraryAddSearchInputPredicate? searchInputPredicate;

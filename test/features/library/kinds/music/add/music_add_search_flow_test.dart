@@ -7,6 +7,8 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_contribution.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,5 +43,15 @@ void main() {
     expect(controller.state.selection.selectedResultId, isNull);
     expect(controller.state.search.showSuggestions, isFalse);
     expect(controller.state.search.results.single, item);
+  });
+
+  test('the Catalog No. tab searches Core by catalog number', () {
+    final tab = musicKindAdd.search.input.codeSearchTab;
+    expect(tab?.label, 'Catalog No.');
+    final query = buildMusicCoreSearchInput(
+        LibraryAddSearchContext(codeQuery: ' CDP 7 46 '),
+        limit: 25);
+    expect(query.catalogNumber, 'CDP 7 46');
+    expect(query.query, isNull);
   });
 }

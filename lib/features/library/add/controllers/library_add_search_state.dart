@@ -8,7 +8,7 @@ class LibraryAddSearchState {
   LibraryAddSearchState({
     this.query = '',
     this.identifierCode = '',
-    this.catalogNumber = '',
+    this.codeQuery = '',
     this.isSearching = false,
     this.isLoadingMoreResults = false,
     this.hasMoreResults = false,
@@ -34,7 +34,7 @@ class LibraryAddSearchState {
 
   final String query;
   final String identifierCode;
-  final String catalogNumber;
+  final String codeQuery;
   final bool isSearching;
   final bool isLoadingMoreResults;
   final bool hasMoreResults;
@@ -55,7 +55,7 @@ class LibraryAddSearchState {
   LibraryAddSearchState copyWith({
     String? query,
     String? identifierCode,
-    String? catalogNumber,
+    String? codeQuery,
     bool? isSearching,
     bool? isLoadingMoreResults,
     bool? hasMoreResults,
@@ -77,7 +77,7 @@ class LibraryAddSearchState {
     return LibraryAddSearchState(
       query: query ?? this.query,
       identifierCode: identifierCode ?? this.identifierCode,
-      catalogNumber: catalogNumber ?? this.catalogNumber,
+      codeQuery: codeQuery ?? this.codeQuery,
       isSearching: isSearching ?? this.isSearching,
       isLoadingMoreResults: isLoadingMoreResults ?? this.isLoadingMoreResults,
       hasMoreResults: hasMoreResults ?? this.hasMoreResults,
