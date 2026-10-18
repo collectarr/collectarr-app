@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/core_data/core_data_settings.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
@@ -48,6 +49,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     this.hydrationService = const LibraryAddHydrationService(),
     this.submissionService = const LibraryAddSubmissionService(
       prefillLoader: PrefillDefaults.load,
+      coreDataLoader: CoreDataSettings.load,
       autocapLoader: loadAutocapForCoreAdds,
     ),
     this.onAuthSessionExpired,

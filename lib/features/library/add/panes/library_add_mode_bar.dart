@@ -73,7 +73,7 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.advancedFilterState,
     required this.onAdvancedFilterChanged,
     required this.advancedFilterDescriptors,
-    this.onPrefillSettings,
+    this.onCoreDataSettings,
   });
 
   final LibraryKindRegistration type;
@@ -102,7 +102,7 @@ class LibraryAddModeBar extends StatefulWidget {
   final List<LibraryAddAdvancedFilterField<String>> advancedFilterDescriptors;
 
   /// Opens the Add/Update from Core settings from the tab row's gear.
-  final VoidCallback? onPrefillSettings;
+  final VoidCallback? onCoreDataSettings;
 
   @override
   State<LibraryAddModeBar> createState() => _LibraryAddModeBarState();
@@ -464,7 +464,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
           mode: widget.mode,
           onModeChanged: widget.onModeChanged,
           onManual: widget.onManual,
-          onPrefillSettings: widget.onPrefillSettings,
+          onCoreDataSettings: widget.onCoreDataSettings,
           onScanCover: widget.canScanCover && !widget.isScanningCover
               ? widget.onScanCover
               : null,
@@ -555,7 +555,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
     required this.mode,
     required this.onModeChanged,
     required this.onManual,
-    this.onPrefillSettings,
+    this.onCoreDataSettings,
     this.onScanCover,
   });
 
@@ -563,7 +563,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
   final LibraryAddDialogMode mode;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onManual;
-  final VoidCallback? onPrefillSettings;
+  final VoidCallback? onCoreDataSettings;
   final VoidCallback? onScanCover;
 
   @override
@@ -600,11 +600,11 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                     selected: mode == LibraryAddDialogMode.identifier,
                     onTap: () => onModeChanged(LibraryAddDialogMode.identifier),
                   ),
-                  if (onPrefillSettings != null)
+                  if (onCoreDataSettings != null)
                     _LibraryAddModeIconButton(
                       icon: AppIcons.settings,
                       tooltip: 'Add/Update from Core settings',
-                      onPressed: onPrefillSettings!,
+                      onPressed: onCoreDataSettings!,
                     ),
                   if (onScanCover != null)
                     _LibraryAddModeIconButton(

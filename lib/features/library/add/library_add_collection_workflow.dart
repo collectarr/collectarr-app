@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/core_data/core_data_settings.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
 import 'dart:async';
 
@@ -68,9 +69,13 @@ final class LibraryAddBatchRequest {
     this.onLibraryEntryCreated,
     this.onSubmissionCommitted,
     this.autocapTitles,
+    this.coreData = const CoreDataSettings(),
   });
 
   final LibraryAddMutationDependencies dependencies;
+
+  /// Which Core fields the new entries receive.
+  final CoreDataSettings coreData;
   final TitleCaseSettings? autocapTitles;
   final Iterable<CatalogSearchCandidate> items;
   final LibraryAddTarget target;
@@ -141,7 +146,7 @@ final class LibraryAddCoordinator {
           case LibraryAddTarget.entry:
             final libraryEntry = await _createLibraryEntry(
               request: request,
-              item: item,
+              item: _downloadedFields(request, item),
               common: itemCommon,
               tracking: baseTracking,
               kindDraft: kindDraftsByCatalogRef[item.reference],
@@ -164,7 +169,7 @@ final class LibraryAddCoordinator {
                 : baseTracking;
             final libraryEntry = await _createLibraryEntry(
               request: request,
-              item: item,
+              item: _downloadedFields(request, item),
               common: LibraryAddCommonDraft(
                 personalNotes: itemCommon.personalNotes,
                 tags: itemCommon.tags,
@@ -183,6 +188,15 @@ final class LibraryAddCoordinator {
       return submittedItemIds;
     });
   }
+
+  /// [item] without the Core fields the user chose not to download.
+  CatalogSearchCandidate _downloadedFields(
+    LibraryAddBatchRequest request,
+    CatalogSearchCandidate item,
+  ) =>
+      request.coreData.skippedDownloads.isEmpty
+          ? item
+          : item.kindCapability.keepingKindFields(request.coreData.downloads);
 
   Future<LibraryEntryRef> _createLibraryEntry({
     required LibraryAddBatchRequest request,

@@ -185,6 +185,19 @@ final class CatalogSearchCandidateKindCapability {
     return decoder(item);
   }
 
+  /// A candidate carrying only the kind fields [keep] accepts; the original
+  /// transport, and so the catalog cache, stays untouched.
+  CatalogSearchCandidate keepingKindFields(bool Function(String key) keep) =>
+      replacingTransport(mapTransport((item) => CatalogItemDto.raw(
+            id: item.id,
+            mediaKind: item.mediaKind,
+            origin: item.origin,
+            kindData: {
+              for (final entry in item.kindData.entries)
+                if (keep(entry.key)) entry.key: entry.value,
+            },
+          )));
+
   CatalogSearchCandidate replacingKindData(JsonEncodable kindData) =>
       replacingTransport(
           mapTransport((item) => item.replacingKindData(kindData)));

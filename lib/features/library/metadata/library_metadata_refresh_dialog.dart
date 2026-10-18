@@ -12,6 +12,11 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_cache_
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
+import 'package:collectarr_app/features/library/core_data/core_data_settings.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -255,6 +260,7 @@ class _LibraryMetadataRefreshDialogState
 
     final api = ref.read(apiClientProvider);
     final catalog = CatalogTransportRepository(ref.read(localDatabaseProvider));
+    final coreData = await CoreDataSettings.load(widget.type.kind);
     for (final entry in targets) {
       if (!mounted) {
         return;
@@ -273,6 +279,7 @@ class _LibraryMetadataRefreshDialogState
           catalog: catalog,
           input: _inputForEntry(entry),
         );
+        await _applyCoreUpdate(entry, results, coreData);
         _updateRow(
           entry.target.stableKey,
           (row) => row.copyWith(
@@ -302,6 +309,32 @@ class _LibraryMetadataRefreshDialogState
         _finished = true;
       });
     }
+  }
+
+  /// Writes Core's fresh values into the linked entry, as each field's
+  /// Update from Core setting allows.
+  Future<void> _applyCoreUpdate(
+    LibraryProjectionView entry,
+    List<CatalogSearchCandidate> results,
+    CoreDataSettings coreData,
+  ) async {
+    final entryRef = entry.source.libraryEntryRef;
+    if (entryRef == null) return;
+    final record = await LibraryEntryStore(ref.read(localDatabaseProvider))
+        .find(entryRef.kind, entryRef.id.value);
+    final coreRef = record?.sourceCatalogRef;
+    if (record == null || coreRef == null) return;
+    final fresh = results.where((result) => result.catalogRef == coreRef);
+    if (fresh.isEmpty) return;
+    final merged = coreData.applyUpdate(
+      entryData: record.catalogData,
+      coreData:
+          fresh.first.kindCapability.mapTransport((item) => item.kindData),
+    );
+    if (mapEquals(merged, record.catalogData)) return;
+    await ref
+        .read(libraryEntryMutationsProvider)
+        .updateCatalogData(entryRef, merged);
   }
 
   void _updateRow(

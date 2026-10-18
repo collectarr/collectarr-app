@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/features/settings/core_data_settings_dialog.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
@@ -266,6 +267,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _purchaseStoreOptions = options.purchaseStores;
     });
   }
+
+  Future<void> _showCoreDataSettings() => showCoreDataSettingsDialog(
+      context: context,
+      accent: LibraryAccentScope.accentOf(context),
+      kind: widget.type.kind);
 
   Future<bool> _showPrefillSettings({bool confirmAdd = false}) async {
     if (confirmAdd &&
@@ -900,7 +906,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               onAdvancedFilterChanged: _controller.updateAdvancedFilter,
               advancedFilterDescriptors:
                   modeBarRequest.advancedFilterDescriptors,
-              onPrefillSettings: _showPrefillSettings,
+              onCoreDataSettings: _showCoreDataSettings,
             ),
           ),
         ],
