@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/auth/auth_page.dart';
 import 'package:collectarr_app/features/calendar/calendar_page.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/loans/loan_add_page.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
@@ -25,6 +26,7 @@ abstract final class AppRoutes {
   static const restoring = '/restoring';
   static const libraries = '/libraries';
   static const loans = '/loans';
+  static const loanAdd = '/loans/add';
   static String forKind(String path, String kind,
           {Map<String, String> parameters = const {}}) =>
       Uri(path: path, queryParameters: {...parameters, 'kind': kind})
@@ -99,6 +101,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   : catalogMediaKindFromApiValue(
                       state.uri.queryParameters['kind']!),
             ),
+          ),
+          GoRoute(
+            path: AppRoutes.loanAdd,
+            redirect: (context, state) =>
+                state.extra is LoanAddRequest ? null : AppRoutes.libraries,
+            builder: (context, state) =>
+                LoanAddPage(request: state.extra! as LoanAddRequest),
           ),
           GoRoute(
             path: AppRoutes.calendar,

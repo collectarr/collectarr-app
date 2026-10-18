@@ -1,15 +1,11 @@
-import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_favorites_provider.dart';
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
-import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
@@ -20,7 +16,7 @@ import 'package:collectarr_app/features/library/generic/library_custom_field_cac
 import 'package:collectarr_app/features/library/generic/column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/generic/dialogs/batch_loan_dialog.dart';
+import 'package:collectarr_app/features/loans/loan_add_page.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -35,7 +31,6 @@ import 'package:collectarr_app/features/library/generic/transferable_field.dart'
 import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 
 /// Dialog launchers for the library page: add, smart lists, sort,
 /// reading queue, pick-list editors, column chooser, user folders, transfer,
@@ -503,44 +498,32 @@ class LibraryPageDialogCoordinator {
   ) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final context = _page.context;
-    final libraryEntriesByRef = <LibraryEntryRef, LibraryEntrySummary>{};
+    final entries = <LoanAddEntry>[];
     for (final item in projection.filteredItems) {
       final libraryEntry = item.source.libraryEntrySummary;
       if (_page.selection.itemIds.contains(item.target.id) &&
           libraryEntry != null &&
           !_page.activeLoanLibraryEntryIds.contains(libraryEntry.ref)) {
-        libraryEntriesByRef[libraryEntry.ref] = libraryEntry;
+        entries.add(LoanAddEntry(
+          ref: libraryEntry.ref,
+          title: item.dto.primaryLabel,
+          subtitle: item.dto.secondaryLabel,
+          imageUrl: item.dto.imageUrl,
+        ));
       }
     }
-    final libraryEntries = libraryEntriesByRef.values.toList(growable: false);
-    if (libraryEntries.isEmpty || !_page.mounted) return;
+    if (entries.isEmpty || !_page.mounted) return;
 
-    final draft = await showAppDialog<BatchLoanDraft>(
-      context: context,
-      builder: (context) => BatchLoanDialog(
-        accent: _page.accent,
-        itemCount: libraryEntries.length,
+    final lent = await showLoanAddPage(
+      context,
+      LoanAddRequest(
+        db: _page.ref.read(localDatabaseProvider),
+        kind: _page.type.kind,
+        singularLabel: _page.type.identity.singularLabel,
+        entries: entries,
       ),
     );
-    if (draft == null || !_page.mounted || !context.mounted) return;
-
-    final repo = LoanRepository(_page.ref.read(localDatabaseProvider));
-    for (final libraryEntry in libraryEntries) {
-      await repo.create(
-        Loan(
-          id: const Uuid().v4(),
-          libraryEntryRef: libraryEntry.ref,
-          borrowerName: draft.borrowerName,
-          lentDate: draft.lentDate,
-          dueDate: draft.dueDate,
-          notes: draft.notes,
-        ),
-      );
-      await enqueueLibraryEntrySnapshot(
-        _page.ref.read(localDatabaseProvider),
-        libraryEntry.ref,
-      );
-    }
+    if (!lent || !_page.mounted || !context.mounted) return;
 
     _page.rebuild(_page.clearSelection);
     await _page.loadActiveLoanIds();
@@ -548,7 +531,7 @@ class LibraryPageDialogCoordinator {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Created ${libraryEntries.length} loan record${libraryEntries.length == 1 ? '' : 's'}.',
+            'Created ${entries.length} loan record${entries.length == 1 ? '' : 's'}.',
           ),
         ),
       );

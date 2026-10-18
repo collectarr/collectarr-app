@@ -35,7 +35,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:collectarr_app/features/loans/loan_item_dialog.dart';
+import 'package:collectarr_app/features/loans/loan_add_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -135,14 +135,21 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     // history live in the Loan Manager.
     final onLoan = activeLibraryEntry == null || widget.db == null
         ? null
-        : () => showLoanItemDialog(
-              context: context,
-              db: widget.db!,
-              libraryEntryRef: activeLibraryEntry.ref,
-              singularLabel: widget.type.identity.singularLabel,
-              title: selected.dto.primaryLabel,
-              subtitle: selected.dto.secondaryLabel,
-              imageUrl: selected.dto.imageUrl,
+        : () => showLoanAddPage(
+              context,
+              LoanAddRequest(
+                db: widget.db!,
+                kind: widget.type.kind,
+                singularLabel: widget.type.identity.singularLabel,
+                entries: [
+                  LoanAddEntry(
+                    ref: activeLibraryEntry.ref,
+                    title: selected.dto.primaryLabel,
+                    subtitle: selected.dto.secondaryLabel,
+                    imageUrl: selected.dto.imageUrl,
+                  ),
+                ],
+              ),
             );
     void onRefreshMetadata() => _refreshSelectedEntryMetadata(selected);
     void onShare() => _shareInspectorEntry(selected);
