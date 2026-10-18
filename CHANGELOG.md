@@ -66,6 +66,7 @@
 - Kinds now declare their own extra Add search tab, such as Music's Catalog No., instead of the shared Add dialog knowing about catalog numbers.
 
 ### 🧰 CI & Build
+- Code generation and the architecture checks use analyzer 14.5 with build_runner 2.16.2.
 - The generated macOS plugin registrant no longer shows up as modified on Windows.
 - The generated kind registries and field-entry list no longer show up as modified on Windows.
 - `dart run tool/ci_check.dart` runs the same checks as CI before a push, stage by stage.
