@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
 import 'package:collectarr_app/features/library/generic/library_folder_reorder_list.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
@@ -152,8 +153,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                     fontSize: 18, height: 1.25)),
           if (widget.description != null) ...[
             Text(widget.description!,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w400))
+                style: const TextStyle(
+                    fontSize: 14, fontWeight: kAppBoldFontWeight))
           ],
           const SizedBox(height: 15),
           Expanded(

@@ -569,7 +569,7 @@ class LibraryPageDialogCoordinator {
       confirmLabel: 'OK',
       showFavorites: false,
       description:
-          'Re-assign the Index field for all ${items.length} entries, based on the sort order selected below.',
+          'Re-Assign the Index field for all your entries, based on the sort order selected below.',
       currentRules: _page.viewState == null
           ? const <LibrarySortRule>[]
           : [
