@@ -69,6 +69,7 @@
 - Code generation and the architecture checks use analyzer 14.5 with build_runner 2.16.2.
 - The generated macOS plugin registrant no longer shows up as modified on Windows.
 - The generated kind registries and field-entry list no longer show up as modified on Windows.
+- The generated Drift database code and the Linux and Windows plugin registrants no longer show up as modified on Windows.
 - `dart run tool/ci_check.dart` runs the same checks as CI before a push, stage by stage.
 - CI runs checks, unit tests and the Linux integration flows as parallel jobs, so one run shows every failure.
 - A release is one run of the Release workflow: it picks the version from the commits, moves these changelog entries under it, tags, publishes the notes and builds the downloads.
