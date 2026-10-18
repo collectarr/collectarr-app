@@ -7,6 +7,7 @@
 - Add/Update from Core Settings is a dialog with Add from Core and Update from Core tabs: choose per non-personal field whether Add downloads it and whether Update skips, fills or replaces it.
 
 ### 🐛 Fixes
+- Add/Update from Core Settings for Music also lists Disc Details, Tracks, Credits, Artist Credits and External Links, which the flat field schema left out.
 - Horizontal cards are exactly as tall as their cover plus 4 px padding at any cover size, with no empty bands above or below.
 - Add Albums tabs share one colour with unselected ones at half opacity, and Add Manually has no hover highlight, as in the reference.
 - Add Albums no longer has Advanced fields, and a search shows a spinner over "Searching..." like the reference.
