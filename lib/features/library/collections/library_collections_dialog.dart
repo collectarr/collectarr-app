@@ -132,6 +132,11 @@ final class _CollectionsDialog extends ConsumerWidget {
                               data: (values) => ReorderableListView.builder(
                                   shrinkWrap: true,
                                   buildDefaultDragHandles: false,
+                                  // The default proxy adds an elevation
+                                  // shadow along the row's edges.
+                                  proxyDecorator: (child, _, __) => Material(
+                                      type: MaterialType.transparency,
+                                      child: child),
                                   itemCount: values.length,
                                   onReorderItem: (oldIndex, newIndex) async {
                                     final ids =
