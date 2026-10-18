@@ -12,14 +12,15 @@ import 'package:collectarr_app/ui/app_icons.dart';
 
 import 'app_navigation_model.dart';
 
-// Optical roles for the drawer's small text. CSS weight numbers alone do not
-// match the density of the reference web fonts in Flutter's rasterizer.
+// The reference's drawer entries are CSS 400 and its section titles CSS 700;
+// the font registration already compensates Flutter's lighter rasterizing for
+// each weight (see local-font-loading.md).
 TextStyle _drawerTextStyle(Color color, {required bool section}) => TextStyle(
       fontFamily: appFontFamily,
       fontSize: 14,
       height: 20 / 14,
       letterSpacing: 0,
-      fontWeight: section ? FontWeight.w900 : FontWeight.w700,
+      fontWeight: section ? FontWeight.w700 : FontWeight.w400,
       color: color,
     );
 

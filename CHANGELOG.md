@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- Field lists in Re-Assign Index Values, Sort and the column chooser follow the reference: outlined and filled checkboxes, a tri-state checkbox per group, groups that collapse with an animation, an ASC/DESC switch that slides, a smaller remove cross, a larger search icon with a white caret and a white clear disc.
+- The navigation drawer uses regular entries under bold section titles instead of heavy entries under thin titles.
 - Bold text with local Gilroy is as heavy as in the reference instead of about 19 % lighter; restart the app after updating.
 - Editor field names are white at 70% (about #C4C4C4) and fieldset titles are grey, as in the reference.
 - The selection toolbar is the shared blue with icon-only Cancel, Edit and Remove, a divider before the more menu (Print to PDF moved into it) and an "N of M" counter, as in the reference.

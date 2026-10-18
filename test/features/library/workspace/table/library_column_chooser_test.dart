@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -46,13 +47,13 @@ void main() {
       columnGroup: groupFor,
     ))));
     await tester.pumpAndSettle();
-    final search = find.byWidgetPredicate((widget) =>
-        widget is TextField && widget.decoration?.hintText == 'Search fields');
+    final search = find.descendant(
+        of: find.byType(LibraryFieldSelectionSearch),
+        matching: find.byType(TextField));
     await tester.enterText(search, 'Barcode');
     await tester.pumpAndSettle();
     expect(find.text('Publisher'), findsNothing);
-    final clear =
-        find.descendant(of: search, matching: find.byIcon(Icons.cancel));
+    final clear = find.byTooltip('Clear search');
     await tester.tap(clear);
     await tester.pumpAndSettle();
     expect(tester.widget<TextField>(search).controller!.text, isEmpty);

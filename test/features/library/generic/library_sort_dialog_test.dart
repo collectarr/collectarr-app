@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -81,8 +82,9 @@ void main() {
             .widget<AccentDialogHeader>(find.byType(AccentDialogHeader))
             .accent,
         const MusicRegistration().identity.accent);
-    final search = find.byWidgetPredicate((widget) =>
-        widget is TextField && widget.decoration?.hintText == 'Search fields');
+    final search = find.descendant(
+        of: find.byType(LibraryFieldSelectionSearch),
+        matching: find.byType(TextField));
     await tester.enterText(search, 'Barcode');
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('available-sort-music.barcode')),

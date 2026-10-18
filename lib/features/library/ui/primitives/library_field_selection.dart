@@ -148,96 +148,193 @@ class _LibraryFieldSelectionSearchState
   Widget build(BuildContext context) {
     final controller =
         widget.controller ?? (_ownedController ??= TextEditingController());
+    final palette = appPalette(context);
+    final ink = palette.isDark ? Colors.white : palette.textPrimary;
     return SizedBox(
         height: 28,
         child: TextField(
             controller: controller,
             style: librarySelectionFieldStyle,
-            cursorColor: appPalette(context).utilityAction,
+            // The reference types with a white caret.
+            cursorColor: ink,
             onChanged: (value) {
               setState(() {});
               widget.onChanged(value);
             },
-            decoration: pickListInputDecoration(context,
-                    hintText: 'Search fields')
-                .copyWith(
-                    contentPadding: EdgeInsets.zero,
-                    prefixIcon: const Icon(Icons.search, size: 16),
-                    prefixIconConstraints:
-                        const BoxConstraints.tightFor(width: 30, height: 26),
-                    suffixIcon: controller.text.isEmpty
-                        ? null
-                        : IconButton(
-                            tooltip: 'Clear search',
-                            padding: EdgeInsets.zero,
-                            icon: const Icon(Icons.cancel, size: 16),
-                            onPressed: () {
-                              controller.clear();
-                              setState(() {});
-                              widget.onChanged('');
-                            }),
-                    suffixIconConstraints:
-                        const BoxConstraints.tightFor(width: 26, height: 26))));
+            decoration: pickListInputDecoration(context).copyWith(
+                contentPadding: EdgeInsets.zero,
+                prefixIcon: Icon(AppIcons.search, size: 16, color: ink),
+                prefixIconConstraints:
+                    const BoxConstraints.tightFor(width: 30, height: 26),
+                suffixIcon: controller.text.isEmpty
+                    ? null
+                    : Tooltip(
+                        message: 'Clear search',
+                        child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  controller.clear();
+                                  setState(() {});
+                                  widget.onChanged('');
+                                },
+                                // A filled disc with the cross cut out, as in
+                                // the reference.
+                                child: Center(
+                                    child: Container(
+                                        width: 16,
+                                        height: 16,
+                                        decoration: BoxDecoration(
+                                            color: ink, shape: BoxShape.circle),
+                                        child: Icon(AppIcons.close,
+                                            size: 9,
+                                            color: palette.isDark
+                                                ? const Color(0xFF444444)
+                                                : palette.field)))))),
+                suffixIconConstraints:
+                    const BoxConstraints.tightFor(width: 26, height: 26))));
   }
 }
 
-class LibraryFieldSelectionCategory extends StatelessWidget {
+/// Check state of a whole field group.
+enum LibraryFieldCheckState { none, some, all }
+
+/// The reference's 16 px square: a 2 px outline, a white fill with a dark
+/// tick when checked, or a dash when only some fields are.
+class LibraryFieldCheckbox extends StatelessWidget {
+  const LibraryFieldCheckbox({super.key, required this.state});
+  final LibraryFieldCheckState state;
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final ink = palette.isDark ? Colors.white : palette.textPrimary;
+    final dark = palette.isDark ? const Color(0xFF262626) : palette.panel;
+    final filled = state == LibraryFieldCheckState.all;
+    return Container(
+        width: 16,
+        height: 16,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            color: filled ? ink : Colors.transparent,
+            borderRadius: BorderRadius.circular(3),
+            border: filled ? null : Border.all(color: ink, width: 2)),
+        child: switch (state) {
+          LibraryFieldCheckState.all =>
+            Icon(AppIcons.check, size: 11, color: dark),
+          LibraryFieldCheckState.some =>
+            Container(width: 8, height: 2, color: ink),
+          LibraryFieldCheckState.none => null,
+        });
+  }
+}
+
+class LibraryFieldSelectionCategory extends StatefulWidget {
   const LibraryFieldSelectionCategory(
       {super.key,
       required this.title,
       required this.expanded,
       required this.onToggle,
       required this.children,
-      this.selected,
+      this.check,
       this.onToggleAll});
   final String title;
   final bool expanded;
   final VoidCallback onToggle;
   final List<Widget> children;
-  final bool? selected;
+
+  /// Group checkbox state; null shows no checkbox.
+  final LibraryFieldCheckState? check;
   final VoidCallback? onToggleAll;
   @override
-  Widget build(BuildContext context) => Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Material(
-            color: pickListToolbar(context),
-            borderRadius: BorderRadius.circular(4),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-                onTap: onToggle,
-                child: SizedBox(
-                    height: 28,
-                    child: Row(children: [
-                      if (selected != null)
-                        SizedBox(
-                            width: 28,
-                            child: InkWell(
-                                onTap: onToggleAll,
-                                child: Icon(
-                                    selected!
-                                        ? Icons.check_box
-                                        : Icons.check_box_outline_blank,
-                                    size: 16,
-                                    color: selected!
-                                        ? appPalette(context).accent
-                                        : appPalette(context).textMuted)))
-                      else
-                        const SizedBox(width: 8),
-                      Expanded(
-                          child:
-                              Text(title, style: librarySelectionFieldStyle)),
-                      SizedBox(
-                          width: 28,
-                          child: Icon(
-                              expanded
-                                  ? Icons.keyboard_arrow_up
-                                  : Icons.keyboard_arrow_down,
-                              size: 18)),
-                    ])))),
-        const SizedBox(height: 1),
-        if (expanded) ...children,
-      ]));
+  State<LibraryFieldSelectionCategory> createState() =>
+      _LibraryFieldSelectionCategoryState();
+}
+
+class _LibraryFieldSelectionCategoryState
+    extends State<LibraryFieldSelectionCategory>
+    with SingleTickerProviderStateMixin {
+  // Bootstrap's collapse: height over 350 ms with the default ease.
+  late final AnimationController _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+      value: widget.expanded ? 1 : 0);
+  late final Animation<double> _height =
+      CurvedAnimation(parent: _controller, curve: Curves.ease);
+
+  @override
+  void didUpdateWidget(LibraryFieldSelectionCategory oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.expanded == oldWidget.expanded) return;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.value = widget.expanded ? 1 : 0;
+    } else {
+      widget.expanded ? _controller.forward() : _controller.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final check = widget.check;
+    return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Material(
+                  color: pickListToolbar(context),
+                  borderRadius: BorderRadius.circular(4),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                      onTap: widget.onToggle,
+                      child: SizedBox(
+                          height: 28,
+                          child: Row(children: [
+                            if (check != null)
+                              GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: widget.onToggleAll,
+                                  child: SizedBox(
+                                      width: 28,
+                                      child: Center(
+                                          child: LibraryFieldCheckbox(
+                                              state: check))))
+                            else
+                              const SizedBox(width: 8),
+                            Expanded(
+                                child: Text(widget.title,
+                                    style: librarySelectionFieldStyle)),
+                            SizedBox(
+                                width: 28,
+                                child: AnimatedRotation(
+                                    turns: widget.expanded ? 0 : 0.5,
+                                    duration: const Duration(milliseconds: 100),
+                                    curve: Curves.linear,
+                                    child: const Icon(AppIcons.chevronUp,
+                                        size: 14))),
+                          ])))),
+              const SizedBox(height: 1),
+              AnimatedBuilder(
+                  animation: _height,
+                  builder: (context, child) => _controller.isDismissed
+                      ? const SizedBox.shrink()
+                      : ClipRect(
+                          child: Align(
+                              alignment: Alignment.topCenter,
+                              heightFactor: _height.value,
+                              child: child)),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: widget.children)),
+            ]));
+  }
 }
 
 class LibraryFieldSelectionCheckbox extends StatelessWidget {
@@ -267,14 +364,10 @@ class LibraryFieldSelectionCheckbox extends StatelessWidget {
               child: Padding(
                   padding: const EdgeInsets.only(left: 5, right: 7),
                   child: Row(children: [
-                    Icon(
-                        selected
-                            ? Icons.check_box
-                            : Icons.check_box_outline_blank,
-                        size: 16,
-                        color: selected
-                            ? appPalette(context).accent
-                            : appPalette(context).textMuted),
+                    LibraryFieldCheckbox(
+                        state: selected
+                            ? LibraryFieldCheckState.all
+                            : LibraryFieldCheckState.none),
                     const SizedBox(width: 5),
                     Expanded(
                         child: Text(label,
@@ -319,41 +412,84 @@ class LibrarySelectedFieldRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis)),
           if (direction != null)
-            SizedBox(
-                height: 22,
-                child: TextButton(
-                    style: TextButton.styleFrom(
-                        backgroundColor: palette.textPrimary,
-                        foregroundColor: palette.panel,
-                        minimumSize: const Size(42, 22),
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        textStyle:
-                            librarySelectionFieldStyle.copyWith(fontSize: 12),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(3))),
-                    onPressed: onToggleDirection,
-                    child: Text(direction!))),
-          IconButton(
-              tooltip: removeTooltip,
-              onPressed: onRemove,
-              style: IconButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: const Size(28, 26),
-                      maximumSize: const Size(28, 26),
-                      backgroundColor: Colors.transparent,
-                      disabledBackgroundColor: Colors.transparent,
-                      overlayColor: Colors.transparent,
-                      side: BorderSide.none,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap)
-                  .copyWith(
-                      foregroundColor: WidgetStateProperty.resolveWith(
-                          (states) => states.contains(WidgetState.hovered)
-                              ? Theme.of(context).colorScheme.error
-                              : states.contains(WidgetState.disabled)
-                                  ? palette.textMuted
-                                  : palette.textPrimary)),
-              icon: const Icon(AppIcons.close, size: 16)),
+            _SortDirectionSwitch(
+                ascending: direction == 'ASC', onTap: onToggleDirection),
+          Tooltip(
+              message: removeTooltip,
+              child: MouseRegion(
+                  cursor: onRemove == null
+                      ? MouseCursor.defer
+                      : SystemMouseCursors.click,
+                  child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onRemove,
+                      child: SizedBox(
+                          width: 25,
+                          height: 26,
+                          child: Center(
+                              child: Icon(AppIcons.close,
+                                  size: 12,
+                                  color: onRemove == null
+                                      ? palette.textMuted
+                                      : palette.textPrimary)))))),
         ]));
+  }
+}
+
+/// The reference's ASC/DESC switch: a 41 x 20 window over two 12 px labels
+/// that slides 200 ms linear between them.
+class _SortDirectionSwitch extends StatelessWidget {
+  const _SortDirectionSwitch({required this.ascending, required this.onTap});
+  final bool ascending;
+  final VoidCallback? onTap;
+  static const _width = 41.0;
+  static const _height = 20.0;
+
+  Widget _label(String text, Color color, Color fill, Color border) =>
+      Container(
+          width: _width,
+          height: _height,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+              color: fill,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: border)),
+          child: Text(text,
+              style: TextStyle(
+                  fontFamily: appFontFamily,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  height: 18 / 12,
+                  color: color)));
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final ink = palette.isDark ? Colors.white : palette.textPrimary;
+    final dark = palette.isDark ? const Color(0xFF1D1D1D) : palette.panel;
+    return MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: SizedBox(
+                width: _width,
+                height: _height,
+                child: ClipRect(
+                    child: Stack(children: [
+                  AnimatedPositioned(
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 200),
+                      curve: Curves.linear,
+                      left: ascending ? -_width : 0,
+                      top: 0,
+                      width: _width * 2,
+                      height: _height,
+                      child: Row(children: [
+                        _label('DESC', ink, Colors.transparent, ink),
+                        _label('ASC', dark, ink, ink),
+                      ])),
+                ])))));
   }
 }

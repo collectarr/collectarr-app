@@ -181,6 +181,9 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                         onToggle: () => setState(() => _expandedGroups[group] =
                             !(_expandedGroups[group] ??
                                 group == 'Main' || group == 'Images')),
+                        check: _groupCheck(_groupColumns(group, columns)),
+                        onToggleAll: () =>
+                            _toggleGroup(_groupColumns(group, columns)),
                         children: [
                           for (final column in _groupColumns(group, columns))
                             LibraryFieldSelectionCheckbox(
@@ -345,6 +348,37 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   bool _defaultAscending(String column) {
     return widget.defaultAscendingForColumn?.call(column) ??
         _defaultSortAscending(widget.type, column);
+  }
+
+  LibraryFieldCheckState _groupCheck(List<String> columns) {
+    final chosen = columns
+        .where((column) => _rules.any((rule) => rule.column == column))
+        .length;
+    return chosen == 0
+        ? LibraryFieldCheckState.none
+        : chosen == columns.length
+            ? LibraryFieldCheckState.all
+            : LibraryFieldCheckState.some;
+  }
+
+  // Selects every field of the group, or clears them when all are selected.
+  // At least one sort field always remains.
+  void _toggleGroup(List<String> columns) {
+    setState(() {
+      if (_groupCheck(columns) == LibraryFieldCheckState.all) {
+        final remaining =
+            _rules.where((rule) => !columns.contains(rule.column)).toList();
+        if (remaining.isNotEmpty) _rules = remaining;
+        return;
+      }
+      _rules = _dedupeRules([
+        ..._rules,
+        for (final column in columns)
+          if (!_rules.any((rule) => rule.column == column))
+            LibrarySortRule(
+                column: column, ascending: _defaultAscending(column)),
+      ]);
+    });
   }
 
   void _toggleColumn(String column) {
