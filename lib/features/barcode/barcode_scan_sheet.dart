@@ -89,7 +89,8 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
                 AppCloseButton(
                     onPressed: () => Navigator.of(context).pop(),
                     size: 40,
-                    iconSize: 24),
+                    iconSize: 24,
+                    icon: Icons.close),
               ],
             ),
             if (widget.description != null) ...[

@@ -10,12 +10,14 @@ class AppCloseButton extends StatelessWidget {
     this.color,
     this.size = 24,
     this.iconSize = 16,
+    this.icon = AppIcons.close,
   });
 
   final VoidCallback? onPressed;
   final Color? color;
   final double size;
   final double iconSize;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) => IconButton(
@@ -37,6 +39,6 @@ class AppCloseButton extends StatelessWidget {
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ).copyWith(
             overlayColor: const WidgetStatePropertyAll(Colors.transparent)),
-        icon: Icon(AppIcons.close, size: iconSize),
+        icon: Icon(icon, size: iconSize),
       );
 }

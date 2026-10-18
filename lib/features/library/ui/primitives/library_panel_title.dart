@@ -92,7 +92,8 @@ class LibraryPanelTitle extends StatelessWidget {
           ],
           if (onClose != null) ...[
             const SizedBox(width: 8),
-            AppCloseButton(onPressed: onClose, size: 32, iconSize: 18),
+            AppCloseButton(
+                onPressed: onClose, size: 32, iconSize: 18, icon: Icons.close),
           ],
         ],
       ),
