@@ -5,5 +5,6 @@ String musicEditHeaderTitle({required String title, String? artist}) {
       .trim();
   final albumArtist = artist?.trim();
   if (albumArtist == null || albumArtist.isEmpty) return albumTitle;
+  if (albumTitle.isEmpty) return albumArtist;
   return '$albumTitle / $albumArtist';
 }

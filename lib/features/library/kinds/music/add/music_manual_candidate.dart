@@ -16,9 +16,7 @@ CatalogSearchCandidate? buildMusicManualCandidate(
   required String title,
 }) {
   if (draft is! MusicAddManualDraft) return null;
-  if (title.trim().isEmpty || musicAddSchema.validate!(draft) != null) {
-    return null;
-  }
+  if (musicAddSchema.validate!(draft) != null) return null;
 
   final normalizedTitle = title.trim();
   final proposal = buildMusicManualProposalData(draft, title: normalizedTitle);
@@ -32,9 +30,16 @@ CatalogSearchCandidate? buildMusicManualCandidate(
     'revision': 1,
     ...proposal,
   };
-  final musicItem = MusicCatalogMapper.fromCatalogPayload(itemJson);
-  final localMusic = MusicAlbum.fromJson(
-      {...musicItem.toJson(), 'discs': _candidateDiscs(draft)});
+  // Core's contract needs a title, a private local album does not: the
+  // payload is checked under a stand-in and the real (possibly empty) title
+  // is restored on the local album.
+  final musicItem = MusicCatalogMapper.fromCatalogPayload(
+      {...itemJson, 'title': normalizedTitle.isEmpty ? '-' : normalizedTitle});
+  final localMusic = MusicAlbum.fromJson({
+    ...musicItem.toJson(),
+    'title': normalizedTitle,
+    'discs': _candidateDiscs(draft)
+  });
   final item = MusicCatalogMapper.toLocalCatalogItemDto(localMusic);
   return CatalogSearchCandidate.fromItem(item);
 }
@@ -47,9 +52,7 @@ Map<String, Object?>? buildMusicManualProposalData(
   required String title,
 }) {
   if (draft is! MusicAddManualDraft) return null;
-  if (title.trim().isEmpty || musicAddSchema.validate!(draft) != null) {
-    return null;
-  }
+  if (musicAddSchema.validate!(draft) != null) return null;
 
   final releaseDateParts = draft.releaseDateParts;
   final barcode = _textOrNull(draft.barcode);
