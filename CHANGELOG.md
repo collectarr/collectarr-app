@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- Add Albums no longer has Advanced fields, and a search shows a spinner over "Searching..." like the reference.
 - XML, CSV/TXT and PDF exports show a progress window while generating; Download file sits under Generate at the same width, and the PDF page no longer has a Print / Open button.
 - Covers and vertical cards drop the extra border, padding and heavy shadow and use the reference's thin black shadow.
 - Horizontal cards keep the cover's aspect ratio and fill the card height like the reference, with no empty bands around the image.

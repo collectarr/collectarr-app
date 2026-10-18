@@ -5,10 +5,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album.d
 export 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_facets.dart'
     show musicLibraryFacetModule, musicLibraryFacetDefinitions;
 
-const musicArtistFilterId = musicAddArtistFilterId;
-const musicLabelFilterId = musicAddLabelFilterId;
-const musicYearFilterId = musicAddYearFilterId;
-
 TransferableField musicTransferField({
   required String key,
   required String label,
