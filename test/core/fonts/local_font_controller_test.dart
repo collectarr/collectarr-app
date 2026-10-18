@@ -57,6 +57,27 @@ void main() {
     }
   });
 
+  test('bold slot borrows the heaviest local face to match the reference ink',
+      () async {
+    for (final heavy in [900, 800]) {
+      SharedPreferences.setMockInitialValues({});
+      final registered = <int, Uint8List>{};
+      final controller = LocalFontController(registerFont: (_, bytes) async {
+        registered[fontWeight(bytes)] = Uint8List.fromList(bytes);
+      });
+      await controller.initialize(discover: false);
+      await controller.importFaces([face(400), face(700), face(heavy)]);
+      // 700 uses the heavy outlines; the heavy face keeps its own slot when
+      // it is 800 or 900.
+      expect(LocalFontFace.parse(registered[700]!, source: 'Imported').name,
+          contains('$heavy'));
+      expect(LocalFontFace.parse(registered[heavy]!, source: 'Imported').name,
+          contains('$heavy'));
+      expect(controller.faces[700]!.name, contains('700'));
+      controller.dispose();
+    }
+  });
+
   test('fills every missing UI weight, persists and restores imported faces',
       () async {
     final registered = <int>[];
