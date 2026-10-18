@@ -162,7 +162,7 @@ class LibraryWorkspace extends ConsumerWidget {
             .clamp(160.0, 244.0)
             .toDouble();
     final cardFooterHeight =
-        items.any((item) => item.customFieldBadges.isNotEmpty) ? 82.0 : 64.0;
+        items.any((item) => item.customFieldBadges.isNotEmpty) ? 80.0 : 62.0;
     final standardVerticalTileHeight = standardVerticalTileWidth *
             libraryViewProfileForKind(type.kind).coverGridHeightFactor +
         cardFooterHeight;

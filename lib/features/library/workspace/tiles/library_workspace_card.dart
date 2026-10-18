@@ -301,11 +301,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: background,
-          borderRadius: BorderRadius.zero,
-          border: Border.all(
-            color: selected ? palette.utilityAction : palette.cardBorder,
-            width: 1,
-          ),
+          boxShadow: const [
+            BoxShadow(color: Colors.black, offset: Offset(0, 1), blurRadius: 3),
+          ],
         ),
         child: AppPressTap(
             onTap: onTap,
@@ -375,7 +373,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                                     color: titleColor,
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.w700,
-                                                    height: 1.4))),
+                                                    height: 1.4286))),
                                         Row(children: [
                                           Expanded(
                                               child: Text(
@@ -475,6 +473,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
             borderRadius: borderRadius,
             enableFullscreen: false,
             enableSecondaryControl: false,
+            showFrame: false,
           );
     final wrapOverlay = presentation.coverOverlayBuilder;
     return wrapOverlay != null ? wrapOverlay(cover) : cover;

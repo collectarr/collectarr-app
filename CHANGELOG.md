@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- Covers and vertical cards drop the extra border, padding and heavy shadow and use the reference's thin black shadow.
 - Horizontal cards keep the cover's aspect ratio and fill the card height like the reference, with no empty bands around the image.
 - Field lists in Re-Assign Index Values, Sort and the column chooser follow the reference: outlined and filled checkboxes, a tri-state checkbox per group, groups that collapse with an animation, an ASC/DESC switch that slides, a smaller remove cross, a larger search icon with a white caret and a white clear disc.
 - The navigation drawer uses regular entries under bold section titles instead of heavy entries under thin titles.

@@ -1005,7 +1005,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 secondary: const Icon(Icons.grid_view_sharp),
                 title: const Text('Flat covers'),
                 subtitle: const Text(
-                  'Remove shadows and borders from cover tiles.',
+                  'Remove the shadow from cover tiles.',
                 ),
                 value: uiPreferences.flatCovers,
                 onChanged: (value) => ref
