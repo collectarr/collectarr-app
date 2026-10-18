@@ -855,7 +855,16 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
                       : null,
                 ),
               if (options != null) ...[
-                const SizedBox(width: 10),
+                // The reference rules the options button off from the letters.
+                const SizedBox(width: 4),
+                SizedBox(
+                    width: 1,
+                    height: 30,
+                    child: ColoredBox(
+                        color: palette.isDark
+                            ? const Color(0xFF262626)
+                            : palette.divider)),
+                const SizedBox(width: 5),
                 PopupMenuButton<String>(
                   popUpAnimationStyle: AnimationStyle.noAnimation,
                   tooltip: 'Alphabet Options',
