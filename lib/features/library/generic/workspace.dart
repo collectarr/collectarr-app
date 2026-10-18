@@ -37,6 +37,8 @@ double libraryWorkspaceGridMainAxisExtent({
 /// Item Spacing only changes the gaps between items.
 const _kWorkspaceGridPadding = EdgeInsets.all(10);
 
+const _kHorizontalCardMinHeight = 80.0;
+
 class LibraryWorkspace extends ConsumerWidget {
   const LibraryWorkspace({
     super.key,
@@ -158,7 +160,14 @@ class LibraryWorkspace extends ConsumerWidget {
         : 1.0;
     final cardCoverWidth =
         (uiPrefs.cardCoverWidth * cardScale).clamp(60.0, 164.0).toDouble();
-    final cardTileWidth = (430.0 * cardScale).clamp(312.0, 620.0).toDouble();
+    // Horizontal cards follow the slider across its whole range; only the
+    // card and cover sizes of the other card views are capped.
+    final horizontalScale = defaultCoverSize > 0
+        ? viewState.coverSize / defaultCoverSize * density.cardScaleFactor
+        : 1.0;
+    final horizontalCardWidth = math.max(312.0, 430.0 * horizontalScale);
+    final horizontalCoverWidth =
+        math.max(60.0, uiPrefs.cardCoverWidth * horizontalScale);
     final standardVerticalTileWidth =
         ((viewState.coverSize + 54) * density.cardScaleFactor)
             .clamp(160.0, 244.0)
@@ -256,8 +265,8 @@ class LibraryWorkspace extends ConsumerWidget {
           ),
         ),
       LibraryViewMode.horizontalCards => _buildHorizontalCards(
-          cardTileWidth: cardTileWidth,
-          cardCoverWidth: cardCoverWidth,
+          cardTileWidth: horizontalCardWidth,
+          cardCoverWidth: horizontalCoverWidth,
           spacing: gridSpacing,
           backgroundColor: libraryViewBackgroundColor(context),
         ),
@@ -572,10 +581,14 @@ class LibraryWorkspace extends ConsumerWidget {
           items: items,
           emptyBuilder: _emptyBuilder,
           maxCrossAxisExtent: tileWidth,
-          // The card hugs its cover: cover height plus the 4 px padding.
-          mainAxisExtent: tileCoverWidth *
-                  libraryViewProfileForKind(type.kind).coverGridHeightFactor +
-              8,
+          // The card hugs its cover (cover height plus the 4 px padding) but
+          // never gets shorter than its title, series and year lines.
+          mainAxisExtent: math.max(
+              _kHorizontalCardMinHeight,
+              tileCoverWidth *
+                      libraryViewProfileForKind(type.kind)
+                          .coverGridHeightFactor +
+                  8),
           crossAxisSpacing: spacing,
           mainAxisSpacing: spacing,
           padding: _kWorkspaceGridPadding,

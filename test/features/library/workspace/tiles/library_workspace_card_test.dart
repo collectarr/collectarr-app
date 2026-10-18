@@ -117,6 +117,32 @@ Widget _host(
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  testWidgets(
+      'a horizontal card shorter than its text clips instead of overflowing',
+      (tester) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final item = _item();
+    await tester.pumpWidget(_host(
+        db,
+        (selected, select) => SizedBox(
+              width: 400,
+              height: 60,
+              child: LibraryWorkspaceCard(
+                item: item,
+                customFieldBadges: const ['Signed', 'First press'],
+                selected: selected,
+                selectedColor: _selected,
+                onTap: select,
+              ),
+            )));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 1));
+  });
+
   testWidgets('a card clicked under the mouse shows its selection colour',
       (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());

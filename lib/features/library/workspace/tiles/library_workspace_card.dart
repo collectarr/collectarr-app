@@ -164,81 +164,110 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                   intrinsicSize: true)),
                           const SizedBox(width: 5),
                           Expanded(
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                          child: Text(item.dto.primaryLabel,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w400,
-                                                  height: 1.15,
-                                                  color: selected
-                                                      ? Colors.white
-                                                      : palette
-                                                          .utilityAction))),
-                                      if (presentation.compactBadges.isNotEmpty)
-                                        Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 6),
-                                            child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: [
-                                                  for (final badge
-                                                      in presentation
-                                                          .compactBadges)
-                                                    Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          if (badge.icon !=
-                                                              null) ...[
-                                                            Icon(badge.icon,
-                                                                size: 12,
-                                                                color: Colors
-                                                                    .white),
-                                                            const SizedBox(
-                                                                width: 2),
-                                                          ],
-                                                          Text(badge.label,
-                                                              style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  fontWeight: badge
-                                                                              .icon ==
-                                                                          null
-                                                                      ? FontWeight
-                                                                          .w400
-                                                                      : FontWeight
-                                                                          .w700,
-                                                                  color: Colors
-                                                                      .white)),
-                                                        ]),
-                                                ])),
-                                    ]),
-                                if (presentation.seriesTitle?.isNotEmpty ==
-                                    true)
-                                  Text(presentation.seriesTitle!,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.white)),
-                                if (customFieldBadges.isNotEmpty)
-                                  Text(customFieldBadges.join(' | '),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                          fontSize: 12, color: Colors.white)),
-                                const Spacer(),
-                                Text(
+                              child: Stack(children: [
+                            // Title, series and badges may exceed a short
+                            // card; they clip rather than overflow.
+                            Positioned.fill(
+                                child: ClipRect(
+                                    child: OverflowBox(
+                                        alignment: Alignment.topLeft,
+                                        maxHeight: double.infinity,
+                                        child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Expanded(
+                                                        child: Text(
+                                                            item.dto
+                                                                .primaryLabel,
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: TextStyle(
+                                                                fontSize: 16,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                                height: 1.15,
+                                                                color: selected
+                                                                    ? Colors
+                                                                        .white
+                                                                    : palette
+                                                                        .utilityAction))),
+                                                    if (presentation
+                                                        .compactBadges
+                                                        .isNotEmpty)
+                                                      Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 6),
+                                                          child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .end,
+                                                              children: [
+                                                                for (final badge
+                                                                    in presentation
+                                                                        .compactBadges)
+                                                                  Row(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .min,
+                                                                      children: [
+                                                                        if (badge.icon !=
+                                                                            null) ...[
+                                                                          Icon(
+                                                                              badge.icon,
+                                                                              size: 12,
+                                                                              color: Colors.white),
+                                                                          const SizedBox(
+                                                                              width: 2),
+                                                                        ],
+                                                                        Text(
+                                                                            badge
+                                                                                .label,
+                                                                            style: TextStyle(
+                                                                                fontSize: 12,
+                                                                                fontWeight: badge.icon == null ? FontWeight.w400 : FontWeight.w700,
+                                                                                color: Colors.white)),
+                                                                      ]),
+                                                              ])),
+                                                  ]),
+                                              if (presentation.seriesTitle
+                                                      ?.isNotEmpty ==
+                                                  true)
+                                                Text(presentation.seriesTitle!,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        color: Colors.white)),
+                                              if (customFieldBadges.isNotEmpty)
+                                                Text(
+                                                    customFieldBadges
+                                                        .join(' | '),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.white)),
+                                            ])))),
+                            Positioned(
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                child: Text(
                                     [
                                       presentation.format,
                                       presentation.releaseDate?.year.toString()
@@ -248,8 +277,8 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                     style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w400,
-                                        color: Colors.white)),
-                              ])),
+                                        color: Colors.white))),
+                          ])),
                         ])),
                     Positioned(
                         right: 7,
