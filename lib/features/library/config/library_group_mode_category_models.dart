@@ -4,8 +4,3 @@ class LibraryGroupModeCategory {
   final String label;
   final List<dynamic> modes;
 }
-
-typedef LibraryGroupModeCategoryBuilder = List<LibraryGroupModeCategory>
-    Function(
-  List<String> modes,
-);

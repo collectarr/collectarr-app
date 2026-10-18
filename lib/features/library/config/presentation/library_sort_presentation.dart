@@ -61,20 +61,6 @@ String libraryFallbackLabelForId(String value) {
   return tokens[0].toUpperCase() + tokens.substring(1);
 }
 
-String definitionIdFor(Object value) {
-  final normalized = switch (value) {
-    String text => text.trim(),
-    Object _ => value.toString().trim(),
-  };
-  if (normalized.isEmpty) {
-    return '';
-  }
-  if (value is String) {
-    return normalized;
-  }
-  return normalized.contains('.') ? normalized.split('.').last : normalized;
-}
-
 String librarySortColumnFallbackLabel(String column) {
   final columnName = column.contains('.') ? column.split('.').last : column;
   final raw = columnName.replaceAll('_', ' ').replaceAllMapped(

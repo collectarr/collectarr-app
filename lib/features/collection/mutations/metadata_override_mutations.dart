@@ -79,20 +79,6 @@ final class MetadataOverrideMutations {
     return override;
   }
 
-  Future<void> removeMetadataOverride(UserMetadataOverride override) async {
-    final now = DateTime.now().toUtc();
-    final deleted = override.copyWith(deletedAt: now, updatedAt: now);
-
-    await mutationRunner.run(
-      action: () async {
-        await overrides.markDeleted(override, now);
-        await syncQueue
-            .enqueue(_syncChangeForMetadataOverride(deleted, 'delete', now));
-      },
-      eventsToEmit: [MetadataOverrideChanged(override.libraryEntryRef)],
-    );
-  }
-
   SyncChange _syncChangeForMetadataOverride(
     UserMetadataOverride override,
     String action,

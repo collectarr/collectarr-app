@@ -27,20 +27,6 @@ final overdueLoanLibraryEntryIdsProvider =
   };
 });
 
-Map<String, LibraryKindCount> libraryCountsByKind(ShelfState state) {
-  final kinds = <String>{
-    ...state.libraryEntryCountByKind.keys,
-    ...state.wishlistItemCountByKind.keys,
-  };
-  return {
-    for (final kind in kinds)
-      kind: LibraryKindCount(
-        entry: state.libraryEntryCountByKind[kind] ?? 0,
-        wishlist: state.wishlistItemCountByKind[kind] ?? 0,
-      ),
-  };
-}
-
 Map<String, int> overdueLoanCountsByKind(
   ShelfState state,
   Set<LibraryEntryRef> overdueLibraryEntryRefs,

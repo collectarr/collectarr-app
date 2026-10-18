@@ -164,50 +164,6 @@ final class MusicTrackListEditor {
     );
   }
 
-  void outdentTrack(MusicDiscId discId, int index) {
-    final discIndex = discs.indexWhere((disc) => disc.id == discId);
-    if (discIndex < 0) return;
-    final disc = discs[discIndex];
-    if (index < 0 || index >= disc.tracks.length) return;
-    final track = disc.tracks[index];
-    final nextIndent = (track.indentLevel - 1).clamp(0, 8);
-    final updated = musicTrackWithEdits(
-      track,
-      title: track.title,
-      position: track.position,
-      artist: track.artist ?? '',
-      durationMs: track.durationMs,
-      indentLevel: nextIndent,
-    );
-    final next = List<MusicTrack>.of(disc.tracks)..[index] = updated;
-    discs[discIndex] = copyMusicDisc(
-      disc,
-      tracks: _linkHeaderParents(next),
-    );
-  }
-
-  void indentTrack(MusicDiscId discId, int index) {
-    final discIndex = discs.indexWhere((disc) => disc.id == discId);
-    if (discIndex < 0) return;
-    final disc = discs[discIndex];
-    if (index < 0 || index >= disc.tracks.length) return;
-    final track = disc.tracks[index];
-    final nextIndent = (track.indentLevel + 1).clamp(0, 8);
-    final updated = musicTrackWithEdits(
-      track,
-      title: track.title,
-      position: track.position,
-      artist: track.artist ?? '',
-      durationMs: track.durationMs,
-      indentLevel: nextIndent,
-    );
-    final next = List<MusicTrack>.of(disc.tracks)..[index] = updated;
-    discs[discIndex] = copyMusicDisc(
-      disc,
-      tracks: _linkHeaderParents(next),
-    );
-  }
-
   void moveTracks(
     MusicDiscId discId,
     List<String> trackIds, {
@@ -244,33 +200,6 @@ final class MusicTrackListEditor {
     discs[discIndex] = copyMusicDisc(
       disc,
       tracks: _linkHeaderParents(_renumberTracks(tracks)),
-    );
-  }
-
-  void copyTracks(MusicDiscId sourceDiscId, MusicDiscId destinationDiscId) {
-    final source = discs.where((disc) => disc.id == sourceDiscId).firstOrNull;
-    final destinationIndex =
-        discs.indexWhere((disc) => disc.id == destinationDiscId);
-    if (source == null || destinationIndex < 0) return;
-    final destination = discs[destinationIndex];
-    final cloned = [
-      for (final track in source.tracks)
-        MusicTrack(
-          id: MusicTrackId(const Uuid().v4()),
-          position: '',
-          title: track.title,
-          artist: track.artist,
-          durationMs: track.durationMs,
-          isHeader: track.isHeader,
-          indentLevel: track.indentLevel,
-          parentHeaderId: track.parentHeaderId,
-        ),
-    ];
-    discs[destinationIndex] = copyMusicDisc(
-      destination,
-      tracks: _linkHeaderParents(
-        _renumberTracks([...destination.tracks, ...cloned]),
-      ),
     );
   }
 

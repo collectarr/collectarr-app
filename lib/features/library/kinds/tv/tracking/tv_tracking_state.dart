@@ -217,13 +217,6 @@ final class TvTrackingState extends PersonalTrackingBase
   }
 }
 
-TvTrackingCoordinates tvTrackingCoordinatesFor(TrackingStorageRecord entry) {
-  return switch (entry) {
-    TvTrackingState typed => typed.coordinates,
-    _ => throw StateError('Expected TvTrackingState record.'),
-  };
-}
-
 TvTrackingState tvTrackingStateFor(TrackingStorageRecord entry) {
   return switch (entry) {
     TvTrackingState typed => typed,

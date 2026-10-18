@@ -21,18 +21,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 // ---------------------------------------------------------------------------
 
 const Color kEditAccent = kAppAccent;
-const Color kEditPanel = kAppPanel;
 const Color kEditPanelRaised = kAppPanelRaised;
-const Color kEditToolbar = kAppToolbar;
 const Color kEditDivider = kAppDivider;
 const Color kEditTextMuted = kAppTextMuted;
 
 /// Style size whose floating label (scaled to 75%) paints at 13 px.
 const double kEditFloatingLabelStyleSize = 13 / 0.75;
 const Color kEditChartBar = kAppAccentLight;
-const Color kEditValueChip = kAppPanel;
-const Color kEditValueChipBorder = kAppSurfaceBright;
-const BorderRadius kEditMenuBorderRadius = kAppMenuBorderRadius;
 
 /// Saved CLZ editor surfaces, scoped to dialogs rather than the workspace.
 AppThemePalette libraryEditPalette(AppThemePalette palette) => palette.isDark
@@ -1283,11 +1278,6 @@ int? parseInt(String value) {
   return normalized == null ? null : int.tryParse(normalized);
 }
 
-double? parseDouble(String value) {
-  final normalized = emptyToNull(value)?.replaceAll(',', '.');
-  return normalized == null ? null : double.tryParse(normalized);
-}
-
 int? parseMoneyCents(String value, {int? fallback}) {
   final normalized = emptyToNull(value)?.replaceAll(',', '.');
   if (normalized == null) {
@@ -1303,32 +1293,9 @@ String formatDate(DateTime date) {
       '${date.day.toString().padLeft(2, '0')}';
 }
 
-String? optionalDateValidator(String? value) {
-  if (value == null || value.trim().isEmpty) return null;
-  return DateTime.tryParse(value.trim()) == null ? 'Invalid date' : null;
-}
-
 String? optionalIntValidator(String? value) {
   if (value == null || value.trim().isEmpty) return null;
   return int.tryParse(value.trim()) == null ? 'Enter a number' : null;
-}
-
-String? optionalNumberValidator(String? value) {
-  if (value == null || value.trim().isEmpty) return null;
-  final normalized = value.trim().replaceAll(',', '.');
-  return double.tryParse(normalized) == null ? 'Enter a number' : null;
-}
-
-String? positiveIntValidator(String? value) {
-  if (value == null || value.trim().isEmpty) return 'Required';
-  final parsed = int.tryParse(value.trim());
-  return parsed == null || parsed < 1 ? 'Enter a positive number' : null;
-}
-
-String? optionalPositiveIntValidator(String? value) {
-  if (value == null || value.trim().isEmpty) return null;
-  final parsed = int.tryParse(value.trim());
-  return parsed == null || parsed < 0 ? 'Enter a positive number' : null;
 }
 
 String? optionalMoneyValidator(String? value) {

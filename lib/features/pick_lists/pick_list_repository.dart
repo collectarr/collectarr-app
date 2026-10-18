@@ -224,17 +224,6 @@ class PickListRepository {
     });
   }
 
-  Future<List<String>> listNames() async {
-    final result = await _db
-        .customSelect(
-          'SELECT DISTINCT list_name AS list_name FROM pick_list_values_cache ORDER BY list_name',
-        )
-        .get();
-    return result
-        .map((row) => row.read<String>('list_name'))
-        .toList(growable: false);
-  }
-
   Future<Map<String, int>> usageCounts({
     required String listName,
     String? mediaKind,

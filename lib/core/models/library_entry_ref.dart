@@ -8,12 +8,6 @@ class LibraryEntryId {
 
   final String value;
 
-  static LibraryEntryId? fromRaw(String? raw) {
-    final trimmed = raw?.trim();
-    if (trimmed == null || trimmed.isEmpty) return null;
-    return LibraryEntryId(trimmed);
-  }
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

@@ -57,18 +57,4 @@ class LibraryPageSharingCoordinator {
       items: items,
     );
   }
-
-  void shareSelectedCollectionFlow(LibraryProjection? projection) {
-    if (projection == null || _page.selection.itemIds.isEmpty) return;
-    final items = [
-      for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.target.id)) item,
-    ];
-    if (items.isEmpty) return;
-    showCollectionShareDialog(
-      context: _page.context,
-      title: _page.type.identity.title,
-      items: items,
-    );
-  }
 }

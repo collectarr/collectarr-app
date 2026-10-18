@@ -13,14 +13,6 @@ class TextControllerGroup {
     _controllers.add(controller);
   }
 
-  void disposeController(TextEditingController? controller) {
-    if (controller == null) {
-      return;
-    }
-    _controllers.remove(controller);
-    controller.dispose();
-  }
-
   void dispose() {
     for (final controller in _controllers) {
       controller.dispose();

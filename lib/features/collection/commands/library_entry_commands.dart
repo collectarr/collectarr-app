@@ -30,11 +30,6 @@ sealed class Patch<T> {
       ClearValue<T>() => clear(),
     };
   }
-
-  T? valueOrNull() => switch (this) {
-        SetValue<T>(:final value) => value,
-        _ => null,
-      };
 }
 
 class Unchanged<T> extends Patch<T> {

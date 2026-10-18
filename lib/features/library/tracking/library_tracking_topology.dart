@@ -90,12 +90,6 @@ final class LibraryTrackingTopology {
   final Set<LibraryTrackingTarget> contentTargets;
   final LibraryTrackingSessionLabels sessionLabels;
 
-  bool canWrite(LibraryTrackingTarget target) =>
-      writableTargets.contains(target);
-
   bool aggregates(LibraryTrackingTarget target) =>
       aggregateTargets.contains(target);
-
-  bool isContentTarget(LibraryTrackingTarget target) =>
-      contentTargets.contains(target);
 }
