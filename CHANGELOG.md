@@ -75,6 +75,9 @@
 - Test fixtures keep LF line endings on Windows checkouts, so the import tests pass there as on CI.
 - `tool/update_core_contracts.ps1` syncs the v1 catalog contracts Core publishes instead of failing on missing v2 files.
 
+### 🧪 Tests
+- The Loan Album page test runs inside a provider scope, as the app does, so the generated cover renders there.
+
 ## 1.1.0 - 2026-10-16
 
 ### ✨ Features
