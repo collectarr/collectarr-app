@@ -76,13 +76,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final showSelectionToggle = widget.selectionMode || selected || _hovered;
     final showEditButton = _hovered && widget.onEditTap != null;
     const selectedBorderWidth = 5.0;
-    const activeBorderWidth = 5.0;
     final targetCacheWidth = _targetCacheWidth(context);
-    final tilePadding = switch (density) {
-      LibraryDensity.comfortable => const EdgeInsets.all(2),
-      LibraryDensity.compact => const EdgeInsets.all(1),
-      LibraryDensity.dense => EdgeInsets.zero,
-    };
     final badgeBottom = switch (density) {
       LibraryDensity.comfortable => 5.0,
       LibraryDensity.compact => 4.0,
@@ -92,44 +86,18 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     return RepaintBoundary(
       child: Container(
         clipBehavior: Clip.antiAlias,
-        padding: flat ? EdgeInsets.zero : tilePadding,
         decoration: BoxDecoration(
-          color: selected || active
-              ? resolvedSelectedColor
-              : (flat ? Colors.transparent : palette.field),
-          borderRadius: flat ? BorderRadius.zero : kAppRadiusSmall,
-          border: flat
-              ? (selected || active
-                  ? Border.all(
-                      color: selected
-                          ? palette.utilityAction
-                          : palette.utilityAction,
-                      width: selected ? selectedBorderWidth : activeBorderWidth,
-                    )
-                  : null)
-              : Border.all(
-                  color: selected
-                      ? palette.utilityAction
-                      : active
-                          ? palette.utilityAction
-                          : palette.cardBorder,
-                  width: selected
-                      ? selectedBorderWidth
-                      : active
-                          ? activeBorderWidth
-                          : 1,
-                ),
+          color: selected || active ? resolvedSelectedColor : null,
+          border: selected || active
+              ? Border.all(
+                  color: palette.utilityAction,
+                  width: selectedBorderWidth,
+                )
+              : null,
+          // The reference draws covers bare, with only a 3 px black shadow.
           boxShadow: flat
               ? null
-              : [
-                  BoxShadow(
-                    color: Theme.of(context).shadowColor.withValues(
-                          alpha: palette.isDark ? 0.6 : 0.18,
-                        ),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+              : const [BoxShadow(color: Colors.black, blurRadius: 3)],
         ),
         child: AppPressTap(
             onTap: widget.onTap,
@@ -165,6 +133,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                                   fit: BoxFit.cover,
                                   enableFullscreen: false,
                                   enableSecondaryControl: false,
+                                  showFrame: false,
                                 ),
                               ),
                             ],

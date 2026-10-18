@@ -435,6 +435,7 @@ class LibraryInteractiveCover extends StatefulWidget {
     this.enableFullscreen = true,
     this.enableHoverCue = true,
     this.enableSecondaryControl = true,
+    this.showFrame = true,
     this.onMissingSecondaryPressed,
     super.key,
   });
@@ -454,6 +455,9 @@ class LibraryInteractiveCover extends StatefulWidget {
   final bool enableFullscreen;
   final bool enableHoverCue;
   final bool enableSecondaryControl;
+
+  /// Draws the outlined, shadowed frame; tiles that own their shadow turn it off.
+  final bool showFrame;
   final Future<void> Function()? onMissingSecondaryPressed;
 
   @override
@@ -781,6 +785,10 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
     setState(() => _showSecondary = showBackOnly);
   }
 
+  Widget _wrapFrame(Widget child) => widget.showFrame
+      ? _CoverFrame(borderRadius: widget.borderRadius, child: child)
+      : child;
+
   @override
   Widget build(BuildContext context) {
     final interactive = _canPreview;
@@ -812,9 +820,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
             child: Stack(
               fit: canExpandInBothAxes ? StackFit.expand : StackFit.loose,
               children: [
-                _CoverFrame(
-                  borderRadius: widget.borderRadius,
-                  child: LibraryCoverImage(
+                _wrapFrame(
+                  LibraryCoverImage(
                     title: widget.title,
                     itemNumber: widget.itemNumber,
                     imageUrl: _activeImageUrl,
