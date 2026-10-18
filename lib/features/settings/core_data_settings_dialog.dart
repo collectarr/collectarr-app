@@ -1,14 +1,11 @@
+import 'package:collectarr_app/core/api/generated/catalog_item_v1_fields.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/core_data/core_data_settings.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
-import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_page_tabs.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Which tab of the dialog opens first.
 enum CoreDataSettingsTab { add, update }
@@ -29,7 +26,7 @@ Future<bool> showCoreDataSettingsDialog({
 
 /// Add/Update from Core settings: which non-personal fields Add downloads
 /// and what Update does with each, as in the reference's two-tab dialog.
-class CoreDataSettingsDialog extends ConsumerStatefulWidget {
+class CoreDataSettingsDialog extends StatefulWidget {
   const CoreDataSettingsDialog(
       {super.key,
       required this.accent,
@@ -41,14 +38,17 @@ class CoreDataSettingsDialog extends ConsumerStatefulWidget {
   final CoreDataSettingsTab initialTab;
 
   @override
-  ConsumerState<CoreDataSettingsDialog> createState() =>
-      _CoreDataSettingsDialogState();
+  State<CoreDataSettingsDialog> createState() => _CoreDataSettingsDialogState();
 }
 
-class _CoreDataSettingsDialogState
-    extends ConsumerState<CoreDataSettingsDialog> {
+/// One row of the dialog; a [nested] row is a list inside each element of the
+/// row above it, keyed `parent.child`.
+typedef _Field = ({String key, String label, bool nested});
+
+class _CoreDataSettingsDialogState extends State<CoreDataSettingsDialog> {
   late CoreDataSettingsTab _tab = widget.initialTab;
-  List<CoreDataField>? _fields;
+  late final List<_Field> _fields = _fieldsFor(widget.kind);
+  bool _loaded = false;
   Set<String> _skipped = {};
   Map<String, CoreUpdateMode> _modes = {};
 
@@ -60,53 +60,40 @@ class _CoreDataSettingsDialogState
 
   Future<void> _load() async {
     final settings = await CoreDataSettings.load(widget.kind);
-    final fields = await _allFields();
     if (!mounted) return;
     setState(() {
       _skipped = {...settings.skippedDownloads};
       _modes = {...settings.updateModes};
-      _fields = fields;
+      _loaded = true;
     });
   }
 
-  /// Core's per-kind schema when reachable, else the generated canonical set.
-  Future<List<CoreDataField>> _fieldsForKind() async {
-    try {
-      final schema = await ref
-          .read(apiClientProvider)
-          .metadataFieldSchema(editableOnly: true);
-      final specs = schema.fieldsForKind(widget.kind.apiValue);
-      if (specs.isNotEmpty) {
-        return [
-          for (final spec in specs)
-            if (spec.editable && !kCoreDataLockedFields.contains(spec.key))
-              (key: spec.key, label: spec.label),
-        ];
-      }
-    } catch (_) {
-      // Offline: fall through to the generated list.
-    }
-    return [
-      for (final field in kCanonicalMetadataFields)
-        if (!kCoreDataLockedFields.contains(field.key))
-          (key: field.key, label: field.label),
-    ];
+  /// The kind's fields in Core's Catalog Item contract, each list of objects
+  /// followed by the lists its elements contain. Settings act on one nesting
+  /// level, so lists deeper than that are not offered.
+  static List<_Field> _fieldsFor(CatalogMediaKind kind) => [
+        for (final field in catalogItemV1FieldsByKind[kind.apiValue] ??
+            const <CatalogItemV1Field>[])
+          if (!kCoreDataLockedFields.contains(field.key)) ...[
+            (key: field.key, label: _label(field), nested: false),
+            for (final child in field.children)
+              (
+                key: '${field.key}.${child.key}',
+                label: _label(child),
+                nested: true
+              ),
+          ],
+      ];
+
+  static String _label(CatalogItemV1Field field) {
+    final title = field.title;
+    if (title != null) return title;
+    final words = field.key.replaceAll('_', ' ');
+    return words[0].toUpperCase() + words.substring(1);
   }
 
-  /// Schema fields plus the structured parts the kind stores with an entry
-  /// (tracks, credits and the like), which the flat schema does not list.
-  Future<List<CoreDataField>> _allFields() async {
-    final listed = await _fieldsForKind();
-    final known = {for (final field in listed) field.key};
-    return [
-      ...listed,
-      for (final field in libraryAddForKind(widget.kind).coreDataFields)
-        if (!known.contains(field.key)) field,
-    ];
-  }
-
-  List<CoreDataField> get _downloadFields => [
-        for (final field in _fields ?? const <CoreDataField>[])
+  List<_Field> get _downloadFields => [
+        for (final field in _fields)
           if (!kCoreDataAlwaysDownloaded.contains(field.key)) field,
       ];
 
@@ -143,9 +130,13 @@ class _CoreDataSettingsDialogState
                   setState(() => _tab = CoreDataSettingsTab.values[index]),
             ),
           ),
-          if (_fields == null)
+          if (!_loaded)
             const Padding(
                 padding: EdgeInsets.all(24), child: CircularProgressIndicator())
+          else if (_fields.isEmpty)
+            const Padding(
+                padding: EdgeInsets.all(24),
+                child: Text('Core has no catalog for this kind yet.'))
           else
             Flexible(
               child: Container(
@@ -189,6 +180,7 @@ class _CoreDataSettingsDialogState
           for (final field in _downloadFields)
             _SettingsRow(
               label: field.label,
+              nested: field.nested,
               options: const ['Yes', 'No'],
               selected: _skipped.contains(field.key) ? 1 : 0,
               onSelected: (index) => setState(() => index == 1
@@ -199,7 +191,7 @@ class _CoreDataSettingsDialogState
       );
 
   Widget _updateTable() {
-    final fields = _fields!;
+    final fields = _fields;
     return _SettingsTable(
       header: 'Leave as is / Update if empty / Replace data',
       selectAll: (
@@ -212,6 +204,7 @@ class _CoreDataSettingsDialogState
         for (final field in fields)
           _SettingsRow(
             label: field.label,
+            nested: field.nested,
             options: const ['Skip', 'Update', 'Replace'],
             selected: (_modes[field.key] ?? CoreUpdateMode.update).index,
             onSelected: (index) => setState(
@@ -225,10 +218,12 @@ class _CoreDataSettingsDialogState
 class _SettingsRow {
   const _SettingsRow(
       {required this.label,
+      this.nested = false,
       required this.options,
       required this.selected,
       required this.onSelected});
   final String label;
+  final bool nested;
   final List<String> options;
   final int selected;
   final ValueChanged<int> onSelected;
@@ -267,7 +262,7 @@ class _SettingsTable extends StatelessWidget {
         for (final row in rows)
           TableRow(children: [
             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: EdgeInsets.only(left: row.nested ? 24 : 8, right: 8),
                 child: Text(row.label,
                     style: const TextStyle(fontWeight: FontWeight.w700))),
             Padding(

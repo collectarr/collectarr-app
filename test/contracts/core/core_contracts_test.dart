@@ -63,7 +63,7 @@ void main() {
       final kindSchema = entry.value as Map<String, dynamic>;
       final properties = kindSchema['properties'] as Map<String, dynamic>;
       expect(
-        catalogItemV1FieldsByKind[entry.key],
+        {for (final field in catalogItemV1FieldsByKind[entry.key]!) field.key},
         properties.keys.toSet(),
         reason: 'Generated App fields drifted for ${entry.key}.',
       );

@@ -26,12 +26,9 @@ const Set<String> kCoreDataAlwaysDownloaded = {
   'title'
 };
 
-/// One non-personal field the Core data settings let the user control. A key
-/// like `discs.tracks` names a child list inside each entry of `discs`.
-typedef CoreDataField = ({String key, String label});
-
 /// Per-kind choice of which non-personal fields are downloaded when adding
-/// from Core and how Update from Core treats each one.
+/// from Core and how Update from Core treats each one. A key like
+/// `discs.tracks` names a child list inside each entry of `discs`.
 @immutable
 class CoreDataSettings {
   const CoreDataSettings({

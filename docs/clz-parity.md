@@ -146,7 +146,7 @@ Keep these when matching the reference visually.
 | Link Albums | Full-width page with a button row, plain badges and a small cover | 960 px column with the tinted header box: striped progress bar attached to Find matches, unlinked count pill, Match-score labels and the bulk Link button; 92 px covers in the table |
 | Horizontal cards | Fixed 100 px minimum height left empty bands above and below small covers | Height is the cover plus 4 px padding at any size |
 | Add tabs | Unselected tabs darker (#505050) and Add Manually lit on hover; no Catalog No. tab; no scan button in the Barcode field | All tabs #666 with unselected at 50 % opacity, no Add Manually hover, Catalog No. tab (Music) and the main search bar's scan button in Barcode |
-| Core settings | Only the flat schema fields | Music also lists Disc Details, Tracks, Credits, Artist Credits and External Links |
+| Core settings | Only the flat schema fields | Rows come from Core's Catalog Item contract with Core's titles: every field plus Discs, Credits, Artist credits and External links, with each disc's Tracks and Credits indented under Discs. Kinds without a Core catalog show a message |
 | Dialog motion | Fade only | Fade over 150 ms while sliding from a quarter of the dialog's height over 300 ms; reversed on close |
 
 ## Open differences
