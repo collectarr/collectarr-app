@@ -19,13 +19,6 @@ abstract final class _LibraryPageLifecycleControllerOps {
     unawaited(state._warmViewStateCachesOnce());
     state._session.preferences.viewState = state._viewProfile.defaults();
 
-    // Hydrate & persist Riverpod state
-    state.ref.read(libraryWorkspaceHydrationProvider(state.workspaceKey));
-    state.ref.listenManual<void>(
-      libraryWorkspacePersistenceProvider(state.workspaceKey),
-      (_, __) {},
-    );
-
     state._primeCachedViewPreferences();
     state._applyRouteStateFromUri(state.widget.routeUri);
     unawaited(state._loadViewState());
@@ -332,8 +325,6 @@ abstract final class _LibraryPageLifecycleControllerOps {
   }
 
   static void dispose(GenericLibraryPageState state) {
-    state._filtersSubscription?.close();
-    state._viewConfigSubscription?.close();
     state._session.preferences.viewStateSaveDebounce?.cancel();
     state._session.selection.hydrationDebounce?.cancel();
     state._shelfSubscription?.close();
