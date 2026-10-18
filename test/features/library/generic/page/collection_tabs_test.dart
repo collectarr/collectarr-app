@@ -188,6 +188,52 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets('a dropped collection tab stays in place while the save lands',
+      (tester) async {
+    final vinyl = (await tester.runAsync(() async {
+      await repo.ensureDefault('music');
+      return repo.create('music', 'Vinyl');
+    }))!;
+    final mainId = (await tester.runAsync(() => repo.list('music')))!.first.id;
+    await tester.pumpWidget(ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+            home: Scaffold(
+                body: LibraryCollectionTabBar(
+                    mediaKind: 'music',
+                    accent: Colors.orange,
+                    onCollectionSelected: (_) {})))));
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+    double left(String id) => tester
+        .getTopLeft(find.byKey(ValueKey('library-collection-tab-$id')))
+        .dx;
+    expect(left(mainId), lessThan(left(vinyl.id)));
+
+    final start = tester
+        .getCenter(find.byKey(ValueKey('library-collection-tab-$mainId')));
+    final gesture = await tester.startGesture(start);
+    await gesture.moveBy(const Offset(40, 0));
+    await tester.pump(const Duration(milliseconds: 100));
+    await gesture.moveBy(const Offset(320, 0));
+    await tester.pump(const Duration(milliseconds: 100));
+    await gesture.up();
+    // One frame after the drop, before the save can have reached the stream.
+    await tester.pump();
+    expect(left(vinyl.id), lessThan(left(mainId)));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(left(vinyl.id), lessThan(left(mainId)));
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+    expect(left(vinyl.id), lessThan(left(mainId)));
+    expect(
+        (await tester.runAsync(() => repo.list('music')))!.first.id, vinyl.id);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
   testWidgets(
       'collection tabs select real collections and open a compact manager',
       (tester) async {
