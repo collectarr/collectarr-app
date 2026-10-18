@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- The selection toolbar is the shared blue with icon-only Cancel, Edit and Remove, a divider before the more menu (Print to PDF moved into it) and an "N of M" counter, as in the reference.
 - Loan opens the Loan Album page under the Loan Manager header, for one item or a selection, instead of a dialog.
 - Field lists in Re-Assign Index Values, Sort and column dialogs have no click ripple.
 - Close buttons in dialog headers and panels have no hover, press or ripple effect, as in the reference.

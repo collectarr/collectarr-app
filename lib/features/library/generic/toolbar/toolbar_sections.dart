@@ -653,12 +653,14 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final effectiveAccent = accent ?? palette.accent;
+    // Selection is a shared-blue state, not a kind identity (see the item
+    // selection fill), so the band ignores the kind accent.
+    final effectiveAccent = palette.utilityAction;
 
-    final borderTop = Color.lerp(effectiveAccent, Colors.white, 0.28)!;
-    final borderBottom = Color.lerp(effectiveAccent, Colors.black, 0.22)!;
-    final badgeBg = Color.lerp(effectiveAccent, Colors.black, 0.20)!;
-    final badgeBorder = Color.lerp(effectiveAccent, Colors.white, 0.28)!;
+    final borderBottom = Color.lerp(effectiveAccent, Colors.black, 0.14)!;
+    final badgeBg = palette.isDark
+        ? const Color(0xFF4CA3D8)
+        : Color.lerp(effectiveAccent, Colors.black, 0.18)!;
     final dividerLeft = Color.lerp(effectiveAccent, Colors.black, 0.09)!;
     final dividerRight = Color.lerp(effectiveAccent, Colors.white, 0.11)!;
 
@@ -673,8 +675,8 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
       textStyle: TextStyle(
           fontFamily: appFontFamily,
           fontFamilyFallback: kAppFontFamilyFallback,
-          fontSize: 13,
-          fontWeight: FontWeight.w600),
+          fontSize: 14,
+          fontWeight: FontWeight.w400),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
       ),
@@ -691,7 +693,6 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
     return AnimatedLibraryChrome(
       accent: effectiveAccent,
       borderBuilder: (animatedAccent, _) => Border(
-        top: BorderSide(color: borderTop),
         bottom: showBottomBorder
             ? BorderSide(color: borderBottom)
             : BorderSide.none,
@@ -707,15 +708,17 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  TextButton.icon(
-                    onPressed: callbacks.onClearSelection,
-                    style: actionButtonStyle,
-                    icon: const Icon(
-                      AppIcons.close,
-                      size: 13,
-                      color: Colors.white,
+                  Tooltip(
+                    message: 'Cancel',
+                    child: TextButton(
+                      onPressed: callbacks.onClearSelection,
+                      style: actionButtonStyle,
+                      child: const Icon(
+                        AppIcons.close,
+                        size: 13,
+                        color: Colors.white,
+                      ),
                     ),
-                    label: const Text('Cancel'),
                   ),
                   LibrarySelectionToolbarDivider(
                     dividerLeft: dividerLeft,
@@ -750,7 +753,6 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: badgeBg,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: badgeBorder),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -758,10 +760,10 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
                     vertical: 3,
                   ),
                   child: Text(
-                    '$selectedCount of $totalSelectableCount selected',
+                    '$selectedCount of $totalSelectableCount',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                           fontWeight: FontWeight.w700,
-                          fontSize: 13,
+                          fontSize: 14,
                           color: Colors.white,
                         ),
                   ),
@@ -777,7 +779,7 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     leftOptions,
-                    const SizedBox(width: 12),
+                    const Spacer(),
                     centerActions,
                     const Spacer(),
                     Center(child: rightCountPill),
