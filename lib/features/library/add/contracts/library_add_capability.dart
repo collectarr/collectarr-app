@@ -86,9 +86,13 @@ class LibraryAddSearchInputCapability {
     this.initialAdvancedFilters = const {},
     this.advancedFilterDescriptorsBuilder = _noAdvancedFilters,
     this.searchInputPredicate,
+    this.searchesCatalogNumber = false,
   });
 
   final Map<LibraryAddFilterId, LibraryAddFilterValue> initialAdvancedFilters;
+
+  /// Whether Add offers a Catalog No. tab that searches Core by catalog number.
+  final bool searchesCatalogNumber;
   final LibraryAddAdvancedFilterDescriptorsBuilder
       advancedFilterDescriptorsBuilder;
   final LibraryAddSearchInputPredicate? searchInputPredicate;

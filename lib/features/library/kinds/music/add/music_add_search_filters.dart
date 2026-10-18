@@ -38,7 +38,8 @@ MusicAddDiscFilter musicAddDiscFilterFromValue(
 
 bool musicAddHasSearchInput(LibraryAddSearchContext context) {
   if (context.query.trim().isNotEmpty ||
-      context.identifierCode.trim().isNotEmpty) {
+      context.identifierCode.trim().isNotEmpty ||
+      context.catalogNumber.trim().isNotEmpty) {
     return true;
   }
   return musicAddDiscFilterFor(context) != MusicAddDiscFilter.all;

@@ -7,6 +7,7 @@ final class MetadataSearchQuery {
     this.publisher,
     this.year,
     this.barcode,
+    this.catalogNumber,
     this.limit,
     this.offset,
   });
@@ -18,6 +19,7 @@ final class MetadataSearchQuery {
   final String? publisher;
   final int? year;
   final String? barcode;
+  final String? catalogNumber;
   final int? limit;
   final int? offset;
 
@@ -29,6 +31,7 @@ final class MetadataSearchQuery {
         publisher: publisher,
         year: year,
         barcode: barcode,
+        catalogNumber: catalogNumber,
         limit: limit,
         offset: value,
       );
@@ -39,6 +42,7 @@ final class MetadataSearchQuery {
         !_hasText(issueNumber) &&
         !_hasText(publisher) &&
         !_hasText(barcode) &&
+        !_hasText(catalogNumber) &&
         year == null;
   }
 
@@ -51,6 +55,7 @@ final class MetadataSearchQuery {
       if (_hasText(publisher)) 'publisher': publisher!.trim(),
       if (year != null) 'year': year,
       if (_hasText(barcode)) 'barcode': normalizeBarcode(barcode!),
+      if (_hasText(catalogNumber)) 'catalog_number': catalogNumber!.trim(),
       if (limit != null) 'limit': limit,
       if (offset != null) 'offset': offset,
     };

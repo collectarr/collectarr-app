@@ -57,6 +57,12 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     );
   }
 
+  void updateCatalogNumber(String catalogNumber) {
+    state = state.copyWith(
+      search: state.search.copyWith(catalogNumber: catalogNumber),
+    );
+  }
+
   void updateAdvancedFilter(
       LibraryAddFilterId id, LibraryAddFilterValue? value) {
     final filters = Map<LibraryAddFilterId, LibraryAddFilterValue>.from(

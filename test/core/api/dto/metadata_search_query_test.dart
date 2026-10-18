@@ -33,4 +33,13 @@ void main() {
     expect(query.isEmpty, isTrue);
     expect(query.toQueryParameters(), {'kind': 'comic', 'limit': 25});
   });
+
+  test('sends a catalog number search', () {
+    const query = MetadataSearchQuery(
+        kind: 'music', catalogNumber: ' CDP 7 46 ', limit: 25);
+
+    expect(query.isEmpty, isFalse);
+    expect(query.toQueryParameters(),
+        {'kind': 'music', 'catalog_number': 'CDP 7 46', 'limit': 25});
+  });
 }
