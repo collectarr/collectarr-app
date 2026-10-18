@@ -62,6 +62,7 @@
 - CI runs checks, unit tests and the Linux integration flows as parallel jobs, so one run shows every failure.
 - A release is one run of the Release workflow: it picks the version from the commits, moves these changelog entries under it, tags, publishes the notes and builds the downloads.
 - Pull requests with several commits are merged with "Rebase and merge", so every change reaches main and the release notes.
+- The architecture check no longer reports the edit dialog's cover slot as a new field leak after the edit widgets were split into separate files.
 - Test fixtures keep LF line endings on Windows checkouts, so the import tests pass there as on CI.
 - `tool/update_core_contracts.ps1` syncs the v1 catalog contracts Core publishes instead of failing on missing v2 files.
 
