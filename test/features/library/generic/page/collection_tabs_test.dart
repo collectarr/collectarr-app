@@ -10,22 +10,37 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('collection tabs attach to the top with rounded lower corners',
+  testWidgets(
+      'collection tabs attach to the top with rounded lower corners and no ink',
       (tester) async {
-    await tester.pumpWidget(MaterialApp(
+    Widget tab(bool isActive) => MaterialApp(
         home: Scaffold(
             body: SizedBox(
-      height: 33,
-      child: LibraryCollectionTab(
-          label: 'Music', isActive: true, accent: Colors.orange, onTap: () {}),
-    ))));
-    final tab = find.descendant(
-        of: find.byType(LibraryCollectionTab), matching: find.byType(InkWell));
-    expect(tester.getSize(tab).height, 27);
-    expect(tester.getTopLeft(tab).dy,
+                height: 33,
+                child: LibraryCollectionTab(
+                    label: 'Music',
+                    isActive: isActive,
+                    accent: Colors.orange,
+                    onTap: () {}))));
+    await tester.pumpWidget(tab(false));
+    final box = find.descendant(
+        of: find.byType(LibraryCollectionTab),
+        matching: find.byWidgetPredicate((widget) =>
+            widget is Container && widget.decoration is BoxDecoration));
+    expect(tester.getSize(box).height, 27);
+    expect(tester.getTopLeft(box).dy,
         tester.getTopLeft(find.byType(LibraryCollectionTab)).dy);
-    expect(tester.widget<InkWell>(tab).borderRadius,
+    BoxDecoration decoration() =>
+        tester.widget<Container>(box).decoration! as BoxDecoration;
+    expect(decoration().borderRadius,
         const BorderRadius.vertical(bottom: Radius.circular(4)));
+    expect(
+        find.descendant(
+            of: find.byType(LibraryCollectionTab),
+            matching: find.byType(InkWell)),
+        findsNothing);
+    await tester.pumpWidget(tab(true));
+    expect(decoration().color, Colors.orange);
   });
   late LocalDatabase db;
   late LibraryCollectionRepository repo;
