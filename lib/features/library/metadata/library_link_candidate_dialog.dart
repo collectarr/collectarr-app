@@ -93,7 +93,12 @@ class _LibraryLinkCandidateDialogState
 
 class LinkItemSummary extends StatelessWidget {
   const LinkItemSummary(
-      {super.key, required this.title, this.subtitle, this.imageUrl});
+      {super.key,
+      required this.title,
+      this.subtitle,
+      this.imageUrl,
+      this.imageSize = 45});
+  final double imageSize;
   final String title;
   final String? subtitle;
   final String? imageUrl;
@@ -102,11 +107,11 @@ class LinkItemSummary extends StatelessWidget {
       Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         if (imageUrl?.isNotEmpty ?? false) ...[
           Image.network(imageUrl!,
-              width: 45,
-              height: 45,
+              width: imageSize,
+              height: imageSize,
               fit: BoxFit.contain,
               errorBuilder: (_, __, ___) =>
-                  const SizedBox.square(dimension: 45)),
+                  SizedBox.square(dimension: imageSize)),
           const SizedBox(width: 8),
         ],
         Expanded(

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/app_management_page_scaffold.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/app_progress_dialog.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -34,7 +35,6 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
   bool _busy = false;
   int _progress = 0;
   int _total = 0;
-  bool _searched = false;
   String? _error;
 
   List<LibraryWorkspaceContext> get _unlinked => widget.entries
@@ -89,7 +89,6 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
     if (mounted) {
       setState(() {
         _busy = false;
-        _searched = true;
       });
     }
   }
@@ -173,129 +172,194 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
             title: 'Link $plural',
             padding: EdgeInsets.zero,
             child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text('Find matches & link $plural',
-                          style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              height: 1.1)),
-                      const SizedBox(height: 10),
-                      Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            FilledButton(
-                                style: dialogActionButtonStyle(context,
-                                    primary: true, width: 110),
-                                onPressed:
-                                    _busy || entries.isEmpty ? null : _findAll,
-                                child: const Text('Find matches')),
-                            Text(
-                                '${entries.length} unlinked ${plural.toLowerCase()}'),
-                            if (_searched) ...[
-                              for (final score
-                                  in LibraryMetadataMatchScore.values)
-                                _scoreBadge(
-                                    score,
-                                    entries
-                                        .where((entry) =>
-                                            _matches[entry.libraryEntryRef!.key]
-                                                ?.score ==
-                                            score)
-                                        .length),
-                            ],
-                          ]),
-                      if (_busy) ...[
-                        const SizedBox(height: 10),
-                        LinearProgressIndicator(
-                            value: _total > 0 ? _progress / _total : null),
-                        if (_total > 0)
-                          Text('Finding matches: $_progress of $_total'),
-                      ],
-                      if (_searched) ...[
-                        const SizedBox(height: 10),
-                        Align(
-                            alignment: Alignment.centerLeft,
-                            child: FilledButton(
-                                style: dialogActionButtonStyle(context,
-                                    primary: true,
-                                    width: 0,
-                                    color: const Color(0xff5cb85c)),
-                                onPressed: !_busy && highCount > 0
-                                    ? _linkHighMatches
-                                    : null,
-                                child: Text(
-                                    'Link $highCount ${plural.toLowerCase()} with high match-score'))),
-                        const SizedBox(height: 10),
-                        const Text(
-                            'Review each result before linking. Your local metadata and personal data are preserved.',
-                            style: TextStyle(fontSize: 14)),
-                      ],
-                      if (_error != null)
-                        Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: Text(_error!,
-                                style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.error))),
-                      const SizedBox(height: 20),
-                      LayoutBuilder(builder: (context, constraints) {
-                        final width = constraints.maxWidth < 680
-                            ? 680.0
-                            : constraints.maxWidth;
-                        return SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: SizedBox(
-                                width: width,
-                                child: Table(
-                                    columnWidths: const {
-                                      0: FlexColumnWidth(43),
-                                      1: FlexColumnWidth(42),
-                                      2: FlexColumnWidth(15)
-                                    },
-                                    border: TableBorder.all(
-                                        color: palette.isDark
-                                            ? const Color(0xff383838)
-                                            : palette.divider),
-                                    defaultVerticalAlignment:
-                                        TableCellVerticalAlignment.middle,
-                                    children: [
-                                      TableRow(
-                                          decoration: BoxDecoration(
-                                              color: palette.isDark
-                                                  ? const Color(0xff464950)
-                                                  : palette.panelRaised),
-                                          children: [
-                                            _cell(Text(
-                                                'Your ${widget.type.identity.singularLabel}',
-                                                style: const TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.w700))),
-                                            _cell(const Text('Core result',
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.w700))),
-                                            _cell(const Text('Link',
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.w700))),
-                                          ]),
-                                      for (final entry in entries)
-                                        _row(context, entry),
-                                      if (entries.isEmpty)
-                                        const TableRow(children: [
-                                          _EmptyCell(),
-                                          SizedBox(),
-                                          SizedBox()
-                                        ]),
-                                    ])));
-                      }),
-                    ])));
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+                child: Center(
+                    child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 960),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const SizedBox(height: 20),
+                              Text('Find matches & link $plural',
+                                  style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w700,
+                                      height: 1.1)),
+                              const SizedBox(height: 10),
+                              _header(context, entries, highCount, plural),
+                              if (_error != null)
+                                Padding(
+                                    padding: const EdgeInsets.only(top: 10),
+                                    child: Text(_error!,
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .error))),
+                              const SizedBox(height: 20),
+                              LayoutBuilder(builder: (context, constraints) {
+                                final width = constraints.maxWidth < 680
+                                    ? 680.0
+                                    : constraints.maxWidth;
+                                return SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: SizedBox(
+                                        width: width,
+                                        child: Table(
+                                            columnWidths: const {
+                                              0: FlexColumnWidth(43),
+                                              1: FlexColumnWidth(42),
+                                              2: FlexColumnWidth(15)
+                                            },
+                                            border: TableBorder.all(
+                                                color: palette.isDark
+                                                    ? const Color(0xff383838)
+                                                    : palette.divider),
+                                            defaultVerticalAlignment:
+                                                TableCellVerticalAlignment
+                                                    .middle,
+                                            children: [
+                                              TableRow(
+                                                  decoration: BoxDecoration(
+                                                      color: palette.isDark
+                                                          ? const Color(
+                                                              0xff464950)
+                                                          : palette
+                                                              .panelRaised),
+                                                  children: [
+                                                    _cell(Text(
+                                                        'Your ${widget.type.identity.singularLabel}',
+                                                        style: const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w700))),
+                                                    _cell(const Text(
+                                                        'Core result',
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w700))),
+                                                    _cell(const Text('Link',
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w700))),
+                                                  ]),
+                                              for (final entry in entries)
+                                                _row(context, entry),
+                                              if (entries.isEmpty)
+                                                const TableRow(children: [
+                                                  _EmptyCell(),
+                                                  SizedBox(),
+                                                  SizedBox()
+                                                ]),
+                                            ])));
+                              }),
+                            ])))));
       }));
+
+  /// The tinted box with the match progress bar, counts and bulk link button.
+  Widget _header(BuildContext context, List<LibraryWorkspaceContext> entries,
+      int highCount, String plural) {
+    final palette = appPalette(context);
+    final singular = widget.type.identity.singularLabel.toLowerCase();
+    final lowerPlural = plural.toLowerCase();
+    int count(LibraryMetadataMatchScore score) => entries
+        .where((entry) => _matches[entry.libraryEntryRef!.key]?.score == score)
+        .length;
+    return Container(
+      color: palette.isDark ? const Color(0xff464950) : palette.panelRaised,
+      margin: const EdgeInsets.only(top: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: Row(children: [
+            Expanded(
+              child: AppStripedProgressBar(
+                height: 32,
+                animate: _busy,
+                value: _busy && _total > 0 ? _progress / _total : 0,
+                child: const Text('Automatch barcodes & find matches',
+                    style: TextStyle(
+                        color: Color(0xff333333),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400)),
+              ),
+            ),
+            SizedBox(
+              width: 110,
+              height: 32,
+              child: FilledButton(
+                  style: dialogActionButtonStyle(context, primary: true)
+                      .copyWith(
+                          shape: const WidgetStatePropertyAll(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.horizontal(
+                                      right: Radius.circular(4))))),
+                  onPressed: _busy || entries.isEmpty ? null : _findAll,
+                  child: const Text('Find matches')),
+            ),
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: LayoutBuilder(builder: (context, box) {
+            final scores = Wrap(
+                spacing: 3,
+                runSpacing: 5,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Container(
+                    height: 32,
+                    padding: const EdgeInsets.symmetric(horizontal: 7),
+                    decoration: BoxDecoration(
+                        color: const Color(0xffcccccc),
+                        borderRadius: BorderRadius.circular(4)),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 3),
+                          decoration: BoxDecoration(
+                              color: const Color(0xff333333),
+                              borderRadius: BorderRadius.circular(4)),
+                          child: Text('${entries.length}',
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 12))),
+                      const SizedBox(width: 5),
+                      Text(
+                          'unlinked ${entries.length == 1 ? singular : lowerPlural}',
+                          style: const TextStyle(
+                              color: Color(0xff444444), fontSize: 14)),
+                    ]),
+                  ),
+                  const SizedBox(width: 27),
+                  const Text('Match-score:'),
+                  for (final score in LibraryMetadataMatchScore.values)
+                    _scoreBadge(score, count(score)),
+                ]);
+            final bulk = SizedBox(
+              height: 32,
+              child: FilledButton(
+                  style: dialogActionButtonStyle(context,
+                      primary: true, width: 0, color: const Color(0xff5cb85c)),
+                  onPressed: !_busy && highCount > 0 ? _linkHighMatches : null,
+                  child: Text(
+                      'Link $highCount ${highCount == 1 ? singular : lowerPlural} with high match-score')),
+            );
+            return box.maxWidth >= 700
+                ? Row(children: [
+                    Expanded(child: scores),
+                    const SizedBox(width: 10),
+                    bulk,
+                  ])
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [scores, const SizedBox(height: 5), bulk]);
+          }),
+        ),
+      ]),
+    );
+  }
 
   Widget _cell(Widget child) =>
       Padding(padding: const EdgeInsets.all(8), child: child);
@@ -311,17 +375,19 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
       _cell(LinkItemSummary(
           title: entry.title,
           subtitle: card.seriesTitle ?? local.secondaryLabel,
-          imageUrl: local.imageUrl)),
+          imageUrl: local.imageUrl,
+          imageSize: 92)),
       _cell(candidate == null
           ? Text(_failures[key] ??
               (_matches.containsKey(key)
                   ? 'No matching catalog items found.'
-                  : 'Find matches to search Core.'))
+                  : '-\n-'))
           : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               LinkItemSummary(
                   title: candidate.summary.primaryLabel,
                   subtitle: candidate.summary.subtitle,
-                  imageUrl: candidate.summary.imageUrl),
+                  imageUrl: candidate.summary.imageUrl,
+                  imageSize: 92),
               const SizedBox(height: 5),
               _scoreBadge(match!.score!, null),
             ])),
@@ -347,16 +413,17 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
   }
 
   Widget _scoreBadge(LibraryMetadataMatchScore score, int? count) => Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+      padding: const EdgeInsets.fromLTRB(8.4, 2.8, 8.4, 4.2),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(3),
+          borderRadius: BorderRadius.circular(3.5),
           color: switch (score) {
             LibraryMetadataMatchScore.high => const Color(0xff5cb85c),
             LibraryMetadataMatchScore.medium => const Color(0xfff0ad4e),
             LibraryMetadataMatchScore.low => const Color(0xffd9534f),
           }),
-      child: Text('${count == null ? '' : '$count '}${score.name} match-score',
-          style: const TextStyle(color: Colors.white, fontSize: 12)));
+      child: Text(
+          count == null ? '${score.name} match-score' : '$count ${score.name}',
+          style: const TextStyle(color: Colors.white, fontSize: 14)));
 }
 
 class _EmptyCell extends StatelessWidget {

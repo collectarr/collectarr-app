@@ -70,7 +70,7 @@ class AppProgressDialog extends StatelessWidget {
                   const SizedBox(height: 10),
                   Text(message, style: const TextStyle(height: 20 / 14)),
                   const SizedBox(height: 20),
-                  const _StripedProgressBar(),
+                  const AppStripedProgressBar(),
                   const SizedBox(height: 5),
                 ],
               ),
@@ -82,18 +82,51 @@ class AppProgressDialog extends StatelessWidget {
   }
 }
 
-class _StripedProgressBar extends StatefulWidget {
-  const _StripedProgressBar();
+/// The reference's animated striped bar; [value] (0 to 1) fills that share of
+/// the track from the left, and null fills it all.
+class AppStripedProgressBar extends StatefulWidget {
+  const AppStripedProgressBar(
+      {super.key,
+      this.value,
+      this.height = 20,
+      this.radius = 4,
+      this.animate = true,
+      this.child});
+
+  final double? value;
+  final double height;
+  final double radius;
+
+  /// Whether the stripes move; a resting bar lets the UI settle.
+  final bool animate;
+
+  /// Drawn centred over the track, such as a status caption.
+  final Widget? child;
 
   @override
-  State<_StripedProgressBar> createState() => _StripedProgressBarState();
+  State<AppStripedProgressBar> createState() => _AppStripedProgressBarState();
 }
 
-class _StripedProgressBarState extends State<_StripedProgressBar>
+class _AppStripedProgressBarState extends State<AppStripedProgressBar>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 2))
-        ..repeat();
+      AnimationController(vsync: this, duration: const Duration(seconds: 2));
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.animate) _controller.repeat();
+  }
+
+  @override
+  void didUpdateWidget(AppStripedProgressBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.animate && !_controller.isAnimating) {
+      _controller.repeat();
+    } else if (!widget.animate && _controller.isAnimating) {
+      _controller.stop();
+    }
+  }
 
   @override
   void dispose() {
@@ -104,32 +137,39 @@ class _StripedProgressBarState extends State<_StripedProgressBar>
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 20,
+      height: widget.height,
       decoration: BoxDecoration(
         color: const Color(0xfff5f5f5),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(widget.radius),
       ),
       clipBehavior: Clip.antiAlias,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) => CustomPaint(
-            size: const Size.fromHeight(20),
-            painter: _StripePainter(_controller.value)),
-      ),
+      child: Stack(alignment: Alignment.center, children: [
+        Positioned.fill(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) => CustomPaint(
+                painter: _StripePainter(_controller.value, widget.value ?? 1)),
+          ),
+        ),
+        if (widget.child != null) widget.child!,
+      ]),
     );
   }
 }
 
 class _StripePainter extends CustomPainter {
-  _StripePainter(this.phase);
+  _StripePainter(this.phase, this.fraction);
   final double phase;
+  final double fraction;
 
   static const double _stripe = 40;
 
   @override
   void paint(Canvas canvas, Size size) {
+    final filled = Size(size.width * fraction.clamp(0.0, 1.0), size.height);
+    canvas.clipRect(Offset.zero & filled);
     canvas.drawRect(
-        Offset.zero & size, Paint()..color = const Color(0xff5bc0de));
+        Offset.zero & filled, Paint()..color = const Color(0xff5bc0de));
     final light = Paint()..color = const Color(0x26ffffff);
     final shift = phase * _stripe;
     for (var x = -_stripe * 2 + shift;
@@ -147,5 +187,6 @@ class _StripePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_StripePainter old) => old.phase != phase;
+  bool shouldRepaint(_StripePainter old) =>
+      old.phase != phase || old.fraction != fraction;
 }
