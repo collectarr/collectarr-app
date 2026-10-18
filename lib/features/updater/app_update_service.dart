@@ -355,15 +355,24 @@ class AppUpdateController extends Notifier<AppUpdateState> {
     return const AppUpdateState();
   }
 
+  /// Runs unawaited from [build] when the header first shows, so a failure
+  /// becomes the error state instead of an uncaught exception.
   Future<void> init() async {
-    final info = await PackageInfo.fromPlatform();
-    final settings = await UpdateSettings.load(info.version);
-    state = state.copyWith(
-      currentVersion: info.version,
-      settings: settings,
-    );
-    if (settings.autoCheck) {
-      await checkForUpdate();
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final settings = await UpdateSettings.load(info.version);
+      state = state.copyWith(
+        currentVersion: info.version,
+        settings: settings,
+      );
+      if (settings.autoCheck) {
+        await checkForUpdate();
+      }
+    } catch (e) {
+      state = state.copyWith(
+        status: UpdateStatus.error,
+        errorMessage: 'Could not read the installed version: $e',
+      );
     }
   }
 

@@ -230,6 +230,8 @@ abstract final class AppIcons {
       IconData(0xf007, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData bug =
       IconData(0xf188, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData appUpdate =
+      IconData(0xf0ab, fontFamily: _solid, fontPackage: _fontPackage);
 
   static const IconData paperPlane =
       IconData(0xf1d8, fontFamily: _solid, fontPackage: _fontPackage);

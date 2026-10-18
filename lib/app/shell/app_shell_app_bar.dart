@@ -5,6 +5,7 @@ import 'package:collectarr_app/ui/app_chrome.dart';
 
 import 'package:collectarr_app/features/library/home/home_kind_menu.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/app/shell/app_update_header_button.dart';
 import 'package:collectarr_app/features/sync/presentation/sync_action_button.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -74,6 +75,7 @@ class AppShellAppBar extends StatelessWidget implements PreferredSizeWidget {
           onSelected: onKindSelected,
         ),
         SyncActionButton(style: toolbarIconStyle),
+        AppUpdateHeaderButton(style: toolbarIconStyle, kind: type.kind),
         const SizedBox(width: 4),
       ],
     );

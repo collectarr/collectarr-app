@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### ✨ Features
+- Settings has an Updates tab to check for, download and install new versions on the Stable, Beta or Nightly channel; when a newer version is found at startup, a download button appears in the header right of Sync.
 - Add Albums has a Catalog No. tab that searches Core by catalog number, and the Barcode field has the scan button from the main search bar.
 - Add/Update from Core Settings is a dialog with Add from Core and Update from Core tabs: choose per non-personal field whether Add downloads it and whether Update skips, fills or replaces it.
 
