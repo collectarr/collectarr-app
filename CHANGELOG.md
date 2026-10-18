@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- Field lists in Re-Assign Index Values, Sort and column dialogs have no click ripple.
 - Close buttons in dialog headers and panels have no hover, press or ripple effect, as in the reference.
 - The folder list on the left no longer shows a click ripple, as in the reference.
 - Keyboard Shortcuts shows each combination as key caps with arrow glyphs, and its Close button matches the other dialog buttons.
