@@ -96,12 +96,6 @@ class AppShellActions {
           registry: defaultPickListRegistry,
           accent: accent,
           initialMediaKind: type.kind.apiValue,
-          initialListName: defaultPickListRegistry
-              .definitionsForKind(type.kind.apiValue)
-              .where((definition) =>
-                  definition.listName.startsWith('${type.kind.apiValue}.'))
-              .firstOrNull
-              ?.listName,
         );
         return;
       case DrawerAction.manageCollections:
