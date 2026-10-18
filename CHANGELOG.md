@@ -8,7 +8,7 @@
 - Add/Update from Core Settings is a dialog with Add from Core and Update from Core tabs: choose per non-personal field whether Add downloads it and whether Update skips, fills or replaces it.
 
 ### 🐛 Fixes
-- Reordering the tabs in edit dialogs and the collection tabs works like the reference: a plain copy follows the pointer, neighbours jump into place instead of sliding, and the tab eases into its slot on release; the collection tabs no longer flash their old order after a move.
+- Collection tabs keep their new order while a move is being saved instead of flashing the old one.
 - The collections button is transparent with a dark hover and a lighter 16 px icon, and the active collection has a check mark in the menu.
 - Folders and Music's Title, Format and Genre sorts ignore letter case and accents and put numbers in natural order (Raft 2 before Raft 10, Édith with the Es), as the reference does.
 - Horizontal Cards no longer overflow at small cover sizes, and the Cover Size slider keeps enlarging them across its whole range instead of stopping partway.

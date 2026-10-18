@@ -2,13 +2,12 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/features/library/collections/library_collections_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/app_sortable_row.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'library_collection_menu.dart';
 
-class LibraryCollectionTabBar extends ConsumerWidget {
+class LibraryCollectionTabBar extends ConsumerStatefulWidget {
   const LibraryCollectionTabBar(
       {super.key,
       required this.mediaKind,
@@ -17,17 +16,58 @@ class LibraryCollectionTabBar extends ConsumerWidget {
   final String mediaKind;
   final Color accent;
   final ValueChanged<LibraryCollectionSummary>? onCollectionSelected;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final collections = ref.watch(libraryCollectionsProvider(mediaKind));
+  ConsumerState<LibraryCollectionTabBar> createState() =>
+      _LibraryCollectionTabBarState();
+}
+
+class _LibraryCollectionTabBarState
+    extends ConsumerState<LibraryCollectionTabBar> {
+  /// The order just dropped, shown until the saved order arrives, so the tabs
+  /// never flash back to their old positions while the save is in flight.
+  List<String>? _pendingOrder;
+
+  Future<void> _reorder(LibraryCollectionRepository repo,
+      List<LibraryCollectionSummary> values, int oldIndex, int newIndex) async {
+    final ids = values.map((c) => c.id).toList();
+    final id = ids.removeAt(oldIndex);
+    ids.insert(newIndex, id);
+    setState(() => _pendingOrder = ids);
+    try {
+      await repo.reorder(widget.mediaKind, ids);
+    } catch (_) {
+      if (mounted) setState(() => _pendingOrder = null);
+      rethrow;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final collections = ref.watch(libraryCollectionsProvider(widget.mediaKind));
     final repo = LibraryCollectionRepository(ref.watch(localDatabaseProvider));
-    final values =
+    final saved =
         collections.asData?.value ?? const <LibraryCollectionSummary>[];
-    final activeId = activeLibraryCollectionId(values);
+    final pending = _pendingOrder;
+    final values = pending == null
+        ? saved
+        : [
+            for (final id in pending)
+              ...saved.where((collection) => collection.id == id),
+          ];
+    if (pending != null && values.length != saved.length) {
+      // A collection was added or removed meanwhile: the saved order wins.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _clearPending());
+    } else if (pending != null &&
+        saved.map((c) => c.id).join(',') == pending.join(',')) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _clearPending());
+    }
+    final accent = widget.accent;
+    final activeId = activeLibraryCollectionId(saved);
     final palette = appPalette(context);
     Future<void> select(LibraryCollectionSummary collection) async {
       await repo.activate(collection.id);
-      onCollectionSelected?.call(collection);
+      widget.onCollectionSelected?.call(collection);
     }
 
     return Container(
@@ -40,41 +80,48 @@ class LibraryCollectionTabBar extends ConsumerWidget {
               children: [
                 const SizedBox(width: 3),
                 LibraryCollectionMenu(
-                  collections: values,
+                  collections: saved,
                   activeId: activeId,
                   accent: accent,
                   onSelected: (collection) => unawaited(select(collection)),
-                  onManage: () => unawaited(
-                      showLibraryCollectionsDialog(context, kind: mediaKind)),
+                  onManage: () => unawaited(showLibraryCollectionsDialog(
+                      context,
+                      kind: widget.mediaKind)),
                 ),
                 const SizedBox(width: 3),
                 Expanded(
-                  child: AppSortableRow(
-                    onReorder: (oldIndex, newIndex) {
-                      final ids = values.map((c) => c.id).toList();
-                      final id = ids.removeAt(oldIndex);
-                      ids.insert(newIndex, id);
-                      unawaited(repo.reorder(mediaKind, ids));
-                    },
-                    children: [
-                      for (final collection in values)
-                        KeyedSubtree(
-                          key: ValueKey(
-                              'library-collection-tab-${collection.id}'),
-                          child: LibraryCollectionTab(
-                            label: collection.name,
-                            isActive: collection.id == activeId,
-                            accent: accent,
-                            onTap: () => select(collection),
-                          ),
+                  child: ReorderableListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    buildDefaultDragHandles: false,
+                    itemCount: values.length,
+                    onReorderItem: (oldIndex, newIndex) =>
+                        _reorder(repo, values, oldIndex, newIndex),
+                    itemBuilder: (_, index) {
+                      final collection = values[index];
+                      return ReorderableDragStartListener(
+                        key:
+                            ValueKey('library-collection-tab-${collection.id}'),
+                        index: index,
+                        child: LibraryCollectionTab(
+                          label: collection.name,
+                          isActive: collection.id == activeId,
+                          accent: accent,
+                          onTap: () => select(collection),
                         ),
-                    ],
+                      );
+                    },
                   ),
                 ),
               ],
             ),
           ),
         ]));
+  }
+
+  void _clearPending() {
+    if (mounted && _pendingOrder != null) {
+      setState(() => _pendingOrder = null);
+    }
   }
 }
 
