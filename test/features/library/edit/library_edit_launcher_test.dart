@@ -60,15 +60,58 @@ void main() {
     expect(find.textContaining('The Return of the King'), findsWidgets);
     expect(find.text('Save'), findsOneWidget);
   });
+
+  testWidgets('switching items keeps the dialog on screen with no spinner', (
+    tester,
+  ) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final first = _musicEditRequest();
+    final second = _musicEditRequest(title: 'Another Album');
+    final listenable = ValueNotifier(first);
+    addTearDown(listenable.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () => unawaited(showLibraryEditDialog(
+                  context: context,
+                  request: first,
+                  requestListenable: listenable,
+                )),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Save'), findsOneWidget);
+
+    listenable.value = second;
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.text('Save'), findsOneWidget);
+    await pumpUntilSettled(tester);
+    expect(find.textContaining('Another Album'), findsWidgets);
+  });
 }
 
-LibraryEditDialogRequest _musicEditRequest() {
+LibraryEditDialogRequest _musicEditRequest({
+  String title = 'The Return of the King',
+}) {
   return LibraryEditDialogRequest(
     type: const MusicRegistration(),
     item: CatalogSearchCandidate.fromItem(testCatalogItem(
       id: 'music-1',
       kind: 'music',
-      title: 'The Return of the King',
+      title: title,
     )),
     libraryEntry: null,
     accent: Colors.orange,
