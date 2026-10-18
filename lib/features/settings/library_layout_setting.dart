@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/providers/selected_library_provi
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
+import 'package:collectarr_app/ui/app_select.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,23 +35,14 @@ class _LibraryLayoutSettingState extends ConsumerState<LibraryLayoutSetting> {
   Widget build(BuildContext context) =>
       FutureBuilder<LibraryWorkspacePreferenceSnapshot>(
         future: _initial,
-        builder: (context, snapshot) =>
-            DropdownButtonFormField<LibraryDetailsLayout>(
-          isExpanded: true,
-          initialValue: _selection ?? snapshot.data?.detailsLayout,
+        builder: (context, snapshot) => AppSelect<LibraryDetailsLayout>(
+          value: _selection ?? snapshot.data?.detailsLayout,
           // Labelled by its Settings group legend.
           decoration: settingsSelectDecoration(context),
-          icon: const Icon(Icons.expand_more, size: 16),
-          items: const [
-            DropdownMenuItem(
-                value: LibraryDetailsLayout.right,
-                child: Text('Vertical split')),
-            DropdownMenuItem(
-                value: LibraryDetailsLayout.bottom,
-                child: Text('Horizontal split')),
-            DropdownMenuItem(
-                value: LibraryDetailsLayout.hidden,
-                child: Text('Hide Details panel')),
+          options: const [
+            (LibraryDetailsLayout.right, 'Vertical split'),
+            (LibraryDetailsLayout.bottom, 'Horizontal split'),
+            (LibraryDetailsLayout.hidden, 'Hide Details panel'),
           ],
           onChanged: !snapshot.hasData
               ? null

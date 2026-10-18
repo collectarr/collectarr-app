@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- Selects in Settings and Manage Pick Lists open a compact #444 list with 25 px rows like the reference.
 - Grey buttons (Cancel, Previous, Next) lighten slightly on hover like the reference, and the dialog header close button shows a clear hover highlight.
 - The Alphabet Options button sits behind a thin divider after the letters, as in the reference.
 - A clicked cover in Covers and Shelves fills with the selection blue instead of staying black until another item is selected.

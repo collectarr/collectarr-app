@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_select.dart';
 import 'package:flutter/material.dart';
 
 /// Controls of the reference Settings page: blue group legends over 34 px
@@ -96,20 +97,10 @@ class SettingsSelect<T> extends StatelessWidget {
   final ValueChanged<T>? onChanged;
 
   @override
-  Widget build(BuildContext context) => DropdownButtonFormField<T>(
-        isExpanded: true,
-        initialValue: value,
+  Widget build(BuildContext context) => AppSelect<T>(
+        value: value,
         decoration: settingsSelectDecoration(context),
-        style: TextStyle(
-            color: appPalette(context).textPrimary,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            height: 20 / 14),
-        icon: const Icon(Icons.expand_more, size: 16),
-        items: [
-          for (final option in values)
-            DropdownMenuItem(value: option, child: Text(labelOf(option))),
-        ],
+        options: [for (final option in values) (option, labelOf(option))],
         onChanged: onChanged == null
             ? null
             : (selected) {
