@@ -208,6 +208,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
       child: InkWell(
         key: key,
         onTap: () => widget.onSelected(context, action),
+        mouseCursor: SystemMouseCursors.click,
         splashFactory: NoSplash.splashFactory,
         highlightColor: Colors.transparent,
         hoverColor: palette.isDark ? const Color(0x26FFFFFF) : null,
