@@ -62,14 +62,9 @@ void main() {
       final bulk = tester.widget<FilledButton>(find.widgetWithText(
           FilledButton, 'Link 0 albums with high match-score'));
       expect(bulk.onPressed, isNull);
-      // Scroll the contained table horizontally on compact screens.
-      if (width < 680) {
-        final horizontal = find.byWidgetPredicate((widget) =>
-            widget is SingleChildScrollView &&
-            widget.scrollDirection == Axis.horizontal);
-        await tester.drag(horizontal, const Offset(-500, 0));
-        await tester.pumpAndSettle();
-      }
+      // Bring the table row into view on compact screens.
+      await tester.ensureVisible(find.text('Link manually'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Link manually'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Cancel'));

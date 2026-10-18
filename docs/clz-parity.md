@@ -143,6 +143,7 @@ Keep these when matching the reference visually.
 | Random pick | Selected an album that could be off-screen or outside the chosen letter | Picks among the shown albums and scrolls List, Cards, Covers and Shelves to it |
 | Add dialog | 1320 px two-pane dialog: "Search by" tabs, Manual and Scan links, format chips, side preview, "0 selected" footer | 690 px full-height column 10 px from the top: "Add Albums By:", folder tabs (Artist & Title, Barcode, settings gear), "Add Manually ›", 34 px field with a blue Search button, "N Results" caption with the format select, 71 px rows (cover, title, artist, "CD \| 1 disc, 10 tracks", barcode, checkbox), a "Confirm your selection" sheet over a dimmed dialog; the footer appears only for checked results |
 | Sidebar sections | Opened over 200 ms with an ease-in-out curve, the header lit on hover and rippled on click | 350 ms CSS `ease`, chevron turns in 100 ms, no header hover and no ripple |
+| Link Albums | Full-width page with a button row, plain badges and a small cover | 960 px column with the tinted header box: striped progress bar attached to Find matches, unlinked count pill, Match-score labels and the bulk Link button; 92 px covers in the table |
 
 ## Open differences
 
