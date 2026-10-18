@@ -122,14 +122,15 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     required LibraryCardPresentation presentation,
   }) {
     final palette = appPalette(context);
+    final background = selected
+        ? (selectedColor == kAppSelection
+            ? palette.utilityAction
+            : selectedColor)
+        : palette.panelRaised;
     return RepaintBoundary(
         child: AnimatedContainer(
       duration: kAppAnimFast,
-      color: selected
-          ? (selectedColor == kAppSelection
-              ? palette.utilityAction
-              : selectedColor)
-          : palette.panelRaised,
+      color: background,
       child: AppPressTap(
           onTap: onTap,
           builder: (context, onReleaseTap) => Material(
@@ -139,8 +140,10 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                   onDoubleTap: onDoubleTap,
                   onSecondaryTapUp: onSecondaryTapUp,
                   mouseCursor: SystemMouseCursors.click,
-                  hoverColor:
-                      selected ? Colors.transparent : palette.surfaceBright,
+                  // A hover highlight keeps the alpha it appeared with, so
+                  // turning it transparent on selection paints opaque black;
+                  // a selected card repaints its own fill instead.
+                  hoverColor: selected ? background : palette.surfaceBright,
                   highlightColor: Colors.transparent,
                   splashFactory: NoSplash.splashFactory,
                   child: Stack(children: [
@@ -311,8 +314,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                   color: Colors.transparent,
                   child: InkWell(
                     mouseCursor: WidgetStateMouseCursor.clickable,
-                    hoverColor:
-                        selected ? Colors.transparent : palette.surfaceBright,
+                    // See the horizontal card: never fade a hover to
+                    // transparent, which paints black.
+                    hoverColor: selected ? background : palette.surfaceBright,
                     highlightColor: Colors.transparent,
                     splashFactory: NoSplash.splashFactory,
                     onTap: onReleaseTap,

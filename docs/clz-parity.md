@@ -148,6 +148,7 @@ Keep these when matching the reference visually.
 | Add tabs | Unselected tabs darker (#505050) and Add Manually lit on hover; no Catalog No. tab; no scan button in the Barcode field | All tabs #666 with unselected at 50 % opacity, no Add Manually hover, Catalog No. tab (Music) and the main search bar's scan button in Barcode |
 | Core settings | Only the flat schema fields | Rows come from Core's Catalog Item contract with Core's titles: every field plus Discs, Credits, Artist credits and External links, with each disc's Tracks and Credits indented under Discs. Kinds without a Core catalog show a message |
 | Dialog motion | Fade only | Fade over 150 ms while sliding from a quarter of the dialog's height over 300 ms; reversed on close |
+| Selection under the pointer | A card or list row clicked while hovered turned black until the pointer left it | Turns the selection blue at once; pixel regression test for cards and rows |
 
 ## Open differences
 
