@@ -15,15 +15,7 @@ final class GameEntryDetailsCodec {
   GameEntryDetails defaultDetails() => const GameEntryDetails();
 
   GameEntryDetailsDraft draftFromDetails(GameEntryDetails details) =>
-      GameEntryDetailsDraft(
-        completeness: details.completeness,
-        hasBox: details.hasBox,
-        hasManual: details.hasManual,
-        priceChartingId: details.priceChartingId,
-        valuations: details.valuations,
-        coreRegion: details.coreRegion,
-        valueIsLocked: details.valueIsLocked,
-      );
+      GameEntryDetailsDraft(details);
 
   GameEntryDetailsDraft defaultDraft() => const GameEntryDetailsDraft();
 }

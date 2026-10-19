@@ -35,8 +35,7 @@ void main() {
       expect(ComicVocabularies.all.length, 10);
     });
 
-    test(
-        'Game vocabularies have platform, region, edition, age rating, condition',
+    test('Game vocabularies cover the reference Main, Value and Personal lists',
         () {
       expect(GameVocabularies.platform.builtIns, contains('PlayStation 5'));
       expect(GameVocabularies.platform.builtIns, contains('Nintendo Switch'));
@@ -45,7 +44,18 @@ void main() {
       expect(GameVocabularies.ageRating.builtIns, contains('ESRB: Teen (T)'));
       expect(GameVocabularies.condition.builtIns,
           contains('Complete in Box (CIB)'));
-      expect(GameVocabularies.all.length, 5);
+      expect(GameVocabularies.format.builtIns, contains('Steam Download'));
+      expect(GameVocabularies.audienceRating.builtIns, contains('Mature'));
+      expect(
+        GameVocabularies.all.map((vocabulary) => vocabulary.key),
+        containsAll([
+          'game.series',
+          'game.developer',
+          'game.publisher',
+          'game.genre',
+          'game.storage_device',
+        ]),
+      );
     });
 
     test(

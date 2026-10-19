@@ -13,6 +13,13 @@ abstract final class GameVocabularyIds {
   static const edition = VocabularyId<String>('game.edition');
   static const ageRating = VocabularyId<String>('game.age_rating');
   static const condition = VocabularyId<String>('game.condition');
+  static const audienceRating = VocabularyId<String>('game.audience_rating');
+  static const series = VocabularyId<String>('game.series');
+  static const developer = VocabularyId<String>('game.developer');
+  static const publisher = VocabularyId<String>('game.publisher');
+  static const genre = VocabularyId<String>('game.genre');
+  static const format = VocabularyId<String>('game.format');
+  static const storageDevice = VocabularyId<String>('game.storage_device');
 }
 
 abstract final class GameVocabularies {
@@ -97,6 +104,7 @@ abstract final class GameVocabularies {
     final key = switch (semanticName) {
       'game_completeness' => 'game_completeness',
       'region' => 'game_core_region',
+      'storage_device' => 'game_storage_device',
       _ => null,
     };
     if (key == null) return item;
@@ -129,6 +137,7 @@ abstract final class GameVocabularies {
     final key = switch (semanticName) {
       'game_completeness' => 'game_completeness',
       'region' => 'game_core_region',
+      'storage_device' => 'game_storage_device',
       _ => null,
     };
     if (key != null) {
@@ -246,12 +255,99 @@ abstract final class GameVocabularies {
     ],
   );
 
+  static const audienceRating = VocabularyDefinition<String>(
+    id: GameVocabularyIds.audienceRating,
+    label: 'Audience Rating',
+    valuesFrom: TypedVocabularyProjector<GameCatalogMetadata>(
+        _audienceRatingCatalogValues),
+    builtIns: [
+      'Early Childhood',
+      'Everyone',
+      'Everyone 10+',
+      'Teen',
+      'Mature',
+      'Adults Only',
+      'Rating Pending',
+    ],
+  );
+
+  static const series = VocabularyDefinition<String>(
+    id: GameVocabularyIds.series,
+    label: 'Series',
+    valuesFrom:
+        TypedVocabularyProjector<GameCatalogMetadata>(_seriesCatalogValues),
+  );
+
+  static const developer = VocabularyDefinition<String>(
+    id: GameVocabularyIds.developer,
+    label: 'Developer',
+    valuesFrom:
+        TypedVocabularyProjector<GameCatalogMetadata>(_developerCatalogValues),
+  );
+
+  static const publisher = VocabularyDefinition<String>(
+    id: GameVocabularyIds.publisher,
+    label: 'Publisher',
+    valuesFrom:
+        TypedVocabularyProjector<GameCatalogMetadata>(_publisherCatalogValues),
+  );
+
+  static const genre = VocabularyDefinition<String>(
+    id: GameVocabularyIds.genre,
+    label: 'Genre',
+    valuesFrom:
+        TypedVocabularyProjector<GameCatalogMetadata>(_genreCatalogValues),
+    builtIns: [
+      'Action',
+      'Action/Adventure',
+      'Adventure',
+      'Fighting',
+      'Platformer',
+      'Puzzle',
+      'Racing',
+      'Role-Playing',
+      'Shooter',
+      'Simulation',
+      'Sports',
+      'Strategy',
+    ],
+  );
+
+  static const format = VocabularyDefinition<String>(
+    id: GameVocabularyIds.format,
+    label: 'Format',
+    valuesFrom:
+        TypedVocabularyProjector<GameCatalogMetadata>(_formatCatalogValues),
+    builtIns: [
+      'Blu-ray Disc',
+      'DVD-ROM',
+      'CD-ROM',
+      'Cartridge',
+      'Game Card',
+      'UMD',
+      'Steam Download',
+      'Digital Download',
+    ],
+  );
+
+  static const storageDevice = VocabularyDefinition<String>(
+    id: GameVocabularyIds.storageDevice,
+    label: 'Storage Device',
+  );
+
   static const all = <VocabularyDefinition<dynamic>>[
     platform,
     region,
     edition,
     ageRating,
     condition,
+    audienceRating,
+    series,
+    developer,
+    publisher,
+    genre,
+    format,
+    storageDevice,
   ];
 }
 
@@ -274,3 +370,33 @@ Iterable<String?> _editionCatalogValues(GameCatalogMetadata metadata) sync* {
 Iterable<String?> _ageRatingCatalogValues(GameCatalogMetadata metadata) {
   return vocabularyValues([metadata.ageRating]);
 }
+
+Iterable<String?> _audienceRatingCatalogValues(GameCatalogMetadata metadata) =>
+    vocabularyValues([metadata.audienceRating]);
+
+Iterable<String?> _seriesCatalogValues(GameCatalogMetadata metadata) =>
+    vocabularyValues([metadata.seriesTitle]);
+
+Iterable<String?> _developerCatalogValues(GameCatalogMetadata metadata) =>
+    vocabularyValues(metadata.developers);
+
+Iterable<String?> _publisherCatalogValues(GameCatalogMetadata metadata) =>
+    vocabularyValues(splitGamePublishers(metadata.publisher));
+
+Iterable<String?> _genreCatalogValues(GameCatalogMetadata metadata) =>
+    vocabularyValues(metadata.genres);
+
+Iterable<String?> _formatCatalogValues(GameCatalogMetadata metadata) =>
+    vocabularyValues([metadata.physicalFormatLabel]);
+
+/// Core stores one publisher string; the editor lists several, as the
+/// reference does, joined with a slash.
+List<String> splitGamePublishers(String? publisher) => [
+      for (final name in (publisher ?? '').split(' / '))
+        if (name.trim().isNotEmpty) name.trim(),
+    ];
+
+String joinGamePublishers(Iterable<String> names) => names
+    .map((name) => name.trim())
+    .where((name) => name.isNotEmpty)
+    .join(' / ');

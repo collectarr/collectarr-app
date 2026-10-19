@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 
 const Object _gameDetailsUnset = Object();
@@ -17,6 +18,10 @@ class GameEntryDetails implements JsonEncodable {
     this.valuations,
     this.coreRegion,
     this.valueIsLocked,
+    this.storageDevice,
+    this.storageSlot,
+    this.completed,
+    this.completedDate,
   });
 
   final String? completeness;
@@ -27,6 +32,12 @@ class GameEntryDetails implements JsonEncodable {
   final String? coreRegion;
   final bool? valueIsLocked;
 
+  /// Console, drive or card the game is installed on, as in the reference.
+  final String? storageDevice;
+  final String? storageSlot;
+  final bool? completed;
+  final PartialDate? completedDate;
+
   @override
   Map<String, dynamic> toJson() => {
         if (completeness != null) 'game_completeness': completeness,
@@ -36,6 +47,11 @@ class GameEntryDetails implements JsonEncodable {
         if (valuations != null) 'game_valuations': valuations!.toJson(),
         if (coreRegion != null) 'game_core_region': coreRegion,
         if (valueIsLocked != null) 'game_value_is_locked': valueIsLocked,
+        if (storageDevice != null) 'game_storage_device': storageDevice,
+        if (storageSlot != null) 'game_storage_slot': storageSlot,
+        if (completed != null) 'game_completed': completed,
+        if (completedDate != null)
+          'game_completed_date_parts': completedDate!.toJson(),
       };
 
   factory GameEntryDetails.fromJson(Map<String, dynamic> json) {
@@ -51,6 +67,10 @@ class GameEntryDetails implements JsonEncodable {
           : null,
       coreRegion: json['game_core_region'] as String?,
       valueIsLocked: json['game_value_is_locked'] as bool?,
+      storageDevice: json['game_storage_device'] as String?,
+      storageSlot: json['game_storage_slot'] as String?,
+      completed: json['game_completed'] as bool?,
+      completedDate: PartialDate.tryParse(json['game_completed_date_parts']),
     );
   }
 
@@ -62,28 +82,25 @@ class GameEntryDetails implements JsonEncodable {
     Object? valuations = _gameDetailsUnset,
     Object? coreRegion = _gameDetailsUnset,
     Object? valueIsLocked = _gameDetailsUnset,
+    Object? storageDevice = _gameDetailsUnset,
+    Object? storageSlot = _gameDetailsUnset,
+    Object? completed = _gameDetailsUnset,
+    Object? completedDate = _gameDetailsUnset,
   }) {
+    T pick<T>(Object? value, T current) =>
+        identical(value, _gameDetailsUnset) ? current : value as T;
     return GameEntryDetails(
-      completeness: identical(completeness, _gameDetailsUnset)
-          ? this.completeness
-          : completeness as String?,
-      hasBox:
-          identical(hasBox, _gameDetailsUnset) ? this.hasBox : hasBox as bool?,
-      hasManual: identical(hasManual, _gameDetailsUnset)
-          ? this.hasManual
-          : hasManual as bool?,
-      priceChartingId: identical(priceChartingId, _gameDetailsUnset)
-          ? this.priceChartingId
-          : priceChartingId as String?,
-      valuations: identical(valuations, _gameDetailsUnset)
-          ? this.valuations
-          : valuations as GameValuationSet?,
-      coreRegion: identical(coreRegion, _gameDetailsUnset)
-          ? this.coreRegion
-          : coreRegion as String?,
-      valueIsLocked: identical(valueIsLocked, _gameDetailsUnset)
-          ? this.valueIsLocked
-          : valueIsLocked as bool?,
+      completeness: pick(completeness, this.completeness),
+      hasBox: pick(hasBox, this.hasBox),
+      hasManual: pick(hasManual, this.hasManual),
+      priceChartingId: pick(priceChartingId, this.priceChartingId),
+      valuations: pick(valuations, this.valuations),
+      coreRegion: pick(coreRegion, this.coreRegion),
+      valueIsLocked: pick(valueIsLocked, this.valueIsLocked),
+      storageDevice: pick(storageDevice, this.storageDevice),
+      storageSlot: pick(storageSlot, this.storageSlot),
+      completed: pick(completed, this.completed),
+      completedDate: pick(completedDate, this.completedDate),
     );
   }
 
@@ -98,7 +115,11 @@ class GameEntryDetails implements JsonEncodable {
           priceChartingId == other.priceChartingId &&
           valuations == other.valuations &&
           coreRegion == other.coreRegion &&
-          valueIsLocked == other.valueIsLocked;
+          valueIsLocked == other.valueIsLocked &&
+          storageDevice == other.storageDevice &&
+          storageSlot == other.storageSlot &&
+          completed == other.completed &&
+          completedDate?.isoString == other.completedDate?.isoString;
 
   @override
   int get hashCode => Object.hash(
@@ -109,5 +130,9 @@ class GameEntryDetails implements JsonEncodable {
         valuations,
         coreRegion,
         valueIsLocked,
+        storageDevice,
+        storageSlot,
+        completed,
+        completedDate?.isoString,
       );
 }

@@ -4,11 +4,13 @@
 
 ### ✨ Features
 - Games is available as a second library next to Music; existing databases gain its tables on the next start.
+- Games has its own editor and Manual Add laid out as the reference: Main (one platform, partial release date, several developers and publishers, series, format, edition, region, audience rating, genres), Value (completeness, box and manual, lockable value, condition, purchase facts, PriceCharting values and core region), Personal (owner, storage device and slot, completed and its date, rating, tags, notes), Custom Fields, My Images, Description and Links with YouTube trailers.
 
 ### 🐛 Fixes
 - The light theme keeps the toolbars, pane headers and collection tabs dark and uses the reference's light grey and white content areas, blue selection and teal item titles.
 - Saving a game keeps its franchise instead of dropping it.
 - Editors in the light theme use the reference's white fields with grey borders, a light grey body, a white button bar, grey Cancel and navigation buttons and dark field labels.
+- New games start with an empty Condition, as in the reference, instead of Near Mint.
 
 ### ♻️ Refactors
 - Manual Add's Collection Status, Index, Quantity and Location footer is shared by every library.

@@ -1,286 +1,180 @@
-import 'dart:async';
-
-import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
-import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
+import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_ordered_pick_list_field.dart';
+import 'package:flutter/material.dart';
 
 typedef GameFormValuesReader<TDraft> = GameCatalogFormValues Function(
-  TDraft draft,
-);
+    TDraft draft);
 
-List<LibraryFieldSpec<TDraft>> gameMetadataFields<TDraft>({
+/// Field ids of the reference Main tab, shared by Game Add and Edit.
+abstract final class GameMainFieldIds {
+  static const title = 'title';
+  static const sortTitle = 'sort_title';
+  static const platform = 'platform';
+  static const releaseDate = 'release_date';
+  static const developer = 'developer';
+  static const publisher = 'publisher';
+  static const series = 'series';
+  static const barcode = 'barcode';
+  static const format = 'format';
+  static const edition = 'edition';
+  static const region = 'region';
+  static const audienceRating = 'audience_rating';
+  static const genre = 'genre';
+}
+
+const gameTitleActions = [
+  LibraryTextFieldAction(
+    label: 'Autocap',
+    iconText: 'Aa',
+    transform: applyTitleCase,
+    appliesAsYouType: true,
+  ),
+];
+
+List<LibraryFieldSpec<TDraft>> gameMainFields<TDraft>({
   required GameFormValuesReader<TDraft> values,
-  bool includeTitle = true,
-  Set<String>? include,
-  Iterable<String>? ageRatingOptions,
-  Iterable<String>? platformOptions,
 }) =>
     [
-      if (includeTitle)
-        LibraryTextFieldSpec<TDraft>(
-          id: 'title',
-          label: 'Title',
-          value: (draft) => values(draft).title,
-          setValue: (draft, value) => values(draft).title = value,
-        ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'display_title',
-        label: 'Display Title',
-        value: (draft) => values(draft).displayTitle,
-        setValue: (draft, value) => values(draft).displayTitle = value,
+        id: GameMainFieldIds.title,
+        label: 'Title',
+        value: (draft) => values(draft).title,
+        setValue: (draft, value) => values(draft).title = value,
+        actions: gameTitleActions,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'original_title',
-        label: 'Original Title',
-        value: (draft) => values(draft).originalTitle,
-        setValue: (draft, value) => values(draft).originalTitle = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'localized_title',
-        label: 'Localized Title',
-        value: (draft) => values(draft).localizedTitle,
-        setValue: (draft, value) => values(draft).localizedTitle = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'sort_title',
+        id: GameMainFieldIds.sortTitle,
         label: 'Sort Title',
         value: (draft) => values(draft).sortTitle,
         setValue: (draft, value) => values(draft).sortTitle = value,
       ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'subtitle',
-        label: 'Subtitle',
-        value: (draft) => values(draft).subtitle,
-        setValue: (draft, value) => values(draft).subtitle = value,
+      _vocabulary<TDraft>(
+        id: GameMainFieldIds.platform,
+        definition: GameVocabularies.platform,
+        read: (draft) => values(draft).platform,
+        write: (draft, value) => values(draft).platform = value,
+      ),
+      LibraryPartialDateFieldSpec<TDraft>(
+        id: GameMainFieldIds.releaseDate,
+        label: 'Release Date',
+        value: (draft) => values(draft).releaseDateParts,
+        setValue: (draft, value) => values(draft).releaseDateParts = value,
+      ),
+      _names<TDraft>(
+        id: GameMainFieldIds.developer,
+        definition: GameVocabularies.developer,
+        read: (draft) => values(draft).developers,
+        write: (draft, names) => values(draft).developers = names,
+      ),
+      _names<TDraft>(
+        id: GameMainFieldIds.publisher,
+        definition: GameVocabularies.publisher,
+        read: (draft) => values(draft).publishers,
+        write: (draft, names) => values(draft).publishers = names,
+      ),
+      _vocabulary<TDraft>(
+        id: GameMainFieldIds.series,
+        definition: GameVocabularies.series,
+        read: (draft) => values(draft).series,
+        write: (draft, value) => values(draft).series = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'description',
-        label: 'Description',
-        value: (draft) => values(draft).description,
-        setValue: (draft, value) => values(draft).description = value,
-        maxLines: 4,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'publisher',
-        label: 'Publisher',
-        value: (draft) => values(draft).publisher,
-        setValue: (draft, value) => values(draft).publisher = value,
-      ),
-      LibraryMultiVocabularyFieldSpec<TDraft, String>(
-        id: 'platforms',
-        label: 'Platforms',
-        values: (draft) => values(draft).platforms.toSet(),
-        setValues: (draft, next) =>
-            values(draft).platforms = next.toList(growable: false),
-        options:
-            _options(platformOptions ?? GameVocabularies.platform.builtIns),
-        pickListKey: GameVocabularyIds.platform.value,
-        allowCustomValues: true,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'identifiers',
-        label: 'Identifiers',
-        value: (draft) => values(draft).identifiers.join(', '),
-        setValue: (draft, value) => values(draft).identifiers = _split(value),
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'company_roles',
-        label: 'Companies and roles',
-        value: (draft) => values(draft).companyRoles.join(', '),
-        setValue: (draft, value) => values(draft).companyRoles = _split(value),
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'developers',
-        label: 'Developers',
-        value: (draft) => values(draft).developers.join(', '),
-        setValue: (draft, value) => values(draft).developers = _split(value),
-      ),
-      LibraryMultiVocabularyFieldSpec<TDraft, String>(
-        id: 'age_ratings',
-        label: 'Age ratings',
-        values: (draft) => values(draft).ageRatings.toSet(),
-        setValues: (draft, next) =>
-            values(draft).ageRatings = next.toList(growable: false),
-        options: _options(
-          ageRatingOptions ?? GameVocabularies.ageRating.builtIns,
-        ),
-        pickListKey: GameVocabularyIds.ageRating.value,
-        allowCustomValues: true,
-      ),
-      LibraryMultiVocabularyFieldSpec<TDraft, String>(
-        id: 'genres',
-        label: 'Genres',
-        values: (draft) => values(draft).genres.toSet(),
-        setValues: (draft, next) =>
-            values(draft).genres = next.toList(growable: false),
-        options: const [],
-        allowCustomValues: true,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'search_aliases',
-        label: 'Search Aliases',
-        value: (draft) => values(draft).searchAliases.join(', '),
-        setValue: (draft, value) => values(draft).searchAliases = _split(value),
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'original_language',
-        label: 'Original language',
-        value: (draft) => values(draft).originalLanguage,
-        setValue: (draft, value) => values(draft).originalLanguage = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: GameFieldIdentities.franchiseId,
-        label: GameFieldIdentities.franchiseLabel,
-        value: (draft) => values(draft).franchise,
-        setValue: (draft, value) => values(draft).franchise = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'toy_subtype',
-        label: 'Toy subtype',
-        value: (draft) => values(draft).toySubtype,
-        setValue: (draft, value) => values(draft).toySubtype = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'toy_type',
-        label: 'Toy type',
-        value: (draft) => values(draft).toyType,
-        setValue: (draft, value) => values(draft).toyType = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'series',
-        label: 'Series',
-        value: (draft) => values(draft).series,
-        setValue: (draft, value) => values(draft).series = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'languages',
-        label: 'Languages',
-        value: (draft) => values(draft).languages.join(', '),
-        setValue: (draft, value) => values(draft).languages = _split(value),
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'country',
-        label: 'Country',
-        value: (draft) => values(draft).country,
-        setValue: (draft, value) => values(draft).country = value,
-      ),
-    ].where((field) => include == null || include.contains(field.id)).toList();
-
-List<LibraryFieldSpec<TDraft>> gameCatalogItemFields<TDraft>({
-  required GameFormValuesReader<TDraft> values,
-  Set<String>? include,
-  String titleLabel = 'Edition title',
-  Iterable<String>? regionOptions,
-  Iterable<String>? formatOptions,
-  String? Function(String value)? physicalFormatIdForValue,
-  FutureOr<void> Function()? onManageRegion,
-  FutureOr<void> Function()? onManageFormat,
-}) =>
-    [
-      LibraryTextFieldSpec<TDraft>(
-        id: 'edition_title',
-        label: titleLabel,
-        value: (draft) => values(draft).editionTitle,
-        setValue: (draft, value) => values(draft).editionTitle = value,
-      ),
-      LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'region',
-        label: 'Region',
-        value: (draft) => _nullable(values(draft).region),
-        setValue: (draft, value) => values(draft).region = value ?? '',
-        options: _options(regionOptions ?? GameVocabularies.region.builtIns),
-        pickListKey: GameVocabularyIds.region.value,
-        onManage: onManageRegion == null ? null : (_) => onManageRegion(),
-      ),
-      LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'format',
-        label: 'Format',
-        value: (draft) => _nullable(values(draft).format),
-        setValue: (draft, value) {
-          values(draft).format = value ?? '';
-          if (physicalFormatIdForValue != null) {
-            values(draft).physicalFormatId =
-                value == null ? null : physicalFormatIdForValue(value);
-          }
-        },
-        onManage: onManageFormat == null ? null : (_) => onManageFormat(),
-        options: _options(formatOptions ?? GameVocabularies.edition.builtIns),
-        pickListKey: GameVocabularyIds.edition.value,
-      ),
-      LibraryDateFieldSpec<TDraft>(
-        id: GameFieldIdentities.releaseDateId,
-        label: GameFieldIdentities.releaseDateLabel,
-        value: (draft) => values(draft).releaseDate,
-        setValue: (draft, value) => values(draft).releaseDate = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'publisher',
-        label: 'Publisher',
-        value: (draft) => values(draft).publisher,
-        setValue: (draft, value) => values(draft).publisher = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'catalog_number',
-        label: 'Catalog number',
-        value: (draft) => values(draft).catalogNumber,
-        setValue: (draft, value) => values(draft).catalogNumber = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'release_status',
-        label: 'Release status',
-        value: (draft) => values(draft).releaseStatus,
-        setValue: (draft, value) => values(draft).releaseStatus = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'language',
-        label: 'Language',
-        value: (draft) => values(draft).language,
-        setValue: (draft, value) => values(draft).language = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: GameFieldIdentities.barcodeId,
-        label: GameFieldIdentities.barcodeLabel,
+        id: GameMainFieldIds.barcode,
+        label: 'Barcode',
         value: (draft) => values(draft).barcode,
         setValue: (draft, value) => values(draft).barcode = value,
       ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'cover_image_url',
-        label: 'Cover image URL',
-        value: (draft) => values(draft).coverImageUrl,
-        setValue: (draft, value) => values(draft).coverImageUrl = value,
+      _vocabulary<TDraft>(
+        id: GameMainFieldIds.format,
+        definition: GameVocabularies.format,
+        read: (draft) => values(draft).format,
+        write: (draft, value) => values(draft).format = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'thumbnail_image_url',
-        label: 'Thumbnail image URL',
-        value: (draft) => values(draft).thumbnailImageUrl,
-        setValue: (draft, value) => values(draft).thumbnailImageUrl = value,
+        id: GameMainFieldIds.edition,
+        label: 'Edition',
+        value: (draft) => values(draft).editionTitle,
+        setValue: (draft, value) => values(draft).editionTitle = value,
       ),
-      LibraryNumberFieldSpec<TDraft>(
-        id: 'release_year',
-        label: 'Release year',
-        value: (draft) => values(draft).releaseYear?.toDouble(),
-        setValue: (draft, value) => values(draft).releaseYear = value?.toInt(),
-        minimum: 1,
+      _vocabulary<TDraft>(
+        id: GameMainFieldIds.region,
+        definition: GameVocabularies.region,
+        read: (draft) => values(draft).region,
+        write: (draft, value) => values(draft).region = value,
       ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'variant',
-        label: 'Variant',
-        value: (draft) => values(draft).variant,
-        setValue: (draft, value) => values(draft).variant = value,
+      _vocabulary<TDraft>(
+        id: GameMainFieldIds.audienceRating,
+        definition: GameVocabularies.audienceRating,
+        read: (draft) => values(draft).audienceRating,
+        write: (draft, value) => values(draft).audienceRating = value,
       ),
-    ].where((field) => include == null || include.contains(field.id)).toList();
+      LibraryMultiVocabularyFieldSpec<TDraft, String>(
+        id: GameMainFieldIds.genre,
+        label: 'Genre',
+        pickListKey: GameVocabularyIds.genre.value,
+        pluralLabel: 'Genres',
+        values: (draft) => values(draft).genres.toSet(),
+        setValues: (draft, next) =>
+            values(draft).genres = next.toList(growable: false),
+        options: _options(GameVocabularies.genre.builtIns),
+      ),
+    ];
 
-String? _nullable(String value) => value.trim().isEmpty ? null : value;
+LibraryVocabularyFieldSpec<TDraft, String> _vocabulary<TDraft>({
+  required String id,
+  required VocabularyDefinition<String> definition,
+  required String Function(TDraft draft) read,
+  required void Function(TDraft draft, String value) write,
+}) =>
+    LibraryVocabularyFieldSpec<TDraft, String>(
+      id: id,
+      label: definition.label ?? '',
+      value: (draft) {
+        final value = read(draft).trim();
+        return value.isEmpty ? null : value;
+      },
+      setValue: (draft, value) => write(draft, value ?? ''),
+      options: _options(definition.builtIns),
+      pickListKey: definition.key,
+    );
+
+/// Repeated pick list with + and × per row, as the reference Developer and
+/// Publisher fields.
+LibraryCustomFieldSpec<TDraft> _names<TDraft>({
+  required String id,
+  required VocabularyDefinition<String> definition,
+  required List<String> Function(TDraft draft) read,
+  required void Function(TDraft draft, List<String> names) write,
+}) =>
+    LibraryCustomFieldSpec<TDraft>(
+      id: id,
+      label: definition.label ?? '',
+      builder: (context, draft) => StatefulBuilder(builder: (context, refresh) {
+        final names = read(draft);
+        return LibraryOrderedPickListField(
+          label: definition.label ?? '',
+          listName: definition.key,
+          mediaKind: 'game',
+          loadOptions: (db) =>
+              GameVocabularies.entryOptions(db, definition.key.split('.').last),
+          values: [
+            for (final (index, name) in names.indexed)
+              LibraryNamedValue(id: '$id-$index', name: name),
+          ],
+          onChanged: (selected) => refresh(() => write(draft, [
+                for (final value in selected)
+                  if (value.name.trim().isNotEmpty) value.name.trim(),
+              ])),
+        );
+      }),
+    );
 
 List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
       for (final value in values)
         LibraryFieldOption(value: value, label: value),
     ];
-
-List<String> _split(String value) => value
-    .split(RegExp(r'[,;\r\n]+'))
-    .map((entry) => entry.trim())
-    .where((entry) => entry.isNotEmpty)
-    .toSet()
-    .toList(growable: false);

@@ -1,80 +1,39 @@
-/// Editable fields for one concrete Game Catalog Item.
-///
-/// Release-specific fields are kept on this item; the form does not model a
-/// separate Work or Release record.
+import 'package:collectarr_app/core/models/partial_date.dart';
+
+/// Editable catalog fields of one Game item, as on the reference Main and
+/// Description tabs. Core fields without an editor are preserved on save.
 final class GameCatalogFormValues {
   GameCatalogFormValues({
     this.title = '',
-    this.displayTitle = '',
-    this.originalTitle = '',
-    this.localizedTitle = '',
     this.sortTitle = '',
-    this.subtitle = '',
-    this.description = '',
-    this.publisher = '',
-    this.platforms = const [],
-    this.identifiers = const [],
-    this.companyRoles = const [],
+    this.platform = '',
+    this.releaseDateParts,
     this.developers = const [],
-    this.ageRatings = const [],
-    this.genres = const [],
-    this.searchAliases = const [],
-    this.originalLanguage = '',
-    this.franchise = '',
-    this.toySubtype = '',
-    this.toyType = '',
+    this.publishers = const [],
     this.series = '',
-    this.languages = const [],
-    this.country = 'US',
+    this.barcode = '',
+    this.format = '',
     this.editionTitle = '',
     this.region = '',
-    this.format = '',
-    this.physicalFormatId,
-    this.releaseDate,
-    this.catalogNumber = '',
-    this.releaseStatus = '',
-    this.language = '',
-    this.barcode = '',
-    this.coverImageUrl = '',
-    this.releaseYear,
-    this.variant = '',
-    this.thumbnailImageUrl = '',
+    this.audienceRating = '',
+    this.genres = const [],
+    this.description = '',
   });
 
   String title;
-  String displayTitle;
-  String originalTitle;
-  String localizedTitle;
   String sortTitle;
-  String subtitle;
-  String description;
-  String publisher;
-  List<String> platforms;
-  List<String> identifiers;
-  List<String> companyRoles;
-  List<String> developers;
-  List<String> ageRatings;
-  List<String> genres;
-  List<String> searchAliases;
-  String originalLanguage;
-  String franchise;
-  String toySubtype;
-  String toyType;
-  String series;
-  List<String> languages;
-  String country;
 
+  /// One platform per item, as in the reference.
+  String platform;
+  PartialDate? releaseDateParts;
+  List<String> developers;
+  List<String> publishers;
+  String series;
+  String barcode;
+  String format;
   String editionTitle;
   String region;
-  String format;
-  String? physicalFormatId;
-  DateTime? releaseDate;
-  String catalogNumber;
-  String releaseStatus;
-  String language;
-  String barcode;
-  String coverImageUrl;
-  int? releaseYear;
-  String variant;
-  String thumbnailImageUrl;
+  String audienceRating;
+  List<String> genres;
+  String description;
 }

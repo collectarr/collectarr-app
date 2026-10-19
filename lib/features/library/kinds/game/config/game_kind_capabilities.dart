@@ -3,6 +3,7 @@ import '../game_module_dependencies.dart';
 import 'game_kind_configuration.dart';
 import '../data/game_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
 final gameKindPresentation = gamesLibraryMediaPresentation;
 
@@ -10,7 +11,7 @@ final gameKindPhysicalMediaFormats = gamePhysicalMediaFormats;
 
 final gameKindTrackingProfile = gameTrackingProfile;
 
-final gameKindUiPolicy = const LibraryUiPolicy();
+final gameKindUiPolicy = const LibraryUiPolicy(coverAspectRatio: 0.7);
 
 final LibraryRelationCapability? gameKindRelations = null;
 
@@ -22,7 +23,9 @@ final gameKindSearchTargetOptions = const <LibrarySearchTarget>[];
 
 final gameKindViewProfile = standardMediaWorkspaceViewProfile(
   CatalogMediaKind.game,
-  const LibraryUiPolicy(),
+  gameKindUiPolicy,
+  defaultDetailsLayout: LibraryDetailsLayout.right,
+  defaultDetailsWidth: 350,
 );
 
 final gameKindIdentity = const LibraryKindIdentity(
@@ -32,7 +35,7 @@ final gameKindIdentity = const LibraryKindIdentity(
   title: 'Games',
   icon: Icons.sports_esports,
   coverPlaceholderIcon: AppIcons.gamepad,
-  accent: Color(0xFFF64458),
+  accent: Color(0xFFE23149),
   preferencePrefix: 'games',
   routeSegments: ['games', 'game'],
   mediaFamily: 'game',
@@ -54,40 +57,60 @@ final gameKindTrackingTopology = const LibraryTrackingTopology(
   aggregateTargets: {LibraryTrackingTarget.libraryEntry},
 );
 
-final gameKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
+final gameKindPersonalFieldContributor = LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.game,
   fields: [
-    ...commonPersonalLibraryFields,
-    PersonalLibraryFieldSpec(
-      key: 'game_completeness',
-      label: 'Game completeness',
-      group: 'Games',
+    for (final field in commonPersonalLibraryFields)
+      relabelPersonalLibraryField(
+          field,
+          switch (field.key) {
+            'market_value_cents' => 'Value',
+            'price_paid_cents' => 'Purchase Price',
+            'purchase_store' => 'Purchase Store',
+            'purchase_date' => 'Purchase Date',
+            'owner_label' => 'Owner',
+            'rating' => 'My Rating',
+            'personal_notes' => 'Notes',
+            'collection_status' => 'Collection Status',
+            _ => field.label,
+          }),
+    const PersonalLibraryFieldSpec(
+        key: 'quantity',
+        label: 'Quantity',
+        group: 'Collection state',
+        syncable: true,
+        inputKind: PersonalLibraryFieldEditor.integer,
+        area: PersonalLibraryFieldArea.statusStrip,
+        editOrder: 2,
+        minimum: 1,
+        defaultInteger: 1),
+    const PersonalLibraryFieldSpec(
+      key: 'game_storage_device',
+      label: 'Storage Device',
+      group: 'Storage',
+      syncable: true,
+      inputKind: PersonalLibraryFieldEditor.singleVocabulary,
+      area: PersonalLibraryFieldArea.personalFields,
+      editOrder: 7,
+      vocabularyListName: 'game.storage_device',
     ),
-    PersonalLibraryFieldSpec(
-      key: 'game_has_box',
-      label: 'Game has box',
-      group: 'Games',
-    ),
-    PersonalLibraryFieldSpec(
-      key: 'game_has_manual',
-      label: 'Game has manual',
-      group: 'Games',
-    ),
-    PersonalLibraryFieldSpec(
-      key: 'game_pricecharting_id',
-      label: 'Game PriceCharting ID',
-      group: 'Games',
-    ),
-    PersonalLibraryFieldSpec(
-      key: 'game_core_region',
-      label: 'Game core region',
-      group: 'Games',
-    ),
-    PersonalLibraryFieldSpec(
-      key: 'game_value_is_locked',
-      label: 'Game value locked',
-      group: 'Games',
-    ),
+    for (final (key, label) in const [
+      ('game_completeness', 'Completeness'),
+      ('game_has_box', 'Box'),
+      ('game_has_manual', 'Manual'),
+      ('game_pricecharting_id', 'PriceCharting ID'),
+      ('game_core_region', 'Core Region'),
+      ('game_value_is_locked', 'Value Locked'),
+      ('game_storage_slot', 'Storage Slot'),
+      ('game_completed', 'Completed'),
+      ('game_completed_date_parts', 'Completed Date'),
+    ])
+      PersonalLibraryFieldSpec(
+        key: key,
+        label: label,
+        group: 'Games',
+        syncable: true,
+      ),
   ],
 );
 

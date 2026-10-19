@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_adapters.dart';
@@ -19,18 +20,8 @@ CatalogSearchCandidate? buildGameManualCandidate(
     id: id,
     title: title,
     externalLinks: [
-      for (final (index, link) in draft.externalLinks
-          .where((link) => link.urlController.text.trim().isNotEmpty)
-          .indexed)
-        GameCatalogLink(
-          url: link.urlController.text.trim(),
-          label: _optional(link.titleController.text),
-          title: _optional(link.titleController.text),
-          description: _optional(link.descriptionController.text),
-          kind: 'external',
-          linkType: 'external',
-          position: index + 1,
-        ),
+      ..._links(draft.externalLinks, kind: 'external'),
+      ..._links(draft.trailers, kind: 'trailer'),
     ],
   );
   return CatalogSearchCandidate.fromItem(
@@ -41,6 +32,25 @@ CatalogSearchCandidate? buildGameManualCandidate(
     ),
   );
 }
+
+List<GameCatalogLink> _links(
+  List<LibraryExternalLinkDraftRow> rows, {
+  required String kind,
+}) =>
+    [
+      for (final (index, link) in rows
+          .where((link) => link.urlController.text.trim().isNotEmpty)
+          .indexed)
+        GameCatalogLink(
+          url: link.urlController.text.trim(),
+          label: _optional(link.titleController.text),
+          title: _optional(link.titleController.text),
+          description: _optional(link.descriptionController.text),
+          kind: kind,
+          linkType: kind,
+          position: index + 1,
+        ),
+    ];
 
 String? _optional(String value) {
   final normalized = value.trim();

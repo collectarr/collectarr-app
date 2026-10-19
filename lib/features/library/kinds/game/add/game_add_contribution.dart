@@ -13,7 +13,8 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       GameLibraryEntryCreatePayload(
     details: details as GameEntryDetailsDraft,
-    condition: common.condition,
+    condition:
+        (common.condition?.trim().isEmpty ?? true) ? null : common.condition,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
     pricePaidCents: common.pricePaidCents,
@@ -25,6 +26,11 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
+    quantity: draft.quantity,
+    indexNumber: draft.indexNumber,
+    rating: draft.rating,
+    marketValueCents: draft.marketValueCents,
+    purchaseDateParts: draft.purchaseDateParts,
   ),
   digitalCopyFlagBuilder: (item) {
     final payload =

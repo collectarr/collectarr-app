@@ -73,10 +73,10 @@ under every tab.
 | --- | --- | --- | --- | --- |
 | Main | Title | text with capitalisation button | Catalog | `title` |
 | Main | Sort Title | text | Catalog | `sort_key` |
-| Main | Platform | single pick list | Catalog | `platforms` (list; **gap**: CLZ has one platform per item) |
+| Main | Platform | single pick list | Catalog | `platforms` (the editor picks one; an unchanged first platform keeps Core's others) |
 | Main | Release Date | partial date YYYY/MM/DD | Catalog | `release_date_parts` |
 | Main | Developer | repeated pick list (+) | Catalog | `developers` |
-| Main | Publisher | repeated pick list (+) | Catalog | `publisher` (single; **gap**) |
+| Main | Publisher | repeated pick list (+) | Catalog | `publisher` (one Core string; the editor lists names joined with " / ") |
 | Main | Series | single pick list | Catalog | `series_title` |
 | Main | Barcode | text | Catalog | `barcode` |
 | Main | Format | single pick list (e.g. Blu-ray Disc) | Catalog | `physical_format` |
@@ -90,16 +90,16 @@ under every tab.
 | Value | Condition | single pick list | Personal | `condition` |
 | Value | Purchase Price | currency | Personal | `price_paid_cents` |
 | Value | Purchase Store | single pick list | Personal | `purchase_store` |
-| Value | Purchase Date | partial date | Personal | `purchase_date` (full date; **gap**) |
+| Value | Purchase Date | partial date | Personal | `purchase_date_parts` |
 | Value | PriceCharting ID | text with refresh | Personal | `game_pricecharting_id` |
 | Value | Core Region | segmented US, EU | Personal | `game_core_region` |
 | Value | Values from PriceCharting | bar chart: Loose, Loose + Box, Loose + Manual, CIB, New, Graded | Personal | `game_valuations` |
 | Personal | Owner | single pick list | Personal | `owner_label` |
-| Personal | Storage Device | single pick list | Personal | **gap** |
-| Personal | Storage Slot | text | Personal | **gap** |
+| Personal | Storage Device | single pick list | Personal | `game_storage_device` |
+| Personal | Storage Slot | text | Personal | `game_storage_slot` |
 | Personal | Notes | multi-line text | Personal | `personal_notes` |
-| Personal | Completed | segmented No, Yes | Personal | tracking status (**gap**: CLZ has a yes/no flag, the app a play lifecycle) |
-| Personal | Completed Date | partial date | Personal | tracking `finished_at` |
+| Personal | Completed | segmented No, Yes | Personal | `game_completed` |
+| Personal | Completed Date | partial date | Personal | `game_completed_date_parts` |
 | Personal | My Rating | ten stars | Personal | tracking `rating` |
 | Personal | Tags | multi-value pick list | Personal | `tags` (one string; **gap**) |
 | Footer | Collection Status, Index, Quantity, Location | pick list, number, number, pick list | Personal | shared entry fields |
@@ -108,7 +108,11 @@ under every tab.
 | Links | Links; YouTube Trailers | URL + description rows | Catalog | `external_links`; `trailer_urls` |
 
 Choosing a completeness level replaces the value with that tier's
-PriceCharting value; Graded adds no fields.
+PriceCharting value unless the value is locked; Graded adds no fields.
+
+Collectarr implements this editor and Manual Add as dedicated Game screens
+(`kinds/game/edit/`, `kinds/game/add/`). Open: Covers tab, Tags as a list,
+and PriceCharting refresh (no PriceCharting integration exists).
 
 ### Toys editor
 

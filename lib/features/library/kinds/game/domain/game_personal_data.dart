@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:flutter/foundation.dart';
@@ -25,6 +28,9 @@ final class GamePersonalData implements JsonEncodable {
     this.purchaseStore,
     this.collectionStatus,
     this.marketValueCents,
+    this.quantity = 1,
+    this.rating,
+    this.purchaseDateParts,
     this.details = const GameEntryDetails(),
   });
 
@@ -46,6 +52,9 @@ final class GamePersonalData implements JsonEncodable {
   final String? purchaseStore;
   final String? collectionStatus;
   final int? marketValueCents;
+  final int quantity;
+  final int? rating;
+  final PartialDate? purchaseDateParts;
   final GameEntryDetails details;
 
   @override
@@ -68,6 +77,10 @@ final class GamePersonalData implements JsonEncodable {
         'purchase_store': purchaseStore,
         'collection_status': collectionStatus,
         'market_value_cents': marketValueCents,
+        'quantity': quantity,
+        'rating': rating,
+        if (purchaseDateParts != null)
+          'purchase_date_parts': purchaseDateParts!.toJson(),
         ...details.toJson(),
       };
 
@@ -91,6 +104,9 @@ final class GamePersonalData implements JsonEncodable {
         purchaseStore: json['purchase_store'] as String?,
         collectionStatus: json['collection_status'] as String?,
         marketValueCents: (json['market_value_cents'] as num?)?.toInt(),
+        quantity: math.max(1, (json['quantity'] as num?)?.toInt() ?? 1),
+        rating: (json['rating'] as num?)?.toInt(),
+        purchaseDateParts: PartialDate.tryParse(json['purchase_date_parts']),
         details: GameEntryDetails.fromJson(json),
       );
 
@@ -113,6 +129,9 @@ final class GamePersonalData implements JsonEncodable {
     Object? purchaseStore = _gamePersonalUnset,
     Object? collectionStatus = _gamePersonalUnset,
     Object? marketValueCents = _gamePersonalUnset,
+    int? quantity,
+    Object? rating = _gamePersonalUnset,
+    Object? purchaseDateParts = _gamePersonalUnset,
     GameEntryDetails? details,
   }) =>
       GamePersonalData(
@@ -168,6 +187,13 @@ final class GamePersonalData implements JsonEncodable {
         marketValueCents: identical(marketValueCents, _gamePersonalUnset)
             ? this.marketValueCents
             : marketValueCents as int?,
+        quantity: quantity ?? this.quantity,
+        rating: identical(rating, _gamePersonalUnset)
+            ? this.rating
+            : rating as int?,
+        purchaseDateParts: identical(purchaseDateParts, _gamePersonalUnset)
+            ? this.purchaseDateParts
+            : purchaseDateParts as PartialDate?,
         details: details ?? this.details,
       );
 }

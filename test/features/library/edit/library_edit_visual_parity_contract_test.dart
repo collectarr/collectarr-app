@@ -46,9 +46,12 @@ void main() {
 
     for (final runtime in collectarrKindRegistrationsList) {
       expect(runtime.kind, isNot(CatalogMediaKind.unknown));
-      // Music has dedicated Group/Release/Copy editors and intentionally does
-      // not participate in the retired generic edit-tab renderer.
-      if (runtime.kind == CatalogMediaKind.music) continue;
+      // Music and Game have dedicated editors and do not participate in the
+      // retired generic edit-tab renderer.
+      if (runtime.kind == CatalogMediaKind.music ||
+          runtime.kind == CatalogMediaKind.game) {
+        continue;
+      }
       for (final context in _editContexts) {
         final presentation =
             libraryEditPresentationForKind(runtime.kind).presentation;

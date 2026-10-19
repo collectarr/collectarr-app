@@ -3,18 +3,18 @@ import '../entries/game_transfer_library_entry.dart';
 
 final gameKindEditCapabilities = LibraryEditCapabilitySet(
   editRegistry: LibraryTargetEditRegistry(
-      catalogItem: buildGameLibraryEditDialog,
-      libraryEntry: buildGameLibraryEditDialog),
+      catalogItem: buildGameItemEditDialog,
+      libraryEntry: buildGameItemEditDialog),
   vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
   conditions: GameVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
     GameLibraryEntry item => item.personal.grade,
     _ => null,
   },
-  defaultCondition: 'Near Mint',
+  // The reference leaves Condition empty on new games.
+  defaultCondition: '',
   defaultCollectionValue: 'Ungraded',
-  presentation: gameLibraryEditPresentation,
-  createSession: createGameEditDraft,
+  presentation: gameTypedEditPresentation,
   entryDigitalFlagResolver: resolveGameEntryDigitalFlag,
   entryFormatHintResolver: resolveGameEntryFormatHint,
   entryIndexUpdatePayloadBuilder: (_, indexNumber) =>

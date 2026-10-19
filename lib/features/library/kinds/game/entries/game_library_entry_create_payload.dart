@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -23,6 +24,11 @@ final class GameLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
     this.collectionStatus,
     this.isDigital,
     this.tags,
+    this.quantity = 1,
+    this.indexNumber,
+    this.rating,
+    this.marketValueCents,
+    this.purchaseDateParts,
   });
 
   factory GameLibraryEntryCreatePayload.fromTypedItem(
@@ -42,6 +48,11 @@ final class GameLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
       collectionStatus: item.personal.collectionStatus,
       isDigital: item.personal.isDigital,
       tags: item.personal.tags,
+      quantity: item.personal.quantity,
+      indexNumber: item.personal.indexNumber,
+      rating: item.personal.rating,
+      marketValueCents: item.personal.marketValueCents,
+      purchaseDateParts: item.personal.purchaseDateParts,
     );
   }
 
@@ -62,6 +73,11 @@ final class GameLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
   @override
   final bool? isDigital;
   final String? tags;
+  final int quantity;
+  final int? indexNumber;
+  final int? rating;
+  final int? marketValueCents;
+  final PartialDate? purchaseDateParts;
 
   GameLibraryEntry toLibraryEntry({
     required String id,
@@ -99,6 +115,11 @@ final class GameLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
         purchaseStore: purchaseStore,
         collectionStatus: collectionStatus,
         tags: tags,
+        quantity: quantity,
+        indexNumber: indexNumber,
+        rating: rating,
+        marketValueCents: marketValueCents,
+        purchaseDateParts: purchaseDateParts,
         ownerUserId: ownerUserId,
         ownerLabel: this.ownerLabel ?? ownerLabel,
       ),
