@@ -32,6 +32,7 @@ void main() {
       };
 
       await LocalFontController.instance.initialize();
+      await loadStartupThemeMode();
       await _logFontDiagnostics(container!);
 
       runApp(

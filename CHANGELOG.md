@@ -11,6 +11,7 @@
 - Saving a game keeps its franchise instead of dropping it.
 - Editors in the light theme use the reference's white fields with grey borders, a light grey body, a white button bar, grey Cancel and navigation buttons and dark field labels.
 - New games start with an empty Condition, as in the reference, instead of Near Mint.
+- With the light theme chosen, the app opens light instead of showing the dark theme for a moment.
 
 ### ♻️ Refactors
 - Manual Add's Collection Status, Index, Quantity and Location footer is shared by every library.

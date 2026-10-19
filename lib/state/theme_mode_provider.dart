@@ -8,22 +8,20 @@ const _kThemeModeKey = 'app.themeMode';
 final appThemeModeProvider =
     NotifierProvider<AppThemeModeNotifier, ThemeMode>(AppThemeModeNotifier.new);
 
+ThemeMode _startupThemeMode = ThemeMode.dark;
+
+/// Reads the saved skin before the first frame, so a light library does not
+/// start dark and switch.
+Future<void> loadStartupThemeMode() async {
+  final prefs = await SharedPreferences.getInstance();
+  _startupThemeMode = prefs.getString(_kThemeModeKey) == 'light'
+      ? ThemeMode.light
+      : ThemeMode.dark;
+}
+
 class AppThemeModeNotifier extends Notifier<ThemeMode> {
   @override
-  ThemeMode build() {
-    _load();
-    return ThemeMode.dark;
-  }
-
-  Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString(_kThemeModeKey);
-    if (name == 'light') {
-      state = ThemeMode.light;
-    } else {
-      state = ThemeMode.dark;
-    }
-  }
+  ThemeMode build() => _startupThemeMode;
 
   Future<void> toggle() async {
     state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
