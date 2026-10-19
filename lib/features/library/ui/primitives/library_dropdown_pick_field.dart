@@ -96,13 +96,15 @@ class _LibraryDropdownPickFieldState<TValue>
     if (oldWidget.value != widget.value ||
         oldWidget.options != widget.options) {
       final next = _currentLabel ?? '';
-      if (_controller.text != next) {
+      // Typed text reports its trimmed value; keeping the field text while
+      // only its outer spaces differ lets a space be typed between words.
+      if (_controller.text.trim() != next) {
         // TextFormField notifies its enclosing Form when this controller changes.
         // Synchronize after the parent's build and use the latest widget value.
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
           final current = _currentLabel ?? '';
-          if (_controller.text != current) {
+          if (_controller.text.trim() != current) {
             _controller.value = TextEditingValue(
               text: current,
               selection: TextSelection.collapsed(offset: current.length),

@@ -12,6 +12,7 @@
 - Editors in the light theme use the reference's white fields with grey borders, a light grey body, a white button bar, grey Cancel and navigation buttons and dark field labels.
 - New games start with an empty Condition, as in the reference, instead of Near Mint.
 - With the light theme chosen, the app opens light instead of showing the dark theme for a moment.
+- Typing a new value with spaces into a pick list field (Label, Format, Platform and others) keeps the spaces instead of joining the words.
 
 ### ♻️ Refactors
 - Manual Add's Collection Status, Index, Quantity and Location footer is shared by every library.
