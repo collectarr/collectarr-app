@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/library_alphabet_options.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -172,7 +173,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         showBottomBorder: showBottomBorder,
       );
     }
-    return DecoratedBox(
+    return AppDarkChrome(
+        child: DecoratedBox(
       decoration: BoxDecoration(
         color: libraryWorkspaceToolbarColor(context),
         border:
@@ -355,7 +357,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildSpacingSlider(BuildContext context, {required String tooltip}) {

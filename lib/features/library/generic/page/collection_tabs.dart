@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/features/library/collections/library_collections_dialog.dart';
@@ -64,62 +65,64 @@ class _LibraryCollectionTabBarState
     }
     final accent = widget.accent;
     final activeId = activeLibraryCollectionId(saved);
-    final palette = appPalette(context);
     Future<void> select(LibraryCollectionSummary collection) async {
       await repo.activate(collection.id);
       widget.onCollectionSelected?.call(collection);
     }
 
-    return Container(
-        height: 33,
-        color: palette.isDark ? const Color(0xff272323) : palette.toolbar,
-        child: Column(children: [
-          Container(height: 3, color: accent),
-          Expanded(
-            child: Row(
-              children: [
-                const SizedBox(width: 3),
-                LibraryCollectionMenu(
-                  collections: saved,
-                  activeId: activeId,
-                  accent: accent,
-                  onSelected: (collection) => unawaited(select(collection)),
-                  onManage: () => unawaited(showLibraryCollectionsDialog(
-                      context,
-                      kind: widget.mediaKind)),
+    // The collection tab bar stays dark in both themes.
+    return AppDarkChrome(
+        accent: accent,
+        child: Container(
+            height: 33,
+            color: const Color(0xff272323),
+            child: Column(children: [
+              Container(height: 3, color: accent),
+              Expanded(
+                child: Row(
+                  children: [
+                    const SizedBox(width: 3),
+                    LibraryCollectionMenu(
+                      collections: saved,
+                      activeId: activeId,
+                      accent: accent,
+                      onSelected: (collection) => unawaited(select(collection)),
+                      onManage: () => unawaited(showLibraryCollectionsDialog(
+                          context,
+                          kind: widget.mediaKind)),
+                    ),
+                    const SizedBox(width: 3),
+                    Expanded(
+                      child: ReorderableListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        buildDefaultDragHandles: false,
+                        // The default proxy adds an elevation shadow that shows as
+                        // a lighter rim on the dragged tab's edges.
+                        proxyDecorator: (child, _, __) => Material(
+                            type: MaterialType.transparency, child: child),
+                        itemCount: values.length,
+                        onReorderItem: (oldIndex, newIndex) =>
+                            _reorder(repo, values, oldIndex, newIndex),
+                        itemBuilder: (_, index) {
+                          final collection = values[index];
+                          return ReorderableDragStartListener(
+                            key: ValueKey(
+                                'library-collection-tab-${collection.id}'),
+                            index: index,
+                            child: LibraryCollectionTab(
+                              label: collection.name,
+                              isActive: collection.id == activeId,
+                              accent: accent,
+                              onTap: () => select(collection),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 3),
-                Expanded(
-                  child: ReorderableListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    buildDefaultDragHandles: false,
-                    // The default proxy adds an elevation shadow that shows as
-                    // a lighter rim on the dragged tab's edges.
-                    proxyDecorator: (child, _, __) =>
-                        Material(type: MaterialType.transparency, child: child),
-                    itemCount: values.length,
-                    onReorderItem: (oldIndex, newIndex) =>
-                        _reorder(repo, values, oldIndex, newIndex),
-                    itemBuilder: (_, index) {
-                      final collection = values[index];
-                      return ReorderableDragStartListener(
-                        key:
-                            ValueKey('library-collection-tab-${collection.id}'),
-                        index: index,
-                        child: LibraryCollectionTab(
-                          label: collection.name,
-                          isActive: collection.id == activeId,
-                          accent: accent,
-                          onTap: () => select(collection),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ]));
+              ),
+            ])));
   }
 
   void _clearPending() {

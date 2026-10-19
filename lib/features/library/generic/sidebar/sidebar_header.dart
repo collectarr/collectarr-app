@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/ui/pick_list_field_button.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -110,7 +111,8 @@ class LibrarySidebarHeader extends StatelessWidget {
           onPressed: hideSidebar,
         ),
     ];
-    return Container(
+    return AppDarkChrome(
+        child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
         color: libraryWorkspaceToolbarColor(context),
@@ -220,7 +222,7 @@ class LibrarySidebarHeader extends StatelessWidget {
           },
         ),
       ),
-    );
+    ));
   }
 }
 

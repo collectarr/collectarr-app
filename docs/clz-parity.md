@@ -168,8 +168,18 @@ items come from earlier audits and must be re-checked before closing.
 
 | Priority | Area | CLZ | Collectarr |
 | --- | --- | --- | --- |
-| P1 | Light theme | Light content areas (white list, light grey folder panel and details) under the dark top bar and toolbars; captured on CLZ Games Web 2026-10-16 | Only the dark theme has been compared; light theme not yet matched |
+| P1 | Light theme | Light content areas under the dark top bar and toolbars; measured on CLZ Games Web 2026-10-19 (values below) | Toolbars, pane headers, draggers and collection tabs stay dark (`AppDarkChrome`); canvas, folder panel, cards, selection and item titles use the values below. Populated cards, details and editors not yet compared in light |
 | P2 | Imports | Also Music Label, OrangeCD, CDpedia | Not offered: no public schema or sample export exists (see [import/export](import-export.md)); CATraxx XML is imported |
+
+CLZ light theme, computed styles at 1844 × 945: top bar in the kind accent
+(Games `#E23149`); toolbars and pane headers `#383838`; pane draggers
+`#262626`; bottom collection tabs `#272323` with inactive tabs `#131313` at
+75 % white and the active tab in the accent; list canvas `#F6F6F6`; folder
+panel `#F9F9F9` with `#333` text; cards white with `#333` text; selected card
+and folder `#5EB1DE` with white text; details panel white at 90 % over the
+backdrop, title and section headings `#0082A6` (24 px and 18 px bold), field
+labels `#777` 15 px bold upper case, values `#333` 15 px; value badge `#0082A6`
+over a `#B1D8EA` completeness row; list value pill `#2AA4CC`.
 
 ### Typography
 

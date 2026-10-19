@@ -199,7 +199,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                                                     ? Colors
                                                                         .white
                                                                     : palette
-                                                                        .utilityAction))),
+                                                                        .itemTitle))),
                                                     if (presentation
                                                         .compactBadges
                                                         .isNotEmpty)

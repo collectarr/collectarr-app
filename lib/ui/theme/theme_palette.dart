@@ -63,17 +63,19 @@ class AppThemePalette extends ThemeExtension<AppThemePalette> {
   bool get isDark => brightness == Brightness.dark;
 
   /// Utility actions and settings use a shared accent, independent of kind.
-  Color get utilityAction =>
-      isDark ? const Color(0xFF5EB1DE) : const Color(0xFF1475A6);
+  Color get utilityAction => const Color(0xFF5EB1DE);
+
+  /// Item titles in lists, cards and the details header.
+  Color get itemTitle => isDark ? utilityAction : const Color(0xFF0082A6);
   Color get detailHeading =>
-      isDark ? const Color(0xFF71AFD9) : const Color(0xFF286A95);
+      isDark ? const Color(0xFF71AFD9) : const Color(0xFF0082A6);
 
   /// Row rules and alternate-row tint of detail tables (track lists, fields).
   Color get detailRule =>
       isDark ? const Color(0xFF5A5A5A) : const Color(0xFFD2D2D2);
   Color get detailStripe =>
       isDark ? const Color(0x0BFFFFFF) : const Color(0x09000000);
-  Color get link => isDark ? const Color(0xFF06B3F1) : const Color(0xFF0078A6);
+  Color get link => isDark ? const Color(0xFF06B3F1) : const Color(0xFF0082A6);
 
   Color get infoBackground =>
       isDark ? kAppBannerInfoBackground : const Color(0xFFE4F2F8);
@@ -335,34 +337,36 @@ const kDefaultAppThemePalette = AppThemePalette(
   menuBorderRadius: kAppMenuBorderRadius,
 );
 
+// Content areas of the reference light skin; toolbars and pane headers stay
+// dark through AppDarkChrome.
 const kLightAppThemePalette = AppThemePalette(
   brightness: Brightness.light,
-  topBar: Color(0xFF136F89),
-  toolbar: Color(0xFFE8EEF1),
-  panel: Color(0xFFFBFCFC),
-  panelRaised: Color(0xFFF2F5F7),
-  canvas: Color(0xFFEEF3F5),
-  gridCanvas: Color(0xFFE6ECEF),
-  accent: Color(0xFF177E9D),
-  selection: Color(0xFFCFE7F0),
+  topBar: Color(0xFF383838),
+  toolbar: Color(0xFF383838),
+  panel: Color(0xFFF9F9F9),
+  panelRaised: Color(0xFFFFFFFF),
+  canvas: Color(0xFFF6F6F6),
+  gridCanvas: Color(0xFFF6F6F6),
+  accent: Color(0xFF0082A6),
+  selection: Color(0xFF5EB1DE),
   highlight: Color(0xFFE6A800),
-  divider: Color(0xFFC6D2D8),
-  textMuted: Color(0xFF60717A),
-  tableOddRow: Color(0xFFF5F8FA),
-  tableEvenRow: Color(0xFFFDFEFE),
-  tableBottomBorder: Color(0xFFD9E2E6),
-  tableHover: Color(0xFFE4F1F6),
-  field: Color(0xFFF8FBFC),
+  divider: Color(0xFFDDDDDD),
+  textMuted: Color(0xFF777777),
+  tableOddRow: Color(0xFFF6F6F6),
+  tableEvenRow: Color(0xFFFFFFFF),
+  tableBottomBorder: Color(0xFFDDDDDD),
+  tableHover: Color(0xFFE8F4FA),
+  field: Color(0xFFFFFFFF),
   menuBorderRadius: kAppMenuBorderRadius,
-  textPrimary: Color(0xFF203039),
-  cardBackground: Color(0xFFFDFEFE),
-  cardBorder: Color(0xFFD4DEE3),
-  surface: Color(0xFFE3EAEE),
-  surfaceDim: Color(0xFFEDF2F5),
+  textPrimary: Color(0xFF333333),
+  cardBackground: Color(0xFFFFFFFF),
+  cardBorder: Color(0xFFDDDDDD),
+  surface: Color(0xFFEEEEEE),
+  surfaceDim: Color(0xFFF6F6F6),
   surfaceBright: Color(0xFFFFFFFF),
-  surfaceSubtle: Color(0xFFF3F7F9),
-  textSecondary: Color(0xFF566973),
-  badgeBackground: Color(0xFFD9E3E8),
+  surfaceSubtle: Color(0xFFF2F2F2),
+  textSecondary: Color(0xFF666666),
+  badgeBackground: Color(0xFFDDDDDD),
 );
 
 /// Resolve the active [AppThemePalette] from [context].

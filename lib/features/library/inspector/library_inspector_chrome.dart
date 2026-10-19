@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -519,6 +520,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
       ),
     );
 
+    if (!framed) return AppDarkChrome(accent: accent, child: styled);
     return accent == null
         ? styled
         : Theme(data: libraryAccentTheme(context, accent!), child: styled);

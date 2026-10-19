@@ -11,18 +11,17 @@ Color libraryWorkspaceBackgroundColor(BuildContext context) =>
 Color libraryViewBackgroundColor(BuildContext context) =>
     appPalette(context).isDark
         ? const Color(0xFF131313)
-        : appPalette(context).panel;
+        : appPalette(context).canvas;
 
-Color libraryWorkspaceToolbarColor(BuildContext context) =>
-    appPalette(context).toolbar;
+// Toolbars, pane headers and draggers stay dark in both themes; wrap their
+// controls in AppDarkChrome.
+Color libraryWorkspaceToolbarColor(BuildContext context) => kAppToolbar;
 
 Color libraryWorkspacePaneDividerColor(BuildContext context) =>
-    Theme.of(context).brightness == Brightness.dark
-        ? const Color(0xff262626)
-        : appPalette(context).divider;
+    const Color(0xff262626);
 
 Border libraryWorkspaceToolbarBorder(BuildContext context) => Border(
-      top: BorderSide(color: appPalette(context).divider),
+      top: const BorderSide(color: kAppDivider),
       bottom: BorderSide(color: libraryWorkspacePaneDividerColor(context)),
     );
 

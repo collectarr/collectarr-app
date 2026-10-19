@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/library_alphabet_options.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -313,10 +314,10 @@ class LibraryToolbar extends StatelessWidget {
       curve: Curves.easeOutCubic,
       builder: (context, color, _) {
         final accent = color ?? targetAccent;
-        final palette = appPalette(context);
-        return LibraryToolbarFrame(
+        return AppDarkChrome(
+            child: LibraryToolbarFrame(
           backgroundColor: libraryWorkspaceToolbarColor(context),
-          dividerColor: palette.divider,
+          dividerColor: kAppDivider,
           child: LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth < 600) {
@@ -484,7 +485,7 @@ class LibraryToolbar extends StatelessWidget {
               );
             },
           ),
-        );
+        ));
       },
     );
   }
