@@ -342,7 +342,8 @@ const kDefaultAppThemePalette = AppThemePalette(
 const kLightAppThemePalette = AppThemePalette(
   brightness: Brightness.light,
   topBar: Color(0xFF383838),
-  toolbar: Color(0xFF383838),
+  // Dialog footers and table headings; workspace toolbars use kAppToolbar.
+  toolbar: Color(0xFFFFFFFF),
   panel: Color(0xFFF9F9F9),
   panelRaised: Color(0xFFFFFFFF),
   canvas: Color(0xFFF6F6F6),

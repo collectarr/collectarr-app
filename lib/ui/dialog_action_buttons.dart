@@ -8,7 +8,7 @@ ButtonStyle dialogActionButtonStyle(BuildContext context,
       ? color ?? palette.utilityAction
       : palette.isDark
           ? const Color(0xff494949)
-          : palette.panelRaised;
+          : const Color(0xffeeeeee);
   final hover = HSLColor.fromColor(background);
   // The reference lifts a grey button by 10 levels (#494949 to #535353) and
   // darkens everything else slightly.

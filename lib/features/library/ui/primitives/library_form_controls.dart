@@ -30,10 +30,12 @@ class LibraryFormField extends StatelessWidget {
                   child: Text(label,
                       style: TextStyle(
                         // The reference draws labels white at 70% (#C4C4C4
-                        // on the dialog panel).
-                        color: appPalette(context)
-                            .textPrimary
-                            .withValues(alpha: 0.7),
+                        // on the dialog panel) and #333 in the light skin.
+                        color: appPalette(context).isDark
+                            ? appPalette(context)
+                                .textPrimary
+                                .withValues(alpha: 0.7)
+                            : appPalette(context).textPrimary,
                         fontSize: 13,
                         fontWeight: kAppBoldFontWeight,
                         height: 20 / 14,

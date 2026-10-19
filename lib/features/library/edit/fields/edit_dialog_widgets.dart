@@ -26,7 +26,14 @@ AppThemePalette libraryEditPalette(AppThemePalette palette) => palette.isDark
         toolbar: const Color(0xFF383838),
         divider: const Color(0xFF606060),
       )
-    : palette;
+    : palette.copyWith(
+        panel: const Color(0xFFF6F6F6),
+        panelRaised: Colors.white,
+        surfaceBright: Colors.white,
+        field: Colors.white,
+        toolbar: Colors.white,
+        divider: const Color(0xFFDDDDDD),
+      );
 
 /// Theme preset for edit dialogs – resolves from [palette] for light/dark.
 ThemeData editDialogTheme({
@@ -89,7 +96,7 @@ ThemeData editDialogTheme({
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: palette.isDark ? const Color(0xFF444444) : palette.surface,
+      fillColor: palette.isDark ? const Color(0xFF444444) : palette.field,
       isDense: true,
       // Outline and fill follow the content height, so the padding makes
       // the 34 px reference field; the constraint alone does not.
