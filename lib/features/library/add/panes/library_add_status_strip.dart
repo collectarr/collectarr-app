@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
@@ -7,14 +6,26 @@ import 'package:collectarr_app/features/library/ui/primitives/library_form_contr
 import 'package:collectarr_app/features/library/ui/primitives/library_responsive_field_layout.dart';
 import 'package:flutter/material.dart';
 
-class MusicAddStatusStrip extends StatelessWidget {
-  const MusicAddStatusStrip({super.key, required this.request});
+/// Manual Add footer under every tab: Collection Status, Index, Quantity and
+/// Location. The kind owns where Index and Quantity are kept.
+class LibraryAddStatusStrip extends StatelessWidget {
+  const LibraryAddStatusStrip({
+    super.key,
+    required this.request,
+    required this.indexNumber,
+    required this.quantity,
+    required this.onIndexChanged,
+    required this.onQuantityChanged,
+  });
+
   final LibraryAddManualPaneRequest request;
+  final int? indexNumber;
+  final int quantity;
+  final ValueChanged<int?> onIndexChanged;
+  final ValueChanged<int> onQuantityChanged;
+
   @override
   Widget build(BuildContext context) {
-    final draft = (request.kindDraft is MusicAddDraft)
-        ? request.kindDraft as MusicAddDraft
-        : const MusicAddDraft();
     return LibraryResponsiveFieldLayout(maxColumns: 8, columnSpans: const {
       0: 2,
       3: 4
@@ -29,27 +40,23 @@ class MusicAddStatusStrip extends StatelessWidget {
       LibraryFormField(
           label: 'Index',
           child: LibraryTextFormControl(
-              initialValue: draft.indexNumber?.toString() ?? '',
+              initialValue: indexNumber?.toString() ?? '',
               keyboardType: TextInputType.number,
               validator: (value) =>
                   value == null || value.isEmpty || int.tryParse(value) != null
                       ? null
                       : 'Enter a whole number',
-              onChanged: (value) => request.onKindDraftChanged
-                  ?.call(draft.copyWith(indexNumber: int.tryParse(value))))),
+              onChanged: (value) => onIndexChanged(int.tryParse(value)))),
       LibraryFormField(
           label: 'Quantity',
           child: LibraryTextFormControl(
-              initialValue: draft.quantity.toString(),
+              initialValue: quantity.toString(),
               keyboardType: TextInputType.number,
               validator: (value) =>
                   (int.tryParse(value ?? '') ?? 0) < 1 ? 'Minimum 1' : null,
               onChanged: (value) {
                 final parsed = int.tryParse(value);
-                if (parsed != null && parsed >= 1) {
-                  request.onKindDraftChanged
-                      ?.call(draft.copyWith(quantity: parsed));
-                }
+                if (parsed != null && parsed >= 1) onQuantityChanged(parsed);
               })),
       LibraryDropdownPickField<String>(
           label: 'Location',

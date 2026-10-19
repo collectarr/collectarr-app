@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_images_pane.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_personal_pane.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_status_strip.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_status_strip.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_details_form_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_details_pane.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
@@ -46,7 +46,15 @@ class MusicAddManualPane extends StatelessWidget {
     );
     return LibraryAddManualPaneShell(
       request: request,
-      footerContent: MusicAddStatusStrip(request: request),
+      footerContent: LibraryAddStatusStrip(
+        request: request,
+        indexNumber: personalDraft.indexNumber,
+        quantity: personalDraft.quantity,
+        onIndexChanged: (value) => request.onKindDraftChanged
+            ?.call(personalDraft.copyWith(indexNumber: value)),
+        onQuantityChanged: (value) => request.onKindDraftChanged
+            ?.call(personalDraft.copyWith(quantity: value)),
+      ),
       tabs: [
         LibraryAddManualPaneTab.fromSchema<MusicAddManualDraft>(
           id: 'main',

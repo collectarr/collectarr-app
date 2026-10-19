@@ -9,6 +9,9 @@
 - The light theme keeps the toolbars, pane headers and collection tabs dark and uses the reference's light grey and white content areas, blue selection and teal item titles.
 - Saving a game keeps its franchise instead of dropping it.
 
+### ♻️ Refactors
+- Manual Add's Collection Status, Index, Quantity and Location footer is shared by every library.
+
 ## 1.2.0 - 2026-10-18
 
 ### ✨ Features
