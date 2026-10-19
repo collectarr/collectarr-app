@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -22,13 +23,10 @@ void main() {
     }
   });
 
-  test('only Music is registered for the first release', () {
-    expect(collectarrKindRegistrationsList, hasLength(1));
+  test('only released kinds are registered', () {
     expect(
-      collectarrKindRegistrationsList
-          .map((registration) => registration.kind)
-          .toSet(),
-      hasLength(1),
+      collectarrKindRegistrationsList.map((registration) => registration.kind),
+      unorderedEquals(releasedLibraryKinds),
     );
   });
 

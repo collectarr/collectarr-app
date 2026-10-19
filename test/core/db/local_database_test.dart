@@ -7,9 +7,9 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 2);
+    expect(db.schemaVersion, 3);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 2);
+    expect(version.data.values.single, 3);
 
     final tables = await db
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
@@ -23,6 +23,7 @@ void main() {
     expect(names, isNot(contains('comic_tracking_rows')));
     expect(names, contains('music_tracking_rows'));
     expect(names, contains('music_listen_events_rows'));
+    expect(names, contains('game_tracking_rows'));
     expect(names, isNot(contains('anime_watch_session_rows')));
     expect(names, isNot(contains('comic_media_rows')));
     expect(names, isNot(contains('comic_library_entries_rows')));
@@ -38,7 +39,7 @@ void main() {
   });
 
   test(
-    'release schema exactly matches the physical Music-only tables',
+    'release schema exactly matches the physical released-kind tables',
     () async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
@@ -49,10 +50,11 @@ void main() {
           .get();
       final names = tables.map((row) => row.data['name'] as String).toSet();
       expect(names, db.allTables.map((table) => table.actualTableName).toSet());
-      expect(names, hasLength(21));
+      expect(names, hasLength(22));
       expect(names.where((name) => name.endsWith('_rows')).toSet(), {
         'music_tracking_rows',
         'music_listen_events_rows',
+        'game_tracking_rows',
       });
       final columns = await db
           .customSelect('PRAGMA table_info(pick_list_values_cache)')
@@ -88,6 +90,25 @@ void main() {
     expect(row.email, isNull);
     expect(row.address, isNull);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 2);
+    expect(version.data.values.single, 3);
+  });
+
+  test('upgrades a schema 2 database by creating the Game tables', () async {
+    final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
+      raw.execute(
+          'CREATE TABLE library_entries (id TEXT NOT NULL PRIMARY KEY)');
+      raw.execute("INSERT INTO library_entries (id) VALUES ('e1')");
+      raw.execute('PRAGMA user_version = 2');
+    }));
+    addTearDown(db.close);
+
+    final kept = await db
+        .customSelect('SELECT id FROM library_entries')
+        .map((row) => row.read<String>('id'))
+        .get();
+    expect(kept, ['e1']);
+    expect(await db.select(db.gameTrackingRows).get(), isEmpty);
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.single, 3);
   });
 }

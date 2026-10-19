@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -10,7 +11,7 @@ void main() {
 
     expect(
       contributors.map((contributor) => contributor.kind).toSet(),
-      {CatalogMediaKind.music},
+      releasedLibraryKinds,
     );
     for (final contributor in contributors) {
       final keys = contributor.proposalFields.map((field) => field.key);
@@ -43,8 +44,8 @@ void main() {
     }
   });
 
-  test('unreleased Game admin operations are not registered', () {
-    expect(libraryAdminContributorForKind(CatalogMediaKind.game), isNull);
+  test('unreleased kinds register no admin operations', () {
+    expect(libraryAdminContributorForKind(CatalogMediaKind.book), isNull);
   });
 
   test('Music owns the track proposal payload codec and validation', () {

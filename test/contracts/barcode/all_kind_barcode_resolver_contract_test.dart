@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'barcode_contract.dart';
@@ -41,9 +42,9 @@ void main() {
     );
   }
 
-  test('only the released Music barcode resolver is registered', () {
+  test('only released kinds register barcode resolvers', () {
     expect(libraryBarcodeResolvers.map((resolver) => resolver.kind).toSet(),
-        {CatalogMediaKind.music});
+        releasedLibraryKinds);
   });
 
   test('barcode dispatch normalizes before invoking the owning resolver', () {

@@ -11,6 +11,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -19,7 +20,8 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(collectarrKindRegistrationsList, hasLength(1));
+    expect(collectarrKindRegistrationsList,
+        hasLength(releasedLibraryKinds.length));
     for (final runtime in collectarrKindRegistrationsList) {
       final manualDraft = LibraryAddManualDraft(
         customFieldValues: const [],

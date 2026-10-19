@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/library_section_panel.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _editContexts = <LibraryEditPresentationContext>[
@@ -40,7 +41,8 @@ const _editContexts = <LibraryEditPresentationContext>[
 void main() {
   testWidgets('all active kinds render edit presentation parity matrix',
       (tester) async {
-    expect(collectarrKindRegistrationsList, hasLength(1));
+    expect(collectarrKindRegistrationsList,
+        hasLength(releasedLibraryKinds.length));
 
     for (final runtime in collectarrKindRegistrationsList) {
       expect(runtime.kind, isNot(CatalogMediaKind.unknown));

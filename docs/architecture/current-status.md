@@ -7,18 +7,18 @@ test counts. UI differences from the reference app live in
 
 ## Release scope
 
-Version 1 releases Music only, through the UI, capability registrations and
-pinned Core contracts. The other kinds (Comic, Manga, Book, Game, Board Game,
-Movie, TV, Anime) remain isolated source modules under
-`lib/features/library/kinds/`; a fresh database creates shared and Music tables
-only. Releasing another kind means its own tables, an explicit migration and
+Music and Game are released, through the UI, capability registrations and
+pinned Core contracts. The other kinds (Comic, Manga, Book, Board Game, Movie,
+TV, Anime) remain isolated source modules under `lib/features/library/kinds/`;
+a fresh database creates shared, Music and Game tables only. Releasing another kind means its own tables, an explicit migration and
 its own verification.
 
 ## Local data
 
-The Drift root is `lib/core/db/local_database.dart`, schema version 1, stored
+The Drift root is `lib/core/db/local_database.dart`, schema version 3, stored
 as `collectarr-library.sqlite` in application support. Version 1 is the first
-baseline: previous database and backup formats are not read. From here on every
+baseline: previous database and backup formats are not read. Version 2 added
+borrower contact details and version 3 the Game tables. From here on every
 schema change is an explicit, ordered, data-preserving migration; a database is
 never reset to make an upgrade work. See [local persistence](local-persistence.md).
 

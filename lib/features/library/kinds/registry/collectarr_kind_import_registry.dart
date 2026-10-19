@@ -6,4 +6,6 @@ import 'package:collectarr_app/features/library/kinds/music/music_module.dart'
 final Map<CatalogMediaKind, LibraryKindImportCapability> collectarrKindImports =
     Map.unmodifiable(<CatalogMediaKind, LibraryKindImportCapability>{
   CatalogMediaKind.music: musicKindImport,
+  // Game imports no guided source yet.
+  CatalogMediaKind.game: const LibraryKindImportCapability(),
 });

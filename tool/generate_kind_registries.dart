@@ -25,6 +25,9 @@ const _requiredKinds = {
   'tv',
 };
 
+// Mirrors releasedLibraryKinds in library_release_scope.dart.
+const _releasedKinds = {'game', 'music'};
+
 Future<void> main() async {
   final tableFiles = await _discoverKindTableFiles();
   await File(_databaseTablesOutput)
@@ -110,7 +113,9 @@ Future<List<_DevSeedDescriptor>> _discoverDevSeeds() async {
       'found $discoveredKinds',
     );
   }
-  return descriptors.where((descriptor) => descriptor.kind == 'music').toList();
+  return descriptors
+      .where((descriptor) => _releasedKinds.contains(descriptor.kind))
+      .toList();
 }
 
 String _renderDatabaseTables(List<_KindTableFile> files) {

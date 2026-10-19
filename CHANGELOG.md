@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### ✨ Features
+- Games is available as a second library next to Music; existing databases gain its tables on the next start.
+
 ### 🐛 Fixes
 - The light theme keeps the toolbars, pane headers and collection tabs dark and uses the reference's light grey and white content areas, blue selection and teal item titles.
 

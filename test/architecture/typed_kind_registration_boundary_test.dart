@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -87,7 +88,7 @@ void main() {
           'Drift table composition and development seed contributor lists'),
     );
 
-    const activeKinds = <CatalogMediaKind>{CatalogMediaKind.music};
+    const activeKinds = releasedLibraryKinds;
     expect(libraryCalendarContributorsByKind.keys, containsAll(activeKinds));
     expect(libraryBarcodeResolversByKind.keys, containsAll(activeKinds));
     expect(libraryAdminContributorsByKind.keys, containsAll(activeKinds));
@@ -133,7 +134,8 @@ void main() {
       catalogRegistrySource,
       isNot(contains('CatalogKindTransportCodec<Object?>')),
     );
-    expect(libraryCatalogTransportCodecs, hasLength(1));
+    expect(
+        libraryCatalogTransportCodecs, hasLength(releasedLibraryKinds.length));
     expect(
       libraryCatalogTransportCodecs,
       everyElement(isNotNull),
@@ -232,11 +234,7 @@ void main() {
   });
 
   test('generated registrations are keyed by their concrete kind', () {
-    expect(collectarrKindRegistrations, hasLength(1));
-    expect(
-      collectarrKindRegistrations.keys,
-      equals(<CatalogMediaKind>{CatalogMediaKind.music}),
-    );
+    expect(collectarrKindRegistrations.keys, equals(releasedLibraryKinds));
     for (final entry in collectarrKindRegistrations.entries) {
       expect(entry.value.kind, entry.key);
     }

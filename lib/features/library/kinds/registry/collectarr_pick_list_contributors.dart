@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_registry.dart';
@@ -13,6 +14,14 @@ const defaultPickListDefinitionContributors = <PickListDefinitionContributor>[
     entrySortNameUpdater: MusicVocabularies.updateSortName,
     entryMergePreviewer: MusicVocabularies.previewEntryMerge,
     entryMerger: MusicVocabularies.applyEntryMerge,
+  ),
+  VocabularyPickListDefinitionContributor(
+    kind: CatalogMediaKind.game,
+    vocabularies: GameVocabularies.all,
+    entryOptionLoader: GameVocabularies.entryOptions,
+    entryUsageCounter: GameVocabularies.entryUsageCounts,
+    entryMergePreviewer: GameVocabularies.previewEntryMerge,
+    entryMerger: GameVocabularies.applyEntryMerge,
   ),
 ];
 

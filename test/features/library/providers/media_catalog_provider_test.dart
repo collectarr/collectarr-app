@@ -21,7 +21,7 @@ void main() {
 
     expect(
       catalog.map((type) => type.kind),
-      ['music'],
+      ['game', 'music'],
     );
   });
 
