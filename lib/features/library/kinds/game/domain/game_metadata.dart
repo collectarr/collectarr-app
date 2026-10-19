@@ -312,6 +312,7 @@ final class GameCatalogMetadata implements JsonEncodable {
           'creators': creators.map((value) => value.toJson()).toList(),
         if (developers.isNotEmpty) 'developers': developers,
         if (editionTitle != null) 'edition_title': editionTitle,
+        if (franchise != null) 'franchise': franchise,
         if (contributors.isNotEmpty)
           'contributors': contributors.map((value) => value.toJson()).toList(),
         if (links.where((link) => link.isExternalLink).isNotEmpty)

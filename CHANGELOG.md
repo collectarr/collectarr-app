@@ -7,6 +7,7 @@
 
 ### 🐛 Fixes
 - The light theme keeps the toolbars, pane headers and collection tabs dark and uses the reference's light grey and white content areas, blue selection and teal item titles.
+- Saving a game keeps its franchise instead of dropping it.
 
 ## 1.2.0 - 2026-10-18
 
