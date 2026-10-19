@@ -1,6 +1,7 @@
 # Game Catalog Item and Collection Item Field Ledger
 
-**Status:** The CLZ Games Edit form was captured read-only on 2026-10-16 (see
+**Status:** The CLZ Games Edit form was captured read-only on 2026-10-16, the
+Hardware editor and Add dialogs on 2026-10-19 (see
 [CLZ Games reference](#clz-games-reference) below). The Core table that follows
 still lists the pinned Core Catalog Item v1 fields; the reference section maps
 each CLZ label to them and names the gaps.
@@ -117,10 +118,30 @@ New, Box, Value, Condition, Purchase Price, Purchase Store, Purchase Date,
 PriceCharting ID. Personal: Owner, Notes, My Rating, Tags. Toy type and subtype
 map to `toy_type` and `toy_subtype`.
 
-### Hardware
+### Hardware editor
 
-The Hardware collection was empty, so its editor was not opened. Its sort list
-adds Hardware Type and Serial No.
+Captured 2026-10-19 through Add Hardware → Add Manually, then Cancel. Tabs:
+Main, Value, Personal, Custom Fields, Image, My Images, Description, Links,
+with the same footer as Games.
+
+- Main: Title (capitalisation button), Sort Title, Platform (single pick list),
+  Release Date (partial), Barcode, Hardware Type (text), Series (pick list),
+  Serial No. (text).
+- Value: as Games (Completeness N/A, Loose, CIB, New, Graded; Box, Manual,
+  Value, Condition, Purchase Price, Purchase Store, Purchase Date, Values from
+  PriceCharting, PriceCharting ID).
+- Personal: Owner, Notes, My Rating, Tags; no Completed or storage fields.
+- Image: Device Image and Box Image instead of front and back covers.
+
+Its sort list adds Hardware Type and Serial No.
+
+### Add dialogs
+
+Add Games has Title, Barcode and Platform tabs, a settings button and Add
+Manually. The title search carries a platform picker (icon and name) and a
+region filter: All, US, EU, AU, JP, Other. Add Hardware has Title and Barcode
+tabs, the same platform picker and Consoles, Controllers and Accessories
+checkboxes (Consoles checked by default).
 
 ### Details panel
 
