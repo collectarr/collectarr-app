@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 
-/// Interactive crop and quarter-turn editor shared by Music cover panels.
-final class MusicCoverCropEditor extends StatefulWidget {
-  const MusicCoverCropEditor({
+/// Interactive crop and quarter-turn editor of the cover panels.
+final class LibraryCoverCropEditor extends StatefulWidget {
+  const LibraryCoverCropEditor({
     super.key,
     required this.title,
     required this.imageBytes,
@@ -17,10 +17,10 @@ final class MusicCoverCropEditor extends StatefulWidget {
   final Future<void> Function(Uint8List bytes) onApply;
 
   @override
-  State<MusicCoverCropEditor> createState() => _MusicCoverCropEditorState();
+  State<LibraryCoverCropEditor> createState() => _LibraryCoverCropEditorState();
 }
 
-final class _MusicCoverCropEditorState extends State<MusicCoverCropEditor> {
+final class _LibraryCoverCropEditorState extends State<LibraryCoverCropEditor> {
   static const double _minimumCropSize = 0.08;
 
   late Uint8List _workingBytes;
