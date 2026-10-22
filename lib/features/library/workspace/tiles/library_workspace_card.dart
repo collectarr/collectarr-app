@@ -226,7 +226,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                                                           Icon(
                                                                               badge.icon,
                                                                               size: 12,
-                                                                              color: Colors.white),
+                                                                              color: selected ? Colors.white : palette.textPrimary),
                                                                           const SizedBox(
                                                                               width: 2),
                                                                         ],
@@ -236,7 +236,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                                                             style: TextStyle(
                                                                                 fontSize: 12,
                                                                                 fontWeight: badge.icon == null ? FontWeight.w400 : FontWeight.w700,
-                                                                                color: Colors.white)),
+                                                                                color: selected ? Colors.white : palette.textPrimary)),
                                                                       ]),
                                                               ])),
                                                   ]),
@@ -247,11 +247,14 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                         fontSize: 14,
                                                         fontWeight:
                                                             FontWeight.w700,
-                                                        color: Colors.white)),
+                                                        color: selected
+                                                            ? Colors.white
+                                                            : palette
+                                                                .textPrimary)),
                                               if (customFieldBadges.isNotEmpty)
                                                 Text(
                                                     customFieldBadges
@@ -259,9 +262,12 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                                     maxLines: 1,
                                                     overflow:
                                                         TextOverflow.ellipsis,
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                         fontSize: 12,
-                                                        color: Colors.white)),
+                                                        color: selected
+                                                            ? Colors.white
+                                                            : palette
+                                                                .textMuted)),
                                             ])))),
                             Positioned(
                                 left: 0,
@@ -274,10 +280,12 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                     ].whereType<String>().join(' \u2013 '),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w400,
-                                        color: Colors.white))),
+                                        color: selected
+                                            ? Colors.white
+                                            : palette.textMuted))),
                           ])),
                         ])),
                     Positioned(
