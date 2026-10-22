@@ -58,6 +58,7 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.identifierController,
     this.codeSearchTab,
     this.codeQueryController,
+    this.queryTrailing,
     required this.isSearching,
     required this.onModeChanged,
     required this.onSearch,
@@ -93,6 +94,9 @@ class LibraryAddModeBar extends StatefulWidget {
   final TextEditingController? codeQueryController;
   final bool isSearching;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
+
+  /// Kind control beside the title field in Search mode.
+  final Widget? queryTrailing;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
   final List<CatalogSearchCandidate> suggestions;
@@ -541,6 +545,11 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                           ),
                       },
                     ),
+                    if (widget.mode == LibraryAddDialogMode.search &&
+                        widget.queryTrailing != null) ...[
+                      const SizedBox(width: 6),
+                      widget.queryTrailing!,
+                    ],
                     const SizedBox(width: 10),
                     _LibraryAddSearchButton(
                       isBusy: widget.isSearching,

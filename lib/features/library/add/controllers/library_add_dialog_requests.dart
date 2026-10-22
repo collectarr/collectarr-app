@@ -158,7 +158,6 @@ class LibraryAddModeBarRequest {
     required this.advancedFilterState,
     required this.onAdvancedFilterChanged,
     required this.advancedFilterDescriptors,
-    this.kindSpecificPaneBuilder,
   });
 
   final LibraryKindRegistration type;
@@ -185,8 +184,6 @@ class LibraryAddModeBarRequest {
   final Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilterState;
   final LibraryAddAdvancedFilterChanged onAdvancedFilterChanged;
   final List<LibraryAddAdvancedFilterField<String>> advancedFilterDescriptors;
-  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
-      kindSpecificPaneBuilder;
 
   String advancedFilterText(LibraryAddFilterId id) {
     return advancedFilterState[id]?.displayValue ?? '';

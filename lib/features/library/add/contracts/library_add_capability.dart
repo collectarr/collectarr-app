@@ -159,11 +159,18 @@ class LibraryAddCoverScanCapability {
 class LibraryAddSearchPresentationCapability {
   const LibraryAddSearchPresentationCapability({
     this.controlsBuilder,
+    this.queryTrailingBuilder,
     this.coreMatchSummaryBuilder,
   });
 
+  /// Kind controls in the results header, such as a format filter.
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
       controlsBuilder;
+
+  /// Kind controls between the title field and Search, such as a platform
+  /// picker that scopes the search.
+  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
+      queryTrailingBuilder;
   final LibraryAddMatchSummaryBuilder<CatalogSearchCandidate>?
       coreMatchSummaryBuilder;
 

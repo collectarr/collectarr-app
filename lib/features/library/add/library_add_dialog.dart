@@ -812,8 +812,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         advancedFilterState: state.search.advancedFilters,
         onAdvancedFilterChanged: _controller.updateAdvancedFilter,
         advancedFilterDescriptors: advancedFilterDescriptors,
-        kindSpecificPaneBuilder:
-            addCapability.search.presentation.controlsBuilder,
       );
     }
 
@@ -830,6 +828,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         ? addCapability.search.presentation.controlsBuilder
             ?.call(context, modeBarRequest)
         : null;
+    final queryTrailing = addCapability.search.presentation.queryTrailingBuilder
+        ?.call(context, modeBarRequest);
 
     LibraryAddBottomBar bottomBar({required bool selectedOnly}) =>
         LibraryAddBottomBar(
@@ -904,6 +904,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               identifierController: _identifierController,
               codeSearchTab: addCapability.search.input.codeSearchTab,
               codeQueryController: _codeQueryController,
+              queryTrailing: queryTrailing,
               isSearching: state.search.isBusy,
               onModeChanged: _selectAddMode,
               onSearch: () {
