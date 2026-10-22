@@ -12,6 +12,8 @@ import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.da
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/game_covers_tab.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_personal_form_layout.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_value_tab.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
@@ -130,6 +132,32 @@ class _GameAddManualPaneState extends State<GameAddManualPane> {
           ),
         ),
         LibraryAddManualPaneTab(
+          id: 'covers',
+          label: 'Covers',
+          icon: AppIcons.tabCovers,
+          content: GameCoversTab(
+            images: [
+              for (final image in request.itemImages)
+                if (_isCover(image)) image,
+            ],
+            coverImageUrl: draft.values.coverImageUrl,
+            originalCoverImageUrl: '',
+            onCoverImageUrlChanged: (value) {
+              draft.values.coverImageUrl = value;
+              request.onManualDraftChanged?.call();
+            },
+            onEdits: (edits) {
+              final changed = {for (final edit in edits) edit.imageType};
+              request.onItemImagesChanged?.call([
+                for (final image in request.itemImages)
+                  if (!changed.contains(image.imageType)) _imageEdit(image),
+                for (final edit in edits)
+                  if (!edit.deleted) edit,
+              ]);
+            },
+          ),
+        ),
+        LibraryAddManualPaneTab(
           id: 'my_images',
           label: 'My Images',
           icon: AppIcons.tabImages,
@@ -141,7 +169,12 @@ class _GameAddManualPaneState extends State<GameAddManualPane> {
                   image,
             ],
             accent: request.accent,
-            onChanged: (edits) => request.onItemImagesChanged?.call(edits),
+            onChanged: (edits) => request.onItemImagesChanged?.call([
+              for (final edit in edits)
+                if (!edit.deleted) edit,
+              for (final image in request.itemImages)
+                if (_isCover(image)) _imageEdit(image),
+            ]),
           ),
         ),
         LibraryAddManualPaneTab.fromSchema<GameAddManualDraft>(
@@ -321,6 +354,18 @@ final class _AddPersonalBindings implements GamePersonalBindings {
   void setCompletedDate(PartialDate? value) => _set(
       draft.copyWith(details: draft.details.copyWith(completedDate: value)));
 }
+
+bool _isCover(ItemImageContent image) =>
+    image.imageType == 'front_cover' || image.imageType == 'back_cover';
+
+ItemImageEdit _imageEdit(ItemImageContent image) => ItemImageEdit(
+      id: image.id,
+      imageData: image.imageData,
+      caption: image.caption,
+      imageType: image.imageType,
+      sortOrder: image.sortOrder,
+      createdAt: image.createdAt,
+    );
 
 Widget buildGameAddManualPane(
   BuildContext context,

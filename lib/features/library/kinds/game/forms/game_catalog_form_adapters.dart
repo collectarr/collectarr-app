@@ -20,6 +20,7 @@ GameCatalogFormValues gameCatalogFormValuesFromMetadata(
     audienceRating: metadata.audienceRating ?? '',
     genres: List.of(metadata.genres),
     description: metadata.synopsis ?? metadata.description ?? '',
+    coverImageUrl: metadata.coverImageUrl ?? '',
   );
 }
 
@@ -53,11 +54,15 @@ GameCatalogMetadata applyGameCatalogFormValues({
       : [if (platform != null) platform];
   final originalDescription = current.synopsis ?? current.description ?? '';
   final descriptionChanged = values.description != originalDescription;
+  final coverChanged = values.coverImageUrl != (current.coverImageUrl ?? '');
   final payload = current.toJson()
     ..addAll({
       'title': title.trim(),
       'platforms': platforms,
       ..._editedFields(values, includeDescription: descriptionChanged),
+      // A removed or restored Core cover takes its thumbnail with it.
+      if (coverChanged) 'cover_image_url': _optional(values.coverImageUrl),
+      if (coverChanged) 'thumbnail_image_url': null,
     });
   return GameCatalogMetadata.fromJson(payload);
 }

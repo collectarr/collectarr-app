@@ -10,6 +10,7 @@
 - A library can offer default folder favorites, shown until you save your own; clearing all favorites now stays cleared.
 - Games folders follow the reference menu: Main (Audience Rating, Developer, Genre, Platform, Publisher, Release Date, Month and Year, Series), Value (Completeness, Condition, Purchase Date, Month, Year and Store, Value Locked), Edition (Edition, Format, Region) and Personal (Added, Completed and Modified dates, Collection Status, Location, My Rating, Owner, Storage Device, Tags), with Platform, Completeness and Platform / Completeness as favorites and Publisher labelled as in the reference.
 - Games sorts add the reference fields: Sort Title, Series, Developer, Format, Region, Completeness, Box, Manual, Value, Purchase Price, Date and Store, PriceCharting ID, Index, Quantity, Added and Modified Date/Time, My Rating, Completed Date, Owner, Storage, Storage Slot and Notes; items without a value sort last.
+- The Games editor and Manual Add have a Covers tab with Front and Back cover panels (Upload, Remove or Restore the Core cover, Crop / Rotate), between Custom Fields and My Images as in the reference.
 
 ### 🐛 Fixes
 - The light theme keeps the toolbars, pane headers and collection tabs dark and uses the reference's light grey and white content areas, blue selection and teal item titles.

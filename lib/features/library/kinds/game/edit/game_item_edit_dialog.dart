@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/game_covers_tab.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_item_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_item_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_personal_form_layout.dart';
@@ -42,6 +43,7 @@ final class _GameItemEditDialogState extends State<_GameItemEditDialog> {
   late Map<String, String?> _customFieldEdits;
   late final Map<String, String?> _initialCustomFieldEdits;
   List<ItemImageEdit> _imageEdits = const [];
+  List<ItemImageEdit> _coverEdits = const [];
 
   @override
   void initState() {
@@ -110,7 +112,7 @@ final class _GameItemEditDialogState extends State<_GameItemEditDialog> {
         ),
         images: LibraryEditImagesTabContribution(
           icon: AppIcons.tabImages,
-          afterTabId: 'custom_fields',
+          afterTabId: 'covers',
           images: [
             for (final image in widget.request.itemImages)
               if (image.imageType != 'front_cover' &&
@@ -128,6 +130,24 @@ final class _GameItemEditDialogState extends State<_GameItemEditDialog> {
             icon: AppIcons.tabValue,
             content: GameValueTab(draft: personal),
           ),
+        EditSchemaExtraTab(
+          id: 'covers',
+          label: 'Covers',
+          icon: AppIcons.tabCovers,
+          content: GameCoversTab(
+            images: [
+              for (final image in widget.request.itemImages)
+                if (image.imageType == 'front_cover' ||
+                    image.imageType == 'back_cover')
+                  image,
+            ],
+            coverImageUrl: _draft.values.coverImageUrl,
+            originalCoverImageUrl: _metadata.coverImageUrl ?? '',
+            onCoverImageUrlChanged: (value) =>
+                _draft.values.coverImageUrl = value,
+            onEdits: (edits) => setState(() => _coverEdits = edits),
+          ),
+        ),
         EditSchemaExtraTab(
           id: 'description',
           label: 'Description',
@@ -169,6 +189,7 @@ final class _GameItemEditDialogState extends State<_GameItemEditDialog> {
       hasUnsavedChanges: () =>
           _initialJson != jsonEncode(_draft.toMetadata().toJson()) ||
           _imageEdits.isNotEmpty ||
+          _coverEdits.isNotEmpty ||
           jsonEncode(_customFieldEdits) != jsonEncode(_initialCustomFieldEdits),
       onSave: (_) async {
         final updated = _draft.toMetadata();
@@ -185,7 +206,7 @@ final class _GameItemEditDialogState extends State<_GameItemEditDialog> {
           LibraryEditSelection(
             kindItem: candidate,
             customFieldEdits: Map.unmodifiable(_customFieldEdits),
-            itemImageEdits: _imageEdits,
+            itemImageEdits: [..._imageEdits, ..._coverEdits],
             localChanges: [
               if (personal == null && !vocabularyEdits.isEmpty)
                 vocabularyEdits.toEditChange(

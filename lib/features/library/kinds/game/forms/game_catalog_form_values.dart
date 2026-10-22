@@ -18,6 +18,7 @@ final class GameCatalogFormValues {
     this.audienceRating = '',
     this.genres = const [],
     this.description = '',
+    this.coverImageUrl = '',
   });
 
   String title;
@@ -36,4 +37,7 @@ final class GameCatalogFormValues {
   String audienceRating;
   List<String> genres;
   String description;
+
+  /// Core front cover; cleared when the user removes it.
+  String coverImageUrl;
 }
