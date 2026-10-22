@@ -122,15 +122,18 @@ final gameKindActions = const LibraryTargetActionCapability(
 final gameKindInspector = LibraryInspectorCapability(
   entityRegistry: LibraryTargetInspectorRegistry(
     catalogItem: LibraryTargetInspectorContributor(
-      heroBuilder: buildGameCatalogItemInspectorHero,
-      sectionsBuilder: buildGameCatalogItemInspectorSections,
+      heroBuilder: buildGameInspectorHero,
+      sectionsBuilder: buildGameInspectorSections,
     ),
     libraryEntry: LibraryTargetInspectorContributor(
-      heroBuilder: buildGameLibraryEntryInspectorHero,
-      sectionsBuilder: buildGameLibraryEntryInspectorSections,
+      heroBuilder: buildGameInspectorHero,
+      sectionsBuilder: buildGameInspectorSections,
     ),
   ),
   showsDefaultPersonalSection: false,
+  showsActionBar: false,
+  // The reference details show no My Images section.
+  supportsLibraryEntryImages: false,
 );
 
 final gameKindLinkedMetadata =
