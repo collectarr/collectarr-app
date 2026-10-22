@@ -101,7 +101,7 @@ under every tab.
 | Personal | Completed | segmented No, Yes | Personal | `game_completed` |
 | Personal | Completed Date | partial date | Personal | `game_completed_date_parts` |
 | Personal | My Rating | ten stars | Personal | tracking `rating` |
-| Personal | Tags | multi-value pick list | Personal | `tags` (one string; **gap**) |
+| Personal | Tags | multi-value pick list | Personal | `tags` (comma-separated, shared multi-value pick list) |
 | Footer | Collection Status, Index, Quantity, Location | pick list, number, number, pick list | Personal | shared entry fields |
 | Covers | Front Cover, Back Cover | Find Online, Upload, Remove, Crop / Rotate | Personal over Catalog | shared image owners |
 | Description | Description | rich text | Catalog | `description` |
@@ -111,8 +111,8 @@ Choosing a completeness level replaces the value with that tier's
 PriceCharting value unless the value is locked; Graded adds no fields.
 
 Collectarr implements this editor and Manual Add as dedicated Game screens
-(`kinds/game/edit/`, `kinds/game/add/`). Open: Covers tab, Tags as a list,
-and PriceCharting refresh (no PriceCharting integration exists).
+(`kinds/game/edit/`, `kinds/game/add/`), including the Covers tab. Open:
+PriceCharting refresh (no PriceCharting integration exists).
 
 ### Toys editor
 
