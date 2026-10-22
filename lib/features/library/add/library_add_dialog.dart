@@ -826,7 +826,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
     final palette = appPalette(context);
     final dialogTheme = buildLibraryAddDialogTheme(accent, palette);
-    final kindControls = state.mode == LibraryAddDialogMode.search
+    final kindControls = state.mode == LibraryAddDialogMode.search ||
+            state.mode == LibraryAddDialogMode.code
         ? addCapability.search.presentation.controlsBuilder
             ?.call(context, modeBarRequest)
         : null;

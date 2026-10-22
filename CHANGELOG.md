@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### ✨ Features
+- Add Games provides Title, Barcode and Platform search tabs matching the reference, keeping the platform picker and region segments across Title and Platform tabs.
 - Games is available as a second library next to Music; existing databases gain its tables on the next start.
 - Games has its own editor and Manual Add laid out as the reference: Main (one platform, partial release date, several developers and publishers, series, format, edition, region, audience rating, genres), Value (completeness, box and manual, lockable value, condition, purchase facts, PriceCharting values and core region), Personal (owner, storage device and slot, completed and its date, rating, tags, notes), Custom Fields, My Images, Description and Links with YouTube trailers.
 - The Games details panel follows the reference: series, title and collection status, cover, platform and year, publishers and developers, format and audience rating, genres, a completeness and value badge, then Description, Trailer, Links and a Personal table.

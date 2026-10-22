@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import '../game_module_dependencies.dart';
 import 'game_add_search_controls.dart';
 import 'game_manual_candidate.dart';
@@ -54,7 +55,14 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     return null;
   },
   search: LibraryAddSearchCapability(
-    input: const LibraryAddSearchInputCapability(),
+    input: const LibraryAddSearchInputCapability(
+      codeSearchTab: LibraryAddCodeSearchTab(
+        label: 'Platform',
+        hintText: 'Filter games...',
+        icon: AppIcons.viewList,
+      ),
+      searchInputPredicate: _gameAddHasSearchInput,
+    ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: _buildGameCoreSearchInput,
       resultFilter: (items, context) => [
@@ -85,13 +93,20 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   manualPaneBuilder: buildGameAddManualPane,
 );
 
+bool _gameAddHasSearchInput(LibraryAddSearchContext context) =>
+    context.query.trim().isNotEmpty ||
+    context.identifierCode.trim().isNotEmpty ||
+    context.codeQuery.trim().isNotEmpty ||
+    gameAddPlatform(context) != null;
+
 MetadataSearchQuery _buildGameCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
   return MetadataSearchQuery(
     query: _optionalGameText(
-      buildLibraryAddSearchQuery([context.query, gameAddPlatform(context)]),
+      buildLibraryAddSearchQuery(
+          [context.query, context.codeQuery, gameAddPlatform(context)]),
     ),
     barcode: _optionalGameText(context.identifierCode),
     limit: limit,

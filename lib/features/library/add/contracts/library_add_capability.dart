@@ -83,10 +83,15 @@ class LibraryAddSearchCapability {
 
 /// An Add tab that searches Core by one typed code, labelled by the kind.
 class LibraryAddCodeSearchTab {
-  const LibraryAddCodeSearchTab({required this.label, required this.hintText});
+  const LibraryAddCodeSearchTab({
+    required this.label,
+    required this.hintText,
+    this.icon,
+  });
 
   final String label;
   final String hintText;
+  final IconData? icon;
 }
 
 class LibraryAddSearchInputCapability {

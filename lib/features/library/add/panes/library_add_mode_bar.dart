@@ -545,7 +545,8 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                           ),
                       },
                     ),
-                    if (widget.mode == LibraryAddDialogMode.search &&
+                    if ((widget.mode == LibraryAddDialogMode.search ||
+                            widget.mode == LibraryAddDialogMode.code) &&
                         widget.queryTrailing != null) ...[
                       const SizedBox(width: 6),
                       widget.queryTrailing!,
@@ -637,7 +638,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                   ),
                   if (codeSearchTab case final tab?)
                     LibraryAddModeTab(
-                      icon: const Icon(AppIcons.tags),
+                      icon: Icon(tab.icon ?? AppIcons.tags),
                       label: tab.label,
                       selected: mode == LibraryAddDialogMode.code,
                       onTap: () => onModeChanged(LibraryAddDialogMode.code),

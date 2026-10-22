@@ -157,7 +157,8 @@ final gamesLibraryMediaPresentation = LibraryMediaPresentation(
         ]),
   ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
-    queryHint: 'Enter title, creator, or keyword...',
+    queryHint: 'Enter title...',
+    libraryHint: 'Search games...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
   filterLabels: const LibraryPresentationLabels(
