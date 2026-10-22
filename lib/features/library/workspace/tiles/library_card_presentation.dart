@@ -19,6 +19,8 @@ class LibraryCardPresentation {
     this.contextFacts = const [],
     this.coverOverlayBuilder,
     this.compactBadges = const [],
+    this.detailLine,
+    this.valueLabel,
   });
 
   /// Kind-entry values projected for the shared card chrome. The card host
@@ -49,6 +51,12 @@ class LibraryCardPresentation {
 
   /// Compact pill badges shown in the body area of the card.
   final List<LibraryCardBadge> compactBadges;
+
+  /// Muted line under the title, such as a full release date.
+  final String? detailLine;
+
+  /// Value pill in the bottom-right corner, such as "CIB | \$ 17.58".
+  final String? valueLabel;
 }
 
 /// A single compact pill shown inside a card.

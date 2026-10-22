@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
@@ -11,15 +12,6 @@ import 'package:collectarr_app/features/library/ui/primitives/library_segmented_
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-
-/// Completeness tiers of the reference Value tab, keyed as stored.
-const gameCompletenessOptions = [
-  ('na', 'N/A'),
-  ('loose', 'Loose'),
-  ('cib', 'CIB'),
-  ('new', 'New'),
-  ('graded', 'Graded'),
-];
 
 /// Value-tab state of one Game copy, from the editor or from Manual Add.
 abstract interface class GameValueBindings {

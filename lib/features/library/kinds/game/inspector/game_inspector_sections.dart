@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/game_value_tab.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
@@ -189,18 +189,8 @@ class _GameValueBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final personal = entry.personal;
-    final completeness = personal.details.completeness;
-    final value = personal.marketValueCents;
-    if (completeness == null && value == null) return const SizedBox.shrink();
-    final tier = gameCompletenessOptions
-        .where((option) => option.$1 == completeness)
-        .firstOrNull
-        ?.$2;
-    final headline = [
-      if (tier != null) tier,
-      if (value != null)
-        AppFormats.current.formatMoney(value, personal.currency),
-    ].join(' | ');
+    final headline = gameValueSummary(personal);
+    if (headline == null) return const SizedBox.shrink();
     final includes =
         switch ((personal.details.hasBox, personal.details.hasManual)) {
       (true, true) => 'Includes box & manual',
@@ -263,8 +253,8 @@ class _GamePersonalTable extends StatelessWidget {
         'Value',
         personal.marketValueCents == null
             ? '-'
-            : AppFormats.current
-                .formatMoney(personal.marketValueCents, personal.currency)
+            : AppFormats.current.formatMoney(personal.marketValueCents,
+                personal.currency ?? AppFormats.current.currency)
       ),
       ('Index', personal.indexNumber?.toString() ?? '-'),
       ('Completed', details.completed == true ? 'Yes' : ''),

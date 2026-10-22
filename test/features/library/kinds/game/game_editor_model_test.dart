@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_item_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_item_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
@@ -98,5 +99,16 @@ void main() {
     expect(valuations.chartTiers.map((tier) => tier.$1),
         ['Loose', 'Loose + Box', 'CIB', 'New']);
     expect(valuations.chartTiers[1].$2, 1500);
+  });
+
+  test('value summary reads as the reference pill', () {
+    expect(gameValueSummary(const GamePersonalData()), isNull);
+    final summary = gameValueSummary(const GamePersonalData(
+      marketValueCents: 1758,
+      currency: 'USD',
+      details: GameEntryDetails(completeness: 'cib'),
+    ));
+    expect(summary, startsWith('CIB | '));
+    expect(summary, contains('17.58'));
   });
 }

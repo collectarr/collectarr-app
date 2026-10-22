@@ -240,6 +240,25 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                                                       ]),
                                                               ])),
                                                   ]),
+                                              if (presentation
+                                                      .detailLine?.isNotEmpty ==
+                                                  true)
+                                                Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 14),
+                                                    child: Text(
+                                                        presentation
+                                                            .detailLine!,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: selected
+                                                                ? Colors.white
+                                                                : palette
+                                                                    .textMuted))),
                                               if (presentation.seriesTitle
                                                       ?.isNotEmpty ==
                                                   true)
@@ -288,6 +307,11 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                             : palette.textMuted))),
                           ])),
                         ])),
+                    if (presentation.valueLabel case final value?)
+                      Positioned(
+                          right: 34,
+                          bottom: 6,
+                          child: _CardValuePill(label: value)),
                     Positioned(
                         right: 7,
                         bottom: 6,
@@ -532,6 +556,27 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
 }
 
 /// Collection status chip shown on cards, as in the reference.
+/// Value pill of the reference cards, e.g. "CIB | \$ 17.58".
+class _CardValuePill extends StatelessWidget {
+  const _CardValuePill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2AA4CC),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(label,
+            style: const TextStyle(
+                fontSize: 13,
+                fontWeight: kAppBoldFontWeight,
+                color: Colors.white)),
+      );
+}
+
 class _CardStatusBadge extends StatelessWidget {
   const _CardStatusBadge({required this.item, required this.selected});
 
