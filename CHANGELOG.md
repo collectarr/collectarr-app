@@ -20,6 +20,7 @@
 - Typing a new value with spaces into a pick list field (Label, Format, Platform and others) keeps the spaces instead of joining the words.
 - The Games list shows its Cover, Platform, Title, Release Date, Publisher and other catalog columns with their values, and opens on Platform folders sorted by Platform, as the reference does.
 - Horizontal cards in the light theme show their series, badges and bottom line in dark text instead of white on white.
+- The sorting favorites button in the Sort dialog header is a white gear on the header colour in the light theme instead of a white square.
 
 ### ♻️ Refactors
 - Manual Add's Collection Status, Index, Quantity and Location footer is shared by every library.
