@@ -27,6 +27,7 @@
 - Games Tags folders split tags at commas only, as the editor does, so a tag containing "|" stays one folder and repeated tags are listed once.
 
 ### ♻️ Refactors
+- Personal tags are stored as lists across every library so tags can contain commas, upgraded automatically on existing databases.
 - Manual Add's Collection Status, Index, Quantity and Location footer is shared by every library.
 - The Front and Back cover panels (Find Online, Upload, Remove, Crop / Rotate) are one shared editor for every library.
 

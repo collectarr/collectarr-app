@@ -177,7 +177,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
           volumeName: 'Saga',
           volumeNumber: '1',
           volumeStartYear: 2012,
-          tags: 'sci-fi, space opera, fantasy, romance',
+          tags: ['sci-fi', 'space opera', 'fantasy', 'romance'],
         ),
         publishing: const SeedPublishingDetails(
           pageCount: 44,
@@ -261,7 +261,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
           volumeName: 'Watchmen',
           volumeNumber: '1',
           volumeStartYear: 1986,
-          tags: 'superhero deconstruction, cold war, alternate history',
+          tags: ['superhero deconstruction', 'cold war', 'alternate history'],
         ),
         publishing: const SeedPublishingDetails(
             pageCount: 36, coverPriceCents: 150, currency: 'USD'),

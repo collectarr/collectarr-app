@@ -28,7 +28,7 @@ final class ComicLibraryEntryCreatePayload
     this.ownerLabel,
     this.collectionStatus,
     this.isDigital,
-    this.tags,
+    this.tags = const [],
   });
 
   factory ComicLibraryEntryCreatePayload.fromTypedItem(
@@ -67,7 +67,7 @@ final class ComicLibraryEntryCreatePayload
   final String? collectionStatus;
   @override
   final bool? isDigital;
-  final String? tags;
+  final List<String> tags;
 
   ComicLibraryEntry toLibraryEntry({
     required String id,

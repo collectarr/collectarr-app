@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/entries/library_entries_reposito
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:drift/drift.dart';
 import 'models/pick_list_value.dart';
+import 'pick_list_definition_contributor.dart';
 
 /// References stored outside catalog metadata, addressed by their own identity.
 final class PickListReferences {
@@ -43,9 +44,7 @@ final class PickListReferences {
     final key = personalKeys[listName];
     if (key != null) {
       for (final entry in active.entries) {
-        final raw = entry.value.personalData[key] as String?;
-        for (final value
-            in listName == 'tags' ? raw?.split(',') ?? <String>[] : [raw]) {
+        for (final value in pickListTextValues(entry.value.personalData[key])) {
           add(value, entry.key);
         }
       }
@@ -94,21 +93,18 @@ final class PickListReferences {
     final key = personalKeys[listName];
     if (key != null) {
       for (final entry in active.entries) {
-        final raw = entry.value.personalData[key] as String?;
-        final values =
-            listName == 'tags' ? raw?.split(',') ?? <String>[] : [raw];
+        final values = [
+          for (final value in pickListTextValues(entry.value.personalData[key]))
+            if (value != null) value,
+        ];
         if (!values.any(matches)) continue;
-        final seen = <String>{};
-        final replaced = [
-          for (final value in values)
-            if (value != null) matches(value) ? target : value
-        ]
-            .where((value) =>
-                value.trim().isNotEmpty &&
-                seen.add(normalizePickListValue(value)))
-            .join(', ');
-        await LibraryEntryStore(db).updatePersonal(entry.value.kind,
-            entry.value.id, {key: replaced.isEmpty ? null : replaced});
+        final replaced = replacePickListValueInList(values, sources, target);
+        await LibraryEntryStore(db)
+            .updatePersonal(entry.value.kind, entry.value.id, {
+          key: listName == 'tags'
+              ? replaced
+              : (replaced.isEmpty ? null : replaced.first),
+        });
         affected.add(entry.key);
       }
     } else if (listName == 'locations') {

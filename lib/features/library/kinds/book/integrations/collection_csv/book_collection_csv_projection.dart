@@ -163,12 +163,12 @@ final class BookCollectionCsvProjection
   }
 
   @override
-  String? entryTags(LibraryWorkspaceContext entry) {
+  List<String> entryTags(LibraryWorkspaceContext entry) {
     final personalState =
         BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is BookLibraryEntry
         ? personalState.personal.tags
-        : null;
+        : const [];
   }
 
   @override

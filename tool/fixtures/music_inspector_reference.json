@@ -180,7 +180,7 @@
     "currency": "SGD",
     "personal_notes": "Inspector reference with all supported fields populated.",
     "index_number": 101,
-    "tags": "Reference | Deluxe",
+    "tags": ["Reference", "Deluxe"],
     "owner_label": "Audit Owner",
     "purchase_store": "Reference Records",
     "collection_status": "in_collection",

@@ -40,13 +40,13 @@ void main() {
       'collectarr.prefill.condition': 'Very Fine',
       'collectarr.prefill.grade': '9.6',
       'collectarr.prefill.read_status': 'read',
-      'collectarr.prefill.tags': 'favorite',
+      'collectarr.prefill.tag_list': ['favorite'],
     });
 
     final defaults = await PrefillDefaults.load();
 
     expect(defaults.locationId, isNull);
-    expect(defaults.tags, 'favorite');
+    expect(defaults.tags, ['favorite']);
   });
 
   testWidgets('prefill settings dialog saves structured location ids',

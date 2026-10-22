@@ -17,6 +17,8 @@ import 'package:collectarr_app/features/library/entries/library_entry_record.dar
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 
 class PrefillSettingsDialog extends ConsumerStatefulWidget {
   const PrefillSettingsDialog(
@@ -32,7 +34,8 @@ class PrefillSettingsDialog extends ConsumerStatefulWidget {
 }
 
 class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
-  final _tagsController = TextEditingController();
+  final _tags = LibraryValuesController();
+  List<String> _tagOptions = const [];
   final _conditionController = TextEditingController();
   bool _alwaysShow = true;
   bool _fillToday = false;
@@ -50,7 +53,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
 
   @override
   void dispose() {
-    _tagsController.dispose();
+    _tags.dispose();
     _conditionController.dispose();
     _personalDraft?.dispose();
     super.dispose();
@@ -59,9 +62,18 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   Future<void> _load() async {
     final defaults = await PrefillDefaults.load(widget.kind);
     final locations = await ref.read(allLocationsProvider.future);
+    final kind = widget.kind;
+    final tagOptions = kind == null
+        ? defaults.tags ?? const <String>[]
+        : await loadTagPickListOptions(
+            ref.read(localDatabaseProvider),
+            mediaKind: kind.apiValue,
+            selectedTags: defaults.tags ?? const [],
+          );
     if (!mounted) return;
     setState(() {
-      _tagsController.text = defaults.tags ?? '';
+      _tags.value = defaults.tags ?? const [];
+      _tagOptions = tagOptions;
       _conditionController.text =
           defaults.personalValues['condition'] as String? ?? '';
       _alwaysShow = defaults.alwaysShow;
@@ -163,10 +175,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                   ],
                   if (_showAdditionalFields) ...[
                     const SizedBox(height: 15),
-                    LibraryFormField(
-                        label: 'Tags',
-                        child: LibraryTextFormControl(
-                            controller: _tagsController)),
+                    LibraryMultiVocabularyField(
+                        label: 'Tags', options: _tagOptions, controller: _tags),
                   ],
                   const SizedBox(height: 25),
                   SizedBox(
@@ -213,7 +223,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
 
   void _clearAll() => setState(() {
         _selectedLocationId = null;
-        _tagsController.clear();
+        _tags.value = const [];
         _personalDraft?.reset();
         _conditionController.clear();
         _fillToday = false;
@@ -304,7 +314,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       alwaysShow: _alwaysShow,
       fillPurchaseDateWithToday: _fillToday,
       locationId: _selectedLocationId,
-      tags: _tagsController.text.isEmpty ? null : _tagsController.text,
+      tags: _tags.value.isEmpty ? null : _tags.value,
       personalValues: Map.of(_personalDraft?.values ?? const {}),
     );
     await defaults.save(widget.kind);

@@ -22,7 +22,7 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
     this.ownerLabel,
     this.collectionStatus,
     this.isDigital,
-    this.tags,
+    this.tags = const [],
   });
 
   factory BookLibraryEntryCreatePayload.fromTypedItem(
@@ -61,7 +61,7 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
   final String? collectionStatus;
   @override
   final bool? isDigital;
-  final String? tags;
+  final List<String> tags;
 
   BookLibraryEntry toLibraryEntry({
     required String id,

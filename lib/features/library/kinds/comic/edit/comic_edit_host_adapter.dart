@@ -193,8 +193,7 @@ class ComicEditHostAdapter implements ComicEditHost {
       draft.personal.ownerLabelController;
 
   @override
-  TextEditingController get comicTagsController =>
-      draft.personal.tagsController;
+  LibraryValuesController get comicTags => draft.personal.tags;
 
   @override
   TextEditingController get comicTrackingNotesController =>
@@ -510,11 +509,10 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   Widget buildComicTagsDropdownField({String label = 'Tags'}) {
-    return LibraryVocabularyField(
-      controller: draft.personal.tagsController,
+    return LibraryMultiVocabularyField(
+      controller: draft.personal.tags,
       options: draft.tagOptions,
       label: label,
-      multiSelect: true,
     );
   }
 

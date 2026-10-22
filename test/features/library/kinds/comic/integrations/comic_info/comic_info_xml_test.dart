@@ -78,7 +78,7 @@ void main() {
     expect(split.canonical.publisher, 'Marvel');
     expect(split.canonical.releaseYear, 1963);
     expect(split.personal.notes, 'Signed by Stan Lee');
-    expect(split.personal.tags, 'spider,key');
+    expect(split.personal.tags, ['spider', 'key']);
     expect(split.personal.rating, 9);
     expect(split.personal.localOnlyFields['StorageBox'], 'Short Box 6');
     expect(split.unknownFields['StorageBox'], 'Short Box 6');

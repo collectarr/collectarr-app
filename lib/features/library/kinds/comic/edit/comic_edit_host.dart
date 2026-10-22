@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_d
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 
 abstract class ComicEditHost {
   BuildContext get comicContext;
@@ -34,7 +35,7 @@ abstract class ComicEditHost {
   TextEditingController get comicGenresEditController;
   TextEditingController get comicLanguageController;
   TextEditingController get comicOwnerLabelController;
-  TextEditingController get comicTagsController;
+  LibraryValuesController get comicTags;
   TextEditingController get comicTrackingNotesController;
   TextEditingController get comicNotesController;
   TextEditingController get comicTrackingController;

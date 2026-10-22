@@ -268,12 +268,10 @@ extension ComicEditTabBuilders on ComicEditHost {
                 ),
                 const SizedBox(height: 10),
               ],
-              LibraryVocabularyField(
-                controller: comicTagsController,
+              LibraryMultiVocabularyField(
+                controller: comicTags,
                 options: comicTagOptions,
                 label: 'Tags',
-                hint: 'Comma-separated tags',
-                multiSelect: true,
               ),
               const SizedBox(height: 10),
               LibraryEditResponsiveRow(children: [

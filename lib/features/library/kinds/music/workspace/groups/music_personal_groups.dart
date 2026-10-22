@@ -92,7 +92,7 @@ Object? musicPersonalGroupValue(
     MusicGroupingField.purchaseStore => personal?.purchaseStore,
     MusicGroupingField.purchaseYear => purchase?.year,
     MusicGroupingField.signedBy => musicGroupSplit(personal?.details.signedBy),
-    MusicGroupingField.tags => musicGroupSplit(personal?.tags),
+    MusicGroupingField.tags => personal?.tags ?? const <String>[],
     _ => throw ArgumentError.value(field, 'field', 'Not a personal grouping.'),
   };
 }

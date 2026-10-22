@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:flutter/material.dart';
 
 /// Describes the data type of a transferable field.
@@ -68,8 +69,8 @@ class TransferableField {
     required T Function(T value, String? nextValue) writePersonalNotes,
     required String? Function(T value) readLocationId,
     required T Function(T value, String? nextValue) writeLocationId,
-    required String? Function(T value) readTags,
-    required T Function(T value, String? nextValue) writeTags,
+    required List<String> Function(T value) readTags,
+    required T Function(T value, List<String> nextValue) writeTags,
     required String? Function(T value) readCurrency,
     required T Function(T value, String? nextValue) writeCurrency,
     required String? Function(T value) readSoldTo,
@@ -136,8 +137,8 @@ class TransferableField {
         label: 'Tags',
         icon: Icons.sell_outlined,
         type: TransferableFieldType.text,
-        read: readTags,
-        write: writeTags,
+        read: (value) => joinPickListValues(readTags(value)),
+        write: (value, next) => writeTags(value, splitPickListValues(next)),
       ),
       field(
         key: 'currency',

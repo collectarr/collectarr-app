@@ -128,44 +128,23 @@ class LibraryVocabularyField extends StatelessWidget {
     if (multiSelect) {
       return ValueListenableBuilder<TextEditingValue>(
         valueListenable: controller,
-        builder: (context, current, _) {
-          final values = splitPickListValues(current.text);
-          return LibraryMultiValuePickField<String>(
-            label: label,
-            value: values.toSet(),
-            options: [
-              for (final option in options)
-                LibraryFieldOption<String>(value: option, label: option),
-            ],
-            enabled: enabled,
-            allowCustomValueEntry: true,
-            hintText: hint,
-            errorText: validator?.call(current.text),
-            onChanged: (next) {
-              final text = joinPickListValues(next) ?? '';
-              controller.value = TextEditingValue(
-                text: text,
-                selection: TextSelection.collapsed(offset: text.length),
-              );
-              onChanged?.call(text.isEmpty ? null : text);
-            },
-            onOpenPicker: ({
-              required label,
-              required selectedValues,
-              required options,
-              searchHint,
-              customValueHint,
-            }) =>
-                showLibraryMultiValueOptionsDialog<String>(
-              context: context,
-              label: label,
-              options: options,
-              selectedValues: selectedValues,
-              searchHint: searchHint,
-              customValueHint: customValueHint ?? 'Add value',
-            ),
-          );
-        },
+        builder: (context, current, _) => _vocabularyValuesField(
+          context,
+          label: label,
+          values: splitPickListValues(current.text),
+          options: options,
+          enabled: enabled,
+          hint: hint,
+          errorText: validator?.call(current.text),
+          onChanged: (next) {
+            final text = joinPickListValues(next) ?? '';
+            controller.value = TextEditingValue(
+              text: text,
+              selection: TextSelection.collapsed(offset: text.length),
+            );
+            onChanged?.call(text.isEmpty ? null : text);
+          },
+        ),
       );
     }
     return ValueListenableBuilder<TextEditingValue>(
@@ -211,6 +190,90 @@ class LibraryVocabularyField extends StatelessWidget {
       },
     );
   }
+}
+
+/// Holds the values of a multi-value pick list field, such as Tags.
+class LibraryValuesController extends ValueNotifier<List<String>> {
+  LibraryValuesController([super.value = const []]);
+}
+
+/// Multi-value pick list field whose values are kept as a list.
+class LibraryMultiVocabularyField extends StatelessWidget {
+  const LibraryMultiVocabularyField({
+    super.key,
+    required this.label,
+    required this.options,
+    required this.controller,
+    this.hint,
+    this.enabled = true,
+    this.onChanged,
+  });
+
+  final String label;
+  final List<String> options;
+  final LibraryValuesController controller;
+  final String? hint;
+  final bool enabled;
+  final ValueChanged<List<String>>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<List<String>>(
+      valueListenable: controller,
+      builder: (context, values, _) => _vocabularyValuesField(
+        context,
+        label: label,
+        values: values,
+        options: options,
+        enabled: enabled,
+        hint: hint,
+        onChanged: (next) {
+          controller.value = mergePickListValues(builtInValues: next);
+          onChanged?.call(controller.value);
+        },
+      ),
+    );
+  }
+}
+
+Widget _vocabularyValuesField(
+  BuildContext context, {
+  required String label,
+  required List<String> values,
+  required List<String> options,
+  required bool enabled,
+  String? hint,
+  String? errorText,
+  required ValueChanged<List<String>> onChanged,
+}) {
+  return LibraryMultiValuePickField<String>(
+    label: label,
+    value: values.toSet(),
+    options: [
+      for (final option in options)
+        LibraryFieldOption<String>(value: option, label: option),
+    ],
+    enabled: enabled,
+    allowCustomValueEntry: true,
+    hintText: hint,
+    errorText: errorText,
+    onChanged: (next) => onChanged(next.toList()),
+    onOpenPicker: ({
+      required label,
+      required selectedValues,
+      required options,
+      searchHint,
+      customValueHint,
+    }) =>
+        showLibraryMultiValueOptionsDialog<String>(
+      context: context,
+      label: label,
+      options: options,
+      selectedValues: selectedValues,
+      searchHint: searchHint,
+      customValueHint: customValueHint ?? 'Add value',
+    ),
+  );
 }
 
 /// Two equal, compact choices for a labelled yes/no value.

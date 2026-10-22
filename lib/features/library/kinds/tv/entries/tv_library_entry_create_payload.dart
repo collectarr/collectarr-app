@@ -22,7 +22,7 @@ final class TvLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
     this.ownerLabel,
     this.collectionStatus,
     this.isDigital,
-    this.tags,
+    this.tags = const [],
   });
 
   factory TvLibraryEntryCreatePayload.fromTypedItem(
@@ -61,7 +61,7 @@ final class TvLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
   final String? collectionStatus;
   @override
   final bool? isDigital;
-  final String? tags;
+  final List<String> tags;
 
   TvLibraryEntry toLibraryEntry({
     required String id,

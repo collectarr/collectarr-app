@@ -300,5 +300,6 @@ class LibraryEditShellState {
     userExternalLinks.dispose();
     session.dispose();
     _textControllers.dispose();
+    personal.tags.dispose();
   }
 }

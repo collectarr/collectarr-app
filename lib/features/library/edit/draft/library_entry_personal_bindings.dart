@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 
 class LibraryEntryPersonalBindings {
   LibraryEntryPersonalBindings({
@@ -17,7 +18,7 @@ class LibraryEntryPersonalBindings {
     required this.wishlistPriceController,
     required this.wishlistCurrencyController,
     required this.wishlistNotesController,
-    required this.tagsController,
+    required this.tags,
     required this.sellPriceController,
     required this.soldToController,
     required this.tagOptions,
@@ -42,7 +43,7 @@ class LibraryEntryPersonalBindings {
   final TextEditingController wishlistPriceController;
   final TextEditingController wishlistCurrencyController;
   final TextEditingController wishlistNotesController;
-  final TextEditingController tagsController;
+  final LibraryValuesController tags;
   final TextEditingController sellPriceController;
   final TextEditingController soldToController;
 

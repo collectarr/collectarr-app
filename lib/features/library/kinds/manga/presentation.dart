@@ -92,7 +92,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => MangaLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.personal.tags?.split(','),
+    )?.personal.tags,
   ),
   if (MangaFieldIdentities.publisher.filterable)
     LibraryFilterDefinition<Object?>(

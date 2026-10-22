@@ -152,10 +152,11 @@ final class ComicCollectionCsvProjection
           .indexNumber;
 
   @override
-  String? entryTags(LibraryWorkspaceContext entry) =>
+  List<String> entryTags(LibraryWorkspaceContext entry) =>
       ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
           ?.personal
-          .tags;
+          .tags ??
+      const [];
 
   @override
   List<String> entryCellsBeforeLocation(

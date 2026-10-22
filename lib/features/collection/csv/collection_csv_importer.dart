@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/entries/library_entry_record.dar
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 
 /// Schema-v1 collection import mechanics.
 ///
@@ -128,7 +129,10 @@ final class CollectionCsvImporter {
         notes: _optionalValue(index, values, 'notes'),
         locationId: _optionalValue(index, values, 'location_id'),
         indexNumber: int.tryParse(_value(index, values, 'index_number')),
-        tags: _optionalValue(index, values, 'tags'),
+        tags: switch (_optionalValue(index, values, 'tags')) {
+          final raw? => splitPickListValues(raw),
+          null => null,
+        },
         soldAt: _parseDate(_value(index, values, 'sold_at')),
         sellPriceCents: _moneyCents(_value(index, values, 'sell_price_cents')),
         soldTo: _optionalValue(index, values, 'sold_to'),

@@ -167,10 +167,12 @@ final class TvCollectionCsvProjection
   }
 
   @override
-  String? entryTags(LibraryWorkspaceContext entry) {
+  List<String> entryTags(LibraryWorkspaceContext entry) {
     final personalState =
         TvLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
-    return personalState is TvLibraryEntry ? personalState.personal.tags : null;
+    return personalState is TvLibraryEntry
+        ? personalState.personal.tags
+        : const [];
   }
 
   @override

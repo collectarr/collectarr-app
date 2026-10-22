@@ -64,7 +64,7 @@ class LibraryBulkActions {
     String? defaultCondition,
     String? defaultLocationId,
     String? defaultReadStatus,
-    String? defaultTags,
+    List<String>? defaultTags,
   }) async {
     final entriesToOwn = [
       for (final entry in entries)

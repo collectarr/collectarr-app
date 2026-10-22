@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_persona
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:xml/xml.dart';
 import 'music_import_row.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 
 /// CATraxx "Export to XML" of the Album table: a `<data>` root with field
 /// definitions and one `<record table="album">` per album, holding
@@ -119,7 +120,7 @@ CollectionImportRow _album(XmlElement record, Set<String> seen) {
         mediaCondition: _text(data, 'conditionrecord'),
         ownerLabel: _text(data, 'owner'),
         rating: _rating(_text(data, 'personalrating')),
-        tags: _text(data, 'keywords'),
+        tags: splitPickListValues(_text(data, 'keywords')),
         collectionStatus: _status(_text(data, 'status')),
       ));
 }

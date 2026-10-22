@@ -181,7 +181,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
           volumeName: 'The Dark Knight Trilogy',
           volumeNumber: '1',
           volumeStartYear: 2005,
-          tags: 'superhero, action, thriller, dc comics',
+          tags: ['superhero', 'action', 'thriller', 'dc comics'],
         ),
         video: const SeedVideoDetails(
           runtimeMinutes: 140,
@@ -292,7 +292,7 @@ List<CatalogItemDto> _movieSeedSourceItems() => [
           volumeName: 'The Dark Knight Trilogy',
           volumeNumber: '2',
           volumeStartYear: 2005,
-          tags: 'superhero, action, thriller, dc comics',
+          tags: ['superhero', 'action', 'thriller', 'dc comics'],
         ),
         video: const SeedVideoDetails(
           runtimeMinutes: 152,

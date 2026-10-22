@@ -24,7 +24,7 @@ class LibraryAddCommonDraft {
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final String? tags;
+  final List<String>? tags;
   final String? locationId;
   final bool clearLocation;
   final String? purchaseStore;
@@ -42,7 +42,7 @@ class LibraryAddCommonDraft {
     int? pricePaidCents,
     String? currency,
     String? personalNotes,
-    String? tags,
+    List<String>? tags,
     String? locationId,
     bool? clearLocation,
     String? purchaseStore,

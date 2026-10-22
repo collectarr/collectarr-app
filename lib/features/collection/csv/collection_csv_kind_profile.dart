@@ -78,7 +78,7 @@ abstract interface class CollectionCsvKindProfile {
 
   int? entryIndexNumber(LibraryWorkspaceContext entry);
 
-  String? entryTags(LibraryWorkspaceContext entry);
+  List<String> entryTags(LibraryWorkspaceContext entry);
 
   /// Kind-entry values positioned after price and before location in the
   /// CLZ-friendly layout, such as a Comic cover price.
@@ -134,7 +134,7 @@ final class CollectionCsvEntryImport {
   final String? personalNotes;
   final String? locationId;
   final int? indexNumber;
-  final String? tags;
+  final List<String>? tags;
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;

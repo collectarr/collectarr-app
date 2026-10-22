@@ -87,7 +87,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => MusicLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.personal.tags?.split(','),
+    )?.personal.tags,
   ),
   if (MusicFieldIdentities.publisher.filterable)
     LibraryFilterDefinition<Object?>(

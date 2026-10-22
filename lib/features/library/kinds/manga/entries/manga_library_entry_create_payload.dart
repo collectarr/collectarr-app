@@ -23,7 +23,7 @@ final class MangaLibraryEntryCreatePayload
     this.ownerLabel,
     this.collectionStatus,
     this.isDigital,
-    this.tags,
+    this.tags = const [],
   });
 
   factory MangaLibraryEntryCreatePayload.fromTypedItem(
@@ -62,7 +62,7 @@ final class MangaLibraryEntryCreatePayload
   final String? collectionStatus;
   @override
   final bool? isDigital;
-  final String? tags;
+  final List<String> tags;
 
   MangaLibraryEntry toLibraryEntry({
     required String id,

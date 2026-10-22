@@ -17,7 +17,7 @@ class LibraryAddFormOptionsController {
     required LocalDatabase database,
     required LibraryKindRegistration type,
     required String selectedCondition,
-    String? selectedTags,
+    List<String>? selectedTags,
     String? selectedOwner,
     String? selectedPurchaseStore,
   }) async {
@@ -37,7 +37,7 @@ class LibraryAddFormOptionsController {
     final tags = await loadTagPickListOptions(
       database,
       mediaKind: type.kind.apiValue,
-      selectedTags: splitPickListValues(selectedTags),
+      selectedTags: selectedTags ?? const [],
     );
     final owners = await loadSingleValuePickListOptions(
       database,

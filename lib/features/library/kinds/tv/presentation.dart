@@ -62,7 +62,7 @@ final tvLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => TvLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.personal.tags?.split(','),
+    )?.personal.tags,
   ),
   LibraryFilterDefinition<Object?>(
     metadata: TvWorkspaceFieldMetadata.publisher,

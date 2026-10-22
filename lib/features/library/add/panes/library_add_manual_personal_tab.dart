@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/ui/primitives/library_notes_fiel
 import 'package:collectarr_app/features/library/ui/primitives/library_personal_fields_layout.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
-import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:flutter/material.dart';
 
 /// Shared personal fields supported by the manual Add submission path.
@@ -215,15 +214,15 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     LibraryAddCommonDraft current,
   ) {
     _expectFieldKey(field, 'tags');
-    final rawValues = switch (field.key) {
-      'tags' => request.tagsController.text.trim().isNotEmpty
-          ? request.tagsController.text
-          : current.tags ?? request.defaultTags,
-      _ => '',
+    final values = switch (field.key) {
+      'tags' => request.tags.value.isNotEmpty
+          ? request.tags.value
+          : current.tags ?? request.defaultTags ?? const <String>[],
+      _ => const <String>[],
     };
     return LibraryMultiValuePickField<String>(
       label: field.label,
-      value: splitPickListValues(rawValues).toSet(),
+      value: values.toSet(),
       options: [
         for (final option in request.tagOptions)
           LibraryFieldOption<String>(value: option, label: option),
@@ -246,9 +245,8 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
       ),
       onChanged: (selected) {
         final values = selected.toList(growable: false);
-        final joined = joinPickListValues(values) ?? '';
-        request.tagsController.text = joined;
-        _updateCommon(tags: joined);
+        request.tags.value = values;
+        _updateCommon(tags: values);
         request.onVocabularyValuesChanged?.call(
           fieldId: field.key,
           listName: field.vocabularyListName,
@@ -332,7 +330,8 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
             ? current.currency
             : currency as String?,
         personalNotes: current.personalNotes,
-        tags: identical(tags, _unchanged) ? current.tags : tags as String?,
+        tags:
+            identical(tags, _unchanged) ? current.tags : tags as List<String>?,
         locationId: identical(locationId, _unchanged)
             ? current.locationId
             : locationId as String?,

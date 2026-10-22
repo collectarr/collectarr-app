@@ -161,7 +161,7 @@ List<CollectionImportRow> parseCollectorzMusicXml(String source,
           purchaseDate: purchase?.asDateTime,
           collectionStatus:
               _collectionStatus(xmlMusicValue(record, 'collectionstatus')),
-          tags: xmlMusicValues(record, 'tags', 'tag').join(', '),
+          tags: xmlMusicValues(record, 'tags', 'tag'),
         )));
   }
   return List.unmodifiable(result);

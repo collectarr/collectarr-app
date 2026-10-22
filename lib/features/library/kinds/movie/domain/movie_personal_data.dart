@@ -15,7 +15,7 @@ final class MoviePersonalData implements JsonEncodable {
     this.currency,
     this.personalNotes,
     this.indexNumber,
-    this.tags,
+    this.tags = const [],
     this.soldAt,
     this.sellPriceCents,
     this.soldTo,
@@ -36,7 +36,7 @@ final class MoviePersonalData implements JsonEncodable {
   final String? currency;
   final String? personalNotes;
   final int? indexNumber;
-  final String? tags;
+  final List<String> tags;
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
@@ -81,7 +81,7 @@ final class MoviePersonalData implements JsonEncodable {
         currency: json['currency'] as String?,
         personalNotes: json['personal_notes'] as String?,
         indexNumber: (json['index_number'] as num?)?.toInt(),
-        tags: json['tags'] as String?,
+        tags: List<String>.from(json['tags'] as List? ?? const []),
         soldAt: _moviePersonalDate(json['sold_at']),
         sellPriceCents: (json['sell_price_cents'] as num?)?.toInt(),
         soldTo: json['sold_to'] as String?,
@@ -103,7 +103,7 @@ final class MoviePersonalData implements JsonEncodable {
     Object? currency = _moviePersonalUnset,
     Object? personalNotes = _moviePersonalUnset,
     Object? indexNumber = _moviePersonalUnset,
-    Object? tags = _moviePersonalUnset,
+    List<String>? tags,
     Object? soldAt = _moviePersonalUnset,
     Object? sellPriceCents = _moviePersonalUnset,
     Object? soldTo = _moviePersonalUnset,
@@ -140,8 +140,7 @@ final class MoviePersonalData implements JsonEncodable {
         indexNumber: identical(indexNumber, _moviePersonalUnset)
             ? this.indexNumber
             : indexNumber as int?,
-        tags:
-            identical(tags, _moviePersonalUnset) ? this.tags : tags as String?,
+        tags: tags ?? this.tags,
         soldAt: identical(soldAt, _moviePersonalUnset)
             ? this.soldAt
             : soldAt as DateTime?,

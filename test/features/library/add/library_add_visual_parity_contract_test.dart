@@ -35,7 +35,7 @@ void main() {
         commonDraft: const LibraryAddCommonDraft(),
         kindDraft: null,
         manualDraft: manualDraft.kindDraft,
-        tagsController: manualDraft.tagsController,
+        tags: manualDraft.tags,
         personalNotesController: manualDraft.personalNotesController,
         coverPriceController: manualDraft.coverPriceController,
         priceController: manualDraft.priceController,

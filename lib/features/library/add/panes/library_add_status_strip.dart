@@ -12,14 +12,14 @@ class LibraryAddStatusStrip extends StatelessWidget {
   const LibraryAddStatusStrip({
     super.key,
     required this.request,
-    required this.indexNumber,
+    required this.indexValue,
     required this.quantity,
     required this.onIndexChanged,
     required this.onQuantityChanged,
   });
 
   final LibraryAddManualPaneRequest request;
-  final int? indexNumber;
+  final int? indexValue;
   final int quantity;
   final ValueChanged<int?> onIndexChanged;
   final ValueChanged<int> onQuantityChanged;
@@ -40,7 +40,7 @@ class LibraryAddStatusStrip extends StatelessWidget {
       LibraryFormField(
           label: 'Index',
           child: LibraryTextFormControl(
-              initialValue: indexNumber?.toString() ?? '',
+              initialValue: indexValue?.toString() ?? '',
               keyboardType: TextInputType.number,
               validator: (value) =>
                   value == null || value.isEmpty || int.tryParse(value) != null

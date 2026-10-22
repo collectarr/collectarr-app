@@ -197,7 +197,7 @@ List<CatalogItemDto> boardgameSeedCatalogItems() => [
         series: const SeedSeriesDetails(
           seriesId: 'seed-series-gloomhaven',
           seriesTitle: 'Gloomhaven',
-          tags: 'cooperative, dungeon crawl, campaign',
+          tags: ['cooperative', 'dungeon crawl', 'campaign'],
         ),
         publishing: const SeedPublishingDetails(
           coverPriceCents: 14000,

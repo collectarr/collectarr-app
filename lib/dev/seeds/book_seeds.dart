@@ -175,7 +175,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
           volumeName: 'Dune',
           volumeNumber: '1',
           volumeStartYear: 1965,
-          tags: 'sci-fi, space opera, politics, ecology',
+          tags: ['sci-fi', 'space opera', 'politics', 'ecology'],
         ),
         publishing: const SeedPublishingDetails(
           pageCount: 688,
@@ -646,7 +646,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
           volumeName: 'The Way of Kings',
           volumeNumber: '1',
           volumeStartYear: 2010,
-          tags: 'high fantasy, epic, cosmere',
+          tags: ['high fantasy', 'epic', 'cosmere'],
         ),
         publishing: const SeedPublishingDetails(
             pageCount: 1007, coverPriceCents: 3799, currency: 'USD'),

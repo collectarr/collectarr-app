@@ -46,7 +46,7 @@ final class LibraryAddSessionState {
   final DateTime? defaultPurchaseDate;
   final String? defaultLocationId;
   final String? defaultReadStatus;
-  final String? defaultTags;
+  final List<String>? defaultTags;
   final String? physicalFormatId;
   final bool isAdding;
 
@@ -92,7 +92,7 @@ final class LibraryAddSessionState {
     bool clearDefaultLocationId = false,
     String? defaultReadStatus,
     bool clearDefaultReadStatus = false,
-    String? defaultTags,
+    List<String>? defaultTags,
     bool clearDefaultTags = false,
     String? physicalFormatId,
     bool clearPhysicalFormatId = false,

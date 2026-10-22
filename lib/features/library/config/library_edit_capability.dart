@@ -49,7 +49,7 @@ typedef LibraryEntryBulkUpdatePayloadBuilder = LibraryEntryUpdatePayload
   String? condition,
   String? collectionValue,
   String? locationId,
-  String? tags,
+  List<String>? tags,
 );
 
 typedef LibraryEntryPersonalDetailsUpdatePayloadBuilder
@@ -206,7 +206,7 @@ final class LibraryEntryEditCapability {
     required String? condition,
     required String? collectionValue,
     required String? locationId,
-    required String? tags,
+    required List<String>? tags,
   }) {
     final builder = entryBulkUpdatePayloadBuilder;
     if (builder == null) {

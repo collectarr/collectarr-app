@@ -355,7 +355,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     );
   }
 
-  void setDefaultTags(String? tags) {
+  void setDefaultTags(List<String>? tags) {
     state = state.copyWith(
       defaultTags: tags,
       clearDefaultTags: tags == null,

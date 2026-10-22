@@ -80,10 +80,7 @@ abstract final class MusicAdditionalWorkspaceFields {
           source: LibraryFieldSource.libraryEntry,
           sourcePath: 'tags',
           groupable: true),
-      getValue: (c) => (_entry(c)?.personal.tags ?? '')
-          .split(',')
-          .map((v) => v.trim())
-          .where((v) => v.isNotEmpty));
+      getValue: (c) => _entry(c)?.personal.tags ?? const <String>[]);
   static final releaseYear = _number(
       'music.release_year',
       'Release Year',

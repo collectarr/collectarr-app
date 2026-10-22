@@ -98,7 +98,7 @@ class MovieEditDraft
     personal.indexNumberController.text =
         item.personal.indexNumber?.toString() ?? '';
     personal.notesController.text = item.personal.personalNotes ?? '';
-    personal.tagsController.text = item.personal.tags ?? '';
+    personal.tags.value = item.personal.tags;
     personal.sellPriceController.text = item.personal.sellPriceCents == null
         ? ''
         : (item.personal.sellPriceCents! / 100).toStringAsFixed(2);
@@ -148,9 +148,7 @@ class MovieEditDraft
       collectionStatus: personal.collectionStatus != null
           ? Patch.set(personal.collectionStatus)
           : const Patch.clear(),
-      tags: personal.tagsController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.tagsController.text.trim()),
+      tags: Patch.set(personal.tags.value),
       soldAt: personal.soldAt != null
           ? Patch.set(personal.soldAt)
           : const Patch.clear(),

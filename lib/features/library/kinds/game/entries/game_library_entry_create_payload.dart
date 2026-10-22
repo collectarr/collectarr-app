@@ -23,7 +23,7 @@ final class GameLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
     this.ownerLabel,
     this.collectionStatus,
     this.isDigital,
-    this.tags,
+    this.tags = const [],
     this.quantity = 1,
     this.indexNumber,
     this.rating,
@@ -72,7 +72,7 @@ final class GameLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
   final String? collectionStatus;
   @override
   final bool? isDigital;
-  final String? tags;
+  final List<String> tags;
   final int quantity;
   final int? indexNumber;
   final int? rating;

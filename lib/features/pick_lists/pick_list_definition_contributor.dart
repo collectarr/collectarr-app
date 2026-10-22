@@ -97,22 +97,31 @@ String? replacePickListDelimitedValue(
   String targetValue,
 ) {
   if (raw == null || raw.trim().isEmpty) return raw;
-  final values = raw
-      .split(',')
-      .map((value) => value.trim())
-      .where((value) => value.isNotEmpty)
-      .map(
-        (value) =>
-            normalizedSourceValues.contains(normalizePickListValue(value))
-                ? targetValue
-                : value,
-      )
-      .where((value) => value.trim().isNotEmpty);
-  final seen = <String>{};
-  final replaced = values
-      .where((value) => seen.add(normalizePickListValue(value)))
-      .join(', ');
+  final replaced = replacePickListValueInList(
+    raw.split(','),
+    normalizedSourceValues,
+    targetValue,
+  ).join(', ');
   return replaced == raw ? raw : replaced;
+}
+
+/// Replaces matching values in a multi-value field, trimming and dropping
+/// repeated values.
+List<String> replacePickListValueInList(
+  Iterable<String> values,
+  Set<String> normalizedSourceValues,
+  String targetValue,
+) {
+  final seen = <String>{};
+  return [
+    for (final raw in values)
+      if (raw.trim() case final value when value.isNotEmpty)
+        if (normalizedSourceValues.contains(normalizePickListValue(value))
+                ? targetValue.trim()
+                : value
+            case final next when next.isNotEmpty)
+          if (seen.add(normalizePickListValue(next))) next,
+  ];
 }
 
 /// Projects scalar or multi-value serialized fields into pick-list values.

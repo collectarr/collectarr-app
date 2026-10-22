@@ -81,14 +81,11 @@ List<Widget> buildMusicInspectorSections(
           Text(model.entry!.personal.personalNotes!,
               style:
                   const TextStyle(fontSize: 14, fontWeight: FontWeight.w400))),
-    if (model.entry?.personal.tags?.trim().isNotEmpty == true)
+    if (model.entry?.personal.tags.isNotEmpty == true)
       section(
           'Tags',
           Wrap(spacing: 8, runSpacing: 4, children: [
-            for (final tag in model.entry!.personal.tags!
-                .split('|')
-                .map((v) => v.trim())
-                .where((v) => v.isNotEmpty))
+            for (final tag in model.entry!.personal.tags)
               TextButton.icon(
                   style: TextButton.styleFrom(
                       foregroundColor: appPalette(context).textPrimary,

@@ -124,7 +124,7 @@ class _LibraryEntryPersonalSectionState
             db,
             listName: field.vocabularyListName!,
             mediaKind: _kind,
-            selectedValues: splitPickListValues(_draft.text(field.key)),
+            selectedValues: _draft.list(field.key),
           )
         else
           loadSingleValuePickListOptions(
@@ -167,7 +167,7 @@ class _LibraryEntryPersonalSectionState
     List<String> values,
   ) {
     final listName = field.vocabularyListName!;
-    _draft.set(field.key, joinPickListValues(values) ?? '');
+    _draft.set(field.key, values);
     _draft.vocabularyEdits.replaceValues(
       fieldId: 'personal:${field.key}',
       listName: listName,
@@ -261,7 +261,7 @@ class _LibraryEntryPersonalSectionState
         if (!_optionsLoaded) return _text(field.label, field.key);
         return LibraryMultiValuePickField<String>(
           label: field.label,
-          value: splitPickListValues(_draft.text(field.key)).toSet(),
+          value: _draft.list(field.key).toSet(),
           options: [
             for (final option
                 in _vocabularyOptions[field.key] ?? const <String>[])

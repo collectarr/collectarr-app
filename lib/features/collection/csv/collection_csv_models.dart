@@ -127,7 +127,7 @@ final class CollectionImportPersonalValues {
   final String? notes;
   final String? locationId;
   final int? indexNumber;
-  final String? tags;
+  final List<String>? tags;
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;

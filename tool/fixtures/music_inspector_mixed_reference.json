@@ -219,7 +219,7 @@
     "currency": "EUR",
     "personal_notes": "Inspector reference with all supported fields populated.",
     "index_number": 101,
-    "tags": "Reference | Deluxe",
+    "tags": ["Reference", "Deluxe"],
     "sold_at": "2026-03-01T00:00:00.000Z",
     "sell_price_cents": 5500,
     "sold_to": "Alex Reference",

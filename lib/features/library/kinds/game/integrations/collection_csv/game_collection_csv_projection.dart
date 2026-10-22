@@ -158,12 +158,12 @@ final class GameCollectionCsvProjection
   }
 
   @override
-  String? entryTags(LibraryWorkspaceContext entry) {
+  List<String> entryTags(LibraryWorkspaceContext entry) {
     final personalState =
         GameLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is GameLibraryEntry
         ? personalState.personal.tags
-        : null;
+        : const [];
   }
 
   @override

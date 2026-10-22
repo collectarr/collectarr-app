@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 
 /// Generic personal and session state for the manual Add dialog flow.
 ///
@@ -23,7 +24,7 @@ class LibraryAddManualDraft {
 
   final LibraryKindAddDraft kindDraft;
 
-  final tagsController = TextEditingController();
+  final tags = LibraryValuesController();
   final personalNotesController = TextEditingController();
   final coverPriceController = TextEditingController();
   final priceController = TextEditingController();
@@ -39,7 +40,7 @@ class LibraryAddManualDraft {
   DateTime? soldAt;
 
   void dispose() {
-    tagsController.dispose();
+    tags.dispose();
     personalNotesController.dispose();
     coverPriceController.dispose();
     priceController.dispose();

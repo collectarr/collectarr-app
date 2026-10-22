@@ -15,7 +15,7 @@ final class MangaPersonalData implements JsonEncodable {
     this.currency,
     this.personalNotes,
     this.indexNumber,
-    this.tags,
+    this.tags = const [],
     this.soldAt,
     this.sellPriceCents,
     this.soldTo,
@@ -36,7 +36,7 @@ final class MangaPersonalData implements JsonEncodable {
   final String? currency;
   final String? personalNotes;
   final int? indexNumber;
-  final String? tags;
+  final List<String> tags;
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
@@ -81,7 +81,7 @@ final class MangaPersonalData implements JsonEncodable {
         currency: json['currency'] as String?,
         personalNotes: json['personal_notes'] as String?,
         indexNumber: (json['index_number'] as num?)?.toInt(),
-        tags: json['tags'] as String?,
+        tags: List<String>.from(json['tags'] as List? ?? const []),
         soldAt: _mangaPersonalDate(json['sold_at']),
         sellPriceCents: (json['sell_price_cents'] as num?)?.toInt(),
         soldTo: json['sold_to'] as String?,
@@ -103,7 +103,7 @@ final class MangaPersonalData implements JsonEncodable {
     Object? currency = _mangaPersonalUnset,
     Object? personalNotes = _mangaPersonalUnset,
     Object? indexNumber = _mangaPersonalUnset,
-    Object? tags = _mangaPersonalUnset,
+    List<String>? tags,
     Object? soldAt = _mangaPersonalUnset,
     Object? sellPriceCents = _mangaPersonalUnset,
     Object? soldTo = _mangaPersonalUnset,
@@ -140,8 +140,7 @@ final class MangaPersonalData implements JsonEncodable {
         indexNumber: identical(indexNumber, _mangaPersonalUnset)
             ? this.indexNumber
             : indexNumber as int?,
-        tags:
-            identical(tags, _mangaPersonalUnset) ? this.tags : tags as String?,
+        tags: tags ?? this.tags,
         soldAt: identical(soldAt, _mangaPersonalUnset)
             ? this.soldAt
             : soldAt as DateTime?,

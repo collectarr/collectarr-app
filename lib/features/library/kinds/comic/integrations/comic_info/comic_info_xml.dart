@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:xml/xml.dart';
 
 /// Serializes and deserializes ComicInfo.xml (ComicRack/Kavita/Komga standard).
@@ -55,9 +56,8 @@ class ComicInfoXml {
           _optionalElement(
               builder, 'CommunityRating', comicInfoRating.toStringAsFixed(1));
         }
-        if (entry.personal.tags != null &&
-            entry.personal.tags!.trim().isNotEmpty) {
-          _optionalElement(builder, 'Tags', entry.personal.tags);
+        if (entry.personal.tags.isNotEmpty) {
+          _optionalElement(builder, 'Tags', entry.personal.tags.join(', '));
         }
       }
     });
@@ -115,7 +115,7 @@ class ComicInfoXml {
 
     final personal = ComicInfoPersonalState(
       notes: notes,
-      tags: tags,
+      tags: splitPickListValues(tags),
       rating: communityRating != null ? (communityRating * 2).round() : null,
       localOnlyFields: {
         for (final entry in fields.entries)
@@ -218,13 +218,13 @@ class ComicInfoCanonicalCandidate {
 class ComicInfoPersonalState {
   const ComicInfoPersonalState({
     this.notes,
-    this.tags,
+    this.tags = const [],
     this.rating,
     this.localOnlyFields = const {},
   });
 
   final String? notes;
-  final String? tags;
+  final List<String> tags;
   final int? rating;
   final Map<String, String> localOnlyFields;
 }

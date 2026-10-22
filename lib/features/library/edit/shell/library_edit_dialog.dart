@@ -245,7 +245,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     final tags = await loadTagPickListOptions(
       db,
       mediaKind: mediaKind,
-      selectedTags: splitPickListValues(_draft.personal.tagsController.text),
+      selectedTags: _draft.personal.tags.value,
     );
     final kindVocabs = <String, List<String>>{};
     final vocCapability = _editCapability.vocabularies;
@@ -841,11 +841,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       ]);
     }
     fullWidthFields.addAll([
-      LibraryVocabularyField(
-        controller: _draft.personal.tagsController,
+      LibraryMultiVocabularyField(
+        controller: _draft.personal.tags,
         options: _draft.tagOptions,
         label: _personalFieldLabel('tags'),
-        multiSelect: true,
         onChanged: (_) => _markDirty(),
       ),
       LibraryNotesField(

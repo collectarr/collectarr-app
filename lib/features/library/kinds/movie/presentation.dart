@@ -77,7 +77,7 @@ final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => MovieLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.personal.tags?.split(','),
+    )?.personal.tags,
   ),
   LibraryFilterDefinition<Object?>(
     metadata: MovieWorkspaceFieldMetadata.publisher,

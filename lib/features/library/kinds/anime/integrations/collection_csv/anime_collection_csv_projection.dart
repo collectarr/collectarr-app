@@ -162,12 +162,12 @@ final class AnimeCollectionCsvProjection
   }
 
   @override
-  String? entryTags(LibraryWorkspaceContext entry) {
+  List<String> entryTags(LibraryWorkspaceContext entry) {
     final personalState =
         AnimeLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is AnimeLibraryEntry
         ? personalState.personal.tags
-        : null;
+        : const [];
   }
 
   @override

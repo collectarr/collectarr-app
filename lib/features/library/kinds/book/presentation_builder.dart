@@ -428,10 +428,10 @@ class BookLibraryMediaPresentationBuilder
           label: 'Notes',
           value: source.libraryEntrySummary!.notes!.trim(),
         ),
-      if (entry?.personal.tags?.trim().isNotEmpty == true)
+      if (entry?.personal.tags.isNotEmpty == true)
         LibraryDetailField(
           label: 'Tags',
-          value: entry!.personal.tags!.trim(),
+          value: entry!.personal.tags.join(', '),
         ),
     ];
     if (showPersonalDetails && personalFacts.isNotEmpty) {

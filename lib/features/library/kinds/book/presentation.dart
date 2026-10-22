@@ -62,7 +62,7 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => BookLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.personal.tags?.split(','),
+    )?.personal.tags,
   ),
   if (BookFieldIdentities.publisher.filterable)
     LibraryFilterDefinition<Object?>(

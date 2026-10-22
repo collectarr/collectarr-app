@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 
 /// Schema-v1 collection export mechanics.
 ///
@@ -212,7 +213,7 @@ final class CollectionCsvExporter {
 
   String _entryTags(LibraryWorkspaceContext entry) {
     final projection = _profileForKind(entry.mediaKind);
-    return projection?.entryTags(entry) ?? '';
+    return joinPickListValues(projection?.entryTags(entry) ?? const []) ?? '';
   }
 
   List<String> _kindEntryCellsAfterIndex(

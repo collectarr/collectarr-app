@@ -74,7 +74,7 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => GameLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.personal.tags?.split(','),
+    )?.personal.tags,
   ),
   LibraryFilterDefinition<Object?>(
     metadata: GameWorkspaceFieldMetadata.publisher,

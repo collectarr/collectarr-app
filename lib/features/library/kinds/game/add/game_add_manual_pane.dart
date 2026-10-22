@@ -63,7 +63,7 @@ class _GameAddManualPaneState extends State<GameAddManualPane> {
       request: request,
       footerContent: LibraryAddStatusStrip(
         request: request,
-        indexNumber: personal.indexNumber,
+        indexValue: personal.indexNumber,
         quantity: personal.quantity,
         onIndexChanged: (value) =>
             _update(personal.copyWith(indexNumber: value)),

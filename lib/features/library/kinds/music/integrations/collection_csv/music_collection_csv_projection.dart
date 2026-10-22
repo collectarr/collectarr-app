@@ -179,12 +179,12 @@ final class MusicCollectionCsvProjection
   }
 
   @override
-  String? entryTags(LibraryWorkspaceContext entry) {
+  List<String> entryTags(LibraryWorkspaceContext entry) {
     final personalState =
         MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is MusicLibraryEntry
         ? personalState.personal.tags
-        : null;
+        : const [];
   }
 
   @override

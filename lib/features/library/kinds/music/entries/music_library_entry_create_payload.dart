@@ -32,7 +32,7 @@ final class MusicLibraryEntryCreatePayload
     this.ownerLabel,
     this.collectionStatus,
     this.isDigital,
-    this.tags,
+    this.tags = const [],
     this.indexNumber,
     this.marketValueCents,
     this.soldAt,
@@ -94,7 +94,7 @@ final class MusicLibraryEntryCreatePayload
   final String? collectionStatus;
   @override
   final bool? isDigital;
-  final String? tags;
+  final List<String> tags;
   final int? indexNumber;
   final int? marketValueCents;
   final DateTime? soldAt;

@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 
 // Pluggable pane builder typedefs and their request payloads for the
 // library add dialog. Extracted from library_add_dialog.dart to keep the
@@ -33,7 +34,7 @@ class LibraryAddManualPaneRequest {
     this.personalFields = const <PersonalLibraryFieldSpec>[],
     this.onCommonDraftChanged,
     this.onKindDraftChanged,
-    required this.tagsController,
+    required this.tags,
     required this.personalNotesController,
     required this.coverPriceController,
     required this.priceController,
@@ -77,7 +78,7 @@ class LibraryAddManualPaneRequest {
   final LibraryKindAddDraft manualDraft;
   final ValueChanged<LibraryAddCommonDraft>? onCommonDraftChanged;
   final ValueChanged<LibraryAddKindDraft>? onKindDraftChanged;
-  final TextEditingController tagsController;
+  final LibraryValuesController tags;
   final TextEditingController personalNotesController;
   final TextEditingController coverPriceController;
   final TextEditingController priceController;
@@ -96,7 +97,7 @@ class LibraryAddManualPaneRequest {
   final String? defaultLocationId;
   final String? defaultLocationLabel;
   final DateTime? defaultPurchaseDate;
-  final String? defaultTags;
+  final List<String>? defaultTags;
   final VoidCallback onAddEntry;
   final VoidCallback onAddWishlist;
   final VoidCallback onAddTrack;

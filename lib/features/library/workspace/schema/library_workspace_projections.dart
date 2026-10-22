@@ -46,7 +46,6 @@ class PersonalEntryProjection {
     this.pricePaidCents,
     this.addedAt,
     DateTime? updatedAt,
-    this.tags,
     this.collectionStatus,
     this.notes,
   }) : updatedAt = updatedAt ?? DateTime.utc(1970);
@@ -72,7 +71,6 @@ class PersonalEntryProjection {
           entryUpdatedAt == null || !entryUpdatedAt.isAfter(personalUpdatedAt)
               ? personalUpdatedAt
               : entryUpdatedAt,
-      tags: null,
       collectionStatus: item.entrySummary?.collectionStatus,
       notes: item.entrySummary?.notes,
     );
@@ -88,7 +86,6 @@ class PersonalEntryProjection {
   final int? pricePaidCents;
   final DateTime? addedAt;
   final DateTime updatedAt;
-  final String? tags;
   final String? collectionStatus;
   final String? notes;
 }

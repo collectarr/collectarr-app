@@ -18,7 +18,7 @@ final class GamePersonalData implements JsonEncodable {
     this.currency,
     this.personalNotes,
     this.indexNumber,
-    this.tags,
+    this.tags = const [],
     this.soldAt,
     this.sellPriceCents,
     this.soldTo,
@@ -42,7 +42,7 @@ final class GamePersonalData implements JsonEncodable {
   final String? currency;
   final String? personalNotes;
   final int? indexNumber;
-  final String? tags;
+  final List<String> tags;
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
@@ -94,7 +94,7 @@ final class GamePersonalData implements JsonEncodable {
         currency: json['currency'] as String?,
         personalNotes: json['personal_notes'] as String?,
         indexNumber: (json['index_number'] as num?)?.toInt(),
-        tags: json['tags'] as String?,
+        tags: List<String>.from(json['tags'] as List? ?? const []),
         soldAt: _gamePersonalDate(json['sold_at']),
         sellPriceCents: (json['sell_price_cents'] as num?)?.toInt(),
         soldTo: json['sold_to'] as String?,
@@ -119,7 +119,7 @@ final class GamePersonalData implements JsonEncodable {
     Object? currency = _gamePersonalUnset,
     Object? personalNotes = _gamePersonalUnset,
     Object? indexNumber = _gamePersonalUnset,
-    Object? tags = _gamePersonalUnset,
+    List<String>? tags,
     Object? soldAt = _gamePersonalUnset,
     Object? sellPriceCents = _gamePersonalUnset,
     Object? soldTo = _gamePersonalUnset,
@@ -159,7 +159,7 @@ final class GamePersonalData implements JsonEncodable {
         indexNumber: identical(indexNumber, _gamePersonalUnset)
             ? this.indexNumber
             : indexNumber as int?,
-        tags: identical(tags, _gamePersonalUnset) ? this.tags : tags as String?,
+        tags: tags ?? this.tags,
         soldAt: identical(soldAt, _gamePersonalUnset)
             ? this.soldAt
             : soldAt as DateTime?,

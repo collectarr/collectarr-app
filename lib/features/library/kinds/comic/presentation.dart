@@ -94,7 +94,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => ComicLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.personal.tags?.split(','),
+    )?.personal.tags,
   ),
   LibraryFilterDefinition<Object?>(
     metadata: ComicWorkspaceFieldMetadata.publisher,

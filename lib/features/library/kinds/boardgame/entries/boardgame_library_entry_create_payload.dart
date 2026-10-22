@@ -23,7 +23,7 @@ final class BoardgameLibraryEntryCreatePayload
     this.ownerLabel,
     this.collectionStatus,
     this.isDigital,
-    this.tags,
+    this.tags = const [],
   });
 
   factory BoardgameLibraryEntryCreatePayload.fromTypedItem(
@@ -63,7 +63,7 @@ final class BoardgameLibraryEntryCreatePayload
   final String? collectionStatus;
   @override
   final bool? isDigital;
-  final String? tags;
+  final List<String> tags;
 
   BoardGameLibraryEntry toLibraryEntry({
     required String id,

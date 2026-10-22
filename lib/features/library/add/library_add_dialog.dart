@@ -328,7 +328,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       onCommonDraftChanged: (common) =>
           _controller.updateCommonDraft((_) => common),
       onKindDraftChanged: (draft) => _controller.updateKindDraft((_) => draft),
-      tagsController: _manualDraft.tagsController,
+      tags: _manualDraft.tags,
       personalNotesController: _manualDraft.personalNotesController,
       coverPriceController: _manualDraft.coverPriceController,
       priceController: _manualDraft.priceController,
@@ -553,7 +553,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               _manualDraft.personalNotesController.text,
             ) ??
             current.personalNotes,
-        tags: _textOrNull(_manualDraft.tagsController.text) ??
+        tags: (_manualDraft.tags.value.isEmpty
+                ? null
+                : _manualDraft.tags.value) ??
             _controller.state.defaultTags ??
             current.tags,
         locationId: current.clearLocation

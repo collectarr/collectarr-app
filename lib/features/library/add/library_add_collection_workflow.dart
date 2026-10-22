@@ -26,7 +26,7 @@ class LibraryAddDefaults {
   final DateTime? purchaseDate;
   final String? locationId;
   final String? readStatus;
-  final String? tags;
+  final List<String>? tags;
 
   LibraryAddCommonDraft toCommonDraft() {
     return LibraryAddCommonDraft(

@@ -24,7 +24,7 @@ final movieKindAdd = StandardLibraryAddCapability<MovieAddDraft>(
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,
     personalNotes: common.personalNotes,
-    tags: common.tags,
+    tags: common.tags ?? const [],
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
     ownerLabel: common.ownerLabel,

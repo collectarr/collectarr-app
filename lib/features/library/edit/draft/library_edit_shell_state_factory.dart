@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/edit/session/library_edit_sessio
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 
 /// Builds common edit state from the typed Library boundary and asks the
 /// selected kind session to create its canonical form fields and schema.
@@ -78,7 +79,6 @@ LibraryEditShellState createLibraryEditShellState({
     trackingProgress?.timesCompleted?.toString() ?? '',
   );
   final trackingNotesController = create(trackingSummary?.notes ?? '');
-  final tagsController = create();
   final sellPriceController = create(
     libraryEntry?.sellPriceCents == null
         ? ''
@@ -106,7 +106,7 @@ LibraryEditShellState createLibraryEditShellState({
     wishlistPriceController: wishlistPriceController,
     wishlistCurrencyController: wishlistCurrencyController,
     wishlistNotesController: wishlistNotesController,
-    tagsController: tagsController,
+    tags: LibraryValuesController(),
     sellPriceController: sellPriceController,
     soldToController: soldToController,
     tagOptions: const [],

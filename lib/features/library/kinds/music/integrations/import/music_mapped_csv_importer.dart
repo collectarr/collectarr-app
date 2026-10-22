@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/imports/framework/library_guided_importe
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 import 'music_import_row.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 
 final class MusicMappedCsvImporter implements LibraryMappedCsvImporter {
   const MusicMappedCsvImporter();
@@ -77,7 +78,7 @@ final class MusicMappedCsvImporter implements LibraryMappedCsvImporter {
             purchaseDateParts: purchase,
             purchaseDate: purchase?.asDateTime,
             pricePaidCents: musicImportMoney(value('price_paid')),
-            tags: value('tags'),
+            tags: splitPickListValues(value('tags')),
             collectionStatus: 'In Collection',
           )));
     }

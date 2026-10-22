@@ -36,7 +36,7 @@ final class MovieLibraryEntryUpdatePayload
     Patch<String?> purchaseStore = const Patch.unchanged(),
     Patch<String?> collectionStatus = const Patch.unchanged(),
     Patch<bool?> isDigital = const Patch.unchanged(),
-    Patch<String?> tags = const Patch.unchanged(),
+    Patch<List<String>> tags = const Patch.unchanged(),
     Patch<DateTime?> soldAt = const Patch.unchanged(),
     Patch<int?> sellPriceCents = const Patch.unchanged(),
     Patch<String?> soldTo = const Patch.unchanged(),
@@ -73,7 +73,7 @@ final class MovieLibraryEntryUpdatePayload
   final Patch<String?> purchaseStore;
   final Patch<String?> collectionStatus;
   final Patch<bool?> isDigital;
-  final Patch<String?> tags;
+  final Patch<List<String>> tags;
   final Patch<DateTime?> soldAt;
   final Patch<int?> sellPriceCents;
   final Patch<String?> soldTo;
@@ -154,7 +154,7 @@ final class MovieLibraryEntryUpdatePayload
       tags: tags.when(
         unchanged: () => existingPersonal.tags,
         set: (value) => value,
-        clear: () => null,
+        clear: () => const [],
       ),
       soldAt: soldAt.when(
         unchanged: () => existingPersonal.soldAt,

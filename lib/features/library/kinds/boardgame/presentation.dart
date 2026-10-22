@@ -60,7 +60,7 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => BoardGameLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.personal.tags?.split(','),
+    )?.personal.tags,
   ),
   if (BoardGameFieldIdentities.publisher.filterable)
     LibraryFilterDefinition<Object?>(

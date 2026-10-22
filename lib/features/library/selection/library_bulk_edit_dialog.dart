@@ -28,7 +28,7 @@ class LibraryBulkEditSelection {
   final String? collectionValue;
   final bool applyLocation;
   final String? locationId;
-  final String? tags;
+  final List<String>? tags;
   final String? readStatus;
   final int? rating;
 }
@@ -53,7 +53,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   String? _collectionValue;
   String? _readStatus;
   int? _rating;
-  final _tagsController = TextEditingController();
+  final _tags = LibraryValuesController();
   List<StorageLocation> _availableLocations = const [];
   List<String> _conditionOptions = const [];
   List<String> _gradeOptions = const [];
@@ -73,7 +73,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
 
   @override
   void dispose() {
-    _tagsController.dispose();
+    _tags.dispose();
     super.dispose();
   }
 
@@ -143,12 +143,11 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
               ],
               _locationField(),
               const SizedBox(height: 12),
-              LibraryVocabularyField(
-                controller: _tagsController,
+              LibraryMultiVocabularyField(
+                controller: _tags,
                 options: _tagOptions,
                 label: 'Tags',
                 hint: 'Leave blank to keep current',
-                multiSelect: true,
               ),
               const SizedBox(height: 12),
               CompactSearchDropdownFormField<String>(
@@ -215,7 +214,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
               collectionValue: _collectionValue,
               applyLocation: _applyLocation,
               locationId: _locationId,
-              tags: _emptyToNull(_tagsController.text),
+              tags: _tags.value.isEmpty ? null : _tags.value,
               readStatus: _readStatus,
               rating: _rating,
             ),
@@ -224,11 +223,6 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
         ),
       ],
     );
-  }
-
-  static String? _emptyToNull(String value) {
-    final trimmed = value.trim();
-    return trimmed.isEmpty ? null : trimmed;
   }
 
   Future<void> _loadAvailableLocations() async {
@@ -265,7 +259,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
     final tagOptions = await loadTagPickListOptions(
       ref.read(localDatabaseProvider),
       mediaKind: widget.type.kind.apiValue,
-      selectedTags: splitPickListValues(_tagsController.text),
+      selectedTags: _tags.value,
     );
     if (!mounted) {
       return;

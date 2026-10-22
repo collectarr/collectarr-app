@@ -23,7 +23,7 @@ final class MovieLibraryEntryCreatePayload
     this.ownerLabel,
     this.collectionStatus,
     this.isDigital,
-    this.tags,
+    this.tags = const [],
   });
 
   factory MovieLibraryEntryCreatePayload.fromTypedItem(
@@ -62,7 +62,7 @@ final class MovieLibraryEntryCreatePayload
   final String? collectionStatus;
   @override
   final bool? isDigital;
-  final String? tags;
+  final List<String> tags;
 
   MovieLibraryEntry toLibraryEntry({
     required String id,

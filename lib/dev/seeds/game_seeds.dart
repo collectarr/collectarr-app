@@ -116,7 +116,7 @@ List<CatalogItemDto> gameSeedCatalogItems() => [
           volumeName: 'The Witcher 3',
           volumeNumber: '3',
           volumeStartYear: 2007,
-          tags: 'rpg, open world, dark fantasy',
+          tags: ['rpg', 'open world', 'dark fantasy'],
         ),
         publishing: const SeedPublishingDetails(
           coverPriceCents: 4999,

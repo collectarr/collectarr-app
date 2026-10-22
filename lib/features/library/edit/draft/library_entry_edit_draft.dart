@@ -27,6 +27,8 @@ final class LibraryEntryEditDraft extends ChangeNotifier {
 
   String text(String key) => values[key]?.toString() ?? '';
   int? number(String key) => (values[key] as num?)?.toInt();
+  List<String> list(String key) =>
+      List<String>.from(values[key] as List? ?? const []);
 
   void set(String key, Object? value) {
     used = true;

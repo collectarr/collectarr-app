@@ -163,12 +163,12 @@ final class BoardGameCollectionCsvProjection
   }
 
   @override
-  String? entryTags(LibraryWorkspaceContext entry) {
+  List<String> entryTags(LibraryWorkspaceContext entry) {
     final personalState = BoardGameLibraryEntryProjection.fromDispatch(
         entry.libraryEntryDispatch);
     return personalState is BoardGameLibraryEntry
         ? personalState.personal.tags
-        : null;
+        : const [];
   }
 
   @override

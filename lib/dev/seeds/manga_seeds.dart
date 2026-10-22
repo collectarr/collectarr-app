@@ -202,7 +202,7 @@ List<CatalogItemDto> mangaSeedCatalogItems() => [
           volumeName: 'Berserk Deluxe',
           volumeNumber: '1',
           volumeStartYear: 1989,
-          tags: 'dark fantasy, epic, seinen, grimdark',
+          tags: ['dark fantasy', 'epic', 'seinen', 'grimdark'],
         ),
         publishing: const SeedPublishingDetails(
           pageCount: 696,

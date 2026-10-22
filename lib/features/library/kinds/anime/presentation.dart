@@ -348,7 +348,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     inputKind: LibraryFilterInputKind.autocomplete,
     value: (item) => AnimeLibraryEntryProjection.fromDispatch(
       item.source.libraryEntryDispatch,
-    )?.personal.tags?.split(','),
+    )?.personal.tags,
   ),
   LibraryFilterDefinition<Object?>(
     metadata: AnimeWorkspaceFieldMetadata.publisher,

@@ -248,7 +248,7 @@ abstract final class MusicVocabularies {
       case 'tags':
         return item.copyWith(
           personal: item.personal.copyWith(
-            tags: replacePickListDelimitedValue(
+            tags: replacePickListValueInList(
               item.personal.tags,
               normalizedSourceValues,
               targetValue,
@@ -418,7 +418,7 @@ abstract final class MusicVocabularies {
       return;
     }
     if (semanticName == 'tags') {
-      yield* item.personal.tags?.split(',') ?? const <String>[];
+      yield* item.personal.tags;
       return;
     }
     if (semanticName == 'signed_by') {

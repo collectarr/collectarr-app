@@ -48,7 +48,7 @@ class MusicAddManualPane extends StatelessWidget {
       request: request,
       footerContent: LibraryAddStatusStrip(
         request: request,
-        indexNumber: personalDraft.indexNumber,
+        indexValue: personalDraft.indexNumber,
         quantity: personalDraft.quantity,
         onIndexChanged: (value) => request.onKindDraftChanged
             ?.call(personalDraft.copyWith(indexNumber: value)),

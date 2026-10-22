@@ -1,15 +1,16 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqlite3/sqlite3.dart';
 
 void main() {
   test('creates the fresh schema at current version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 4);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 4);
 
     final tables = await db
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
@@ -79,6 +80,7 @@ void main() {
           'media_kind TEXT NULL, value TEXT NOT NULL, sort_name TEXT NULL, '
           'is_hidden INTEGER NOT NULL DEFAULT 0, '
           'sort_order INTEGER NOT NULL DEFAULT 0)');
+      _createReleasedEntryTables(raw);
       raw.execute("INSERT INTO pick_list_values_cache (id, list_name, value) "
           "VALUES ('b1', 'borrower', 'Alex')");
       raw.execute('PRAGMA user_version = 1');
@@ -90,14 +92,14 @@ void main() {
     expect(row.email, isNull);
     expect(row.address, isNull);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 4);
   });
 
   test('upgrades a schema 2 database by creating the Game tables', () async {
     final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
-      raw.execute(
-          'CREATE TABLE library_entries (id TEXT NOT NULL PRIMARY KEY)');
-      raw.execute("INSERT INTO library_entries (id) VALUES ('e1')");
+      _createReleasedEntryTables(raw);
+      raw.execute("INSERT INTO library_entries VALUES "
+          "('e1', 'music', '{\"personal_data\":{}}', 0, NULL)");
       raw.execute('PRAGMA user_version = 2');
     }));
     addTearDown(db.close);
@@ -109,6 +111,51 @@ void main() {
     expect(kept, ['e1']);
     expect(await db.select(db.gameTrackingRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 4);
   });
+
+  test('upgrades schema 3 tags from comma-separated text to lists', () async {
+    final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
+      _createReleasedEntryTables(raw);
+      raw.execute("INSERT INTO library_entries VALUES "
+          "('e1', 'game', "
+          "'{\"personal_data\":{\"tags\":\"rpg, Open World,,rpg \"}}', 0, NULL),"
+          "('e2', 'music', '{\"personal_data\":{\"tags\":null}}', 0, NULL)");
+      raw.execute("INSERT INTO sync_queue VALUES "
+          "('c1', 'library_entry', 'e1', 'update', "
+          "'{\"personal_data\":{\"tags\":\"rpg\"}}', 0),"
+          "('c2', 'user_folder', 'f1', 'update', "
+          "'{\"personal_data\":{\"tags\":\"kept\"}}', 0)");
+      raw.execute('PRAGMA user_version = 3');
+    }));
+    addTearDown(db.close);
+
+    Future<List<String>> payloads(String table) => db
+        .customSelect('SELECT payload_json FROM $table ORDER BY rowid')
+        .map((row) => row.read<String>('payload_json'))
+        .get();
+    expect(await payloads('library_entries'), [
+      '{"personal_data":{"tags":["rpg","Open World"]}}',
+      '{"personal_data":{"tags":null}}',
+    ]);
+    expect(await payloads('sync_queue'), [
+      '{"personal_data":{"tags":["rpg"]}}',
+      '{"personal_data":{"tags":"kept"}}',
+    ]);
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.single, 4);
+  });
+}
+
+/// The released entry and Sync queue tables, as schema 1 to 3 created them.
+void _createReleasedEntryTables(Database raw) {
+  raw.execute('CREATE TABLE library_entries (id TEXT NOT NULL, '
+      'kind TEXT NOT NULL, payload_json TEXT NOT NULL, '
+      'updated_at INTEGER NOT NULL, deleted_at INTEGER NULL, '
+      'PRIMARY KEY (kind, id))');
+  raw.execute('CREATE TABLE sync_queue (id TEXT NOT NULL, '
+      'entity_type TEXT NOT NULL, entity_id TEXT NOT NULL, '
+      'action TEXT NOT NULL, payload_json TEXT NOT NULL, '
+      'client_changed_at INTEGER NOT NULL, '
+      'PRIMARY KEY (entity_type, entity_id))');
 }

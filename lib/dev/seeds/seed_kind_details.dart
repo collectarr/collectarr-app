@@ -23,7 +23,7 @@ final class SeedSeriesDetails {
   final int? volumeStartYear;
   final int? seasonNumber;
   final int? episodeNumber;
-  final String? tags;
+  final List<String>? tags;
 
   Map<String, dynamic> toJson() => {
         if (seriesId != null) 'series_id': seriesId,

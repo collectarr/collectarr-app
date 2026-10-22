@@ -5,6 +5,9 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefillDefaults {
+  static const _locationKey = 'collectarr.prefill.location_id';
+  static const _tagsKey = 'collectarr.prefill.tag_list';
+
   const PrefillDefaults(
       {this.locationId,
       this.tags,
@@ -12,7 +15,7 @@ class PrefillDefaults {
       this.alwaysShow = true,
       this.fillPurchaseDateWithToday = false});
   final String? locationId;
-  final String? tags;
+  final List<String>? tags;
   final Map<String, dynamic> personalValues;
   final bool alwaysShow;
   final bool fillPurchaseDateWithToday;
@@ -29,8 +32,8 @@ class PrefillDefaults {
         fillPurchaseDateWithToday: prefs.getBool(
                 'collectarr.prefill.${kind?.apiValue ?? 'all'}.purchase_today') ??
             false,
-        locationId: prefs.getString('collectarr.prefill.location_id'),
-        tags: prefs.getString('collectarr.prefill.tags'),
+        locationId: prefs.getString(_locationKey),
+        tags: prefs.getStringList(_tagsKey),
         personalValues: raw == null
             ? const {}
             : Map<String, dynamic>.from(jsonDecode(raw) as Map));
@@ -44,12 +47,15 @@ class PrefillDefaults {
     await prefs.setBool(
         'collectarr.prefill.${kind?.apiValue ?? 'all'}.purchase_today',
         fillPurchaseDateWithToday);
-    for (final entry in {'location_id': locationId, 'tags': tags}.entries) {
-      if (entry.value == null || entry.value!.isEmpty) {
-        await prefs.remove('collectarr.prefill.${entry.key}');
-      } else {
-        await prefs.setString('collectarr.prefill.${entry.key}', entry.value!);
-      }
+    if (locationId == null || locationId!.isEmpty) {
+      await prefs.remove(_locationKey);
+    } else {
+      await prefs.setString(_locationKey, locationId!);
+    }
+    if (tags == null || tags!.isEmpty) {
+      await prefs.remove(_tagsKey);
+    } else {
+      await prefs.setStringList(_tagsKey, tags!);
     }
     if (kind != null) {
       await prefs.setString('collectarr.prefill.${kind.apiValue}.personal',

@@ -314,7 +314,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
           volumeName: 'Breaking Bad',
           volumeNumber: '1',
           volumeStartYear: 2008,
-          tags: 'drama, crime, thriller, prestige tv',
+          tags: ['drama', 'crime', 'thriller', 'prestige tv'],
         ),
         video: const SeedVideoDetails(
           runtimeMinutes: 47,
