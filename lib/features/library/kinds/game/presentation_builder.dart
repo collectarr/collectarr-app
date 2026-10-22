@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -20,6 +22,19 @@ class GameLibraryMediaPresentationBuilder
   });
 
   final LibraryMetadataLabels metadataLabels;
+
+  @override
+  List<LibraryGroupModeCategory> buildGroupModeCategories(List<String> modes) =>
+      [
+        for (final category in gameGroupingCategories)
+          if (GameGroupingField.values.any((field) =>
+              field.category == category && modes.contains(field.id)))
+            LibraryGroupModeCategory(category, [
+              for (final field in GameGroupingField.values)
+                if (field.category == category && modes.contains(field.id))
+                  field.id,
+            ]),
+      ];
 
   @override
   String? buildAddPreviewItemNumber({
@@ -177,9 +192,7 @@ class GameLibraryMediaPresentationBuilder
       contextFacts: [
         if (publisher != null)
           LibraryDetailField(
-              label: 'Publisher / Studio',
-              value: publisher,
-              onTap: tapFor(publisher)),
+              label: 'Publisher', value: publisher, onTap: tapFor(publisher)),
         if (releaseDate != null)
           LibraryDetailField(
             label: 'Released',

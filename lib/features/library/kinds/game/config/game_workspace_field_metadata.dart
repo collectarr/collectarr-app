@@ -412,6 +412,7 @@ abstract final class GameWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'genres[]',
     filterable: true,
+    groupable: true,
   );
 
   static const country = LibraryKindFieldMetadata(

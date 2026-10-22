@@ -17,8 +17,8 @@ void main() {
         'Edition / Binding');
     expect(gameKindPresentation.previewLabels.labelFor('variant'),
         'Platform / Edition');
-    expect(gameKindPresentation.previewLabels.labelFor('publisher'),
-        'Publisher / Studio');
+    expect(
+        gameKindPresentation.previewLabels.labelFor('publisher'), 'Publisher');
   });
 
   test('music search labels use artist terminology', () {
@@ -42,7 +42,7 @@ void main() {
     expect(musicLabels.labelFor('publisher'), 'Label');
     expect(movieLabels.labelFor('publisher'), 'Studio');
     expect(movieLabels.labelFor('publisher_any'), 'Any studio');
-    expect(gameLabels.labelFor('publisher'), 'Publisher / Studio');
+    expect(gameLabels.labelFor('publisher'), 'Publisher');
   });
 
   test('group labels vary by media type', () {
@@ -80,7 +80,7 @@ void main() {
     expect(movieKindPresentation.statsLabels.labelFor('top_series'),
         'Top Franchises');
     expect(gameKindPresentation.statsLabels.labelFor('top_publisher'),
-        'Top Publishers / Studios');
+        'Top Publishers');
   });
 
   test('filter definitions are kind-entry and grade is not universal', () {

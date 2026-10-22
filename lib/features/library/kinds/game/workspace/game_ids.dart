@@ -67,22 +67,6 @@ abstract final class GameSortIds {
 
 abstract final class GameGroupIds {
   static const platform = LibraryGroupId<GameKind, String?>('game.platform');
-  static const publisher = LibraryGroupId<GameKind, String?>('game.publisher');
-  static const developer = LibraryGroupId<GameKind, String?>('game.developer');
-  static const franchise =
-      LibraryGroupId<GameKind, String?>(GameFieldIdentities.franchiseId);
-  static const location = LibraryGroupId<GameKind, String?>(
-    'game.location',
-    semantic: LibraryGroupSemantic.location,
-  );
-  static const condition = LibraryGroupId<GameKind, String?>('game.condition');
-  static const rating = LibraryGroupId<GameKind, int?>('game.rating');
-  static const completionStatus =
-      LibraryGroupId<GameKind, String?>('game.completion_status');
-  static const completeness =
-      LibraryGroupId<GameKind, String?>('game.completeness');
-  static const coreRegion =
-      LibraryGroupId<GameKind, String?>('game.core_region');
 }
 
 abstract final class GameFacetIds {

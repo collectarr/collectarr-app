@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -23,7 +24,7 @@ const gamesPreviewLabels = LibraryMediaPreviewLabels(
     'series': 'Series',
     'item_count': 'Items',
     'item_number': 'Version',
-    'publisher': 'Publisher / Studio',
+    'publisher': 'Publisher',
     'variant': 'Platform / Edition',
     'barcode': 'UPC / Barcode',
   },
@@ -32,7 +33,7 @@ const gamesPreviewLabels = LibraryMediaPreviewLabels(
 const gamesStatsLabels = LibraryMediaStatsLabels(
   values: {
     'top_series': 'Top Series',
-    'top_publisher': 'Top Publishers / Studios',
+    'top_publisher': 'Top Publishers',
   },
 );
 
@@ -41,9 +42,9 @@ const gamesLibraryGroupLabels = LibraryPresentationLabels(
     'series': 'Series',
     'series_plural': 'Series',
     'unknown_series': 'Unknown series',
-    'publisher': 'Publisher / Studio',
-    'publisher_plural': 'Publishers / Studios',
-    'unknown_publisher': 'Unknown publisher / studio',
+    'publisher': 'Publisher',
+    'publisher_plural': 'Publishers',
+    'unknown_publisher': 'Unknown publisher',
   },
 );
 
@@ -78,8 +79,8 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
     metadata: GameWorkspaceFieldMetadata.publisher,
     id: 'publisher',
-    label: 'Publisher / Studio',
-    anyLabel: 'Any publisher / studio',
+    label: 'Publisher',
+    anyLabel: 'Any publisher',
     value: (item) => (item.dto is GameWorkspaceDto)
         ? (item.dto as GameWorkspaceDto).publisher
         : null,
@@ -131,6 +132,12 @@ String gamesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final gamesLibraryMediaPresentation = LibraryMediaPresentation(
+  // Reference folder favorites.
+  defaultFolderFavorites: [
+    [GameGroupingField.platform.id],
+    [GameGroupingField.completeness.id],
+    [GameGroupingField.platform.id, GameGroupingField.completeness.id],
+  ],
   sortFavorites: [
     LibrarySortFavorite(
         id: 'title_asc',
@@ -157,8 +164,8 @@ final gamesLibraryMediaPresentation = LibraryMediaPresentation(
     values: {
       'series': 'Series',
       'series_any': 'Any series',
-      'publisher': 'Publisher / Studio',
-      'publisher_any': 'Any publisher / studio',
+      'publisher': 'Publisher',
+      'publisher_any': 'Any publisher',
       'year': 'Year',
       'year_any': 'Any year',
     },

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
@@ -98,24 +99,8 @@ final gameCatalogItemWorkspaceFieldDefinitions = [
   GameCatalogItemWorkspaceFields.region,
 ];
 
-final gameCatalogItemWorkspaceGroupDefinitions = [
-  groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameCatalogItemWorkspaceFields.platform,
-    sidebarTitle: 'Platforms',
-    icon: Icons.videogame_asset_outlined,
-  ),
-  if (GameFieldIdentities.franchise.groupable)
-    groupFromField<GameKind, GameWorkspaceDto, String?>(
-      GameCatalogItemWorkspaceFields.franchise,
-      sidebarTitle: 'Franchises',
-      icon: Icons.auto_stories_outlined,
-    ),
-  groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameCatalogItemWorkspaceFields.publisher,
-    sidebarTitle: 'Publishers',
-    icon: Icons.business_outlined,
-  ),
-];
+final gameCatalogItemWorkspaceGroupDefinitions =
+    gameWorkspaceGroupDefinitions(includePersonal: false);
 
 final gameCatalogItemWorkspaceSortDefinitions = [
   sortFromField<GameKind, GameWorkspaceDto, String>(

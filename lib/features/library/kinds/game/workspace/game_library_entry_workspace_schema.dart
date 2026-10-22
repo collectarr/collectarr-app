@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_catalog_item_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
@@ -222,24 +223,6 @@ final gameLibraryEntryWorkspaceFieldDefinitions = [
   GameLibraryEntryWorkspaceFields.manualOnlyPrice,
 ];
 
-final gameLibraryEntryWorkspaceGroupDefinitions = [
-  groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameLibraryEntryWorkspaceFields.location,
-    sidebarTitle: 'Locations',
-    icon: Icons.place_outlined,
-  ),
-  groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameLibraryEntryWorkspaceFields.completeness,
-    sidebarTitle: 'Completeness',
-    icon: Icons.inventory_2_outlined,
-  ),
-  groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameLibraryEntryWorkspaceFields.condition,
-    sidebarTitle: 'Conditions',
-    icon: Icons.verified_outlined,
-  ),
-];
-
 final gameLibraryEntryWorkspaceSortDefinitions = [
   LibrarySortDefinition<GameKind, GameWorkspaceDto>(
     id: GameSortIds.status,
@@ -407,10 +390,7 @@ final gameLibraryEntryWorkspaceSchema =
     ...gameCatalogItemWorkspaceSortDefinitions,
     ...gameLibraryEntryWorkspaceSortDefinitions,
   ],
-  groups: [
-    ...gameCatalogItemWorkspaceGroupDefinitions,
-    ...gameLibraryEntryWorkspaceGroupDefinitions,
-  ],
+  groups: gameWorkspaceGroupDefinitions(includePersonal: true),
   primaryColumn: GameFieldIds.title,
   defaultVisibleColumns: gameLibraryEntryWorkspaceDefaultVisibleColumns,
   // Reference defaults: Platform folders, sorted by Platform then Title.

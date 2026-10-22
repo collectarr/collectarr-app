@@ -29,6 +29,7 @@ abstract final class GameFieldIdentities {
     source: LibraryFieldSource.derived,
     sourcePath: 'release_date_parts',
     sortable: true,
+    groupable: true,
     editable: true,
   );
   static const barcode = LibraryKindFieldMetadata(

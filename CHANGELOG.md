@@ -8,6 +8,7 @@
 - The Games details panel follows the reference: series, title and collection status, cover, platform and year, publishers and developers, format and audience rating, genres, a completeness and value badge, then Description, Trailer, Links and a Personal table.
 - Games cards show the release date under the title, the platform at the bottom and a completeness and value pill such as "CIB | $ 17.58", as the reference does.
 - A library can offer default folder favorites, shown until you save your own; clearing all favorites now stays cleared.
+- Games folders follow the reference menu: Main (Audience Rating, Developer, Genre, Platform, Publisher, Release Date, Month and Year, Series), Value (Completeness, Condition, Purchase Date, Month, Year and Store, Value Locked), Edition (Edition, Format, Region) and Personal (Added, Completed and Modified dates, Collection Status, Location, My Rating, Owner, Storage Device, Tags), with Platform, Completeness and Platform / Completeness as favorites and Publisher labelled as in the reference.
 
 ### 🐛 Fixes
 - The light theme keeps the toolbars, pane headers and collection tabs dark and uses the reference's light grey and white content areas, blue selection and teal item titles.
