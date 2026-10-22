@@ -38,6 +38,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       );
       final pinnedPresetsFuture = state._viewPrefs.readPinnedFolderPresets(
         allowedModes: state._scopeAvailableGroupModes,
+        fallback: libraryDefaultFolderFavoritesForType(state.widget.type),
       );
       final pinnedViewPresetsFuture = state._viewPrefs.readPinnedViewPresets(
         fallback: libraryDefaultPinnedViewPresetsForType(state.widget.type),

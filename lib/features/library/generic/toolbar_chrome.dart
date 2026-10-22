@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/generic/projection.dart'
+    show LibraryFolderPreset;
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -121,6 +123,15 @@ Set<LibraryWorkspacePreset> libraryDefaultPinnedViewPresetsForType(
     LibraryWorkspacePreset.list,
   };
 }
+
+List<LibraryFolderPreset> libraryDefaultFolderFavoritesForType(
+  LibraryKindRegistration type,
+) =>
+    [
+      for (final modes
+          in libraryPresentationForKind(type.kind).defaultFolderFavorites)
+        LibraryFolderPreset(modes: modes),
+    ];
 
 List<LibrarySortFavorite> librarySortFavoritesForType(
   LibraryKindRegistration type,

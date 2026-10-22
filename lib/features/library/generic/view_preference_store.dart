@@ -172,12 +172,17 @@ class LibraryViewPreferenceStore {
 
   Future<List<LibraryFolderPreset>> readPinnedFolderPresets({
     Iterable<String>? allowedModes,
+    List<LibraryFolderPreset> fallback = const [],
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final values = prefs.getStringList(_key('pinnedFolderPresets'));
     if (values == null) {
       _cachedPinnedFolderPresets.remove(_cacheKey);
-      return const [];
+      return [
+        for (final preset in fallback)
+          if (allowedModes == null || preset.modes.every(allowedModes.contains))
+            preset,
+      ];
     }
     final presets = <LibraryFolderPreset>[];
     for (final value in values) {
@@ -200,14 +205,12 @@ class LibraryViewPreferenceStore {
     }
     _cachedPinnedFolderPresets[_cacheKey] = normalized;
     final prefs = await SharedPreferences.getInstance();
-    if (normalized.isEmpty) {
-      await prefs.remove(_key('pinnedFolderPresets'));
-    } else {
-      await prefs.setStringList(
-        _key('pinnedFolderPresets'),
-        normalized.map((preset) => preset.storageValue).toList(growable: false),
-      );
-    }
+    // An empty saved list is kept, so clearing every favorite does not bring
+    // the kind's default favorites back.
+    await prefs.setStringList(
+      _key('pinnedFolderPresets'),
+      normalized.map((preset) => preset.storageValue).toList(growable: false),
+    );
   }
 
   Future<Set<LibraryWorkspacePreset>> readPinnedViewPresets({

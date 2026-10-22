@@ -35,6 +35,7 @@ class LibraryMediaPresentation {
     this.previewLabels = const LibraryMediaPreviewLabels(),
     this.statsLabels = const LibraryMediaStatsLabels(),
     this.sortFavorites = const [],
+    this.defaultFolderFavorites = const [],
     this.columnFavorites = defaultLibraryColumnFavorites,
     this.duplicateColumns,
     this.filterOptionLabels = const LibraryFilterOptionLabels(),
@@ -58,6 +59,10 @@ class LibraryMediaPresentation {
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
   final List<LibrarySortFavorite> sortFavorites;
+
+  /// Folder favorites offered until the user saves their own; each entry
+  /// lists up to three nested group mode ids.
+  final List<List<String>> defaultFolderFavorites;
   final List<LibraryTableColumnPreset> columnFavorites;
 
   /// Default Find Duplicates columns; the workspace defaults when null.

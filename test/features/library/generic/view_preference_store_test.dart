@@ -177,4 +177,23 @@ void main() {
 
     expect(restored.toList(), ['price_desc', 'title_asc', 'updated_desc']);
   });
+
+  test('kind folder favorites apply until the user saves their own', () async {
+    final fallback = [
+      LibraryFolderPreset.single('game.platform'),
+      LibraryFolderPreset(modes: const ['game.platform', 'game.owner']),
+    ];
+    final defaults = await movieStore.readPinnedFolderPresets(
+      allowedModes: const ['game.platform'],
+      fallback: fallback,
+    );
+    expect(defaults, [LibraryFolderPreset.single('game.platform')]);
+
+    await movieStore.writePinnedFolderPresets(const []);
+    final saved = await movieStore.readPinnedFolderPresets(
+      allowedModes: const ['game.platform'],
+      fallback: fallback,
+    );
+    expect(saved, isEmpty);
+  });
 }
