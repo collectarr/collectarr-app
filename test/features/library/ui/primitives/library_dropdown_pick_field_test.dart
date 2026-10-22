@@ -40,7 +40,8 @@ void main() {
   testWidgets('a typed custom value keeps the space between words',
       (tester) async {
     String? value;
-    await tester.pumpWidget(MaterialApp(home: Scaffold(
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
       body: StatefulBuilder(
         builder: (context, setState) => LibraryDropdownPickField<String>(
           label: 'Platform',

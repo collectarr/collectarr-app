@@ -21,6 +21,9 @@
 ### ♻️ Refactors
 - Manual Add's Collection Status, Index, Quantity and Location footer is shared by every library.
 
+### 🧰 CI & Build
+- Two tests touched by the Games release are formatted and drop an unused import, so the format and analysis checks pass.
+
 ## 1.2.0 - 2026-10-18
 
 ### ✨ Features
