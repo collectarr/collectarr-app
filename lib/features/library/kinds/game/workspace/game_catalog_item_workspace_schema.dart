@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_sorts.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
@@ -188,7 +189,10 @@ final gameCatalogItemWorkspaceSchema =
     ...gameSmartListFacetFields,
   ],
   columns: gameCatalogItemWorkspaceColumnDefinitions,
-  sorts: gameCatalogItemWorkspaceSortDefinitions,
+  sorts: [
+    ...gameCatalogItemWorkspaceSortDefinitions,
+    ...gameCatalogExtraSortDefinitions,
+  ],
   groups: gameCatalogItemWorkspaceGroupDefinitions,
   primaryColumn: GameFieldIds.title,
   defaultVisibleColumns: gameCatalogItemWorkspaceDefaultVisibleColumns,

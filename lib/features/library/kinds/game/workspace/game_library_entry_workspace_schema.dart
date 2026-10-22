@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_sorts.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_catalog_item_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
@@ -388,7 +389,9 @@ final gameLibraryEntryWorkspaceSchema =
   ],
   sorts: [
     ...gameCatalogItemWorkspaceSortDefinitions,
+    ...gameCatalogExtraSortDefinitions,
     ...gameLibraryEntryWorkspaceSortDefinitions,
+    ...gamePersonalSortDefinitions,
   ],
   groups: gameWorkspaceGroupDefinitions(includePersonal: true),
   primaryColumn: GameFieldIds.title,

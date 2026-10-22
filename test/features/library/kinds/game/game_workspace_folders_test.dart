@@ -23,4 +23,28 @@ void main() {
     expect(GameGroupingField.completeness.category, 'Value');
     expect(GameGroupingField.storageDevice.category, 'Personal');
   });
+
+  test('Games sorts include the reference sort fields', () {
+    final sorts = gameLibraryEntryWorkspaceSchema
+        .toRegistry()
+        .sorts
+        .map((sort) => sort.id.value)
+        .toSet();
+    expect(
+      sorts,
+      containsAll([
+        'game.sort_title',
+        'game.value',
+        'game.purchase_price',
+        'game.index',
+        'game.quantity',
+        'game.box',
+        'game.manual',
+        'game.storage',
+        'game.storage_slot',
+        'game.added_date_sort',
+        'game.modified_date_sort',
+      ]),
+    );
+  });
 }
