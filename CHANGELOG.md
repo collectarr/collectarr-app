@@ -24,6 +24,7 @@
 - The Games list shows its Cover, Platform, Title, Release Date, Publisher and other catalog columns with their values, and opens on Platform folders sorted by Platform, as the reference does.
 - Horizontal cards in the light theme show their series, badges and bottom line in dark text instead of white on white.
 - The sorting favorites button in the Sort dialog header is a white gear on the header colour in the light theme instead of a white square.
+- Games Tags folders split tags at commas only, as the editor does, so a tag containing "|" stays one folder and repeated tags are listed once.
 
 ### ♻️ Refactors
 - Manual Add's Collection Status, Index, Quantity and Location footer is shared by every library.

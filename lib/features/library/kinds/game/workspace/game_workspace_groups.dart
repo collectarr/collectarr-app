@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_collection
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:flutter/material.dart';
 
 /// Folder fields of the reference Games folder menu, by category.
@@ -141,10 +142,7 @@ Object? _groupValue(
     GameGroupingField.rating => personal?.rating,
     GameGroupingField.owner => personal?.ownerLabel,
     GameGroupingField.storageDevice => personal?.details.storageDevice,
-    GameGroupingField.tags => [
-        for (final tag in (personal?.tags ?? '').split(RegExp('[|,]')))
-          if (tag.trim().isNotEmpty) tag.trim(),
-      ],
+    GameGroupingField.tags => splitPickListValues(personal?.tags),
   };
 }
 
