@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_catalog_item_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
@@ -265,13 +266,12 @@ final gameLibraryEntryWorkspaceSortDefinitions = [
 ];
 
 final gameLibraryEntryWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+  GameFieldIds.cover,
+  GameFieldIds.platform,
+  GameFieldIds.title,
+  GameFieldIds.releaseDate,
+  GameFieldIds.publisher,
   GameFieldIds.status,
-  GameFieldIds.rating,
-  GameFieldIds.condition,
-  GameFieldIds.pricePaid,
-  GameFieldIds.location,
-  GameFieldIds.wishlist,
-  GameFieldIds.updatedAt,
 };
 
 final gameLibraryEntryWorkspaceColumnDefinitions = [
@@ -392,17 +392,30 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
 final gameLibraryEntryWorkspaceSchema =
     LibraryWorkspaceSchema<GameKind, GameWorkspaceDto>(
   kindNamespace: 'game',
+  // Collection items carry their catalog fields, as in Music: the table
+  // resolves columns from this registry alone.
   fields: [
+    ...gameCatalogItemWorkspaceFieldDefinitions,
     ...gameLibraryEntryWorkspaceFieldDefinitions,
     ...gameSmartListFacetFields,
   ],
-  columns: gameLibraryEntryWorkspaceColumnDefinitions,
-  sorts: gameLibraryEntryWorkspaceSortDefinitions,
-  groups: gameLibraryEntryWorkspaceGroupDefinitions,
-  primaryColumn: GameFieldIds.status,
+  columns: [
+    ...gameCatalogItemWorkspaceColumnDefinitions,
+    ...gameLibraryEntryWorkspaceColumnDefinitions,
+  ],
+  sorts: [
+    ...gameCatalogItemWorkspaceSortDefinitions,
+    ...gameLibraryEntryWorkspaceSortDefinitions,
+  ],
+  groups: [
+    ...gameCatalogItemWorkspaceGroupDefinitions,
+    ...gameLibraryEntryWorkspaceGroupDefinitions,
+  ],
+  primaryColumn: GameFieldIds.title,
   defaultVisibleColumns: gameLibraryEntryWorkspaceDefaultVisibleColumns,
-  defaultSort: GameSortIds.status,
-  defaultGroup: GameGroupIds.condition,
+  // Reference defaults: Platform folders, sorted by Platform then Title.
+  defaultSort: GameSortIds.platform,
+  defaultGroup: GameGroupIds.platform,
 );
 
 String _formatDate(DateTime? value) {

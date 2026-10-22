@@ -14,6 +14,7 @@
 - New games start with an empty Condition, as in the reference, instead of Near Mint.
 - With the light theme chosen, the app opens light instead of showing the dark theme for a moment.
 - Typing a new value with spaces into a pick list field (Label, Format, Platform and others) keeps the spaces instead of joining the words.
+- The Games list shows its Cover, Platform, Title, Release Date, Publisher and other catalog columns with their values, and opens on Platform folders sorted by Platform, as the reference does.
 
 ### ♻️ Refactors
 - Manual Add's Collection Status, Index, Quantity and Location footer is shared by every library.
