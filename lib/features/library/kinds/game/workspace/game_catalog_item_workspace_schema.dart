@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_platform_icon.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_sorts.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
@@ -83,11 +84,31 @@ abstract final class GameCatalogItemWorkspaceFields {
     metadata: GameWorkspaceFieldMetadata.region,
     getValue: (dto) => dto.region,
   );
+
+  static final platformIcon =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: GameFieldIds.platformIcon,
+    metadata: GameWorkspaceFieldMetadata.platformIcon,
+    getValue: (context) => context.dto.platform,
+  );
+
+  static final toyType = textField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.toyType,
+    metadata: GameWorkspaceFieldMetadata.toyType,
+    getValue: (dto) => dto.toyType,
+  );
+
+  static final toySubtype = textField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.toySubtype,
+    metadata: GameWorkspaceFieldMetadata.toySubtype,
+    getValue: (dto) => dto.toySubtype,
+  );
 }
 
 final gameCatalogItemWorkspaceFieldDefinitions = [
   GameCatalogItemWorkspaceFields.title,
   GameCatalogItemWorkspaceFields.platform,
+  GameCatalogItemWorkspaceFields.platformIcon,
   GameCatalogItemWorkspaceFields.developer,
   GameCatalogItemWorkspaceFields.publisher,
   GameCatalogItemWorkspaceFields.releaseDate,
@@ -98,6 +119,8 @@ final gameCatalogItemWorkspaceFieldDefinitions = [
   GameCatalogItemWorkspaceFields.series,
   GameCatalogItemWorkspaceFields.ageRating,
   GameCatalogItemWorkspaceFields.region,
+  GameCatalogItemWorkspaceFields.toyType,
+  GameCatalogItemWorkspaceFields.toySubtype,
 ];
 
 final gameCatalogItemWorkspaceGroupDefinitions =
@@ -125,6 +148,7 @@ final gameCatalogItemWorkspaceSortDefinitions = [
 
 final gameCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   GameFieldIds.cover,
+  GameFieldIds.platformIcon,
   GameFieldIds.platform,
   GameFieldIds.title,
 };
@@ -147,6 +171,17 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
+  LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: GameFieldIds.platformIcon,
+    metadata: GameWorkspaceFieldMetadata.platformIcon,
+    getValue: GameCatalogItemWorkspaceFields.platformIcon.getValue,
+    cellValue: (context) => buildGamePlatformIcon(context.dto.platform),
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
+    defaultWidth: 36,
+    minWidth: 32,
+    maxWidth: 44,
+  ),
   columnFromField<GameKind, GameWorkspaceDto, String?>(
       GameCatalogItemWorkspaceFields.platform,
       defaultWidth: 120),
@@ -154,14 +189,25 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
       GameCatalogItemWorkspaceFields.title,
       defaultWidth: 260,
       maxWidth: 520),
-  columnFromField<GameKind, GameWorkspaceDto, String?>(
-    GameCatalogItemWorkspaceFields.publisher,
-    defaultWidth: 140,
-  ),
   columnFromField<GameKind, GameWorkspaceDto, DateTime?>(
     GameCatalogItemWorkspaceFields.releaseDate,
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
     defaultWidth: 118,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameCatalogItemWorkspaceFields.publisher,
+    defaultWidth: 140,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameCatalogItemWorkspaceFields.developer,
+    defaultWidth: 140,
+  ),
+  LibraryColumnDefinition<GameKind, GameWorkspaceDto, Iterable<String>>(
+    id: GameFieldIds.genre,
+    metadata: GameWorkspaceFieldMetadata.genre,
+    getValue: (context) => context.dto.metadata.genres,
+    cellValue: (context) => Text(context.dto.metadata.genres.join(' | ')),
+    defaultWidth: 140,
   ),
   columnFromField<GameKind, GameWorkspaceDto, String?>(
     GameCatalogItemWorkspaceFields.edition,
@@ -178,6 +224,16 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
     GameCatalogItemWorkspaceFields.franchise,
     group: 'Classification',
     defaultWidth: 130,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameCatalogItemWorkspaceFields.toyType,
+    group: 'Toy',
+    defaultWidth: 120,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameCatalogItemWorkspaceFields.toySubtype,
+    group: 'Toy',
+    defaultWidth: 120,
   ),
 ];
 

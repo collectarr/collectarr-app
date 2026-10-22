@@ -12,6 +12,9 @@ import 'package:flutter/material.dart';
 
 /// Folder fields of the reference Games folder menu, by category.
 enum GameGroupingField {
+  hasBack('has_back', 'Has Back', 'Images'),
+  hasFront('has_front', 'Has Front', 'Images'),
+  imageType('image_type', 'Image Type', 'Images'),
   audienceRating('audience_rating', 'Audience Rating', 'Main'),
   developer('developer', 'Developer', 'Main'),
   genre('genre', 'Genre', 'Main'),
@@ -28,6 +31,8 @@ enum GameGroupingField {
   purchaseStore('purchase_store', 'Purchase Store', 'Value'),
   purchaseYear('purchase_year', 'Purchase Year', 'Value'),
   valueLocked('value_locked', 'Value Locked', 'Value'),
+  toySubtype('toy_subtype', 'Subtype', 'Toy'),
+  toyType('toy_type', 'Type', 'Toy'),
   edition('edition', 'Edition', 'Edition'),
   format('format', 'Format', 'Edition'),
   region('region', 'Region', 'Edition'),
@@ -59,7 +64,14 @@ enum GameGroupingField {
   bool get personal => category == 'Value' || category == 'Personal';
 }
 
-const gameGroupingCategories = ['Main', 'Value', 'Edition', 'Personal'];
+const gameGroupingCategories = [
+  'Images',
+  'Main',
+  'Value',
+  'Toy',
+  'Edition',
+  'Personal',
+];
 
 List<LibraryGroupDefinition<GameKind, GameWorkspaceDto, Object?>>
     gameWorkspaceGroupDefinitions({required bool includePersonal}) => [
@@ -76,9 +88,11 @@ List<LibraryGroupDefinition<GameKind, GameWorkspaceDto, Object?>>
                 sidebarTitle: field.label,
                 category: field.category,
                 icon: switch (field.category) {
+                  'Images' => Icons.image_outlined,
                   'Personal' => Icons.person_outline,
                   'Value' => Icons.attach_money,
                   'Edition' => Icons.album_outlined,
+                  'Toy' => Icons.toys_outlined,
                   _ => Icons.folder_outlined,
                 },
                 getValue: (context) => _groupValue(field, context),
@@ -99,7 +113,28 @@ Object? _groupValue(
   final completed = personal?.details.completedDate;
   final added = _parts(entry?.createdAt ?? context.addedAt);
   final modified = _parts(entry?.updatedAt ?? context.updatedAt);
+  final imageTypes = <String>{
+    if (metadata.coverImageUrl != null && metadata.coverImageUrl!.isNotEmpty)
+      'front_cover',
+    if (context.item.presentation?.imageUrl != null &&
+        context.item.presentation!.imageUrl!.isNotEmpty)
+      'front_cover',
+    for (final image in context.personal.images)
+      _cleanImageType(image.imageType),
+    for (final type in context.personal.imageTypes) _cleanImageType(type),
+  };
   return switch (field) {
+    GameGroupingField.hasBack => _yesNo(imageTypes.contains('back_cover')),
+    GameGroupingField.hasFront => _yesNo(imageTypes.contains('front_cover')),
+    GameGroupingField.imageType => imageTypes
+        .map((type) => switch (type) {
+              'front_cover' => 'Front Cover',
+              'back_cover' => 'Back Cover',
+              _ => type,
+            })
+        .toList(),
+    GameGroupingField.toySubtype => metadata.toySubtype,
+    GameGroupingField.toyType => metadata.toyType,
     GameGroupingField.audienceRating => metadata.audienceRating,
     GameGroupingField.developer => metadata.developers,
     GameGroupingField.genre => metadata.genres,
@@ -144,6 +179,9 @@ Object? _groupValue(
     GameGroupingField.tags => personal?.tags ?? const <String>[],
   };
 }
+
+String _cleanImageType(String raw) =>
+    raw.startsWith('personal:') ? raw.substring('personal:'.length) : raw;
 
 PartialDate? _parts(DateTime? value) =>
     value == null ? null : PartialDate.fromDateTime(value);

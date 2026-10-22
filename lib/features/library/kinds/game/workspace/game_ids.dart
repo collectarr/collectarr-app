@@ -6,6 +6,9 @@ abstract final class GameFieldIds {
   static const cover = LibraryFieldId<GameKind, String?>('game.cover');
   static const title = LibraryFieldId<GameKind, String>('game.title');
   static const platform = LibraryFieldId<GameKind, String?>('game.platform');
+  static const platformIcon =
+      LibraryFieldId<GameKind, String?>('game.platform_icon');
+  static const genre = LibraryFieldId<GameKind, Iterable<String>>('game.genre');
   static const publisher = LibraryFieldId<GameKind, String?>('game.publisher');
   static const developer = LibraryFieldId<GameKind, String?>('game.developer');
   static const releaseDate =
@@ -26,6 +29,9 @@ abstract final class GameFieldIds {
       LibraryFieldId<GameKind, String?>('game.completeness');
   static const hasBox = LibraryFieldId<GameKind, bool?>('game.has_box');
   static const hasManual = LibraryFieldId<GameKind, bool?>('game.has_manual');
+  static const toyType = LibraryFieldId<GameKind, String?>('game.toy_type');
+  static const toySubtype =
+      LibraryFieldId<GameKind, String?>('game.toy_subtype');
   static const priceChartingId =
       LibraryFieldId<GameKind, String?>('game.pricecharting_id');
   static const coreRegion =

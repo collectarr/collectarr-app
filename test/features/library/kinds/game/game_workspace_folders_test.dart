@@ -1,6 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_catalog_item_workspace_schema.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_library_entry_workspace_schema.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_platform_icon.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -19,9 +23,52 @@ void main() {
   });
 
   test('folder categories follow the reference menu', () {
-    expect(gameGroupingCategories, ['Main', 'Value', 'Edition', 'Personal']);
+    expect(gameGroupingCategories, [
+      'Images',
+      'Main',
+      'Value',
+      'Toy',
+      'Edition',
+      'Personal',
+    ]);
+    expect(GameGroupingField.hasFront.category, 'Images');
+    expect(GameGroupingField.hasBack.category, 'Images');
+    expect(GameGroupingField.imageType.category, 'Images');
+    expect(GameGroupingField.toySubtype.category, 'Toy');
+    expect(GameGroupingField.toyType.category, 'Toy');
     expect(GameGroupingField.completeness.category, 'Value');
     expect(GameGroupingField.storageDevice.category, 'Personal');
+  });
+
+  test('Games columns include platform icon, developer, genre, and toy fields',
+      () {
+    final entry = gameLibraryEntryWorkspaceSchema.toRegistry();
+    final catalog = gameCatalogItemWorkspaceSchema.toRegistry();
+    final entryCols = entry.columns.map((c) => c.id.value).toSet();
+    final catalogCols = catalog.columns.map((c) => c.id.value).toSet();
+
+    expect(entryCols, contains(GameFieldIds.platformIcon.value));
+    expect(catalogCols, contains(GameFieldIds.platformIcon.value));
+    expect(entryCols, contains(GameFieldIds.developer.value));
+    expect(entryCols, contains(GameFieldIds.genre.value));
+    expect(entryCols, contains(GameFieldIds.toyType.value));
+    expect(entryCols, contains(GameFieldIds.toySubtype.value));
+
+    expect(gameLibraryEntryWorkspaceDefaultVisibleColumns.map((c) => c.value),
+        contains(GameFieldIds.platformIcon.value));
+    expect(gameCatalogItemWorkspaceDefaultVisibleColumns.map((c) => c.value),
+        contains(GameFieldIds.platformIcon.value));
+  });
+
+  test('resolveGamePlatformIcon maps platforms correctly', () {
+    expect(resolveGamePlatformIcon('PC'), Icons.desktop_windows);
+    expect(resolveGamePlatformIcon('Windows'), Icons.desktop_windows);
+    expect(resolveGamePlatformIcon('macOS'), Icons.desktop_windows);
+    expect(resolveGamePlatformIcon('Linux'), Icons.desktop_windows);
+    expect(resolveGamePlatformIcon('Android'), Icons.smartphone);
+    expect(resolveGamePlatformIcon('iOS'), Icons.smartphone);
+    expect(resolveGamePlatformIcon('PlayStation 4'), AppIcons.gamepad);
+    expect(resolveGamePlatformIcon('Nintendo Switch'), AppIcons.gamepad);
   });
 
   test('Games sorts include the reference sort fields', () {

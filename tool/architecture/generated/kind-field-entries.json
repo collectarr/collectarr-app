@@ -3400,6 +3400,17 @@
             "game.franchise"
           ]
         },
+        "genre": {
+          "symbols": [
+            "genre"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.genre"
+          ]
+        },
         "gradedPrice": {
           "symbols": [
             "gradedPrice",
@@ -3538,6 +3549,18 @@
           "sqlNames": [],
           "workspaceFieldIds": [
             "game.platform"
+          ]
+        },
+        "platformIcon": {
+          "symbols": [
+            "platformIcon",
+            "platform_icon"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.platform_icon"
           ]
         },
         "pricePaid": {
@@ -3732,6 +3755,30 @@
           "sqlNames": [],
           "workspaceFieldIds": [
             "game.title"
+          ]
+        },
+        "toySubtype": {
+          "symbols": [
+            "toySubtype",
+            "toy_subtype"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.toy_subtype"
+          ]
+        },
+        "toyType": {
+          "symbols": [
+            "toyType",
+            "toy_type"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.toy_type"
           ]
         },
         "updatedAt": {

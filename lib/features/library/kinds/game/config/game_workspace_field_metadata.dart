@@ -231,6 +231,65 @@ abstract final class GameWorkspaceFieldMetadata {
     editable: true,
   );
 
+  static const platformIcon = LibraryKindFieldMetadata(
+    id: 'game.platform_icon',
+    label: 'Platform Icon',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'platform',
+  );
+
+  static const hasBack = LibraryKindFieldMetadata(
+    id: 'game.has_back',
+    label: 'Has Back',
+    valueType: LibraryFieldValueType.boolean,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'images.has_back',
+    groupable: true,
+  );
+
+  static const hasFront = LibraryKindFieldMetadata(
+    id: 'game.has_front',
+    label: 'Has Front',
+    valueType: LibraryFieldValueType.boolean,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'images.has_front',
+    groupable: true,
+  );
+
+  static const imageType = LibraryKindFieldMetadata(
+    id: 'game.image_type',
+    label: 'Image Type',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'images[].image_type',
+    groupable: true,
+  );
+
+  static const toyType = LibraryKindFieldMetadata(
+    id: 'game.toy_type',
+    label: 'Type',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'toy_type',
+    groupable: true,
+  );
+
+  static const toySubtype = LibraryKindFieldMetadata(
+    id: 'game.toy_subtype',
+    label: 'Subtype',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'toy_subtype',
+    groupable: true,
+  );
+
   static const pricePaid = LibraryKindFieldMetadata(
     id: 'game.price_paid',
     label: 'Purchase Price',
@@ -383,13 +442,17 @@ abstract final class GameWorkspaceFieldMetadata {
     genre,
     gradedPrice,
     hasBox,
+    hasBack,
+    hasFront,
     hasManual,
+    imageType,
     language,
     location,
     loosePrice,
     manualOnlyPrice,
     newPrice,
     platform,
+    platformIcon,
     pricePaid,
     priceChartingId,
     publisher,
@@ -399,6 +462,8 @@ abstract final class GameWorkspaceFieldMetadata {
     series,
     status,
     title,
+    toySubtype,
+    toyType,
     updatedAt,
     valueLocked,
     wishlist,

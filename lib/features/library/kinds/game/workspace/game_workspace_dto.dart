@@ -47,6 +47,8 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
       metadata.physicalFormatLabel ?? metadata.physicalFormat;
   String? get format => referenceFormatLabel;
   String? get region => metadata.releaseRegion ?? metadata.country;
+  String? get toyType => metadata.toyType;
+  String? get toySubtype => metadata.toySubtype;
   int? get loosePrice => valuations?.loose?.amountCents;
   int? get cibPrice => valuations?.cib?.amountCents;
   int? get newPrice => valuations?.newSealed?.amountCents;
