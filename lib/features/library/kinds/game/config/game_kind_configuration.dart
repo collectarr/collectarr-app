@@ -1,9 +1,6 @@
 import '../game_module_dependencies.dart';
 import '../edit/game_edit_contribution.dart';
 
-const gamePlatformFilterId = LibraryAddFilterId('game.platform');
-const gameYearFilterId = LibraryAddFilterId('game.year');
-
 TransferableField gameTransferField({
   required String key,
   required String label,

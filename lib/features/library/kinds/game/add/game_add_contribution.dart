@@ -1,6 +1,5 @@
 import '../game_module_dependencies.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
-import '../config/game_kind_configuration.dart';
+import 'game_add_search_controls.dart';
 import 'game_manual_candidate.dart';
 
 final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
@@ -55,65 +54,36 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     return null;
   },
   search: LibraryAddSearchCapability(
-    input: LibraryAddSearchInputCapability(
-      advancedFilterDescriptorsBuilder: buildGameAddAdvancedFilterFields,
-    ),
+    input: const LibraryAddSearchInputCapability(),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: _buildGameCoreSearchInput,
+      resultFilter: (items, context) => [
+        for (final item in items)
+          if (gameAddCandidateMatchesRegion(item, context)) item,
+      ],
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
-            id: gamePlatformFilterId,
+            id: gameAddPlatformFilterId,
             exactWeight: 110,
             containsWeight: 44,
-            metadataValues: (item) {
-              final metadata = item.kindCapability.mapTransport(
-                (transport) => GameCatalogMetadata.fromJson(transport.kindData),
-              );
-              return metadata.platforms;
-            },
-          ),
-          LibraryAddSearchRankField(
-            id: gameYearFilterId,
-            exactWeight: 55,
-            containsWeight: 20,
-            metadataValues: (item) {
-              final metadata = item.kindCapability.mapTransport(
-                (transport) => GameCatalogMetadata.fromJson(transport.kindData),
-              );
-              return [
-                item.gameCatalogFields.releaseYear,
-                metadata.releaseDate?.year,
-              ];
-            },
+            metadataValues: (item) => item.kindCapability
+                .mapTransport(
+                  (transport) =>
+                      GameCatalogMetadata.fromJson(transport.kindData),
+                )
+                .platforms,
           ),
         ],
       ),
     ),
+    presentation: LibraryAddSearchPresentationCapability(
+      queryTrailingBuilder: buildGameAddPlatformControl,
+      controlsBuilder: buildGameAddRegionControl,
+    ),
   ),
   manualPaneBuilder: buildGameAddManualPane,
 );
-
-List<LibraryAddAdvancedFilterField<String>> buildGameAddAdvancedFilterFields(
-  LibraryAddModeBarRequest req,
-) =>
-    [
-      LibraryAddAdvancedFilterField<String>(
-        id: gamePlatformFilterId,
-        key: const ValueKey('library-add-platform-field'),
-        label: 'Platform',
-        value: req.advancedFilterText(gamePlatformFilterId),
-        parse: (text) => text.trim(),
-      ),
-      LibraryAddAdvancedFilterField<String>(
-        id: gameYearFilterId,
-        key: const ValueKey('library-add-year-field'),
-        label: 'Year',
-        value: req.advancedFilterText(gameYearFilterId),
-        parse: (text) => text.trim(),
-        width: 120,
-      ),
-    ];
 
 MetadataSearchQuery _buildGameCoreSearchInput(
   LibraryAddSearchContext context, {
@@ -121,12 +91,8 @@ MetadataSearchQuery _buildGameCoreSearchInput(
 }) {
   return MetadataSearchQuery(
     query: _optionalGameText(
-      buildLibraryAddSearchQuery([
-        context.query,
-        context.textValueFor(gamePlatformFilterId),
-      ]),
+      buildLibraryAddSearchQuery([context.query, gameAddPlatform(context)]),
     ),
-    year: int.tryParse(context.textValueFor(gameYearFilterId)),
     barcode: _optionalGameText(context.identifierCode),
     limit: limit,
   );

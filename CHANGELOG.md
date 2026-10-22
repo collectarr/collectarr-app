@@ -12,6 +12,7 @@
 - Games sorts add the reference fields: Sort Title, Series, Developer, Format, Region, Completeness, Box, Manual, Value, Purchase Price, Date and Store, PriceCharting ID, Index, Quantity, Added and Modified Date/Time, My Rating, Completed Date, Owner, Storage, Storage Slot and Notes; items without a value sort last.
 - The Games editor and Manual Add have a Covers tab with Front and Back cover panels (Upload, Remove or Restore the Core cover, Crop / Rotate), between Custom Fields and My Images as in the reference.
 - The Add dialog can show a library's own control next to the title field, used by Games for its platform picker.
+- Add Games has a platform picker next to the title field and All, US, EU, AU, JP and Other region segments above the results, as in the reference; the separate Platform and Year text filters are gone.
 
 ### 🐛 Fixes
 - The light theme keeps the toolbars, pane headers and collection tabs dark and uses the reference's light grey and white content areas, blue selection and teal item titles.
