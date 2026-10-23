@@ -170,7 +170,7 @@ dialog were closed with Cancel and ×.
 
 ### Deliberate Games behavior
 
-- Platform icons use FOSS category glyphs rather than proprietary platform artwork.
+- Platform icons are CC0 Simple Icons logos where one exists (PlayStation with its generation, PSP, Vita, Steam, Steam Deck, Sega, Atari, Apple, Linux, Android) and Collectarr glyphs otherwise (Xbox, Nintendo, PC). CLZ's own platform images are never copied; see `assets/LOGOS.md`.
 - Games, Hardware and Toys expose only their own fields. CLZ also shows generic Games columns and Toy folders across inventory types; Collectarr keeps Toy classification exclusively in Toys.
 - The next local schema is 3, combining Games tracking and list-valued tags in one upgrade from released schema 2. Unreleased intermediate schemas are not migration baselines.
 

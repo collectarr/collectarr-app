@@ -94,7 +94,7 @@ Widget buildGameHardwareInspectorHero(
               if (metadata.platform?.isNotEmpty == true) ...[
                 Padding(
                     padding: const EdgeInsets.only(right: 4),
-                    child: Icon(resolvePlatformIcon(metadata.platform!),
+                    child: PlatformIcon(metadata.platform!,
                         size: 24, color: palette.textPrimary)),
                 Text(metadata.platform!,
                     style: TextStyle(

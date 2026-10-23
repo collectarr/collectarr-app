@@ -40,6 +40,12 @@ files. Familiar behavior is implemented with Collectarr's own code and assets.
 The default font is open source. An optional local font loader can use fonts
 already available on your own device; proprietary fonts are not distributed.
 
+Platform and service logos (PlayStation, Steam, eBay, Discogs and others) are
+CC0 drawings from [Simple Icons](https://simpleicons.org), shown only to
+identify a platform or service; the marks belong to their owners (see
+`assets/LOGOS.md`). Platforms without such a logo use
+Collectarr's own glyphs.
+
 ## 🔒 Your data stays yours
 
 The library stores personal data locally. Core provides the optional canonical

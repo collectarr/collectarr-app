@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### ✨ Features
+- Games, Hardware and statistics show PlayStation (with its generation), PSP, Vita, Steam, Sega, Atari, Apple, Linux and Android platform logos.
 - Library headers use the compact CARR name and identify Web, Desktop or Mobile builds.
 - Games, Hardware and Toys use separate fixed-type collections, editors, search and Core catalogs; renaming a collection preserves its type.
 - The header account menu opens an overview of all local libraries, sync status and activity, and signs out without removing local collections.

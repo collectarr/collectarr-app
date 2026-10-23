@@ -159,7 +159,7 @@ class _GameInspectorHeader extends StatelessWidget {
                   if (platform.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(right: 4),
-                      child: Icon(resolvePlatformIcon(platform),
+                      child: PlatformIcon(platform,
                           size: 24, color: palette.textPrimary),
                     ),
                   if (platform.isNotEmpty)

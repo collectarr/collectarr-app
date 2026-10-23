@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -178,14 +180,42 @@ void main() {
         DateTime.utc(2026, 4, 5));
   });
 
-  test('resolvePlatformIcon maps platforms correctly', () {
+  test('platform icons use CC0 logos where they exist, else glyphs', () {
+    String? asset(String platform) => platformLogoFor(platform)?.asset;
+    final ps4 = platformLogoFor('PlayStation 4')!;
+    expect(ps4.asset, 'assets/platform_logos/playstation.svg');
+    expect(ps4.generation, '4');
+    expect(platformLogoFor('PS5')?.generation, '5');
+    expect(platformLogoFor('PlayStation')?.generation, isNull);
+    expect(platformLogoFor('PlayStation Vita')?.wordmark, isTrue);
+    expect(asset('PSP'), 'assets/platform_logos/playstationportable.svg');
+    expect(asset('Steam Deck'), 'assets/platform_logos/steamdeck.svg');
+    expect(asset('Sega Dreamcast'), 'assets/platform_logos/sega.svg');
+    expect(asset('Atari 2600'), 'assets/platform_logos/atari.svg');
+    expect(asset('macOS'), 'assets/platform_logos/apple.svg');
+    expect(asset('iOS'), 'assets/platform_logos/apple.svg');
+    expect(asset('Linux'), 'assets/platform_logos/linux.svg');
+    expect(asset('Android'), 'assets/platform_logos/android.svg');
+    for (final platform in [
+      'PS4',
+      'PSP',
+      'Vita',
+      'Steam',
+      'Steam Deck',
+      'Sega Saturn',
+      'Atari Jaguar',
+      'Mac',
+      'Linux',
+      'Android'
+    ]) {
+      expect(File(asset(platform)!).existsSync(), isTrue, reason: platform);
+    }
+    for (final platform in ['PC', 'Windows', 'Nintendo Switch', 'Xbox One']) {
+      expect(platformLogoFor(platform), isNull, reason: platform);
+    }
     expect(resolvePlatformIcon('PC'), Icons.desktop_windows);
     expect(resolvePlatformIcon('Windows'), Icons.desktop_windows);
-    expect(resolvePlatformIcon('macOS'), Icons.desktop_windows);
-    expect(resolvePlatformIcon('Linux'), Icons.desktop_windows);
-    expect(resolvePlatformIcon('Android'), Icons.smartphone);
-    expect(resolvePlatformIcon('iOS'), Icons.smartphone);
-    expect(resolvePlatformIcon('PlayStation 4'), AppIcons.gamepad);
+    expect(resolvePlatformIcon('Mobile'), Icons.smartphone);
     expect(resolvePlatformIcon('Nintendo Switch'), AppIcons.gamepad);
   });
 
