@@ -24,6 +24,7 @@
 - The Games details panel shows the Format of imported games, such as Steam Download, above the genres.
 - List headers of narrow icon columns stay empty instead of showing clipped labels, and the default Games list no longer adds a cover column.
 - The library switcher lists Games once instead of three identical Games entries; Hardware and Toys open from the Games collection tabs.
+- The Games field that holds the collection status is labelled Collection Status instead of Completion, and a separate Completed field reads whether a game was finished.
 - The Games Series column shows each game's series instead of staying empty.
 - The main menu's link entry names the open library's items, such as Link Games, instead of always saying Link Albums.
 

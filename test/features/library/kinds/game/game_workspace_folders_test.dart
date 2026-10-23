@@ -1,4 +1,15 @@
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_catalog_item_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -71,6 +82,58 @@ void main() {
     );
 
     expect(dto.seriesTitle, 'Fictional Series');
+  });
+
+  test('Completed and Collection Status are separate fields', () {
+    LibraryProjectionContext<GameWorkspaceDto> context(
+        {bool? completed, String? status}) {
+      const metadata = GameCatalogMetadata(title: 'Fictional Game');
+      final entry = GameLibraryEntry(
+        id: const LibraryEntryId('completed'),
+        metadata: metadata,
+        personal: GamePersonalData(
+          collectionStatus: status,
+          details: GameEntryDetails(completed: completed),
+        ),
+        updatedAt: DateTime.utc(2026),
+      );
+      return LibraryProjectionContext(
+        item: WorkspaceItem(
+          target: const CatalogTargetRef(
+              CatalogItemRef(kind: CatalogMediaKind.game, id: 'completed')),
+          libraryEntryDispatch: OpaqueLibraryEntryDispatch(
+            ref: const LibraryEntryRef(
+                kind: CatalogMediaKind.game, id: LibraryEntryId('completed')),
+            kind: CatalogMediaKind.game,
+            value: entry,
+          ),
+        ),
+        personal: const PersonalOverlay(),
+        sorting: const LibrarySortingOptions(),
+        dto: GameWorkspaceDto(
+          common: const WorkspaceCommonProjection(title: 'Fictional Game'),
+          personal: PersonalEntryProjection(),
+          metadata: metadata,
+        ),
+      );
+    }
+
+    final finishedWish = context(completed: true, status: 'Wish List');
+    final unfinishedOwned = context(completed: false, status: 'In Collection');
+
+    expect(GameLibraryEntryWorkspaceFields.completed.getValue(finishedWish),
+        'Yes');
+    expect(
+        GameLibraryEntryWorkspaceFields.completionStatus.getValue(finishedWish),
+        'Wish List');
+    expect(GameLibraryEntryWorkspaceFields.completed.getValue(unfinishedOwned),
+        'No');
+    expect(
+        GameLibraryEntryWorkspaceFields.completionStatus
+            .getValue(unfinishedOwned),
+        'In Collection');
+    expect(GameLibraryEntryWorkspaceFields.completionStatus.metadata.label,
+        'Collection Status');
   });
 
   test('resolveGamePlatformIcon maps platforms correctly', () {

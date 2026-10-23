@@ -87,6 +87,19 @@ abstract final class GameLibraryEntryWorkspaceFields {
     },
   );
 
+  static final completed =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: GameFieldIds.completed,
+    metadata: GameWorkspaceFieldMetadata.completed,
+    getValue: (context) {
+      final entry = GameLibraryEntryProjection.fromDispatch(
+          context.item.libraryEntryDispatch);
+      return entry is GameLibraryEntry
+          ? (entry.personal.details.completed == true ? 'Yes' : 'No')
+          : null;
+    },
+  );
+
   static final completeness =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.completeness,
@@ -211,6 +224,7 @@ final gameLibraryEntryWorkspaceFieldDefinitions = [
   GameLibraryEntryWorkspaceFields.updatedAt,
   GameLibraryEntryWorkspaceFields.addedAt,
   GameLibraryEntryWorkspaceFields.completionStatus,
+  GameLibraryEntryWorkspaceFields.completed,
   GameLibraryEntryWorkspaceFields.completeness,
   GameLibraryEntryWorkspaceFields.coreRegion,
   GameLibraryEntryWorkspaceFields.hasBox,

@@ -23,6 +23,7 @@ abstract final class GameFieldIds {
   static const updatedAt =
       LibraryFieldId<GameKind, DateTime>('game.updated_at');
   static const addedAt = LibraryFieldId<GameKind, DateTime?>('game.added_at');
+  static const completed = LibraryFieldId<GameKind, String?>('game.completed');
   static const completionStatus =
       LibraryFieldId<GameKind, String?>('game.completion_status');
   static const completeness =

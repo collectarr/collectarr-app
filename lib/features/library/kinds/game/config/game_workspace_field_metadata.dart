@@ -64,11 +64,23 @@ abstract final class GameWorkspaceFieldMetadata {
 
   static const completionStatus = LibraryKindFieldMetadata(
     id: 'game.completion_status',
-    label: 'Completion',
+    label: 'Collection Status',
     valueType: LibraryFieldValueType.text,
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.libraryEntry,
     sourcePath: 'completion_status',
+    sortable: true,
+    groupable: true,
+    editable: true,
+  );
+
+  static const completed = LibraryKindFieldMetadata(
+    id: 'game.completed',
+    label: 'Completed',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'game_completed',
     sortable: true,
     groupable: true,
     editable: true,
@@ -411,6 +423,7 @@ abstract final class GameWorkspaceFieldMetadata {
     ageRating,
     boxOnlyPrice,
     cibPrice,
+    completed,
     completeness,
     completionStatus,
     condition,

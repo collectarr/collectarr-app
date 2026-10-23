@@ -3278,6 +3278,17 @@
             "game.cib_price"
           ]
         },
+        "completed": {
+          "symbols": [
+            "completed"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.completed"
+          ]
+        },
         "completeness": {
           "symbols": [
             "completeness"
