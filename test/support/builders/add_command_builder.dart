@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
-import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/add/game_hardware_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/add/game_toy_add_draft.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 
 import 'package:collectarr_app/core/models/tracking_status.dart';

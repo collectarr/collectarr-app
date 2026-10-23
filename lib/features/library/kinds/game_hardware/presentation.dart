@@ -56,7 +56,7 @@ final class GameHardwarePresentationBuilder
   }
 }
 
-final gameHardwareKindPresentation = LibraryMediaPresentation(
+final gameHardwareLibraryMediaPresentation = LibraryMediaPresentation(
     searchFieldLabels: const LibraryMediaSearchFieldLabels(
         queryHint: 'Enter title...',
         libraryHint: 'Search Hardware...',

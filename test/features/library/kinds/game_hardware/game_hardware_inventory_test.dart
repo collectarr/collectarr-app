@@ -1,8 +1,14 @@
+import 'package:collectarr_app/features/library/kinds/game_hardware/data/game_hardware_entry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_completeness.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/edit/game_hardware_value_tab.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';

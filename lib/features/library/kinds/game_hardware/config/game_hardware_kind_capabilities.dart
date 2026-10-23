@@ -19,6 +19,7 @@ final gameHardwareKindIdentity = const LibraryKindIdentity(
     collectionFamily: 'games',
     hasTrailers: true,
     defaultCollectionName: 'Hardware');
+final gameHardwareKindPresentation = gameHardwareLibraryMediaPresentation;
 final gameHardwareKindPhysicalMediaFormats = const <PhysicalMediaFormat>[];
 final gameHardwareKindUiPolicy = const LibraryUiPolicy(coverAspectRatio: 0.7);
 final gameHardwareKindToolbar = null;

@@ -54,7 +54,7 @@ final class GameToyPresentationBuilder extends LibraryMediaPresentationBuilder {
   }
 }
 
-final gameToyKindPresentation = LibraryMediaPresentation(
+final gameToyLibraryMediaPresentation = LibraryMediaPresentation(
     searchFieldLabels: const LibraryMediaSearchFieldLabels(
         queryHint: 'Enter title...',
         libraryHint: 'Search Toys...',

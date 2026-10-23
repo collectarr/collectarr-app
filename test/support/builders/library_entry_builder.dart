@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
-import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_library_entry.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import '../fixtures/entry_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
