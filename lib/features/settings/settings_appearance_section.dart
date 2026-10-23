@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/settings/settings_reference_controls.dar
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_slider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,8 +37,11 @@ class _SettingsAppearanceSectionState
 
   Widget _buildAppearanceSection(UiPreferences preferences) {
     final controller = ref.read(uiPreferencesProvider.notifier);
+    // The shell resolves the kind from the route, also on a reload.
     final kindIdentity = libraryKindRegistrationForKind(
-            catalogMediaKindFromValue(ref.watch(selectedLibraryKindProvider)))
+            catalogMediaKindFromValue(
+                LibraryAccentScope.maybeOf(context)?.kind ??
+                    ref.watch(selectedLibraryKindProvider)))
         .identity;
     final kindPlural = kindIdentity.pluralLabel.toLowerCase();
     final kindSingular = kindIdentity.singularLabel.toLowerCase();

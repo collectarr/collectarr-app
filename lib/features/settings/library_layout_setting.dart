@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/ui/app_select.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,7 +24,9 @@ class _LibraryLayoutSettingState extends ConsumerState<LibraryLayoutSetting> {
   void initState() {
     super.initState();
     final registration = libraryKindRegistrationForKind(
-        catalogMediaKindFromValue(ref.read(selectedLibraryKindProvider)));
+        catalogMediaKindFromValue(
+            context.getInheritedWidgetOfExactType<LibraryAccentScope>()?.kind ??
+                ref.read(selectedLibraryKindProvider)));
     _store = LibraryWorkspacePreferences(registration);
     final cached = LibraryWorkspacePreferences.cachedSnapshot(registration);
     _initial = cached == null
