@@ -414,17 +414,28 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                   _InspectorBarButton(
                     tooltip: 'Find sold listings on eBay',
                     semanticsLabel: 'eBay',
-                    labelContent: SvgPicture.asset(
-                      'assets/logos/ebay.svg',
-                      // The wordmark fills the middle band of its square.
-                      width: 35,
-                      height: 14,
-                      fit: BoxFit.fitWidth,
-                      // Resolved inside the toolbar, which stays dark in
-                      // both themes.
-                      colorFilter: ColorFilter.mode(
-                        appPalette(context).textPrimary,
-                        BlendMode.srcIn,
+                    // The wordmark fills the middle band of its square: draw the
+                    // square 38 px wide, as the reference's wordmark, and
+                    // show only that band.
+                    labelContent: SizedBox(
+                      width: 38,
+                      height: 15,
+                      child: ClipRect(
+                        child: OverflowBox(
+                          maxWidth: 38,
+                          maxHeight: 38,
+                          child: SvgPicture.asset(
+                            'assets/logos/ebay.svg',
+                            width: 38,
+                            height: 38,
+                            // Resolved inside the toolbar, which stays dark
+                            // in both themes.
+                            colorFilter: ColorFilter.mode(
+                              appPalette(context).textPrimary,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     onPressed: () => launchUrl(ebayUri),

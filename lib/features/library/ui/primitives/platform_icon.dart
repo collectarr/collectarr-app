@@ -82,11 +82,18 @@ class PlatformIcon extends StatelessWidget {
           ink == null ? null : ColorFilter.mode(ink, BlendMode.srcIn);
       // Wordmarks fill a band across the middle of their square; show only it.
       final picture = logo.wordmark
-          ? SvgPicture.asset(logo.asset,
+          ? SizedBox(
               width: size * 2,
               height: size * 0.4,
-              fit: BoxFit.fitWidth,
-              colorFilter: filter)
+              child: ClipRect(
+                child: OverflowBox(
+                  maxWidth: size * 2,
+                  maxHeight: size * 2,
+                  child: SvgPicture.asset(logo.asset,
+                      width: size * 2, height: size * 2, colorFilter: filter),
+                ),
+              ),
+            )
           : SvgPicture.asset(logo.asset,
               width: size, height: size, colorFilter: filter);
       mark = logo.generation == null
