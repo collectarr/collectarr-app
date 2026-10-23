@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/app_chrome.dart';
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -33,72 +34,79 @@ class AppPageHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     return Material(
       color: appManagementPanelColor(context),
       child: SafeArea(
         bottom: false,
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          SizedBox(
-            height: secondaryHeaderHeight,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 960),
-                child: IconTheme(
-                  data: IconThemeData(size: 16, color: palette.textPrimary),
-                  child: DefaultTextStyle(
-                    style: TextStyle(
-                        fontFamily: appFontFamily,
-                        height: 20 / 14,
-                        color: palette.textPrimary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    child: Stack(children: [
-                      Positioned.fill(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: math.max(
-                                  80.0, (actions?.length ?? 0) * 48.0)),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (svgAsset != null)
-                                  SvgPicture.asset(svgAsset!,
-                                      width: 16,
-                                      height: 16,
-                                      colorFilter: ColorFilter.mode(
-                                          palette.textPrimary, BlendMode.srcIn))
-                                else
-                                  Icon(icon),
-                                const SizedBox(width: 6),
-                                Flexible(child: title),
-                              ]),
-                        ),
-                      ),
-                      Align(
-                          alignment: Alignment.centerLeft,
-                          child: SizedBox(
-                              width: 80,
-                              child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child:
-                                      leading ?? const AppPageBackButton()))),
-                      if (actions?.isNotEmpty ?? false)
-                        Align(
-                            alignment: Alignment.centerRight,
-                            child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: actions!)),
-                    ]),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          // The reference keeps this bar dark in its light skin too.
+          AppDarkChrome(
+              child: Builder(
+                  builder: (context) => ColoredBox(
+                      color: appManagementPanelColor(context),
+                      child: _bar(context)))),
           if (bottom != null) bottom!,
         ]),
+      ),
+    );
+  }
+
+  Widget _bar(BuildContext context) {
+    final palette = appPalette(context);
+    return SizedBox(
+      height: secondaryHeaderHeight,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 960),
+          child: IconTheme(
+            data: IconThemeData(size: 16, color: palette.textPrimary),
+            child: DefaultTextStyle(
+              style: TextStyle(
+                  fontFamily: appFontFamily,
+                  height: 20 / 16,
+                  color: palette.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              child: Stack(children: [
+                Positioned.fill(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal:
+                            math.max(80.0, (actions?.length ?? 0) * 48.0)),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (svgAsset != null)
+                            SvgPicture.asset(svgAsset!,
+                                width: 16,
+                                height: 16,
+                                colorFilter: ColorFilter.mode(
+                                    palette.textPrimary, BlendMode.srcIn))
+                          else
+                            Icon(icon),
+                          const SizedBox(width: 6),
+                          Flexible(child: title),
+                        ]),
+                  ),
+                ),
+                Align(
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                        width: 80,
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: leading ?? const AppPageBackButton()))),
+                if (actions?.isNotEmpty ?? false)
+                  Align(
+                      alignment: Alignment.centerRight,
+                      child: Row(
+                          mainAxisSize: MainAxisSize.min, children: actions!)),
+              ]),
+            ),
+          ),
+        ),
       ),
     );
   }
