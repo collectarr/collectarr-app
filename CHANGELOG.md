@@ -14,6 +14,7 @@
 - Hardware lists lead with the platform icon and Platform, and Hardware and Toys details show the platform and year in the reference typography.
 - CLZ Games CSV / TXT exports import into Games, Hardware and Toys, matching columns by their header labels.
 - CSV imports create loans from Loaned To, Loan Date and Due Date, and can import any other column as a custom field.
+- Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
 
 ### 🐛 Fixes
 - The light theme applies at startup and uses consistent content areas, editor fields, toolbars and collection tabs.

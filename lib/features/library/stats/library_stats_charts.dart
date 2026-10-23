@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,22 @@ const statsChartPalette = [
   Color(0xFF88BC32),
   Color(0xFF4BBA38),
 ];
+
+/// Reference colors of fixed segments, such as completeness tiers or a
+/// yes/no split, in segment order.
+const statsSegmentPalette = [
+  Color(0xFFF28B8B),
+  Color(0xFF7ABEF7),
+  Color(0xFFA6DA8A),
+  Color(0xFFEFD75C),
+  Color(0xFFBDBDBD),
+];
+
+/// Colors for fixed segment [labels], in order.
+Map<String, Color> statsSegmentColors(List<String> labels) => {
+      for (var i = 0; i < labels.length; i++)
+        labels[i]: statsSegmentPalette[i % statsSegmentPalette.length]
+    };
 
 /// A titled statistics panel.
 class StatsSection extends StatelessWidget {
@@ -35,6 +52,24 @@ class StatsSection extends StatelessWidget {
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
             const SizedBox(height: 14),
             child,
+          ])));
+}
+
+/// The untitled summary panel at the top of a statistics tab.
+class StatsSummaryPanel extends StatelessWidget {
+  const StatsSummaryPanel({super.key, required this.lines});
+  final List<Widget> lines;
+  @override
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Container(
+          color: appManagementPanelColor(context),
+          padding: const EdgeInsets.all(20),
+          child: Column(children: [
+            for (var i = 0; i < lines.length; i++) ...[
+              if (i > 0) const SizedBox(height: 14),
+              lines[i],
+            ],
           ])));
 }
 
@@ -98,19 +133,19 @@ class StatsLegend extends StatelessWidget {
       ]);
 }
 
-/// One row of a ranked item list: a 90 px cover, a blue title, optional
+/// One row of a ranked item list: a 90 px image, a blue title, optional
 /// lines below it, a bottom line and an optional trailing figure.
 class StatsItemTile extends StatelessWidget {
   const StatsItemTile({
     super.key,
-    required this.cover,
+    required this.image,
     required this.title,
     this.lines = const [],
     this.bottom,
     this.trailing,
     this.onTap,
   });
-  final Widget cover;
+  final Widget image;
   final String title;
   final List<Widget> lines;
   final Widget? bottom;
@@ -138,7 +173,7 @@ class StatsItemTile extends StatelessWidget {
                 child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      SizedBox(width: 90, child: cover),
+                      SizedBox(width: 90, child: image),
                       const SizedBox(width: 7),
                       Expanded(
                           child: Column(
@@ -162,6 +197,37 @@ class StatsItemTile extends StatelessWidget {
           ),
         ),
       );
+}
+
+/// The grey value badge at the bottom right of a ranked row.
+class StatsValueBadge extends StatelessWidget {
+  const StatsValueBadge(this.text, {super.key});
+  final String text;
+  @override
+  Widget build(BuildContext context) => Align(
+      alignment: Alignment.bottomRight,
+      child: Container(
+          color: const Color(0xFF777777),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+          child: Text(text,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700))));
+}
+
+/// Money totals per currency joined with "+"; no amounts read as zero, as
+/// in the reference.
+String formatStatsMoneyTotals(Map<String?, int> totals) {
+  if (totals.isEmpty) {
+    return AppFormats.current.formatMoney(0, AppFormats.current.currency);
+  }
+  final currencies = totals.keys.toList()
+    ..sort((a, b) => (a ?? '').compareTo(b ?? ''));
+  return currencies
+      .map((currency) => AppFormats.current.formatMoney(
+          totals[currency], currency ?? AppFormats.current.currency))
+      .join(' + ');
 }
 
 /// A pie with its legend; counts are in the tooltip.
@@ -388,6 +454,12 @@ class _ScrollingPlot extends StatelessWidget {
       }));
 }
 
+/// Bars take 80 % of their slot, at most 160 px, centred in it.
+double _barWidth(double step) => math.min(step * .8, 160);
+
+double _barLeft(int index, double step) =>
+    index * step + (step - _barWidth(step)) / 2;
+
 void _paintGrid(Canvas canvas, Size size, Color color) {
   final grid = Paint()
     ..color = color
@@ -442,9 +514,10 @@ class _SeriesPainter extends CustomPainter {
       }
     } else {
       for (var i = 0; i < points.length; i++) {
+        final left = _barLeft(i, step);
         canvas.drawRect(
-            Rect.fromLTRB(i * step + step * .1, points[i].dy,
-                (i + 1) * step - step * .1, size.height),
+            Rect.fromLTRB(
+                left, points[i].dy, left + _barWidth(step), size.height),
             Paint()..color = accent.withValues(alpha: .65));
       }
     }
@@ -475,9 +548,10 @@ class _StackedPainter extends CustomPainter {
       for (var s = 0; s < bars[i].length; s++) {
         final height = size.height * bars[i][s] / maximum;
         if (height <= 0) continue;
+        final left = _barLeft(i, step);
         canvas.drawRect(
-            Rect.fromLTRB(i * step + step * .1, bottom - height,
-                (i + 1) * step - step * .1, bottom),
+            Rect.fromLTRB(
+                left, bottom - height, left + _barWidth(step), bottom),
             Paint()..color = colors[s]);
         bottom -= height;
       }

@@ -1,3 +1,4 @@
+import '../stats/game_toy_stats_capability.dart';
 import 'game_toy_kind_configuration.dart';
 import '../game_toy_module_dependencies.dart';
 
@@ -88,4 +89,4 @@ final gameToyKindTransfer = LibraryTransferCapability(transferableFieldKeys: [
   ...gameToyUniversalTransferableFields,
   ...gameToyTransferableFields
 ]);
-final gameToyKindStats = const DefaultLibraryStatsCapability();
+final gameToyKindStats = const GameToyStatsCapability();

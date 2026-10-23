@@ -1,3 +1,4 @@
+import '../stats/game_hardware_stats_capability.dart';
 import 'game_hardware_kind_configuration.dart';
 import '../game_hardware_module_dependencies.dart';
 
@@ -93,4 +94,4 @@ final gameHardwareKindTransfer =
   ...gameHardwareUniversalTransferableFields,
   ...gameHardwareTransferableFields
 ]);
-final gameHardwareKindStats = const DefaultLibraryStatsCapability();
+final gameHardwareKindStats = const GameHardwareStatsCapability();

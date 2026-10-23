@@ -289,7 +289,7 @@ class _AlbumList extends StatelessWidget {
       for (final entry in entries)
         StatsItemTile(
           onTap: () => openWorkspaceEntryDetails(context, entry),
-          cover: LibraryCoverImage(
+          image: LibraryCoverImage(
               title: entry.title,
               libraryEntryRef: entry.libraryEntryRef,
               imageUrl: _music(entry).music.coverImageUrl,
