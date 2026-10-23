@@ -23,6 +23,7 @@
 - Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
 
 ### 🐛 Fixes
+- In the light theme the main menu and account sidebar stay dark, as in the reference.
 - List headings of numeric columns align right over their values.
 - In the light theme the folder search sits in a dark strip, search fields are white, and folder hover and counts use the reference grey.
 - Light lists match the reference: white headings with readable sorted columns, light column rules, first-row stripes and a grey row hover.

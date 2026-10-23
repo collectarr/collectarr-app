@@ -8,6 +8,7 @@ import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'app_shell_brand.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
@@ -52,13 +53,17 @@ Future<void> showAppNavigationDrawer({
             Navigator.of(dialogContext).pop();
           }
         },
-        child: AppNavigationDrawer(
-          type: type,
-          selectedAction: selectedAction,
-          isAdmin: isAdmin,
+        // The reference keeps its menu dark in the light skin too.
+        child: AppDarkChrome(
           accent: accent,
-          onSelected: onSelected,
-          onAddFromCore: onAddFromCore,
+          child: AppNavigationDrawer(
+            type: type,
+            selectedAction: selectedAction,
+            isAdmin: isAdmin,
+            accent: accent,
+            onSelected: onSelected,
+            onAddFromCore: onAddFromCore,
+          ),
         ),
       ),
       transitionBuilder: (_, animation, __, child) => Align(

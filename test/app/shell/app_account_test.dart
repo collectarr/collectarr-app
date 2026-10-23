@@ -25,7 +25,7 @@ void main() {
 
   for (final palette in [kDefaultAppThemePalette, kLightAppThemePalette]) {
     testWidgets(
-        'account drawer uses the shared sidebar surface, opens overview and logs out (${palette.brightness})',
+        'account drawer uses the dark sidebar surface, opens overview and logs out (${palette.brightness})',
         (tester) async {
       tester.view.physicalSize = const Size(1200, 1000);
       tester.view.devicePixelRatio = 1;

@@ -8,6 +8,7 @@ import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -60,64 +61,71 @@ class AppAccountButton extends ConsumerWidget {
                 close();
               }
             },
-            child: Drawer(
-              key: const Key('account.drawer'),
-              width: (MediaQuery.sizeOf(drawerContext).width * .86)
-                  .clamp(0, 320)
-                  .toDouble(),
-              shape:
-                  const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-              backgroundColor: appPalette(drawerContext).sidebar,
-              child: SafeArea(
-                  child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _header(drawerContext, close),
-                  const Divider(height: 1),
-                  Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                          auth.isAuthenticated
-                              ? auth.email ?? 'Signed in'
-                              : 'Local library',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: appPalette(drawerContext).textPrimary))),
-                  ListTile(
-                      dense: true,
-                      leading: const Icon(AppIcons.user, size: 16),
-                      title: const Text('My Account'),
-                      onTap: () {
-                        close();
-                        context.go(AppRoutes.forKind(AppRoutes.account, kind));
-                      }),
-                  if (auth.isAuthenticated || auth.token != null)
-                    ListTile(
-                        dense: true,
-                        leading: const Icon(AppIcons.logout, size: 16),
-                        title: const Text('Logout'),
-                        onTap: () async {
-                          final controller =
-                              ref.read(authControllerProvider.notifier);
-                          close();
-                          await _logout(context, controller);
-                        })
-                  else
-                    ListTile(
-                        dense: true,
-                        leading: const Icon(AppIcons.login, size: 16),
-                        title: const Text('Sign in'),
-                        enabled: !auth.isRestoring,
-                        onTap: () {
-                          close();
-                          context.go(AppRoutes.auth);
-                        }),
-                ],
-              )),
-            ),
+            // Dark in both themes, like the main menu.
+            child: AppDarkChrome(
+                child: Builder(
+                    builder: (drawerContext) => Drawer(
+                          key: const Key('account.drawer'),
+                          width: (MediaQuery.sizeOf(drawerContext).width * .86)
+                              .clamp(0, 320)
+                              .toDouble(),
+                          shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero),
+                          backgroundColor: appPalette(drawerContext).sidebar,
+                          child: SafeArea(
+                              child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _header(drawerContext, close),
+                              const Divider(height: 1),
+                              Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Text(
+                                      auth.isAuthenticated
+                                          ? auth.email ?? 'Signed in'
+                                          : 'Local library',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: appPalette(drawerContext)
+                                              .textPrimary))),
+                              ListTile(
+                                  dense: true,
+                                  leading: const Icon(AppIcons.user, size: 16),
+                                  title: const Text('My Account'),
+                                  onTap: () {
+                                    close();
+                                    context.go(AppRoutes.forKind(
+                                        AppRoutes.account, kind));
+                                  }),
+                              if (auth.isAuthenticated || auth.token != null)
+                                ListTile(
+                                    dense: true,
+                                    leading:
+                                        const Icon(AppIcons.logout, size: 16),
+                                    title: const Text('Logout'),
+                                    onTap: () async {
+                                      final controller = ref.read(
+                                          authControllerProvider.notifier);
+                                      close();
+                                      await _logout(context, controller);
+                                    })
+                              else
+                                ListTile(
+                                    dense: true,
+                                    leading:
+                                        const Icon(AppIcons.login, size: 16),
+                                    title: const Text('Sign in'),
+                                    enabled: !auth.isRestoring,
+                                    onTap: () {
+                                      close();
+                                      context.go(AppRoutes.auth);
+                                    }),
+                            ],
+                          )),
+                        ))),
           );
         }),
       );
