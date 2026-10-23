@@ -85,7 +85,11 @@ content; **Light** is a separate skin with pale toolbars. Earlier references
 to that mixed skin as "light" below mean Default, not the named Light skin.
 Account overview and sidebar were visually checked in both Collectarr themes;
 signed-in logout and preservation of local collections use isolated widget
-tests. This does not claim a new full pass over every editor and view.
+tests. Sign in and session restoration use the app logo, installed build
+version and shared theme palette. Both themes and a narrow viewport were
+visually checked; widget tests cover autofill fields, password visibility,
+keyboard submission, loading/errors and returning to the selected library.
+This does not claim a new full pass over every editor and view.
 
 ### Compared surfaces
 
