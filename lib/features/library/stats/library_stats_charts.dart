@@ -1,0 +1,494 @@
+import 'dart:math' as math;
+
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+/// Reference pie colors, in rank order.
+const statsChartPalette = [
+  Color(0xFFD43D51),
+  Color(0xFFE1604E),
+  Color(0xFFEA8150),
+  Color(0xFFF0A059),
+  Color(0xFFF3BE6A),
+  Color(0xFFD7BC50),
+  Color(0xFFB4BC3C),
+  Color(0xFF88BC32),
+  Color(0xFF4BBA38),
+];
+
+/// A titled statistics panel.
+class StatsSection extends StatelessWidget {
+  const StatsSection({super.key, required this.title, required this.child});
+  final String title;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.only(bottom: 28),
+      child: Container(
+          color: appManagementPanelColor(context),
+          padding: const EdgeInsets.all(10),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Text(title,
+                style:
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 14),
+            child,
+          ])));
+}
+
+/// Sections in two columns on wide pages, filled left to right, as in the
+/// reference; one column on narrow pages.
+class StatsTwoColumns extends StatelessWidget {
+  const StatsTwoColumns({super.key, required this.sections});
+  final List<Widget> sections;
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+      builder: (context, constraints) => constraints.maxWidth >= 800
+          ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              for (var column = 0; column < 2; column++) ...[
+                if (column == 1) const SizedBox(width: 32),
+                Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                      for (var i = column; i < sections.length; i += 2)
+                        sections[i]
+                    ])),
+              ],
+            ])
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: sections));
+}
+
+/// A summary line with bold figures between regular words.
+class StatsSummaryLine extends StatelessWidget {
+  const StatsSummaryLine(
+      {super.key, required this.parts, required this.fontSize});
+  final List<(String, bool)> parts;
+  final double fontSize;
+  @override
+  Widget build(BuildContext context) => Text.rich(
+      TextSpan(children: [
+        for (final (text, bold) in parts)
+          TextSpan(
+              text: text,
+              style: TextStyle(
+                  fontWeight: bold ? FontWeight.w700 : FontWeight.w400)),
+      ]),
+      textAlign: TextAlign.center,
+      style: TextStyle(fontSize: fontSize));
+}
+
+/// Reference legend: a 40 x 12 swatch and the label.
+class StatsLegend extends StatelessWidget {
+  const StatsLegend({super.key, required this.colors});
+  final Map<String, Color> colors;
+  @override
+  Widget build(BuildContext context) =>
+      Wrap(spacing: 16, runSpacing: 6, children: [
+        for (final MapEntry(key: label, value: color) in colors.entries)
+          Row(mainAxisSize: MainAxisSize.min, children: [
+            Container(width: 40, height: 12, color: color),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(fontSize: 12)),
+          ]),
+      ]);
+}
+
+/// One row of a ranked item list: a 90 px cover, a blue title, optional
+/// lines below it, a bottom line and an optional trailing figure.
+class StatsItemTile extends StatelessWidget {
+  const StatsItemTile({
+    super.key,
+    required this.cover,
+    required this.title,
+    this.lines = const [],
+    this.bottom,
+    this.trailing,
+    this.onTap,
+  });
+  final Widget cover;
+  final String title;
+  final List<Widget> lines;
+  final Widget? bottom;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 5),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: appManagementPanelColor(context),
+            boxShadow: const [
+              BoxShadow(
+                  color: Color(0x66000000),
+                  blurRadius: 3,
+                  offset: Offset(0, 1)),
+            ],
+          ),
+          child: InkWell(
+            onTap: onTap,
+            child: SizedBox(
+              height: 100,
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(width: 90, child: cover),
+                      const SizedBox(width: 7),
+                      Expanded(
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                            Text(title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: appPalette(context).utilityAction)),
+                            ...lines,
+                            const Spacer(),
+                            if (bottom != null) bottom!,
+                          ])),
+                      const SizedBox(width: 8),
+                      if (trailing != null) trailing!,
+                    ]),
+              ),
+            ),
+          ),
+        ),
+      );
+}
+
+/// A pie with its legend; counts are in the tooltip.
+class StatsPieChart extends StatelessWidget {
+  const StatsPieChart({
+    super.key,
+    required this.values,
+    required this.emptyLabel,
+    this.colorsByLabel = const {},
+    this.ranked = true,
+    this.valueLabel,
+  });
+  final Map<String, num> values;
+  final String emptyLabel;
+  final Map<String, Color> colorsByLabel;
+
+  /// Largest slice first; otherwise the given order, as for fixed categories.
+  final bool ranked;
+  final String Function(num value)? valueLabel;
+  @override
+  Widget build(BuildContext context) {
+    final slices = values.entries.where((e) => e.value > 0).toList();
+    if (ranked) slices.sort((a, b) => b.value.compareTo(a.value));
+    final total = slices.fold<num>(0, (n, e) => n + e.value);
+    if (total == 0) return Text(emptyLabel);
+    final colors = [
+      for (var i = 0; i < slices.length; i++)
+        colorsByLabel[slices[i].key] ??
+            statsChartPalette[i % statsChartPalette.length]
+    ];
+    final legend = ranked
+        ? {for (var i = 0; i < slices.length; i++) slices[i].key: colors[i]}
+        : colorsByLabel;
+    return Column(children: [
+      StatsLegend(colors: legend),
+      const SizedBox(height: 12),
+      LayoutBuilder(
+          builder: (context, constraints) => SizedBox(
+                height: math.min(420, constraints.maxWidth),
+                width: math.min(420, constraints.maxWidth),
+                child: Tooltip(
+                    message: [
+                      for (final e in slices)
+                        '${e.key}: ${valueLabel?.call(e.value) ?? e.value} '
+                            '(${(e.value / total * 100).toStringAsFixed(1)}%)'
+                    ].join('\n'),
+                    child: CustomPaint(
+                        painter: _PiePainter(
+                            [for (final e in slices) e.value], colors))),
+              )),
+    ]);
+  }
+}
+
+class _PiePainter extends CustomPainter {
+  const _PiePainter(this.values, this.colors);
+  final List<num> values;
+  final List<Color> colors;
+  @override
+  void paint(Canvas canvas, Size size) {
+    final total = values.fold<num>(0, (a, b) => a + b);
+    final side = math.min(size.width, size.height);
+    final rect = Rect.fromCenter(
+        center: size.center(Offset.zero), width: side, height: side);
+    var start = -math.pi / 2;
+    for (var i = 0; i < values.length; i++) {
+      final sweep = values[i] / total * math.pi * 2;
+      canvas.drawArc(rect, start, sweep, true, Paint()..color = colors[i]);
+      start += sweep;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_PiePainter oldDelegate) =>
+      !listEquals(values, oldDelegate.values) ||
+      !listEquals(colors, oldDelegate.colors);
+}
+
+/// Bars ranked by value, or a year area chart with empty years filled in.
+class StatsSeriesChart extends StatelessWidget {
+  const StatsSeriesChart({
+    super.key,
+    required this.values,
+    required this.accent,
+    required this.emptyLabel,
+    required this.valueLabel,
+    this.chronological = false,
+  });
+  final Map<String, num> values;
+  final Color accent;
+  final String emptyLabel;
+  final String Function(num value) valueLabel;
+  final bool chronological;
+  @override
+  Widget build(BuildContext context) {
+    var entries = values.entries.toList();
+    if (chronological) {
+      final years = entries
+          .map((e) => int.tryParse(e.key))
+          .whereType<int>()
+          .toList()
+        ..sort();
+      if (years.isNotEmpty) {
+        entries = [
+          for (var year = years.first; year <= years.last; year++)
+            MapEntry('$year', values['$year'] ?? 0),
+          if (values['Unknown'] case final count?) MapEntry('Unknown', count)
+        ];
+      }
+    } else {
+      entries.sort((a, b) => b.value.compareTo(a.value));
+    }
+    if (entries.isEmpty) return Text(emptyLabel);
+    return _ScrollingPlot(
+        count: entries.length,
+        labels: [for (final e in entries) e.key],
+        tooltips: [for (final e in entries) '${e.key}: ${valueLabel(e.value)}'],
+        painter: (gridColor) => _SeriesPainter(
+            values: [for (final e in entries) e.value],
+            accent: accent,
+            area: chronological,
+            gridColor: gridColor));
+  }
+}
+
+/// Bars split into fixed segments, such as completeness tiers per platform.
+class StatsStackedBarChart extends StatelessWidget {
+  const StatsStackedBarChart({
+    super.key,
+    required this.values,
+    required this.segmentColors,
+    required this.emptyLabel,
+    required this.valueLabel,
+  });
+
+  /// Bar label to segment amounts; segments follow [segmentColors] order.
+  final Map<String, Map<String, num>> values;
+  final Map<String, Color> segmentColors;
+  final String emptyLabel;
+  final String Function(num value) valueLabel;
+  @override
+  Widget build(BuildContext context) {
+    num total(Map<String, num> segments) =>
+        segments.values.fold<num>(0, (a, b) => a + b);
+    final bars = values.entries.where((e) => total(e.value) > 0).toList()
+      ..sort((a, b) => total(b.value).compareTo(total(a.value)));
+    if (bars.isEmpty) return Text(emptyLabel);
+    final segments = segmentColors.keys.toList();
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Center(child: StatsLegend(colors: segmentColors)),
+      const SizedBox(height: 12),
+      _ScrollingPlot(
+          count: bars.length,
+          labels: [for (final bar in bars) bar.key],
+          tooltips: [
+            for (final bar in bars)
+              [
+                bar.key,
+                for (final segment in segments)
+                  if ((bar.value[segment] ?? 0) > 0)
+                    '$segment: ${valueLabel(bar.value[segment]!)}'
+              ].join('\n')
+          ],
+          painter: (gridColor) => _StackedPainter(bars: [
+                for (final bar in bars)
+                  [for (final segment in segments) bar.value[segment] ?? 0]
+              ], colors: segmentColors.values.toList(), gridColor: gridColor)),
+    ]);
+  }
+}
+
+class _ScrollingPlot extends StatelessWidget {
+  const _ScrollingPlot({
+    required this.count,
+    required this.labels,
+    required this.tooltips,
+    required this.painter,
+  });
+  final int count;
+  final List<String> labels;
+  final List<String> tooltips;
+  final CustomPainter Function(Color gridColor) painter;
+  @override
+  Widget build(BuildContext context) => SizedBox(
+      height: 350,
+      child: LayoutBuilder(builder: (context, constraints) {
+        final width = math.max(constraints.maxWidth, count * 54.0);
+        return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+                width: width,
+                child: Column(children: [
+                  Expanded(
+                      child: Stack(children: [
+                    Positioned.fill(
+                        child: CustomPaint(
+                            painter: painter(appPalette(context).divider))),
+                    Positioned.fill(
+                        child: Row(children: [
+                      for (final tooltip in tooltips)
+                        Expanded(
+                            child: Tooltip(
+                                message: tooltip,
+                                child: const SizedBox.expand()))
+                    ])),
+                  ])),
+                  SizedBox(
+                      height: 50,
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            for (final label in labels)
+                              Expanded(
+                                  child: Padding(
+                                      padding: const EdgeInsets.only(top: 6),
+                                      child: Text(label,
+                                          textAlign: TextAlign.center,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style:
+                                              const TextStyle(fontSize: 11))))
+                          ])),
+                ])));
+      }));
+}
+
+void _paintGrid(Canvas canvas, Size size, Color color) {
+  final grid = Paint()
+    ..color = color
+    ..strokeWidth = 1;
+  for (var i = 0; i <= 5; i++) {
+    canvas.drawLine(Offset(0, size.height * i / 5),
+        Offset(size.width, size.height * i / 5), grid);
+  }
+}
+
+class _SeriesPainter extends CustomPainter {
+  const _SeriesPainter(
+      {required this.values,
+      required this.accent,
+      required this.area,
+      required this.gridColor});
+  final List<num> values;
+  final Color accent;
+  final bool area;
+  final Color gridColor;
+  @override
+  void paint(Canvas canvas, Size size) {
+    _paintGrid(canvas, size, gridColor);
+    final maximum = values.reduce(math.max);
+    final step = size.width / values.length;
+    final points = [
+      for (var i = 0; i < values.length; i++)
+        Offset((i + .5) * step,
+            size.height * (1 - values[i] / (maximum > 0 ? maximum : 1)))
+    ];
+    if (area) {
+      final path = Path()..moveTo(points.first.dx, size.height);
+      for (final point in points) {
+        path.lineTo(point.dx, point.dy);
+      }
+      path
+        ..lineTo(points.last.dx, size.height)
+        ..close();
+      canvas.drawPath(path, Paint()..color = accent.withValues(alpha: .45));
+      final line = Path()..moveTo(points.first.dx, points.first.dy);
+      for (final point in points.skip(1)) {
+        line.lineTo(point.dx, point.dy);
+      }
+      canvas.drawPath(
+          line,
+          Paint()
+            ..color = accent
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2);
+      for (final point in points) {
+        canvas.drawCircle(point, 3, Paint()..color = accent);
+      }
+    } else {
+      for (var i = 0; i < points.length; i++) {
+        canvas.drawRect(
+            Rect.fromLTRB(i * step + step * .1, points[i].dy,
+                (i + 1) * step - step * .1, size.height),
+            Paint()..color = accent.withValues(alpha: .65));
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_SeriesPainter old) =>
+      !listEquals(values, old.values) ||
+      accent != old.accent ||
+      area != old.area ||
+      gridColor != old.gridColor;
+}
+
+class _StackedPainter extends CustomPainter {
+  const _StackedPainter(
+      {required this.bars, required this.colors, required this.gridColor});
+  final List<List<num>> bars;
+  final List<Color> colors;
+  final Color gridColor;
+  @override
+  void paint(Canvas canvas, Size size) {
+    _paintGrid(canvas, size, gridColor);
+    final maximum =
+        bars.map((bar) => bar.fold<num>(0, (a, b) => a + b)).reduce(math.max);
+    final step = size.width / bars.length;
+    for (var i = 0; i < bars.length; i++) {
+      var bottom = size.height;
+      for (var s = 0; s < bars[i].length; s++) {
+        final height = size.height * bars[i][s] / maximum;
+        if (height <= 0) continue;
+        canvas.drawRect(
+            Rect.fromLTRB(i * step + step * .1, bottom - height,
+                (i + 1) * step - step * .1, bottom),
+            Paint()..color = colors[s]);
+        bottom -= height;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_StackedPainter old) =>
+      bars.length != old.bars.length ||
+      !listEquals(colors, old.colors) ||
+      gridColor != old.gridColor ||
+      [for (var i = 0; i < bars.length; i++) !listEquals(bars[i], old.bars[i])]
+          .any((changed) => changed);
+}

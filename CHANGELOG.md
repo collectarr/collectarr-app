@@ -32,6 +32,7 @@
 ### ♻️ Refactors
 - Personal tags are stored as lists so tags can contain commas; existing entries and pending Sync changes upgrade together in one migration from the released schema.
 - Manual Add footers, Add choice menus and front/back image controls share behavior across libraries.
+- Statistics charts, legends and ranked lists are shared components, ready for libraries other than Music.
 - Games and Hardware lists share one platform icon component instead of Hardware borrowing it from Games.
 
 ### 📚 Docs
