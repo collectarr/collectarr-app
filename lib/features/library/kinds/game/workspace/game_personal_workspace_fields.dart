@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
@@ -261,7 +262,31 @@ abstract final class GamePersonalWorkspaceFields {
     getValue: (context) => _entry(context)?.personal.tags ?? const <String>[],
   );
 
+  static final loanedTo =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: const LibraryFieldId('game.loaned_to'),
+    metadata: GameWorkspaceFieldMetadata.loanedTo,
+    getValue: (context) => _activeLoan(context)?.borrowerName,
+  );
+
+  static final loanDate =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, DateTime?>(
+    id: const LibraryFieldId('game.loan_date'),
+    metadata: GameWorkspaceFieldMetadata.loanDate,
+    getValue: (context) => _activeLoan(context)?.lentDate,
+  );
+
+  static final dueDate =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, DateTime?>(
+    id: const LibraryFieldId('game.due_date'),
+    metadata: GameWorkspaceFieldMetadata.dueDate,
+    getValue: (context) => _activeLoan(context)?.dueDate,
+  );
+
   static final all = [
+    loanedTo,
+    loanDate,
+    dueDate,
     purchaseDate,
     purchaseYear,
     purchaseStore,
@@ -301,6 +326,12 @@ abstract final class GamePersonalWorkspaceFields {
     manualOnlyPrice,
   ];
 }
+
+/// The copy's loan that has not been returned, as the reference shows it.
+Loan? _activeLoan(LibraryProjectionContext<GameWorkspaceDto> context) =>
+    context.personal.loans
+        .where((loan) => loan.returnedDate == null)
+        .firstOrNull;
 
 PartialDate? _purchase(LibraryProjectionContext<GameWorkspaceDto> context) {
   final personal = _entry(context)?.personal;

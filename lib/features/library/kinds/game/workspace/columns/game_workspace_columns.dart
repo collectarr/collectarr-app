@@ -229,6 +229,25 @@ final gamePersonalWorkspaceColumns = [
   ),
 ];
 
+/// Columns of the copy's open loan, in the reference Loan group.
+final gameLoanWorkspaceColumns = [
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GamePersonalWorkspaceFields.loanedTo,
+    group: 'Loan',
+    defaultWidth: 130,
+  ),
+  for (final field in [
+    GamePersonalWorkspaceFields.loanDate,
+    GamePersonalWorkspaceFields.dueDate,
+  ])
+    columnFromField<GameKind, GameWorkspaceDto, DateTime?>(
+      field,
+      cellValue: (context) => Text(formatGameDate(field.getValue(context))),
+      group: 'Loan',
+      defaultWidth: 112,
+    ),
+];
+
 LibraryColumnDefinition<GameKind, GameWorkspaceDto, bool?> _yesNoColumn(
   LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool?> field,
   String label,

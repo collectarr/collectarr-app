@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
@@ -137,6 +138,44 @@ void main() {
         'In Collection');
     expect(GamePersonalWorkspaceFields.completionStatus.metadata.label,
         'Collection Status');
+  });
+
+  test('Loan columns read the open loan only', () {
+    const ref = LibraryEntryRef(
+        kind: CatalogMediaKind.game, id: LibraryEntryId('lent'));
+    const metadata = GameCatalogMetadata(title: 'Fictional Game');
+    final context = LibraryProjectionContext(
+      item: WorkspaceItem(
+        target: const CatalogTargetRef(
+            CatalogItemRef(kind: CatalogMediaKind.game, id: 'lent')),
+      ),
+      personal: PersonalOverlay(loans: [
+        Loan(
+            id: 'returned',
+            libraryEntryRef: ref,
+            borrowerName: 'Former Borrower',
+            lentDate: DateTime.utc(2025),
+            returnedDate: DateTime.utc(2025, 2)),
+        Loan(
+            id: 'open',
+            libraryEntryRef: ref,
+            borrowerName: 'Alex QA',
+            lentDate: DateTime.utc(2026, 3, 4),
+            dueDate: DateTime.utc(2026, 4, 5)),
+      ]),
+      sorting: const LibrarySortingOptions(),
+      dto: GameWorkspaceDto(
+        common: const WorkspaceCommonProjection(title: 'Fictional Game'),
+        personal: PersonalEntryProjection(),
+        metadata: metadata,
+      ),
+    );
+
+    expect(GamePersonalWorkspaceFields.loanedTo.getValue(context), 'Alex QA');
+    expect(GamePersonalWorkspaceFields.loanDate.getValue(context),
+        DateTime.utc(2026, 3, 4));
+    expect(GamePersonalWorkspaceFields.dueDate.getValue(context),
+        DateTime.utc(2026, 4, 5));
   });
 
   test('resolvePlatformIcon maps platforms correctly', () {

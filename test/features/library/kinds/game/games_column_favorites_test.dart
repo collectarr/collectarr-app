@@ -80,6 +80,9 @@ void main() {
       'Quantity': 'Personal',
       'Storage': 'Personal',
       'Tags': 'Personal',
+      'Loaned To': 'Loan',
+      'Loan Date': 'Loan',
+      'Due Date': 'Loan',
     };
     for (final MapEntry(:key, :value) in expected.entries) {
       expect(columns[key], value, reason: key);

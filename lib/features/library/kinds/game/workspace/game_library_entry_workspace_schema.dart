@@ -23,6 +23,7 @@ final gameLibraryEntryWorkspaceSchema =
   columns: [
     ...gameCatalogWorkspaceColumns,
     ...gamePersonalWorkspaceColumns,
+    ...gameLoanWorkspaceColumns,
   ],
   sorts: [
     ...gameCatalogWorkspaceSorts,

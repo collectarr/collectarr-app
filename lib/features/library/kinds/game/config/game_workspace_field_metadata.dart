@@ -603,7 +603,37 @@ abstract final class GameWorkspaceFieldMetadata {
     groupable: true,
   );
 
+  static const loanedTo = LibraryKindFieldMetadata(
+    id: 'game.loaned_to',
+    label: 'Loaned To',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'loans[].borrower_name',
+  );
+
+  static const loanDate = LibraryKindFieldMetadata(
+    id: 'game.loan_date',
+    label: 'Loan Date',
+    valueType: LibraryFieldValueType.date,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'loans[].lent_date',
+  );
+
+  static const dueDate = LibraryKindFieldMetadata(
+    id: 'game.due_date',
+    label: 'Due Date',
+    valueType: LibraryFieldValueType.date,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'loans[].due_date',
+  );
+
   static const all = <LibraryKindFieldMetadata>[
+    loanedTo,
+    loanDate,
+    dueDate,
     addedAt,
     addedDateTime,
     addedYear,
