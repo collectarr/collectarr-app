@@ -3813,13 +3813,17 @@
     },
     "game_hardware": {
       "tables": [],
-      "workspaceIdSources": [],
+      "workspaceIdSources": [
+        "lib/features/library/kinds/game_hardware/workspace/game_hardware_ids.dart"
+      ],
       "mapperSources": [],
       "fields": {}
     },
     "game_toy": {
       "tables": [],
-      "workspaceIdSources": [],
+      "workspaceIdSources": [
+        "lib/features/library/kinds/game_toy/workspace/game_toy_ids.dart"
+      ],
       "mapperSources": [],
       "fields": {}
     },
