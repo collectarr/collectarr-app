@@ -9,6 +9,12 @@
   user-facing line in the matching section (Features, Fixes, Refactors, Docs,
   CI & Build), describing the effect rather than files or internals. The
   Release workflow turns these entries into the release notes.
+- Fixes and Refactors entries only cover behavior or code that shipped in a
+  published release. Changes to work that is still unreleased (for example a
+  kind added since the last tag) get no Fixes/Refactors line; update that
+  work's Features entry instead if its user-facing effect changed. Check with
+  `git show <last tag>:<path>` when unsure. The commit type still follows the
+  change itself.
 - Run `dart run tool/ci_check.dart` before pushing; it runs the same checks as
   CI (add `--integration` for the native flows).
 - Merge pull requests with several commits using "Rebase and merge", so each

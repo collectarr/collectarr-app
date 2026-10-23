@@ -8,7 +8,7 @@
 - The header account menu opens an overview of all local libraries, sync status and activity, and signs out without removing local collections.
 - Hardware has platform/device filters and personal serial numbers; Toys has its own classification, completeness and images.
 - Games supports platform and region search, atomic completeness and packaging values, purchase details, completion and storage tracking, front/back covers and trailers.
-- Games inventories include folders, sorting, columns, cards, details panels, guided CLZ XML import and lossless native CSV transfer.
+- Games inventories include folders, sorting, columns (including Series, Collection Status and Completed), cards, details panels, guided CLZ XML import and lossless native CSV transfer.
 - Libraries can provide default folder favorites; clearing saved favorites keeps them empty.
 - Games, Hardware and Toys collection tabs show their kind icon.
 - Hardware and Toys workspaces offer the full set of folder groups, including tags, dates and value categories.
@@ -26,26 +26,17 @@
 - Sign in uses the app logo, current light/dark themes and the installed version, with a layout that fits narrow screens and the on-screen keyboard.
 - Library and appearance sliders keep the Windows accessibility tree valid during startup and navigation, preserving keyboard and screen-reader controls.
 - The light theme applies at startup and uses consistent content areas, editor fields, toolbars and collection tabs.
-- Games inventories use distinct original collection icons; the library switcher reaches the right edge with its arrow aligned to the icon in both themes.
+- The library switcher reaches the right edge with its arrow aligned to the icon in both themes.
 - List views use the reference's gray canvas in dark mode and white canvas in light mode instead of the cover-grid background.
 - Pick-list fields preserve spaces when typing a new value.
 - Horizontal cards keep labels and value/status badges readable at compact widths and in the light theme.
 - The sorting favorites button remains readable in the light theme.
-- Games, Hardware and Toys lists show dates in the chosen date format, such as Nov 14, 2014, instead of always 2014-11-14.
-- The Games details panel shows the Format of imported games, such as Steam Download, above the genres.
-- List headers of narrow icon columns stay empty instead of showing clipped labels, and the default Games list no longer adds a cover column.
-- The library switcher lists Games once instead of three identical Games entries; Hardware and Toys open from the Games collection tabs.
-- The Games field that holds the collection status is labelled Collection Status instead of Completion, and a separate Completed field reads whether a game was finished.
-- Changing a purchase date on a game, hardware or toy updates its date folders and keeps year-only dates intact when other personal details are saved.
-- The Games Series column shows each game's series instead of staying empty.
-- Manage Pick Lists for Games no longer offers unused Age Rating and "Edition / Format" lists; Edition stays free text and Audience Rating is the rating list, as in CLZ.
-- The main menu's link entry names the open library's items, such as Link Games, instead of always saying Link Albums.
+- List headers of narrow icon columns stay empty instead of showing clipped labels.
 
 ### ♻️ Refactors
 - Personal tags are stored as lists so tags can contain commas; existing entries and pending Sync changes upgrade together in one migration from the released schema.
 - Manual Add footers, Add choice menus and front/back image controls share behavior across libraries.
 - Statistics charts, legends and ranked lists are shared components, ready for libraries other than Music.
-- Games and Hardware lists share one platform icon component instead of Hardware borrowing it from Games.
 
 ### 📚 Docs
 - The living CLZ comparison records Games, Hardware and Toys workflows, deliberate differences and remaining gaps, including Statistics, Pre-fill, pick lists and menus.
