@@ -63,6 +63,7 @@ Future<LibraryMetadataSearchPage> searchAndCacheLibraryMetadataPage({
     barcode: input.barcode,
     limit: input.limit,
     offset: input.offset,
+    fieldFilters: input.fieldFilters,
     cancelToken: cancelToken,
   );
   await catalog.upsertTransports(

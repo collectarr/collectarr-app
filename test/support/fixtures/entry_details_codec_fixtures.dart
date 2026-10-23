@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
@@ -78,6 +80,16 @@ EntryDetailsTestFixture entryDetailsFixtureForTest(CatalogMediaKind kind) {
     CatalogMediaKind.game => _TypedEntryDetailsTestFixture<GameEntryDetails>(
         decode: const GameEntryDetailsCodec().fromJson,
         defaults: const GameEntryDetailsCodec().defaultDetails,
+      ),
+    CatalogMediaKind.gameHardware =>
+      _TypedEntryDetailsTestFixture<GameHardwareEntryDetails>(
+        decode: const GameHardwareEntryDetailsCodec().fromJson,
+        defaults: const GameHardwareEntryDetailsCodec().defaultDetails,
+      ),
+    CatalogMediaKind.gameToy =>
+      _TypedEntryDetailsTestFixture<GameToyEntryDetails>(
+        decode: const GameToyEntryDetailsCodec().fromJson,
+        defaults: const GameToyEntryDetailsCodec().defaultDetails,
       ),
     CatalogMediaKind.manga => _TypedEntryDetailsTestFixture<MangaEntryDetails>(
         decode: const MangaEntryDetailsCodec().fromJson,

@@ -89,9 +89,8 @@ Map<String, Object?> _buildKindManifest(String repoRoot, String kind) {
       .where((file) => p.basename(file.path).endsWith('_tables.dart'))
       .toList()
     ..sort((left, right) => left.path.compareTo(right.path));
-  if (tableFiles.isEmpty) {
-    throw StateError('No Drift *_tables.dart found for kind "$kind".');
-  }
+  // Kinds backed entirely by LibraryEntries do not need private Drift tables.
+  // Keep scanning their workspace IDs and aliases for ownership checks.
 
   final tables = <_TableSchema>[];
   for (final file in tableFiles) {
@@ -105,7 +104,7 @@ Map<String, Object?> _buildKindManifest(String repoRoot, String kind) {
     result.unit.accept(collector);
     tables.addAll(collector.tables);
   }
-  if (tables.isEmpty) {
+  if (tableFiles.isNotEmpty && tables.isEmpty) {
     throw StateError('No Drift Table declarations found for kind "$kind".');
   }
 

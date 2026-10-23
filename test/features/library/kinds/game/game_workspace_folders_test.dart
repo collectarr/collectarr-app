@@ -27,21 +27,17 @@ void main() {
       'Images',
       'Main',
       'Value',
-      'Toy',
       'Edition',
       'Personal',
     ]);
     expect(GameGroupingField.hasFront.category, 'Images');
     expect(GameGroupingField.hasBack.category, 'Images');
     expect(GameGroupingField.imageType.category, 'Images');
-    expect(GameGroupingField.toySubtype.category, 'Toy');
-    expect(GameGroupingField.toyType.category, 'Toy');
     expect(GameGroupingField.completeness.category, 'Value');
     expect(GameGroupingField.storageDevice.category, 'Personal');
   });
 
-  test('Games columns include platform icon, developer, genre, and toy fields',
-      () {
+  test('Games columns include platform icon, developer and genre fields', () {
     final entry = gameLibraryEntryWorkspaceSchema.toRegistry();
     final catalog = gameCatalogItemWorkspaceSchema.toRegistry();
     final entryCols = entry.columns.map((c) => c.id.value).toSet();
@@ -51,8 +47,8 @@ void main() {
     expect(catalogCols, contains(GameFieldIds.platformIcon.value));
     expect(entryCols, contains(GameFieldIds.developer.value));
     expect(entryCols, contains(GameFieldIds.genre.value));
-    expect(entryCols, contains(GameFieldIds.toyType.value));
-    expect(entryCols, contains(GameFieldIds.toySubtype.value));
+    expect(entryCols, isNot(contains('game.toy_type')));
+    expect(entryCols, isNot(contains('game.toy_subtype')));
 
     expect(gameLibraryEntryWorkspaceDefaultVisibleColumns.map((c) => c.value),
         contains(GameFieldIds.platformIcon.value));

@@ -9,7 +9,7 @@ void main() {
         CatalogMediaKind.values.where((kind) => !kind.isUnknown).toSet();
 
     expect(kindContractManifest.activeKinds, equals(enumKinds));
-    expect(kindContractManifest.activeKinds, hasLength(9));
+    expect(kindContractManifest.activeKinds, hasLength(11));
   });
 
   test('every mandatory contract includes every active kind', () {
@@ -108,7 +108,8 @@ void main() {
     );
     expect(
       kindContractManifest.optionalParticipants['tracking'],
-      equals(kindContractManifest.activeKinds),
+      equals(kindContractManifest.activeKinds.difference(
+          {CatalogMediaKind.gameHardware, CatalogMediaKind.gameToy})),
     );
     expect(
       kindContractManifest.optionalParticipants['calendar'],

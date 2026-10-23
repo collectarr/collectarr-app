@@ -1,3 +1,5 @@
+import 'package:go_router/go_router.dart';
+import 'package:collectarr_app/features/library/collections/library_collection_family.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
@@ -36,7 +38,11 @@ class _LibraryCollectionTabBarState
     ids.insert(newIndex, id);
     setState(() => _pendingOrder = ids);
     try {
-      await repo.reorder(widget.mediaKind, ids);
+      await repo.reorderKinds(
+          collectionFamilyKinds(widget.mediaKind)
+              .map((kind) => kind.kind.apiValue)
+              .toSet(),
+          ids);
     } catch (_) {
       if (mounted) setState(() => _pendingOrder = null);
       rethrow;
@@ -45,7 +51,8 @@ class _LibraryCollectionTabBarState
 
   @override
   Widget build(BuildContext context) {
-    final collections = ref.watch(libraryCollectionsProvider(widget.mediaKind));
+    final collections =
+        ref.watch(libraryCollectionFamilyProvider(widget.mediaKind));
     final repo = LibraryCollectionRepository(ref.watch(localDatabaseProvider));
     final saved =
         collections.asData?.value ?? const <LibraryCollectionSummary>[];
@@ -64,10 +71,17 @@ class _LibraryCollectionTabBarState
       WidgetsBinding.instance.addPostFrameCallback((_) => _clearPending());
     }
     final accent = widget.accent;
-    final activeId = activeLibraryCollectionId(saved);
+    final activeId = activeLibraryCollectionId(saved
+        .where((collection) => collection.kind == widget.mediaKind)
+        .toList());
     Future<void> select(LibraryCollectionSummary collection) async {
       await repo.activate(collection.id);
-      widget.onCollectionSelected?.call(collection);
+      if (!context.mounted) return;
+      if (collection.kind != widget.mediaKind) {
+        context.go('/libraries?kind=${collection.kind}');
+      } else {
+        widget.onCollectionSelected?.call(collection);
+      }
     }
 
     // The collection tab bar stays dark in both themes.

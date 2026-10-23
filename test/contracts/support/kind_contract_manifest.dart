@@ -6,6 +6,8 @@ const activeTypedKinds = <CatalogMediaKind>{
   CatalogMediaKind.anime,
   CatalogMediaKind.book,
   CatalogMediaKind.game,
+  CatalogMediaKind.gameHardware,
+  CatalogMediaKind.gameToy,
   CatalogMediaKind.boardgame,
   CatalogMediaKind.movie,
   CatalogMediaKind.tv,
@@ -93,7 +95,27 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.anime,
       CatalogMediaKind.tv,
     },
-    'tracking': activeTypedKinds,
-    'hierarchy': activeTypedKinds,
+    'tracking': {
+      CatalogMediaKind.anime,
+      CatalogMediaKind.boardgame,
+      CatalogMediaKind.book,
+      CatalogMediaKind.comic,
+      CatalogMediaKind.game,
+      CatalogMediaKind.manga,
+      CatalogMediaKind.movie,
+      CatalogMediaKind.music,
+      CatalogMediaKind.tv
+    },
+    'hierarchy': {
+      CatalogMediaKind.anime,
+      CatalogMediaKind.boardgame,
+      CatalogMediaKind.book,
+      CatalogMediaKind.comic,
+      CatalogMediaKind.game,
+      CatalogMediaKind.manga,
+      CatalogMediaKind.movie,
+      CatalogMediaKind.music,
+      CatalogMediaKind.tv
+    },
   },
 );

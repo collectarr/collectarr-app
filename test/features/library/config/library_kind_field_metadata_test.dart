@@ -276,8 +276,8 @@ void main() {
     expect(MusicWorkspaceFieldMetadata.storageSlot.sortable, isFalse);
   });
 
-  test('all nine workspace targets register fields with matching metadata', () {
-    expect(collectarrKindWorkspaces, hasLength(9));
+  test('all workspace targets register fields with matching metadata', () {
+    expect(collectarrKindWorkspaces, hasLength(11));
 
     for (final workspace in collectarrKindWorkspaces.values) {
       for (final registry in [workspace.fields, workspace.libraryEntryFields]) {

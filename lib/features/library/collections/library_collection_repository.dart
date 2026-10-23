@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -44,14 +45,16 @@ final class LibraryCollectionRepository {
     ];
   }
 
-  Future<String> ensureDefault(String kind) => db.transaction(() async {
+  Future<String> ensureDefault(String kind,
+          {String name = 'Main Collection'}) =>
+      db.transaction(() async {
         var collections = await list(kind);
         if (collections.isEmpty) {
           await db.into(db.libraryCollections).insert(
               LibraryCollectionsCompanion.insert(
                   id: 'main-$kind',
                   kind: kind,
-                  name: 'Main Collection',
+                  name: name,
                   position: 0,
                   isActive: const Value(true)),
               mode: InsertMode.insertOrIgnore);
@@ -90,20 +93,31 @@ final class LibraryCollectionRepository {
             .write(const LibraryCollectionsCompanion(isActive: Value(true)));
       });
 
-  Stream<List<LibraryCollectionSummary>> watch(String kind) async* {
-    await ensureDefault(kind);
+  Stream<List<LibraryCollectionSummary>> watch(String kind) =>
+      watchKinds({kind: 'Main Collection'});
+
+  Stream<List<LibraryCollectionSummary>> watchKinds(
+      Map<String, String> kinds) async* {
+    if (kinds.isEmpty) {
+      throw ArgumentError('Choose at least one collection kind.');
+    }
+    for (final entry in kinds.entries) {
+      await ensureDefault(entry.key, name: entry.value);
+    }
     yield* db
         .customSelect('''SELECT c.id, c.kind, c.name, c.position, c.is_active, e.id AS entry_id
       FROM library_collections c
       LEFT JOIN library_collection_memberships m ON m.collection_id = c.id AND m.entry_kind = c.kind
       LEFT JOIN library_entries e ON e.kind = m.entry_kind AND e.id = m.entry_id AND e.deleted_at IS NULL
-      WHERE c.kind = ? ORDER BY c.position''', variables: [
-          Variable(kind)
-        ], readsFrom: {
-          db.libraryCollections,
-          db.libraryCollectionMemberships,
-          db.libraryEntries
-        })
+      WHERE c.kind IN (${List.filled(kinds.length, '?').join(',')}) ORDER BY c.position, c.kind, c.id''',
+            variables: [
+              for (final kind in kinds.keys) Variable(kind)
+            ],
+            readsFrom: {
+              db.libraryCollections,
+              db.libraryCollectionMemberships,
+              db.libraryEntries
+            })
         .watch()
         .map((rows) {
           final entries = <String, Set<String>>{};
@@ -135,7 +149,8 @@ final class LibraryCollectionRepository {
         });
   }
 
-  Future<LibraryCollectionSummary> create(String kind, String name) =>
+  Future<LibraryCollectionSummary> create(String kind, String name,
+          {int? position}) =>
       db.transaction(() async {
         _requireKind(kind);
         final normalized = _name(name);
@@ -145,12 +160,18 @@ final class LibraryCollectionRepository {
           throw ArgumentError('A collection with this name already exists.');
         }
         final id = const Uuid().v4();
-        final position = current.length;
+        final nextPosition = position ??
+            (current.isEmpty
+                ? 0
+                : current
+                        .map((item) => item.position)
+                        .reduce((a, b) => a > b ? a : b) +
+                    1);
         await db.into(db.libraryCollections).insert(
             LibraryCollectionsCompanion.insert(
-                id: id, kind: kind, name: normalized, position: position));
+                id: id, kind: kind, name: normalized, position: nextPosition));
         return LibraryCollectionSummary(
-            id: id, kind: kind, name: normalized, position: position);
+            id: id, kind: kind, name: normalized, position: nextPosition);
       });
 
   Future<void> rename(String id, String name) => db.transaction(() async {
@@ -211,8 +232,11 @@ final class LibraryCollectionRepository {
       });
 
   Future<void> reorder(String kind, List<String> ids) =>
+      reorderKinds({kind}, ids);
+
+  Future<void> reorderKinds(Set<String> kinds, List<String> ids) =>
       db.transaction(() async {
-        final existing = await list(kind);
+        final existing = [for (final kind in kinds) ...await list(kind)];
         if (ids.toSet().length != ids.length ||
             ids.length != existing.length ||
             !ids.toSet().containsAll(existing.map((c) => c.id))) {
@@ -255,7 +279,12 @@ final class LibraryCollectionRepository {
 final libraryCollectionsProvider = StreamProvider.autoDispose
     .family<List<LibraryCollectionSummary>, String>((ref, kind) =>
         LibraryCollectionRepository(ref.watch(localDatabaseProvider))
-            .watch(kind));
+            .watchKinds({
+          kind: defaultLibraryKindRegistry
+              .require(catalogMediaKindFromApiValue(kind))
+              .identity
+              .defaultCollectionName
+        }));
 String? activeLibraryCollectionId(List<LibraryCollectionSummary> collections) =>
     (collections.where((c) => c.isActive).firstOrNull ??
             collections.firstOrNull)

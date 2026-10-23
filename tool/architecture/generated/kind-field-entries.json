@@ -3757,30 +3757,6 @@
             "game.title"
           ]
         },
-        "toySubtype": {
-          "symbols": [
-            "toySubtype",
-            "toy_subtype"
-          ],
-          "databaseColumns": [],
-          "databaseTables": [],
-          "sqlNames": [],
-          "workspaceFieldIds": [
-            "game.toy_subtype"
-          ]
-        },
-        "toyType": {
-          "symbols": [
-            "toyType",
-            "toy_type"
-          ],
-          "databaseColumns": [],
-          "databaseTables": [],
-          "sqlNames": [],
-          "workspaceFieldIds": [
-            "game.toy_type"
-          ]
-        },
         "updatedAt": {
           "symbols": [
             "updatedAt",
@@ -3823,6 +3799,18 @@
           ]
         }
       }
+    },
+    "game_hardware": {
+      "tables": [],
+      "workspaceIdSources": [],
+      "mapperSources": [],
+      "fields": {}
+    },
+    "game_toy": {
+      "tables": [],
+      "workspaceIdSources": [],
+      "mapperSources": [],
+      "fields": {}
     },
     "manga": {
       "tables": [

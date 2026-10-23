@@ -74,19 +74,21 @@ class CollectarrApiClient {
     required String id,
     CancelToken? cancelToken,
   }) async {
-    final route = switch (kind) {
-      CatalogMediaKind.anime => 'anime',
-      CatalogMediaKind.boardgame => 'boardgames',
-      CatalogMediaKind.book => 'books',
-      CatalogMediaKind.comic => 'comics',
-      CatalogMediaKind.game => 'games',
-      CatalogMediaKind.manga => 'manga',
-      CatalogMediaKind.movie => 'movies',
-      CatalogMediaKind.music => 'music',
-      CatalogMediaKind.tv => 'tv',
-      CatalogMediaKind.unknown =>
-        throw UnsupportedError('Unknown Catalog Item kind.'),
+    const routes = <CatalogMediaKind, String>{
+      CatalogMediaKind.anime: 'anime',
+      CatalogMediaKind.boardgame: 'boardgames',
+      CatalogMediaKind.book: 'books',
+      CatalogMediaKind.comic: 'comics',
+      CatalogMediaKind.game: 'games',
+      CatalogMediaKind.gameHardware: 'game-hardware',
+      CatalogMediaKind.gameToy: 'game-toys',
+      CatalogMediaKind.manga: 'manga',
+      CatalogMediaKind.movie: 'movies',
+      CatalogMediaKind.music: 'music',
+      CatalogMediaKind.tv: 'tv',
     };
+    final route = routes[kind];
+    if (route == null) throw UnsupportedError('Unknown Catalog Item kind.');
     final response = await _dio.get<Map<String, dynamic>>(
       '/api/v1/metadata/$route/items/${Uri.encodeComponent(id)}',
       cancelToken: cancelToken,

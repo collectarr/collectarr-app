@@ -32,9 +32,17 @@ void main() {
     final raw = File(
       'tool/core_contracts/metadata-field-schema.json',
     ).readAsStringSync();
-    schema = MetadataFieldSchema.fromJson(
-      jsonDecode(raw) as Map<String, dynamic>,
-    );
+    final allKinds =
+        MetadataFieldSchema.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    // This shared descriptor contract is the Music baseline. Other kinds own
+    // typed editors and are checked in their field-adoption contracts.
+    schema = MetadataFieldSchema(
+        schemaVersion: allKinds.schemaVersion,
+        kindFields: allKinds.kindFields,
+        sections: allKinds.sections,
+        fields: allKinds.fields
+            .where((field) => field.kinds.contains('music'))
+            .toList());
   });
 
   test('core field schema fixture parses into the app model', () {

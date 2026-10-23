@@ -49,7 +49,9 @@ void main() {
       // Music and Game have dedicated editors and do not participate in the
       // retired generic edit-tab renderer.
       if (runtime.kind == CatalogMediaKind.music ||
-          runtime.kind == CatalogMediaKind.game) {
+          runtime.kind == CatalogMediaKind.game ||
+          runtime.kind == CatalogMediaKind.gameHardware ||
+          runtime.kind == CatalogMediaKind.gameToy) {
         continue;
       }
       for (final context in _editContexts) {

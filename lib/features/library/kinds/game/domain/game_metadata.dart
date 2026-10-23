@@ -227,8 +227,6 @@ final class GameCatalogMetadata implements JsonEncodable {
     this.seriesTitle,
     this.links = const [],
     this.variantName,
-    this.toySubtype,
-    this.toyType,
     this.creators = const [],
   });
 
@@ -279,8 +277,6 @@ final class GameCatalogMetadata implements JsonEncodable {
   final String? variantName;
 
   // Game classification values are part of the typed Core document.
-  final String? toySubtype;
-  final String? toyType;
   final List<GameCatalogPersonCredit> creators;
 
   DateTime? get releaseDate => releaseDateParts?.asDateTime;
@@ -346,8 +342,6 @@ final class GameCatalogMetadata implements JsonEncodable {
               .map((link) => link.toJson())
               .toList(growable: false),
         if (variantName != null) 'variant_name': variantName,
-        if (toySubtype != null) 'toy_subtype': toySubtype,
-        if (toyType != null) 'toy_type': toyType,
       };
 
   GameCatalogMetadata copyWith({
@@ -392,8 +386,6 @@ final class GameCatalogMetadata implements JsonEncodable {
     String? seriesTitle,
     List<GameCatalogLink>? links,
     String? variantName,
-    String? toySubtype,
-    String? toyType,
     List<GameCatalogPersonCredit>? creators,
   }) =>
       GameCatalogMetadata(
@@ -438,8 +430,6 @@ final class GameCatalogMetadata implements JsonEncodable {
         seriesTitle: seriesTitle ?? this.seriesTitle,
         links: links ?? this.links,
         variantName: variantName ?? this.variantName,
-        toySubtype: toySubtype ?? this.toySubtype,
-        toyType: toyType ?? this.toyType,
         creators: creators ?? this.creators,
       );
 
@@ -502,8 +492,6 @@ final class GameCatalogMetadata implements JsonEncodable {
       seriesTitle: _text(json['series_title']),
       links: links,
       variantName: _text(json['variant_name']),
-      toySubtype: _text(json['toy_subtype']),
-      toyType: _text(json['toy_type']),
       creators: creatorRows,
     );
   }

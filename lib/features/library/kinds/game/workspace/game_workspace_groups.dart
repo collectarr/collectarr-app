@@ -31,8 +31,6 @@ enum GameGroupingField {
   purchaseStore('purchase_store', 'Purchase Store', 'Value'),
   purchaseYear('purchase_year', 'Purchase Year', 'Value'),
   valueLocked('value_locked', 'Value Locked', 'Value'),
-  toySubtype('toy_subtype', 'Subtype', 'Toy'),
-  toyType('toy_type', 'Type', 'Toy'),
   edition('edition', 'Edition', 'Edition'),
   format('format', 'Format', 'Edition'),
   region('region', 'Region', 'Edition'),
@@ -68,7 +66,6 @@ const gameGroupingCategories = [
   'Images',
   'Main',
   'Value',
-  'Toy',
   'Edition',
   'Personal',
 ];
@@ -92,7 +89,6 @@ List<LibraryGroupDefinition<GameKind, GameWorkspaceDto, Object?>>
                   'Personal' => Icons.person_outline,
                   'Value' => Icons.attach_money,
                   'Edition' => Icons.album_outlined,
-                  'Toy' => Icons.toys_outlined,
                   _ => Icons.folder_outlined,
                 },
                 getValue: (context) => _groupValue(field, context),
@@ -133,8 +129,6 @@ Object? _groupValue(
               _ => type,
             })
         .toList(),
-    GameGroupingField.toySubtype => metadata.toySubtype,
-    GameGroupingField.toyType => metadata.toyType,
     GameGroupingField.audienceRating => metadata.audienceRating,
     GameGroupingField.developer => metadata.developers,
     GameGroupingField.genre => metadata.genres,

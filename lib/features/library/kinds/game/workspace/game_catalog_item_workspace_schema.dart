@@ -91,18 +91,6 @@ abstract final class GameCatalogItemWorkspaceFields {
     metadata: GameWorkspaceFieldMetadata.platformIcon,
     getValue: (context) => context.dto.platform,
   );
-
-  static final toyType = textField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.toyType,
-    metadata: GameWorkspaceFieldMetadata.toyType,
-    getValue: (dto) => dto.toyType,
-  );
-
-  static final toySubtype = textField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.toySubtype,
-    metadata: GameWorkspaceFieldMetadata.toySubtype,
-    getValue: (dto) => dto.toySubtype,
-  );
 }
 
 final gameCatalogItemWorkspaceFieldDefinitions = [
@@ -119,8 +107,6 @@ final gameCatalogItemWorkspaceFieldDefinitions = [
   GameCatalogItemWorkspaceFields.series,
   GameCatalogItemWorkspaceFields.ageRating,
   GameCatalogItemWorkspaceFields.region,
-  GameCatalogItemWorkspaceFields.toyType,
-  GameCatalogItemWorkspaceFields.toySubtype,
 ];
 
 final gameCatalogItemWorkspaceGroupDefinitions =
@@ -224,16 +210,6 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
     GameCatalogItemWorkspaceFields.franchise,
     group: 'Classification',
     defaultWidth: 130,
-  ),
-  columnFromField<GameKind, GameWorkspaceDto, String?>(
-    GameCatalogItemWorkspaceFields.toyType,
-    group: 'Toy',
-    defaultWidth: 120,
-  ),
-  columnFromField<GameKind, GameWorkspaceDto, String?>(
-    GameCatalogItemWorkspaceFields.toySubtype,
-    group: 'Toy',
-    defaultWidth: 120,
   ),
 ];
 

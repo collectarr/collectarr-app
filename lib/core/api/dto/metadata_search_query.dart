@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 final class MetadataSearchQuery {
   const MetadataSearchQuery({
     this.query,
@@ -10,6 +12,7 @@ final class MetadataSearchQuery {
     this.catalogNumber,
     this.limit,
     this.offset,
+    this.fieldFilters = const {},
   });
 
   final String? query;
@@ -23,6 +26,9 @@ final class MetadataSearchQuery {
   final int? limit;
   final int? offset;
 
+  /// Catalog-owned scalar filters; the shared request carries their wire values.
+  final Map<String, List<String>> fieldFilters;
+
   MetadataSearchQuery withOffset(int value) => MetadataSearchQuery(
         query: query,
         kind: kind,
@@ -34,6 +40,7 @@ final class MetadataSearchQuery {
         catalogNumber: catalogNumber,
         limit: limit,
         offset: value,
+        fieldFilters: fieldFilters,
       );
 
   bool get isEmpty {
@@ -43,7 +50,8 @@ final class MetadataSearchQuery {
         !_hasText(publisher) &&
         !_hasText(barcode) &&
         !_hasText(catalogNumber) &&
-        year == null;
+        year == null &&
+        fieldFilters.isEmpty;
   }
 
   Map<String, dynamic> toQueryParameters() {
@@ -57,6 +65,7 @@ final class MetadataSearchQuery {
       if (_hasText(barcode)) 'barcode': normalizeBarcode(barcode!),
       if (_hasText(catalogNumber)) 'catalog_number': catalogNumber!.trim(),
       if (limit != null) 'limit': limit,
+      if (fieldFilters.isNotEmpty) 'field_filters': jsonEncode(fieldFilters),
       if (offset != null) 'offset': offset,
     };
   }

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import '../fixtures/entry_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -132,6 +134,13 @@ BoardGameLibraryEntry testBoardGameLibraryEntryFrom(TestLibraryEntry item) =>
 GameLibraryEntry testGameLibraryEntryFrom(TestLibraryEntry item) =>
     GameLibraryEntry.fromJson(item.toJson());
 
+GameHardwareLibraryEntry testGameHardwareLibraryEntryFrom(
+        TestLibraryEntry item) =>
+    GameHardwareLibraryEntry.fromJson(item.toJson());
+
+GameToyLibraryEntry testGameToyLibraryEntryFrom(TestLibraryEntry item) =>
+    GameToyLibraryEntry.fromJson(item.toJson());
+
 MangaLibraryEntry testMangaLibraryEntryFrom(TestLibraryEntry item) =>
     MangaLibraryEntry.fromJson(item.toJson());
 
@@ -170,6 +179,16 @@ LibraryEntryDispatch testLibraryEntryDispatchFrom(TestLibraryEntry item) {
         kind: CatalogMediaKind.game,
         ref: item.ref,
         value: testGameLibraryEntryFrom(item),
+      ),
+    CatalogMediaKind.gameHardware => OpaqueLibraryEntryDispatch(
+        kind: CatalogMediaKind.gameHardware,
+        ref: item.ref,
+        value: testGameHardwareLibraryEntryFrom(item),
+      ),
+    CatalogMediaKind.gameToy => OpaqueLibraryEntryDispatch(
+        kind: CatalogMediaKind.gameToy,
+        ref: item.ref,
+        value: testGameToyLibraryEntryFrom(item),
       ),
     CatalogMediaKind.manga => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.manga,

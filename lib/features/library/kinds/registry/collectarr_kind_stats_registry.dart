@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
@@ -22,6 +24,8 @@ final Map<CatalogMediaKind, LibraryStatsCapability> collectarrKindStats =
   CatalogMediaKind.book: bookKindStats,
   CatalogMediaKind.comic: comicKindStats,
   CatalogMediaKind.game: gameKindStats,
+  CatalogMediaKind.gameHardware: gameHardwareKindStats,
+  CatalogMediaKind.gameToy: gameToyKindStats,
   CatalogMediaKind.manga: mangaKindStats,
   CatalogMediaKind.movie: movieKindStats,
   CatalogMediaKind.music: musicKindStats,
@@ -35,6 +39,8 @@ final Map<CatalogMediaKind, LibraryValueCapability?> collectarrKindValues =
   CatalogMediaKind.book: bookKindValue,
   CatalogMediaKind.comic: comicKindValue,
   CatalogMediaKind.game: gameKindValue,
+  CatalogMediaKind.gameHardware: null,
+  CatalogMediaKind.gameToy: null,
   CatalogMediaKind.manga: mangaKindValue,
   CatalogMediaKind.movie: movieKindValue,
   CatalogMediaKind.music: musicKindValue,
@@ -49,6 +55,8 @@ final Map<CatalogMediaKind, LibraryRelationCapability?>
   CatalogMediaKind.book: bookKindRelations,
   CatalogMediaKind.comic: comicKindRelations,
   CatalogMediaKind.game: gameKindRelations,
+  CatalogMediaKind.gameHardware: null,
+  CatalogMediaKind.gameToy: null,
   CatalogMediaKind.manga: mangaKindRelations,
   CatalogMediaKind.movie: movieKindRelations,
   CatalogMediaKind.music: musicKindRelations,
@@ -62,6 +70,8 @@ final Map<CatalogMediaKind, LibraryUiPolicy> collectarrKindUiPolicies =
   CatalogMediaKind.book: bookKindUiPolicy,
   CatalogMediaKind.comic: comicKindUiPolicy,
   CatalogMediaKind.game: gameKindUiPolicy,
+  CatalogMediaKind.gameHardware: gameHardwareKindUiPolicy,
+  CatalogMediaKind.gameToy: gameToyKindUiPolicy,
   CatalogMediaKind.manga: mangaKindUiPolicy,
   CatalogMediaKind.movie: movieKindUiPolicy,
   CatalogMediaKind.music: musicKindUiPolicy,
@@ -76,6 +86,8 @@ final Map<CatalogMediaKind, LibraryLinkedMetadataCapability>
   CatalogMediaKind.book: bookKindLinkedMetadata,
   CatalogMediaKind.comic: comicKindLinkedMetadata,
   CatalogMediaKind.game: gameKindLinkedMetadata,
+  CatalogMediaKind.gameHardware: gameHardwareKindLinkedMetadata,
+  CatalogMediaKind.gameToy: gameToyKindLinkedMetadata,
   CatalogMediaKind.manga: mangaKindLinkedMetadata,
   CatalogMediaKind.movie: movieKindLinkedMetadata,
   CatalogMediaKind.music: musicKindLinkedMetadata,

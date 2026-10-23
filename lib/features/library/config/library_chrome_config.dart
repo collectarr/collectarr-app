@@ -36,11 +36,13 @@ class LibraryEditChromeConfig {
 class LibraryAddChromeConfig {
   const LibraryAddChromeConfig({
     this.canScanCover = true,
+    this.supportsTracking = true,
     this.kindFilterOptions = const [],
     this.defaultKindFilters = const {},
   });
 
   final bool canScanCover;
+  final bool supportsTracking;
   final List<LibraryAddKindFilterOption> kindFilterOptions;
   final Set<LibraryAddSearchScope> defaultKindFilters;
 }

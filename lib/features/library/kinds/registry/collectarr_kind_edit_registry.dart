@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
@@ -19,6 +21,8 @@ final Map<CatalogMediaKind, LibraryEditCapabilitySet>
   CatalogMediaKind.book: bookKindEditCapabilities,
   CatalogMediaKind.comic: comicKindEditCapabilities,
   CatalogMediaKind.game: gameKindEditCapabilities,
+  CatalogMediaKind.gameHardware: gameHardwareKindEditCapabilities,
+  CatalogMediaKind.gameToy: gameToyKindEditCapabilities,
   CatalogMediaKind.manga: mangaKindEditCapabilities,
   CatalogMediaKind.movie: movieKindEditCapabilities,
   CatalogMediaKind.music: musicKindEditCapabilities,

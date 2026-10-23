@@ -25,6 +25,8 @@ class LibraryKindIdentity {
       LibraryWorkspaceDensityPreset.ultraCompact,
     ],
     this.toolbarActions = kDefaultLibraryToolbarActions,
+    this.collectionFamily,
+    this.defaultCollectionName = 'Main Collection',
   });
 
   final CatalogMediaKind kind;
@@ -44,6 +46,10 @@ class LibraryKindIdentity {
   final LibraryWorkspaceDensityPreset defaultDensityPreset;
   final List<LibraryWorkspaceDensityPreset> availableDensityPresets;
   final List<LibraryToolbarActionId> toolbarActions;
+
+  /// Inventories with independent domain models can share one library's tabs.
+  final String? collectionFamily;
+  final String defaultCollectionName;
 
   String countLabel(int count) => count == 1 ? singularLabel : pluralLabel;
   String preferenceKey(String suffix) => '$preferencePrefix.$suffix';

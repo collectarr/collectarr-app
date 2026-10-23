@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
@@ -21,6 +23,8 @@ final Map<CatalogMediaKind, List<PhysicalMediaFormat>>
   CatalogMediaKind.book: bookKindPhysicalMediaFormats,
   CatalogMediaKind.comic: comicKindPhysicalMediaFormats,
   CatalogMediaKind.game: gameKindPhysicalMediaFormats,
+  CatalogMediaKind.gameHardware: gameHardwareKindPhysicalMediaFormats,
+  CatalogMediaKind.gameToy: gameToyKindPhysicalMediaFormats,
   CatalogMediaKind.manga: mangaKindPhysicalMediaFormats,
   CatalogMediaKind.movie: movieKindPhysicalMediaFormats,
   CatalogMediaKind.music: musicKindPhysicalMediaFormats,
@@ -35,6 +39,8 @@ final Map<CatalogMediaKind, LibraryMediaPresentation>
   CatalogMediaKind.book: bookKindPresentation,
   CatalogMediaKind.comic: comicKindPresentation,
   CatalogMediaKind.game: gameKindPresentation,
+  CatalogMediaKind.gameHardware: gameHardwareKindPresentation,
+  CatalogMediaKind.gameToy: gameToyKindPresentation,
   CatalogMediaKind.manga: mangaKindPresentation,
   CatalogMediaKind.movie: movieKindPresentation,
   CatalogMediaKind.music: musicKindPresentation,
@@ -48,6 +54,8 @@ final Map<CatalogMediaKind, LibraryMetadataCapability> collectarrKindMetadata =
   CatalogMediaKind.book: bookKindMetadata,
   CatalogMediaKind.comic: comicKindMetadata,
   CatalogMediaKind.game: gameKindMetadata,
+  CatalogMediaKind.gameHardware: gameHardwareKindMetadata,
+  CatalogMediaKind.gameToy: gameToyKindMetadata,
   CatalogMediaKind.manga: mangaKindMetadata,
   CatalogMediaKind.movie: movieKindMetadata,
   CatalogMediaKind.music: musicKindMetadata,

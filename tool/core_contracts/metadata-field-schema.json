@@ -5,8 +5,62 @@
       "editable": false,
       "input": "text",
       "key": "physical_format_label",
+      "kind": "game",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
+      "kind": "game_hardware",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
+      "kind": "game_toy",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
       "kind": "music",
       "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "game",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "game_hardware",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
+      "kind": "game_toy",
+      "label": "Physical format media family",
       "section": "internal",
       "valueType": "string"
     },
@@ -23,8 +77,62 @@
       "editable": false,
       "input": "text",
       "key": "physical_format_variant_type",
+      "kind": "game",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
+      "kind": "game_hardware",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
+      "kind": "game_toy",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
       "kind": "music",
       "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "game",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "game_hardware",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
+      "kind": "game_toy",
+      "label": "Format template image",
       "section": "internal",
       "valueType": "string"
     },
@@ -41,8 +149,62 @@
       "editable": false,
       "input": "text",
       "key": "format_scaledimage",
+      "kind": "game",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
+      "kind": "game_hardware",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
+      "kind": "game_toy",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
       "kind": "music",
       "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "game",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "game_hardware",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
+      "kind": "game_toy",
+      "label": "Country scaled image",
       "section": "internal",
       "valueType": "string"
     },
@@ -59,8 +221,62 @@
       "editable": false,
       "input": "text",
       "key": "language_scaledimage",
+      "kind": "game",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
+      "kind": "game_hardware",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
+      "kind": "game_toy",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
       "kind": "music",
       "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "game",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "game_hardware",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
+      "kind": "game_toy",
+      "label": "Audience rating template image",
       "section": "internal",
       "valueType": "string"
     },
@@ -77,8 +293,62 @@
       "editable": false,
       "input": "text",
       "key": "region_scaledimage",
+      "kind": "game",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
+      "kind": "game_hardware",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
+      "kind": "game_toy",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
       "kind": "music",
       "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "game",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "game_hardware",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
+      "kind": "game_toy",
+      "label": "Audio template image",
       "section": "internal",
       "valueType": "string"
     },
@@ -95,8 +365,62 @@
       "editable": false,
       "input": "text",
       "key": "associated_image_id",
+      "kind": "game",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
+      "kind": "game_hardware",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
+      "kind": "game_toy",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
       "kind": "music",
       "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "game",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "game_hardware",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
+      "kind": "game_toy",
+      "label": "Cover delivery URL",
       "section": "internal",
       "valueType": "string"
     },
@@ -113,8 +437,62 @@
       "editable": false,
       "input": "text",
       "key": "cover_policy",
+      "kind": "game",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
+      "kind": "game_hardware",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
+      "kind": "game_toy",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
       "kind": "music",
       "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "game",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "game_hardware",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
+      "kind": "game_toy",
+      "label": "Cover source URL",
       "section": "internal",
       "valueType": "string"
     },
@@ -131,8 +509,62 @@
       "editable": false,
       "input": "text",
       "key": "cover_status",
+      "kind": "game",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
+      "kind": "game_hardware",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
+      "kind": "game_toy",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
       "kind": "music",
       "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "game",
+      "label": "Cover storage",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "game_hardware",
+      "label": "Cover storage",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "game_toy",
+      "label": "Cover storage",
       "section": "internal",
       "valueType": "string"
     },
@@ -147,12 +579,174 @@
     },
     {
       "editable": true,
+      "input": "text",
+      "key": "physical_format",
+      "kind": "game",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
+      "kind": "game_hardware",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
+      "kind": "game_toy",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "game",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "game_hardware",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "game_toy",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
       "input": "list",
       "key": "genres",
       "kind": "music",
       "label": "Genres",
       "section": "relations",
       "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "creators",
+      "kind": "game",
+      "label": "Creators",
+      "section": "item",
+      "valueType": "object_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "contributors",
+      "kind": "game",
+      "label": "Contributors",
+      "section": "item",
+      "valueType": "object_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "platforms",
+      "kind": "game",
+      "label": "Platforms",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "identifiers",
+      "kind": "game",
+      "label": "Identifiers",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "company_roles",
+      "kind": "game",
+      "label": "Company roles",
+      "section": "relations",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "franchise",
+      "kind": "game",
+      "label": "Franchise",
+      "section": "relations",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_language",
+      "kind": "game",
+      "label": "Original language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "languages",
+      "kind": "game",
+      "label": "Languages",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "platform",
+      "kind": "game_hardware",
+      "label": "Platform",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "hardware_type",
+      "kind": "game_hardware",
+      "label": "Hardware Type",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "toy_type",
+      "kind": "game_toy",
+      "label": "Type",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "toy_subtype",
+      "kind": "game_toy",
+      "label": "Subtype",
+      "section": "item",
+      "valueType": "string"
     },
     {
       "editable": true,
@@ -221,10 +815,280 @@
       "editable": true,
       "input": "text",
       "key": "title",
+      "kind": "game",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
+      "kind": "game_hardware",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
+      "kind": "game_toy",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
       "kind": "music",
       "label": "Title",
       "section": "item",
       "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
+      "kind": "game",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
+      "kind": "game_hardware",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
+      "kind": "game_toy",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
+      "kind": "game",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
+      "kind": "game_hardware",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
+      "kind": "game_toy",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
+      "kind": "game",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
+      "kind": "game_hardware",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
+      "kind": "game_toy",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
+      "kind": "game",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
+      "kind": "game_hardware",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
+      "kind": "game_toy",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "game",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "game_hardware",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
+      "kind": "game_toy",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
+      "kind": "game",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
+      "kind": "game_hardware",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
+      "kind": "game_toy",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "game",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "game_hardware",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
+      "kind": "game_toy",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
+      "kind": "game",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
+      "kind": "game_hardware",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
+      "kind": "game_toy",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "game",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "game_hardware",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "game_toy",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
     },
     {
       "editable": true,
@@ -238,9 +1102,90 @@
     {
       "editable": true,
       "input": "text",
+      "key": "publisher",
+      "kind": "game",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
+      "kind": "game_hardware",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
+      "kind": "game_toy",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "game",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "game_hardware",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "game_toy",
+      "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
       "key": "subtitle",
       "kind": "music",
       "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "game",
+      "label": "Barcode",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "game_hardware",
+      "label": "Barcode",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "game_toy",
+      "label": "Barcode",
       "section": "publishing",
       "valueType": "string"
     },
@@ -256,6 +1201,60 @@
     {
       "editable": true,
       "input": "text",
+      "key": "variant_name",
+      "kind": "game",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
+      "kind": "game_hardware",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
+      "kind": "game_toy",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "game",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "game_hardware",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
+      "kind": "game_toy",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
       "key": "catalog_number",
       "kind": "music",
       "label": "Catalog number",
@@ -265,10 +1264,199 @@
     {
       "editable": true,
       "input": "text",
+      "key": "release_status",
+      "kind": "game",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
+      "kind": "game_hardware",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
+      "kind": "game_toy",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "game",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "game_hardware",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "game_toy",
+      "label": "Country",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
       "key": "country",
       "kind": "music",
       "label": "Country",
       "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
+      "kind": "game",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
+      "kind": "game_hardware",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
+      "kind": "game_toy",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
+      "kind": "game",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
+      "kind": "game_hardware",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
+      "kind": "game_toy",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
+      "kind": "game",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
+      "kind": "game_hardware",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
+      "kind": "game_toy",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
+      "kind": "game",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
+      "kind": "game_hardware",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
+      "kind": "game_toy",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "game",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "game_hardware",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "game_toy",
+      "label": "Cover URL",
+      "section": "artwork",
       "valueType": "string"
     },
     {
@@ -284,10 +1472,172 @@
       "editable": true,
       "input": "text",
       "key": "thumbnail_image_url",
+      "kind": "game",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "game_hardware",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "game_toy",
+      "label": "Thumbnail URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
       "kind": "music",
       "label": "Thumbnail URL",
       "section": "artwork",
       "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
+      "kind": "game",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
+      "kind": "game_hardware",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
+      "kind": "game_toy",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
+      "kind": "game",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
+      "kind": "game_hardware",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
+      "kind": "game_toy",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "game",
+      "label": "Plot description",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "game_hardware",
+      "label": "Plot description",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "game_toy",
+      "label": "Plot description",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "trailer_urls",
+      "kind": "game",
+      "label": "Trailer URLs",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "trailer_urls",
+      "kind": "game_hardware",
+      "label": "Trailer URLs",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "trailer_urls",
+      "kind": "game_toy",
+      "label": "Trailer URLs",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "game",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "game_hardware",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "game_toy",
+      "label": "External links",
+      "section": "relations",
+      "valueType": "link_list"
     },
     {
       "editable": true,
@@ -299,5 +1649,5 @@
       "valueType": "link_list"
     }
   ],
-  "generatedAt": "2026-10-18T13:21:19.210709Z"
+  "generatedAt": "2026-10-23T08:34:47.037377Z"
 }

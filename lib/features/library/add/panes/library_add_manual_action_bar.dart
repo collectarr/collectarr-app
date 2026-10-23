@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_add_registry.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'library_add_status_button.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -47,25 +48,28 @@ class LibraryAddManualActionBar extends StatelessWidget {
               label: const Text('Propose', overflow: TextOverflow.ellipsis),
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _validatedAction(context, request.onAddTrack),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: palette.textPrimary,
-                visualDensity: VisualDensity.compact,
-              ),
-              icon: const Icon(Icons.visibility_outlined, size: 18),
-              label: Text(
-                LibraryAddCopy.addToTargetLabel(
-                  count: 1,
-                  type: request.type,
-                  target: LibraryAddTarget.track,
+          if (collectarrKindAdds[request.kind]?.chrome.supportsTracking ??
+              false) ...[
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _validatedAction(context, request.onAddTrack),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: palette.textPrimary,
+                  visualDensity: VisualDensity.compact,
                 ),
-                overflow: TextOverflow.ellipsis,
+                icon: const Icon(Icons.visibility_outlined, size: 18),
+                label: Text(
+                  LibraryAddCopy.addToTargetLabel(
+                    count: 1,
+                    type: request.type,
+                    target: LibraryAddTarget.track,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
-          ),
+          ],
           const SizedBox(width: 8),
           Expanded(
             child: LibraryAddStatusButton(

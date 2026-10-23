@@ -48,7 +48,7 @@ void main() {
 
     expect(
       Set<String>.from(activeKinds['kinds'] as List<dynamic>),
-      equals({'music'}),
+      equals({'game', 'music'}),
     );
     expect(fieldSchema['contractVersion'], manifest['contractVersion']);
     expect(fieldSchema['fields'], isNotEmpty);

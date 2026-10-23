@@ -270,26 +270,6 @@ abstract final class GameWorkspaceFieldMetadata {
     groupable: true,
   );
 
-  static const toyType = LibraryKindFieldMetadata(
-    id: 'game.toy_type',
-    label: 'Type',
-    valueType: LibraryFieldValueType.text,
-    cardinality: LibraryFieldCardinality.one,
-    source: LibraryFieldSource.catalog,
-    sourcePath: 'toy_type',
-    groupable: true,
-  );
-
-  static const toySubtype = LibraryKindFieldMetadata(
-    id: 'game.toy_subtype',
-    label: 'Subtype',
-    valueType: LibraryFieldValueType.text,
-    cardinality: LibraryFieldCardinality.one,
-    source: LibraryFieldSource.catalog,
-    sourcePath: 'toy_subtype',
-    groupable: true,
-  );
-
   static const pricePaid = LibraryKindFieldMetadata(
     id: 'game.price_paid',
     label: 'Purchase Price',
@@ -462,8 +442,6 @@ abstract final class GameWorkspaceFieldMetadata {
     series,
     status,
     title,
-    toySubtype,
-    toyType,
     updatedAt,
     valueLocked,
     wishlist,

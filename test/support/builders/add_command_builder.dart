@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -74,6 +76,8 @@ LibraryAddKindDraft? _addDraftWithGrade(CatalogMediaKind kind, String? grade) {
     CatalogMediaKind.book => BookAddDraft(grade: grade),
     CatalogMediaKind.comic => ComicAddDraft(grade: grade),
     CatalogMediaKind.game => GameAddDraft(grade: grade),
+    CatalogMediaKind.gameHardware => GameHardwareAddDraft(grade: grade),
+    CatalogMediaKind.gameToy => GameToyAddDraft(grade: grade),
     CatalogMediaKind.manga => MangaAddDraft(grade: grade),
     CatalogMediaKind.movie => MovieAddDraft(grade: grade),
     CatalogMediaKind.music => MusicAddDraft(grade: grade),

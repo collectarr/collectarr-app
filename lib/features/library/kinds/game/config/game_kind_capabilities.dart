@@ -39,6 +39,8 @@ final gameKindIdentity = const LibraryKindIdentity(
   preferencePrefix: 'games',
   routeSegments: ['games', 'game'],
   mediaFamily: 'game',
+  collectionFamily: 'games',
+  defaultCollectionName: 'Games',
 );
 
 final gameKindMetadata = const LibraryMetadataCapability(

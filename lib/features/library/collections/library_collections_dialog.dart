@@ -1,3 +1,4 @@
+import 'library_collection_family.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -61,7 +62,7 @@ final class _CollectionsDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final collections = ref.watch(libraryCollectionsProvider(kind));
+    final collections = ref.watch(libraryCollectionFamilyProvider(kind));
     final db = ref.watch(localDatabaseProvider);
     final repo = LibraryCollectionRepository(db);
     final accent = defaultLibraryKindRegistry
@@ -147,7 +148,12 @@ final class _CollectionsDialog extends ConsumerWidget {
                                         values.map((c) => c.id).toList();
                                     final id = ids.removeAt(oldIndex);
                                     ids.insert(newIndex, id);
-                                    await repo.reorder(kind, ids);
+                                    await repo.reorderKinds(
+                                        collectionFamilyKinds(kind)
+                                            .map((member) =>
+                                                member.kind.apiValue)
+                                            .toSet(),
+                                        ids);
                                   },
                                   itemBuilder: (context, index) {
                                     final collection = values[index];
@@ -157,7 +163,7 @@ final class _CollectionsDialog extends ConsumerWidget {
                                       index: index,
                                       itemLabel: defaultLibraryKindRegistry
                                           .require(catalogMediaKindFromApiValue(
-                                              kind))
+                                              collection.kind))
                                           .identity
                                           .countLabel(collection.count)
                                           .toLowerCase(),
@@ -165,9 +171,14 @@ final class _CollectionsDialog extends ConsumerWidget {
                                           context: context,
                                           builder: (_) => _CollectionNameDialog(
                                               repo: repo,
-                                              kind: kind,
+                                              kind: collection.kind,
                                               collection: collection)),
-                                      onDelete: values.length == 1
+                                      onDelete: values
+                                                  .where((item) =>
+                                                      item.kind ==
+                                                      collection.kind)
+                                                  .length ==
+                                              1
                                           ? null
                                           : () => _delete(context, db, repo,
                                               collection, values),
@@ -198,7 +209,7 @@ final class _CollectionsDialog extends ConsumerWidget {
       List<LibraryCollectionSummary> values) async {
     final destination = await chooseLibraryCollection(context,
         db: db,
-        kind: kind,
+        kind: collection.kind,
         excluding: collection.id,
         title: 'Move items before deleting ${collection.name}');
     if (destination == null || !context.mounted) return;
@@ -235,6 +246,7 @@ final class _CollectionNameDialog extends StatefulWidget {
 
 final class _CollectionNameDialogState extends State<_CollectionNameDialog> {
   late final _name = TextEditingController(text: widget.collection?.name ?? '');
+  late String _kind = widget.kind;
   String? _error;
   bool _saving = false;
   @override
@@ -250,7 +262,17 @@ final class _CollectionNameDialogState extends State<_CollectionNameDialog> {
       if (widget.collection case final collection?) {
         await widget.repo.rename(collection.id, _name.text);
       } else {
-        await widget.repo.create(widget.kind, _name.text);
+        final family = await widget.repo.watchKinds({
+          for (final member in collectionFamilyKinds(_kind))
+            member.kind.apiValue: member.identity.defaultCollectionName
+        }).first;
+        final nextPosition = family.isEmpty
+            ? 0
+            : family
+                    .map((item) => item.position)
+                    .reduce((a, b) => a > b ? a : b) +
+                1;
+        await widget.repo.create(_kind, _name.text, position: nextPosition);
       }
       if (mounted) Navigator.of(context).pop();
     } on ArgumentError catch (error) {
@@ -276,6 +298,28 @@ final class _CollectionNameDialogState extends State<_CollectionNameDialog> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (widget.collection == null &&
+                        collectionFamilyKinds(widget.kind).length > 1) ...[
+                      DropdownButtonFormField<String>(
+                          initialValue: _kind,
+                          decoration: const InputDecoration(
+                              labelText: 'Collection Type'),
+                          items: [
+                            for (final member
+                                in collectionFamilyKinds(widget.kind))
+                              DropdownMenuItem(
+                                  value: member.kind.apiValue,
+                                  child: Text(member.identity.pluralLabel))
+                          ],
+                          onChanged: _saving
+                              ? null
+                              : (value) {
+                                  if (value != null) {
+                                    setState(() => _kind = value);
+                                  }
+                                }),
+                      const SizedBox(height: 12),
+                    ],
                     const Text('Collection Name',
                         style: TextStyle(
                             fontSize: 14,

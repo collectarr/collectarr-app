@@ -41,6 +41,10 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 export 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 export 'package:collectarr_app/features/library/kinds/game/game_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
+export 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
+export 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 export 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
@@ -57,6 +61,8 @@ final List<LibraryKindRegistration> collectarrKindRegistrationsList = [
     BookRegistration(),
     ComicRegistration(),
     GameRegistration(),
+    GameHardwareRegistration(),
+    GameToyRegistration(),
     MangaRegistration(),
     MovieRegistration(),
     MusicRegistration(),
@@ -299,6 +305,58 @@ final class TvRegistration implements LibraryKindRegistration {
   }) {
     return TvLibraryPage(
       type: const TvRegistration(),
+      topBar: topBar,
+      accent: accent,
+      routeUri: routeUri,
+      switchLayoutSnapshot: switchLayoutSnapshot,
+    );
+  }
+}
+
+final class GameHardwareRegistration implements LibraryKindRegistration {
+  const GameHardwareRegistration();
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.gameHardware;
+
+  @override
+  LibraryKindIdentity get identity => gameHardwareKindIdentity;
+
+  @override
+  Widget buildLibraryPage({
+    required Widget topBar,
+    required Color accent,
+    required Uri routeUri,
+    LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    return GameHardwareLibraryPage(
+      type: const GameHardwareRegistration(),
+      topBar: topBar,
+      accent: accent,
+      routeUri: routeUri,
+      switchLayoutSnapshot: switchLayoutSnapshot,
+    );
+  }
+}
+
+final class GameToyRegistration implements LibraryKindRegistration {
+  const GameToyRegistration();
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.gameToy;
+
+  @override
+  LibraryKindIdentity get identity => gameToyKindIdentity;
+
+  @override
+  Widget buildLibraryPage({
+    required Widget topBar,
+    required Color accent,
+    required Uri routeUri,
+    LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    return GameToyLibraryPage(
+      type: const GameToyRegistration(),
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,

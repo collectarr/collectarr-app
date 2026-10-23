@@ -12,6 +12,10 @@ final Map<CatalogMediaKind, LibraryEntryPolicyCapability>
   CatalogMediaKind.book: const LibraryEntryPolicyCapability.allowEverywhere(),
   CatalogMediaKind.comic: const LibraryEntryPolicyCapability.allowEverywhere(),
   CatalogMediaKind.game: const LibraryEntryPolicyCapability.allowEverywhere(),
+  CatalogMediaKind.gameHardware:
+      const LibraryEntryPolicyCapability.allowEverywhere(),
+  CatalogMediaKind.gameToy:
+      const LibraryEntryPolicyCapability.allowEverywhere(),
   CatalogMediaKind.manga: const LibraryEntryPolicyCapability.allowEverywhere(),
   CatalogMediaKind.movie: const LibraryEntryPolicyCapability.allowEverywhere(),
   CatalogMediaKind.music: musicKindEntryPolicy,

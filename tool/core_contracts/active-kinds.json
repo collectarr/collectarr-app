@@ -1,7 +1,8 @@
 {
   "contractVersion": "1.0.0",
-  "generatedAt": "2026-10-18T13:21:19.210709Z",
+  "generatedAt": "2026-10-23T08:34:47.037377Z",
   "kinds": [
+    "game",
     "music"
   ]
 }

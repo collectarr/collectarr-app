@@ -16,6 +16,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
   String? barcode,
   int? limit,
   int? offset,
+  Map<String, List<String>> fieldFilters = const {},
 }) {
   return MetadataSearchQuery(
     query: query,
@@ -27,6 +28,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
     barcode: barcode,
     limit: limit,
     offset: offset,
+    fieldFilters: fieldFilters,
   );
 }
 
@@ -41,6 +43,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
   String? barcode,
   int? limit,
   int? offset,
+  Map<String, List<String>> fieldFilters = const {},
   CancelToken? cancelToken,
 }) async {
   return (await searchLibraryMetadataPage(
@@ -54,6 +57,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
     barcode: barcode,
     limit: limit,
     offset: offset,
+    fieldFilters: fieldFilters,
     cancelToken: cancelToken,
   ))
       .items;
@@ -82,6 +86,7 @@ Future<LibraryMetadataSearchPage> searchLibraryMetadataPage(
   String? barcode,
   int? limit,
   int? offset,
+  Map<String, List<String>> fieldFilters = const {},
   CancelToken? cancelToken,
 }) async {
   final capability = libraryMetadataForKind(kind);
@@ -95,6 +100,7 @@ Future<LibraryMetadataSearchPage> searchLibraryMetadataPage(
     barcode: barcode,
     limit: limit,
     offset: offset,
+    fieldFilters: fieldFilters,
   );
   final requestedOffset = input.offset ?? 0;
   final page = capability.catalogSearchBuilder == null
@@ -134,6 +140,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
   String? barcode,
   int? limit,
   int? offset,
+  Map<String, List<String>> fieldFilters = const {},
 }) async {
   return searchLibraryMetadata(
     api,
@@ -146,6 +153,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
     barcode: barcode,
     limit: limit,
     offset: offset,
+    fieldFilters: fieldFilters,
   );
 }
 

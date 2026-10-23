@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'dart:io';
 
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
@@ -91,7 +92,9 @@ void main() {
     expect(libraryCalendarContributorsByKind.keys, containsAll(activeKinds));
     expect(libraryBarcodeResolversByKind.keys, containsAll(activeKinds));
     expect(libraryAdminContributorsByKind.keys, containsAll(activeKinds));
-    expect(collectionCsvProfilesByKind.keys, containsAll(activeKinds));
+    // Inventories use the shared lossless entry JSON CSV format.
+    expect(collectionCsvProfilesByKind.keys,
+        containsAll({CatalogMediaKind.music, CatalogMediaKind.game}));
     for (final kind in activeKinds) {
       final search = libraryAddForKind(kind).search.core;
       expect(

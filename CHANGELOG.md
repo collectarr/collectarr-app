@@ -3,7 +3,8 @@
 ## Unreleased
 
 ### ✨ Features
-- Games joins Music with its own editor, Add search and catalog.
+- Games, Hardware and Toys use separate fixed-type collections, editors, search and Core catalogs; renaming a collection preserves its type.
+- Hardware has platform/device filters and personal serial numbers; Toys has its own classification, completeness and images.
 - Games supports platform and region search, atomic completeness and packaging values, purchase details, completion and storage tracking, front/back covers and trailers.
 - Games includes folders, sorting, columns, cards and a details panel with platform icons and shared blue utility links.
 - Libraries can provide default folder favorites; clearing saved favorites keeps them empty.

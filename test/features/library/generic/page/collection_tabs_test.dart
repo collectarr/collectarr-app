@@ -10,6 +10,38 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test(
+      'Games collection family preserves concrete types through rename and reorder',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = LibraryCollectionRepository(db);
+    const names = {
+      'game': 'Games',
+      'game_hardware': 'Hardware',
+      'game_toy': 'Toys'
+    };
+    final family = await repo.watchKinds(names).first;
+    expect(family.map((item) => item.name), names.values);
+    final hardware = family.singleWhere((item) => item.kind == 'game_hardware');
+    await repo.rename(hardware.id, 'Controllers');
+    await repo.activate(hardware.id);
+    await repo.reorderKinds(
+        names.keys.toSet(), family.reversed.map((item) => item.id).toList());
+    final ordered = await repo.watchKinds(names).first;
+    expect(
+        ordered.map((item) => item.id), family.reversed.map((item) => item.id));
+    final renamed = ordered.singleWhere((item) => item.id == hardware.id);
+    expect(renamed.kind, 'game_hardware');
+    expect(renamed.name, 'Controllers');
+    expect(renamed.isActive, isTrue);
+    await expectLater(
+        repo.delete(hardware.id, moveTo: family.first.id), throwsArgumentError);
+    await expectLater(repo.reorderKinds(names.keys.toSet(), [hardware.id]),
+        throwsArgumentError);
+    expect((await repo.list('game_hardware')).single.name, 'Controllers');
+  });
+
   testWidgets(
       'collection tabs attach to the top with rounded lower corners and no ink',
       (tester) async {

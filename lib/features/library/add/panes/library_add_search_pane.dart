@@ -111,7 +111,7 @@ class LibraryAddSearchPane extends StatelessWidget {
   }
 }
 
-/// "66 Results" centred over the list, with the kind filter at the right.
+/// Count and kind controls share a line when they fit, otherwise wrap.
 class _LibraryAddResultsCaption extends StatelessWidget {
   const _LibraryAddResultsCaption({
     required this.count,
@@ -126,27 +126,25 @@ class _LibraryAddResultsCaption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final caption = Text(
+        '$count${hasMore ? '+' : ''} ${count == 1 ? 'Result' : 'Results'}',
+        style: TextStyle(
+            color: palette.textPrimary,
+            fontSize: 16,
+            fontWeight: FontWeight.w700));
     return Container(
-      key: const ValueKey('library-add-results-caption'),
-      constraints: const BoxConstraints(minHeight: 31),
-      color: libraryAddResultsBackground(context),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Text(
-            '$count${hasMore ? '+' : ''} ${count == 1 ? 'Result' : 'Results'}',
-            style: TextStyle(
-              color: palette.textPrimary,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          if (trailing != null)
-            Align(alignment: Alignment.centerRight, child: trailing),
-        ],
-      ),
-    );
+        key: const ValueKey('library-add-results-caption'),
+        constraints: const BoxConstraints(minHeight: 31),
+        color: libraryAddResultsBackground(context),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+        child: trailing == null
+            ? Center(child: caption)
+            : Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                runSpacing: 4,
+                children: [caption, trailing!]));
   }
 }
 

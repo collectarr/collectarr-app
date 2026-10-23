@@ -5,6 +5,8 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 const releasedLibraryKinds = <CatalogMediaKind>{
   CatalogMediaKind.music,
   CatalogMediaKind.game,
+  CatalogMediaKind.gameHardware,
+  CatalogMediaKind.gameToy,
 };
 
 Map<CatalogMediaKind, T> releasedKindContributions<T>(

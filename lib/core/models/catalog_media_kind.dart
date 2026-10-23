@@ -4,6 +4,8 @@ enum CatalogMediaKind {
   anime('anime'),
   book('book'),
   game('game'),
+  gameHardware('game_hardware'),
+  gameToy('game_toy'),
   boardgame('boardgame'),
   movie('movie'),
   tv('tv'),
