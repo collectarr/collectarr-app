@@ -128,10 +128,11 @@ class ImportSourcePicker extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
+        color: ink.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Icon(source.fallbackIcon, size: size * 0.6, color: Colors.white70),
+      child: Icon(source.fallbackIcon,
+          size: size * 0.6, color: ink.withValues(alpha: 0.7)),
     );
   }
 }

@@ -91,7 +91,7 @@ class ImportFormatSettings extends StatelessWidget {
                           child: Checkbox(
                             key: const Key('import_format.skip_header'),
                             value: skipFirstRow,
-                            activeColor: Theme.of(context).colorScheme.primary,
+                            activeColor: palette.utilityAction,
                             checkColor: Colors.white,
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
@@ -102,13 +102,13 @@ class ImportFormatSettings extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Expanded(
+                        Expanded(
                           child: Text(
                             'Skip First Row',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: palette.textPrimary,
                             ),
                           ),
                         ),
@@ -233,11 +233,11 @@ class ImportFormatSettings extends StatelessWidget {
               Flexible(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     height: 1.1,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: palette.textPrimary,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -245,10 +245,10 @@ class ImportFormatSettings extends StatelessWidget {
               const SizedBox(width: 6),
               Tooltip(
                 message: tooltip,
-                child: const Icon(
+                child: Icon(
                   Icons.help,
                   size: 16,
-                  color: Colors.white,
+                  color: palette.textMuted,
                 ),
               ),
             ],
@@ -278,9 +278,7 @@ class ImportFormatSettings extends StatelessWidget {
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
               size: 16,
-              color: selected
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.white70,
+              color: selected ? palette.utilityAction : palette.textMuted,
             ),
             const SizedBox(width: 8),
             Flexible(
@@ -288,10 +286,10 @@ class ImportFormatSettings extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: palette.textPrimary,
               ),
             )),
             if (badge != null) ...[

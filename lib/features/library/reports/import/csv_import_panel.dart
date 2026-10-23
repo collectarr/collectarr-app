@@ -57,22 +57,22 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
             children: [
               Text(
                 'Import ${_pluralLabel.toLowerCase()} from CSV / TXT',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   height: 1.1,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: palette.textPrimary,
                 ),
               ),
               const SizedBox(height: 10),
 
               // 1. Upload file
-              const Text(
+              Text(
                 '1. Upload your .csv or .txt file:',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: palette.textPrimary,
                 ),
               ),
               const SizedBox(height: 10),
@@ -83,12 +83,12 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
               const SizedBox(height: 16),
 
               // 2. Data format settings
-              const Text(
+              Text(
                 '2. Choose your data format settings:',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: palette.textPrimary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -116,20 +116,20 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
               const SizedBox(height: 16),
 
               // 3. Field mapping
-              const Text(
+              Text(
                 '3. Map your fields to our fields:',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: palette.textPrimary,
                 ),
               ),
               const SizedBox(height: 6),
-              const Text.rich(
+              Text.rich(
                 TextSpan(
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.white,
+                    color: palette.textPrimary,
                   ),
                   children: [
                     TextSpan(text: 'Click the column headers below to map '),
