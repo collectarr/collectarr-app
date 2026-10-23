@@ -400,6 +400,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   @override
   Widget build(BuildContext context) {
     final accent = LibraryAccentScope.accentOf(context);
+    final palette = appPalette(context);
+    final lightBar = !palette.isDark;
     final filteredLoans = _filteredLoans();
     final now = DateTime.now();
     final borrowers = _loans.map((loan) => loan.borrowerName).toSet().toList()
@@ -430,11 +432,22 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
                     selectedIndex: _filter == _LoanFilter.returned ? 1 : 0,
                     onSelected: (index) => setState(() => _filter =
                         index == 1 ? _LoanFilter.returned : _LoanFilter.active),
+                    // The light reference joins the active tab to the #EEE
+                    // bar and only outlines the other.
+                    selectedColor: lightBar ? palette.surface : null,
+                    unselectedColor: lightBar ? Colors.transparent : null,
+                    borderColor: lightBar ? palette.divider : null,
                   ),
                   // The reference keeps loaner filter, print, count and search
                   // in one 40 px bar on the panel the tabs belong to.
                   Container(
-                    color: appManagementPanelColor(context),
+                    decoration: BoxDecoration(
+                      color: lightBar
+                          ? palette.surface
+                          : appManagementPanelColor(context),
+                      border:
+                          lightBar ? Border.all(color: palette.divider) : null,
+                    ),
                     padding:
                         const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                     child: LayoutBuilder(builder: (context, constraints) {
@@ -1164,11 +1177,22 @@ class _MiniChip extends StatelessWidget {
 class _EmptyLoansState extends StatelessWidget {
   const _EmptyLoansState();
 
+  // The reference shows one framed table row under the toolbar band.
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 48),
-      child: Center(child: Text('No loans found.')),
+    final palette = appPalette(context);
+    return Container(
+      height: 38,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: palette.panelRaised,
+        border: Border(
+          left: BorderSide(color: palette.divider),
+          right: BorderSide(color: palette.divider),
+          bottom: BorderSide(color: palette.divider, width: 2),
+        ),
+      ),
+      child: const Text('No loans found'),
     );
   }
 }

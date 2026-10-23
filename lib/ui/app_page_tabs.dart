@@ -18,16 +18,27 @@ class AppPageTabs extends StatelessWidget {
     required this.tabs,
     required this.selectedIndex,
     required this.onSelected,
+    this.selectedColor,
+    this.unselectedColor,
+    this.borderColor,
   });
 
   final List<AppPageTab> tabs;
   final int selectedIndex;
   final ValueChanged<int> onSelected;
 
+  /// Override the tab fills, e.g. to join the active tab to a toolbar band.
+  final Color? selectedColor;
+  final Color? unselectedColor;
+
+  /// Outlines each tab except along its bottom edge.
+  final Color? borderColor;
+
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final inactive = palette.isDark ? const Color(0xFF131313) : palette.surface;
+    final inactive = unselectedColor ??
+        (palette.isDark ? const Color(0xFF131313) : palette.surface);
     return Wrap(
       spacing: 4,
       runSpacing: 4,
@@ -49,9 +60,14 @@ class AppPageTabs extends StatelessWidget {
       selected: selected,
       button: true,
       child: Material(
-        color: selected ? appManagementPanelColor(context) : inactive,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(4))),
+        color: selected
+            ? selectedColor ?? appManagementPanelColor(context)
+            : inactive,
+        shape: RoundedRectangleBorder(
+            side: borderColor == null
+                ? BorderSide.none
+                : BorderSide(color: borderColor!),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(4))),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           mouseCursor: SystemMouseCursors.click,
