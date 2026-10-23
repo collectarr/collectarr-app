@@ -1,17 +1,22 @@
 # Current Architecture Status
 
-Last reviewed: 2026-10-15. Run `dart run tool/run_tests.dart` and the
+Last reviewed: 2026-10-23. Run `dart run tool/run_tests.dart` and the
 architecture checker for current findings; this page records structure, not
 test counts. UI differences from the reference app live in
 [CLZ parity](../clz-parity.md).
 
 ## Release scope
 
-Music and Game are released, through the UI, capability registrations and
-pinned Core contracts. The other kinds (Comic, Manga, Book, Board Game, Movie,
-TV, Anime) remain isolated source modules under `lib/features/library/kinds/`;
-a fresh database creates shared, Music and Game tables only. Releasing another kind means its own tables, an explicit migration and
-its own verification.
+`library_release_scope.dart` activates Music and the Games family (Game, Game
+Hardware, Game Toy) through the UI, capability registrations and pinned Core
+contracts. Published release v1.2.0 contains Music only; the Games family ships
+with the next release. Hardware and Toys are separate kinds with their own
+collections, models and Core catalogs, and store their entries in the shared
+library entry table; Game also has its own tracking table. The other kinds
+(Comic, Manga, Book, Board Game, Movie, TV, Anime) remain isolated source
+modules under `lib/features/library/kinds/`; a fresh database creates shared,
+Music and Game tables only. Releasing another kind means its own tables where
+needed, an explicit migration and its own verification.
 
 ## Local data
 

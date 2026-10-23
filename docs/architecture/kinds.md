@@ -1,10 +1,12 @@
 # Typed kind architecture
 
-The source tree has nine kinds: Comic, Manga, Book, Game, BoardGame, Movie,
-TV, Anime, and Music. Music and Game are released
-(`library_release_scope.dart`; Game through schema 3); the others stay isolated
-source modules without database tables until each is released with its own
-migration. Each
+The source tree has eleven kinds: Comic, Manga, Book, Game, Game Hardware,
+Game Toy, BoardGame, Movie, TV, Anime, and Music. Music and the Games family
+(Game, Game Hardware, Game Toy) are in the release scope
+(`library_release_scope.dart`; Game through schema 3). Hardware and Toys are
+independent kinds that share the Games collection family and tab bar but never
+import the Game kind. The others stay isolated source modules without database
+tables until each is released with its own migration. Each
 kind is rooted at `lib/features/library/kinds/<kind>/` and owns its catalog
 fields, Core mapping, local mapping, workspace, editing, and kind-specific
 tracking behavior.
