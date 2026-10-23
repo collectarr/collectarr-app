@@ -217,6 +217,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
               defaultColumnWidthFor: widget.defaultColumnWidthFor,
               columnSortFor: widget.columnSortFor,
               columnLabelFor: widget.columnLabelFor,
+              columnIsNumeric: widget.columnIsNumeric,
               onSortChanged: widget.onSortChanged,
               onColumnWidthChanged: widget.onColumnWidthChanged,
               onColumnAutoSize: widget.onColumnAutoSize,
@@ -327,6 +328,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
     required this.defaultColumnWidthFor,
     required this.columnSortFor,
     required this.columnLabelFor,
+    required this.columnIsNumeric,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnAutoSize,
@@ -353,6 +355,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
   final LibraryColumnWidthFor defaultColumnWidthFor;
   final LibraryColumnSortFor columnSortFor;
   final LibraryColumnLabelFor columnLabelFor;
+  final LibraryColumnNumericFor columnIsNumeric;
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
   final ValueChanged<String>? onColumnAutoSize;
@@ -441,6 +444,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
                       ? _sortPriorityFor(columnSortFor(columns[index]))
                       : null,
                   label: columnLabelFor(columns[index]),
+                  alignEnd: columnIsNumeric(columns[index]),
                   onSortChanged: onSortChanged,
                   onColumnWidthChanged: onColumnWidthChanged,
                   height: headerHeight,
@@ -482,6 +486,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatefulWidget {
     required this.sort,
     required this.sortPriority,
     required this.label,
+    required this.alignEnd,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.height,
@@ -498,6 +503,9 @@ class _LibraryWorkspaceTableHeaderCell extends StatefulWidget {
   final String? sort;
   final int? sortPriority;
   final String label;
+
+  /// Numeric and date headings sit over their right-aligned values.
+  final bool alignEnd;
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
   final double height;
@@ -549,6 +557,9 @@ class _LibraryWorkspaceTableHeaderCellState
                   child: Row(children: [
                     Expanded(
                         child: Text(showLabel ? widget.label : '',
+                            textAlign: widget.alignEnd
+                                ? TextAlign.right
+                                : TextAlign.left,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
