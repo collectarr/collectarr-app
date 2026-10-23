@@ -117,66 +117,73 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  LibraryResponsiveFieldLayout(
-                    maxColumns: 2,
-                    columnBreakpoints: const {2: 600},
-                    spacing: 30,
-                    runSpacing: 15,
-                    children: [
-                      _locationField(),
-                      if (_personalDraft case final draft?)
-                        LibraryFormField(
-                            label: 'Condition',
-                            child: SingleValuePickField(
-                                showInlineLabel: false,
-                                controller: _conditionController,
-                                options: libraryEditPresentationForKind(
-                                        draft.record.kind)
-                                    .conditions,
-                                label: 'Condition',
-                                onChanged: (value) =>
-                                    draft.set('condition', value))),
-                    ],
-                  ),
-                  if (_personalDraft case final draft?) ...[
-                    const SizedBox(height: 15),
-                    LibraryEntryPersonalSection(
-                        draft: draft,
-                        layoutBuilder: (fields, _) =>
-                            LibraryResponsiveFieldLayout(
-                              maxColumns: 2,
-                              columnBreakpoints: const {2: 600},
-                              spacing: 30,
-                              runSpacing: 15,
-                              children: [
-                                if (fields['purchase_date'] case final field?)
-                                  field,
-                                Align(
-                                    alignment: Alignment.bottomLeft,
-                                    child: SizedBox(
-                                        height: 55,
-                                        child: Align(
-                                            alignment: Alignment.bottomLeft,
-                                            child: _checkbox(
-                                                'Fill purchase date with today',
-                                                _fillToday,
-                                                (value) => setState(() =>
-                                                    _fillToday = value))))),
-                                if (fields['purchase_store'] case final field?)
-                                  field,
-                                if (fields['price_paid_cents']
-                                    case final field?)
-                                  field,
-                                if (_showAdditionalFields)
-                                  if (fields['currency'] case final field?)
+                  if (_kindFields(_personalDraft) case final kindFields?)
+                    _kindPrefillFields(_personalDraft!, kindFields)
+                  else ...[
+                    LibraryResponsiveFieldLayout(
+                      maxColumns: 2,
+                      columnBreakpoints: const {2: 600},
+                      spacing: 30,
+                      runSpacing: 15,
+                      children: [
+                        _locationField(),
+                        if (_personalDraft case final draft?)
+                          LibraryFormField(
+                              label: 'Condition',
+                              child: SingleValuePickField(
+                                  showInlineLabel: false,
+                                  controller: _conditionController,
+                                  options: libraryEditPresentationForKind(
+                                          draft.record.kind)
+                                      .conditions,
+                                  label: 'Condition',
+                                  onChanged: (value) =>
+                                      draft.set('condition', value))),
+                      ],
+                    ),
+                    if (_personalDraft case final draft?) ...[
+                      const SizedBox(height: 15),
+                      LibraryEntryPersonalSection(
+                          draft: draft,
+                          layoutBuilder: (fields, _) =>
+                              LibraryResponsiveFieldLayout(
+                                maxColumns: 2,
+                                columnBreakpoints: const {2: 600},
+                                spacing: 30,
+                                runSpacing: 15,
+                                children: [
+                                  if (fields['purchase_date'] case final field?)
                                     field,
-                              ],
-                            )),
-                  ],
-                  if (_showAdditionalFields) ...[
-                    const SizedBox(height: 15),
-                    LibraryMultiVocabularyField(
-                        label: 'Tags', options: _tagOptions, controller: _tags),
+                                  Align(
+                                      alignment: Alignment.bottomLeft,
+                                      child: SizedBox(
+                                          height: 55,
+                                          child: Align(
+                                              alignment: Alignment.bottomLeft,
+                                              child: _checkbox(
+                                                  'Fill purchase date with today',
+                                                  _fillToday,
+                                                  (value) => setState(() =>
+                                                      _fillToday = value))))),
+                                  if (fields['purchase_store']
+                                      case final field?)
+                                    field,
+                                  if (fields['price_paid_cents']
+                                      case final field?)
+                                    field,
+                                  if (_showAdditionalFields)
+                                    if (fields['currency'] case final field?)
+                                      field,
+                                ],
+                              )),
+                    ],
+                    if (_showAdditionalFields) ...[
+                      const SizedBox(height: 15),
+                      LibraryMultiVocabularyField(
+                          label: 'Tags',
+                          options: _tagOptions,
+                          controller: _tags),
+                    ],
                   ],
                   const SizedBox(height: 25),
                   SizedBox(
@@ -212,6 +219,73 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       ),
     );
   }
+
+  List<Widget> Function(LibraryEntryEditDraft)? _kindFields(
+          LibraryEntryEditDraft? draft) =>
+      draft == null
+          ? null
+          : libraryEditPresentationForKind(draft.record.kind).prefillFields;
+
+  /// Reference Games pre-fill: the kind's completeness controls, Location
+  /// and Owner, purchase facts, Quantity and Tags; no Condition.
+  Widget _kindPrefillFields(LibraryEntryEditDraft draft,
+          List<Widget> Function(LibraryEntryEditDraft) kindFields) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        ListenableBuilder(
+            listenable: draft,
+            builder: (context, _) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final field in kindFields(draft)) ...[
+                        field,
+                        const SizedBox(height: 12),
+                      ],
+                    ])),
+        LibraryEntryPersonalSection(
+            draft: draft,
+            layoutBuilder: (fields, _) => LibraryResponsiveFieldLayout(
+                  maxColumns: 2,
+                  columnBreakpoints: const {2: 600},
+                  spacing: 30,
+                  runSpacing: 15,
+                  children: [
+                    _locationField(),
+                    fields['owner_label'] ?? const SizedBox.shrink(),
+                    if (fields['purchase_date'] case final field?) field,
+                    Align(
+                        alignment: Alignment.bottomLeft,
+                        child: SizedBox(
+                            height: 55,
+                            child: Align(
+                                alignment: Alignment.bottomLeft,
+                                child: _checkbox(
+                                    'Fill with today',
+                                    _fillToday,
+                                    (value) =>
+                                        setState(() => _fillToday = value))))),
+                    if (fields['purchase_store'] case final field?) field,
+                    if (fields['price_paid_cents'] case final field?) field,
+                    LibraryFormField(
+                        label: 'Quantity',
+                        child: LibraryTextFormControl(
+                            key: const ValueKey('prefill-quantity'),
+                            initialValue: '${draft.number('quantity') ?? 1}',
+                            onChanged: (text) {
+                              final quantity = int.tryParse(text.trim());
+                              draft.set(
+                                  'quantity',
+                                  quantity == null || quantity < 1
+                                      ? null
+                                      : quantity);
+                            })),
+                    if (_showAdditionalFields)
+                      if (fields['currency'] case final field?) field,
+                  ],
+                )),
+        const SizedBox(height: 15),
+        LibraryMultiVocabularyField(
+            label: 'Tags', options: _tagOptions, controller: _tags),
+      ]);
 
   Widget _header() {
     return AccentDialogHeader(
@@ -315,7 +389,10 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
       fillPurchaseDateWithToday: _fillToday,
       locationId: _selectedLocationId,
       tags: _tags.value.isEmpty ? null : _tags.value,
-      personalValues: Map.of(_personalDraft?.values ?? const {}),
+      // A pre-fill never sets the value: completeness controls may recompute
+      // it, and a new entry keeps the value from its catalog item.
+      personalValues: Map.of(_personalDraft?.values ?? const {})
+        ..remove('market_value_cents'),
     );
     await defaults.save(widget.kind);
     if (mounted) Navigator.of(context).pop(defaults);

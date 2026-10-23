@@ -130,4 +130,53 @@ void main() {
     expect(result!.alwaysShow, isFalse);
     expect(find.byType(PrefillSettingsDialog), findsNothing);
   });
+
+  testWidgets('Games pre-fill offers completeness, owner and quantity',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    PrefillDefaults? result;
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: MaterialApp(
+          home: Scaffold(
+              body: Builder(
+        builder: (context) => TextButton(
+            onPressed: () async {
+              result = await showPrefillSettingsDialog(
+                  context: context,
+                  accent: Colors.red,
+                  kind: CatalogMediaKind.game);
+            },
+            child: const Text('Open')),
+      ))),
+    ));
+    await tester.tap(find.text('Open'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Completeness'), findsOneWidget);
+    expect(find.text('Owner'), findsOneWidget);
+    expect(find.text('Quantity'), findsOneWidget);
+    expect(find.text('Tags'), findsOneWidget);
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is SingleValuePickField && widget.label == 'Condition'),
+        findsNothing);
+
+    await tester.tap(find.text('CIB'));
+    await pumpUntilSettled(tester);
+    await tester.enterText(find.byKey(const ValueKey('prefill-quantity')), '2');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await pumpUntilSettled(tester);
+
+    expect(result!.personalValues['game_completeness'], 'cib');
+    expect(result!.personalValues['game_has_box'], isTrue);
+    expect(result!.personalValues['game_has_manual'], isTrue);
+    expect(result!.personalValues['quantity'], 2);
+    expect(result!.personalValues.containsKey('market_value_cents'), isFalse);
+  });
 }

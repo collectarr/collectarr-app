@@ -1,6 +1,7 @@
 import '../game_hardware_module_dependencies.dart';
 
 final gameHardwareKindEditCapabilities = LibraryEditCapabilitySet(
+  prefillFields: gameHardwarePrefillFields,
   editRegistry: LibraryTargetEditRegistry(
       catalogItem: buildGameHardwareItemEditDialog,
       libraryEntry: buildGameHardwareItemEditDialog),

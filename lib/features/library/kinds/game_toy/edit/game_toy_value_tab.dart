@@ -141,6 +141,12 @@ Widget gameToyValueLayout(Map<String, Widget> fields, Widget? history) {
             ]));
 }
 
+/// Loose/New and Box of the reference Toys pre-fill.
+List<Widget> gameToyPrefillFields(LibraryEntryEditDraft draft) {
+  final fields = gameToyValueFields(_EntryBindings(draft));
+  return [fields['completeness']!, fields['box_manual']!];
+}
+
 final class GameToyValueTab extends StatelessWidget {
   const GameToyValueTab({super.key, required this.draft});
   final LibraryEntryEditDraft draft;

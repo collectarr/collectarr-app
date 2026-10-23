@@ -120,6 +120,12 @@ Widget gameValueLayout(Map<String, Widget> fields, Widget? _) {
   );
 }
 
+/// Completeness and Box/Manual of the reference Games pre-fill.
+List<Widget> gamePrefillFields(LibraryEntryEditDraft draft) {
+  final fields = gameValueFields(_EntryDraftValueBindings(draft));
+  return [fields['completeness']!, fields['box_manual']!];
+}
+
 /// Editor Value tab over the entry's personal draft.
 final class GameValueTab extends StatelessWidget {
   const GameValueTab({super.key, required this.draft});

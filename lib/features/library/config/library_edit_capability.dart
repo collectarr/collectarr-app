@@ -8,10 +8,12 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/config/library_entry_semantics.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:flutter/widgets.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -86,6 +88,11 @@ final class LibraryTargetEditRegistry {
       target is EntryTargetRef ? libraryEntry : catalogItem;
 }
 
+/// Kind controls that lead Pre-fill Settings, such as completeness and
+/// packaging, bound to the pre-fill draft.
+typedef LibraryPrefillFieldsBuilder = List<Widget> Function(
+    LibraryEntryEditDraft draft);
+
 /// Presentation-only configuration for the shared edit host.
 ///
 /// This object contains no draft construction or Entry mutation behavior.
@@ -99,7 +106,12 @@ final class LibraryEditPresentationCapability {
     this.collectionValueOptions = const [],
     required this.defaultCondition,
     required this.defaultCollectionValue,
+    this.prefillFields,
   });
+
+  /// When set, Pre-fill Settings shows these controls, Owner, Quantity and
+  /// Tags instead of Condition, as in the reference Games pre-fill.
+  final LibraryPrefillFieldsBuilder? prefillFields;
 
   final LibraryTargetEditRegistry editRegistry;
   final LibraryEditPresentation presentation;
@@ -307,7 +319,9 @@ final class LibraryEditCapabilitySet {
         entryPersonalDetailsUpdatePayloadBuilder,
     LibraryEntryTransferUpdatePayloadBuilder? entryTransferUpdatePayloadBuilder,
     LibraryEntryDetailsResetPayloadBuilder? entryDetailsResetPayloadBuilder,
+    LibraryPrefillFieldsBuilder? prefillFields,
   })  : presentationCapability = LibraryEditPresentationCapability(
+          prefillFields: prefillFields,
           editRegistry: editRegistry,
           presentation: presentation,
           editChrome: editChrome,

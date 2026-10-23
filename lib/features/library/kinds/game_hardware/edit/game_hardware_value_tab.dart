@@ -147,6 +147,12 @@ Widget gameHardwareValueLayout(Map<String, Widget> fields, Widget? history) {
             ]));
 }
 
+/// Completeness and Box/Manual of the reference Hardware pre-fill.
+List<Widget> gameHardwarePrefillFields(LibraryEntryEditDraft draft) {
+  final fields = gameHardwareValueFields(_EntryBindings(draft));
+  return [fields['completeness']!, fields['box_manual']!];
+}
+
 final class GameHardwareValueTab extends StatelessWidget {
   const GameHardwareValueTab({super.key, required this.draft});
   final LibraryEntryEditDraft draft;
