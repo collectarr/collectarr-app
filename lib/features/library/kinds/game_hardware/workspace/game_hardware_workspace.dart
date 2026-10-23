@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
     show libraryCollectionStatusFromValue;
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_platform_icon.dart';
 import 'package:flutter/widgets.dart';
 import 'game_hardware_workspace_groups.dart';
 import 'package:collectarr_app/core/utils/natural_text_compare.dart';
@@ -157,6 +158,18 @@ PartialDate? _purchaseParts(GameHardwareWorkspaceDto dto) =>
       _ => null
     };
 
+final _platformIcon =
+    LibraryFieldDefinition<GameHardwareKind, GameHardwareWorkspaceDto, String?>(
+  id: const LibraryFieldId('game_hardware.platform_icon'),
+  metadata: const LibraryKindFieldMetadata(
+      id: 'game_hardware.platform_icon',
+      label: 'Platform Icon',
+      valueType: LibraryFieldValueType.text,
+      cardinality: LibraryFieldCardinality.one,
+      source: LibraryFieldSource.derived,
+      sourcePath: 'platform'),
+  getValue: (context) => context.dto.metadata.platform,
+);
 final _frontImage = _imageField('front_image', 'Device Image', 'front_cover');
 final _boxImage = _imageField('box_image', 'Box Image', 'back_cover');
 final _hasFront = _imageFlag('has_front', 'Has Device', 'front_cover');
@@ -326,6 +339,19 @@ LibraryWorkspaceSchema<GameHardwareKind, GameHardwareWorkspaceDto> _schema(
                       localImageType: type,
                       showPlaceholder: false,
                       borderRadius: 0))),
+        LibraryColumnDefinition<GameHardwareKind, GameHardwareWorkspaceDto,
+            String?>(
+          id: _platformIcon.id,
+          metadata: _platformIcon.metadata,
+          getValue: _platformIcon.getValue,
+          cellValue: (context) =>
+              buildGamePlatformIcon(context.dto.metadata.platform),
+          allowSortInteraction: false,
+          allowGroupInteraction: false,
+          defaultWidth: 36,
+          minWidth: 32,
+          maxWidth: 44,
+        ),
         for (final field in textFields)
           columnFromField(field,
               group: _fieldCategory(field),
@@ -362,7 +388,12 @@ LibraryWorkspaceSchema<GameHardwareKind, GameHardwareWorkspaceDto> _schema(
       groups: gameHardwareWorkspaceGroupDefinitions<GameHardwareKind>(
           includePersonal: personal),
       primaryColumn: _title.id,
-      defaultVisibleColumns: {_title.id, _releaseDate.id, _platform.id},
+      defaultVisibleColumns: {
+        _platformIcon.id,
+        _platform.id,
+        _title.id,
+        _releaseDate.id
+      },
       defaultSort: const LibrarySortId('game_hardware.platform'),
       defaultGroup: const LibraryGroupId<GameHardwareKind, String>(
           'game_hardware.platform'));

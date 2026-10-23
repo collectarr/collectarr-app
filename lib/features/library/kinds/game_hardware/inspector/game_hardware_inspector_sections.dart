@@ -1,4 +1,5 @@
 import '../domain/game_hardware_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_platform_icon.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -81,12 +82,27 @@ Widget buildGameHardwareInspectorHero(
                 fallbackAspectRatio: 0.7,
                 borderRadius: 0)),
         const SizedBox(height: 12),
-        Text(
-            [metadata.platform, metadata.releaseDateParts?.year?.toString()]
-                .whereType<String>()
-                .join(' | '),
-            style: TextStyle(
-                fontWeight: kAppBoldFontWeight, color: palette.textPrimary)),
+        Wrap(
+            spacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              if (metadata.platform?.isNotEmpty == true) ...[
+                Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Icon(resolveGamePlatformIcon(metadata.platform!),
+                        size: 24, color: palette.textPrimary)),
+                Text(metadata.platform!,
+                    style: TextStyle(
+                        fontWeight: kAppBoldFontWeight,
+                        color: palette.textPrimary)),
+              ],
+              if (metadata.releaseDateParts?.year case final year?)
+                Text(
+                    metadata.platform?.isNotEmpty == true ? '($year)' : '$year',
+                    style: TextStyle(
+                        fontWeight: kAppBoldFontWeight,
+                        color: palette.textPrimary)),
+            ]),
         if (metadata.hardwareType?.isNotEmpty == true)
           Text(metadata.hardwareType!),
         if (value != null)

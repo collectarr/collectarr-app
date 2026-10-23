@@ -105,6 +105,7 @@ comparison. The earlier Music pass below remains valid for shared mechanics.
 | Done | Loose packaging valuation | Box/Manual changes atomically recalculate an unlocked Loose value from recorded snapshots in the same currency; unavailable snapshots and locked values preserve the entered amount |
 | Done | Collection tabs | CLZ marks the Games, Hardware and Toys tabs with an icon each; Collectarr tabs of a multi-kind family now show the kind icon (compared passively 2026-10-23) |
 | Done | List columns | CLZ's default Games list shows Platform, Title, Release Date, Publisher, Developer, Genre and Added Date; Collectarr's default list now matches except Added Date, which is not a catalog column and stays opt-in through the column chooser (compared 2026-10-23) |
+| Done | Hardware list and details | CLZ's list leads with the platform icon and Platform before Title, and its details show the platform icon with "Platform (year)"; Hardware now matches. Toys keep Title, Release Date and Series and open on Series folders because they have no platform (deliberate; compared 2026-10-23 with a fictional Toy and Hardware in an isolated origin) |
 | Done | Horizontal cards | Footer reserves separate space for the platform, value and status; compact-width geometry checks prevent overlap |
 | Done | Hardware/Toy folders | Tags retain separate folders even when a tag contains commas; Added/Modified folders group by calendar day, and valuation folders use the Value category |
 
