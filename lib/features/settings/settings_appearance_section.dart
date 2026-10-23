@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/settings/settings_reference_controls.dar
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_slider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/settings/settings_layout.dart';
 
@@ -423,7 +424,7 @@ class _SettingsAppearanceSectionState
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.space_bar),
                 title: const Text('Grid spacing'),
-                subtitle: Slider(
+                subtitle: AppSlider(
                   value: uiPreferences.gridSpacing.clamp(4.0, 24.0),
                   min: 4,
                   max: 24,
@@ -446,7 +447,7 @@ class _SettingsAppearanceSectionState
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.photo_size_select_large),
                 title: const Text('Card cover width'),
-                subtitle: Slider(
+                subtitle: AppSlider(
                   value: uiPreferences.cardCoverWidth.clamp(60.0, 120.0),
                   min: 60,
                   max: 120,
@@ -481,7 +482,7 @@ class _SettingsAppearanceSectionState
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.density_small),
                 title: const Text('Sidebar row padding'),
-                subtitle: Slider(
+                subtitle: AppSlider(
                   value: uiPreferences.sidebarRowPadding.clamp(0.0, 8.0),
                   min: 0,
                   max: 8,

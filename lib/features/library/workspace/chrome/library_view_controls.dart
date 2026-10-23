@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/app_slider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -349,7 +350,7 @@ class LibraryRangeSlider extends StatelessWidget {
           padding: EdgeInsets.zero,
           showValueIndicator: ShowValueIndicator.never,
         ),
-        child: Slider(
+        child: AppSlider(
             value: value.clamp(min, max),
             min: min,
             max: max,

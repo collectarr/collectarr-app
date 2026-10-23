@@ -54,6 +54,7 @@ explicit Music search requests and rejects unexpected network traffic.
 
 ```sh
 flutter test integration_test/app_smoke_test.dart -d windows
+flutter test integration_test/accessibility_startup_test.dart -d windows
 flutter test integration_test/library_add_flow_test.dart -d windows
 flutter test integration_test/library_edit_flow_test.dart -d windows
 ```
@@ -66,3 +67,21 @@ CI also uploads machine test events and `build/test-timings.json`, listing the
 slowest files and directories by summed test-body duration. Concurrent test
 bodies overlap; this is not exclusive wall time and omits suite compilation.
 Inspect these hotspots before splitting jobs or adding timing thresholds.
+
+## Slider accessibility
+
+`test/accessibility/` initializes a recording binding before the ordinary test
+binding can be created. Its helper in `test/support/accessibility/` checks the
+serialized semantics updates sent to the engine, including retained parents
+from earlier frames. Every updated node must be reachable from root 0; checking
+only the final Dart semantics tree misses orphan nodes emitted during a route
+transition.
+
+Library and appearance sliders own a local, content-sized overlay through
+`AppSlider`. This keeps their value-indicator nodes under the same route as
+the control, including when covered by a dialog. Flutter 3.47.7 otherwise
+reproduces the Windows AXTree rejection described in
+[flutter/flutter#190357](https://github.com/flutter/flutter/issues/190357).
+Regression tests cover push/dialog/pop, pointer and keyboard input, accessible
+increase/decrease actions, and toolbar sizing. The native startup flow uses
+an in-memory database, mocked sessions/sync and disabled automatic backups.
