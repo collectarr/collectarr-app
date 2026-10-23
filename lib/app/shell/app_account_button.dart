@@ -29,7 +29,7 @@ class AppAccountButton extends ConsumerWidget {
         tooltip: 'Account',
         style: style,
         visualDensity: VisualDensity.compact,
-        icon: const Icon(AppIcons.user, size: 20),
+        icon: const Icon(AppIcons.user, size: 16),
         onPressed: () => unawaited(_show(context, ref)),
       );
 

@@ -1,3 +1,6 @@
+import 'package:collectarr_app/core/settings/connection_settings.dart';
+import 'package:collectarr_app/state/connection_settings_provider.dart';
+import 'package:collectarr_app/features/sync/state/sync_state.dart';
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_button.dart';
@@ -55,10 +58,47 @@ void main() {
     expect(lastRect.right, lessThanOrEqualTo(stripRect.right));
   });
 
+  testWidgets(
+      'sync action follows personal credentials without opening sync storage',
+      (tester) async {
+    final connection = _ConnectionFake(const ConnectionSettings());
+    final sync = _FakeSyncController();
+    var syncBuilds = 0;
+    await tester.pumpWidget(ProviderScope(
+        overrides: [
+          connectionSettingsProvider.overrideWith(() => connection),
+          syncControllerProvider.overrideWith(() {
+            syncBuilds++;
+            return sync;
+          }),
+        ],
+        child: const MaterialApp(
+            home: Scaffold(body: SyncActionButton(style: ButtonStyle())))));
+    expect(find.byKey(const Key('app.sync')), findsNothing);
+    expect(syncBuilds, 0);
+    connection.update(const ConnectionSettings(isLoaded: true, syncKey: '   '));
+    await tester.pump();
+    expect(find.byKey(const Key('app.sync')), findsNothing);
+    connection.update(const ConnectionSettings(
+        isLoaded: true, syncKey: 'test-key', syncBaseUrl: ' '));
+    await tester.pump();
+    expect(find.byKey(const Key('app.sync')), findsNothing);
+    connection
+        .update(const ConnectionSettings(isLoaded: true, syncKey: 'test-key'));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('app.sync')));
+    expect(sync.calls, 1);
+    connection.update(const ConnectionSettings(isLoaded: true));
+    await tester.pump();
+    expect(find.byKey(const Key('app.sync')), findsNothing);
+  });
+
   testWidgets('home sync button is icon only', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          connectionSettingsProvider.overrideWith(() => _ConnectionFake(
+              const ConnectionSettings(isLoaded: true, syncKey: 'test-key'))),
           syncControllerProvider.overrideWith(
             () => _FakeSyncController(),
           ),
@@ -77,5 +117,19 @@ void main() {
 }
 
 class _FakeSyncController extends SyncController {
-  _FakeSyncController();
+  int calls = 0;
+  @override
+  SyncState build() => SyncIdle();
+  @override
+  Future<void> syncNow() async {
+    calls++;
+  }
+}
+
+class _ConnectionFake extends ConnectionSettingsController {
+  _ConnectionFake(this.initial);
+  final ConnectionSettings initial;
+  @override
+  ConnectionSettings build() => initial;
+  void update(ConnectionSettings value) => state = value;
 }
