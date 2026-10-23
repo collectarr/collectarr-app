@@ -114,7 +114,17 @@ class _AppShellState extends ConsumerState<AppShell> {
             selectedAction: _selectedDrawerAction,
             isAdmin: auth.isAdmin,
             accent: accent,
-            addLabel: 'Add ${activeType.identity.pluralLabel} from Core',
+            onAddFromCore: (drawerContext, type) {
+              Navigator.of(drawerContext).pop();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                unawaited(_actions.handle(
+                  DrawerAction.addFromCore,
+                  type: type,
+                  accent: libraryAccentForKind(type.kind),
+                ));
+              });
+            },
             onSelected: (drawerContext, action) {
               Navigator.of(drawerContext).pop();
               WidgetsBinding.instance.addPostFrameCallback((_) {

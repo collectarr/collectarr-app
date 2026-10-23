@@ -24,7 +24,7 @@ void main() {
             selectedAction: null,
             isAdmin: true,
             accent: const Color(0xFFF2932F),
-            addLabel: 'Add Albums from Core',
+            onAddFromCore: (_, __) {},
             onSelected: (context, action) {
               selectedAction = action;
             },
@@ -154,7 +154,7 @@ void main() {
             selectedAction: null,
             isAdmin: false,
             accent: const Color(0xFFE23149),
-            addLabel: 'Add Games from Core',
+            onAddFromCore: (_, __) {},
             onSelected: (_, __) {},
           ),
         ),
@@ -166,5 +166,36 @@ void main() {
 
     expect(find.text('Link Games'), findsOneWidget);
     expect(find.text('Link Albums'), findsNothing);
+  });
+
+  testWidgets('every Games family kind has an Add from Core entry',
+      (tester) async {
+    tester.view.physicalSize = const Size(1280, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final opened = <CatalogMediaKind>[];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AppNavigationDrawer(
+            type: defaultLibraryKindRegistry
+                .require(CatalogMediaKind.gameHardware),
+            selectedAction: null,
+            isAdmin: false,
+            accent: const Color(0xFFE23149),
+            onAddFromCore: (_, type) => opened.add(type.kind),
+            onSelected: (_, __) {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Add Games from Core'), findsOneWidget);
+    expect(find.text('Add Hardware from Core'), findsOneWidget);
+    expect(find.text('Add Toys from Core'), findsOneWidget);
+    await tester.tap(find.text('Add Toys from Core'));
+    expect(opened, [CatalogMediaKind.gameToy]);
   });
 }

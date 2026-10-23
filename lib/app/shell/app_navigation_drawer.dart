@@ -1,4 +1,5 @@
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:collectarr_app/features/library/collections/library_collection_family.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 import 'package:collectarr_app/ui/app_motion.dart';
@@ -30,9 +31,9 @@ Future<void> showAppNavigationDrawer({
   required DrawerAction? selectedAction,
   required bool isAdmin,
   required Color accent,
-  required String addLabel,
   required bool animationsEnabled,
   required void Function(BuildContext, DrawerAction) onSelected,
+  required void Function(BuildContext, LibraryKindRegistration) onAddFromCore,
 }) =>
     // As in the reference menu, a click on the overlay closes the drawer;
     // it holds no edits, unlike modal panels.
@@ -56,8 +57,8 @@ Future<void> showAppNavigationDrawer({
           selectedAction: selectedAction,
           isAdmin: isAdmin,
           accent: accent,
-          addLabel: addLabel,
           onSelected: onSelected,
+          onAddFromCore: onAddFromCore,
         ),
       ),
       transitionBuilder: (_, animation, __, child) => Align(
@@ -77,16 +78,19 @@ class AppNavigationDrawer extends StatefulWidget {
     required this.isAdmin,
     required this.accent,
     required this.type,
-    required this.addLabel,
     required this.onSelected,
+    required this.onAddFromCore,
   });
 
   final DrawerAction? selectedAction;
   final bool isAdmin;
   final Color accent;
   final LibraryKindRegistration type;
-  final String addLabel;
   final void Function(BuildContext context, DrawerAction action) onSelected;
+
+  /// Opens Add from Core for one kind of the open collection family.
+  final void Function(BuildContext context, LibraryKindRegistration type)
+      onAddFromCore;
 
   @override
   State<AppNavigationDrawer> createState() => _AppNavigationDrawerState();
@@ -186,13 +190,22 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
         for (final destination in appDrawerDestinations)
           if (destination.section == section &&
               (!destination.adminOnly || widget.isAdmin))
-            _action(context, destination),
+            // As in the reference, every kind of a collection family, such as
+            // Games, Hardware and Toys, has its own Add from Core entry.
+            if (destination.action == DrawerAction.addFromCore)
+              for (final type
+                  in collectionFamilyKinds(widget.type.kind.apiValue))
+                _action(context, destination,
+                    label: 'Add ${type.identity.pluralLabel} from Core',
+                    onTap: () => widget.onAddFromCore(context, type))
+            else
+              _action(context, destination),
       ];
 
-  Widget _action(BuildContext context, AppDrawerDestination destination) {
+  Widget _action(BuildContext context, AppDrawerDestination destination,
+      {String? label, VoidCallback? onTap}) {
     final action = destination.action;
-    final label = switch (action) {
-      DrawerAction.addFromCore => widget.addLabel,
+    label ??= switch (action) {
       DrawerAction.linkItems => 'Link ${widget.type.identity.pluralLabel}',
       _ => destination.label,
     };
@@ -209,7 +222,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
       selected: selected,
       child: InkWell(
         key: key,
-        onTap: () => widget.onSelected(context, action),
+        onTap: onTap ?? () => widget.onSelected(context, action),
         mouseCursor: SystemMouseCursors.click,
         splashFactory: NoSplash.splashFactory,
         highlightColor: Colors.transparent,
