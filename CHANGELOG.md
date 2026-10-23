@@ -23,6 +23,7 @@
 - Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
 
 ### 🐛 Fixes
+- Ctrl + mouse wheel zooms the web app in and out again, as it does on desktop.
 - The header hides Sync until a personal sync service is configured and balances Sync and Account icons with the library switcher.
 - Sign in uses the app logo, current light/dark themes and the installed version, with a layout that fits narrow screens and the on-screen keyboard.
 - Library and appearance sliders keep the Windows accessibility tree valid during startup and navigation, preserving keyboard and screen-reader controls.

@@ -94,4 +94,30 @@ void main() {
     await tester.pump();
     expect(controller.offset, greaterThan(0));
   });
+
+  testWidgets('the Web Ctrl + wheel scale signal zooms in and out',
+      (tester) async {
+    tester.view.physicalSize = const Size(800, 600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+    await tester.pumpWidget(
+        const MaterialApp(home: AppZoomWrapper(child: SizedBox.expand())));
+
+    // Flutter Web sends Ctrl + wheel as a scale signal, not a scroll.
+    const center = Offset(400, 300);
+    await tester.sendEventToBinding(
+        const PointerScaleEvent(position: center, scale: 1.65));
+    await tester.pump();
+    expect(find.text('105%'), findsOneWidget);
+
+    await tester.sendEventToBinding(
+        const PointerScaleEvent(position: center, scale: 0.6));
+    await tester.sendEventToBinding(
+        const PointerScaleEvent(position: center, scale: 0.6));
+    await tester.pump();
+    expect(find.text('95%'), findsOneWidget);
+  });
 }
