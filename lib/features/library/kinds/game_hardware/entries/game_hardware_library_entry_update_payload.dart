@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_entry_details_codec.dart';
@@ -119,6 +120,17 @@ final class GameHardwareLibraryEntryUpdatePayload
       purchaseDate: purchaseDate.when(
         unchanged: () => existingPersonal.purchaseDate,
         set: (value) => value,
+        clear: () => null,
+      ),
+      // A re-sent unchanged date keeps its precision, including a year-only
+      // date that has no full purchaseDate.
+      purchaseDateParts: purchaseDate.when(
+        unchanged: () => existingPersonal.purchaseDateParts,
+        set: (value) => value == existingPersonal.purchaseDate
+            ? existingPersonal.purchaseDateParts
+            : value == null
+                ? null
+                : PartialDate.fromDateTime(value),
         clear: () => null,
       ),
       pricePaidCents: pricePaidCents.when(
