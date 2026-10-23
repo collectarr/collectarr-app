@@ -9,6 +9,11 @@
 - Games inventories include folders, sorting, columns, cards, details panels, guided CLZ XML import and lossless native CSV transfer.
 - Libraries can provide default folder favorites; clearing saved favorites keeps them empty.
 - Games, Hardware and Toys collection tabs show their kind icon.
+- Hardware and Toys workspaces offer the full set of folder groups, including tags, dates and value categories.
+- The default Games list shows Platform, Title, Release Date, Publisher, Developer, Genre and Added Date.
+- Hardware lists lead with the platform icon and Platform, and Hardware and Toys details show the platform and year in the reference typography.
+- CLZ Games CSV / TXT exports import into Games, Hardware and Toys, matching columns by their header labels.
+- CSV imports create loans from Loaned To, Loan Date and Due Date, and can import any other column as a custom field.
 
 ### 🐛 Fixes
 - The light theme applies at startup and uses consistent content areas, editor fields, toolbars and collection tabs.
