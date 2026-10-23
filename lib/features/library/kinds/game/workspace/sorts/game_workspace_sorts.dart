@@ -1,12 +1,62 @@
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_catalog_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_personal_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 
 typedef _GameSortValue = Comparable<Object?>? Function(
     LibraryProjectionContext<GameWorkspaceDto> context,
     GameLibraryEntry? entry);
+
+final gameCatalogWorkspaceSorts = [
+  sortFromField<GameKind, GameWorkspaceDto, String>(
+      GameCatalogWorkspaceFields.platform),
+  sortFromField<GameKind, GameWorkspaceDto, String>(
+      GameCatalogWorkspaceFields.title),
+  sortFromField<GameKind, GameWorkspaceDto, String>(
+      GameCatalogWorkspaceFields.publisher),
+  if (GameFieldIdentities.releaseDate.sortable)
+    sortFromField<GameKind, GameWorkspaceDto, DateTime>(
+      GameCatalogWorkspaceFields.releaseDate,
+      defaultAscending: false,
+    ),
+  sortFromField<GameKind, GameWorkspaceDto, String>(
+      GameCatalogWorkspaceFields.edition),
+  if (GameFieldIdentities.barcode.sortable)
+    sortFromField<GameKind, GameWorkspaceDto, String>(
+      GameCatalogWorkspaceFields.barcode,
+    ),
+];
+
+final gamePersonalWorkspaceSorts = [
+  LibrarySortDefinition<GameKind, GameWorkspaceDto>(
+    id: GameSortIds.status,
+    compare: (left, right) {
+      int rank(LibraryProjectionContext<GameWorkspaceDto> ctx) {
+        if ((ctx.item.entrySummary != null)) return 0;
+        if (ctx.personal.isWishlisted) return 1;
+        return 2;
+      }
+
+      final res = rank(left).compareTo(rank(right));
+      return res != 0 ? res : left.dto.title.compareTo(right.dto.title);
+    },
+    label: 'Status',
+  ),
+  sortFromField<GameKind, GameWorkspaceDto, num>(
+    GamePersonalWorkspaceFields.loosePrice,
+    defaultAscending: false,
+  ),
+  sortFromField<GameKind, GameWorkspaceDto, num>(
+    GamePersonalWorkspaceFields.cibPrice,
+    defaultAscending: false,
+  ),
+];
 
 /// Catalog sort fields of the reference Games sort menu that the catalog
 /// columns do not already provide.

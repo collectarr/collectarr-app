@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_workspa
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_library_entry_workspace_schema.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_personal_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
@@ -63,12 +64,18 @@ void main() {
     expect(entryCols, isNot(contains('game.toy_type')));
     expect(entryCols, isNot(contains('game.toy_subtype')));
 
-    expect(gameLibraryEntryWorkspaceDefaultVisibleColumns.map((c) => c.value),
+    expect(
+        gameLibraryEntryWorkspaceSchema.defaultVisibleColumns
+            .map((c) => c.value),
         contains(GameFieldIds.platformIcon.value));
-    expect(gameCatalogItemWorkspaceDefaultVisibleColumns.map((c) => c.value),
+    expect(
+        gameCatalogItemWorkspaceSchema.defaultVisibleColumns
+            .map((c) => c.value),
         contains(GameFieldIds.platformIcon.value));
     // The reference default list has no cover thumbnail column.
-    expect(gameLibraryEntryWorkspaceDefaultVisibleColumns.map((c) => c.value),
+    expect(
+        gameLibraryEntryWorkspaceSchema.defaultVisibleColumns
+            .map((c) => c.value),
         isNot(contains(GameFieldIds.cover.value)));
   });
 
@@ -120,18 +127,15 @@ void main() {
     final finishedWish = context(completed: true, status: 'Wish List');
     final unfinishedOwned = context(completed: false, status: 'In Collection');
 
-    expect(GameLibraryEntryWorkspaceFields.completed.getValue(finishedWish),
-        'Yes');
-    expect(
-        GameLibraryEntryWorkspaceFields.completionStatus.getValue(finishedWish),
+    expect(GamePersonalWorkspaceFields.completed.getValue(finishedWish), 'Yes');
+    expect(GamePersonalWorkspaceFields.completionStatus.getValue(finishedWish),
         'Wish List');
-    expect(GameLibraryEntryWorkspaceFields.completed.getValue(unfinishedOwned),
-        'No');
     expect(
-        GameLibraryEntryWorkspaceFields.completionStatus
-            .getValue(unfinishedOwned),
+        GamePersonalWorkspaceFields.completed.getValue(unfinishedOwned), 'No');
+    expect(
+        GamePersonalWorkspaceFields.completionStatus.getValue(unfinishedOwned),
         'In Collection');
-    expect(GameLibraryEntryWorkspaceFields.completionStatus.metadata.label,
+    expect(GamePersonalWorkspaceFields.completionStatus.metadata.label,
         'Collection Status');
   });
 

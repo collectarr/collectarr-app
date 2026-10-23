@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/game_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 
 class GameLibraryMediaPresentationBuilder

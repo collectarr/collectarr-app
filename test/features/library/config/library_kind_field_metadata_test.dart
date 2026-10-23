@@ -23,7 +23,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_facet_definitions.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_facets.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config/manga_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';

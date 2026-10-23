@@ -22,7 +22,7 @@ export 'package:collectarr_app/features/library/kinds/game/domain/game_library_e
 export 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
 export 'package:collectarr_app/features/library/kinds/game/edit/game_item_edit_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/game/edit/game_typed_edit_presentation.dart';
-export 'package:collectarr_app/features/library/kinds/game/game_physical_media_formats.dart';
+export 'package:collectarr_app/features/library/kinds/game/config/game_physical_media_formats.dart';
 export 'package:collectarr_app/features/library/kinds/game/inspector/game_inspector_sections.dart';
 export 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_semantics.dart';
 export 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_codec.dart';
@@ -34,7 +34,10 @@ export 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capa
 export 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
-export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace.dart';
+export 'package:collectarr_app/features/library/kinds/game/workspace/game_catalog_item_workspace_schema.dart';
+export 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
+export 'package:collectarr_app/features/library/kinds/game/workspace/game_library_entry_workspace_schema.dart';
+export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_facets.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
