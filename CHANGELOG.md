@@ -23,6 +23,7 @@
 - Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
 
 ### 🐛 Fixes
+- The selected list row shows its text in white in the light theme too.
 - Settings opened or reloaded from a link show the options of that link's library instead of Music's.
 - Light Settings boxes, selects and buttons use the reference's white and grey, with its box spacing, Sorting placement and eBay "Automatic" hint.
 - Find Duplicates shows its options on the reference's dark bar with a white select.

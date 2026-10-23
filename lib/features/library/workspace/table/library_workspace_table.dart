@@ -838,7 +838,9 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                       : Alignment.centerLeft,
                   child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: cellBuilder(entry, column)),
+                      child: selected
+                          ? _SelectedCellText(child: cellBuilder(entry, column))
+                          : cellBuilder(entry, column)),
                 ),
               ),
               if (column != columns.last) SizedBox(width: columnSpacing),
@@ -918,4 +920,23 @@ class _LibraryTableColumnGridPainter extends CustomPainter {
       edges.length != oldDelegate.edges.length ||
       Iterable<int>.generate(edges.length)
           .any((index) => edges[index] != oldDelegate.edges[index]);
+}
+
+/// Paints a selected row's text white, as in the reference light and dark
+/// lists, including cells styled from the theme's body text.
+class _SelectedCellText extends StatelessWidget {
+  const _SelectedCellText({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Theme(
+      data: theme.copyWith(
+          textTheme: theme.textTheme.apply(bodyColor: Colors.white)),
+      child: DefaultTextStyle.merge(
+          style: const TextStyle(color: Colors.white), child: child),
+    );
+  }
 }
