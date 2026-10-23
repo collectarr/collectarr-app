@@ -418,8 +418,10 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                     labelContent: SvgPicture.asset(
                       'assets/logos/referral-ebay.svg',
                       height: 14,
+                      // Resolved inside the toolbar, which stays dark in
+                      // both themes.
                       colorFilter: ColorFilter.mode(
-                        palette.isDark ? Colors.white : palette.textPrimary,
+                        appPalette(context).textPrimary,
                         BlendMode.srcIn,
                       ),
                     ),
