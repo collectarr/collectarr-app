@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
@@ -155,6 +156,40 @@ final gamesLibraryMediaPresentation = LibraryMediaPresentation(
           LibrarySortRule(
               column: GameFieldIdentities.releaseDate.id, ascending: false)
         ]),
+  ],
+  // Reference column favorites.
+  duplicateColumns: [
+    GameFieldIds.title.value,
+    GameFieldIds.platform.value,
+    GameFieldIds.releaseDate.value,
+    'game.index',
+    GameFieldIds.addedAt.value,
+  ],
+  columnFavorites: [
+    LibraryTableColumnPreset(label: 'My List View columns', columns: {
+      GameFieldIds.platformIcon.value,
+      GameFieldIds.platform.value,
+      GameFieldIds.title.value,
+      GameFieldIds.releaseDate.value,
+      GameFieldIds.publisher.value,
+      GameFieldIds.developer.value,
+      GameFieldIds.genre.value,
+      GameFieldIds.addedAt.value,
+    }),
+    LibraryTableColumnPreset(label: 'My Find Duplicates columns', columns: {
+      GameFieldIds.title.value,
+      GameFieldIds.platform.value,
+      GameFieldIds.releaseDate.value,
+      'game.index',
+      GameFieldIds.addedAt.value,
+    }),
+    LibraryTableColumnPreset(label: 'My Print / Export columns', columns: {
+      GameFieldIds.platform.value,
+      GameFieldIds.title.value,
+      GameFieldIds.releaseDate.value,
+      GameFieldIds.publisher.value,
+      GameFieldIds.genre.value,
+    }),
   ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title...',

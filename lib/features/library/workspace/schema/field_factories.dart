@@ -60,6 +60,8 @@ LibraryColumnDefinition<TKind, TDto, V>
   LibraryFieldDefinition<TKind, TDto, V> field, {
   Widget Function(LibraryProjectionContext<TDto> context)? cellValue,
   String group = 'Main',
+  String? displayName,
+  LibrarySortId<TKind>? sortId,
   double? defaultWidth,
   double? minWidth,
   double? maxWidth,
@@ -73,6 +75,8 @@ LibraryColumnDefinition<TKind, TDto, V>
     getValue: field.getValue,
     cellValue: cellValue,
     group: group,
+    displayName: displayName,
+    sortId: sortId,
     defaultWidth: defaultWidth,
     minWidth: minWidth,
     maxWidth: maxWidth,

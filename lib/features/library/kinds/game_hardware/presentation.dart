@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'inspector/game_hardware_inspector_sections.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
@@ -68,4 +69,32 @@ final gameHardwareKindPresentation = LibraryMediaPresentation(
     defaultFolderFavorites: const [
       ['game_hardware.platform'],
       ['game_hardware.completeness']
+    ],
+    // The reference column favorites, limited to the Hardware columns.
+    duplicateColumns: const [
+      'game_hardware.title',
+      'game_hardware.platform',
+      'game_hardware.release_date',
+      'game_hardware.index',
+      'game_hardware.added_date',
+    ],
+    columnFavorites: const [
+      LibraryTableColumnPreset(label: 'My List View columns', columns: {
+        'game_hardware.platform_icon',
+        'game_hardware.platform',
+        'game_hardware.title',
+        'game_hardware.release_date',
+      }),
+      LibraryTableColumnPreset(label: 'My Find Duplicates columns', columns: {
+        'game_hardware.title',
+        'game_hardware.platform',
+        'game_hardware.release_date',
+        'game_hardware.index',
+        'game_hardware.added_date',
+      }),
+      LibraryTableColumnPreset(label: 'My Print / Export columns', columns: {
+        'game_hardware.platform',
+        'game_hardware.title',
+        'game_hardware.release_date',
+      }),
     ]);

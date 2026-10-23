@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
@@ -155,7 +156,127 @@ abstract final class GamePersonalWorkspaceFields {
     getValue: (dto) => dto.manualOnlyPrice,
   );
 
+  static final purchaseDate =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, PartialDate?>(
+    id: const LibraryFieldId('game.purchase_date'),
+    metadata: GameWorkspaceFieldMetadata.purchaseDate,
+    getValue: (context) => _purchase(context),
+  );
+
+  static final purchaseYear =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.purchase_year'),
+    metadata: GameWorkspaceFieldMetadata.purchaseYear,
+    getValue: (context) => _purchase(context)?.year,
+  );
+
+  static final purchaseStore =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: const LibraryFieldId('game.purchase_store'),
+    metadata: GameWorkspaceFieldMetadata.purchaseStore,
+    getValue: (context) => _entry(context)?.personal.purchaseStore,
+  );
+
+  static final value = LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.value'),
+    metadata: GameWorkspaceFieldMetadata.value,
+    getValue: (context) => _entry(context)?.personal.marketValueCents,
+  );
+
+  static final addedDateTime =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, DateTime?>(
+    id: const LibraryFieldId('game.added_datetime'),
+    metadata: GameWorkspaceFieldMetadata.addedDateTime,
+    getValue: (context) => _entry(context)?.createdAt ?? context.addedAt,
+  );
+
+  static final addedYear =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.added_year'),
+    metadata: GameWorkspaceFieldMetadata.addedYear,
+    getValue: (context) =>
+        (_entry(context)?.createdAt ?? context.addedAt)?.year,
+  );
+
+  static final modifiedDateTime =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, DateTime>(
+    id: const LibraryFieldId('game.modified_datetime'),
+    metadata: GameWorkspaceFieldMetadata.modifiedDateTime,
+    getValue: (context) => _entry(context)?.updatedAt ?? context.updatedAt,
+  );
+
+  static final completedDate =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, PartialDate?>(
+    id: const LibraryFieldId('game.completed_date'),
+    metadata: GameWorkspaceFieldMetadata.completedDate,
+    getValue: (context) => _entry(context)?.personal.details.completedDate,
+  );
+
+  static final completedYear =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.completed_year'),
+    metadata: GameWorkspaceFieldMetadata.completedYear,
+    getValue: (context) =>
+        _entry(context)?.personal.details.completedDate?.year,
+  );
+
+  static final index = LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.index'),
+    metadata: GameWorkspaceFieldMetadata.index,
+    getValue: (context) => _entry(context)?.personal.indexNumber,
+  );
+
+  static final quantity =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.quantity'),
+    metadata: GameWorkspaceFieldMetadata.quantity,
+    getValue: (context) => _entry(context)?.personal.quantity,
+  );
+
+  static final notes =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: const LibraryFieldId('game.notes'),
+    metadata: GameWorkspaceFieldMetadata.notes,
+    getValue: (context) => _entry(context)?.personal.personalNotes,
+  );
+
+  static final owner =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: const LibraryFieldId('game.owner'),
+    metadata: GameWorkspaceFieldMetadata.owner,
+    getValue: (context) => _entry(context)?.personal.ownerLabel,
+  );
+
+  static final storage =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: const LibraryFieldId('game.storage'),
+    metadata: GameWorkspaceFieldMetadata.storage,
+    getValue: (context) => _entry(context)?.personal.details.storageDevice,
+  );
+
+  static final tags =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, Iterable<String>>(
+    id: const LibraryFieldId('game.tags'),
+    metadata: GameWorkspaceFieldMetadata.tags,
+    getValue: (context) => _entry(context)?.personal.tags ?? const <String>[],
+  );
+
   static final all = [
+    purchaseDate,
+    purchaseYear,
+    purchaseStore,
+    value,
+    addedDateTime,
+    addedYear,
+    modifiedDateTime,
+    completedDate,
+    completedYear,
+    index,
+    quantity,
+    notes,
+    owner,
+    storage,
+    tags,
     condition,
     location,
     pricePaid,
@@ -179,6 +300,13 @@ abstract final class GamePersonalWorkspaceFields {
     boxOnlyPrice,
     manualOnlyPrice,
   ];
+}
+
+PartialDate? _purchase(LibraryProjectionContext<GameWorkspaceDto> context) {
+  final personal = _entry(context)?.personal;
+  final date = personal?.purchaseDate;
+  return personal?.purchaseDateParts ??
+      (date == null ? null : PartialDate.fromDateTime(date));
 }
 
 GameLibraryEntry? _entry(LibraryProjectionContext<GameWorkspaceDto> context) =>

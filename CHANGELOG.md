@@ -13,6 +13,7 @@
 - Games, Hardware and Toys collection tabs show their kind icon.
 - Hardware and Toys workspaces offer the full set of folder groups, including tags, dates and value categories.
 - The default Games list shows Platform, Title, Release Date, Publisher, Developer, Genre and Added Date.
+- Games lists offer the reference's column choices, from Has Front Cover to Value CiB, Owner and Tags, and Games, Hardware and Toys have My List View, My Find Duplicates and My Print / Export column favorites.
 - Hardware lists lead with the platform icon and Platform, and Hardware and Toys details show the platform and year in the reference typography.
 - CLZ Games CSV / TXT exports import into Games, Hardware and Toys, matching columns by their header labels.
 - CSV imports create loans from Loaned To, Loan Date and Due Date, and can import any other column as a custom field.

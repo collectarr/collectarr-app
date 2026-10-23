@@ -38,7 +38,9 @@ final gameLibraryEntryWorkspaceSchema =
     GameFieldIds.title,
     GameFieldIds.releaseDate,
     GameFieldIds.publisher,
-    GameFieldIds.status,
+    GameFieldIds.developer,
+    GameFieldIds.genre,
+    GameFieldIds.addedAt,
   },
   // Reference defaults: Platform folders, sorted by Platform then Title.
   defaultSort: GameSortIds.platform,

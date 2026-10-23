@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 
@@ -93,7 +95,45 @@ abstract final class GameCatalogWorkspaceFields {
     getValue: (context) => context.dto.platform,
   );
 
+  static final audienceRating = textField<GameKind, GameWorkspaceDto>(
+    id: const LibraryFieldId('game.audience_rating'),
+    metadata: GameWorkspaceFieldMetadata.audienceRating,
+    getValue: (dto) => dto.metadata.audienceRating,
+  );
+
+  static final sortTitle = textField<GameKind, GameWorkspaceDto>(
+    id: const LibraryFieldId('game.sort_title'),
+    metadata: GameWorkspaceFieldMetadata.sortTitle,
+    getValue: (dto) => dto.metadata.sortKey ?? dto.title,
+  );
+
+  static final format = textField<GameKind, GameWorkspaceDto>(
+    id: const LibraryFieldId('game.format'),
+    metadata: GameWorkspaceFieldMetadata.format,
+    getValue: (dto) =>
+        dto.metadata.physicalFormatLabel ?? dto.metadata.physicalFormat,
+  );
+
+  static final releaseYear =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
+    id: const LibraryFieldId('game.release_year'),
+    metadata: GameWorkspaceFieldMetadata.releaseYear,
+    getValue: (context) => context.dto.metadata.releaseDateParts?.year,
+  );
+
+  static final hasFront =
+      _imageFlag(GameWorkspaceFieldMetadata.hasFront, 'front_cover');
+
+  static final hasBack =
+      _imageFlag(GameWorkspaceFieldMetadata.hasBack, 'back_cover');
+
   static final all = [
+    audienceRating,
+    sortTitle,
+    format,
+    releaseYear,
+    hasFront,
+    hasBack,
     title,
     platform,
     platformIcon,
@@ -109,3 +149,12 @@ abstract final class GameCatalogWorkspaceFields {
     region,
   ];
 }
+
+LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?> _imageFlag(
+        LibraryKindFieldMetadata metadata, String imageType) =>
+    LibraryFieldDefinition(
+      id: LibraryFieldId(metadata.id),
+      metadata: metadata,
+      getValue: (context) =>
+          gameWorkspaceImageTypes(context).contains(imageType) ? 'Yes' : 'No',
+    );

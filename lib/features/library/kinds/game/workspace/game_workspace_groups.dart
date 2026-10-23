@@ -109,16 +109,7 @@ Object? _groupValue(
   final completed = personal?.details.completedDate;
   final added = _parts(entry?.createdAt ?? context.addedAt);
   final modified = _parts(entry?.updatedAt ?? context.updatedAt);
-  final imageTypes = <String>{
-    if (metadata.coverImageUrl != null && metadata.coverImageUrl!.isNotEmpty)
-      'front_cover',
-    if (context.item.presentation?.imageUrl != null &&
-        context.item.presentation!.imageUrl!.isNotEmpty)
-      'front_cover',
-    for (final image in context.personal.images)
-      _cleanImageType(image.imageType),
-    for (final type in context.personal.imageTypes) _cleanImageType(type),
-  };
+  final imageTypes = gameWorkspaceImageTypes(context);
   return switch (field) {
     GameGroupingField.hasBack => _yesNo(imageTypes.contains('back_cover')),
     GameGroupingField.hasFront => _yesNo(imageTypes.contains('front_cover')),
@@ -171,6 +162,22 @@ Object? _groupValue(
     GameGroupingField.owner => personal?.ownerLabel,
     GameGroupingField.storageDevice => personal?.details.storageDevice,
     GameGroupingField.tags => personal?.tags ?? const <String>[],
+  };
+}
+
+/// Image types an item has: `front_cover`, `back_cover` or a My Images type.
+Set<String> gameWorkspaceImageTypes(
+    LibraryProjectionContext<GameWorkspaceDto> context) {
+  final metadata = context.dto.metadata;
+  return {
+    if (metadata.coverImageUrl != null && metadata.coverImageUrl!.isNotEmpty)
+      'front_cover',
+    if (context.item.presentation?.imageUrl != null &&
+        context.item.presentation!.imageUrl!.isNotEmpty)
+      'front_cover',
+    for (final image in context.personal.images)
+      _cleanImageType(image.imageType),
+    for (final type in context.personal.imageTypes) _cleanImageType(type),
   };
 }
 

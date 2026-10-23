@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'inspector/game_toy_inspector_sections.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
@@ -66,4 +67,29 @@ final gameToyKindPresentation = LibraryMediaPresentation(
     defaultFolderFavorites: const [
       ['game_toy.toy_type'],
       ['game_toy.completeness']
+    ],
+    // The reference column favorites, limited to the Toys columns.
+    duplicateColumns: const [
+      'game_toy.title',
+      'game_toy.release_date',
+      'game_toy.index',
+      'game_toy.added_date',
+    ],
+    columnFavorites: const [
+      LibraryTableColumnPreset(label: 'My List View columns', columns: {
+        'game_toy.title',
+        'game_toy.release_date',
+        'game_toy.series',
+      }),
+      LibraryTableColumnPreset(label: 'My Find Duplicates columns', columns: {
+        'game_toy.title',
+        'game_toy.release_date',
+        'game_toy.index',
+        'game_toy.added_date',
+      }),
+      LibraryTableColumnPreset(label: 'My Print / Export columns', columns: {
+        'game_toy.title',
+        'game_toy.release_date',
+        'game_toy.series',
+      }),
     ]);

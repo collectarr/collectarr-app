@@ -418,9 +418,212 @@ abstract final class GameWorkspaceFieldMetadata {
     editable: true,
   );
 
+  static const audienceRating = LibraryKindFieldMetadata(
+    id: 'game.audience_rating',
+    label: 'Audience Rating',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'audience_rating',
+    groupable: true,
+  );
+
+  static const sortTitle = LibraryKindFieldMetadata(
+    id: 'game.sort_title',
+    label: 'Sort Title',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'sort_title',
+    sortable: true,
+  );
+
+  static const format = LibraryKindFieldMetadata(
+    id: 'game.format',
+    label: 'Format',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'physical_format',
+    groupable: true,
+    sortable: true,
+  );
+
+  static const purchaseDate = LibraryKindFieldMetadata(
+    id: 'game.purchase_date',
+    label: 'Purchase Date',
+    valueType: LibraryFieldValueType.partialDate,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'purchase_date_parts',
+    groupable: true,
+    sortable: true,
+  );
+
+  static const purchaseStore = LibraryKindFieldMetadata(
+    id: 'game.purchase_store',
+    label: 'Purchase Store',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'purchase_store',
+    groupable: true,
+    sortable: true,
+  );
+
+  static const purchaseYear = LibraryKindFieldMetadata(
+    id: 'game.purchase_year',
+    label: 'Purchase Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'purchase_date_parts.year',
+    groupable: true,
+  );
+
+  static const value = LibraryKindFieldMetadata(
+    id: 'game.value',
+    label: 'Value',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'market_value_cents',
+    sortable: true,
+  );
+
+  static const addedDateTime = LibraryKindFieldMetadata(
+    id: 'game.added_datetime',
+    label: 'Added Date/Time',
+    valueType: LibraryFieldValueType.date,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'created_at',
+    sortable: true,
+  );
+
+  static const addedYear = LibraryKindFieldMetadata(
+    id: 'game.added_year',
+    label: 'Added Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'created_at.year',
+    groupable: true,
+  );
+
+  static const modifiedDateTime = LibraryKindFieldMetadata(
+    id: 'game.modified_datetime',
+    label: 'Modified Date/Time',
+    valueType: LibraryFieldValueType.date,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'updated_at',
+    sortable: true,
+  );
+
+  static const completedDate = LibraryKindFieldMetadata(
+    id: 'game.completed_date',
+    label: 'Completed Date',
+    valueType: LibraryFieldValueType.partialDate,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'completed_date',
+    groupable: true,
+    sortable: true,
+  );
+
+  static const completedYear = LibraryKindFieldMetadata(
+    id: 'game.completed_year',
+    label: 'Completed Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'completed_date.year',
+    groupable: true,
+  );
+
+  static const index = LibraryKindFieldMetadata(
+    id: 'game.index',
+    label: 'Index',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'index_number',
+    sortable: true,
+  );
+
+  static const quantity = LibraryKindFieldMetadata(
+    id: 'game.quantity',
+    label: 'Quantity',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'quantity',
+    sortable: true,
+  );
+
+  static const notes = LibraryKindFieldMetadata(
+    id: 'game.notes',
+    label: 'Notes',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'personal_notes',
+    sortable: true,
+  );
+
+  static const owner = LibraryKindFieldMetadata(
+    id: 'game.owner',
+    label: 'Owner',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'owner_label',
+    groupable: true,
+    sortable: true,
+  );
+
+  static const storage = LibraryKindFieldMetadata(
+    id: 'game.storage',
+    label: 'Storage',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'details.storage_device',
+    sortable: true,
+  );
+
+  static const tags = LibraryKindFieldMetadata(
+    id: 'game.tags',
+    label: 'Tags',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'tags[]',
+    groupable: true,
+  );
+
   static const all = <LibraryKindFieldMetadata>[
     addedAt,
+    addedDateTime,
+    addedYear,
     ageRating,
+    audienceRating,
+    completedDate,
+    completedYear,
+    format,
+    index,
+    modifiedDateTime,
+    notes,
+    owner,
+    purchaseDate,
+    purchaseStore,
+    purchaseYear,
+    quantity,
+    sortTitle,
+    storage,
+    tags,
+    value,
     boxOnlyPrice,
     cibPrice,
     completed,
@@ -498,6 +701,7 @@ abstract final class GameWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.derived,
     sourcePath: 'release_date.year',
+    groupable: true,
     filterable: true,
   );
 }

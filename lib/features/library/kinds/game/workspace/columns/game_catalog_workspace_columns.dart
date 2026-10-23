@@ -22,11 +22,23 @@ final gameCatalogWorkspaceColumns = [
             height: 32,
             fit: BoxFit.cover,
           ),
+    group: 'Images',
+    displayName: 'Front Cover',
     allowSortInteraction: false,
     allowGroupInteraction: false,
     defaultWidth: 42,
     minWidth: 44,
   ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+      GameCatalogWorkspaceFields.hasFront,
+      group: 'Images',
+      displayName: 'Has Front Cover',
+      defaultWidth: 96),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+      GameCatalogWorkspaceFields.hasBack,
+      group: 'Images',
+      displayName: 'Has Back Cover',
+      defaultWidth: 96),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.platformIcon,
     metadata: GameWorkspaceFieldMetadata.platformIcon,
@@ -57,7 +69,28 @@ final gameCatalogWorkspaceColumns = [
   ),
   columnFromField<GameKind, GameWorkspaceDto, String?>(
     GameCatalogWorkspaceFields.developer,
+    sortId: const LibrarySortId('game.developer_sort'),
     defaultWidth: 140,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, int?>(
+    GameCatalogWorkspaceFields.releaseYear,
+    cellValue: (context) =>
+        Text('${context.dto.metadata.releaseDateParts?.year ?? ''}'),
+    isNumeric: true,
+    defaultWidth: 96,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameCatalogWorkspaceFields.series,
+    sortId: const LibrarySortId('game.series_sort'),
+    defaultWidth: 140,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameCatalogWorkspaceFields.sortTitle,
+    defaultWidth: 200,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameCatalogWorkspaceFields.audienceRating,
+    defaultWidth: 120,
   ),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, Iterable<String>>(
     id: GameFieldIds.genre,
@@ -78,8 +111,19 @@ final gameCatalogWorkspaceColumns = [
     maxWidth: 260,
   ),
   columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameCatalogWorkspaceFields.format,
+    sortId: const LibrarySortId('game.format_sort'),
+    group: 'Edition',
+    defaultWidth: 140,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameCatalogWorkspaceFields.region,
+    sortId: const LibrarySortId('game.region_sort'),
+    group: 'Edition',
+    defaultWidth: 110,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
     GameCatalogWorkspaceFields.franchise,
-    group: 'Classification',
     defaultWidth: 130,
   ),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, DateTime?>(
