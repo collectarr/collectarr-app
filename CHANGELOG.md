@@ -15,7 +15,7 @@
 - The sorting favorites button remains readable in the light theme.
 
 ### ♻️ Refactors
-- Personal tags are stored as lists so tags can contain commas; existing entries and pending Sync changes upgrade together.
+- Personal tags are stored as lists so tags can contain commas; existing entries and pending Sync changes upgrade together in one migration from the released schema.
 - Manual Add footers share the same behavior across libraries.
 
 ### 📚 Docs

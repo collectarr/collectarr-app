@@ -8,9 +8,9 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 4);
+    expect(db.schemaVersion, 3);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 4);
+    expect(version.data.values.single, 3);
 
     final tables = await db
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
@@ -92,7 +92,7 @@ void main() {
     expect(row.email, isNull);
     expect(row.address, isNull);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 4);
+    expect(version.data.values.single, 3);
   });
 
   test('upgrades a schema 2 database by creating the Game tables', () async {
@@ -111,10 +111,11 @@ void main() {
     expect(kept, ['e1']);
     expect(await db.select(db.gameTrackingRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 4);
+    expect(version.data.values.single, 3);
   });
 
-  test('upgrades schema 3 tags from comma-separated text to lists', () async {
+  test('upgrades released schema 2 tags from comma-separated text to lists',
+      () async {
     final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
       _createReleasedEntryTables(raw);
       raw.execute("INSERT INTO library_entries VALUES "
@@ -126,7 +127,7 @@ void main() {
           "'{\"personal_data\":{\"tags\":\"rpg\"}}', 0),"
           "('c2', 'user_folder', 'f1', 'update', "
           "'{\"personal_data\":{\"tags\":\"kept\"}}', 0)");
-      raw.execute('PRAGMA user_version = 3');
+      raw.execute('PRAGMA user_version = 2');
     }));
     addTearDown(db.close);
 
@@ -143,11 +144,11 @@ void main() {
       '{"personal_data":{"tags":"kept"}}',
     ]);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 4);
+    expect(version.data.values.single, 3);
   });
 }
 
-/// The released entry and Sync queue tables, as schema 1 to 3 created them.
+/// The released entry and Sync queue tables, as schema 1 and 2 created them.
 void _createReleasedEntryTables(Database raw) {
   raw.execute('CREATE TABLE library_entries (id TEXT NOT NULL, '
       'kind TEXT NOT NULL, payload_json TEXT NOT NULL, '

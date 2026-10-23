@@ -39,7 +39,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 3;
 
   // Dormant kind models remain available to their isolated source modules.
   // The release database exposes and creates only shared and released-kind
@@ -76,7 +76,7 @@ class LocalDatabase extends _$LocalDatabase {
         // Explicit, ordered upgrade steps; each runs once, from the released
         // schema it follows.
         onUpgrade: (migrator, from, to) async {
-          if (from < 1 || to > 4) {
+          if (from < 1 || to > 3) {
             throw StateError(
                 'No released migration exists from schema $from to $to.');
           }
@@ -88,11 +88,9 @@ class LocalDatabase extends _$LocalDatabase {
                 pickListValuesCache, pickListValuesCache.address);
           }
           if (from < 3) {
-            // 3: Game release.
+            // 3: Games inventory release and list-valued personal tags.
             await migrator.createTable(gameTrackingRows);
-          }
-          if (from < 4) {
-            // 4: personal tags are a list instead of one comma-separated
+            // Personal tags are a list instead of one comma-separated
             // string, in entries and in their pending Sync changes.
             await _storeTagsAsLists('library_entries', '');
             await _storeTagsAsLists(

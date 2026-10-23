@@ -3,8 +3,10 @@
 ## Database file and baseline
 
 `lib/core/db/local_database.dart` is the Drift composition root. The supported
-schema version is `4` with explicit ordered migrations from the initial
-baseline. Native platforms create
+schema version is `3` with explicit ordered migrations from the initial
+baseline. Version 2 is the latest published baseline; version 3 combines Games
+tracking and list-valued personal tags in one data-preserving upgrade.
+Intermediate development schemas do not add migration steps. Native platforms create
 `collectarr-library.sqlite` in the application support directory. Web
 uses the `collectarr-library-sqlite3` database name. Older database and backup
 formats are unsupported; implementation work must not reset or overwrite an
