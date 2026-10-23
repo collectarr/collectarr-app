@@ -28,6 +28,7 @@
 - Cover views show the complete image, and unselected vertical cards keep readable text in the light theme.
 - List rows use a fuller bundled font while preserving the weight of user-supplied local fonts.
 - XML export explains when a library is empty and only saves after Download is confirmed.
+- View and Layout controls use shared-blue selection, matching window icons, and a visible Layout hover and dropdown arrow at compact sizes.
 - Folder rows fade their hover and selection colors as the reference does.
 - The selected list row shows its text in white in the light theme too.
 - Settings opened or reloaded from a link show the options of that link's library instead of Music's.

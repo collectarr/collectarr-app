@@ -1,7 +1,6 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_slider.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
@@ -27,8 +26,8 @@ class LibraryViewModeDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = LibraryAccentScope.accentOf(context);
-    const menuText = Colors.white;
+    final accent = appPalette(context).utilityAction;
+    final menuText = libraryToolbarMenuText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
           fontWeight: FontWeight.w400,
@@ -122,7 +121,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = LibraryAccentScope.accentOf(context);
+    final accent = appPalette(context).utilityAction;
     final menuText = libraryToolbarMenuText(context);
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -160,7 +159,11 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
       ),
       shape: libraryToolbarDropdownMenuShape(context),
       itemBuilder: (context) => [
-        for (final layout in LibraryDetailsLayout.values)
+        for (final layout in const [
+          LibraryDetailsLayout.bottom,
+          LibraryDetailsLayout.right,
+          LibraryDetailsLayout.hidden,
+        ])
           PopupMenuItem<LibraryDetailsLayout>(
             height: _viewModeDropdownHeight,
             padding: const EdgeInsets.symmetric(horizontal: 7),
@@ -168,13 +171,13 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
             child: LibraryWorkspaceMenuRow(
               padding: EdgeInsets.zero,
               label: _detailsLayoutMenuLabel(layout),
-              leading: Icon(
-                _detailsLayoutIcon(layout),
+              leading: buildDetailsLayoutGlyph(
+                layout,
                 size: 17,
                 color: layout == detailsLayout ? menuText : menuMuted,
               ),
               trailing: layout == detailsLayout
-                  ? Icon(Icons.check, size: 16, color: accent)
+                  ? Icon(AppIcons.check, size: 16, color: accent)
                   : null,
               textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     height: 1,
@@ -185,40 +188,42 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
           ),
       ],
       child: inspectorStyle
-          ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    _detailsLayoutIcon(detailsLayout),
-                    size: 15,
-                    color: menuText,
-                  ),
-                  if (!iconOnly) ...[
-                    const SizedBox(width: 4),
-                    Text(
-                      'Layout',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w400,
-                        color: menuText,
-                      ),
+          ? LibraryToolbarHoverSurface(
+              child: SizedBox(
+                  height: 30,
+                  width: iconOnly ? 46 : null,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        buildDetailsLayoutGlyph(
+                          detailsLayout,
+                          size: 15,
+                          color: menuText,
+                        ),
+                        if (!iconOnly) ...[
+                          const SizedBox(width: 4),
+                          Text(
+                            'Layout',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w400,
+                              color: menuText,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(width: 4),
+                        Icon(AppIcons.chevronDown, size: 12, color: menuMuted),
+                      ],
                     ),
-                    const SizedBox(width: 2),
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 15,
-                      color: menuMuted,
-                    ),
-                  ],
-                ],
-              ),
-            )
+                  )))
           : _LibraryToolbarSplitLabelTrigger(
               leadingLabel: 'Layout',
               valueLabel: _detailsLayoutMenuLabel(detailsLayout),
-              valueIcon: _detailsLayoutIcon(detailsLayout),
+              valueWidget: buildDetailsLayoutGlyph(detailsLayout,
+                  size: 15, color: libraryToolbarControlText(context)),
               iconOnly: iconOnly,
             ),
     );
@@ -482,7 +487,7 @@ double _measureDetailsDropdownWidth(
       maxLabelWidth = painter.width;
     }
   }
-  return (14 + 17 + 8 + maxLabelWidth).clamp(116, double.infinity);
+  return (14 + 17 + 8 + maxLabelWidth + 8 + 16).clamp(116, double.infinity);
 }
 
 double _measureViewDropdownWidth(
@@ -666,10 +671,13 @@ String _detailsLayoutTooltip(LibraryDetailsLayout layout) {
   };
 }
 
-IconData _detailsLayoutIcon(LibraryDetailsLayout layout) {
-  return switch (layout) {
-    LibraryDetailsLayout.right => Icons.view_sidebar,
-    LibraryDetailsLayout.bottom => Icons.splitscreen,
-    LibraryDetailsLayout.hidden => Icons.visibility_off,
-  };
+Widget buildDetailsLayoutGlyph(LibraryDetailsLayout layout,
+    {required Color color, double size = 16}) {
+  if (layout == LibraryDetailsLayout.hidden) {
+    return Icon(AppIcons.windowRestore, size: size, color: color);
+  }
+  return RotatedBox(
+    quarterTurns: layout == LibraryDetailsLayout.right ? 1 : 2,
+    child: Icon(AppIcons.windowMaximize, size: size, color: color),
+  );
 }

@@ -221,6 +221,10 @@ abstract final class AppIcons {
       IconData(0xf1de, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData columns =
       IconData(0xf0db, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData windowMaximize =
+      IconData(0xf2d0, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData windowRestore =
+      IconData(0xf2d2, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData sortAscending =
       IconData(0xf30c, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData sortDescending =
