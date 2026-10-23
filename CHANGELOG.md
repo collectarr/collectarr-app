@@ -24,6 +24,7 @@
 - Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
 
 ### 🐛 Fixes
+- The details toolbar shows Edit, Share and Layout labels only when the details panel is wide, as in the reference.
 - Toolbar and details-toolbar hover highlights have square corners, as in the reference.
 - In the light theme toolbar menus open as white popups with dark text and grey hover, as in the reference.
 - Wrapped list rows start their text and row controls at the top, as the reference does.

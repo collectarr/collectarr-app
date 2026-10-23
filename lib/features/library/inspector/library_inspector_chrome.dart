@@ -383,7 +383,9 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
         : null;
     final content = LayoutBuilder(
       builder: (context, constraints) {
-        final compactActions = constraints.maxWidth < 420;
+        // The reference shows Edit, Share and Layout labels only when the
+        // details pane is at least 768 px wide (its col-xs breakpoint).
+        final compactActions = constraints.maxWidth < 768;
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
