@@ -18,7 +18,10 @@ void main() {
   ]) {
     test('CLZ ${kind.apiValue} preserves typed metadata and personal fields',
         () {
-      final importer = libraryImportForKind(kind).sources.single.importer!;
+      final importer = libraryImportForKind(kind)
+          .sources
+          .firstWhere((s) => s.importer != null)
+          .importer!;
       final source = _fixture(kind.apiValue, 'optional');
       final row = importer.parse(source).single;
       final record = LibraryEntryRecord.fromJson(row.fullEntryPayload!);
@@ -42,7 +45,10 @@ void main() {
     test(
         'CLZ ${kind.apiValue} refuses another inventory without reclassification',
         () {
-      final importer = libraryImportForKind(kind).sources.single.importer!;
+      final importer = libraryImportForKind(kind)
+          .sources
+          .firstWhere((s) => s.importer != null)
+          .importer!;
       expect(() => importer.parse(_fixture(kind.apiValue, 'invalid')),
           throwsFormatException);
     });
@@ -53,7 +59,7 @@ void main() {
     final hardware = LibraryEntryRecord.fromJson(
         libraryImportForKind(CatalogMediaKind.gameHardware)
             .sources
-            .single
+            .firstWhere((s) => s.importer != null)
             .importer!
             .parse(_fixture('game_hardware', 'optional'))
             .single
@@ -65,7 +71,7 @@ void main() {
     final toy = LibraryEntryRecord.fromJson(
         libraryImportForKind(CatalogMediaKind.gameToy)
             .sources
-            .single
+            .firstWhere((s) => s.importer != null)
             .importer!
             .parse(_fixture('game_toy', 'optional'))
             .single
@@ -80,8 +86,10 @@ void main() {
   test(
       'CLZ Games completion is scoped to Games and duplicate copies stay independent',
       () {
-    final importer =
-        libraryImportForKind(CatalogMediaKind.game).sources.single.importer!;
+    final importer = libraryImportForKind(CatalogMediaKind.game)
+        .sources
+        .firstWhere((s) => s.importer != null)
+        .importer!;
     final source = _fixture('game', 'optional');
     final record = LibraryEntryRecord.fromJson(
         importer.parse(source).single.fullEntryPayload!);
@@ -99,7 +107,7 @@ void main() {
   test('CLZ import rejects invalid calendar dates and invalid money', () {
     final importer = libraryImportForKind(CatalogMediaKind.gameHardware)
         .sources
-        .single
+        .firstWhere((s) => s.importer != null)
         .importer!;
     final source = _fixture('game_hardware', 'optional');
     expect(
