@@ -141,7 +141,6 @@ final gameCatalogItemWorkspaceSortDefinitions = [
 ];
 
 final gameCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
-  GameFieldIds.cover,
   GameFieldIds.platformIcon,
   GameFieldIds.platform,
   GameFieldIds.title,

@@ -469,6 +469,8 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
   }
 }
 
+const _minResizedColumnWidth = 50.0;
+
 class _LibraryWorkspaceTableHeaderCell extends StatefulWidget {
   const _LibraryWorkspaceTableHeaderCell({
     required this.column,
@@ -519,6 +521,9 @@ class _LibraryWorkspaceTableHeaderCellState
     final textColor = appContrastingTextColor(widget.headerColor);
     final showSort = widget.sorted && widget.width >= 64;
     final showPriority = widget.sortPriority != null && widget.width >= 80;
+    // Icon columns are narrower than any resized column; as in the reference
+    // they keep an empty header instead of a clipped label.
+    final showLabel = widget.width >= _minResizedColumnWidth;
     return SizedBox(
       width: widget.width,
       height: widget.height,
@@ -540,7 +545,7 @@ class _LibraryWorkspaceTableHeaderCellState
                   padding: const EdgeInsets.only(left: 5, right: 5),
                   child: Row(children: [
                     Expanded(
-                        child: Text(widget.label,
+                        child: Text(showLabel ? widget.label : '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -590,7 +595,7 @@ class _LibraryWorkspaceTableHeaderCellState
                       onHorizontalDragUpdate: (details) {
                         final width =
                             (_startWidth + details.globalPosition.dx - _startX)
-                                .clamp(50.0, double.infinity);
+                                .clamp(_minResizedColumnWidth, double.infinity);
                         widget.onColumnWidthChanged(
                             widget.column, width.toDouble());
                       },

@@ -54,6 +54,9 @@ void main() {
         contains(GameFieldIds.platformIcon.value));
     expect(gameCatalogItemWorkspaceDefaultVisibleColumns.map((c) => c.value),
         contains(GameFieldIds.platformIcon.value));
+    // The reference default list has no cover thumbnail column.
+    expect(gameLibraryEntryWorkspaceDefaultVisibleColumns.map((c) => c.value),
+        isNot(contains(GameFieldIds.cover.value)));
   });
 
   test('resolveGamePlatformIcon maps platforms correctly', () {

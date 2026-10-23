@@ -70,6 +70,31 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('icon columns keep an empty header', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: LibraryWorkspaceTable<String>(
+      entries: const ['row'],
+      columns: const ['Platform Icon', 'Platform'],
+      sortColumn: 'Platform',
+      sortAscending: true,
+      columnWidthFor: (id) => id == 'Platform' ? 120 : 36,
+      defaultColumnWidthFor: (id) => id == 'Platform' ? 120 : 36,
+      columnSortFor: (id) => id,
+      columnLabelFor: (id) => id,
+      columnIsNumeric: (_) => false,
+      cellBuilder: (_, id) => const SizedBox.shrink(),
+      isSelected: (_) => false,
+      onEntryTap: (_) {},
+      onSortChanged: (_) {},
+      onColumnWidthChanged: (_, __) {},
+    ))));
+
+    expect(find.text('Platform'), findsOneWidget);
+    expect(find.text('Platform Icon'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('column separators align through selected rows and resizing',
       (tester) async {
     const boundaryKey = ValueKey('table-pixels');

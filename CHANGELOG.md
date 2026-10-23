@@ -22,6 +22,7 @@
 - The sorting favorites button remains readable in the light theme.
 - Games, Hardware and Toys lists show dates in the chosen date format, such as Nov 14, 2014, instead of always 2014-11-14.
 - The Games details panel shows the Format of imported games, such as Steam Download, above the genres.
+- List headers of narrow icon columns stay empty instead of showing clipped labels, and the default Games list no longer adds a cover column.
 - The main menu's link entry names the open library's items, such as Link Games, instead of always saying Link Albums.
 
 ### ♻️ Refactors
