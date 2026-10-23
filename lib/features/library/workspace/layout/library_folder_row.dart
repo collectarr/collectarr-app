@@ -15,10 +15,11 @@ TextStyle libraryFolderTextStyle(BuildContext context) =>
       letterSpacing: 0,
     );
 
+// Hover and count badges; the reference light skin uses #DDD for both.
 Color libraryFolderHoverColor(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
         ? const Color(0xff464950)
-        : appPalette(context).panelRaised;
+        : appPalette(context).badgeBackground;
 
 Color libraryFolderDepthColor(BuildContext context, int depth) =>
     Theme.of(context).brightness == Brightness.dark
@@ -109,7 +110,7 @@ class _LibraryFolderRowState extends State<LibraryFolderRow> {
                           ? background
                           : Theme.of(context).brightness == Brightness.dark
                               ? const Color(0xff262626)
-                              : appPalette(context).divider)),
+                              : const Color(0xffe4e4e4))),
             ),
             child: SizedBox(
               height: math.max(

@@ -14,6 +14,11 @@ class AppDarkChrome extends StatelessWidget {
   final Color? accent;
   final Widget child;
 
+  /// Whether [context] is dark chrome over light content. The reference
+  /// light skin keeps its search fields white inside dark toolbars.
+  static bool overLightContent(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_OverLightContent>() != null;
+
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
@@ -33,9 +38,16 @@ class AppDarkChrome extends StatelessWidget {
         style: TextStyle(color: darkPalette.textPrimary),
         child: IconTheme.merge(
           data: IconThemeData(color: darkPalette.textPrimary),
-          child: child,
+          child: _OverLightContent(child: child),
         ),
       ),
     );
   }
+}
+
+class _OverLightContent extends InheritedWidget {
+  const _OverLightContent({required super.child});
+
+  @override
+  bool updateShouldNotify(_OverLightContent oldWidget) => false;
 }

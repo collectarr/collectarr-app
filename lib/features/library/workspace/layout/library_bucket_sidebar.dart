@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -497,10 +498,16 @@ class _SidebarSearchAndSort extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    // The reference light skin keeps this strip dark with a white field.
+    final lightContent = !appPalette(context).isDark;
+    final fieldInk = appPalette(context).textPrimary;
+    return AppDarkChrome(
+        child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: dividerColor)),
+        color: lightContent ? kAppToolbar : null,
+        border: Border(
+            top: BorderSide(color: lightContent ? kAppDivider : dividerColor)),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -525,10 +532,9 @@ class _SidebarSearchAndSort extends StatelessWidget {
                   child: showSearchField
                       ? DecoratedBox(
                           decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
-                                    ? const Color(0xff444444)
-                                    : appPalette(context).panelRaised,
+                            color: lightContent
+                                ? Colors.white
+                                : const Color(0xff444444),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Row(children: [
@@ -539,7 +545,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
                               textAlignVertical: TextAlignVertical.center,
                               onChanged: (_) => onChanged(),
                               style: libraryFolderTextStyle(context)
-                                  .copyWith(height: 1),
+                                  .copyWith(height: 1, color: fieldInk),
                               decoration: InputDecoration(
                                 hintText: searchPlaceholder,
                                 hintStyle: libraryFolderTextStyle(context)
@@ -579,7 +585,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
                                           ? AppIcons.search
                                           : AppIcons.close,
                                       size: 14,
-                                      color: appPalette(context).textPrimary),
+                                      color: fieldInk),
                                 ),
                               ),
                           ]),
@@ -607,7 +613,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
           );
         },
       ),
-    );
+    ));
   }
 }
 

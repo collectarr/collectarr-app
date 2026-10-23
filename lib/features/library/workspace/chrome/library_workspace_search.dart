@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:collectarr_app/features/library/generic/projection/library_search_index.dart';
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -266,15 +267,21 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
         (widget.onScanCover != null ? 1 : 0) +
         (widget.onRandomPick != null ? 1 : 0);
     final inlineActionsWidth = inlineActionCount * 26.0 + 2;
-    final inputBackground =
-        palette.isDark ? const Color(0xff444444) : palette.field;
+    final whiteField = AppDarkChrome.overLightContent(context);
+    final inputBackground = whiteField
+        ? Colors.white
+        : palette.isDark
+            ? const Color(0xff444444)
+            : palette.field;
+    final ink =
+        whiteField ? kLightAppThemePalette.textPrimary : palette.textPrimary;
     final textStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           fontSize: 14,
           height: 20 / 14,
           fontWeight: FontWeight.w400,
-          color: palette.textPrimary,
+          color: ink,
         );
-    final iconColor = palette.textPrimary;
+    final iconColor = ink;
 
     return LayoutBuilder(
       builder: (context, constraints) {
