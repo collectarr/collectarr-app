@@ -6,8 +6,8 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 Color libraryWorkspaceBackgroundColor(BuildContext context) =>
     appPalette(context).panel;
 
-// Behind covers, cards, flow and the list in every view mode except Shelves,
-// whose background comes from the shelf style.
+// Behind covers, cards and flow. Lists use the skin's content surface;
+// Shelves get their background from the shelf style.
 Color libraryViewBackgroundColor(BuildContext context) =>
     appPalette(context).isDark
         ? const Color(0xFF131313)

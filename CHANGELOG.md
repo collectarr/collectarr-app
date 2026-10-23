@@ -22,6 +22,7 @@
 ### 🐛 Fixes
 - The light theme applies at startup and uses consistent content areas, editor fields, toolbars and collection tabs.
 - Games inventories use distinct original collection icons; the library switcher reaches the right edge with its arrow aligned to the icon in both themes.
+- List views use the reference's gray canvas in dark mode and white canvas in light mode instead of the cover-grid background.
 - Pick-list fields preserve spaces when typing a new value.
 - Horizontal cards keep labels and value/status badges readable at compact widths and in the light theme.
 - The sorting favorites button remains readable in the light theme.
