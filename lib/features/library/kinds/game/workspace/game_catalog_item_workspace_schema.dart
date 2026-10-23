@@ -85,6 +85,13 @@ abstract final class GameCatalogItemWorkspaceFields {
     getValue: (dto) => dto.region,
   );
 
+  static final addedAt =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, DateTime?>(
+    id: GameFieldIds.addedAt,
+    metadata: GameWorkspaceFieldMetadata.addedAt,
+    getValue: (context) => context.addedAt,
+  );
+
   static final platformIcon =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.platformIcon,
@@ -141,6 +148,7 @@ final gameCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   GameFieldIds.publisher,
   GameFieldIds.developer,
   GameFieldIds.genre,
+  GameFieldIds.addedAt,
 };
 
 final gameCatalogItemWorkspaceColumnDefinitions = [
@@ -214,6 +222,14 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
     GameCatalogItemWorkspaceFields.franchise,
     group: 'Classification',
     defaultWidth: 130,
+  ),
+  LibraryColumnDefinition<GameKind, GameWorkspaceDto, DateTime?>(
+    id: GameFieldIds.addedAt,
+    metadata: GameWorkspaceFieldMetadata.addedAt,
+    getValue: GameCatalogItemWorkspaceFields.addedAt.getValue,
+    cellValue: (context) => Text(_formatDate(context.addedAt)),
+    group: 'Personal',
+    defaultWidth: 112,
   ),
 ];
 

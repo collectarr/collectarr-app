@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_kind_field_metada
 abstract final class GameWorkspaceFieldMetadata {
   static const addedAt = LibraryKindFieldMetadata(
     id: 'game.added_at',
-    label: 'Added',
+    label: 'Added Date',
     valueType: LibraryFieldValueType.date,
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.libraryEntry,

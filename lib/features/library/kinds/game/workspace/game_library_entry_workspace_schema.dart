@@ -290,14 +290,6 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
     group: 'Personal',
     defaultWidth: 112,
   ),
-  LibraryColumnDefinition<GameKind, GameWorkspaceDto, DateTime?>(
-    id: GameFieldIds.addedAt,
-    metadata: GameWorkspaceFieldMetadata.addedAt,
-    getValue: GameLibraryEntryWorkspaceFields.addedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.addedAt)),
-    group: 'Personal',
-    defaultWidth: 112,
-  ),
   columnFromField<GameKind, GameWorkspaceDto, String?>(
     GameLibraryEntryWorkspaceFields.location,
     group: 'Personal',
