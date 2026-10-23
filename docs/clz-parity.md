@@ -168,11 +168,69 @@ dialog were closed with Cancel and ×.
 | Open P3 | Statistics | CLZ's collection tabs are bordered boxes; the bar charts show y-axis counts and vertical grid lines; card titles use #0082A6. Collectarr uses plain tabs, no y-axis labels, horizontal grid lines and lighter blue titles. CLZ ordered equal platform bars PS5, PS4, PC; Collectarr PC, PS5, PS4 |
 | Open P3 | Loan Manager | CLZ draws the loan toolbar on a #EEE band inside a bordered box and its tabs as bordered boxes; Collectarr's toolbar band is white and its tabs plain. Collectarr adds "Lend / return by barcode" (deliberate) |
 
+### Control and icon follow-up
+
+Compared the signed-in CLZ Games Default skin and an isolated Collectarr
+release build on port 7367 at 2560 × 1305. The latter imported the fictional
+three-game XML fixture into new browser storage. CLZ editors were closed with
+Cancel. Reference values below come from computed styles after hover settled;
+Collectarr uses screenshots, widget geometry and source inspection. Both app
+themes were checked for Layout, including the compact vertical inspector and
+the labelled horizontal inspector. This is a focused continuation, not a new
+full audit of every view, dialog or editor tab.
+
+| Status | Control / state | Comparison and result |
+| --- | --- | --- |
+| Done | Layout glyphs | CLZ uses a window with its band rotated right/bottom and overlapping windows for No Details. Replaced Collectarr's Material sidebar/splitscreen/hidden-eye glyphs with the corresponding FOSS Font Awesome window glyphs; the trigger follows the selected layout |
+| Done | Layout trigger | Compact inspector trigger is 46 × 30 px, matching CLZ, with a dropdown arrow in both compact and labelled forms and a visible #464950 hover on dark chrome. Widget tests exercise hover/cursor and every layout choice in both themes; the release build was exercised through horizontal, hidden and vertical layouts |
+| Done | Layout menu | Horizontal Split → Vertical Split → No Details, as in CLZ; 30 px rows. Reserved space for the selected check so the longest label cannot collide with it |
+| Done | Utility selection | View's active item and Layout's selected check use shared utility blue instead of the library accent. This follows the project's color rule; CLZ's View menu has no colored active-item marker |
+| Done | Portrait cover geometry | The standard profile passed width/height (0.7 for Games, Hardware and Toys) as a height multiplier, producing landscape tiles. It now uses the reciprocal, so 140 px width yields 200 px height; the same profile sizes Covers, vertical cards, shelves and image fallbacks. Covers/cards contain the complete artwork instead of cropping it to the fallback ratio; horizontal cards already contained it and Flow's foreground preserves it |
+| Done | Light vertical cards | Non-selected titles and metadata were #EBEBEB/#9E9E9E on white, nearly invisible. Light cards now use the light palette's primary/muted text; selected cards retain white text. A regression checks title contrast against the card background |
+| Done | List text weight | CLZ's computed cell style is Gilroy 14 px/400. Collectarr keeps 14 px and uses the bundled Bold face for denser list rows; user-supplied local faces retain their calibrated 400 slot. This is an optical adjustment, not a claim that Plus Jakarta Sans and Gilroy have identical outlines |
+| Checked / improved | Games XML export | The isolated Games collection completed Export → generation → Download and produced a 9 KB XML with three full entries. No total no-op was reproduced there. Empty exports now explain that there is nothing to export, and dismissing the Download prompt does not save a file. Isolated widget flows save and parse Games, Hardware and Toys exports into temporary files through a mocked save selector; the actual failing installation remains unverified |
+| Open P2 | Light popup menus | CLZ Default shows a white View/Layout popup with #333 text and #DDD row hover. Collectarr carries the dark chrome theme into these popups: #444 with white text. Fix the popup palette independently of the dark trigger bar, then check the sort/column/status menus too |
+| Open P3 | Hover shape | CLZ toolbar hover rectangles have square corners. Shared Collectarr toolbar hover surfaces still have a 5 px radius; inspector actions have a 4 px radius |
+| Open P3 | Inspector action density | CLZ's narrow inspector hides Edit/Share/Layout labels and uses 30 × 30 px Edit/Share/More buttons. Collectarr keeps Edit/Share labels at widths where the reference already hides them; align the breakpoint and padding with equivalent pane widths |
+| Open P3 | Editor tab glyphs | Main, Value, Personal, Covers and My Images use the same glyph families. Custom Fields differs (CLZ pen-field, Collectarr pen-square); Description is regular in CLZ and solid in Collectarr; Links is an earth glyph in CLZ and chain links in Collectarr. Use FOSS glyphs or an independently drawn field icon; do not copy the proprietary pen-field asset |
+| Open P3 | Editor density | CLZ tabs are 32 px, inputs paint 34 px and footer buttons are 32 px; its Main dialog is 1200 px wide and starts 10 px down. Collectarr's screenshot has the same width/top offset and painted input height, but Main tab geometry reports 33 px including its border. Flutter's input accessibility boxes are larger than the painted outlines; do not use their 40 px bounds as the input height |
+| Reference checked | Workspace toolbar glyphs and sizes | CLZ uses bars for List, sort-alpha-down for Sorting, columns for Columns, pencil/share/vertical-ellipsis in the inspector, and an open folder plus angle-down for grouping. View trigger 46 × 30 px, sort/column action halves 30 × 30 px, separate favorites arrows 18 × 30 px. Collectarr uses the corresponding families; the covers/shelves glyphs remain independently drawn SVGs |
+| Preserved | Intentional icon differences | Platform category glyphs, the app identity, kind icons in headers, Flow Carousel and the extra search/tools controls remain deliberate additions. Different cover content and persisted pane widths are not treated as icon or spacing regressions |
+
+Validation: release Web build, focused analysis and the standard correctness
+run passed for the control pass. The follow-up after removing TV/Manga passed
+1,275 tests in an isolated checkout with
+`dart run tool/run_tests.dart --kinds=all`; the former inactive
+kind setup failures no longer apply. All five graphical views were exercised
+in the isolated release origin. Reference comparisons use loaded images, not
+the reference's temporary 0.7-ratio loading placeholders; its three loaded
+cover images rendered at 175 px high with their own natural aspect ratios.
+
+### Platform artwork licensing
+
+Keep the current FOSS device/category glyphs and platform names. The
+[Font Awesome Free license](https://github.com/FortAwesome/Font-Awesome/blob/7.x/LICENSE.txt)
+permits its font/SVG distribution under OFL/CC BY with attribution, but brand
+marks remain their owners' trademarks. Its presence in an icon font is not
+blanket permission from the platform owner. The
+[Simple Icons disclaimer](https://github.com/simple-icons/simple-icons/blob/develop/DISCLAIMER.md)
+also distinguishes the project's CC0 license from individual artwork licenses,
+trademarks and brand guidelines.
+
+[Microsoft's app trademark guidance](https://learn.microsoft.com/en-us/windows/apps/publish/partner-center/trademark-and-copyright-protection)
+explicitly requires a formal license for its graphical marks in apps; plain
+platform names are a different use. PlayStation's
+[trademark notice](https://www.playstation.com/en-us/legal/copyright-and-trademark-notice/)
+identifies the PlayStation/PS4/PS5 marks but grants no general redistribution
+permission. These sources do not establish clearance for a complete platform
+logo pack. Before adding a mark, document both the artwork license/source and
+the brand owner's applicable terms or permission. Do not extract CLZ's pack.
+
 ### Deliberate Games behavior
 
 - Platform icons are CC0 Simple Icons logos where one exists (PlayStation with its generation, PSP, Vita, Steam, Steam Deck, Sega, Atari, Apple, Linux, Android) and Collectarr glyphs otherwise (Xbox, Nintendo, PC). CLZ's own platform images are never copied; see `assets/LOGOS.md`.
 - Games, Hardware and Toys expose only their own fields. CLZ also shows generic Games columns and Toy folders across inventory types; Collectarr keeps Toy classification exclusively in Toys.
-- The next local schema is 3, combining Games tracking and list-valued tags in one upgrade from released schema 2. Unreleased intermediate schemas are not migration baselines.
+- The next local schema is 3, combining Games tracking, list-valued tags and dropping the removed TV and Manga tables in one upgrade from released schema 2. Unreleased intermediate schemas are not migration baselines.
 
 - Without a recorded amount for a newly chosen completeness tier, preserve the
   manually entered value. A locked value also survives tier changes. Choosing

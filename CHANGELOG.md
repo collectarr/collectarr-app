@@ -60,7 +60,7 @@
 - Statistics charts, legends and ranked lists are shared components, ready for libraries other than Music.
 
 ### 📚 Docs
-- The living CLZ comparison records Games, Hardware and Toys workflows, deliberate differences and remaining gaps, including Statistics, Pre-fill, pick lists and menus.
+- The living CLZ comparison records Games, Hardware and Toys workflows, deliberate differences and remaining gaps, including control sizes, hover states, editor icons, Statistics, Pre-fill, pick lists and menus.
 
 ## 1.2.0 - 2026-10-18
 
