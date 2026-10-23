@@ -1,4 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/core/fonts/local_font_controller.dart';
+
+/// Keep painting, wrapping and automatic column sizing on the same font.
+TextStyle libraryTableCellTextStyle(BuildContext context,
+        {double fontSize = 14}) =>
+    (Theme.of(context).textTheme.bodyMedium ?? const TextStyle()).copyWith(
+      fontSize: fontSize,
+      // Local faces keep their calibrated normal slot; the bundled list face
+      // needs more ink to match the reference's dense rows.
+      fontWeight: LocalFontController.instance.isGilroyActive
+          ? FontWeight.w400
+          : FontWeight.w700,
+    );
 
 class LibraryTableCellText extends StatelessWidget {
   const LibraryTableCellText(
@@ -22,12 +35,9 @@ class LibraryTableCellText extends StatelessWidget {
       isEmpty ? emptyText : value!,
       maxLines: wraps ? null : 1,
       overflow: wraps ? TextOverflow.clip : TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w400,
-            color:
-                isEmpty ? Theme.of(context).colorScheme.onSurfaceVariant : null,
-          ),
+      style: libraryTableCellTextStyle(context, fontSize: fontSize).copyWith(
+        color: isEmpty ? Theme.of(context).colorScheme.onSurfaceVariant : null,
+      ),
     );
   }
 }

@@ -25,7 +25,10 @@ registers a re-weighted copy of the local Black face, or ExtraBold when Black
 is missing; Black and ExtraBold keep their own slots, and a family with only
 Bold keeps Bold. Normal text measured SemiBold 1574 against the reference's
 1524 (+3 %) and Medium 1337 (-12 %), which confirms the 400/500 rule above.
-The bundled Plus Jakarta Sans family is unchanged.
+The bundled Plus Jakarta Sans family is unchanged. List cells use its 700
+slot for a fuller appearance in dense tables; this local UI choice does not
+change registration of normal text elsewhere or the calibrated normal slot
+of a user-supplied face.
 Bold headings otherwise retain their own face. Registration changes copies in memory;
 the imported files, saved face identities and bundled fallback stay unchanged.
 Registration synchronizes the numeric OS/2 weight with legacy/typographic

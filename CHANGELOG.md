@@ -26,6 +26,7 @@
 ### 🐛 Fixes
 - The eBay button and import sources use licensed logos instead of artwork copied from CLZ or without a known license.
 - Cover views show the complete image, and unselected vertical cards keep readable text in the light theme.
+- List rows use a fuller bundled font while preserving the weight of user-supplied local fonts.
 - Folder rows fade their hover and selection colors as the reference does.
 - The selected list row shows its text in white in the light theme too.
 - Settings opened or reloaded from a link show the options of that link's library instead of Music's.

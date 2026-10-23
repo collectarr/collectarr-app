@@ -345,11 +345,7 @@ class LibraryWorkspace extends ConsumerWidget {
           textScaler: MediaQuery.textScalerOf(context),
           maxLines: null,
         );
-        final style = Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400) ??
-            const TextStyle(fontSize: 14, fontWeight: FontWeight.w400);
+        final style = libraryTableCellTextStyle(context);
         if (preferences.autoSizeColumns) {
           for (final column in visibleColumns) {
             if (widths.containsKey(column)) continue;
