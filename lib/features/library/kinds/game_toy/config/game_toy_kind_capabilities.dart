@@ -15,6 +15,7 @@ final gameToyKindIdentity = const LibraryKindIdentity(
     mediaFamily: 'game',
     isTopLevel: false,
     collectionFamily: 'games',
+    hasTrailers: true,
     defaultCollectionName: 'Toys');
 final gameToyKindPhysicalMediaFormats = const <PhysicalMediaFormat>[];
 final gameToyKindUiPolicy = const LibraryUiPolicy(coverAspectRatio: 0.7);

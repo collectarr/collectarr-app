@@ -34,6 +34,7 @@ class UiPreferences {
     this.sidebarRowPadding = 4.0,
     this.showInspectorBackdrop = true,
     this.showInspectorBackCover = true,
+    this.showInspectorTrailers = true,
     this.wrapColumnContent = true,
     this.autoSizeColumns = false,
     this.showCollectionIndicators = true,
@@ -84,6 +85,9 @@ class UiPreferences {
 
   final bool showInspectorBackdrop;
   final bool showInspectorBackCover;
+
+  /// Trailer sections of the details panel, where a library has trailers.
+  final bool showInspectorTrailers;
   final bool wrapColumnContent;
   final bool autoSizeColumns;
   final bool showCollectionIndicators;
@@ -135,6 +139,7 @@ class UiPreferences {
     double? sidebarRowPadding,
     bool? showInspectorBackdrop,
     bool? showInspectorBackCover,
+    bool? showInspectorTrailers,
     bool? wrapColumnContent,
     bool? autoSizeColumns,
     bool? showCollectionIndicators,
@@ -176,6 +181,8 @@ class UiPreferences {
           showInspectorBackdrop ?? this.showInspectorBackdrop,
       showInspectorBackCover:
           showInspectorBackCover ?? this.showInspectorBackCover,
+      showInspectorTrailers:
+          showInspectorTrailers ?? this.showInspectorTrailers,
       wrapColumnContent: wrapColumnContent ?? this.wrapColumnContent,
       autoSizeColumns: autoSizeColumns ?? this.autoSizeColumns,
       showCollectionIndicators:
@@ -231,6 +238,8 @@ class UiPreferencesStore {
   static const showInspectorBackdropKey = '$_prefix.show_inspector_backdrop';
 
   static const showInspectorBackCoverKey = '$_prefix.show_inspector_back_cover';
+
+  static const showInspectorTrailersKey = '$_prefix.show_inspector_trailers';
 
   static const wrapColumnContentKey = '$_prefix.wrap_column_content';
 
@@ -289,6 +298,7 @@ class UiPreferencesStore {
       sidebarRowPadding: prefs.getDouble(sidebarRowPaddingKey) ?? 4.0,
       showInspectorBackdrop: prefs.getBool(showInspectorBackdropKey) ?? true,
       showInspectorBackCover: prefs.getBool(showInspectorBackCoverKey) ?? true,
+      showInspectorTrailers: prefs.getBool(showInspectorTrailersKey) ?? true,
       wrapColumnContent: prefs.getBool(wrapColumnContentKey) ?? true,
       autoSizeColumns: prefs.getBool(autoSizeColumnsKey) ?? false,
       showCollectionIndicators:
@@ -360,6 +370,8 @@ class UiPreferencesStore {
         showInspectorBackdropKey, preferences.showInspectorBackdrop);
     await prefs.setBool(
         showInspectorBackCoverKey, preferences.showInspectorBackCover);
+    await prefs.setBool(
+        showInspectorTrailersKey, preferences.showInspectorTrailers);
     await prefs.setBool(wrapColumnContentKey, preferences.wrapColumnContent);
     await prefs.setBool(autoSizeColumnsKey, preferences.autoSizeColumns);
     await prefs.setBool(
@@ -451,6 +463,9 @@ class UiPreferencesController extends Notifier<UiPreferences> {
 
   Future<void> setShowInspectorBackCover(bool value) =>
       _update((s) => s.copyWith(showInspectorBackCover: value));
+
+  Future<void> setShowInspectorTrailers(bool value) =>
+      _update((s) => s.copyWith(showInspectorTrailers: value));
 
   Future<void> setWrapColumnContent(bool value) =>
       _update((s) => s.copyWith(wrapColumnContent: value));

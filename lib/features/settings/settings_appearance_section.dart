@@ -84,6 +84,11 @@ class _SettingsAppearanceSectionState
             right: const SizedBox.shrink(),
           ),
           const SettingsLegend('Details Panel'),
+          if (kindIdentity.hasTrailers)
+            SettingsCheck(
+                label: 'Show trailer videos',
+                value: preferences.showInspectorTrailers,
+                onChanged: controller.setShowInspectorTrailers),
           SettingsCheck(
               label: 'Show backdrop',
               value: preferences.showInspectorBackdrop,

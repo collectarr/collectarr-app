@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
+import 'package:collectarr_app/features/library/details/library_trailer_visibility.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -55,7 +56,9 @@ List<Widget> buildGameInspectorSections(
           Text(description,
               textAlign: TextAlign.justify,
               style: const TextStyle(fontSize: 14, height: 18 / 14))),
-    if (trailers.isNotEmpty) section('Trailer', _GameLinkList(trailers)),
+    if (trailers.isNotEmpty)
+      LibraryTrailerVisibility(
+          child: section('Trailer', _GameLinkList(trailers))),
     if (links.isNotEmpty) section('Links', _GameLinkList(links)),
     if (entry != null) section('Personal', _GamePersonalTable(entry: entry)),
   ];

@@ -27,6 +27,7 @@ class LibraryKindIdentity {
     this.toolbarActions = kDefaultLibraryToolbarActions,
     this.collectionFamily,
     this.defaultCollectionName = 'Main Collection',
+    this.hasTrailers = false,
   });
 
   final CatalogMediaKind kind;
@@ -50,6 +51,10 @@ class LibraryKindIdentity {
   /// Inventories with independent domain models can share one library's tabs.
   final String? collectionFamily;
   final String defaultCollectionName;
+
+  /// Items carry trailer links shown in the details panel, which Settings
+  /// can hide.
+  final bool hasTrailers;
 
   String countLabel(int count) => count == 1 ? singularLabel : pluralLabel;
   String preferenceKey(String suffix) => '$preferencePrefix.$suffix';

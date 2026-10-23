@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/details/library_trailer_visibility.dart';
 import '../domain/game_toy_metadata.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -146,8 +147,9 @@ List<Widget> buildGameToyInspectorSections(
               style: TextStyle(
                   fontSize: 14, color: appPalette(context).textPrimary))),
     if (metadata.links.any((link) => link.isTrailerLink))
-      section(
-          'Trailer', links(metadata.links.where((link) => link.isTrailerLink))),
+      LibraryTrailerVisibility(
+          child: section('Trailer',
+              links(metadata.links.where((link) => link.isTrailerLink)))),
     if (metadata.links.any((link) => link.isExternalLink))
       section(
           'Links', links(metadata.links.where((link) => link.isExternalLink))),
