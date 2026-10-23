@@ -72,7 +72,8 @@ class GameCollectionStats extends StatelessWidget {
                 values: facts.valueByPlatform,
                 accent: accent,
                 emptyLabel: 'No values',
-                valueLabel: money),
+                valueLabel: money,
+                axisLabel: money),
             const SizedBox(height: 8),
             StatsSummaryLine(fontSize: 14, parts: [
               ('total value ', false),
@@ -264,9 +265,9 @@ class _GameList extends StatelessWidget {
 
 Widget _platformLine(String? platform, {required bool showName}) =>
     Row(children: [
-      SizedBox(width: 18, child: buildPlatformIcon(platform)),
+      buildPlatformIcon(platform),
       if (showName && platform != null) ...[
-        const SizedBox(width: 4),
+        const SizedBox(width: 6),
         Text(platform, style: const TextStyle(fontWeight: FontWeight.w700)),
       ],
     ]);

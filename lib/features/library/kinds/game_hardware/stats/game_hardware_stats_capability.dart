@@ -167,10 +167,9 @@ class _HardwareList extends StatelessWidget {
                 .formatPartialDate(item.metadata.releaseDateParts)),
           ],
           bottom: Row(children: [
-            SizedBox(
-                width: 18, child: buildPlatformIcon(item.metadata.platform)),
+            buildPlatformIcon(item.metadata.platform),
             if (!showValue && item.metadata.platform != null) ...[
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               Text(item.metadata.platform!,
                   style: const TextStyle(fontWeight: FontWeight.w700)),
             ],

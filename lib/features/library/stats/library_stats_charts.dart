@@ -34,6 +34,14 @@ Map<String, Color> statsSegmentColors(List<String> labels) => {
         labels[i]: statsSegmentPalette[i % statsSegmentPalette.length]
     };
 
+/// The reference's statistics box: white with a #DDD frame in the light skin.
+BoxDecoration statsPanelDecoration(BuildContext context) => BoxDecoration(
+      color: appManagementPanelColor(context),
+      border: appPalette(context).isDark
+          ? null
+          : Border.all(color: appPalette(context).divider),
+    );
+
 /// A titled statistics panel.
 class StatsSection extends StatelessWidget {
   const StatsSection({super.key, required this.title, required this.child});
@@ -43,7 +51,7 @@ class StatsSection extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
       padding: const EdgeInsets.only(bottom: 28),
       child: Container(
-          color: appManagementPanelColor(context),
+          decoration: statsPanelDecoration(context),
           padding: const EdgeInsets.all(10),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -63,7 +71,7 @@ class StatsSummaryPanel extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Container(
-          color: appManagementPanelColor(context),
+          decoration: statsPanelDecoration(context),
           padding: const EdgeInsets.all(20),
           child: Column(children: [
             for (var i = 0; i < lines.length; i++) ...[
@@ -184,7 +192,7 @@ class StatsItemTile extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                     fontSize: 16,
-                                    color: appPalette(context).utilityAction)),
+                                    color: appPalette(context).itemTitle)),
                             ...lines,
                             const Spacer(),
                             if (bottom != null) bottom!,
@@ -314,12 +322,16 @@ class StatsSeriesChart extends StatelessWidget {
     required this.accent,
     required this.emptyLabel,
     required this.valueLabel,
+    this.axisLabel = statsPlainAxisLabel,
     this.chronological = false,
   });
   final Map<String, num> values;
   final Color accent;
   final String emptyLabel;
   final String Function(num value) valueLabel;
+
+  /// Value axis ticks; a bare number unless the chart shows money.
+  final String Function(num value) axisLabel;
   final bool chronological;
   @override
   Widget build(BuildContext context) {
@@ -341,11 +353,15 @@ class StatsSeriesChart extends StatelessWidget {
       entries.sort((a, b) => b.value.compareTo(a.value));
     }
     if (entries.isEmpty) return Text(emptyLabel);
+    final ticks = statsAxisTicks([for (final e in entries) e.value]);
     return _ScrollingPlot(
         count: entries.length,
         labels: [for (final e in entries) e.key],
         tooltips: [for (final e in entries) '${e.key}: ${valueLabel(e.value)}'],
+        ticks: ticks,
+        tickLabel: axisLabel,
         painter: (gridColor) => _SeriesPainter(
+            ticks: ticks,
             values: [for (final e in entries) e.value],
             accent: accent,
             area: chronological,
@@ -361,6 +377,7 @@ class StatsStackedBarChart extends StatelessWidget {
     required this.segmentColors,
     required this.emptyLabel,
     required this.valueLabel,
+    this.axisLabel = statsPlainAxisLabel,
   });
 
   /// Bar label to segment amounts; segments follow [segmentColors] order.
@@ -368,6 +385,9 @@ class StatsStackedBarChart extends StatelessWidget {
   final Map<String, Color> segmentColors;
   final String emptyLabel;
   final String Function(num value) valueLabel;
+
+  /// Value axis ticks; a bare number unless the chart shows money.
+  final String Function(num value) axisLabel;
   @override
   Widget build(BuildContext context) {
     num total(Map<String, num> segments) =>
@@ -376,6 +396,7 @@ class StatsStackedBarChart extends StatelessWidget {
       ..sort((a, b) => total(b.value).compareTo(total(a.value)));
     if (bars.isEmpty) return Text(emptyLabel);
     final segments = segmentColors.keys.toList();
+    final ticks = statsAxisTicks([for (final bar in bars) total(bar.value)]);
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Center(child: StatsLegend(colors: segmentColors)),
       const SizedBox(height: 12),
@@ -391,12 +412,50 @@ class StatsStackedBarChart extends StatelessWidget {
                     '$segment: ${valueLabel(bar.value[segment]!)}'
               ].join('\n')
           ],
-          painter: (gridColor) => _StackedPainter(bars: [
+          ticks: ticks,
+          tickLabel: axisLabel,
+          painter: (gridColor) => _StackedPainter(
+              ticks: ticks,
+              bars: [
                 for (final bar in bars)
                   [for (final segment in segments) bar.value[segment] ?? 0]
-              ], colors: segmentColors.values.toList(), gridColor: gridColor)),
+              ],
+              colors: segmentColors.values.toList(),
+              gridColor: gridColor)),
     ]);
   }
+}
+
+/// A tick as a bare number, as the reference's count axes show it.
+String statsPlainAxisLabel(num value) => value == value.roundToDouble()
+    ? value.round().toString()
+    : value.toString();
+
+/// Rounded axis ticks from 0, about five steps of 1, 2 or 5 x 10^n, as the
+/// reference charts use; whole-number data never gets fractional steps.
+List<num> statsAxisTicks(List<num> values) {
+  final maximum = values.isEmpty ? 0 : values.reduce(math.max);
+  final whole = values.every((value) => value == value.roundToDouble());
+  if (maximum <= 0) return const [0, 1];
+  final rough = maximum / 5;
+  final magnitude =
+      math.pow(10, (math.log(rough) / math.ln10).floor()).toDouble();
+  final normalized = rough / magnitude;
+  var step = (normalized <= 1
+          ? 1
+          : normalized <= 2
+              ? 2
+              : normalized <= 5
+                  ? 5
+                  : 10) *
+      magnitude;
+  if (whole && step < 1) step = 1;
+  final top = (maximum / step).ceil() * step;
+  final wholeSteps = step == step.roundToDouble();
+  return [
+    for (var tick = 0.0; tick <= top + step / 2; tick += step)
+      wholeSteps ? tick.round() : tick
+  ];
 }
 
 class _ScrollingPlot extends StatelessWidget {
@@ -404,16 +463,46 @@ class _ScrollingPlot extends StatelessWidget {
     required this.count,
     required this.labels,
     required this.tooltips,
+    required this.ticks,
+    required this.tickLabel,
     required this.painter,
   });
   final int count;
   final List<String> labels;
   final List<String> tooltips;
+  final List<num> ticks;
+  final String Function(num value) tickLabel;
   final CustomPainter Function(Color gridColor) painter;
+
+  static const _axisWidth = 72.0;
+
   @override
   Widget build(BuildContext context) => SizedBox(
       height: 350,
-      child: LayoutBuilder(builder: (context, constraints) {
+      child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        // The value axis stays in place while wide charts scroll.
+        SizedBox(
+            width: _axisWidth,
+            child: Column(children: [
+              Expanded(
+                  child: LayoutBuilder(
+                      builder: (context, axis) => Stack(children: [
+                            for (var i = 0; i < ticks.length; i++)
+                              Positioned(
+                                  right: 6,
+                                  top: axis.maxHeight *
+                                          (1 - i / (ticks.length - 1)) -
+                                      7,
+                                  child: Text(tickLabel(ticks[i]),
+                                      style: const TextStyle(fontSize: 11))),
+                          ]))),
+              const SizedBox(height: 50),
+            ])),
+        Expanded(child: _plot(context)),
+      ]));
+
+  Widget _plot(BuildContext context) =>
+      LayoutBuilder(builder: (context, constraints) {
         final width = math.max(constraints.maxWidth, count * 54.0);
         return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -451,7 +540,7 @@ class _ScrollingPlot extends StatelessWidget {
                                               const TextStyle(fontSize: 11))))
                           ])),
                 ])));
-      }));
+      });
 }
 
 /// Bars take 80 % of their slot, at most 160 px, centred in it.
@@ -460,30 +549,38 @@ double _barWidth(double step) => math.min(step * .8, 160);
 double _barLeft(int index, double step) =>
     index * step + (step - _barWidth(step)) / 2;
 
-void _paintGrid(Canvas canvas, Size size, Color color) {
+/// Lines at each tick and between category slots, as in the reference.
+void _paintGrid(
+    Canvas canvas, Size size, Color color, List<num> ticks, int slots) {
   final grid = Paint()
     ..color = color
     ..strokeWidth = 1;
-  for (var i = 0; i <= 5; i++) {
-    canvas.drawLine(Offset(0, size.height * i / 5),
-        Offset(size.width, size.height * i / 5), grid);
+  for (var i = 0; i < ticks.length; i++) {
+    final y = size.height * (1 - i / (ticks.length - 1));
+    canvas.drawLine(Offset(0, y), Offset(size.width, y), grid);
+  }
+  for (var i = 0; i <= slots; i++) {
+    final x = size.width * i / slots;
+    canvas.drawLine(Offset(x, 0), Offset(x, size.height), grid);
   }
 }
 
 class _SeriesPainter extends CustomPainter {
   const _SeriesPainter(
-      {required this.values,
+      {required this.ticks,
+      required this.values,
       required this.accent,
       required this.area,
       required this.gridColor});
+  final List<num> ticks;
   final List<num> values;
   final Color accent;
   final bool area;
   final Color gridColor;
   @override
   void paint(Canvas canvas, Size size) {
-    _paintGrid(canvas, size, gridColor);
-    final maximum = values.reduce(math.max);
+    _paintGrid(canvas, size, gridColor, ticks, values.length);
+    final maximum = ticks.last;
     final step = size.width / values.length;
     final points = [
       for (var i = 0; i < values.length; i++)
@@ -526,6 +623,7 @@ class _SeriesPainter extends CustomPainter {
   @override
   bool shouldRepaint(_SeriesPainter old) =>
       !listEquals(values, old.values) ||
+      !listEquals(ticks, old.ticks) ||
       accent != old.accent ||
       area != old.area ||
       gridColor != old.gridColor;
@@ -533,15 +631,18 @@ class _SeriesPainter extends CustomPainter {
 
 class _StackedPainter extends CustomPainter {
   const _StackedPainter(
-      {required this.bars, required this.colors, required this.gridColor});
+      {required this.ticks,
+      required this.bars,
+      required this.colors,
+      required this.gridColor});
+  final List<num> ticks;
   final List<List<num>> bars;
   final List<Color> colors;
   final Color gridColor;
   @override
   void paint(Canvas canvas, Size size) {
-    _paintGrid(canvas, size, gridColor);
-    final maximum =
-        bars.map((bar) => bar.fold<num>(0, (a, b) => a + b)).reduce(math.max);
+    _paintGrid(canvas, size, gridColor, ticks, bars.length);
+    final maximum = ticks.last;
     final step = size.width / bars.length;
     for (var i = 0; i < bars.length; i++) {
       var bottom = size.height;
@@ -561,6 +662,7 @@ class _StackedPainter extends CustomPainter {
   @override
   bool shouldRepaint(_StackedPainter old) =>
       bars.length != old.bars.length ||
+      !listEquals(ticks, old.ticks) ||
       !listEquals(colors, old.colors) ||
       gridColor != old.gridColor ||
       [for (var i = 0; i < bars.length; i++) !listEquals(bars[i], old.bars[i])]

@@ -10,7 +10,8 @@ class AppPageTab {
 }
 
 /// Folder-style tabs that sit on top of a management panel: the active tab
-/// takes the panel color, inactive tabs stay dark with dimmed text.
+/// takes the panel color, inactive tabs a darker surface (#EEE in the light
+/// skin) with dimmed text, both with the reference's 4 px top corners.
 class AppPageTabs extends StatelessWidget {
   const AppPageTabs({
     super.key,
@@ -26,7 +27,7 @@ class AppPageTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final inactive = palette.isDark ? const Color(0xFF131313) : palette.canvas;
+    final inactive = palette.isDark ? const Color(0xFF131313) : palette.surface;
     return Wrap(
       spacing: 4,
       runSpacing: 4,
@@ -49,6 +50,9 @@ class AppPageTabs extends StatelessWidget {
       button: true,
       child: Material(
         color: selected ? appManagementPanelColor(context) : inactive,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(4))),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           mouseCursor: SystemMouseCursors.click,
           onTap: selected ? null : () => onSelected(index),
