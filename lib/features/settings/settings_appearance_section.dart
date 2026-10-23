@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/settings/core_data_settings_dialog.dart'
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_slider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,9 +41,9 @@ class _SettingsAppearanceSectionState
         .identity;
     final kindPlural = kindIdentity.pluralLabel.toLowerCase();
     final kindSingular = kindIdentity.singularLabel.toLowerCase();
-    // The reference Settings page: Customization, Localization and
-    // Behaviour on the left; Sorting, Auto Capitalization and eBay links on
-    // the right.
+    // The reference Settings page: Customization, Localization, Behaviour
+    // and Sorting on the left; Auto Capitalization and eBay links on the
+    // right.
     final customization = SettingsPanel(
         icon: Icons.palette_outlined,
         title: 'Customization',
@@ -332,12 +333,22 @@ class _SettingsAppearanceSectionState
               onChanged: controller.setEbayLinksSection),
           const SizedBox(height: 10),
           const SettingsLegend('eBay search filter'),
-          for (final filter in EbaySearchFilter.values)
+          for (final filter in EbaySearchFilter.values) ...[
             SettingsRadio<EbaySearchFilter>(
                 label: filter.label,
                 value: filter,
                 groupValue: preferences.ebaySearchFilter,
                 onChanged: controller.setEbaySearchFilter),
+            if (filter == EbaySearchFilter.automatic)
+              Padding(
+                padding: const EdgeInsets.only(left: 23, bottom: 4),
+                child: Text(
+                    'shows “All eBay listings” for Wish List entries and '
+                    '“Sold listings only” for other entries.',
+                    style: TextStyle(
+                        fontSize: 12, color: appPalette(context).textMuted)),
+              ),
+          ],
           const SizedBox(height: 10),
           SettingsGroup(
             legend: 'eBay region',
@@ -363,8 +374,8 @@ class _SettingsAppearanceSectionState
         Expanded(
             child: TabBarView(children: [
           SettingsTabBody.columns(
-            left: [customization, localization, behaviour],
-            right: [sorting, autoCap, ebay],
+            left: [customization, localization, behaviour, sorting],
+            right: [autoCap, ebay],
             footer: SettingsResetAction(
                 label: 'Reset appearance defaults',
                 onReset: _resetAppearanceDefaults),

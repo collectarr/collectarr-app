@@ -23,6 +23,7 @@
 - Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
 
 ### 🐛 Fixes
+- Light Settings boxes, selects and buttons use the reference's white and grey, with its box spacing, Sorting placement and eBay "Automatic" hint.
 - Find Duplicates shows its options on the reference's dark bar with a white select.
 - Page headers (Back and the page title) use the reference's dark bar and 16 px bold title in both themes.
 - In the light theme the main menu and account sidebar stay dark, as in the reference.

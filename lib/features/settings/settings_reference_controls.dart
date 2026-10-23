@@ -72,7 +72,7 @@ InputDecoration settingsSelectDecoration(BuildContext context) {
   return InputDecoration(
     isDense: true,
     filled: true,
-    fillColor: palette.isDark ? _fieldFill : palette.surface,
+    fillColor: palette.isDark ? _fieldFill : palette.panelRaised,
     // A dense dropdown line is 16 px; 9 px above and below make 34 px.
     contentPadding: const EdgeInsets.symmetric(horizontal: 7, vertical: 9),
     border: border(palette.isDark ? _fieldBorder : palette.divider),
@@ -219,7 +219,8 @@ class SettingsRadio<T> extends StatelessWidget {
   }
 }
 
-/// A full-width 32 px grey button, as "Manage Exceptions" in the reference.
+/// A full-width 32 px grey button, as "Manage Exceptions" in the reference:
+/// #666 with white text in the dark skin, #DDD with #333 text in the light.
 class SettingsBlockButton extends StatelessWidget {
   const SettingsBlockButton(
       {super.key, required this.label, required this.onPressed});
@@ -228,21 +229,23 @@ class SettingsBlockButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-        width: double.infinity,
-        height: 32,
-        child: FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF666666),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            textStyle:
-                const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          ),
-          onPressed: onPressed,
-          child: Text(label),
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return SizedBox(
+      width: double.infinity,
+      height: 32,
+      child: FilledButton(
+        style: FilledButton.styleFrom(
+          backgroundColor:
+              palette.isDark ? const Color(0xFF666666) : palette.divider,
+          foregroundColor: palette.isDark ? Colors.white : palette.textPrimary,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
-      );
+        onPressed: onPressed,
+        child: Text(label),
+      ),
+    );
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Shows a toast from a settings section while it is still mounted.
@@ -59,7 +60,8 @@ class SettingsTabBody extends StatelessWidget {
         Widget column(List<Widget> boxes) =>
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               for (final box in boxes)
-                Padding(padding: const EdgeInsets.only(bottom: 37), child: box)
+                // The reference boxes sit 15 px apart, in columns 30 px apart.
+                Padding(padding: const EdgeInsets.only(bottom: 15), child: box)
             ]);
         final wide = constraints.maxWidth >= 800;
         return SingleChildScrollView(
@@ -75,7 +77,7 @@ class SettingsTabBody extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(child: column(left)),
-                                  const SizedBox(width: 32),
+                                  const SizedBox(width: 30),
                                   Expanded(child: column(right)),
                                 ])
                           else
@@ -166,9 +168,14 @@ class SettingsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     return Material(
-      color: libraryWorkspaceBackgroundColor(context),
-      // Reference settings boxes: 10 px padding, a 22/700 title and no rule.
+      color: palette.isDark
+          ? libraryWorkspaceBackgroundColor(context)
+          : palette.panelRaised,
+      // Reference settings boxes: 10 px padding, a 22/700 title and no rule;
+      // the light skin frames them in #DDD.
+      shape: palette.isDark ? null : Border.all(color: palette.divider),
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
