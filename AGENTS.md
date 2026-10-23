@@ -25,6 +25,9 @@
 - No legacy support, compatibility layers, deprecated aliases or dead code.
 - After the initial Music baseline, change schemas with explicit ordered
   migrations. Never reset a database to make an upgrade work.
+- Migrate from the last released schema. Unreleased intermediate schemas are
+  not migration baselines: fold unreleased changes into the next migration
+  instead of adding steps for them.
 - Never modify live databases or backups. Use isolated test storage.
 - Do not rewrite history or replace published tags without an explicit request.
 - CLZ is a reference only. Do not copy its code, paid fonts or proprietary assets.
