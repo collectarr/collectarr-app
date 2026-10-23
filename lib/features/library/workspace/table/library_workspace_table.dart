@@ -529,12 +529,15 @@ class _LibraryWorkspaceTableHeaderCellState
       height: widget.height,
       child: Material(
         color: widget.sorted
-            ? libraryWorkspacePaneDividerColor(context)
+            ? libraryWorkspaceTableSortedHeaderColor(context)
             : widget.headerColor,
         child: Stack(children: [
           Positioned.fill(
               right: 5,
               child: InkWell(
+                hoverColor: appPalette(context).isDark
+                    ? null
+                    : libraryWorkspaceTableSortedHeaderColor(context),
                 mouseCursor: _dragging
                     ? SystemMouseCursors.resizeColumn
                     : WidgetStateMouseCursor.clickable,

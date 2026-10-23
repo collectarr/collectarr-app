@@ -23,6 +23,7 @@
 - Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
 
 ### 🐛 Fixes
+- Light lists match the reference: white headings with readable sorted columns, light column rules, first-row stripes and a grey row hover.
 - The eBay button on the details toolbar stays visible in the light theme.
 - Ctrl + mouse wheel zooms the web app in and out again, as it does on desktop.
 - The column favorites menu lists the favorites under a Favorites heading, as the reference does.

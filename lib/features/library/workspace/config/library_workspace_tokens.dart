@@ -222,10 +222,32 @@ Color libraryToolbarControlHover(BuildContext context) =>
         ? const Color(0xff464950)
         : appPalette(context).panelRaised;
 
+// The reference light list: white headings that turn #EEE when sorted, #DDD
+// column rules, #F9F9F9 first-row stripes and a #F3F3F3 row hover.
 Color libraryWorkspaceTableHeaderColor(BuildContext context) =>
     appPalette(context).isDark
         ? const Color(0xff464950)
+        : appPalette(context).panelRaised;
+Color libraryWorkspaceTableSortedHeaderColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? libraryWorkspacePaneDividerColor(context)
         : appPalette(context).surface;
+Color libraryWorkspaceTableDividerColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? libraryWorkspacePaneDividerColor(context)
+        : appPalette(context).divider;
+Color libraryWorkspaceTableEvenRowColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? appPalette(context).tableEvenRow
+        : const Color(0xfff9f9f9);
+Color libraryWorkspaceTableOddRowColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? appPalette(context).tableOddRow
+        : appPalette(context).panelRaised;
+Color libraryWorkspaceTableHoverColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? appPalette(context).surfaceBright
+        : const Color(0xfff3f3f3);
 
 Color libraryWorkspaceSelectionBackground(BuildContext context) =>
     appPalette(context).utilityAction;
