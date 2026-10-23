@@ -270,7 +270,8 @@ class _GamePersonalTable extends StatelessWidget {
                 personal.currency ?? AppFormats.current.currency)
       ),
       ('Index', personal.indexNumber?.toString() ?? '-'),
-      ('Completed', details.completed == true ? 'Yes' : ''),
+      // The reference marks completion with a check or a cross.
+      ('Completed', details.completed == true ? '✓' : '✕'),
       if (details.completedDate?.isoString case final date?)
         ('Completed Date', date),
       if (personal.rating != null) ('My Rating', '${personal.rating}/10'),
