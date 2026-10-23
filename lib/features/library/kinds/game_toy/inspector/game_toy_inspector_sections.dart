@@ -45,12 +45,16 @@ Widget buildGameToyInspectorHero(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         if (metadata.seriesTitle?.isNotEmpty == true)
           Text(metadata.seriesTitle!,
-              style: TextStyle(color: palette.textPrimary)),
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: kAppBoldFontWeight,
+                  color: palette.textPrimary)),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
               child: Text(metadata.title,
                   style: TextStyle(
                       fontSize: 24,
+                      height: 27 / 24,
                       fontWeight: kAppBoldFontWeight,
                       color: palette.itemTitle))),
           if (entry != null)
@@ -79,7 +83,9 @@ Widget buildGameToyInspectorHero(
         const SizedBox(height: 12),
         Text(metadata.releaseDateParts?.year?.toString() ?? '',
             style: TextStyle(
-                fontWeight: kAppBoldFontWeight, color: palette.textPrimary)),
+                fontSize: 15,
+                fontWeight: kAppBoldFontWeight,
+                color: palette.textPrimary)),
         if (metadata.toyType?.isNotEmpty == true) Text(metadata.toyType!),
         if (metadata.toySubtype?.isNotEmpty == true) Text(metadata.toySubtype!),
         if (value != null)
@@ -122,17 +128,23 @@ List<Widget> buildGameToyInspectorSections(
   Widget links(Iterable<GameToyCatalogLink> values) =>
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         for (final link in values)
-          TextButton(
-              onPressed: () => launchUrl(Uri.parse(link.url)),
-              style: TextButton.styleFrom(
-                  foregroundColor: appPalette(context).link),
-              child: Text(link.title ?? link.url))
+          InkWell(
+              onTap: () => launchUrl(Uri.parse(link.url)),
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Text(link.title ?? link.url,
+                      style: TextStyle(
+                          fontSize: 14, color: appPalette(context).link))))
       ]);
   Widget section(String title, Widget child) =>
       LibraryDetailSection(title: title, collapsible: false, children: [child]);
   return [
     if (metadata.description?.isNotEmpty == true)
-      section('Description', Text(metadata.description!)),
+      section(
+          'Description',
+          Text(metadata.description!,
+              style: TextStyle(
+                  fontSize: 14, color: appPalette(context).textPrimary))),
     if (metadata.links.any((link) => link.isTrailerLink))
       section(
           'Trailer', links(metadata.links.where((link) => link.isTrailerLink))),
