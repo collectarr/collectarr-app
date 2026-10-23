@@ -23,22 +23,17 @@ final class GameToyMappedCsvImporter implements LibraryMappedCsvImporter {
   }) {
     final records =
         readClzCsvRecords(rows, mappings: mappings, headers: headers);
-    final occurrences = <String, int>{};
-    return List.unmodifiable([
-      for (final record in records)
-        _row(record, multiValueDelimiter, occurrences)
-    ]);
+    final ids = ClzImportIdentities(CatalogMediaKind.gameToy);
+    return List.unmodifiable(
+        [for (final record in records) _row(record, multiValueDelimiter, ids)]);
   }
 
   CollectionImportRow _row(
-      ClzCsvRecord record, String delimiter, Map<String, int> occurrences) {
+      ClzCsvRecord record, String delimiter, ClzImportIdentities ids) {
     final title = record.text('title') ?? '';
     final identity =
         '$title/${record.text('series') ?? ''}/${record.text('barcode') ?? ''}';
-    final copy =
-        occurrences.update(identity, (value) => value + 1, ifAbsent: () => 1);
-    final id =
-        clzImportEntryId(CatalogMediaKind.gameToy, 'csv/$identity', copy);
+    final id = ids.next('csv/$identity');
     final metadata = GameToyCatalogMetadata(
       title: title,
       sortKey: resolveSortTitle(title, record.text('sort_title')),

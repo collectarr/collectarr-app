@@ -5,9 +5,23 @@ import 'package:collectarr_app/features/imports/framework/library_guided_importe
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:uuid/uuid.dart';
 
-String clzImportEntryId(CatalogMediaKind kind, String identity, int copy) =>
-    const Uuid().v5(Namespace.url.value,
+/// Stable local entry IDs for one CLZ import: repeated copies of the same
+/// source identity are numbered in file order, so importing the same file
+/// again updates the same entries instead of adding duplicates.
+final class ClzImportIdentities {
+  ClzImportIdentities(this.kind);
+
+  final CatalogMediaKind kind;
+  final _copies = <String, int>{};
+
+  String next(String identity) {
+    final copy =
+        _copies.update(identity, (count) => count + 1, ifAbsent: () => 1);
+    return const Uuid().v5(Namespace.url.value,
         'collectarr/import/${kind.apiValue}/clzweb/$identity/$copy');
+  }
+}
+
 CollectionImportRow clzImportRow(
     {required CatalogMediaKind kind,
     required String id,

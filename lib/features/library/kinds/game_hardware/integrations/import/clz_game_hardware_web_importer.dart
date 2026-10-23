@@ -15,19 +15,16 @@ final class ClzGameHardwareWebImporter implements LibraryGuidedImporter {
   List<CollectionImportRow> parse(String source) {
     final records = readClzWebRecords(source,
         section: 'gameinfo', list: 'gamelist', record: 'game');
-    final occurrences = <String, int>{};
-    return List.unmodifiable(
-        [for (final raw in records) _parse(raw, occurrences)]);
+    final ids = ClzImportIdentities(CatalogMediaKind.gameHardware);
+    return List.unmodifiable([for (final raw in records) _parse(raw, ids)]);
   }
 
-  CollectionImportRow _parse(ClzXmlRecord raw, Map<String, int> occurrences) {
+  CollectionImportRow _parse(ClzXmlRecord raw, ClzImportIdentities ids) {
     raw.requireItemType(1, field: 'gameitemtype');
     final title = raw.text('title') ?? '';
     final externalId = raw.text('hash') ?? title;
     final identity = '${raw.text('collection/hash') ?? ''}/$externalId';
-    final copy =
-        occurrences.update(identity, (value) => value + 1, ifAbsent: () => 1);
-    final id = clzImportEntryId(CatalogMediaKind.gameHardware, identity, copy);
+    final id = ids.next(identity);
     final metadata = GameHardwareCatalogMetadata(
       title: title,
       sortKey: resolveSortTitle(title, raw.text('sorttitle')),
