@@ -35,7 +35,7 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
   String? get ageRating => metadata.ageRating;
   String? get developer => metadata.developers.firstOrNull;
   String? get publisher => metadata.publisher ?? developer;
-  String? get seriesTitle => null;
+  String? get seriesTitle => metadata.seriesTitle;
   String? get itemNumber => metadata.itemNumber;
   DateTime? get releaseDate => metadata.releaseDate ?? common.releaseDate;
   String? get country => metadata.country;

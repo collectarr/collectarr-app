@@ -1,4 +1,7 @@
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_catalog_item_workspace_schema.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_library_entry_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_platform_icon.dart';
@@ -57,6 +60,17 @@ void main() {
     // The reference default list has no cover thumbnail column.
     expect(gameLibraryEntryWorkspaceDefaultVisibleColumns.map((c) => c.value),
         isNot(contains(GameFieldIds.cover.value)));
+  });
+
+  test('the Series field reads the catalog series', () {
+    final dto = GameWorkspaceDto(
+      common: const WorkspaceCommonProjection(title: 'Fictional Game'),
+      personal: PersonalEntryProjection(),
+      metadata: const GameCatalogMetadata(
+          title: 'Fictional Game', seriesTitle: 'Fictional Series'),
+    );
+
+    expect(dto.seriesTitle, 'Fictional Series');
   });
 
   test('resolveGamePlatformIcon maps platforms correctly', () {
