@@ -91,6 +91,15 @@ visually checked; widget tests cover autofill fields, password visibility,
 keyboard submission, loading/errors and returning to the selected library.
 This does not claim a new full pass over every editor and view.
 
+The route-by-route light pass (2026-10-23) compared CLZ's Default skin with
+a Collectarr release build in its light theme, both at 2560 × 1305, with
+the same three games. Routes: the Games list with folders and details,
+main menu, Add, Edit (Main), Settings, Statistics, Find Duplicates, Loan
+Manager, Manage Custom Fields and Cloud Sharing. CLZ was measured with
+computed styles and by hovering each control (its stylesheets are
+cross-origin); Collectarr from pixel samples. The CLZ editor and Add
+dialog were closed with Cancel and ×.
+
 ### Compared surfaces
 
 | Surface | CLZ Games | Collectarr / result |
@@ -126,7 +135,7 @@ This does not claim a new full pass over every editor and view.
 | Done | Header identity and platform | CARR is the chosen short name, with a 22 px, weight 800 title and an outlined WEB, DESKTOP or MOBILE suffix. Platform follows the build runtime, not viewport width: a browser on a phone remains WEB. CLZ Web has an outlined WEB suffix; [official mobile screenshots](https://clz.com/games/mobile) and the [mobile forum capture](https://club.clz.com/t/total-value-of-folder-view/10054) show CLZ Games without a MOBILE suffix. Its legacy Windows product is [Game Collector](https://help.clz.com/game), not a matching CLZ Games DESKTOP header. Collectarr deliberately labels all three runtimes consistently |
 | Done | List canvas | CLZ's empty list area is gray in Dark and white with light content. Collectarr lists now use those surfaces instead of the near-black covers background; covers/cards retain their own background |
 | Open P2 | Named Light skin | CLZ's separate Light skin also lightens toolbars, pane separators and collection strip. Collectarr's light mode still follows the mixed Default skin through `AppDarkChrome`; a full pale chrome variant remains absent |
-| Open P2 | Light list selection text | CLZ paints selected list text white on the shared blue row. Collectarr's light list still paints text with the normal dark foreground; checkbox/edit controls already turn white. Confirmed with a populated fictional Games row in the chrome/theme follow-up |
+| Done | Light list selection text | CLZ paints selected list text white on the shared blue row; Collectarr's selected cells now do too, in both themes (2026-10-23) |
 | Done | List columns | CLZ's default Games list shows Platform, Title, Release Date, Publisher, Developer, Genre and Added Date; Collectarr's default list now matches, including Added Date (compared 2026-10-23) |
 | Done | Column chooser and favorites | CLZ's column chooser groups Images, Main, Value, Edition, Personal and Loan, and its column favorites are My List View (the default list), My Find Duplicates (Title, Platform, Release Date, Index, Added Date) and My Print / Export (Platform, Title, Release Date, Publisher, Genre), the same on every Games-family tab. The menu lists Manage Favorites, then a Favorites heading with the active favorite checked; Collectarr now matches. Games now offers those columns under the same labels and groups (Value Loose/CiB/New/Graded, My Rating, Modified Date, Core Region…) and the Loan group (Loaned To, Loan Date, Due Date of the open loan), sorting through the matching reference sorts; Hardware and Toys get the same favorites limited to their columns. The generic Essential/Collection/Reference presets referenced no Games column (compared 2026-10-23) |
 | Open P3 | Column chooser gaps | Games has no Back Cover image, Description, eBay, Core GameID/MediaID or Toy NFCID columns. Collectarr keeps its Status, Wishlist, Franchise and Box/Manual Only value columns |
@@ -145,7 +154,19 @@ This does not claim a new full pass over every editor and view.
 | Done | Main menu | CLZ lists Add Games, Add Hardware and Add Toys-to-Life from Core on every Games tab; Collectarr now lists one Add from Core entry per family kind, each opening that library (Toys keep the Collectarr name) |
 | Done | Settings | CLZ's Details Panel has "Show trailer videos"; Collectarr now offers it for libraries with trailers (Games, Hardware, Toys) and hides the Trailer section when it is off. Trailers stay a list of links rather than embedded players |
 | Open P3 | Details and value | CLZ shows "$ 17.58" and "Find sold listings on eBay" under the value box; Collectarr shows "USD 17.58" (Currency display setting) and "Search eBay" at the end of the panel. CLZ assigned Index 4 to the CSV-imported game; Collectarr leaves Index empty |
-| Open P3 | Editor and import form | Main tab: CLZ gives Edition more width than Region and has no gap above the Collection Status row. The CSV import radios and checkbox use the Games red instead of shared blue |
+| Open P3 | Editor and import form | Main tab: CLZ gives Edition more width than Region and has no gap above the Collection Status row; Collectarr's Collection Status row also runs about 4 px wider on each side than the fields above. The CSV import radios and checkbox use the Games red instead of shared blue |
+| Done | Light list colors | CLZ Default: white headings, #EEE when sorted or hovered, #DDD column rules, #F9F9F9 first-row stripes with white second rows, #F3F3F3 row hover. Collectarr's light sorted headings were black on #262626 (unreadable), rules dark, stripes inverted and hover white; now matched (2026-10-23) |
+| Done | Light folder panel and search | CLZ keeps the folder search strip dark (#383838, #4A4A4A top rule) with a white field; folder rows hover #DDD, counts sit on #DDD badges, rows are split by #E4E4E4; the toolbar search is white. Collectarr matched the light content instead; now matched (2026-10-23). Folder rows also fade their colors over 0.25 s, as CLZ's do |
+| Done | Motion | CLZ slides its menu in over 0.2 s linear while the 50 % black overlay fades, fades modals over 0.2 s, and fades toolbar hover over 0.25 s; list rows change instantly. Collectarr's timings match; its dialog motion stays the deliberate fade-and-slide (2026-10-23) |
+| Done | Settings after a reload | Reloading /settings?kind=game showed Music's options ("Auto Cap album titles", album confirmations, Music's layout) because Appearance read the last library chosen in the session; it now uses the route's library (2026-10-23) |
+| Done | Dark chrome in the light skin | CLZ Default keeps the main menu, page headers (Back and a 16 px bold title) and the Find Duplicates option bar on #383838. Collectarr's light theme painted them light with a 14 px title; they now stay dark, the account sidebar with them (2026-10-23) |
+| Done | List alignment | CLZ right-aligns dates and their headings. Numeric headings now follow their right-aligned cells, and Games, Hardware and Toys dates are right-aligned (2026-10-23) |
+| Done | Details toolbar and Completed | The details-toolbar eBay logo painted #333 on #383838 in light mode; it is white again. The Personal table marks Completed with a cross or check, as CLZ does, instead of an empty value (2026-10-23) |
+| Done | Light Settings | CLZ frames settings boxes in white with a #DDD border, 15 px apart in columns 30 px apart, with white selects, #DDD/#333 block buttons, Sorting last in the left column and a hint under eBay "Automatic". Collectarr used borderless #F9F9F9 boxes 37 px apart, #EEE selects, a #666 button and Sorting at the top right; now matched (2026-10-23). Legends keep the shared blue (#5EB1DE) where CLZ Default uses #0082A6 |
+| Open P3 | List rows | CLZ top-aligns cell text with 2 px padding (and its row controls); Collectarr centers cells vertically, which shows on wrapped rows. CLZ's default widths here were Platform 230, Title 300, Publisher/Developer 150, Genre 225 and dates 110 px; Collectarr starts narrower (Platform 120, Title 260, others 140). Not established whether these CLZ widths are defaults or resized |
+| Open P3 | Light Settings extras | CLZ offers Default, Light, Dark and Blue skins and Light, Dark and Blue details templates; Collectarr offers System, Light and Dark and "Follow application". CLZ's Main Screen Layout select shows an icon |
+| Open P3 | Statistics | CLZ's collection tabs are bordered boxes; the bar charts show y-axis counts and vertical grid lines; card titles use #0082A6. Collectarr uses plain tabs, no y-axis labels, horizontal grid lines and lighter blue titles. CLZ ordered equal platform bars PS5, PS4, PC; Collectarr PC, PS5, PS4 |
+| Open P3 | Loan Manager | CLZ draws the loan toolbar on a #EEE band inside a bordered box and its tabs as bordered boxes; Collectarr's toolbar band is white and its tabs plain. Collectarr adds "Lend / return by barcode" (deliberate) |
 
 ### Deliberate Games behavior
 
