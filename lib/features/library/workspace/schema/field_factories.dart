@@ -16,6 +16,35 @@ LibraryFieldDefinition<TKind, TDto, String?>
   );
 }
 
+/// A searchable, sortable single text value identified as `namespace.key`,
+/// whose metadata source path is [key].
+LibraryFieldDefinition<TKind, TDto, String?>
+    keyedTextField<TKind, TDto extends LibraryWorkspaceDto>(
+  String namespace,
+  String key,
+  String label,
+  String? Function(TDto dto) getValue, {
+  LibraryFieldSource source = LibraryFieldSource.catalog,
+  bool groupable = true,
+}) {
+  final id = '$namespace.$key';
+  return textField<TKind, TDto>(
+    id: LibraryFieldId<TKind, String?>(id),
+    metadata: LibraryKindFieldMetadata(
+      id: id,
+      label: label,
+      valueType: LibraryFieldValueType.text,
+      cardinality: LibraryFieldCardinality.one,
+      source: source,
+      sourcePath: key,
+      searchable: true,
+      sortable: true,
+      groupable: groupable,
+    ),
+    getValue: getValue,
+  );
+}
+
 LibraryFieldDefinition<TKind, TDto, num?>
     numberField<TKind, TDto extends LibraryWorkspaceDto>({
   required LibraryKindFieldMetadata metadata,

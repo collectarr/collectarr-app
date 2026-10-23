@@ -40,7 +40,7 @@ export 'integrations/catalog/game_hardware_catalog_lookup.dart';
 export 'page.dart';
 export 'presentation.dart';
 export 'vocabulary/game_hardware_vocabularies.dart';
-export 'workspace/game_hardware_workspace.dart';
+export 'workspace/game_hardware_workspace_contribution.dart';
 export 'workspace/game_hardware_workspace_data.dart';
 export 'workspace/game_hardware_workspace_dto.dart';
 export 'workspace/game_hardware_workspace_projector.dart';

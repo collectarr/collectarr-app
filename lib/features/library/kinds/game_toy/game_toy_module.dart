@@ -40,7 +40,7 @@ export 'integrations/catalog/game_toy_catalog_lookup.dart';
 export 'page.dart';
 export 'presentation.dart';
 export 'vocabulary/game_toy_vocabularies.dart';
-export 'workspace/game_toy_workspace.dart';
+export 'workspace/game_toy_workspace_contribution.dart';
 export 'workspace/game_toy_workspace_data.dart';
 export 'workspace/game_toy_workspace_dto.dart';
 export 'workspace/game_toy_workspace_projector.dart';
