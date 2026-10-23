@@ -13,3 +13,4 @@ export 'entries/game_entry_contributor.dart';
 export 'page.dart';
 export 'tracking/game_tracking_state_codec.dart';
 export 'vocabulary/game_vocabularies.dart';
+export 'config/game_import_sources.dart';

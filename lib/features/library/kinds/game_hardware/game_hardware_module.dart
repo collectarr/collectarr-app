@@ -44,3 +44,4 @@ export 'workspace/game_hardware_workspace.dart';
 export 'workspace/game_hardware_workspace_data.dart';
 export 'workspace/game_hardware_workspace_dto.dart';
 export 'workspace/game_hardware_workspace_projector.dart';
+export 'config/game_hardware_import_sources.dart';

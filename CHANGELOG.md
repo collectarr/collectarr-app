@@ -6,7 +6,7 @@
 - Games, Hardware and Toys use separate fixed-type collections, editors, search and Core catalogs; renaming a collection preserves its type.
 - Hardware has platform/device filters and personal serial numbers; Toys has its own classification, completeness and images.
 - Games supports platform and region search, atomic completeness and packaging values, purchase details, completion and storage tracking, front/back covers and trailers.
-- Games includes folders, sorting, columns, cards and a details panel with platform icons and shared blue utility links.
+- Games inventories include folders, sorting, columns, cards, details panels, guided CLZ XML import and lossless native CSV transfer.
 - Libraries can provide default folder favorites; clearing saved favorites keeps them empty.
 
 ### 🐛 Fixes
@@ -20,7 +20,7 @@
 - Manual Add footers, Add choice menus and front/back image controls share behavior across libraries.
 
 ### 📚 Docs
-- The living CLZ comparison records Games workflows and remaining differences.
+- The living CLZ comparison records Games, Hardware and Toys workflows, deliberate differences and remaining gaps.
 
 ## 1.2.0 - 2026-10-18
 

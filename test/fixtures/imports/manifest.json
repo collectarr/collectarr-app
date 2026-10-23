@@ -33,5 +33,26 @@
     "optional": "music/catraxx/optional_missing.xml",
     "invalid": "music/catraxx/truncated.xml",
     "origin": "XML shape checked against the CATraxx 9.59 XML export engine (DataServer GenerateXML of the vendor sample database) on 2026-10-16; fictional values."
+  },
+  "game.clz_game_web": {
+    "kind": "game",
+    "origin": "Synthetic fixture based on the observed CLZ Games Web XML structure; no proprietary catalog content or assets.",
+    "minimal": "game/clz_web/minimal.xml",
+    "optional": "game/clz_web/optional.xml",
+    "invalid": "game/clz_web/invalid.xml"
+  },
+  "game_hardware.clz_game_hardware_web": {
+    "kind": "game_hardware",
+    "origin": "Synthetic fixture based on the observed CLZ Games Web XML structure; no proprietary catalog content or assets.",
+    "minimal": "game_hardware/clz_web/minimal.xml",
+    "optional": "game_hardware/clz_web/optional.xml",
+    "invalid": "game_hardware/clz_web/invalid.xml"
+  },
+  "game_toy.clz_game_toy_web": {
+    "kind": "game_toy",
+    "origin": "Synthetic fixture based on the observed CLZ Games Web XML structure; no proprietary catalog content or assets.",
+    "minimal": "game_toy/clz_web/minimal.xml",
+    "optional": "game_toy/clz_web/optional.xml",
+    "invalid": "game_toy/clz_web/invalid.xml"
   }
 }

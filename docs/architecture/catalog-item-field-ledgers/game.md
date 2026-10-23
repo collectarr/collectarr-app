@@ -114,6 +114,12 @@ Collectarr implements this editor and Manual Add as dedicated Game screens
 (`kinds/game/edit/`, `kinds/game/add/`), including the Covers tab. Open:
 PriceCharting refresh (no PriceCharting integration exists).
 
+The renewed live comparison and remaining workflow gaps are maintained in
+[CLZ parity](../../clz-parity.md#games-comparison). Games completeness now
+updates its packaging and recorded value together in both Add and Edit;
+locked values and manually entered values without a recorded replacement
+are preserved.
+
 ### Toys editor
 
 Main: Title, Sort Title, Barcode, Release Date, Series (e.g. Disney Infinity
@@ -138,6 +144,14 @@ with the same footer as Games.
 - Image: Device Image and Box Image instead of front and back covers.
 
 Its sort list adds Hardware Type and Serial No.
+
+### Implementation boundary
+
+Hardware and Toys are separate concrete kinds (`game_hardware`, `game_toy`),
+with independent models, editors, collections and Core tables/contracts.
+Their fields do not enter the Games model. Collection renames preserve type;
+serial numbers belong to personal device data. PriceCharting integration is
+explicitly deferred. See the Hardware and Toys ledgers for their field maps.
 
 ### Add dialogs
 
@@ -166,7 +180,7 @@ Platform, Completeness, Platform / Completeness. Folder groups:
   Release Month, Release Year, Series
 - Value: Completeness, Condition, Purchase Date, Purchase Month, Purchase
   Store, Purchase Year, Value Locked
-- Toy: Subtype, Type
+- Toy: Subtype, Type (CLZ only; Collectarr exposes these in Toys)
 - Edition: Edition, Format, Region
 - Personal: Added Date, Added Month, Added Year, Collection Status, Completed,
   Completed Date, Completed Month, Completed Year, Location, Modified Date,

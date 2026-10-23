@@ -1,6 +1,6 @@
-# CLZ Music parity
+# CLZ parity
 
-Collectarr Music aims to be an improved, fully FOSS CLZ Music: familiar
+Collectarr aims to be an improved, fully FOSS CLZ Music and Games: familiar
 workflows and density, a stricter data model, and no proprietary code, fonts or
 assets. CLZ is a reference only. This is the single living comparison; update
 it instead of adding dated audit files.
@@ -64,7 +64,63 @@ Keep these when matching the reference visually.
 | Number order | Text compares character by character: 12 before 2, Raft 10 before Raft 2 (checked on CLZ Music Web, 2026-10-18) | Digit runs compare by value: 2 before 12, Raft 2 before Raft 10 |
 | Sort Names | Shown only on the person lists (Artist, Composer, Conductor, Musician, Engineer, Producer, Songwriter, Signee) and Box Set; the other lists store one but hide it, so "The End Records" stays under T | Every pick list shows its Sort Name, fills it from the Name as it is typed (the article rule, as for Sort Title), and every pick-list folder is ordered by it |
 
-## Fixed in the 2026-10-15/16 passes
+## Games comparison
+
+Compared in the existing signed-in Chrome session at 1844 × 945. CLZ Games,
+Hardware and Toys were inspected without saving; editors were closed with
+Cancel. The existing Collectarr comparison origin was inspected without
+saving. Changes were exercised in a separate release build on port 7359,
+using a fictional game and its own browser storage. Different records and
+cover images mean this is a workflow comparison, not a pixel-identical content
+comparison. The earlier Music pass below remains valid for shared mechanics.
+
+### Compared surfaces
+
+| Surface | CLZ Games | Collectarr / result |
+| --- | --- | --- |
+| Workspace | Platform folders; Platform and Title ordering; list, cards, covers and shelves | Games supplies these choices; folder and sort field inventories are recorded in the [Game ledger](architecture/catalog-item-field-ledgers/game.md). Not every sort/group combination was exercised with populated records |
+| Add | Title, Barcode, Platform, settings, Add Manually; platform and region controls | The same Games tabs and controls exist. Live Core results and confirmation remain unverified without a connected comparison catalog |
+| Main | Title, Sort Title, Platform, Release Date, Developer, Publisher, Series, Barcode, Format, Edition, Region, Audience Rating, Genre | The dedicated Games Main form contains these fields and the same two-column composition |
+| Value | Completeness, Box, Manual, lockable Value, Condition, purchase facts, valuation chart, PriceCharting ID and Core Region | Fields present. Fixed the packaging/completeness transition and Manual Add losing a chosen tier when it also applied a recorded value. Recorded snapshots only; no PriceCharting refresh |
+| Personal | Owner, Storage Device/Slot, Notes, Completed/Date, My Rating, Tags | Fields present; does not establish every pick-list save path |
+| Custom Fields | Empty guidance; separately configured definitions | Tab present; subtype-by-subtype editing still belongs to the shared unverified coverage |
+| Covers | Front/Back, Find Online, Upload, Remove, Crop / Rotate | Tab and actions present. Existing cover behavior is covered by widget tests; online image search and native file selection were not exercised here |
+| My Images | Up to five additional images, caption and image type | Tab present; populated image management not compared live |
+| Description / Links | Description editor, external links and YouTube trailers | Separate tabs and link/trailer tables present; playback not exercised |
+| Details | Platform icon/name/year, series/title/status, companies, format/rating/genres, completeness/value, Description/Trailer/Personal | Fixed the missing platform icon. Existing metadata controls what is shown; empty fixture fields are not evidence of missing fields |
+| Utility links | eBay sold-listings action | Fixed the shared inspector link inheriting the Games red accent; it now uses shared link blue |
+| Save / Cancel | Reference inspected with Cancel only | Isolated Collectarr Manual Add saved a fictional PC game with a partial year, CIB, packaging and value; reference data and the original comparison library stayed untouched |
+
+### Games inventory implementation and remaining differences
+
+| Priority | Area | Confirmed requirement / remaining work |
+| --- | --- | --- |
+| Done | Hardware and Toys | Independent `game_hardware` / `game_toy` domain modules, repositories, editors and Core tables/contracts. Collections share the Games tab bar; type is immutable on rename and cross-kind moves are rejected. Creation offers a fixed collection type |
+| Done | Hardware forms | Main: Title, Sort Title, Platform, Release Date, Barcode, Hardware Type, Series, Serial No. Value has the five Games completeness levels and packaging. Personal has Owner, Notes, My Rating, Tags, without completion/storage. Image uses Device Image / Box Image. Serial No. stays personal. An isolated controller was added with PC, a year-only date, CIB packaging and a serial number |
+| Done | Toys forms | Main: Title, Sort Title, Barcode, Release Date, Series, Type, Subtype. Value offers Loose/New and Box, without Manual or Core Region. Personal has Owner, Notes, My Rating, Tags. Image uses Figure Image / Box Image. An isolated figure was added with a year-only date and New/Box; invalid completeness values are rejected |
+| Done | Core type boundary | The sibling Core publishes four catalog kinds with independent Hardware/Toy schemas and routes. Ordered migration 2 adds the three Games inventory tables while preserving Music. Fresh install, upgrade, preservation and inventory search/read/correction flows passed on isolated PostgreSQL |
+| Done | Hardware Add search | Title/Barcode, platform picker and Consoles/Controllers/Accessories filters reach Core before pagination; isolated browser search returned two Console results, then three Console/Controller results without caption overlap |
+| Partial | Inventory import/export | Guided CLZ Web XML import has separate Games, Hardware and Toys mappings and rejects mixed types. Native CSV preserves complete typed entries. Human-readable CLZ CSV mapping, image attachments, loans and custom-field import remain open |
+| Deferred | PriceCharting | Refresh/integration explicitly deferred by the owner; recorded valuation snapshots remain supported |
+| Done | Loose packaging valuation | Box/Manual changes atomically recalculate an unlocked Loose value from recorded snapshots in the same currency; unavailable snapshots and locked values preserve the entered amount |
+| Done | Horizontal cards | Footer reserves separate space for the platform, value and status; compact-width geometry checks prevent overlap |
+| Done | Hardware/Toy folders | Tags retain separate folders even when a tag contains commas; Added/Modified folders group by calendar day, and valuation folders use the Value category |
+
+### Deliberate Games behavior
+
+- Platform icons use FOSS category glyphs rather than proprietary platform artwork.
+- Games, Hardware and Toys expose only their own fields. CLZ also shows generic Games columns and Toy folders across inventory types; Collectarr keeps Toy classification exclusively in Toys.
+- The next local schema is 3, combining Games tracking and list-valued tags in one upgrade from released schema 2. Unreleased intermediate schemas are not migration baselines.
+
+- Without a recorded amount for a newly chosen completeness tier, preserve the
+  manually entered value. A locked value also survives tier changes. Choosing
+  a tier still updates packaging: N/A/Loose clear Box and Manual;
+  CIB/New/Graded select both. The reference transitions were checked in its
+  unsaved editor, then cancelled.
+- Hardware/Toys must not be inferred from collection names: a renamed
+  collection retains its concrete type, and moves must preserve that type.
+
+## Fixed in the 2026-10-15/16 Music passes
 
 | Surface | Problem | Fix |
 | --- | --- | --- |
