@@ -1,3 +1,4 @@
+import 'library_card_footer.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
@@ -168,6 +169,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                             // Title, series and badges may exceed a short
                             // card; they clip rather than overflow.
                             Positioned.fill(
+                                bottom: 26,
                                 child: ClipRect(
                                     child: OverflowBox(
                                         alignment: Alignment.topLeft,
@@ -292,31 +294,17 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                 left: 0,
                                 right: 0,
                                 bottom: 0,
-                                child: Text(
-                                    [
+                                child: LibraryCardFooter(
+                                    label: [
                                       presentation.format,
                                       presentation.releaseDate?.year.toString()
                                     ].whereType<String>().join(' \u2013 '),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        color: selected
-                                            ? Colors.white
-                                            : palette.textMuted))),
+                                    value: presentation.valueLabel,
+                                    status: _CardStatusBadge(
+                                        item: item, selected: selected),
+                                    selected: selected)),
                           ])),
                         ])),
-                    if (presentation.valueLabel case final value?)
-                      Positioned(
-                          right: 34,
-                          bottom: 6,
-                          child: _CardValuePill(label: value)),
-                    Positioned(
-                        right: 7,
-                        bottom: 6,
-                        child:
-                            _CardStatusBadge(item: item, selected: selected)),
                     if (_hovered || selectionMode || checked)
                       Positioned(
                           left: 0,
@@ -553,28 +541,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     final rawWidth = coverWidth * pixelRatio;
     return ((rawWidth / 64).ceil() * 64).toInt();
   }
-}
-
-/// Collection status chip shown on cards, as in the reference.
-/// Value pill of the reference cards, e.g. "CIB | \$ 17.58".
-class _CardValuePill extends StatelessWidget {
-  const _CardValuePill({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-        decoration: BoxDecoration(
-          color: const Color(0xFF2AA4CC),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(label,
-            style: const TextStyle(
-                fontSize: 13,
-                fontWeight: kAppBoldFontWeight,
-                color: Colors.white)),
-      );
 }
 
 class _CardStatusBadge extends StatelessWidget {

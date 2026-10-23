@@ -11,7 +11,7 @@
 ### 🐛 Fixes
 - The light theme applies at startup and uses consistent content areas, editor fields, toolbars and collection tabs.
 - Pick-list fields preserve spaces when typing a new value.
-- Horizontal cards keep labels readable in the light theme.
+- Horizontal cards keep labels and value/status badges readable at compact widths and in the light theme.
 - The sorting favorites button remains readable in the light theme.
 
 ### ♻️ Refactors

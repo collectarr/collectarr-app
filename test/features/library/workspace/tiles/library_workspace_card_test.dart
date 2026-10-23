@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/library_card_footer.dart';
 import 'dart:ui' as ui;
 
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -116,6 +117,33 @@ Widget _host(
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  for (final width in [160.0, 240.0]) {
+    testWidgets('card footer reserves value and status space at $width px',
+        (tester) async {
+      const platform = 'A very long platform name that needs truncation';
+      const value = 'CIB | USD 12345.67';
+      await tester.pumpWidget(MaterialApp(
+          home: Scaffold(
+              body: SizedBox(
+                  width: width,
+                  height: 24,
+                  child: const LibraryCardFooter(
+                      label: platform,
+                      value: value,
+                      selected: false,
+                      status: SizedBox(
+                          key: ValueKey('status'), width: 21, height: 21))))));
+      final labelBox = tester.getRect(find.text(platform));
+      final valueBox = tester.getRect(find.text(value));
+      final statusBox = tester.getRect(find.byKey(const ValueKey('status')));
+      expect(labelBox.right, lessThanOrEqualTo(valueBox.left));
+      expect(valueBox.right, lessThanOrEqualTo(statusBox.left));
+      expect(tester.widget<Text>(find.text(platform)).overflow,
+          TextOverflow.ellipsis);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets(
       'a horizontal card shorter than its text clips instead of overflowing',
