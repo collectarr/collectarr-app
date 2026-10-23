@@ -14,8 +14,8 @@ extension _PageKindHooks on GenericLibraryPageState {
 
   List<String> get _scopeAvailableGroupModes {
     return [
-      for (final groupId
-          in libraryKindWorkspaceForKind(widget.type.kind).availableGroupIds)
+      for (final groupId in libraryKindWorkspaceForKind(widget.type.kind)
+          .availableGroupIdsForAllTargets)
         groupId.value,
     ];
   }
