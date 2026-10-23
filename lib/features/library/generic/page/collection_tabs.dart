@@ -1,4 +1,6 @@
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/collections/library_collection_family.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -134,6 +136,13 @@ class _LibraryCollectionTabBarState
                                       catalogMediaKindFromApiValue(
                                           collection.kind))
                                   : null,
+                              iconSvgAsset: showKindIcon
+                                  ? libraryKindRegistrationForKind(
+                                          catalogMediaKindFromApiValue(
+                                              collection.kind))
+                                      .identity
+                                      .collectionIconSvgAsset
+                                  : null,
                               isActive: collection.id == activeId,
                               accent: accent,
                               onTap: () => select(collection),
@@ -160,6 +169,7 @@ class LibraryCollectionTab extends StatelessWidget {
     super.key,
     required this.label,
     this.icon,
+    this.iconSvgAsset,
     required this.isActive,
     required this.accent,
     required this.onTap,
@@ -167,6 +177,7 @@ class LibraryCollectionTab extends StatelessWidget {
 
   final String label;
   final IconData? icon;
+  final String? iconSvgAsset;
   final bool isActive;
   final Color accent;
   final VoidCallback onTap;
@@ -205,8 +216,15 @@ class LibraryCollectionTab extends StatelessWidget {
                     borderRadius: const BorderRadius.vertical(
                         bottom: Radius.circular(4))),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  if (icon != null) ...[
-                    Icon(icon, size: 13, color: foreground),
+                  if (icon != null || iconSvgAsset != null) ...[
+                    if (iconSvgAsset != null)
+                      SvgPicture.asset(iconSvgAsset!,
+                          width: 18,
+                          height: 18,
+                          colorFilter:
+                              ColorFilter.mode(foreground, BlendMode.srcIn))
+                    else
+                      Icon(icon, size: 13, color: foreground),
                     const SizedBox(width: 5),
                   ],
                   Flexible(

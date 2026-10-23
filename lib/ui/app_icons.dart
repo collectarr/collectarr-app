@@ -46,6 +46,11 @@ abstract final class AppIcons {
       IconData(0xf008, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData gamepad =
       IconData(0xf11b, fontFamily: _solid, fontPackage: _fontPackage);
+  static const String collectionGamesSvg = 'assets/icons/collection-games.svg';
+  static const String collectionHardwareSvg =
+      'assets/icons/collection-hardware.svg';
+  static const String collectionToysSvg = 'assets/icons/collection-toys.svg';
+  static const String librarySwitcherSvg = 'assets/icons/library-switcher.svg';
   static const IconData bookOpen =
       IconData(0xf518, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData bookReader =

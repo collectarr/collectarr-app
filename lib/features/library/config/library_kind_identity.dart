@@ -11,6 +11,7 @@ class LibraryKindIdentity {
     required this.pluralLabel,
     required this.title,
     required this.icon,
+    this.collectionIconSvgAsset,
     required this.coverPlaceholderIcon,
     required this.accent,
     required this.preferencePrefix,
@@ -35,6 +36,9 @@ class LibraryKindIdentity {
   final String pluralLabel;
   final String title;
   final IconData icon;
+
+  /// Optional original vector artwork for collection tabs and their menu.
+  final String? collectionIconSvgAsset;
 
   /// Shown on the dark tile that stands in for a missing cover.
   final IconData coverPlaceholderIcon;

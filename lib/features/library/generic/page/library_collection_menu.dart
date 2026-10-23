@@ -1,4 +1,7 @@
 import 'dart:math' as math;
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -73,7 +76,15 @@ class _LibraryCollectionMenuState extends State<LibraryCollectionMenu> {
               'Manage Collections'
             ],
             textStyle: style,
-            leadingWidth: 17.5,
+            leadingWidth: 17.5 +
+                (widget.collections.any((c) =>
+                        libraryKindRegistrationForKind(
+                                catalogMediaKindFromApiValue(c.kind))
+                            .identity
+                            .collectionIconSvgAsset !=
+                        null)
+                    ? 23
+                    : 0),
             leadingSpacing: 4,
             trailingWidth: 0,
             horizontalPadding: 16,
@@ -155,6 +166,23 @@ class _LibraryCollectionMenuState extends State<LibraryCollectionMenu> {
                                                         size: 12,
                                                         color: Colors.white)
                                                     : null),
+                                        if (libraryKindRegistrationForKind(
+                                                    catalogMediaKindFromApiValue(
+                                                        collection.kind))
+                                                .identity
+                                                .collectionIconSvgAsset
+                                            case final asset?) ...[
+                                          SvgPicture.asset(asset,
+                                              width: 18,
+                                              height: 18,
+                                              colorFilter: ColorFilter.mode(
+                                                  collection.id ==
+                                                          widget.activeId
+                                                      ? Colors.white
+                                                      : palette.textPrimary,
+                                                  BlendMode.srcIn)),
+                                          const SizedBox(width: 5),
+                                        ],
                                         Expanded(
                                             child: Text(collection.name,
                                                 maxLines: 1,

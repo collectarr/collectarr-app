@@ -74,6 +74,17 @@ using a fictional game and its own browser storage. Different records and
 cover images mean this is a workflow comparison, not a pixel-identical content
 comparison. The earlier Music pass below remains valid for shared mechanics.
 
+The chrome/theme follow-up used the existing Chrome session at 2560 × 1305
+and a separate Collectarr release origin on port 47383 with the fictional
+Games XML fixture. CLZ's account sidebar was opened without following Logout.
+Light and Dark were previewed by temporarily changing only the loaded skin
+and details stylesheet URLs, then restoring them; no account settings were
+saved. The reference's named **Default** skin mixes dark toolbars with light
+content; **Light** is a separate skin with pale toolbars. Earlier references
+to that mixed skin as "light" below mean Default, not the named Light skin.
+The switcher was visually checked in both Collectarr themes.
+This does not claim a new full pass over every editor and view.
+
 ### Compared surfaces
 
 | Surface | CLZ Games | Collectarr / result |
@@ -103,7 +114,9 @@ comparison. The earlier Music pass below remains valid for shared mechanics.
 | Done | Inventory import/export | Guided CLZ Web XML import has separate Games, Hardware and Toys mappings and rejects mixed types. "Import a Text or CSV file" maps CLZ Games CSV/TXT exports (header labels auto-map; CLZ dates like "Nov 14, 2014", Yes/No flags, "A \| B" lists and prices are understood) for all three kinds. Native CSV preserves complete typed entries. Loaned To, Loan Date and Due Date create a loan for the imported copy (once per borrower and date), and any other column can be imported as a custom field named after its header (created as text when missing; importing again updates the value). CLZ's CSV has no image columns, so attachments only arrive through the XML cover URL; Core Region, PriceCharting ID and Value Locked are not CSV columns either |
 | Deferred | PriceCharting | Refresh/integration explicitly deferred by the owner; recorded valuation snapshots remain supported |
 | Done | Loose packaging valuation | Box/Manual changes atomically recalculate an unlocked Loose value from recorded snapshots in the same currency; unavailable snapshots and locked values preserve the entered amount |
-| Done | Collection tabs | CLZ marks the Games, Hardware and Toys tabs with an icon each; Collectarr tabs of a multi-kind family now show the kind icon (compared passively 2026-10-23) |
+| Done | Collection icons | CLZ uses collection-type SVG assets: a controller, joystick and figure on a base. Collectarr uses original SVG drawings of these motifs in the tabs, collection menu and account overview; paths are declared in `AppIcons` and selected by each kind's identity. No CLZ artwork or Pro font is bundled |
+| Done | Library switcher chrome | CLZ's button is Font Awesome Pro `grid-2`; Collectarr keeps its original four-square SVG in `AppIcons`. The popover stays white in both themes, with a pointer centered on the icon and its right side flush with the window edge. It expands symmetrically under the icon where space allows, accounting for Sync, Account and update actions. Kind tiles are 26 px, rows 36 px and labels 14 px. It lists each family once; selection, Escape and outside dismissal are checked, with geometry coverage at 390 and 1200 px |
+| Open P2 | Named Light skin | CLZ's separate Light skin also lightens toolbars, pane separators and collection strip. Collectarr's light mode still follows the mixed Default skin through `AppDarkChrome`; a full pale chrome variant remains absent |
 | Done | List columns | CLZ's default Games list shows Platform, Title, Release Date, Publisher, Developer, Genre and Added Date; Collectarr's default list now matches, including Added Date (compared 2026-10-23) |
 | Done | Hardware list and details | CLZ's list leads with the platform icon and Platform before Title, and its details show the platform icon with "Platform (year)"; Hardware now matches. Toys keep Title, Release Date and Series and open on Series folders because they have no platform (deliberate; compared 2026-10-23 with a fictional Toy and Hardware in an isolated origin) |
 | Done | CLZ CSV export | CLZ's Export to CSV / TXT writes the labels of a chosen column set (any of the Main, Value, Hardware, Toy, Edition, Personal and Loan columns) as the header row, unescaped HTML in Description and dates as "Nov 14, 2014"; Collectarr maps columns by label instead of expecting a fixed layout (checked 2026-10-23 on the Games and Toys collections through the export preview; Hardware was empty, so its columns are assumed identical) |
@@ -240,13 +253,13 @@ items come from earlier audits and must be re-checked before closing.
 
 | Priority | Area | CLZ | Collectarr |
 | --- | --- | --- | --- |
-| P1 | Light theme | Light content areas under the dark top bar and toolbars; measured on CLZ Games Web 2026-10-19 (values below) | Toolbars, pane headers, draggers and collection tabs stay dark (`AppDarkChrome`); canvas, folder panel, cards, selection and item titles use the values below. Populated cards, details and editors not yet compared in light |
+| P2 | Light skin coverage | Default mixes dark toolbars with light content; the separately named Light skin also lightens the chrome (see Games follow-up) | Collectarr follows Default through `AppDarkChrome`. Populated Games details and switcher have been checked with light content; a full pale chrome variant and a complete light pass over editors/cards remain open |
 | P2 | Imports | Also Music Label, OrangeCD, CDpedia | Not offered: no public schema or sample export exists (see [import/export](import-export.md)); CATraxx XML is imported |
 
-CLZ light theme, computed styles at 1844 × 945: top bar in the kind accent
+CLZ mixed Default skin, previously labelled light, computed styles at 1844 × 945: top bar in the kind accent
 (Games `#E23149`); toolbars and pane headers `#383838`; pane draggers
 `#262626`; bottom collection tabs `#272323` with inactive tabs `#131313` at
-75 % white and the active tab in the accent; list canvas `#F6F6F6`; folder
+75 % white and the active tab in the accent; light browsing canvas `#F6F6F6` (the list's empty area is white in the Games follow-up); folder
 panel `#F9F9F9` with `#333` text; cards white with `#333` text; selected card
 and folder `#5EB1DE` with white text; details panel white at 90 % over the
 backdrop, title and section headings `#0082A6` (24 px and 18 px bold), field

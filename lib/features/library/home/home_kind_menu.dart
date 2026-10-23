@@ -1,12 +1,13 @@
+import 'dart:math' as math;
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
-class MediaLibraryKindMenu extends StatelessWidget {
+class MediaLibraryKindMenu extends StatefulWidget {
   const MediaLibraryKindMenu({
     super.key,
     required this.types,
@@ -19,47 +20,104 @@ class MediaLibraryKindMenu extends StatelessWidget {
   final ValueChanged<CatalogMediaType> onSelected;
 
   @override
+  State<MediaLibraryKindMenu> createState() => _MediaLibraryKindMenuState();
+}
+
+class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
+  final _anchorKey = GlobalKey();
+  final _controller = MenuController();
+  final _buttonFocus = FocusNode();
+  double _menuWidth = 145;
+  double _pointerOffset = 72.5;
+
+  @override
+  void dispose() {
+    _buttonFocus.dispose();
+    super.dispose();
+  }
+
+  void _toggle() {
+    if (_controller.isOpen) {
+      _controller.close();
+      return;
+    }
+    final anchor = _anchorKey.currentContext?.findRenderObject();
+    final overlay =
+        Overlay.of(context, rootOverlay: true).context.findRenderObject();
+    if (anchor is! RenderBox || overlay is! RenderBox) return;
+    final bounds =
+        anchor.localToGlobal(Offset.zero, ancestor: overlay) & anchor.size;
+    final rightDistance = overlay.size.width - bounds.center.dx;
+    // Center the panel under its icon where space allows and fill to the edge.
+    final width =
+        math.min(overlay.size.width, math.max(145.0, rightDistance * 2));
+    final left = overlay.size.width - width;
+    setState(() {
+      _menuWidth = width;
+      _pointerOffset = bounds.center.dx - left;
+    });
+    _controller.open(position: Offset(left - bounds.left, bounds.height + 8));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final iconButtonStyle = Theme.of(context).iconButtonTheme.style?.copyWith(
               backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
             ) ??
         IconButton.styleFrom(backgroundColor: Colors.transparent);
-    return IconButtonTheme(
-      data: IconButtonThemeData(style: iconButtonStyle),
-      child: PopupMenuButton<CatalogMediaType>(
-        key: const Key('nav.library-kind-picker'),
-        tooltip: 'Switch library',
-        color: palette.panelRaised,
-        surfaceTintColor: Colors.transparent,
-        shadowColor: Theme.of(context).shadowColor.withValues(alpha: 0.32),
-        elevation: 10,
-        popUpAnimationStyle: AnimationStyle.noAnimation,
-        constraints: const BoxConstraints(minWidth: 164, maxWidth: 230),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-          side: BorderSide(color: palette.divider),
-        ),
-        onSelected: onSelected,
-        itemBuilder: (context) => [
-          for (final type in _familyEntryTypes())
-            PopupMenuItem(
-              key: ValueKey('library-kind-picker-item-${type.kind}'),
-              value: type,
-              height: kLibraryToolbarPopupItemHeight,
-              padding: EdgeInsets.zero,
-              child: _KindMenuRow(
-                type: type,
-                icon: registry.tryGet(type.mediaKind)?.identity.icon ??
-                    libraryIconForKind(type.mediaKind),
-              ),
+    return MenuAnchor(
+      key: _anchorKey,
+      controller: _controller,
+      childFocusNode: _buttonFocus,
+      useRootOverlay: true,
+      crossAxisUnconstrained: false,
+      reservedPadding: EdgeInsets.zero,
+      clipBehavior: Clip.none,
+      style: MenuStyle(
+        backgroundColor: const WidgetStatePropertyAll(Colors.white),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        shadowColor: WidgetStatePropertyAll(
+            Theme.of(context).shadowColor.withValues(alpha: .32)),
+        elevation: const WidgetStatePropertyAll(6),
+        padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+        fixedSize: WidgetStatePropertyAll(Size.fromWidth(_menuWidth)),
+        shape: WidgetStatePropertyAll(
+            _LibraryMenuBorder(pointerOffset: _pointerOffset)),
+      ),
+      menuChildren: [
+        for (final type in _familyEntryTypes())
+          MenuItemButton(
+            key: ValueKey('library-kind-picker-item-${type.kind}'),
+            onPressed: () => widget.onSelected(type),
+            style: const ButtonStyle(
+              minimumSize: WidgetStatePropertyAll(Size(0, 36)),
+              maximumSize: WidgetStatePropertyAll(Size(double.infinity, 36)),
+              padding:
+                  WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 7)),
+              visualDensity: VisualDensity.standard,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              overlayColor: WidgetStatePropertyAll(Color(0x1F000000)),
             ),
-        ],
-        icon: const Icon(Icons.apps_rounded),
-        iconSize: 19,
+            child: _KindMenuRow(
+              type: type,
+              icon: widget.registry.tryGet(type.mediaKind)?.identity.icon ??
+                  libraryIconForKind(type.mediaKind),
+              iconSvgAsset: widget.registry
+                  .tryGet(type.mediaKind)
+                  ?.identity
+                  .collectionIconSvgAsset,
+            ),
+          ),
+      ],
+      child: IconButton(
+        key: const Key('nav.library-kind-picker'),
+        focusNode: _buttonFocus,
+        tooltip: 'Switch library',
+        style: iconButtonStyle,
+        onPressed: _toggle,
+        icon: SvgPicture.asset(AppIcons.librarySwitcherSvg,
+            width: 20, height: 20),
         padding: EdgeInsets.zero,
-        position: PopupMenuPosition.under,
-        offset: const Offset(0, 4),
       ),
     );
   }
@@ -68,8 +126,9 @@ class MediaLibraryKindMenu extends StatelessWidget {
   /// collection tabs, as in the reference app list.
   List<CatalogMediaType> _familyEntryTypes() {
     final families = <String>{};
-    return types.where((type) {
-      final family = registry.tryGet(type.mediaKind)?.identity.collectionFamily;
+    return widget.types.where((type) {
+      final family =
+          widget.registry.tryGet(type.mediaKind)?.identity.collectionFamily;
       return family == null || families.add(family);
     }).toList();
   }
@@ -79,44 +138,98 @@ class _KindMenuRow extends StatelessWidget {
   const _KindMenuRow({
     required this.type,
     required this.icon,
+    this.iconSvgAsset,
   });
 
   final CatalogMediaType type;
   final IconData icon;
+  final String? iconSvgAsset;
 
   @override
   Widget build(BuildContext context) {
     final accent = libraryAccentForKind(type.mediaKind);
-    final palette = appPalette(context);
     return SizedBox(
-      height: kLibraryToolbarPopupItemHeight,
+      height: 36,
       child: Row(
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(3),
+              color: accent,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Colors.white.withValues(alpha: .45)),
             ),
             child: SizedBox.square(
-              dimension: 25,
-              child: Icon(icon, size: 16, color: accent),
+              dimension: 26,
+              child: iconSvgAsset == null
+                  ? Icon(icon, size: 18, color: Colors.white)
+                  : Padding(
+                      padding: const EdgeInsets.all(3),
+                      child: SvgPicture.asset(iconSvgAsset!,
+                          width: 18, height: 18)),
             ),
           ),
-          const SizedBox(width: 9),
+          const SizedBox(width: 7),
           Expanded(
             child: Text(
               libraryNavLabel(type),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: palette.textPrimary,
-                fontSize: 12,
+                color: const Color(0xFF333333),
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The app switcher is a white popover in either skin, with an anchor pointer.
+class _LibraryMenuBorder extends OutlinedBorder {
+  const _LibraryMenuBorder(
+      {required this.pointerOffset,
+      super.side = const BorderSide(color: Color(0x33000000))});
+  final double pointerOffset;
+
+  @override
+  OutlinedBorder copyWith({BorderSide? side}) =>
+      _LibraryMenuBorder(pointerOffset: pointerOffset, side: side ?? this.side);
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  ShapeBorder scale(double t) => this;
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    final pointerX = rect.left + pointerOffset.clamp(14.0, rect.width - 14.0);
+    return Path.combine(
+      PathOperation.union,
+      Path()..addRRect(RRect.fromRectAndRadius(rect, const Radius.circular(6))),
+      Path()
+        ..moveTo(pointerX - 8, rect.top + 1)
+        ..lineTo(pointerX, rect.top - 8)
+        ..lineTo(pointerX + 8, rect.top + 1)
+        ..close(),
+    );
+  }
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      getOuterPath(rect, textDirection: textDirection);
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    canvas.drawPath(
+      getOuterPath(rect, textDirection: textDirection),
+      Paint()
+        ..color = side.color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = side.width,
     );
   }
 }

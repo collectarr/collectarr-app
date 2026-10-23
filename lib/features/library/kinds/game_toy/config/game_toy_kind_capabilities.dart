@@ -1,4 +1,5 @@
 import '../stats/game_toy_stats_capability.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'game_toy_kind_configuration.dart';
 import '../game_toy_module_dependencies.dart';
 
@@ -8,6 +9,7 @@ final gameToyKindIdentity = const LibraryKindIdentity(
     pluralLabel: 'Toys',
     title: 'Games',
     icon: Icons.smart_toy,
+    collectionIconSvgAsset: AppIcons.collectionToysSvg,
     coverPlaceholderIcon: Icons.smart_toy,
     accent: Color(0xFFE23149),
     preferencePrefix: 'game_toy',

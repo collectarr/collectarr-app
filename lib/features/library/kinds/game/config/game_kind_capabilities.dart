@@ -34,6 +34,7 @@ final gameKindIdentity = const LibraryKindIdentity(
   pluralLabel: 'Games',
   title: 'Games',
   icon: Icons.sports_esports,
+  collectionIconSvgAsset: AppIcons.collectionGamesSvg,
   coverPlaceholderIcon: AppIcons.gamepad,
   accent: Color(0xFFE23149),
   preferencePrefix: 'games',

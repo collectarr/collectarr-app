@@ -8,6 +8,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 void main() {
   test(
@@ -287,6 +288,7 @@ void main() {
       await repo.ensureDefault('music');
       await repo.ensureDefault('game');
       await repo.ensureDefault('game_hardware');
+      await repo.ensureDefault('game_toy');
     });
     Future<void> pump(String kind) async {
       await tester.pumpWidget(ProviderScope(
@@ -301,10 +303,21 @@ void main() {
     }
 
     await pump('game');
-    expect(find.byIcon(Icons.sports_esports), findsOneWidget);
-    expect(find.byIcon(Icons.devices), findsOneWidget);
+    expect(
+        tester
+            .widgetList<LibraryCollectionTab>(find.byType(LibraryCollectionTab))
+            .map((tab) => tab.iconSvgAsset),
+        containsAll([
+          AppIcons.collectionGamesSvg,
+          AppIcons.collectionHardwareSvg,
+          AppIcons.collectionToysSvg,
+        ]));
     await pump('music');
-    expect(find.byIcon(Icons.sports_esports), findsNothing);
+    expect(
+        tester
+            .widgetList<LibraryCollectionTab>(find.byType(LibraryCollectionTab))
+            .every((tab) => tab.iconSvgAsset == null),
+        isTrue);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
