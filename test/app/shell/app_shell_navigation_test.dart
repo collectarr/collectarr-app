@@ -42,14 +42,14 @@ void main() {
       final router = container.read(appRouterProvider);
       router.go('/settings?kind=music');
       await pumpUntilSettled(tester);
-      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      expect(find.text('CARR MUSIC'), findsOneWidget);
       await tester.tap(find.byKey(const Key('settings.back')));
       await pumpUntilSettled(tester);
       expect(
           router.routeInformationProvider.value.uri.path, AppRoutes.libraries);
       expect(router.routeInformationProvider.value.uri.queryParameters['kind'],
           'music');
-      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      expect(find.text('CARR MUSIC'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await disposeTestApp(tester);
     });
@@ -71,7 +71,7 @@ void main() {
       final router = container.read(appRouterProvider);
       router.go('/libraries?kind=music');
       await pumpUntilSettled(tester);
-      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      expect(find.text('CARR MUSIC'), findsOneWidget);
       final kindIcon =
           tester.widget<Icon>(find.byKey(const Key('app.kind-icon')));
       expect(kindIcon.icon, Icons.music_note);
@@ -88,13 +88,13 @@ void main() {
       await pumpUntilSettled(tester);
       await tester.tap(find.text('Settings'));
       await pumpUntilSettled(tester);
-      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      expect(find.text('CARR MUSIC'), findsOneWidget);
       expect(find.byType(AppPageHeader), findsOneWidget);
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
       await tester.tap(find.text('Print to PDF'));
       await pumpUntilSettled(tester);
-      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      expect(find.text('CARR MUSIC'), findsOneWidget);
       expect(find.byKey(const Key('nav.library-kind-picker')), findsOneWidget);
       expect(find.byType(AppPageHeader), findsOneWidget);
       await tester.tap(find.byKey(const Key('app.open-navigation')));
@@ -142,7 +142,7 @@ void main() {
       Navigator.of(tester.element(find.byType(LibraryAddDialog))).pop();
       await pumpUntilSettled(tester);
       expect(find.byType(LibraryHomePage), findsOneWidget);
-      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      expect(find.text('CARR MUSIC'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await disposeTestApp(tester);
     });

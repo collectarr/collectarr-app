@@ -39,7 +39,7 @@ void main() {
     scaffoldState.openDrawer();
     await tester.pumpAndSettle();
 
-    expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+    expect(find.text('CARR MUSIC'), findsOneWidget);
     final kindIcon =
         tester.widget<Icon>(find.byKey(const Key('drawer.kind-icon')));
     expect(
