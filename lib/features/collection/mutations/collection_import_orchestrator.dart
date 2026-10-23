@@ -609,8 +609,7 @@ final class CollectionImportOrchestrator {
     // Importing the same file again updates a value instead of adding a copy.
     final existingValueIds = {
       for (final value in await repository.listValuesForTarget(
-          targetId: ref.key,
-          targetScope: CustomFieldTargetScope.libraryEntry))
+          targetId: ref.key, targetScope: CustomFieldTargetScope.libraryEntry))
         value.fieldDefinitionId: value.id,
     };
     final values = <CustomFieldValue>[];

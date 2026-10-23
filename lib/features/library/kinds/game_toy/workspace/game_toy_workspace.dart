@@ -315,8 +315,8 @@ LibraryWorkspaceSchema<GameToyKind, GameToyWorkspaceDto> _schema(
           columnFromField(field,
               group: _fieldCategory(field),
               cellValue: field == _releaseDate
-                  ? (context) => Text(AppFormats.current.formatPartialDate(
-                      context.dto.metadata.releaseDateParts))
+                  ? (context) => Text(AppFormats.current
+                      .formatPartialDate(context.dto.metadata.releaseDateParts))
                   : null,
               defaultWidth: field == _title ? 260 : 140),
         if (personal)
