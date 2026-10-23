@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'dart:math' as math;
 
+import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -101,7 +102,11 @@ class _LibraryFolderRowState extends State<LibraryFolderRow> {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: widget.onTap,
-          child: DecoratedBox(
+          // Hover fades over 0.25 s, as the reference folder rows do.
+          child: AnimatedContainer(
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : appControlHoverDuration,
             decoration: BoxDecoration(
               color: background,
               border: Border(
