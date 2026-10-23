@@ -42,7 +42,7 @@ class MediaLibraryKindMenu extends StatelessWidget {
         ),
         onSelected: onSelected,
         itemBuilder: (context) => [
-          for (final type in types)
+          for (final type in _familyEntryTypes())
             PopupMenuItem(
               key: ValueKey('library-kind-picker-item-${type.kind}'),
               value: type,
@@ -62,6 +62,16 @@ class MediaLibraryKindMenu extends StatelessWidget {
         offset: const Offset(0, 4),
       ),
     );
+  }
+
+  /// One entry per collection family: Hardware and Toys open from the Games
+  /// collection tabs, as in the reference app list.
+  List<CatalogMediaType> _familyEntryTypes() {
+    final families = <String>{};
+    return types.where((type) {
+      final family = registry.tryGet(type.mediaKind)?.identity.collectionFamily;
+      return family == null || families.add(family);
+    }).toList();
   }
 }
 

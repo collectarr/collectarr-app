@@ -23,6 +23,7 @@
 - Games, Hardware and Toys lists show dates in the chosen date format, such as Nov 14, 2014, instead of always 2014-11-14.
 - The Games details panel shows the Format of imported games, such as Steam Download, above the genres.
 - List headers of narrow icon columns stay empty instead of showing clipped labels, and the default Games list no longer adds a cover column.
+- The library switcher lists Games once instead of three identical Games entries; Hardware and Toys open from the Games collection tabs.
 - The main menu's link entry names the open library's items, such as Link Games, instead of always saying Link Albums.
 
 ### ♻️ Refactors
