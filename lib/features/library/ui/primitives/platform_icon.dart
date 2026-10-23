@@ -61,22 +61,22 @@ IconData resolvePlatformIcon(String platform) {
   return AppIcons.gamepad;
 }
 
-/// A platform's logo or glyph at [size], in [color] or the current text
-/// color, with the platform name as tooltip.
+/// The logo or glyph for the platform called [name] at [size], in [color]
+/// or the current text color, with the name as tooltip.
 class PlatformIcon extends StatelessWidget {
-  const PlatformIcon(this.platform, {super.key, this.size = 16, this.color});
+  const PlatformIcon(this.name, {super.key, this.size = 16, this.color});
 
-  final String platform;
+  final String name;
   final double size;
   final Color? color;
 
   @override
   Widget build(BuildContext context) {
     final ink = color ?? DefaultTextStyle.of(context).style.color;
-    final logo = platformLogoFor(platform);
+    final logo = platformLogoFor(name);
     final Widget mark;
     if (logo == null) {
-      mark = Icon(resolvePlatformIcon(platform), size: size, color: ink);
+      mark = Icon(resolvePlatformIcon(name), size: size, color: ink);
     } else {
       final filter =
           ink == null ? null : ColorFilter.mode(ink, BlendMode.srcIn);
@@ -104,7 +104,7 @@ class PlatformIcon extends StatelessWidget {
                           color: ink)),
                 ]);
     }
-    return Tooltip(message: platform, child: mark);
+    return Tooltip(message: name, child: mark);
   }
 }
 
