@@ -34,7 +34,7 @@
 - Manual Add footers, Add choice menus and front/back image controls share behavior across libraries.
 
 ### 📚 Docs
-- The living CLZ comparison records Games, Hardware and Toys workflows, deliberate differences and remaining gaps.
+- The living CLZ comparison records Games, Hardware and Toys workflows, deliberate differences and remaining gaps, including Statistics, Pre-fill, pick lists and menus.
 
 ## 1.2.0 - 2026-10-18
 

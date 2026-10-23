@@ -110,6 +110,17 @@ comparison. The earlier Music pass below remains valid for shared mechanics.
 | Done | Hardware and Toys details typography | Series 15 px bold, title 24 px/27 px lines, platform and year 15 px bold with the platform icon, description and links 14 px, matching CLZ's computed styles on the Toys detail panel (Gilroy 14 px body, 14 px bold labels, 18 px section titles) |
 | Done | Horizontal cards | Footer reserves separate space for the platform, value and status; compact-width geometry checks prevent overlap |
 | Done | Hardware/Toy folders | Tags retain separate folders even when a tag contains commas; Added/Modified folders group by calendar day, and valuation folders use the Value category |
+| Done | List dates and headers | CLZ lists dates as "Nov 14, 2014" and leaves the icon column header empty; Games, Hardware and Toys lists now use the date setting, icon columns have no clipped "C…"/"P…" header, and the default Games list has no cover column (compared 2026-10-23 with the same three games imported into an isolated origin) |
+| Done | Details Format | CLZ shows the Format ("Steam Download") above the genres; imported Formats now appear there too |
+| Done | Main menu and switcher | Games menus said "Link Albums" and the library switcher listed "Games" three times; they now read "Link Games" and list Games once |
+| Done | Series, Completed, purchase dates | The Series field read nothing; "Completion" held the Collection Status (now labelled so, with a separate Completed field); patched purchase dates now update the Purchase Date folders |
+| Open P1 | Statistics | CLZ has Games/Hardware/Toys tabs with Platform, Most valuable, Most recent, Value per Platform, Release Year, Genre, Completeness, Value by Completeness and Completed charts. Collectarr shows the generic page: one collection, Format "Unspecified" although a Format is set, "Top Series" filled from titles and 0 % value coverage although a value is recorded |
+| Open P2 | Pre-fill Settings | CLZ offers Completeness with Box/Manual, Location, Owner, Purchase Date/Store/Price, Quantity and Tags; Collectarr offers Location, Condition and Purchase Date/Store/Price |
+| Open P2 | Pick lists | CLZ: Audience Rating, Condition, Developer, Format, Genre, Image Type, Loaned To, Location, Owner, Platform, Publisher, Purchase Store, Region, Series, Storage Device, Sub Type, Tag. Collectarr adds Age Rating (a second rating beside Audience Rating), "Edition / Format" (CLZ's Edition is free text) and Sold To, and has no Image Type list |
+| Open P2 | Main menu | CLZ lists Add Games, Add Hardware and Add Toys-to-Life from Core on every Games tab; Collectarr lists only the open kind's Add entry |
+| Open P2 | Settings | CLZ's Details Panel has "Show trailer videos"; Collectarr has backdrop and back-cover options only |
+| Open P3 | Details and value | CLZ shows "$ 17.58" and "Find sold listings on eBay" under the value box; Collectarr shows "USD 17.58" (Currency display setting) and "Search eBay" at the end of the panel. CLZ assigned Index 4 to the CSV-imported game; Collectarr leaves Index empty |
+| Open P3 | Editor and import form | Main tab: CLZ gives Edition more width than Region and has no gap above the Collection Status row. The CSV import radios and checkbox use the Games red instead of shared blue |
 
 ### Deliberate Games behavior
 
