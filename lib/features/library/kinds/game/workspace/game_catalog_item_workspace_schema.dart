@@ -137,6 +137,10 @@ final gameCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   GameFieldIds.platformIcon,
   GameFieldIds.platform,
   GameFieldIds.title,
+  GameFieldIds.releaseDate,
+  GameFieldIds.publisher,
+  GameFieldIds.developer,
+  GameFieldIds.genre,
 };
 
 final gameCatalogItemWorkspaceColumnDefinitions = [
