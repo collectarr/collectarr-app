@@ -79,7 +79,8 @@ class _GameInspectorHeader extends StatelessWidget {
     final publishers = splitGamePublishers(metadata?.publisher);
     final developers = metadata?.developers ?? const <String>[];
     final summary = [
-      metadata?.physicalFormatLabel?.trim() ?? '',
+      (metadata?.physicalFormatLabel ?? metadata?.physicalFormat)?.trim() ??
+          '',
       metadata?.audienceRating?.trim() ?? '',
     ].where((value) => value.isNotEmpty).join(' | ');
     final genres = metadata?.genres ?? const <String>[];
