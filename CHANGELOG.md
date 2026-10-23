@@ -3,41 +3,23 @@
 ## Unreleased
 
 ### ✨ Features
-- The Games list view adds a Platform icon column, and Games folders add reference Images (Has Back, Has Front, Image Type) and Toy (Subtype, Type) groups.
-- Add Games provides Title, Barcode and Platform search tabs matching the reference, keeping the platform picker and region segments across Title and Platform tabs.
-- Games is available as a second library next to Music; existing databases gain its tables on the next start.
-- Games has its own editor and Manual Add laid out as the reference: Main (one platform, partial release date, several developers and publishers, series, format, edition, region, audience rating, genres), Value (completeness, box and manual, lockable value, condition, purchase facts, PriceCharting values and core region), Personal (owner, storage device and slot, completed and its date, rating, tags, notes), Custom Fields, My Images, Description and Links with YouTube trailers.
-- The Games details panel follows the reference: series, title and collection status, cover, platform and year, publishers and developers, format and audience rating, genres, a completeness and value badge, then Description, Trailer, Links and a Personal table.
-- Games cards show the release date under the title, the platform at the bottom and a completeness and value pill such as "CIB | $ 17.58", as the reference does.
-- A library can offer default folder favorites, shown until you save your own; clearing all favorites now stays cleared.
-- Games folders follow the reference menu: Main (Audience Rating, Developer, Genre, Platform, Publisher, Release Date, Month and Year, Series), Value (Completeness, Condition, Purchase Date, Month, Year and Store, Value Locked), Edition (Edition, Format, Region) and Personal (Added, Completed and Modified dates, Collection Status, Location, My Rating, Owner, Storage Device, Tags), with Platform, Completeness and Platform / Completeness as favorites and Publisher labelled as in the reference.
-- Games sorts add the reference fields: Sort Title, Series, Developer, Format, Region, Completeness, Box, Manual, Value, Purchase Price, Date and Store, PriceCharting ID, Index, Quantity, Added and Modified Date/Time, My Rating, Completed Date, Owner, Storage, Storage Slot and Notes; items without a value sort last.
-- The Games editor and Manual Add have a Covers tab with Front and Back cover panels (Upload, Remove or Restore the Core cover, Crop / Rotate), between Custom Fields and My Images as in the reference.
-- The Add dialog can show a library's own control next to the title field, used by Games for its platform picker.
-- Add Games has a platform picker next to the title field and All, US, EU, AU, JP and Other region segments above the results, as in the reference; the separate Platform and Year text filters are gone.
+- Games joins Music with its own editor, Add search and catalog.
+- Games supports platform and region search, completeness and packaging values, purchase details, completion and storage tracking, front/back covers and trailers.
+- Games includes folders, sorting, columns, cards and a details panel matching the reference workflows.
+- Libraries can provide default folder favorites; clearing saved favorites keeps them empty.
 
 ### 🐛 Fixes
-- The light theme keeps the toolbars, pane headers and collection tabs dark and uses the reference's light grey and white content areas, blue selection and teal item titles.
-- Saving a game keeps its franchise instead of dropping it.
-- Editors in the light theme use the reference's white fields with grey borders, a light grey body, a white button bar, grey Cancel and navigation buttons and dark field labels.
-- New games start with an empty Condition, as in the reference, instead of Near Mint.
-- With the light theme chosen, the app opens light instead of showing the dark theme for a moment.
-- Typing a new value with spaces into a pick list field (Label, Format, Platform and others) keeps the spaces instead of joining the words.
-- The Games list shows its Cover, Platform, Title, Release Date, Publisher and other catalog columns with their values, and opens on Platform folders sorted by Platform, as the reference does.
-- Horizontal cards in the light theme show their series, badges and bottom line in dark text instead of white on white.
-- The sorting favorites button in the Sort dialog header is a white gear on the header colour in the light theme instead of a white square.
-- Games Tags folders split tags at commas only, as the editor does, so a tag containing "|" stays one folder and repeated tags are listed once.
+- The light theme applies at startup and uses consistent content areas, editor fields, toolbars and collection tabs.
+- Pick-list fields preserve spaces when typing a new value.
+- Horizontal cards keep labels readable in the light theme.
+- The sorting favorites button remains readable in the light theme.
 
 ### ♻️ Refactors
-- Personal tags are stored as lists across every library so tags can contain commas, upgraded automatically on existing databases.
-- Manual Add's Collection Status, Index, Quantity and Location footer is shared by every library.
-- The Front and Back cover panels (Find Online, Upload, Remove, Crop / Rotate) are one shared editor for every library.
+- Personal tags are stored as lists so tags can contain commas; existing entries and pending Sync changes upgrade together.
+- Manual Add footers share the same behavior across libraries.
 
 ### 📚 Docs
-- The Games field ledger records the Covers tab and multi-value Tags as done; only PriceCharting refresh stays open.
-
-### 🧰 CI & Build
-- Two tests touched by the Games release are formatted and drop an unused import, so the format and analysis checks pass.
+- The living CLZ comparison records Games workflows and remaining differences.
 
 ## 1.2.0 - 2026-10-18
 
