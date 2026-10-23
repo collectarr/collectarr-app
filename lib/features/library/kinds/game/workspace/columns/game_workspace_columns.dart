@@ -15,7 +15,8 @@ import 'package:collectarr_app/features/library/workspace/schema/field_factories
 import 'package:flutter/material.dart';
 
 /// Columns of a collection's own copies, beside the catalog columns. Labels
-/// and groups follow the reference Games column chooser.
+/// and groups follow the reference Games column chooser; dates align right,
+/// as in the reference list.
 final gamePersonalWorkspaceColumns = [
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.status,
@@ -72,6 +73,7 @@ final gamePersonalWorkspaceColumns = [
         GamePersonalWorkspaceFields.purchaseDate.getValue(context))),
     sortId: const LibrarySortId('game.purchase_date_sort'),
     group: 'Value',
+    isNumeric: true,
     defaultWidth: 118,
   ),
   columnFromField<GameKind, GameWorkspaceDto, int?>(
@@ -132,6 +134,7 @@ final gamePersonalWorkspaceColumns = [
         _dateTime(GamePersonalWorkspaceFields.addedDateTime.getValue(context))),
     sortId: const LibrarySortId('game.added_date_sort'),
     group: 'Personal',
+    isNumeric: true,
     defaultWidth: 150,
   ),
   _yearColumn(GamePersonalWorkspaceFields.addedYear, 'Personal'),
@@ -157,6 +160,7 @@ final gamePersonalWorkspaceColumns = [
         GamePersonalWorkspaceFields.completedDate.getValue(context))),
     sortId: const LibrarySortId('game.completed_date_sort'),
     group: 'Personal',
+    isNumeric: true,
     defaultWidth: 118,
   ),
   _yearColumn(GamePersonalWorkspaceFields.completedYear, 'Personal'),
@@ -178,6 +182,7 @@ final gamePersonalWorkspaceColumns = [
     cellValue: (context) => Text(formatGameDate(context.updatedAt)),
     displayName: 'Modified Date',
     group: 'Personal',
+    isNumeric: true,
     defaultWidth: 112,
   ),
   columnFromField<GameKind, GameWorkspaceDto, DateTime>(
@@ -186,6 +191,7 @@ final gamePersonalWorkspaceColumns = [
         GamePersonalWorkspaceFields.modifiedDateTime.getValue(context))),
     sortId: const LibrarySortId('game.modified_date_sort'),
     group: 'Personal',
+    isNumeric: true,
     defaultWidth: 150,
   ),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, int?>(
@@ -244,6 +250,7 @@ final gameLoanWorkspaceColumns = [
       field,
       cellValue: (context) => Text(formatGameDate(field.getValue(context))),
       group: 'Loan',
+      isNumeric: true,
       defaultWidth: 112,
     ),
 ];

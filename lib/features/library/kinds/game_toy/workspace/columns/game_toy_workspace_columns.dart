@@ -48,6 +48,9 @@ List<LibraryColumnDefinition<GameToyKind, GameToyWorkspaceDto, Object?>>
                     ? (context) => Text(AppFormats.current.formatPartialDate(
                         context.dto.metadata.releaseDateParts))
                     : null,
+                // Dates align right, as in the reference list.
+                isNumeric: field == _Catalog.releaseDate ||
+                    field == GameToyPersonalWorkspaceFields.purchaseDate,
                 defaultWidth: field == _Catalog.title ? 260 : 140),
           if (personal)
             for (final field in GameToyPersonalWorkspaceFields.money)

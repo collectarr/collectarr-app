@@ -61,6 +61,8 @@ final gameCatalogWorkspaceColumns = [
     GameCatalogWorkspaceFields.releaseDate,
     cellValue: (context) => Text(AppFormats.current
         .formatPartialDate(context.dto.metadata.releaseDateParts)),
+    // Dates align right, as in the reference list.
+    isNumeric: true,
     defaultWidth: 118,
   ),
   columnFromField<GameKind, GameWorkspaceDto, String?>(
