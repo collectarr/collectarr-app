@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_platform_icon.dart';
+import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_sorts.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
@@ -173,7 +173,7 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
     id: GameFieldIds.platformIcon,
     metadata: GameWorkspaceFieldMetadata.platformIcon,
     getValue: GameCatalogItemWorkspaceFields.platformIcon.getValue,
-    cellValue: (context) => buildGamePlatformIcon(context.dto.platform),
+    cellValue: (context) => buildPlatformIcon(context.dto.platform),
     allowSortInteraction: false,
     allowGroupInteraction: false,
     defaultWidth: 36,

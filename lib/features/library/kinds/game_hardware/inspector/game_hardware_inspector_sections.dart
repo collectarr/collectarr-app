@@ -1,5 +1,5 @@
 import '../domain/game_hardware_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_platform_icon.dart';
+import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -93,7 +93,7 @@ Widget buildGameHardwareInspectorHero(
               if (metadata.platform?.isNotEmpty == true) ...[
                 Padding(
                     padding: const EdgeInsets.only(right: 4),
-                    child: Icon(resolveGamePlatformIcon(metadata.platform!),
+                    child: Icon(resolvePlatformIcon(metadata.platform!),
                         size: 24, color: palette.textPrimary)),
                 Text(metadata.platform!,
                     style: TextStyle(

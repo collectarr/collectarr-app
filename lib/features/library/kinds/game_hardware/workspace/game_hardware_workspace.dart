@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
     show libraryCollectionStatusFromValue;
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_platform_icon.dart';
+import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:flutter/widgets.dart';
 import 'game_hardware_workspace_groups.dart';
 import 'package:collectarr_app/core/utils/natural_text_compare.dart';
@@ -345,7 +345,7 @@ LibraryWorkspaceSchema<GameHardwareKind, GameHardwareWorkspaceDto> _schema(
           metadata: _platformIcon.metadata,
           getValue: _platformIcon.getValue,
           cellValue: (context) =>
-              buildGamePlatformIcon(context.dto.metadata.platform),
+              buildPlatformIcon(context.dto.metadata.platform),
           allowSortInteraction: false,
           allowGroupInteraction: false,
           defaultWidth: 36,
@@ -356,8 +356,8 @@ LibraryWorkspaceSchema<GameHardwareKind, GameHardwareWorkspaceDto> _schema(
           columnFromField(field,
               group: _fieldCategory(field),
               cellValue: field == _releaseDate
-                  ? (context) => Text(AppFormats.current.formatPartialDate(
-                      context.dto.metadata.releaseDateParts))
+                  ? (context) => Text(AppFormats.current
+                      .formatPartialDate(context.dto.metadata.releaseDateParts))
                   : null,
               defaultWidth: field == _title ? 260 : 140),
         if (personal)

@@ -32,6 +32,7 @@
 ### ♻️ Refactors
 - Personal tags are stored as lists so tags can contain commas; existing entries and pending Sync changes upgrade together in one migration from the released schema.
 - Manual Add footers, Add choice menus and front/back image controls share behavior across libraries.
+- Games and Hardware lists share one platform icon component instead of Hardware borrowing it from Games.
 
 ### 📚 Docs
 - The living CLZ comparison records Games, Hardware and Toys workflows, deliberate differences and remaining gaps, including Statistics, Pre-fill, pick lists and menus.

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
@@ -15,7 +14,7 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_worksp
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_library_entry_workspace_schema.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_platform_icon.dart';
+import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
@@ -136,15 +135,15 @@ void main() {
         'Collection Status');
   });
 
-  test('resolveGamePlatformIcon maps platforms correctly', () {
-    expect(resolveGamePlatformIcon('PC'), Icons.desktop_windows);
-    expect(resolveGamePlatformIcon('Windows'), Icons.desktop_windows);
-    expect(resolveGamePlatformIcon('macOS'), Icons.desktop_windows);
-    expect(resolveGamePlatformIcon('Linux'), Icons.desktop_windows);
-    expect(resolveGamePlatformIcon('Android'), Icons.smartphone);
-    expect(resolveGamePlatformIcon('iOS'), Icons.smartphone);
-    expect(resolveGamePlatformIcon('PlayStation 4'), AppIcons.gamepad);
-    expect(resolveGamePlatformIcon('Nintendo Switch'), AppIcons.gamepad);
+  test('resolvePlatformIcon maps platforms correctly', () {
+    expect(resolvePlatformIcon('PC'), Icons.desktop_windows);
+    expect(resolvePlatformIcon('Windows'), Icons.desktop_windows);
+    expect(resolvePlatformIcon('macOS'), Icons.desktop_windows);
+    expect(resolvePlatformIcon('Linux'), Icons.desktop_windows);
+    expect(resolvePlatformIcon('Android'), Icons.smartphone);
+    expect(resolvePlatformIcon('iOS'), Icons.smartphone);
+    expect(resolvePlatformIcon('PlayStation 4'), AppIcons.gamepad);
+    expect(resolvePlatformIcon('Nintendo Switch'), AppIcons.gamepad);
   });
 
   test('Games sorts include the reference sort fields', () {

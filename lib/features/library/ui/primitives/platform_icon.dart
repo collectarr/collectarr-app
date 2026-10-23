@@ -2,7 +2,7 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
 
 /// Resolves an icon representing the platform.
-IconData resolveGamePlatformIcon(String platform) {
+IconData resolvePlatformIcon(String platform) {
   final lower = platform.toLowerCase();
   if (lower.contains('pc') ||
       lower.contains('windows') ||
@@ -22,13 +22,13 @@ IconData resolveGamePlatformIcon(String platform) {
   return AppIcons.gamepad;
 }
 
-/// Builds the platform icon cell for the Games list view matching the reference.
-Widget buildGamePlatformIcon(String? platform) {
+/// Builds the platform icon cell of a list, as in the reference Games list.
+Widget buildPlatformIcon(String? platform) {
   if (platform == null || platform.trim().isEmpty) {
     return const SizedBox.shrink();
   }
   final p = platform.trim();
-  final icon = resolveGamePlatformIcon(p);
+  final icon = resolvePlatformIcon(p);
   return Center(
     child: Tooltip(
       message: p,

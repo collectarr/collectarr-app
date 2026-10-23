@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.
 import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_platform_icon.dart';
+import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
     show libraryCollectionStatusFromValue;
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -156,7 +156,7 @@ class _GameInspectorHeader extends StatelessWidget {
                   if (platform.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(right: 4),
-                      child: Icon(resolveGamePlatformIcon(platform),
+                      child: Icon(resolvePlatformIcon(platform),
                           size: 24, color: palette.textPrimary),
                     ),
                   if (platform.isNotEmpty)
