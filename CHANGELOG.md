@@ -16,7 +16,7 @@
 
 ### ♻️ Refactors
 - Personal tags are stored as lists so tags can contain commas; existing entries and pending Sync changes upgrade together in one migration from the released schema.
-- Manual Add footers share the same behavior across libraries.
+- Manual Add footers, Add choice menus and front/back image controls share behavior across libraries.
 
 ### 📚 Docs
 - The living CLZ comparison records Games workflows and remaining differences.
