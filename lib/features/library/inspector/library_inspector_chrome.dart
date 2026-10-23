@@ -591,6 +591,8 @@ class InspectorEbayLinksSection extends ConsumerWidget {
     return Align(
         alignment: Alignment.centerLeft,
         child: TextButton.icon(
+          style:
+              TextButton.styleFrom(foregroundColor: appPalette(context).link),
           onPressed: () => launchUrl(uri),
           icon: const Icon(Icons.open_in_new, size: 14),
           label: const Text('Search eBay'),
