@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/activity/global_activity_page.dart';
+import 'package:collectarr_app/features/account/my_account_page.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/auth/auth_page.dart';
 import 'package:collectarr_app/features/calendar/calendar_page.dart';
@@ -23,6 +24,7 @@ import 'package:go_router/go_router.dart';
 
 abstract final class AppRoutes {
   static const auth = '/auth';
+  static const account = '/account';
   static const restoring = '/restoring';
   static const libraries = '/libraries';
   static const loans = '/loans';
@@ -89,6 +91,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           child: child,
         ),
         routes: [
+          GoRoute(
+              path: AppRoutes.account,
+              builder: (context, state) =>
+                  MyAccountPage(kind: state.uri.queryParameters['kind'])),
           GoRoute(
             path: AppRoutes.libraries,
             builder: (context, state) => LibraryHomePage(routeUri: state.uri),

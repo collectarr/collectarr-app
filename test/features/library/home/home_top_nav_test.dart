@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/sync/presentation/sync_action_button.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 void main() {
   testWidgets('library nav strip centers its buttons when they fit', (
@@ -71,7 +72,7 @@ void main() {
     );
 
     expect(find.text('Sync'), findsNothing);
-    expect(find.byIcon(Icons.sync_outlined), findsOneWidget);
+    expect(find.byIcon(AppIcons.sync), findsOneWidget);
   });
 }
 

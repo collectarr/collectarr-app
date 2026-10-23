@@ -62,6 +62,8 @@ class AppThemePalette extends ThemeExtension<AppThemePalette> {
 
   bool get isDark => brightness == Brightness.dark;
 
+  Color get sidebar => isDark ? const Color(0xFF383838) : surface;
+
   /// Utility actions and settings use a shared accent, independent of kind.
   Color get utilityAction => const Color(0xFF5EB1DE);
 

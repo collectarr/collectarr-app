@@ -249,6 +249,10 @@ abstract final class AppIcons {
       IconData(0xf1c0, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData user =
       IconData(0xf007, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData logout =
+      IconData(0xf2f5, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData login =
+      IconData(0xf2f6, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData bug =
       IconData(0xf188, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData appUpdate =

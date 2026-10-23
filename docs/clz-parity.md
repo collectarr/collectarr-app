@@ -49,6 +49,7 @@ Keep these when matching the reference visually.
 | Fonts | Proprietary Gilroy | Bundled OFL Plus Jakarta Sans; a user-supplied local font can be loaded |
 | Sort titles | Filled in by CLZ Core | Core derives them for new Music items and corrected titles; the app applies the same rule to local Add, Edit and imports |
 | Header account | Always signed in to CLZ | Shows "account's music" only while signed in to the optional Sync account |
+| My Account | Blue account sidebar and an external account portal | Neutral sidebar matching the main navigation; a local overview across libraries, sync status, activity and account settings. Logout clears the session while keeping local collections |
 | Links | The eBay link beside the cover is white | Every link uses the shared link blue |
 | List header | No sort indicator | Shared-blue caret and priority number on sorted columns |
 | Chrome icons | Dialog and editor titles only | Kind icons in the top bar and dialog headers, kept at the owner's request |
@@ -82,8 +83,9 @@ and details stylesheet URLs, then restoring them; no account settings were
 saved. The reference's named **Default** skin mixes dark toolbars with light
 content; **Light** is a separate skin with pale toolbars. Earlier references
 to that mixed skin as "light" below mean Default, not the named Light skin.
-The switcher was visually checked in both Collectarr themes.
-This does not claim a new full pass over every editor and view.
+Account overview and sidebar were visually checked in both Collectarr themes;
+signed-in logout and preservation of local collections use isolated widget
+tests. This does not claim a new full pass over every editor and view.
 
 ### Compared surfaces
 
@@ -116,6 +118,7 @@ This does not claim a new full pass over every editor and view.
 | Done | Loose packaging valuation | Box/Manual changes atomically recalculate an unlocked Loose value from recorded snapshots in the same currency; unavailable snapshots and locked values preserve the entered amount |
 | Done | Collection icons | CLZ uses collection-type SVG assets: a controller, joystick and figure on a base. Collectarr uses original SVG drawings of these motifs in the tabs, collection menu and account overview; paths are declared in `AppIcons` and selected by each kind's identity. No CLZ artwork or Pro font is bundled |
 | Done | Library switcher chrome | CLZ's button is Font Awesome Pro `grid-2`; Collectarr keeps its original four-square SVG in `AppIcons`. The popover stays white in both themes, with a pointer centered on the icon and its right side flush with the window edge. It expands symmetrically under the icon where space allows, accounting for Sync, Account and update actions. Kind tiles are 26 px, rows 36 px and labels 14 px. It lists each family once; selection, Escape and outside dismissal are checked, with geometry coverage at 390 and 1200 px |
+| Done | Header account and sync | Added the right account sidebar with My Account and Logout (Sign in for a local-only session). Both sidebars share the same neutral palette color. The account page shows local totals, independent library counts, sync status, Activity and account/connection settings. Logout uses the existing session controller, keeps collections and clears the signed-in header label even when the last email remains remembered. Sync uses the solid icon from `AppIcons`, sized to the switcher's painted glyph |
 | Done | List canvas | CLZ's empty list area is gray in Dark and white with light content. Collectarr lists now use those surfaces instead of the near-black covers background; covers/cards retain their own background |
 | Open P2 | Named Light skin | CLZ's separate Light skin also lightens toolbars, pane separators and collection strip. Collectarr's light mode still follows the mixed Default skin through `AppDarkChrome`; a full pale chrome variant remains absent |
 | Open P2 | Light list selection text | CLZ paints selected list text white on the shared blue row. Collectarr's light list still paints text with the normal dark foreground; checkbox/edit controls already turn white. Confirmed with a populated fictional Games row in the chrome/theme follow-up |
@@ -255,7 +258,7 @@ items come from earlier audits and must be re-checked before closing.
 
 | Priority | Area | CLZ | Collectarr |
 | --- | --- | --- | --- |
-| P2 | Light skin coverage | Default mixes dark toolbars with light content; the separately named Light skin also lightens the chrome (see Games follow-up) | Collectarr follows Default through `AppDarkChrome`. Populated Games details and switcher have been checked with light content; a full pale chrome variant and a complete light pass over editors/cards remain open |
+| P2 | Light skin coverage | Default mixes dark toolbars with light content; the separately named Light skin also lightens the chrome (see Games follow-up) | Collectarr follows Default through `AppDarkChrome`. Populated Games details, account overview, sidebar and switcher have been checked with light content; a full pale chrome variant and a complete light pass over editors/cards remain open |
 | P2 | Imports | Also Music Label, OrangeCD, CDpedia | Not offered: no public schema or sample export exists (see [import/export](import-export.md)); CATraxx XML is imported |
 
 CLZ mixed Default skin, previously labelled light, computed styles at 1844 × 945: top bar in the kind accent

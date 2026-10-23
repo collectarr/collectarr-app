@@ -4,6 +4,7 @@
 
 ### ✨ Features
 - Games, Hardware and Toys use separate fixed-type collections, editors, search and Core catalogs; renaming a collection preserves its type.
+- The header account menu opens an overview of all local libraries, sync status and activity, and signs out without removing local collections.
 - Hardware has platform/device filters and personal serial numbers; Toys has its own classification, completeness and images.
 - Games supports platform and region search, atomic completeness and packaging values, purchase details, completion and storage tracking, front/back covers and trailers.
 - Games inventories include folders, sorting, columns, cards, details panels, guided CLZ XML import and lossless native CSV transfer.

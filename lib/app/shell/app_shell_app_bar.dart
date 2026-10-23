@@ -1,6 +1,7 @@
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_shell_brand.dart';
+import 'app_account_button.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 
 import 'package:collectarr_app/features/library/home/home_kind_menu.dart';
@@ -76,6 +77,10 @@ class AppShellAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         SyncActionButton(style: toolbarIconStyle),
         AppUpdateHeaderButton(style: toolbarIconStyle, kind: type.kind),
+        AppAccountButton(
+            style: toolbarIconStyle,
+            kind: type.kind.apiValue,
+            animationsEnabled: animationsEnabled),
         const SizedBox(width: 4),
       ],
     );
@@ -91,7 +96,8 @@ class _AccountLibraryLabel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final email = ref.watch(authControllerProvider.select((s) => s.email));
+    final email = ref.watch(authControllerProvider
+        .select((s) => s.isAuthenticated ? s.email : null));
     final account = email?.split('@').first.trim();
     if (account == null || account.isEmpty) return const SizedBox.shrink();
     return IgnorePointer(

@@ -102,7 +102,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final drawerBg = palette.isDark ? const Color(0xFF383838) : palette.surface;
+    final drawerBg = palette.sidebar;
     final sectionHeaderColor =
         (palette.isDark ? Colors.white : palette.textPrimary)
             .withValues(alpha: 0.4);
