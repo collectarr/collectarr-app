@@ -20,6 +20,7 @@
 - Pick-list fields preserve spaces when typing a new value.
 - Horizontal cards keep labels and value/status badges readable at compact widths and in the light theme.
 - The sorting favorites button remains readable in the light theme.
+- Games, Hardware and Toys lists show dates in the chosen date format, such as Nov 14, 2014, instead of always 2014-11-14.
 - The main menu's link entry names the open library's items, such as Link Games, instead of always saying Link Albums.
 
 ### ♻️ Refactors

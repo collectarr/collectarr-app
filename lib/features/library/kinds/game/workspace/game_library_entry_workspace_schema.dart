@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_sorts.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_catalog_item_workspace_schema.dart';
@@ -394,12 +395,8 @@ final gameLibraryEntryWorkspaceSchema =
   defaultGroup: GameGroupIds.platform,
 );
 
-String _formatDate(DateTime? value) {
-  if (value == null) return '';
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
-}
+String _formatDate(DateTime? value) =>
+    value == null ? '' : AppFormats.current.formatDate(value);
 
 String _formatCents(int? cents, String? currency) {
   if (cents == null) return '';

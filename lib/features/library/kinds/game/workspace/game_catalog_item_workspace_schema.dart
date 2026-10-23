@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_platform_icon.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_sorts.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
@@ -189,7 +190,8 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
       maxWidth: 520),
   columnFromField<GameKind, GameWorkspaceDto, DateTime?>(
     GameCatalogItemWorkspaceFields.releaseDate,
-    cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
+    cellValue: (context) => Text(AppFormats.current
+        .formatPartialDate(context.dto.metadata.releaseDateParts)),
     defaultWidth: 118,
   ),
   columnFromField<GameKind, GameWorkspaceDto, String?>(
@@ -252,9 +254,5 @@ final gameCatalogItemWorkspaceSchema =
   defaultGroup: GameGroupIds.platform,
 );
 
-String _formatDate(DateTime? value) {
-  if (value == null) return '';
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
-}
+String _formatDate(DateTime? value) =>
+    value == null ? '' : AppFormats.current.formatDate(value);
