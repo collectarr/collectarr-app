@@ -284,14 +284,14 @@ final class _AddValueBindings implements GameValueBindings {
       request.commonDraft?.currency ?? AppFormats.current.currency;
 
   @override
-  void setCompleteness(String? value) => _details(() =>
-      draft.copyWith(details: draft.details.copyWith(completeness: value)));
+  void setCompleteness(String? value) =>
+      _details(() => draft.selectCompleteness(value));
   @override
-  void setHasBox(bool value) => _details(
-      () => draft.copyWith(details: draft.details.copyWith(hasBox: value)));
+  void setHasBox(bool value) => _details(() => draft.selectPackaging(
+      hasBox: value, hasManual: hasManual, currency: currency));
   @override
-  void setHasManual(bool value) => _details(
-      () => draft.copyWith(details: draft.details.copyWith(hasManual: value)));
+  void setHasManual(bool value) => _details(() => draft.selectPackaging(
+      hasBox: hasBox, hasManual: value, currency: currency));
   @override
   void setValueCents(int? value) =>
       _details(() => draft.copyWith(marketValueCents: value));

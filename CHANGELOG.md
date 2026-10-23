@@ -4,7 +4,7 @@
 
 ### ✨ Features
 - Games joins Music with its own editor, Add search and catalog.
-- Games supports platform and region search, completeness and packaging values, purchase details, completion and storage tracking, front/back covers and trailers.
+- Games supports platform and region search, atomic completeness and packaging values, purchase details, completion and storage tracking, front/back covers and trailers.
 - Games includes folders, sorting, columns, cards and a details panel matching the reference workflows.
 - Libraries can provide default folder favorites; clearing saved favorites keeps them empty.
 

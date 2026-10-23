@@ -1,8 +1,11 @@
+import '../domain/game_packaging_selection.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
+import '../domain/game_completeness_selection.dart';
+import '../entries/game_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
@@ -44,14 +47,8 @@ Map<String, Widget> gameValueFields(GameValueBindings bindings) => {
         label: 'Completeness',
         options: gameCompletenessOptions,
         value: bindings.completeness ?? 'na',
-        onChanged: (tier) {
-          bindings.setCompleteness(tier == 'na' ? null : tier);
-          final amount = bindings.valuations?.amountForCompleteness(tier);
-          // Choosing a tier takes its PriceCharting value unless locked.
-          if (!bindings.valueLocked && amount != null) {
-            bindings.setValueCents(amount);
-          }
-        },
+        onChanged: (tier) =>
+            bindings.setCompleteness(tier == 'na' ? null : tier),
       ),
       'box_manual': _GameBoxAndManual(bindings: bindings),
       'market_value_cents': _GameValueField(bindings: bindings),
@@ -172,11 +169,35 @@ final class _EntryDraftValueBindings implements GameValueBindings {
       _text('currency')?.toUpperCase() ?? AppFormats.current.currency;
 
   @override
-  void setCompleteness(String? value) => draft.set('game_completeness', value);
+  void setCompleteness(String? value) {
+    final selection = GameCompletenessSelection(
+      current: GameEntryDetails.fromJson(draft.values),
+      valueCents: valueCents,
+      completeness: value,
+    );
+    draft.set('game_completeness', selection.details.completeness);
+    draft.set('game_has_box', selection.details.hasBox);
+    draft.set('game_has_manual', selection.details.hasManual);
+    draft.set('market_value_cents', selection.valueCents);
+  }
+
   @override
-  void setHasBox(bool value) => draft.set('game_has_box', value);
+  void setHasBox(bool value) => _setPackaging(value, hasManual);
   @override
-  void setHasManual(bool value) => draft.set('game_has_manual', value);
+  void setHasManual(bool value) => _setPackaging(hasBox, value);
+
+  void _setPackaging(bool box, bool manual) {
+    final selection = GamePackagingSelection(
+        current: GameEntryDetails.fromJson(draft.values),
+        valueCents: valueCents,
+        currency: currency,
+        hasBox: box,
+        hasManual: manual);
+    draft.set('game_has_box', selection.details.hasBox);
+    draft.set('game_has_manual', selection.details.hasManual);
+    draft.set('market_value_cents', selection.valueCents);
+  }
+
   @override
   void setValueCents(int? value) => draft.set('market_value_cents', value);
   @override
