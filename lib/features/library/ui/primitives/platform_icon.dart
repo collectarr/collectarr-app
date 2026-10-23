@@ -113,5 +113,5 @@ Widget buildPlatformIcon(String? platform) {
   if (platform == null || platform.trim().isEmpty) {
     return const SizedBox.shrink();
   }
-  return Center(child: PlatformIcon(platform.trim()));
+  return Center(heightFactor: 1, child: PlatformIcon(platform.trim()));
 }

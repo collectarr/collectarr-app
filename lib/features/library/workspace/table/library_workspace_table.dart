@@ -9,6 +9,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_reveal.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:collectarr_app/ui/app_press_tap.dart';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 typedef LibraryColumnWidthFor = double Function(String column);
@@ -292,6 +294,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>>
                           onEditEntry: widget.onEditEntry,
                           rowHeight: widget.rowHeightFor?.call(entry) ??
                               resolvedRowHeight,
+                          lineRowHeight: resolvedRowHeight,
                           columnSpacing: resolvedColumnSpacing,
                           horizontalMargin: resolvedHorizontalMargin,
                           selectionRailWidth: widget.selectionRailWidth,
@@ -702,6 +705,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
     this.showEdit = false,
     this.onEditEntry,
     required this.rowHeight,
+    required this.lineRowHeight,
     required this.columnSpacing,
     required this.horizontalMargin,
     required this.selectionRailWidth,
@@ -732,6 +736,9 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
   final bool showEdit;
   final ValueChanged<T>? onEditEntry;
   final double rowHeight;
+
+  /// The height of a one-line row; wrapped rows keep their controls in it.
+  final double lineRowHeight;
   final double columnSpacing;
   final double horizontalMargin;
   final double selectionRailWidth;
@@ -780,7 +787,8 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
               SizedBox(
                 width: kLibraryTableCheckboxWidth,
                 height: rowHeight,
-                child: Center(
+                child: _FirstLine(
+                  height: lineRowHeight,
                   // Row controls use the shared blue, white on the blue
                   // selected row, as in the reference list.
                   child: _LibraryTableCheckbox(
@@ -799,7 +807,8 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
               SizedBox(
                 width: kLibraryTableStatusWidth,
                 height: rowHeight,
-                child: Center(
+                child: _FirstLine(
+                  height: lineRowHeight,
                   child: statusBuilder?.call(entry) ?? const SizedBox.shrink(),
                 ),
               ),
@@ -808,7 +817,8 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
               SizedBox(
                 width: kLibraryTableEditWidth,
                 height: rowHeight,
-                child: Center(
+                child: _FirstLine(
+                  height: lineRowHeight,
                   child: Tooltip(
                     message: 'Edit',
                     child: AppClickTarget(
@@ -832,12 +842,19 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
               SizedBox(
                 width: columnWidthFor(column),
                 height: rowHeight,
+                // Cells start at the top, as in the reference list; one-line
+                // rows stay centered and wrapped rows keep 4 px above and
+                // below, as their measured height assumes.
                 child: Align(
                   alignment: columnIsNumeric(column)
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
+                      ? Alignment.topRight
+                      : Alignment.topLeft,
                   child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      padding: EdgeInsets.fromLTRB(
+                          5,
+                          math.max(0, (lineRowHeight - _cellLineHeight) / 2),
+                          5,
+                          0),
                       child: selected
                           ? _SelectedCellText(child: cellBuilder(entry, column))
                           : cellBuilder(entry, column)),
@@ -939,4 +956,21 @@ class _SelectedCellText extends StatelessWidget {
           style: const TextStyle(color: Colors.white), child: child),
     );
   }
+}
+
+/// The line box of list cell text, used to center one-line rows.
+const _cellLineHeight = 18.0;
+
+/// Centers a row control in the first line of a possibly wrapped row.
+class _FirstLine extends StatelessWidget {
+  const _FirstLine({required this.height, required this.child});
+
+  final double height;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Align(
+        alignment: Alignment.topCenter,
+        child: SizedBox(height: height, child: Center(child: child)),
+      );
 }
