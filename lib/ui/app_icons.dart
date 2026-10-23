@@ -305,12 +305,14 @@ abstract final class AppIcons {
       IconData(0xf030, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData tabImages =
       IconData(0xf03e, fontFamily: _solid, fontPackage: _fontPackage);
+  // Earth, as the reference's Links tab.
   static const IconData tabLinks =
-      IconData(0xf0c1, fontFamily: _solid, fontPackage: _fontPackage);
+      IconData(0xf57d, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData tabValue =
       IconData(0x24, fontFamily: _solid, fontPackage: _fontPackage);
+  // Regular, as the reference's Description tab.
   static const IconData tabDescription =
-      IconData(0xf15c, fontFamily: _solid, fontPackage: _fontPackage);
+      IconData(0xf15c, fontFamily: _regular, fontPackage: _fontPackage);
   static const IconData lock =
       IconData(0xf023, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData lockOpen =

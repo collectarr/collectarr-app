@@ -24,6 +24,7 @@
 - Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
 
 ### 🐛 Fixes
+- Editor Description and Links tabs use the reference's file and globe glyphs.
 - Editors line the Collection Status row up with the form above, without extra space after the last section.
 - The details toolbar shows Edit, Share and Layout labels only when the details panel is wide, as in the reference.
 - Toolbar and details-toolbar hover highlights have square corners, as in the reference.
