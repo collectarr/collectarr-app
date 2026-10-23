@@ -259,6 +259,15 @@ void main() {
     final splitButton = tester.widget<LibraryDenseSplitButton<Object>>(
       find.byType(LibraryDenseSplitButton<Object>),
     );
+    // As in the reference: Manage Favorites, then a "Favorites" heading over
+    // the favorites, with the active one checked.
+    expect(splitButton.entries.map((entry) => entry.label),
+        ['Manage Favorites', 'Essential', 'Pricing']);
+    expect(splitButton.entries.map((entry) => entry.section),
+        [null, 'Favorites', null]);
+    expect(splitButton.entries.map((entry) => entry.active),
+        [false, true, false]);
+
     splitButton.onPressed?.call();
     await tester.pump();
 

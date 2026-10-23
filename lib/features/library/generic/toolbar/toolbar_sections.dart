@@ -441,12 +441,15 @@ class _LibraryColumnLauncher extends StatelessWidget {
         icon: Icons.settings_outlined,
       ),
     ];
-    for (final preset in [...pinnedPresets, ...overflowPresets]) {
+    final presets = [...pinnedPresets, ...overflowPresets];
+    for (final preset in presets) {
       entries.add(LibraryDenseMenuEntry<Object>(
         value: preset,
         label: preset.label,
         icon: null,
         active: preset.label == activeLabel,
+        // The reference heads the favorites below Manage Favorites.
+        section: identical(preset, presets.first) ? 'Favorites' : null,
       ));
     }
     return LibraryDenseSplitButton<Object>(
