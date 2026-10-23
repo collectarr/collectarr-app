@@ -37,12 +37,12 @@ class _LibraryToolbarHoverSurfaceState
           duration: MediaQuery.disableAnimationsOf(context)
               ? Duration.zero
               : appControlHoverDuration,
+          // Square, as the reference's toolbar hover.
           decoration: BoxDecoration(
             color: _hovered && widget.enabled
                 ? libraryToolbarControlHover(context)
                 : widget.backgroundColor ??
                     libraryToolbarControlSurface(context),
-            borderRadius: BorderRadius.circular(5),
           ),
           child: widget.child,
         ),

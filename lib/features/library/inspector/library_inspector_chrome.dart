@@ -282,7 +282,6 @@ class _InspectorBarButton extends StatelessWidget {
                       ? const Color(0xFF464950)
                       : Theme.of(context).hoverColor
                   : null,
-              borderRadius: BorderRadius.circular(4),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
