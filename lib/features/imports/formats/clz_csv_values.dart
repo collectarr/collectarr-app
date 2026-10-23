@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
+import 'package:collectarr_app/features/library/config/library_import_capability.dart';
 import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
 
 const _months = {
@@ -21,9 +23,30 @@ const _months = {
 /// CLZ writes the column labels of the chosen column set as the header row, so
 /// the destination keys come from the user's (usually auto-detected) mapping.
 final class ClzCsvRecord {
-  const ClzCsvRecord._(this._values, this.number);
+  const ClzCsvRecord._(this._values, this.number,
+      [this.customFields = const {}]);
 
   final Map<String, String> _values;
+
+  /// Columns the user chose to import as custom fields, keyed by header.
+  final Map<String, String?> customFields;
+
+  /// The loan described by the Loaned To, Loan Date and Due Date columns.
+  /// A loan needs a borrower; without a Loan Date it is lent on the due date
+  /// or, failing that, on the day of the export record's modification.
+  CollectionImportLoan? get loan {
+    final borrower = text('loaned_to');
+    if (borrower == null) return null;
+    final lent = date('loan_date', 'Loan Date')?.asDateTime;
+    final due = date('loan_due_date', 'Due Date')?.asDateTime;
+    final lentDate = lent ?? due ?? instant('modified_date', 'Modified Date');
+    if (lentDate == null) {
+      throw LibraryImportFormatException(
+          'Record $number is loaned to "$borrower" without a Loan Date.');
+    }
+    return CollectionImportLoan(
+        borrowerName: borrower, lentDate: lentDate, dueDate: due);
+  }
 
   /// One-based record number, used in error messages.
   final int number;
@@ -104,6 +127,7 @@ final class ClzCsvRecord {
 List<ClzCsvRecord> readClzCsvRecords(
   List<List<String>> rows, {
   required Map<int, String> mappings,
+  List<String> headers = const [],
 }) {
   if (rows.isEmpty) {
     throw const LibraryImportFormatException('The file has no data rows.');
@@ -112,18 +136,36 @@ List<ClzCsvRecord> readClzCsvRecords(
     throw const LibraryImportFormatException(
         'Map a column to Title before importing.');
   }
-  if (mappings.values.toSet().length != mappings.length) {
+  final fixed = {
+    for (final mapping in mappings.entries)
+      if (mapping.value != importCustomFieldMappingKey)
+        mapping.key: mapping.value
+  };
+  if (fixed.values.toSet().length != fixed.length) {
     throw const LibraryImportFormatException(
         'Map each destination field only once.');
   }
   return [
     for (var index = 0; index < rows.length; index++)
-      ClzCsvRecord._({
-        for (final mapping in mappings.entries)
-          mapping.value: _cell(rows[index], mapping.key, index + 1).trim()
-      }, index + 1)
+      ClzCsvRecord._(
+          {
+            for (final mapping in fixed.entries)
+              mapping.value: _cell(rows[index], mapping.key, index + 1).trim()
+          },
+          index + 1,
+          {
+            for (final mapping in mappings.entries)
+              if (mapping.value == importCustomFieldMappingKey)
+                _customName(headers, mapping.key):
+                    _cell(rows[index], mapping.key, index + 1).trim()
+          })
   ];
 }
+
+String _customName(List<String> headers, int column) =>
+    column < headers.length && headers[column].trim().isNotEmpty
+        ? headers[column].trim()
+        : 'Column ${column + 1}';
 
 String _cell(List<String> row, int column, int record) {
   if (column < 0 || column >= row.length) {

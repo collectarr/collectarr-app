@@ -183,9 +183,25 @@ const List<KindMappableField> gameMappableFields = [
     label: 'Tags',
     aliases: ['Tags', 'Keywords'],
   ),
+  KindMappableField(
+    key: 'loaned_to',
+    label: 'Loaned To',
+    aliases: ['Loaned To', 'Borrower'],
+  ),
+  KindMappableField(
+    key: 'loan_date',
+    label: 'Loan Date',
+    aliases: ['Loan Date', 'Lent Date'],
+  ),
+  KindMappableField(
+    key: 'loan_due_date',
+    label: 'Due Date',
+    aliases: ['Due Date'],
+  ),
 ];
 
 final gameKindImport = LibraryKindImportCapability(
+    allowsCustomFieldColumns: true,
     mappableFields: gameMappableFields,
     mappedCsvImporter: const GameMappedCsvImporter(),
     sources: const [

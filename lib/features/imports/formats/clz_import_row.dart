@@ -17,7 +17,9 @@ CollectionImportRow clzImportRow(
     required JsonEncodable catalog,
     required JsonEncodable personal,
     DateTime? createdAt,
-    DateTime? updatedAt}) {
+    DateTime? updatedAt,
+    CollectionImportLoan? loan,
+    Map<String, String?> customFieldValues = const {}}) {
   if (title.trim().isEmpty) {
     throw const LibraryImportFormatException(
         'An exported item has no title. Include the Title field and export again.');
@@ -39,5 +41,7 @@ CollectionImportRow clzImportRow(
       kindDisplayTitle: title,
       kindDisplaySubtitle: subtitle,
       kindIdentifier: barcode,
+      customFieldValues: customFieldValues,
+      loan: loan,
       fullEntryPayload: record.toJson());
 }

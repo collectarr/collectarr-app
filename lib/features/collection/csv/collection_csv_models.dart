@@ -1,5 +1,18 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 
+/// A loan carried by an import row; the host records it for the imported copy.
+class CollectionImportLoan {
+  const CollectionImportLoan({
+    required this.borrowerName,
+    required this.lentDate,
+    this.dueDate,
+  });
+
+  final String borrowerName;
+  final DateTime lentDate;
+  final DateTime? dueDate;
+}
+
 class CollectionImportRow {
   const CollectionImportRow({
     required this.itemId,
@@ -16,7 +29,11 @@ class CollectionImportRow {
     this.kindEntryCells = const [],
     this.customFieldValues = const {},
     this.fullEntryPayload,
+    this.loan,
   });
+
+  /// The loan to record for the imported copy, when the source has one.
+  final CollectionImportLoan? loan;
 
   final String itemId;
   final String status;
@@ -79,6 +96,7 @@ class CollectionImportRow {
     List<String>? kindEntryCells,
     Map<String, String?>? customFieldValues,
     Map<String, dynamic>? fullEntryPayload,
+    CollectionImportLoan? loan,
   }) {
     return CollectionImportRow(
       itemId: itemId ?? this.itemId,
@@ -95,6 +113,7 @@ class CollectionImportRow {
       kindEntryCells: kindEntryCells ?? this.kindEntryCells,
       customFieldValues: customFieldValues ?? this.customFieldValues,
       fullEntryPayload: fullEntryPayload ?? this.fullEntryPayload,
+      loan: loan ?? this.loan,
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -19,6 +20,7 @@ import 'package:collectarr_app/features/library/entries/library_entry_record.dar
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/config/library_entry_mutation_result.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
@@ -148,6 +150,7 @@ final class CollectionImportOrchestrator {
           final persisted =
               await libraryEntries.replaceFromTransport(entryImport.transport);
           await _writeCsvCustomFields(row, persisted.ref, now);
+          await _writeImportedLoan(row, persisted.ref);
           return persisted;
         });
         libraryEntryRefs.add(libraryEntryRef);
@@ -564,12 +567,36 @@ final class CollectionImportOrchestrator {
     return {if (row.title?.trim().isNotEmpty ?? false) 'title': row.title};
   }
 
+  /// Records the loan an import row carries, once per borrower and lent date,
+  /// so importing the same file again does not lend the copy twice.
+  Future<void> _writeImportedLoan(
+    CollectionImportRow row,
+    LibraryEntryRef ref,
+  ) async {
+    final imported = row.loan;
+    if (imported == null) return;
+    final repository = LoanRepository(libraryEntries.database);
+    final existing = await repository.getLoansForItem(ref);
+    final lent = imported.lentDate.toUtc();
+    if (existing.any((loan) =>
+        loan.borrowerName == imported.borrowerName &&
+        loan.lentDate.toUtc() == lent)) {
+      return;
+    }
+    await repository.create(Loan(
+        id: idGenerator(),
+        libraryEntryRef: ref,
+        borrowerName: imported.borrowerName,
+        lentDate: lent,
+        dueDate: imported.dueDate?.toUtc()));
+  }
+
   Future<void> _writeCsvCustomFields(
     CollectionImportRow row,
     LibraryEntryRef ref,
     DateTime now,
   ) async {
-    if (row.fullEntryPayload != null || row.customFieldValues.isEmpty) return;
+    if (row.customFieldValues.isEmpty) return;
     final repository = CustomFieldRepository(libraryEntries.database);
     final definitions = await repository.listDefinitions(
       mediaKind: ref.kind.apiValue,
@@ -578,6 +605,13 @@ final class CollectionImportOrchestrator {
     final definitionsByName = {
       for (final definition in definitions)
         definition.name.trim().toLowerCase(): definition,
+    };
+    // Importing the same file again updates a value instead of adding a copy.
+    final existingValueIds = {
+      for (final value in await repository.listValuesForTarget(
+          targetId: ref.key,
+          targetScope: CustomFieldTargetScope.libraryEntry))
+        value.fieldDefinitionId: value.id,
     };
     final values = <CustomFieldValue>[];
     for (final cell in row.customFieldValues.entries) {
@@ -599,7 +633,7 @@ final class CollectionImportOrchestrator {
       }
       values.add(
         CustomFieldValue(
-          id: idGenerator(),
+          id: existingValueIds[definition.id] ?? idGenerator(),
           targetId: ref.key,
           targetScope: CustomFieldTargetScope.libraryEntry,
           fieldDefinitionId: definition.id,

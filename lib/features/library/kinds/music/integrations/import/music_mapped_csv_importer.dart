@@ -14,6 +14,7 @@ final class MusicMappedCsvImporter implements LibraryMappedCsvImporter {
     List<List<String>> rows, {
     required Map<int, String> mappings,
     required String multiValueDelimiter,
+    List<String> headers = const [],
   }) {
     if (rows.isEmpty) {
       throw const LibraryImportFormatException('The file has no data rows.');

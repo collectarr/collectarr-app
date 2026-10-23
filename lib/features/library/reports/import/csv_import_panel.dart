@@ -346,6 +346,11 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
                                     value: field.key,
                                     child: Text(field.label),
                                   ),
+                                if (_importCapability.allowsCustomFieldColumns)
+                                  const DropdownMenuItem<String?>(
+                                    value: importCustomFieldMappingKey,
+                                    child: Text('Custom field (column name)'),
+                                  ),
                               ],
                               onChanged: (val) {
                                 setState(() {
@@ -476,7 +481,8 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
             for (final entry in _columnMappings.entries)
               if (entry.value != null) entry.key: entry.value!,
           },
-          multiValueDelimiter: _multiDelimiter.char);
+          multiValueDelimiter: _multiDelimiter.char,
+          headers: _csvHeaders);
       setState(() {
         _reviewRows = rows;
         _statusMessage = null;

@@ -11,6 +11,7 @@ abstract interface class LibraryMappedCsvImporter {
     List<List<String>> rows, {
     required Map<int, String> mappings,
     required String multiValueDelimiter,
+    List<String> headers = const [],
   });
 }
 

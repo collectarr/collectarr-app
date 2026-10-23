@@ -19,8 +19,10 @@ final class GameHardwareMappedCsvImporter implements LibraryMappedCsvImporter {
     List<List<String>> rows, {
     required Map<int, String> mappings,
     required String multiValueDelimiter,
+    List<String> headers = const [],
   }) {
-    final records = readClzCsvRecords(rows, mappings: mappings);
+    final records =
+        readClzCsvRecords(rows, mappings: mappings, headers: headers);
     final occurrences = <String, int>{};
     return List.unmodifiable([
       for (final record in records)
@@ -76,7 +78,9 @@ final class GameHardwareMappedCsvImporter implements LibraryMappedCsvImporter {
         catalog: metadata,
         personal: personal,
         createdAt: record.instant('added_date', 'Added Date'),
-        updatedAt: record.instant('modified_date', 'Modified Date'));
+        updatedAt: record.instant('modified_date', 'Modified Date'),
+        loan: record.loan,
+        customFieldValues: record.customFields);
   }
 }
 

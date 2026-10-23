@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
+import 'package:collectarr_app/features/library/config/library_import_capability.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_library_entry.dart';
@@ -11,7 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Parses a CLZ CSV fixture the way the import panel does: the header row is
 /// auto-mapped through the kind's field labels and aliases.
-List<LibraryEntryRecord> _import(CatalogMediaKind kind, String name) {
+List<CollectionImportRow> _rows(CatalogMediaKind kind, String name) {
   final capability = libraryImportForKind(kind);
   final rows = const CsvReader().read(
       File('test/fixtures/imports/${kind.apiValue}/clz_csv/$name.csv')
@@ -27,13 +29,19 @@ List<LibraryEntryRecord> _import(CatalogMediaKind kind, String name) {
         break;
       }
     }
+    // Unrecognized columns are the user's to import as custom fields.
+    if (!mappings.containsKey(column) && header[column] == 'Shelf Code') {
+      mappings[column] = importCustomFieldMappingKey;
+    }
   }
-  return [
-    for (final row in capability.mappedCsvImporter!.parse(rows.skip(1).toList(),
-        mappings: mappings, multiValueDelimiter: ';'))
-      LibraryEntryRecord.fromJson(row.fullEntryPayload!)
-  ];
+  return capability.mappedCsvImporter!.parse(rows.skip(1).toList(),
+      mappings: mappings, multiValueDelimiter: ';', headers: header);
 }
+
+List<LibraryEntryRecord> _import(CatalogMediaKind kind, String name) => [
+      for (final row in _rows(kind, name))
+        LibraryEntryRecord.fromJson(row.fullEntryPayload!)
+    ];
 
 void main() {
   const kinds = [
@@ -66,6 +74,17 @@ void main() {
     });
     test('CLZ ${kind.apiValue} CSV rejects invalid values', () {
       expect(() => _import(kind, 'invalid'), throwsFormatException);
+    });
+  }
+  for (final kind in kinds) {
+    test('CLZ ${kind.apiValue} CSV carries loans and custom field columns', () {
+      final row = _rows(kind, 'optional').single;
+      expect(row.loan!.borrowerName, 'Sam Example');
+      expect(row.loan!.lentDate, DateTime.utc(2024, 3, 1));
+      expect(row.loan!.dueDate, DateTime.utc(2024, 3, 15));
+      expect(row.customFieldValues, {'Shelf Code': 'A-12'});
+      expect(_rows(kind, 'minimal').single.loan, isNull);
+      expect(_rows(kind, 'minimal').single.customFieldValues, isEmpty);
     });
   }
   test('CLZ Games CSV keeps platform, list values and completion state', () {

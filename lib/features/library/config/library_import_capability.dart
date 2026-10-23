@@ -51,12 +51,20 @@ class LibraryImportSourceDefinition {
   final String filePrompt;
 }
 
+/// Mapping value for a column imported as a custom field named after its
+/// header.
+const importCustomFieldMappingKey = 'custom_field';
+
 class LibraryKindImportCapability {
   const LibraryKindImportCapability({
     this.sources = const [],
     this.mappableFields = const [],
     this.mappedCsvImporter,
+    this.allowsCustomFieldColumns = false,
   });
+
+  /// Whether unrecognized columns may be imported as custom fields.
+  final bool allowsCustomFieldColumns;
 
   final List<LibraryImportSourceDefinition> sources;
   final List<KindMappableField> mappableFields;
