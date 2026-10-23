@@ -45,14 +45,10 @@ import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardwar
 export 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
-export 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 export 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 export 'package:collectarr_app/features/library/kinds/music/music_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
-export 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final List<LibraryKindRegistration> collectarrKindRegistrationsList = [
   for (final registration in const <LibraryKindRegistration>[
@@ -63,10 +59,8 @@ final List<LibraryKindRegistration> collectarrKindRegistrationsList = [
     GameRegistration(),
     GameHardwareRegistration(),
     GameToyRegistration(),
-    MangaRegistration(),
     MovieRegistration(),
     MusicRegistration(),
-    TvRegistration(),
   ])
     if (releasedLibraryKinds.contains(registration.kind)) registration,
 ];
@@ -209,32 +203,6 @@ final class GameRegistration implements LibraryKindRegistration {
   }
 }
 
-final class MangaRegistration implements LibraryKindRegistration {
-  const MangaRegistration();
-
-  @override
-  CatalogMediaKind get kind => CatalogMediaKind.manga;
-
-  @override
-  LibraryKindIdentity get identity => mangaKindIdentity;
-
-  @override
-  Widget buildLibraryPage({
-    required Widget topBar,
-    required Color accent,
-    required Uri routeUri,
-    LibraryLayoutSnapshot? switchLayoutSnapshot,
-  }) {
-    return MangaLibraryPage(
-      type: const MangaRegistration(),
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    );
-  }
-}
-
 final class MovieRegistration implements LibraryKindRegistration {
   const MovieRegistration();
 
@@ -279,32 +247,6 @@ final class MusicRegistration implements LibraryKindRegistration {
   }) {
     return MusicLibraryPage(
       type: const MusicRegistration(),
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    );
-  }
-}
-
-final class TvRegistration implements LibraryKindRegistration {
-  const TvRegistration();
-
-  @override
-  CatalogMediaKind get kind => CatalogMediaKind.tv;
-
-  @override
-  LibraryKindIdentity get identity => tvKindIdentity;
-
-  @override
-  Widget buildLibraryPage({
-    required Widget topBar,
-    required Color accent,
-    required Uri routeUri,
-    LibraryLayoutSnapshot? switchLayoutSnapshot,
-  }) {
-    return TvLibraryPage(
-      type: const TvRegistration(),
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,

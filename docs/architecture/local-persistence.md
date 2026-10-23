@@ -5,7 +5,8 @@
 `lib/core/db/local_database.dart` is the Drift composition root. The supported
 schema version is `3` with explicit ordered migrations from the initial
 baseline. Version 2 is the latest published baseline; version 3 combines Games
-tracking and list-valued personal tags in one data-preserving upgrade.
+tracking and list-valued personal tags in one data-preserving upgrade, and
+drops the tracking tables of the removed TV and Manga kinds.
 Intermediate development schemas do not add migration steps. Native platforms create
 `collectarr-library.sqlite` in the application support directory. Web
 uses the `collectarr-library-sqlite3` database name. Older database and backup
@@ -60,7 +61,7 @@ catalog data, such as a wishlist item or optional source provenance.
 Kind-owned models, forms, field schemas, and projections define the semantic
 meaning of each kind's catalog and personal values. The generic entry table is
 the persistence source of truth. Repeated content such as Music discs/tracks or
-TV/Anime episodes is contained kind data, not another editable Work/Release
+Anime episodes is contained kind data, not another editable Work/Release
 level.
 
 The nine field ledgers are the source of field ownership and naming. The Music

@@ -15,8 +15,6 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_library_e
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 
 export '../fixtures/test_library_entry_fixture.dart';
@@ -141,17 +139,11 @@ GameHardwareLibraryEntry testGameHardwareLibraryEntryFrom(
 GameToyLibraryEntry testGameToyLibraryEntryFrom(TestLibraryEntry item) =>
     GameToyLibraryEntry.fromJson(item.toJson());
 
-MangaLibraryEntry testMangaLibraryEntryFrom(TestLibraryEntry item) =>
-    MangaLibraryEntry.fromJson(item.toJson());
-
 MusicLibraryEntry testMusicLibraryEntryFrom(TestLibraryEntry item) =>
     MusicLibraryEntry.fromJson({
       ...item.toJson(),
       'catalog_data': MusicAlbum(title: item.catalogTitle).toJson(),
     });
-
-TvLibraryEntry testTvLibraryEntryFrom(TestLibraryEntry item) =>
-    TvLibraryEntry.fromJson(item.toJson());
 
 LibraryEntryDispatch testLibraryEntryDispatchFrom(TestLibraryEntry item) {
   return switch (item.catalogRef.kind) {
@@ -190,11 +182,6 @@ LibraryEntryDispatch testLibraryEntryDispatchFrom(TestLibraryEntry item) {
         ref: item.ref,
         value: testGameToyLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.manga => OpaqueLibraryEntryDispatch(
-        kind: CatalogMediaKind.manga,
-        ref: item.ref,
-        value: testMangaLibraryEntryFrom(item),
-      ),
     CatalogMediaKind.movie => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.movie,
         ref: item.ref,
@@ -204,11 +191,6 @@ LibraryEntryDispatch testLibraryEntryDispatchFrom(TestLibraryEntry item) {
         kind: CatalogMediaKind.music,
         ref: item.ref,
         value: testMusicLibraryEntryFrom(item),
-      ),
-    CatalogMediaKind.tv => OpaqueLibraryEntryDispatch(
-        kind: CatalogMediaKind.tv,
-        ref: item.ref,
-        value: testTvLibraryEntryFrom(item),
       ),
     CatalogMediaKind.unknown => throw ArgumentError.value(
         item.catalogRef.kind,
@@ -230,14 +212,6 @@ LibraryEntryDispatch testGameLibraryEntryDispatchFrom(GameLibraryEntry item) =>
     OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.game,
       ref: LibraryEntryRef(kind: CatalogMediaKind.game, id: item.id),
-      value: item,
-    );
-
-LibraryEntryDispatch testMangaLibraryEntryDispatchFrom(
-        MangaLibraryEntry item) =>
-    OpaqueLibraryEntryDispatch(
-      kind: CatalogMediaKind.manga,
-      ref: LibraryEntryRef(kind: CatalogMediaKind.manga, id: item.id),
       value: item,
     );
 

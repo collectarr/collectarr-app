@@ -19,10 +19,8 @@ const _requiredKinds = {
   'book',
   'comic',
   'game',
-  'manga',
   'movie',
   'music',
-  'tv',
 };
 
 // Mirrors releasedLibraryKinds in library_release_scope.dart.

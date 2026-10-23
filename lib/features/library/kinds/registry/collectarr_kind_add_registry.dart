@@ -8,10 +8,8 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final Map<CatalogMediaKind, LibraryAddCapability> collectarrKindAdds =
     releasedKindContributions(<CatalogMediaKind, LibraryAddCapability>{
@@ -22,8 +20,6 @@ final Map<CatalogMediaKind, LibraryAddCapability> collectarrKindAdds =
   CatalogMediaKind.game: gameKindAdd,
   CatalogMediaKind.gameHardware: gameHardwareKindAdd,
   CatalogMediaKind.gameToy: gameToyKindAdd,
-  CatalogMediaKind.manga: mangaKindAdd,
   CatalogMediaKind.movie: movieKindAdd,
   CatalogMediaKind.music: musicKindAdd,
-  CatalogMediaKind.tv: tvKindAdd,
 });

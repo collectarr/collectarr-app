@@ -5,7 +5,7 @@
 /// CustomFieldDefinitions/Values with rich entries for every library kind.
 ///
 /// Usage: call `seedLocalDatabase(db)` from main.dart or a debug menu.
-/// Safe to call multiple times – uses deterministic IDs (idempotent via upsert).
+/// Safe to call multiple times â€“ uses deterministic IDs (idempotent via upsert).
 library;
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -44,9 +44,7 @@ export 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 /// individual kind script fail before anything is written to the database.
 const devSeedCatalogCounts = <CatalogMediaKind, int>{
   CatalogMediaKind.movie: 15,
-  CatalogMediaKind.tv: 15,
   CatalogMediaKind.anime: 15,
-  CatalogMediaKind.manga: 15,
   CatalogMediaKind.book: 15,
   CatalogMediaKind.music: 15,
   CatalogMediaKind.game: 15,
@@ -61,14 +59,10 @@ const devSeedCatalogCounts = <CatalogMediaKind, int>{
 const devSeedTypedGraphMinimumCounts = <String, int>{
   'comic.catalog_item': 15,
   'comic.reading': 15,
-  'manga.catalog_item': 15,
   'book.catalog_item': 15,
   'game.catalog_item': 15,
   'boardgame.catalog_item': 15,
   'movie.catalog_item': 15,
-  'tv.catalog_item': 15,
-  'tv.season': 15,
-  'tv.episode': 30,
   'anime.catalog_item': 15,
   'anime.episode_data': 30,
   'music.item': 15,
@@ -81,12 +75,10 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
 /// Every kind is measured from its complete kind-collection item table.
 const devSeedTypedEntryMinimumCounts = <String, int>{
   'comic.entry': 15,
-  'manga.entry': 15,
   'book.entry': 15,
   'game.entry': 15,
   'boardgame.entry': 15,
   'movie.entry': 15,
-  'tv.entry': 15,
   'anime.entry': 15,
   'music.entry': 15,
 };
@@ -94,16 +86,11 @@ const devSeedTypedEntryMinimumCounts = <String, int>{
 /// Minimum typed tracking rows expected from episodic fixtures.
 const devSeedTypedTrackingMinimumCounts = <String, int>{
   'comic.tracking': 15,
-  'manga.tracking': 15,
   'book.tracking': 15,
   'game.tracking': 15,
   'boardgame.tracking': 15,
   'movie.tracking': 15,
-  'tv.tracking': 15,
-  'tv.episode_progress': 30,
   'anime.tracking': 30,
-  'tv.watch_sessions': 15,
-  'tv.custom_episodes': 15,
   'anime.watch_sessions': 15,
   'anime.custom_episodes': 15,
   'boardgame.play_sessions': 15,
@@ -111,12 +98,10 @@ const devSeedTypedTrackingMinimumCounts = <String, int>{
 
 /// Minimum kind-entry coordinate rows expected from the typed tracking-unit
 /// fixture. These rows exercise the per-kind tracking-unit codecs in addition
-/// to the TV/Anime progress repositories above.
+/// to the Anime progress repositories above.
 const devSeedTypedTrackingUnitMinimumCounts = <String, int>{
   'comic.issue_units': 15,
-  'manga.chapter_units': 15,
   'book.chapter_units': 15,
-  'tv.episode_units': 30,
   'anime.episode_units': 30,
 };
 
@@ -150,9 +135,6 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
   final musicCatalogItems = await CatalogItemCacheRepository(db).findAll(
     kind: CatalogMediaKind.music,
   );
-  final tvCatalogItems = await CatalogItemCacheRepository(db).findAll(
-    kind: CatalogMediaKind.tv,
-  );
   final musicAlbums = [
     for (final item in musicCatalogItems)
       MusicCatalogMapper.mapMetadataItemToMusic(item),
@@ -160,9 +142,6 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
   return {
     'comic.catalog_item': comicCatalogItems.length,
     'comic.reading': (await db.select(db.comicReadingRows).get()).length,
-    'manga.catalog_item': (await CatalogItemCacheRepository(db)
-            .findAll(kind: CatalogMediaKind.manga))
-        .length,
     'book.catalog_item': (await CatalogItemCacheRepository(db)
             .findAll(kind: CatalogMediaKind.book))
         .length,
@@ -173,16 +152,6 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'movie.catalog_item': (await CatalogItemCacheRepository(db)
             .findAll(kind: CatalogMediaKind.movie))
         .length,
-    'tv.catalog_item': tvCatalogItems.length,
-    'tv.season': tvCatalogItems.fold<int>(
-      0,
-      (count, item) => count + _countObjects(item.payload['seasons']),
-    ),
-    'tv.episode': tvCatalogItems.fold<int>(
-      0,
-      (count, item) =>
-          count + _countNestedObjects(item.payload['seasons'], 'episodes'),
-    ),
     'anime.catalog_item': animeCatalogItems.length,
     'anime.episode_data': animeCatalogItems.fold<int>(
       0,
@@ -216,15 +185,6 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
   for (final item in comicItems.where((item) => isSeed(item.id))) {
     if (seedTitle(item).trim().isEmpty) {
       issues.add('Comic Catalog Item ${item.id} has an empty title');
-    }
-  }
-
-  final mangaItems = await CatalogItemCacheRepository(db)
-      .findAll(kind: CatalogMediaKind.manga);
-  for (final item in mangaItems.where((item) => isSeed(item.id))) {
-    final chapters = item.payload['chapters'];
-    if (chapters is! Iterable || chapters.isEmpty) {
-      issues.add('Manga Catalog Item ${item.id} has no persisted chapters');
     }
   }
 
@@ -269,26 +229,6 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
     if (seedTitle(item).trim().isEmpty) {
       issues.add('Movie Catalog Item ${item.id} has an empty title');
-    }
-  }
-
-  final tvItems = await CatalogItemCacheRepository(db).findAll(
-    kind: CatalogMediaKind.tv,
-  );
-  for (final item in tvItems.where((item) => isSeed(item.id))) {
-    final seasonIds = <String>{};
-    final episodeIds = <String>{};
-    for (final season in _objectMaps(item.payload['seasons'])) {
-      final seasonId = season['id']?.toString() ?? '';
-      if (seasonId.isEmpty || !seasonIds.add(seasonId)) {
-        issues.add('TV Catalog Item ${item.id} has an invalid season ID');
-      }
-      for (final episode in _objectMaps(season['episodes'])) {
-        final episodeId = episode['id']?.toString() ?? '';
-        if (episodeId.isEmpty || !episodeIds.add(episodeId)) {
-          issues.add('TV Catalog Item ${item.id} has an invalid episode ID');
-        }
-      }
     }
   }
 
@@ -383,11 +323,6 @@ Future<List<String>> devSeedTypedEntryIntegrityIssues(LocalDatabase db) async {
       .get();
   checkTypedRows(
       'comic_library_entries', 'comic', comicRows.map((row) => row.id));
-  final mangaRows = await (db.select(db.libraryEntries)
-        ..where((t) => t.kind.equals('manga')))
-      .get();
-  checkTypedRows(
-      'manga_library_entries', 'manga', mangaRows.map((row) => row.id));
   final bookRows = await (db.select(db.libraryEntries)
         ..where((t) => t.kind.equals('book')))
       .get();
@@ -406,10 +341,6 @@ Future<List<String>> devSeedTypedEntryIntegrityIssues(LocalDatabase db) async {
       .get();
   checkTypedRows(
       'movie_library_entries', 'movie', movieRows.map((row) => row.id));
-  final tvRows = await (db.select(db.libraryEntries)
-        ..where((t) => t.kind.equals('tv')))
-      .get();
-  checkTypedRows('tv_library_entries', 'tv', tvRows.map((row) => row.id));
   final animeRows = await (db.select(db.libraryEntries)
         ..where((t) => t.kind.equals('anime')))
       .get();
@@ -431,10 +362,6 @@ Future<Map<String, int>> devSeedTypedEntryCounts(LocalDatabase db) async {
               ..where((t) => t.kind.equals('comic')))
             .get())
         .length,
-    'manga.entry': (await (db.select(db.libraryEntries)
-              ..where((t) => t.kind.equals('manga')))
-            .get())
-        .length,
     'book.entry': (await (db.select(db.libraryEntries)
               ..where((t) => t.kind.equals('book')))
             .get())
@@ -449,10 +376,6 @@ Future<Map<String, int>> devSeedTypedEntryCounts(LocalDatabase db) async {
         .length,
     'movie.entry': (await (db.select(db.libraryEntries)
               ..where((t) => t.kind.equals('movie')))
-            .get())
-        .length,
-    'tv.entry': (await (db.select(db.libraryEntries)
-              ..where((t) => t.kind.equals('tv')))
             .get())
         .length,
     'anime.entry': (await (db.select(db.libraryEntries)
@@ -470,17 +393,12 @@ Future<Map<String, int>> devSeedTypedEntryCounts(LocalDatabase db) async {
 Future<Map<String, int>> devSeedTypedTrackingCounts(LocalDatabase db) async {
   return {
     'comic.tracking': (await db.select(db.comicTrackingRows).get()).length,
-    'manga.tracking': (await db.select(db.mangaTrackingRows).get()).length,
     'book.tracking': (await db.select(db.bookTrackingRows).get()).length,
     'game.tracking': (await db.select(db.gameTrackingRows).get()).length,
     'boardgame.tracking':
         (await db.select(db.boardGameTrackingRows).get()).length,
     'movie.tracking': (await db.select(db.movieTrackingRows).get()).length,
-    'tv.tracking': (await db.select(db.tvTrackingRows).get()).length,
     'anime.tracking': (await db.select(db.animeTrackingRows).get()).length,
-    'tv.watch_sessions': (await db.select(db.tvWatchSessionRows).get()).length,
-    'tv.custom_episodes':
-        (await db.select(db.tvCustomEpisodeRows).get()).length,
     'anime.watch_sessions':
         (await db.select(db.animeWatchSessionRows).get()).length,
     'anime.custom_episodes':
@@ -497,11 +415,8 @@ Future<Map<String, int>> devSeedTypedTrackingUnitCounts(
   return {
     'comic.issue_units':
         (await db.select(db.comicTrackingUnitRows).get()).length,
-    'manga.chapter_units':
-        (await db.select(db.mangaTrackingUnitRows).get()).length,
     'book.chapter_units':
         (await db.select(db.bookTrackingUnitRows).get()).length,
-    'tv.episode_units': (await db.select(db.tvTrackingUnitRows).get()).length,
     'anime.episode_units':
         (await db.select(db.animeTrackingUnitRows).get()).length,
   };
@@ -782,31 +697,12 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
         .every((row) => row.issueNumber?.trim().isNotEmpty == true),
     'comic seed tracking units are missing issue coordinates',
   );
-  final mangaTrackingUnits = (await db.select(db.mangaTrackingUnitRows).get())
-      .where((row) => row.id.startsWith('seed-'));
-  require(
-    mangaTrackingUnits
-        .every((row) => row.chapterNumber != null && row.chapterNumber! > 0),
-    'manga seed tracking units are missing chapter coordinates',
-  );
   final bookTrackingUnits = (await db.select(db.bookTrackingUnitRows).get())
       .where((row) => row.id.startsWith('seed-'));
   require(
     bookTrackingUnits
         .every((row) => row.volumeNumber != null && row.volumeNumber! > 0),
     'book seed tracking units are missing volume coordinates',
-  );
-  final tvTrackingUnits = (await db.select(db.tvTrackingUnitRows).get())
-      .where((row) => row.id.startsWith('seed-'));
-  require(
-    tvTrackingUnits.every(
-      (row) =>
-          row.seasonNumber != null &&
-          row.seasonNumber! > 0 &&
-          row.episodeNumber != null &&
-          row.episodeNumber! > 0,
-    ),
-    'tv seed tracking units are missing season/episode coordinates',
   );
   final animeTrackingUnits = (await db.select(db.animeTrackingUnitRows).get())
       .where((row) => row.id.startsWith('seed-'));
@@ -1334,20 +1230,4 @@ Future<void> _seedItemImages(
       );
     }
   }
-}
-
-int _countObjects(Object? value) => _objectMaps(value).length;
-
-int _countNestedObjects(Object? parents, String childKey) =>
-    _objectMaps(parents).fold<int>(
-      0,
-      (count, parent) => count + _countObjects(parent[childKey]),
-    );
-
-List<Map<String, dynamic>> _objectMaps(Object? value) {
-  if (value is! Iterable) return const [];
-  return [
-    for (final entry in value)
-      if (entry is Map) Map<String, dynamic>.from(entry),
-  ];
 }

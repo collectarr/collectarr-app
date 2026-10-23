@@ -7,10 +7,8 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
 import 'package:collectarr_app/features/library/metadata/library_personal_field_contributor.dart';
 
@@ -23,10 +21,8 @@ final Map<CatalogMediaKind, LibraryPersonalFieldContributor>
   CatalogMediaKind.game: gameKindPersonalFieldContributor,
   CatalogMediaKind.gameHardware: gameHardwareKindPersonalFieldContributor,
   CatalogMediaKind.gameToy: gameToyKindPersonalFieldContributor,
-  CatalogMediaKind.manga: mangaKindPersonalFieldContributor,
   CatalogMediaKind.movie: movieKindPersonalFieldContributor,
   CatalogMediaKind.music: musicKindPersonalFieldContributor,
-  CatalogMediaKind.tv: tvKindPersonalFieldContributor,
 });
 
 final List<PersonalLibraryFieldSpec> libraryPersonalFields =

@@ -84,7 +84,7 @@ List<CatalogMediaType> selectableLibraryHomeTypes(
 ) {
   final allTypes = orderedLibraryHomeTypes(catalog, preferences);
   final visibleTypes = visibleLibraryHomeTypes(allTypes, preferences);
-  const requiredKinds = {'anime', 'manga', 'tv'};
+  const requiredKinds = {'anime'};
   final result = visibleTypes.toList(growable: true);
   final visibleKinds = {for (final type in result) type.kind};
   for (final kind in requiredKinds) {

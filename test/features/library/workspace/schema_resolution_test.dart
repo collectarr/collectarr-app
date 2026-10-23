@@ -3,10 +3,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -17,9 +15,7 @@ void main() {
     ('Game', gameKindWorkspace),
     ('Music', musicKindWorkspace),
     ('Movie', movieKindWorkspace),
-    ('Tv', tvKindWorkspace),
     ('Anime', animeKindWorkspace),
-    ('Manga', mangaKindWorkspace),
   ];
 
   for (final (name, workspace) in workspaces) {

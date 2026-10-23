@@ -5,10 +5,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_c
 import 'package:collectarr_app/features/library/kinds/book/data/book_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_catalog_transport_codec.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_catalog_transport_codec.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_catalog_transport_codec.dart';
 import '../../../support/builders/catalog_item_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -51,12 +49,6 @@ void main() {
             const GameCatalogTransportCodec().summarizeTransport(item).imageUrl,
       ),
       (
-        kind: CatalogMediaKind.manga,
-        readSummaryCover: (item) => const MangaCatalogTransportCodec()
-            .summarizeTransport(item)
-            .imageUrl,
-      ),
-      (
         kind: CatalogMediaKind.movie,
         readSummaryCover: (item) => const MovieCatalogTransportCodec()
             .summarizeTransport(item)
@@ -67,11 +59,6 @@ void main() {
         readSummaryCover: (item) => const MusicCatalogTransportCodec()
             .summarizeTransport(item)
             .imageUrl,
-      ),
-      (
-        kind: CatalogMediaKind.tv,
-        readSummaryCover: (item) =>
-            const TvCatalogTransportCodec().summarizeTransport(item).imageUrl,
       ),
     ];
 

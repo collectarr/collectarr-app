@@ -16,8 +16,6 @@ final Map<CatalogMediaKind, LibraryEntryPolicyCapability>
       const LibraryEntryPolicyCapability.allowEverywhere(),
   CatalogMediaKind.gameToy:
       const LibraryEntryPolicyCapability.allowEverywhere(),
-  CatalogMediaKind.manga: const LibraryEntryPolicyCapability.allowEverywhere(),
   CatalogMediaKind.movie: const LibraryEntryPolicyCapability.allowEverywhere(),
   CatalogMediaKind.music: musicKindEntryPolicy,
-  CatalogMediaKind.tv: const LibraryEntryPolicyCapability.allowEverywhere(),
 });

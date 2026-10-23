@@ -34,8 +34,6 @@ void main() {
         as Map<String, dynamic>;
     final musicFields = (kinds['music'] as Map<String, dynamic>)['fields']
         as Map<String, dynamic>;
-    final tvFields =
-        (kinds['tv'] as Map<String, dynamic>)['fields'] as Map<String, dynamic>;
     void expectWorkspaceId(
       Map<String, dynamic> fields,
       String fieldName,
@@ -56,7 +54,6 @@ void main() {
     expectWorkspaceId(bookFields, 'series', 'book.series');
     expectWorkspaceId(movieFields, 'title', 'movie.title');
     expectWorkspaceId(musicFields, 'artist', 'music.artist');
-    expectWorkspaceId(tvFields, 'barcode', 'tv.barcode');
     expect(
         kinds.keys, containsAll(['anime', 'book', 'comic', 'game', 'music']));
   });
@@ -736,11 +733,11 @@ LibraryCatalogItemView view;
   });
 
   test(
-      'architecture boundary checker rejects cross-kind concrete import (comic -> manga)',
+      'architecture boundary checker rejects cross-kind concrete import (comic -> book)',
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 
 class ComicFeature {}
 ''';

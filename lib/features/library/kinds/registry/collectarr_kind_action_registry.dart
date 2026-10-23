@@ -8,10 +8,8 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final Map<CatalogMediaKind, LibraryTargetActionCapability>
     collectarrKindEntityActions =
@@ -23,8 +21,6 @@ final Map<CatalogMediaKind, LibraryTargetActionCapability>
   CatalogMediaKind.game: gameKindActions,
   CatalogMediaKind.gameHardware: gameHardwareKindActions,
   CatalogMediaKind.gameToy: gameToyKindActions,
-  CatalogMediaKind.manga: mangaKindActions,
   CatalogMediaKind.movie: movieKindActions,
   CatalogMediaKind.music: musicKindActions,
-  CatalogMediaKind.tv: tvKindActions,
 });

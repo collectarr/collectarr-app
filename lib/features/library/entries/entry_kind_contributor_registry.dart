@@ -9,10 +9,8 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 import 'package:collectarr_app/features/library/entries/entry_kind_contributor.dart';
 
 /// Explicit Entry composition root.
@@ -30,10 +28,8 @@ final Map<CatalogMediaKind, EntryKindContributor>
   CatalogMediaKind.game: gameEntryContributor,
   CatalogMediaKind.gameHardware: gameHardwareEntryContributor,
   CatalogMediaKind.gameToy: gameToyEntryContributor,
-  CatalogMediaKind.manga: mangaEntryContributor,
   CatalogMediaKind.movie: movieEntryContributor,
   CatalogMediaKind.music: musicEntryContributor,
-  CatalogMediaKind.tv: tvEntryContributor,
 });
 
 EntryKindContributor entryContributorForKind(CatalogMediaKind kind) {

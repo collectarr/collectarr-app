@@ -90,6 +90,17 @@ class LocalDatabase extends _$LocalDatabase {
           if (from < 3) {
             // 3: Games inventory release and list-valued personal tags.
             await migrator.createTable(gameTrackingRows);
+            // The TV and Manga kinds were removed; drop their tables.
+            for (final table in const [
+              'manga_tracking_rows',
+              'manga_tracking_unit_rows',
+              'tv_custom_episode_rows',
+              'tv_tracking_rows',
+              'tv_tracking_unit_rows',
+              'tv_watch_session_rows',
+            ]) {
+              await customStatement('DROP TABLE IF EXISTS $table');
+            }
             // Personal tags are a list instead of one comma-separated
             // string, in entries and in their pending Sync changes.
             await _storeTagsAsLists('library_entries', '');

@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 const activeTypedKinds = <CatalogMediaKind>{
   CatalogMediaKind.comic,
-  CatalogMediaKind.manga,
   CatalogMediaKind.anime,
   CatalogMediaKind.book,
   CatalogMediaKind.game,
@@ -10,7 +9,6 @@ const activeTypedKinds = <CatalogMediaKind>{
   CatalogMediaKind.gameToy,
   CatalogMediaKind.boardgame,
   CatalogMediaKind.movie,
-  CatalogMediaKind.tv,
   CatalogMediaKind.music,
 };
 
@@ -53,7 +51,6 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.game,
       CatalogMediaKind.movie,
       CatalogMediaKind.music,
-      CatalogMediaKind.tv,
     },
     'releaseRepository': {
       CatalogMediaKind.anime,
@@ -63,12 +60,10 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.game,
       CatalogMediaKind.movie,
       CatalogMediaKind.music,
-      CatalogMediaKind.tv,
     },
     'releaseProjection': {
       CatalogMediaKind.anime,
       CatalogMediaKind.movie,
-      CatalogMediaKind.tv,
     },
     'releaseEdit': {
       CatalogMediaKind.anime,
@@ -78,7 +73,6 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.game,
       CatalogMediaKind.movie,
       CatalogMediaKind.music,
-      CatalogMediaKind.tv,
     },
     'releasePersistence': {
       CatalogMediaKind.anime,
@@ -88,12 +82,10 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.game,
       CatalogMediaKind.movie,
       CatalogMediaKind.music,
-      CatalogMediaKind.tv,
     },
     'calendar': activeTypedKinds,
     'activity': {
       CatalogMediaKind.anime,
-      CatalogMediaKind.tv,
     },
     'tracking': {
       CatalogMediaKind.anime,
@@ -101,10 +93,8 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.book,
       CatalogMediaKind.comic,
       CatalogMediaKind.game,
-      CatalogMediaKind.manga,
       CatalogMediaKind.movie,
       CatalogMediaKind.music,
-      CatalogMediaKind.tv
     },
     'hierarchy': {
       CatalogMediaKind.anime,
@@ -112,10 +102,8 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.book,
       CatalogMediaKind.comic,
       CatalogMediaKind.game,
-      CatalogMediaKind.manga,
       CatalogMediaKind.movie,
       CatalogMediaKind.music,
-      CatalogMediaKind.tv
     },
   },
 );

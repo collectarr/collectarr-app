@@ -304,18 +304,12 @@ void main() {
           'kind': 'movie',
           'title': 'Alien',
         });
-        interceptor.onGet('/api/v1/metadata/tv/items/tv-1', {
-          'id': 'tv-1',
-          'kind': 'tv',
-          'title': 'Breaking Bad',
-        });
         final client = _createTestClient(interceptor);
 
         for (final (kind, id, title) in [
           (CatalogMediaKind.comic, 'comic-1', 'Saga'),
           (CatalogMediaKind.anime, 'anime-1', 'Naruto'),
           (CatalogMediaKind.movie, 'movie-1', 'Alien'),
-          (CatalogMediaKind.tv, 'tv-1', 'Breaking Bad'),
         ]) {
           final item = await client.getCatalogItemJson(kind: kind, id: id);
           expect(item['id'], id);

@@ -12,10 +12,8 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final Map<CatalogMediaKind, LibraryStatsCapability> collectarrKindStats =
     releasedKindContributions(<CatalogMediaKind, LibraryStatsCapability>{
@@ -26,10 +24,8 @@ final Map<CatalogMediaKind, LibraryStatsCapability> collectarrKindStats =
   CatalogMediaKind.game: gameKindStats,
   CatalogMediaKind.gameHardware: gameHardwareKindStats,
   CatalogMediaKind.gameToy: gameToyKindStats,
-  CatalogMediaKind.manga: mangaKindStats,
   CatalogMediaKind.movie: movieKindStats,
   CatalogMediaKind.music: musicKindStats,
-  CatalogMediaKind.tv: tvKindStats,
 });
 
 final Map<CatalogMediaKind, LibraryValueCapability?> collectarrKindValues =
@@ -41,10 +37,8 @@ final Map<CatalogMediaKind, LibraryValueCapability?> collectarrKindValues =
   CatalogMediaKind.game: gameKindValue,
   CatalogMediaKind.gameHardware: null,
   CatalogMediaKind.gameToy: null,
-  CatalogMediaKind.manga: mangaKindValue,
   CatalogMediaKind.movie: movieKindValue,
   CatalogMediaKind.music: musicKindValue,
-  CatalogMediaKind.tv: tvKindValue,
 });
 
 final Map<CatalogMediaKind, LibraryRelationCapability?>
@@ -57,10 +51,8 @@ final Map<CatalogMediaKind, LibraryRelationCapability?>
   CatalogMediaKind.game: gameKindRelations,
   CatalogMediaKind.gameHardware: null,
   CatalogMediaKind.gameToy: null,
-  CatalogMediaKind.manga: mangaKindRelations,
   CatalogMediaKind.movie: movieKindRelations,
   CatalogMediaKind.music: musicKindRelations,
-  CatalogMediaKind.tv: tvKindRelations,
 });
 
 final Map<CatalogMediaKind, LibraryUiPolicy> collectarrKindUiPolicies =
@@ -72,10 +64,8 @@ final Map<CatalogMediaKind, LibraryUiPolicy> collectarrKindUiPolicies =
   CatalogMediaKind.game: gameKindUiPolicy,
   CatalogMediaKind.gameHardware: gameHardwareKindUiPolicy,
   CatalogMediaKind.gameToy: gameToyKindUiPolicy,
-  CatalogMediaKind.manga: mangaKindUiPolicy,
   CatalogMediaKind.movie: movieKindUiPolicy,
   CatalogMediaKind.music: musicKindUiPolicy,
-  CatalogMediaKind.tv: tvKindUiPolicy,
 });
 
 final Map<CatalogMediaKind, LibraryLinkedMetadataCapability>
@@ -88,8 +78,6 @@ final Map<CatalogMediaKind, LibraryLinkedMetadataCapability>
   CatalogMediaKind.game: gameKindLinkedMetadata,
   CatalogMediaKind.gameHardware: gameHardwareKindLinkedMetadata,
   CatalogMediaKind.gameToy: gameToyKindLinkedMetadata,
-  CatalogMediaKind.manga: mangaKindLinkedMetadata,
   CatalogMediaKind.movie: movieKindLinkedMetadata,
   CatalogMediaKind.music: musicKindLinkedMetadata,
-  CatalogMediaKind.tv: tvKindLinkedMetadata,
 });

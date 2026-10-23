@@ -11,11 +11,11 @@ void main() {
     );
 
     expect(
-      preferences.orderedKinds(['comic', 'manga', 'movie', 'games']),
-      ['games', 'comic', 'manga', 'movie'],
+      preferences.orderedKinds(['comic', 'book', 'movie', 'games']),
+      ['games', 'comic', 'book', 'movie'],
     );
     expect(preferences.isVisible('movie'), isFalse);
-    expect(preferences.isVisible('manga'), isTrue);
+    expect(preferences.isVisible('book'), isTrue);
   });
 
   test('persists library nav order visibility and placement', () async {
@@ -24,16 +24,16 @@ void main() {
 
     await store.write(
       LibraryNavPreferences(
-        order: const ['manga', 'comic', 'games'],
-        hiddenKinds: const {'music', 'tv'},
+        order: const ['book', 'comic', 'games'],
+        hiddenKinds: const {'music', 'anime'},
         placement: LibraryNavPlacement.left,
       ),
     );
 
     final restored = await store.read();
 
-    expect(restored.order, ['manga', 'comic', 'games']);
-    expect(restored.hiddenKinds, {'music', 'tv'});
+    expect(restored.order, ['book', 'comic', 'games']);
+    expect(restored.hiddenKinds, {'music', 'anime'});
     expect(restored.placement, LibraryNavPlacement.left);
   });
 }

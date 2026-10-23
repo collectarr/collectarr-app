@@ -1,12 +1,10 @@
 enum CollectarrItemKind {
   comic('comic'),
-  manga('manga'),
   anime('anime'),
   book('book'),
   game('game'),
   boardgame('boardgame'),
   movie('movie'),
-  tv('tv'),
   music('music'),
   unknown('unknown');
 

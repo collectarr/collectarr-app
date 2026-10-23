@@ -12,10 +12,8 @@ const _kindNames = [
   'book',
   'comic',
   'game',
-  'manga',
   'movie',
   'music',
-  'tv',
 ];
 
 List<File> _dartFiles(String path) {

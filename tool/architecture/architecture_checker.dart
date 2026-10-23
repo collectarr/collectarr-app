@@ -58,12 +58,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'MovieWorkspaceDto',
     'MovieCatalogItem',
     'MovieEntryDetails',
-    // Tv
-    'TvCatalogMetadata',
-    'TvSeriesMetadata',
-    'TvWorkspaceDto',
-    'TvCatalogItem',
-    'TvEntryDetails',
     // Anime
     'AnimeCatalogMetadata',
     'AnimeMetadata',
@@ -75,12 +69,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'BookWorkspaceDto',
     'BookCatalogItem',
     'BookEntryDetails',
-    // Manga
-    'MangaCatalogMetadata',
-    'MangaMetadata',
-    'MangaWorkspaceDto',
-    'MangaCatalogItem',
-    'MangaEntryDetails',
     // Game
     'GameCatalogMetadata',
     'GameWorkspaceDto',

@@ -11,14 +11,10 @@ import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_loc
 export 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
 export 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';
-export 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
 export 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_tables.dart';
 export 'package:collectarr_app/features/library/kinds/music/data/local/music_local_tables.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
-export 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
 
 const List<Type> collectarrKindTableTypes = <Type>[
   AnimeTrackingRows,
@@ -33,13 +29,7 @@ const List<Type> collectarrKindTableTypes = <Type>[
   ComicTrackingUnitRows,
   ComicTrackingRows,
   GameTrackingRows,
-  MangaTrackingUnitRows,
-  MangaTrackingRows,
   MovieTrackingRows,
   MusicTrackingRows,
   MusicListenEventsRows,
-  TvWatchSessionRows,
-  TvCustomEpisodeRows,
-  TvTrackingRows,
-  TvTrackingUnitRows,
 ];

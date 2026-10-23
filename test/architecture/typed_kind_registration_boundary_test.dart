@@ -49,12 +49,10 @@ void main() {
     final registrations = File(registrationsPath).readAsStringSync();
     for (final pageType in [
       'ComicLibraryPage',
-      'MangaLibraryPage',
       'BookLibraryPage',
       'GameLibraryPage',
       'BoardGameLibraryPage',
       'MovieLibraryPage',
-      'TvLibraryPage',
       'AnimeLibraryPage',
       'MusicLibraryPage',
     ]) {

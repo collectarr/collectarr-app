@@ -8,14 +8,10 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart'
     show comicKindMetadata;
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart'
     show gameKindMetadata;
-import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart'
-    show mangaKindMetadata;
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart'
     show movieKindMetadata;
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart'
     show musicKindMetadata;
-import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart'
-    show tvKindMetadata;
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 
@@ -182,10 +178,8 @@ LibraryWorkspaceKindData testWorkspaceCatalogData(CatalogItemDto item) {
     CatalogMediaKind.book: bookKindMetadata.catalogTransportCodec,
     CatalogMediaKind.comic: comicKindMetadata.catalogTransportCodec,
     CatalogMediaKind.game: gameKindMetadata.catalogTransportCodec,
-    CatalogMediaKind.manga: mangaKindMetadata.catalogTransportCodec,
     CatalogMediaKind.movie: movieKindMetadata.catalogTransportCodec,
     CatalogMediaKind.music: musicKindMetadata.catalogTransportCodec,
-    CatalogMediaKind.tv: tvKindMetadata.catalogTransportCodec,
   };
   return codecs[item.mediaKind]!.workspaceData(item);
 }

@@ -13,10 +13,8 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -32,10 +30,8 @@ final Map<CatalogMediaKind, MediaTrackingProfile>
   CatalogMediaKind.game: gameKindTrackingProfile,
   CatalogMediaKind.gameHardware: gameHardwareKindTrackingProfile,
   CatalogMediaKind.gameToy: gameToyKindTrackingProfile,
-  CatalogMediaKind.manga: mangaKindTrackingProfile,
   CatalogMediaKind.movie: movieKindTrackingProfile,
   CatalogMediaKind.music: musicKindTrackingProfile,
-  CatalogMediaKind.tv: tvKindTrackingProfile,
 });
 
 final Map<CatalogMediaKind, LibraryTrackingTopology>
@@ -48,10 +44,8 @@ final Map<CatalogMediaKind, LibraryTrackingTopology>
   CatalogMediaKind.game: gameKindTrackingTopology,
   CatalogMediaKind.gameHardware: gameHardwareKindTrackingTopology,
   CatalogMediaKind.gameToy: gameToyKindTrackingTopology,
-  CatalogMediaKind.manga: mangaKindTrackingTopology,
   CatalogMediaKind.movie: movieKindTrackingTopology,
   CatalogMediaKind.music: musicKindTrackingTopology,
-  CatalogMediaKind.tv: tvKindTrackingTopology,
 });
 
 final Map<CatalogMediaKind, LibraryHierarchyCapability>
@@ -60,7 +54,6 @@ final Map<CatalogMediaKind, LibraryHierarchyCapability>
   CatalogMediaKind.anime: animeKindHierarchy,
   CatalogMediaKind.movie: movieKindHierarchy,
   CatalogMediaKind.music: musicKindHierarchy,
-  CatalogMediaKind.tv: tvKindHierarchy,
 });
 
 final Map<CatalogMediaKind, LibraryTargetVocabulary>
@@ -73,10 +66,8 @@ final Map<CatalogMediaKind, LibraryTargetVocabulary>
   CatalogMediaKind.game: gameKindEntityVocabulary,
   CatalogMediaKind.gameHardware: gameHardwareKindEntityVocabulary,
   CatalogMediaKind.gameToy: gameToyKindEntityVocabulary,
-  CatalogMediaKind.manga: mangaKindEntityVocabulary,
   CatalogMediaKind.movie: movieKindEntityVocabulary,
   CatalogMediaKind.music: musicKindEntityVocabulary,
-  CatalogMediaKind.tv: tvKindEntityVocabulary,
 });
 
 final Map<CatalogMediaKind, LibraryInspectorCapability>
@@ -89,10 +80,8 @@ final Map<CatalogMediaKind, LibraryInspectorCapability>
   CatalogMediaKind.game: gameKindInspector,
   CatalogMediaKind.gameHardware: gameHardwareKindInspector,
   CatalogMediaKind.gameToy: gameToyKindInspector,
-  CatalogMediaKind.manga: mangaKindInspector,
   CatalogMediaKind.movie: movieKindInspector,
   CatalogMediaKind.music: musicKindInspector,
-  CatalogMediaKind.tv: tvKindInspector,
 });
 
 final Map<CatalogMediaKind, LibraryKindToolbarModule?> collectarrKindToolbars =
@@ -105,10 +94,8 @@ final Map<CatalogMediaKind, LibraryKindToolbarModule?> collectarrKindToolbars =
   CatalogMediaKind.gameHardware:
       gameHardwareKindToolbar as LibraryKindToolbarModule?,
   CatalogMediaKind.gameToy: gameToyKindToolbar as LibraryKindToolbarModule?,
-  CatalogMediaKind.manga: mangaKindToolbar as LibraryKindToolbarModule?,
   CatalogMediaKind.movie: movieKindToolbar as LibraryKindToolbarModule?,
   CatalogMediaKind.music: musicKindToolbar as LibraryKindToolbarModule?,
-  CatalogMediaKind.tv: tvKindToolbar as LibraryKindToolbarModule?,
 });
 
 final Map<CatalogMediaKind, List<LibrarySearchTarget>>
@@ -121,10 +108,8 @@ final Map<CatalogMediaKind, List<LibrarySearchTarget>>
   CatalogMediaKind.game: gameKindSearchTargetOptions,
   CatalogMediaKind.gameHardware: gameHardwareKindSearchTargetOptions,
   CatalogMediaKind.gameToy: gameToyKindSearchTargetOptions,
-  CatalogMediaKind.manga: mangaKindSearchTargetOptions,
   CatalogMediaKind.movie: movieKindSearchTargetOptions,
   CatalogMediaKind.music: musicKindSearchTargetOptions,
-  CatalogMediaKind.tv: tvKindSearchTargetOptions,
 });
 
 final Map<CatalogMediaKind, LibraryWorkspaceViewProfile>
@@ -137,10 +122,8 @@ final Map<CatalogMediaKind, LibraryWorkspaceViewProfile>
   CatalogMediaKind.game: gameKindViewProfile,
   CatalogMediaKind.gameHardware: gameHardwareKindViewProfile,
   CatalogMediaKind.gameToy: gameToyKindViewProfile,
-  CatalogMediaKind.manga: mangaKindViewProfile,
   CatalogMediaKind.movie: movieKindViewProfile,
   CatalogMediaKind.music: musicKindViewProfile,
-  CatalogMediaKind.tv: tvKindViewProfile,
 });
 
 final Map<CatalogMediaKind, LibraryKindWorkspace> collectarrKindWorkspaces = {
@@ -151,10 +134,8 @@ final Map<CatalogMediaKind, LibraryKindWorkspace> collectarrKindWorkspaces = {
   CatalogMediaKind.game: gameKindWorkspace,
   CatalogMediaKind.gameHardware: gameHardwareKindWorkspace,
   CatalogMediaKind.gameToy: gameToyKindWorkspace,
-  CatalogMediaKind.manga: mangaKindWorkspace,
   CatalogMediaKind.movie: movieKindWorkspace,
   CatalogMediaKind.music: musicKindWorkspace,
-  CatalogMediaKind.tv: tvKindWorkspace,
 };
 
 final Map<CatalogMediaKind, LibraryFacetModule> collectarrKindFacetModules = {
@@ -165,8 +146,6 @@ final Map<CatalogMediaKind, LibraryFacetModule> collectarrKindFacetModules = {
   CatalogMediaKind.game: gameLibraryFacetModule,
   CatalogMediaKind.gameHardware: gameHardwareLibraryFacetModule,
   CatalogMediaKind.gameToy: gameToyLibraryFacetModule,
-  CatalogMediaKind.manga: mangaLibraryFacetModule,
   CatalogMediaKind.movie: movieLibraryFacetModule,
   CatalogMediaKind.music: musicLibraryFacetModule,
-  CatalogMediaKind.tv: tvLibraryFacetModule,
 };

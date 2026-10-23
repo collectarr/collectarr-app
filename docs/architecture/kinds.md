@@ -1,7 +1,7 @@
 # Typed kind architecture
 
-The source tree has eleven kinds: Comic, Manga, Book, Game, Game Hardware,
-Game Toy, BoardGame, Movie, TV, Anime, and Music. Music and the Games family
+The source tree has nine kinds: Comic, Book, Game, Game Hardware,
+Game Toy, BoardGame, Movie, Anime, and Music. Music and the Games family
 (Game, Game Hardware, Game Toy) are in the release scope
 (`library_release_scope.dart`; Game through schema 3). Hardware and Toys are
 independent kinds that share the Games collection family and tab bar but never
@@ -18,6 +18,11 @@ after dispatch, callers use the concrete kind-owned capability or model.
 
 Mechanical Drift table and development seed composition is generated
 separately. See [kind registration and generated artifacts](kind-registration-codegen.md).
+
+TV and Manga have no standalone modules, kinds, registries or persistence models.
+Future television workflows belong to Movie and manga workflows to Comic;
+that integration is not implemented by removing the old modules. Anime
+production formats and source-material labels remain kind-owned metadata.
 
 ## Architecture rules
 

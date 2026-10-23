@@ -50,6 +50,7 @@
 - List headers of narrow icon columns stay empty instead of showing clipped labels.
 
 ### ♻️ Refactors
+- Standalone TV and Manga kinds are removed; future television and manga support belongs in Movies and Comics.
 - Personal tags are stored as lists so tags can contain commas; existing entries and pending Sync changes upgrade together in one migration from the released schema.
 - Manual Add footers, Add choice menus and front/back image controls share behavior across libraries.
 - Statistics charts, legends and ranked lists are shared components, ready for libraries other than Music.

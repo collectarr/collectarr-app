@@ -114,6 +114,39 @@ void main() {
     expect(version.data.values.single, 3);
   });
 
+  test('upgrades a schema 2 database by dropping the TV and Manga tables',
+      () async {
+    const removed = [
+      'manga_tracking_rows',
+      'manga_tracking_unit_rows',
+      'tv_custom_episode_rows',
+      'tv_tracking_rows',
+      'tv_tracking_unit_rows',
+      'tv_watch_session_rows',
+    ];
+    final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
+      _createReleasedEntryTables(raw);
+      for (final table in removed) {
+        raw.execute('CREATE TABLE $table (id TEXT NOT NULL PRIMARY KEY)');
+      }
+      raw.execute("INSERT INTO library_entries VALUES "
+          "('e1', 'music', '{\"personal_data\":{}}', 0, NULL)");
+      raw.execute('PRAGMA user_version = 2');
+    }));
+    addTearDown(db.close);
+
+    final tables = await db
+        .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
+        .map((row) => row.read<String>('name'))
+        .get();
+    expect(tables, isNot(anyElement(isIn(removed))));
+    final kept = await db
+        .customSelect('SELECT id FROM library_entries')
+        .map((row) => row.read<String>('id'))
+        .get();
+    expect(kept, ['e1']);
+  });
+
   test('upgrades released schema 2 tags from comma-separated text to lists',
       () async {
     final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {

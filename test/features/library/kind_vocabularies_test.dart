@@ -8,11 +8,8 @@ import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocab
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 import '../../support/contracts/concrete_kind_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -62,27 +59,18 @@ void main() {
     });
 
     test(
-        'Movie & TV vocabularies have packaging, distributor, screen ratio, audio, subtitles',
+        'Movie vocabularies have packaging, distributor, screen ratio, audio, subtitles',
         () {
       expect(MovieVocabularies.packaging.builtIns, contains('Steelbook'));
       expect(MovieVocabularies.distributor.builtIns,
           contains('Criterion Collection'));
       expect(MovieVocabularies.audio.builtIns, contains('Dolby Atmos'));
       expect(MovieVocabularies.hdr.builtIns, contains('Dolby Vision'));
-
-      expect(TvVocabularies.network.builtIns, contains('HBO'));
-      expect(TvVocabularies.packaging.builtIns,
-          contains('Complete Series Box Set'));
     });
 
-    test(
-        'Anime & Manga vocabularies have demographic, studio, serialization, format',
-        () {
+    test('Anime vocabularies have demographic and studio', () {
       expect(AnimeVocabularies.demographic.builtIns, contains('Shounen'));
       expect(AnimeVocabularies.studio.builtIns, contains('Kyoto Animation'));
-      expect(MangaVocabularies.serialization.builtIns,
-          contains('Weekly Shonen Jump'));
-      expect(MangaVocabularies.publisher.builtIns, contains('VIZ Media'));
     });
 
     test('Book, Music, and BoardGame vocabularies are properly registered', () {
@@ -135,15 +123,7 @@ void main() {
         ),
         contains('Digipak'),
       );
-      expect(
-        TvVocabularies.screenRatio.valuesFrom!(
-          const TvMetadata(
-            title: 'Typed Series',
-            screenRatio: '1.78:1 (16:9)',
-          ),
-        ),
-        contains('1.78:1 (16:9)'),
-      );
+
       expect(
         GameVocabularies.format.valuesFrom!(
           const GameCatalogMetadata(

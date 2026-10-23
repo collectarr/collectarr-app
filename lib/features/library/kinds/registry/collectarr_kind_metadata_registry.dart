@@ -10,10 +10,8 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardware_module.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final Map<CatalogMediaKind, List<PhysicalMediaFormat>>
     collectarrKindPhysicalMediaFormats =
@@ -25,10 +23,8 @@ final Map<CatalogMediaKind, List<PhysicalMediaFormat>>
   CatalogMediaKind.game: gameKindPhysicalMediaFormats,
   CatalogMediaKind.gameHardware: gameHardwareKindPhysicalMediaFormats,
   CatalogMediaKind.gameToy: gameToyKindPhysicalMediaFormats,
-  CatalogMediaKind.manga: mangaKindPhysicalMediaFormats,
   CatalogMediaKind.movie: movieKindPhysicalMediaFormats,
   CatalogMediaKind.music: musicKindPhysicalMediaFormats,
-  CatalogMediaKind.tv: tvKindPhysicalMediaFormats,
 });
 
 final Map<CatalogMediaKind, LibraryMediaPresentation>
@@ -41,10 +37,8 @@ final Map<CatalogMediaKind, LibraryMediaPresentation>
   CatalogMediaKind.game: gameKindPresentation,
   CatalogMediaKind.gameHardware: gameHardwareKindPresentation,
   CatalogMediaKind.gameToy: gameToyKindPresentation,
-  CatalogMediaKind.manga: mangaKindPresentation,
   CatalogMediaKind.movie: movieKindPresentation,
   CatalogMediaKind.music: musicKindPresentation,
-  CatalogMediaKind.tv: tvKindPresentation,
 });
 
 final Map<CatalogMediaKind, LibraryMetadataCapability> collectarrKindMetadata =
@@ -56,8 +50,6 @@ final Map<CatalogMediaKind, LibraryMetadataCapability> collectarrKindMetadata =
   CatalogMediaKind.game: gameKindMetadata,
   CatalogMediaKind.gameHardware: gameHardwareKindMetadata,
   CatalogMediaKind.gameToy: gameToyKindMetadata,
-  CatalogMediaKind.manga: mangaKindMetadata,
   CatalogMediaKind.movie: movieKindMetadata,
   CatalogMediaKind.music: musicKindMetadata,
-  CatalogMediaKind.tv: tvKindMetadata,
 });

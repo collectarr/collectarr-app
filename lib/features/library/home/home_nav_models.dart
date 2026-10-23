@@ -46,19 +46,9 @@ const _libraryNavGroupSpecs = [
     memberKinds: ['comic'],
   ),
   _LibraryNavGroupSpec(
-    id: 'manga',
-    label: 'Manga',
-    memberKinds: ['manga'],
-  ),
-  _LibraryNavGroupSpec(
     id: 'movie',
     label: 'Movies',
     memberKinds: ['movie'],
-  ),
-  _LibraryNavGroupSpec(
-    id: 'tv',
-    label: 'TV',
-    memberKinds: ['tv'],
   ),
   _LibraryNavGroupSpec(
     id: 'anime',

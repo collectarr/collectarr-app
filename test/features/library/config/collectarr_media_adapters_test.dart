@@ -26,4 +26,19 @@ void main() {
       equals(128),
     );
   });
+
+  for (final kind in [
+    CatalogMediaKind.game,
+    CatalogMediaKind.gameHardware,
+    CatalogMediaKind.gameToy,
+  ]) {
+    test('$kind keeps portrait covers in grid and card layouts', () {
+      final type = libraryKindRegistration(kind);
+      final profile = libraryViewProfileForKind(kind);
+      final height =
+          libraryWorkspaceGridMainAxisExtent(type: type, coverSize: 140);
+      expect(height, closeTo(200, 0.001));
+      expect(1 / profile.coverGridHeightFactor, closeTo(0.7, 0.001));
+    });
+  }
 }

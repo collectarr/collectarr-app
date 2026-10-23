@@ -9,7 +9,7 @@ void main() {
         CatalogMediaKind.values.where((kind) => !kind.isUnknown).toSet();
 
     expect(kindContractManifest.activeKinds, equals(enumKinds));
-    expect(kindContractManifest.activeKinds, hasLength(11));
+    expect(kindContractManifest.activeKinds, hasLength(9));
   });
 
   test('every mandatory contract includes every active kind', () {
@@ -78,12 +78,10 @@ void main() {
       CatalogMediaKind.game,
       CatalogMediaKind.movie,
       CatalogMediaKind.music,
-      CatalogMediaKind.tv,
     };
     const videoReleaseKinds = {
       CatalogMediaKind.anime,
       CatalogMediaKind.movie,
-      CatalogMediaKind.tv,
     };
 
     expect(
@@ -117,7 +115,7 @@ void main() {
     );
     expect(
       kindContractManifest.optionalParticipants['activity'],
-      equals({CatalogMediaKind.anime, CatalogMediaKind.tv}),
+      equals({CatalogMediaKind.anime}),
     );
   });
 }

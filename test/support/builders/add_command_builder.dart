@@ -14,10 +14,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_ad
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 
 import 'catalog_item_builder.dart';
 
@@ -78,10 +76,8 @@ LibraryAddKindDraft? _addDraftWithGrade(CatalogMediaKind kind, String? grade) {
     CatalogMediaKind.game => GameAddDraft(grade: grade),
     CatalogMediaKind.gameHardware => GameHardwareAddDraft(grade: grade),
     CatalogMediaKind.gameToy => GameToyAddDraft(grade: grade),
-    CatalogMediaKind.manga => MangaAddDraft(grade: grade),
     CatalogMediaKind.movie => MovieAddDraft(grade: grade),
     CatalogMediaKind.music => MusicAddDraft(grade: grade),
-    CatalogMediaKind.tv => TvAddDraft(grade: grade),
     CatalogMediaKind.unknown => null,
   };
 }

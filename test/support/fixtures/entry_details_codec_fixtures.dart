@@ -14,14 +14,10 @@ import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details_codec.dart';
 
 /// Test-only adapter for executing the same serialization contract against
 /// concrete kind codecs. Production code does not use a common details codec.
@@ -93,10 +89,6 @@ EntryDetailsTestFixture entryDetailsFixtureForTest(CatalogMediaKind kind) {
         decode: const GameToyEntryDetailsCodec().fromJson,
         defaults: const GameToyEntryDetailsCodec().defaultDetails,
       ),
-    CatalogMediaKind.manga => _TypedEntryDetailsTestFixture<MangaEntryDetails>(
-        decode: const MangaEntryDetailsCodec().fromJson,
-        defaults: const MangaEntryDetailsCodec().defaultDetails,
-      ),
     CatalogMediaKind.movie => _TypedEntryDetailsTestFixture<MovieEntryDetails>(
         decode: const MovieEntryDetailsCodec().fromJson,
         defaults: const MovieEntryDetailsCodec().defaultDetails,
@@ -104,10 +96,6 @@ EntryDetailsTestFixture entryDetailsFixtureForTest(CatalogMediaKind kind) {
     CatalogMediaKind.music => _TypedEntryDetailsTestFixture<MusicEntryDetails>(
         decode: const MusicEntryDetailsCodec().fromJson,
         defaults: const MusicEntryDetailsCodec().defaultDetails,
-      ),
-    CatalogMediaKind.tv => _TypedEntryDetailsTestFixture<TvEntryDetails>(
-        decode: const TvEntryDetailsCodec().fromJson,
-        defaults: const TvEntryDetailsCodec().defaultDetails,
       ),
     CatalogMediaKind.unknown =>
       throw ArgumentError('No concrete Entry details fixture for kind: $kind'),

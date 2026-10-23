@@ -24,10 +24,6 @@ import 'package:collectarr_app/features/library/kinds/game/config/game_field_ide
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_facets.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
-import 'package:collectarr_app/features/library/kinds/manga/config/manga_workspace_field_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_facets.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config/movie_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
@@ -41,9 +37,6 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_field_labels.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_groups.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config/tv_field_identities.dart';
-import 'package:collectarr_app/features/library/kinds/tv/config/tv_workspace_field_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_workspace_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -60,14 +53,10 @@ void main() {
     ...ComicWorkspaceFieldMetadata.all,
     ...GameFieldIdentities.all,
     ...GameWorkspaceFieldMetadata.all,
-    ...MangaFieldIdentities.all,
-    ...MangaWorkspaceFieldMetadata.all,
     ...MovieFieldIdentities.all,
     ...MovieWorkspaceFieldMetadata.all,
     ...MusicFieldIdentities.all,
     ...MusicWorkspaceFieldMetadata.all,
-    ...TvFieldIdentities.all,
-    ...TvWorkspaceFieldMetadata.all,
   ];
 
   test('all registered kind fields have complete, unique semantic identity',
@@ -277,7 +266,7 @@ void main() {
   });
 
   test('all workspace targets register fields with matching metadata', () {
-    expect(collectarrKindWorkspaces, hasLength(11));
+    expect(collectarrKindWorkspaces, hasLength(9));
 
     for (final workspace in collectarrKindWorkspaces.values) {
       for (final registry in [workspace.fields, workspace.libraryEntryFields]) {
@@ -314,10 +303,8 @@ void main() {
         ...bookLibraryFilterDefinitions,
         ...comicLibraryFilterDefinitions,
         ...gamesLibraryFilterDefinitions,
-        ...mangaLibraryFilterDefinitions,
         ...moviesLibraryFilterDefinitions,
         ...musicLibraryFilterDefinitions,
-        ...tvLibraryFilterDefinitions,
       ])
         filter.metadata.id,
     };
@@ -370,7 +357,6 @@ void main() {
       ...boardgameLibraryFacetDefinitions,
       ...comicLibraryFacetDefinitions,
       ...gameLibraryFacetDefinitions,
-      ...mangaLibraryFacetDefinitions,
       ...musicLibraryFacetDefinitions,
     ];
 
@@ -410,10 +396,8 @@ void main() {
       ...bookLibraryFilterDefinitions,
       ...comicLibraryFilterDefinitions,
       ...gamesLibraryFilterDefinitions,
-      ...mangaLibraryFilterDefinitions,
       ...moviesLibraryFilterDefinitions,
       ...musicLibraryFilterDefinitions,
-      ...tvLibraryFilterDefinitions,
     ];
 
     for (final definition in definitions) {

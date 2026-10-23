@@ -1,9 +1,5 @@
 // Kind marker types for static type safety across schemas and identifiers.
 
-sealed class MangaKind {
-  const MangaKind();
-}
-
 sealed class ComicKind {
   const ComicKind();
 }
@@ -22,10 +18,6 @@ sealed class BoardGameKind {
 
 sealed class MovieKind {
   const MovieKind();
-}
-
-sealed class TvKind {
-  const TvKind();
 }
 
 sealed class AnimeKind {

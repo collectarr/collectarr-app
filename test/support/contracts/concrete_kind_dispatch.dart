@@ -15,10 +15,8 @@ LibraryKindRegistration testKindRegistration(CatalogMediaKind kind) {
     CatalogMediaKind.game => const GameRegistration(),
     CatalogMediaKind.gameHardware => const GameHardwareRegistration(),
     CatalogMediaKind.gameToy => const GameToyRegistration(),
-    CatalogMediaKind.manga => const MangaRegistration(),
     CatalogMediaKind.movie => const MovieRegistration(),
     CatalogMediaKind.music => const MusicRegistration(),
-    CatalogMediaKind.tv => const TvRegistration(),
     CatalogMediaKind.unknown =>
       throw ArgumentError.value(kind, 'kind', 'Unsupported kind'),
   };
@@ -33,10 +31,8 @@ LibraryKindWorkspace testKindWorkspace(CatalogMediaKind kind) {
     CatalogMediaKind.game => gameKindWorkspace,
     CatalogMediaKind.gameHardware => gameHardwareKindWorkspace,
     CatalogMediaKind.gameToy => gameToyKindWorkspace,
-    CatalogMediaKind.manga => mangaKindWorkspace,
     CatalogMediaKind.movie => movieKindWorkspace,
     CatalogMediaKind.music => musicKindWorkspace,
-    CatalogMediaKind.tv => tvKindWorkspace,
     CatalogMediaKind.unknown =>
       throw ArgumentError.value(kind, 'kind', 'Unsupported kind'),
   };

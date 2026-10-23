@@ -46,7 +46,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Switch Library'), findsOneWidget);
-    expect(find.text('Manga'), findsNothing);
+    expect(find.text('Book'), findsNothing);
     expect(find.text('Movies'), findsNothing);
     expect(find.text('Books'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('kind_picker_item_music')));

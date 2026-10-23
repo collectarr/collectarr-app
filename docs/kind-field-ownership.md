@@ -40,21 +40,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `pricePaid`, `location`, `lastBagBoardDate`| Personal Data | Storage and acquisition records |
 | `valuations` (`ValuationSnapshot`) | Personal Data | Valuation snapshots (e.g. CovrPrice, manual) |
 
-### 2. Manga
-| Field | Scope | Description |
-|---|---|---|
-| `nativeTitle`, `romajiTitle`, `englishTitle` | Catalog Item Metadata | Multi-lingual work titles |
-| `authors`, `artists` | Catalog Item Metadata | Mangaka creators |
-| `demographic`, `genres`, `themes` | Catalog Item Metadata | Target demographic (Shonen, Seinen, etc.) and genres |
-| `readingDirection` | Catalog Item Metadata | Right-to-left canonical direction |
-| `originalPublisher`, `serialization` | Catalog Item Metadata | Original Japanese publisher and magazine |
-| `volumeNumber`, `chapterCount`, `totalVolumes`| Catalog Item Metadata | Tankobon volume and chapter specs |
-| `editionFormat` (tankobon, kanzenban, etc.) | Catalog Item Metadata | Physical edition format |
-| `isbn`, `barcode`, `localizedPublisher` | Catalog Item Metadata | Regional publication identifiers |
-| `condition`, `pricePaid`, `location` | Personal Data | Copy status and shelf placement |
-| `signedBy`, `slipcoverPresent`, `obiStripPresent` | Personal Data | Manga-specific collector preservation elements |
-
-### 3. Anime
+### 2. Anime
 | Field | Scope | Description |
 |---|---|---|
 | `nativeTitle`, `romajiTitle`, `englishTitle` | Catalog Item Metadata | Anime work titles |
@@ -67,7 +53,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `condition`, `storageDevice`, `storageSlot`| Personal Data | Copy location and state |
 | `watchSessions`, `progress` | Derived / Session | Personal tracking history |
 
-### 4. Book
+### 3. Book
 | Field | Scope | Description |
 |---|---|---|
 | `title`, `subtitle`, `sortTitle`, `synopsis`| Catalog Item Metadata | Canonical book title and overview |
@@ -81,7 +67,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `condition`, `signedBy`, `pricePaid` | Personal Data | Personal copy condition |
 | `dustJacketPresent`, `dustJacketCondition` | Personal Data | Dust jacket collector data |
 
-### 5. Game
+### 4. Game
 | Field | Scope | Description |
 |---|---|---|
 | `title`, `franchise`, `series`, `genres` | Catalog Item Metadata | Canonical game IP and series |
@@ -93,7 +79,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `hasBox`, `hasManual`, `valueLocked` | Personal Data | Box/manual presence and valuation lock |
 | `priceChartingId`, `valuations` | Personal Data | A user-owned valuation snapshot and its optional PriceCharting reference. The reference is stored locally with the entry; Collectarr does not query or ingest PriceCharting data. |
 
-### 6. Board Game
+### 5. Board Game
 | Field | Scope | Description |
 |---|---|---|
 | `title`, `originalTitle`, `synopsis` | Catalog Item Metadata | Game identity and description |
@@ -107,7 +93,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `isSleeved`, `hasCustomInsert`, `paintedMiniatures`| Personal Data | Collector upgrades and storage notes |
 | `playSessions`, `playStats` | Derived / Session | Dynamic session tracking and win stats |
 
-### 7. Movie
+### 6. Movie
 | Field | Scope | Description |
 |---|---|---|
 | `title`, `originalTitle`, `sortTitle` | Catalog Item Metadata | Canonical movie title |
@@ -118,18 +104,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `region`, `discCount`, `distributor` | Catalog Item Metadata | Distributor and region coding |
 | `condition`, `storageLocation`, `pricePaid` | Personal Data | Personal collection records |
 
-### 8. TV
-| Field | Scope | Description |
-|---|---|---|
-| `seriesTitle`, `originalTitle`, `synopsis` | Catalog Item Metadata | TV show identity |
-| `creators`, `cast`, `networks`, `genres` | Catalog Item Metadata | Network and creative credits |
-| `seasonCount`, `episodeCount`, `status` | Catalog Item Metadata | Series structure and airing status |
-| `seasons` (`TvSeasonMetadata`), `episodes` | Catalog Item Metadata | Canonical seasons and episode graph |
-| `boxSetRelease` (Blu-ray, DVD), `discs` | Catalog Item Metadata | Physical home release |
-| `condition`, `storageLocation` | Personal Data | Personal copy data |
-| `episodeSeenState`, `watchHistory` | Derived / Session | User viewing tracking |
-
-### 9. Music
+### 7. Music
 | Field | Scope | Description |
 |---|---|---|
 | `title`, `artist`, `originalReleaseDate` | Catalog Item Metadata | Canonical album and recording artist |

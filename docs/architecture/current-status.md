@@ -13,7 +13,7 @@ contracts. Published release v1.2.0 contains Music only; the Games family ships
 with the next release. Hardware and Toys are separate kinds with their own
 collections, models and Core catalogs, and store their entries in the shared
 library entry table; Game also has its own tracking table. The other kinds
-(Comic, Manga, Book, Board Game, Movie, TV, Anime) remain isolated source
+(Comic, Book, Board Game, Movie, Anime) remain isolated source
 modules under `lib/features/library/kinds/`; a fresh database creates shared,
 Music and Game tables only. Releasing another kind means its own tables where
 needed, an explicit migration and its own verification.
@@ -23,7 +23,8 @@ needed, an explicit migration and its own verification.
 The Drift root is `lib/core/db/local_database.dart`, schema version 3, stored
 as `collectarr-library.sqlite` in application support. Version 1 is the first
 baseline: previous database and backup formats are not read. Version 2 added
-borrower contact details and version 3 the Game tables. From here on every
+borrower contact details; version 3 added the Game tables and dropped the
+removed TV and Manga tables. From here on every
 schema change is an explicit, ordered, data-preserving migration; a database is
 never reset to make an upgrade work. See [local persistence](local-persistence.md).
 
@@ -98,6 +99,3 @@ Gilroy is never bundled.
   provisional.
 - Native pointer-driven comparison with the reference is done on Web; Windows
   rendering is checked separately.
-- With `--kinds=all`, two unreleased-kind tests fail: the Manga preferences
-  isolation test needs the unregistered Comic kind, and the TV watch-session
-  sync test does not persist. Released-kind runs are unaffected.

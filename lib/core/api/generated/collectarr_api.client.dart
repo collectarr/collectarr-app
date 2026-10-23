@@ -82,10 +82,8 @@ class CollectarrApiClient {
       CatalogMediaKind.game: 'games',
       CatalogMediaKind.gameHardware: 'game-hardware',
       CatalogMediaKind.gameToy: 'game-toys',
-      CatalogMediaKind.manga: 'manga',
       CatalogMediaKind.movie: 'movies',
       CatalogMediaKind.music: 'music',
-      CatalogMediaKind.tv: 'tv',
     };
     final route = routes[kind];
     if (route == null) throw UnsupportedError('Unknown Catalog Item kind.');
