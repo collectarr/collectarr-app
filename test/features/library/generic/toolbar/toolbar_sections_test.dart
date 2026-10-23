@@ -265,8 +265,8 @@ void main() {
         ['Manage Favorites', 'Essential', 'Pricing']);
     expect(splitButton.entries.map((entry) => entry.section),
         [null, 'Favorites', null]);
-    expect(splitButton.entries.map((entry) => entry.active),
-        [false, true, false]);
+    expect(
+        splitButton.entries.map((entry) => entry.active), [false, true, false]);
 
     splitButton.onPressed?.call();
     await tester.pump();
