@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/ui/library_management_page.dart'
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -245,6 +246,9 @@ class _LibraryFindDuplicatesPageState
             ),
       child: Builder(builder: (context) {
         final palette = appPalette(context);
+        // The bar is dark in both themes; the select keeps the content
+        // theme, white in the light skin as in the reference.
+        final contentTheme = Theme.of(context);
         final criterionField = SizedBox(
           width: 160,
           child: CompactSearchDropdownFormField<LibraryDuplicateCriterion>(
@@ -282,7 +286,7 @@ class _LibraryFindDuplicatesPageState
             onPressed: _busy ? null : _find,
             child: const Text('Find Duplicates'));
         return Column(children: [
-          LayoutBuilder(builder: (context, constraints) {
+          AppDarkChrome(child: LayoutBuilder(builder: (context, constraints) {
             final count = groups == null
                 ? null
                 : Text(
@@ -293,7 +297,7 @@ class _LibraryFindDuplicatesPageState
                     style: const TextStyle(fontWeight: FontWeight.w700));
             final controls = <Widget>[
               const Text('Find duplicates based on'),
-              criterionField,
+              Theme(data: contentTheme, child: criterionField),
               findButton,
             ];
             final columnsButton = IconButton(
@@ -333,7 +337,7 @@ class _LibraryFindDuplicatesPageState
                 columnsButton,
               ]),
             );
-          }),
+          })),
           if (_busy) const LinearProgressIndicator(),
           if (_error != null)
             Padding(
