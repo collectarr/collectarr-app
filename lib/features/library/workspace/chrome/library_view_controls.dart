@@ -124,6 +124,10 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
     final accent = appPalette(context).utilityAction;
     final menuText = libraryToolbarMenuText(context);
     final menuMuted = libraryToolbarMenuMutedText(context);
+    // The trigger sits on the dark toolbar; only its popup follows the
+    // content skin.
+    final triggerText = appPalette(context).textPrimary;
+    final triggerMuted = appPalette(context).textMuted;
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
           fontWeight: FontWeight.w400,
@@ -201,7 +205,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
                         buildDetailsLayoutGlyph(
                           detailsLayout,
                           size: 15,
-                          color: menuText,
+                          color: triggerText,
                         ),
                         if (!iconOnly) ...[
                           const SizedBox(width: 4),
@@ -210,12 +214,12 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w400,
-                              color: menuText,
+                              color: triggerText,
                             ),
                           ),
                         ],
                         const SizedBox(width: 4),
-                        Icon(AppIcons.chevronDown, size: 12, color: menuMuted),
+                        Icon(AppIcons.chevronDown, size: 12, color: triggerMuted),
                       ],
                     ),
                   )))
@@ -251,8 +255,8 @@ class LibraryGroupPresentationToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = libraryToolbarMenuText(context);
-    final muted = libraryToolbarMenuMutedText(context);
+    final palette = appPalette(context).textPrimary;
+    final muted = appPalette(context).textMuted;
     return Semantics(
       label: 'Shelf group display',
       child: SegmentedButton<LibraryGroupPresentation>(

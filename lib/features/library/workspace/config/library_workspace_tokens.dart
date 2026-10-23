@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -196,23 +197,29 @@ extension LibraryWorkspaceDensityPresetMetrics
   }
 }
 
+// Toolbar popups follow the content skin: the reference light skin opens
+// white menus (#DDD border and hover, #333 text) from its dark toolbars.
+AppThemePalette _toolbarMenuPalette(BuildContext context) =>
+    AppDarkChrome.overLightContent(context)
+        ? kLightAppThemePalette
+        : appPalette(context);
 Color libraryToolbarMenuSurface(BuildContext context) =>
-    appPalette(context).isDark
+    _toolbarMenuPalette(context).isDark
         ? const Color(0xff444444)
-        : appPalette(context).panelRaised;
+        : _toolbarMenuPalette(context).panelRaised;
 Color libraryToolbarMenuBorder(BuildContext context) =>
-    appPalette(context).isDark
+    _toolbarMenuPalette(context).isDark
         ? const Color(0xff666666)
-        : appPalette(context).divider;
+        : _toolbarMenuPalette(context).divider;
 
 Color libraryToolbarMenuText(BuildContext context) =>
-    appPalette(context).textPrimary;
+    _toolbarMenuPalette(context).textPrimary;
 Color libraryToolbarMenuMutedText(BuildContext context) =>
-    appPalette(context).textMuted;
+    _toolbarMenuPalette(context).textMuted;
 Color libraryToolbarMenuHover(BuildContext context) =>
-    appPalette(context).isDark
+    _toolbarMenuPalette(context).isDark
         ? const Color(0xff464950)
-        : appPalette(context).highlight;
+        : _toolbarMenuPalette(context).badgeBackground;
 Color libraryToolbarControlSurface(BuildContext context) =>
     libraryWorkspaceToolbarColor(context);
 Color libraryToolbarControlBorder(BuildContext context) =>

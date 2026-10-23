@@ -128,7 +128,7 @@ class _LibraryGroupModeMenuButtonState
         final label = widget.folderPreset == null
             ? 'Group By'
             : genericFolderPresetLabel(widget.folderPreset!, widget.type);
-        final triggerColor = libraryToolbarMenuText(context);
+        final triggerColor = appPalette(context).textPrimary;
         final child = widget.iconOnly
             ? LibraryToolbarCompactDropdownTrigger(icon: widget.icon)
             : Container(

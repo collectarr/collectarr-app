@@ -100,9 +100,7 @@ class _LibraryCollectionStatusScopeDropdownState
         padding: EdgeInsets.zero,
         menuPadding: EdgeInsets.zero,
         position: PopupMenuPosition.under,
-        color: Theme.of(context).brightness == Brightness.dark
-            ? const Color(0xFF444444)
-            : libraryToolbarMenuSurface(context),
+        color: libraryToolbarMenuSurface(context),
         surfaceTintColor: Colors.transparent,
         constraints: const BoxConstraints(
           minWidth: 0,

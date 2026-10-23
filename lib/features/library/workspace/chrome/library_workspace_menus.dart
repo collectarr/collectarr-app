@@ -123,11 +123,15 @@ class LibraryWorkspaceMenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveTextStyle = textStyle ??
-        Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: libraryToolbarMenuText(context),
-              fontWeight: FontWeight.w400,
-            );
+    // Callers adjust size and weight; the menu's font and color stay.
+    final effectiveTextStyle = Theme.of(context)
+        .textTheme
+        .bodyMedium
+        ?.copyWith(
+          color: libraryToolbarMenuText(context),
+          fontWeight: FontWeight.w400,
+        )
+        .merge(textStyle);
     final content = Ink(
       decoration: BoxDecoration(color: backgroundColor ?? Colors.transparent),
       child: Padding(
@@ -139,11 +143,11 @@ class LibraryWorkspaceMenuRow extends StatelessWidget {
                 width: leadingWidth,
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: leading,
+                  child: _menuIcon(context, leading),
                 ),
               )
             else if (leading != null)
-              leading!,
+              _menuIcon(context, leading!),
             if (leading != null || leadingWidth != null)
               SizedBox(width: leadingSpacing),
             Expanded(
@@ -220,3 +224,8 @@ class LibraryWorkspaceMenuTreeHeader extends StatelessWidget {
     );
   }
 }
+
+/// Menu glyphs take the menu's text color unless they set their own.
+Widget _menuIcon(BuildContext context, Widget? icon) => IconTheme.merge(
+    data: IconThemeData(color: libraryToolbarMenuText(context)),
+    child: icon ?? const SizedBox.shrink());

@@ -30,8 +30,31 @@ class AppDarkChrome extends StatelessWidget {
       selection: Color.alphaBlend(
           accent.withValues(alpha: 0.22), kDefaultAppThemePalette.panel),
     );
-    final theme = buildLibraryAccentTheme(
+    final darkTheme = buildLibraryAccentTheme(
         buildAppShellTheme(palette: darkPalette), accent);
+    // Popups opened from the dark chrome follow the light content, as the
+    // reference's white toolbar menus do.
+    final ink = palette.textPrimary;
+    final itemText = WidgetStatePropertyAll(
+        (darkTheme.textTheme.bodyMedium ?? const TextStyle())
+            .copyWith(color: ink));
+    final theme = darkTheme.copyWith(
+      popupMenuTheme: darkTheme.popupMenuTheme.copyWith(
+        color: palette.panelRaised,
+        surfaceTintColor: Colors.transparent,
+        textStyle: TextStyle(color: ink),
+        labelTextStyle: itemText,
+        iconColor: ink,
+      ),
+      menuButtonTheme: MenuButtonThemeData(
+        style:
+            (darkTheme.menuButtonTheme.style ?? const ButtonStyle()).copyWith(
+          foregroundColor: WidgetStatePropertyAll(ink),
+          iconColor: WidgetStatePropertyAll(ink),
+          textStyle: itemText,
+        ),
+      ),
+    );
     return Theme(
       data: theme,
       child: DefaultTextStyle.merge(
@@ -45,8 +68,14 @@ class AppDarkChrome extends StatelessWidget {
   }
 }
 
-class _OverLightContent extends InheritedWidget {
+// An InheritedTheme, so popups opened from the chrome still know that the
+// content is light.
+class _OverLightContent extends InheritedTheme {
   const _OverLightContent({required super.child});
+
+  @override
+  Widget wrap(BuildContext context, Widget child) =>
+      _OverLightContent(child: child);
 
   @override
   bool updateShouldNotify(_OverLightContent oldWidget) => false;
