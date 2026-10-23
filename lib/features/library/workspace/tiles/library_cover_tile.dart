@@ -130,7 +130,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                                   fallbackAspectRatio:
                                       widget.fallbackCoverAspectRatio,
                                   accentColor: widget.accentColor,
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.contain,
                                   enableFullscreen: false,
                                   enableSecondaryControl: false,
                                   showFrame: false,

@@ -347,9 +347,16 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
             ? libraryWorkspaceSelectionBackground(context)
             : selectedColor)
         : palette.panelRaised;
-    final titleColor =
-        selected ? kLibraryCardTitleColor : kLibraryCardTitleIdle;
-    final detailColor = selected ? Colors.white : kLibraryCardDetailIdle;
+    final titleColor = selected
+        ? kLibraryCardTitleColor
+        : palette.isDark
+            ? kLibraryCardTitleIdle
+            : palette.textPrimary;
+    final detailColor = selected
+        ? Colors.white
+        : palette.isDark
+            ? kLibraryCardDetailIdle
+            : palette.textMuted;
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -392,7 +399,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                         context: context,
                                         coverCacheWidth: coverCacheWidth,
                                         presentation: presentation,
-                                        fit: BoxFit.cover,
+                                        fit: BoxFit.contain,
                                         borderRadius: 0,
                                       ),
                                       Positioned(

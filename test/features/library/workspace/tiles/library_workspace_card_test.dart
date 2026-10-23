@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_footer.dart';
 import 'dart:ui' as ui;
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
@@ -117,6 +119,37 @@ Widget _host(
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  testWidgets('light vertical cards keep readable titles before selection',
+      (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        localItemImageProvider
+            .overrideWith((ref, request) => Stream.value(null))
+      ],
+      child: MaterialApp(
+        theme: buildAppShellTheme(palette: kLightAppThemePalette),
+        home: Scaffold(
+            body: SizedBox(
+          width: 180,
+          height: 300,
+          child: LibraryWorkspaceCard(
+              item: _item(),
+              selected: false,
+              onTap: () {},
+              cardLayout: LibraryCardLayout.vertical),
+        )),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    final title = tester.widget<Text>(find.text('Album'));
+    final ink = title.style!.color!.computeLuminance();
+    final paper = kLightAppThemePalette.panelRaised.computeLuminance();
+    expect((paper + 0.05) / (ink + 0.05), greaterThanOrEqualTo(4.5));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
 
   for (final width in [160.0, 240.0]) {
     testWidgets('card footer reserves value and status space at $width px',
