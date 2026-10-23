@@ -60,16 +60,29 @@ class LibraryFieldSpecLayout<TDraft> extends StatelessWidget {
                   if (row.any((id) => fieldsById[id]!.isVisible(draft)))
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: LibraryResponsiveFieldLayout(
-                        maxColumns: row.length,
-                        spacing: 14,
-                        columnBreakpoints: const {2: 300},
-                        children: [
-                          for (final id in row)
-                            if (fieldsById[id]!.isVisible(draft))
-                              buildField(fieldsById[id]!),
-                        ],
-                      ),
+                      child: row.any(column.fieldFlex.containsKey)
+                          ? _WeightedRow(
+                              flexes: [
+                                for (final id in row)
+                                  if (fieldsById[id]!.isVisible(draft))
+                                    column.fieldFlex[id] ?? 1,
+                              ],
+                              children: [
+                                for (final id in row)
+                                  if (fieldsById[id]!.isVisible(draft))
+                                    buildField(fieldsById[id]!),
+                              ],
+                            )
+                          : LibraryResponsiveFieldLayout(
+                              maxColumns: row.length,
+                              spacing: 14,
+                              columnBreakpoints: const {2: 300},
+                              children: [
+                                for (final id in row)
+                                  if (fieldsById[id]!.isVisible(draft))
+                                    buildField(fieldsById[id]!),
+                              ],
+                            ),
                     ),
               ],
             ),
@@ -101,4 +114,36 @@ class LibraryFieldSpecLayout<TDraft> extends StatelessWidget {
       children: [for (final field in visibleFields) buildField(field)],
     );
   }
+}
+
+/// Fields side by side in relative widths, stacked below 300 px as the
+/// regular rows are.
+class _WeightedRow extends StatelessWidget {
+  const _WeightedRow({required this.flexes, required this.children});
+
+  final List<int> flexes;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (context, constraints) => constraints.maxWidth < 300
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < children.length; i++) ...[
+                    if (i > 0) const SizedBox(height: 14),
+                    children[i],
+                  ],
+                ],
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var i = 0; i < children.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 14),
+                    Expanded(flex: flexes[i], child: children[i]),
+                  ],
+                ],
+              ),
+      );
 }

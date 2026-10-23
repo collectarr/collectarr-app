@@ -358,7 +358,9 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                         if (widget.footerContent != null)
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                            // Aligned with the tab content, as the
+                            // reference's Collection Status row is.
+                            padding: const EdgeInsets.fromLTRB(15, 5, 15, 8),
                             decoration: BoxDecoration(
                               color: p.panel,
                               border: Border(

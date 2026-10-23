@@ -20,7 +20,11 @@ LibraryFormSectionSpec<TDraft> gameMainFormSection<TDraft>({
       [GameMainFieldIds.edition, GameMainFieldIds.region],
       [GameMainFieldIds.audienceRating],
       [GameMainFieldIds.genre],
-    ]),
+    ], fieldFlex: {
+      // The reference gives Edition 331 px and Region 233 px.
+      GameMainFieldIds.edition: 10,
+      GameMainFieldIds.region: 7,
+    }),
   ];
   final fieldsById = {for (final field in fields) field.id: field};
   return LibraryFormSectionSpec<TDraft>(

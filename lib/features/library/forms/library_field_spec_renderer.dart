@@ -93,6 +93,9 @@ class _LibraryFieldSpecRendererState<TDraft>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final section in sections) ...[
+          // Spacing separates sections; none trails the last one.
+          if (section != sections.first)
+            SizedBox(height: widget.sectionSpacing),
           if (section.label.trim().isNotEmpty) ...[
             Text(section.label, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
@@ -107,7 +110,6 @@ class _LibraryFieldSpecRendererState<TDraft>
             rightAlignedFieldIds: section.rightAlignedFieldIds,
             columns: section.columns,
           ),
-          SizedBox(height: widget.sectionSpacing),
         ],
       ],
     );

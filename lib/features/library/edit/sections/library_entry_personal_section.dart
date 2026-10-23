@@ -393,26 +393,41 @@ class _LibraryEntryStatusStripState
               for (final spec in specs) _buildField(draft, spec),
             ];
             final wide = constraints.maxWidth >= 720;
+            final locationIndex = specs.indexWhere((spec) =>
+                spec.inputKind == PersonalLibraryFieldEditor.location);
             if (wide) {
+              // The reference strip follows the form's two halves: Collection
+              // Status 282 px, Index and Quantity 134 px, Location the right
+              // half.
+              Widget row(List<int> indexes) => Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final i in indexes) ...[
+                        if (i != indexes.first) const SizedBox(width: 14),
+                        Expanded(
+                          flex: specs[i].inputKind ==
+                                  PersonalLibraryFieldEditor.collectionStatus
+                              ? 282
+                              : 134,
+                          child: fields[i],
+                        ),
+                      ],
+                    ],
+                  );
+              final others = [
+                for (var i = 0; i < fields.length; i++)
+                  if (i != locationIndex) i,
+              ];
+              if (locationIndex < 0) return row(others);
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (var i = 0; i < fields.length; i++) ...[
-                    if (i > 0) const SizedBox(width: 14),
-                    Expanded(
-                      flex: switch (specs[i].inputKind) {
-                        PersonalLibraryFieldEditor.collectionStatus => 2,
-                        PersonalLibraryFieldEditor.location => 4,
-                        _ => 1,
-                      },
-                      child: fields[i],
-                    ),
-                  ],
+                  Expanded(child: row(others)),
+                  const SizedBox(width: 14),
+                  Expanded(child: fields[locationIndex]),
                 ],
               );
             }
-            final locationIndex = specs.indexWhere((spec) =>
-                spec.inputKind == PersonalLibraryFieldEditor.location);
             if (fields.length == 4 &&
                 locationIndex == 3 &&
                 constraints.maxWidth >= 440) {
