@@ -10,8 +10,6 @@ import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_de
 abstract final class GameVocabularyIds {
   static const platform = VocabularyId<String>('game.platform');
   static const region = VocabularyId<String>('game.region');
-  static const edition = VocabularyId<String>('game.edition');
-  static const ageRating = VocabularyId<String>('game.age_rating');
   static const condition = VocabularyId<String>('game.condition');
   static const audienceRating = VocabularyId<String>('game.audience_rating');
   static const series = VocabularyId<String>('game.series');
@@ -200,48 +198,6 @@ abstract final class GameVocabularies {
     ],
   );
 
-  static const edition = VocabularyDefinition<String>(
-    id: GameVocabularyIds.edition,
-    label: 'Edition / Format',
-    valuesFrom:
-        TypedVocabularyProjector<GameCatalogMetadata>(_editionCatalogValues),
-    builtIns: [
-      'Standard Edition',
-      "Collector's Edition",
-      'Limited Edition',
-      'Deluxe Edition',
-      'Steelbook Edition',
-      'Day One Edition',
-      'Game of the Year Edition',
-      'Complete Edition',
-      'Greatest Hits / Platinum',
-    ],
-  );
-
-  static const ageRating = VocabularyDefinition<String>(
-    id: GameVocabularyIds.ageRating,
-    label: 'Age Rating',
-    valuesFrom:
-        TypedVocabularyProjector<GameCatalogMetadata>(_ageRatingCatalogValues),
-    builtIns: [
-      'ESRB: Everyone (E)',
-      'ESRB: Everyone 10+ (E10+)',
-      'ESRB: Teen (T)',
-      'ESRB: Mature 17+ (M)',
-      'ESRB: Adults Only 18+ (AO)',
-      'PEGI 3',
-      'PEGI 7',
-      'PEGI 12',
-      'PEGI 16',
-      'PEGI 18',
-      'CERO A',
-      'CERO B',
-      'CERO C',
-      'CERO D',
-      'CERO Z',
-    ],
-  );
-
   static const condition = VocabularyDefinition<String>(
     id: GameVocabularyIds.condition,
     label: 'Condition',
@@ -338,8 +294,6 @@ abstract final class GameVocabularies {
   static const all = <VocabularyDefinition<dynamic>>[
     platform,
     region,
-    edition,
-    ageRating,
     condition,
     audienceRating,
     series,
@@ -357,18 +311,6 @@ Iterable<String?> _platformCatalogValues(GameCatalogMetadata metadata) sync* {
 
 Iterable<String?> _regionCatalogValues(GameCatalogMetadata metadata) {
   return vocabularyValues([metadata.releaseRegion]);
-}
-
-Iterable<String?> _editionCatalogValues(GameCatalogMetadata metadata) sync* {
-  yield* vocabularyValues([
-    metadata.editionTitle,
-    metadata.physicalFormatLabel,
-    metadata.physicalFormat,
-  ]);
-}
-
-Iterable<String?> _ageRatingCatalogValues(GameCatalogMetadata metadata) {
-  return vocabularyValues([metadata.ageRating]);
 }
 
 Iterable<String?> _audienceRatingCatalogValues(GameCatalogMetadata metadata) =>

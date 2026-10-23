@@ -41,7 +41,6 @@ void main() {
       expect(GameVocabularies.platform.builtIns, contains('Nintendo Switch'));
       expect(
           GameVocabularies.region.builtIns, contains('NTSC-U/C (US/Canada)'));
-      expect(GameVocabularies.ageRating.builtIns, contains('ESRB: Teen (T)'));
       expect(GameVocabularies.condition.builtIns,
           contains('Complete in Box (CIB)'));
       expect(GameVocabularies.format.builtIns, contains('Steam Download'));
@@ -56,6 +55,10 @@ void main() {
           'game.storage_device',
         ]),
       );
+      // As in the reference: Edition is free text and Audience Rating is the
+      // only rating list.
+      expect(GameVocabularies.all.map((vocabulary) => vocabulary.key),
+          isNot(anyOf(contains('game.edition'), contains('game.age_rating'))));
     });
 
     test(
@@ -142,13 +145,13 @@ void main() {
         contains('1.78:1 (16:9)'),
       );
       expect(
-        GameVocabularies.edition.valuesFrom!(
+        GameVocabularies.format.valuesFrom!(
           const GameCatalogMetadata(
             title: 'Typed Game',
-            physicalFormatLabel: 'Collector Edition',
+            physicalFormatLabel: 'Steam Download',
           ),
         ),
-        contains('Collector Edition'),
+        contains('Steam Download'),
       );
     });
 

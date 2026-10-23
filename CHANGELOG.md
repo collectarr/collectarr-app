@@ -30,6 +30,7 @@
 - The Games field that holds the collection status is labelled Collection Status instead of Completion, and a separate Completed field reads whether a game was finished.
 - Changing a purchase date on a game, hardware or toy updates its date folders and keeps year-only dates intact when other personal details are saved.
 - The Games Series column shows each game's series instead of staying empty.
+- Manage Pick Lists for Games no longer offers unused Age Rating and "Edition / Format" lists; Edition stays free text and Audience Rating is the rating list, as in CLZ.
 - The main menu's link entry names the open library's items, such as Link Games, instead of always saying Link Albums.
 
 ### ♻️ Refactors
