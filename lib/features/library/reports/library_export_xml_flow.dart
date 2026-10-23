@@ -16,7 +16,16 @@ Future<void> exportLibraryEntriesXml({
   required LocalDatabase database,
   required List<LibraryEntryRef> entries,
 }) async {
-  if (entries.isEmpty) return;
+  if (entries.isEmpty) {
+    await showAppMessageDialog(
+        context: context,
+        title: 'Export to XML',
+        message:
+            'There are no ${type.identity.pluralLabel.toLowerCase()} to export.',
+        confirmLabel: 'OK',
+        showCancel: false);
+    return;
+  }
   final confirmed = await showAppMessageDialog(
       context: context,
       title: 'Export to XML',
@@ -36,12 +45,13 @@ Future<void> exportLibraryEntriesXml({
           ]);
         });
     if (!context.mounted) return;
-    await showAppMessageDialog(
+    final download = await showAppMessageDialog(
         context: context,
         title: 'XML file generated successfully.',
         message: 'Click Download below to download it to your computer.',
         confirmLabel: 'Download',
         showCancel: false);
+    if (!download) return;
     await saveExportText(
         filename: 'collectarr-${type.kind.apiValue}.xml',
         content: content,

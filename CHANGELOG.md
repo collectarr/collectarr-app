@@ -9,7 +9,7 @@
 - The header account menu opens an overview of all local libraries, sync status and activity, and signs out without removing local collections.
 - Hardware has platform/device filters and personal serial numbers; Toys has its own classification, completeness and images.
 - Games supports platform and region search, atomic completeness and packaging values, purchase details, completion and storage tracking, front/back covers and trailers.
-- Games inventories include folders, sorting, columns (including Series, Collection Status and Completed), cards with portrait covers, details panels, guided CLZ XML import and lossless native CSV transfer.
+- Games inventories include folders, sorting, columns (including Series, Collection Status and Completed), cards with portrait covers, details panels, guided CLZ XML import, XML export and lossless native CSV transfer.
 - Libraries can provide default folder favorites; clearing saved favorites keeps them empty.
 - Games, Hardware and Toys collection tabs show their kind icon.
 - Hardware and Toys workspaces offer the full set of folder groups, including tags, dates and value categories.
@@ -27,6 +27,7 @@
 - The eBay button and import sources use licensed logos instead of artwork copied from CLZ or without a known license.
 - Cover views show the complete image, and unselected vertical cards keep readable text in the light theme.
 - List rows use a fuller bundled font while preserving the weight of user-supplied local fonts.
+- XML export explains when a library is empty and only saves after Download is confirmed.
 - Folder rows fade their hover and selection colors as the reference does.
 - The selected list row shows its text in white in the light theme too.
 - Settings opened or reloaded from a link show the options of that link's library instead of Music's.
