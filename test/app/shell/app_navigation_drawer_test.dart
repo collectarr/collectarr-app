@@ -89,6 +89,7 @@ void main() {
     expect(find.text('Print to PDF'), findsOneWidget);
     expect(find.text('Statistics'), findsOneWidget);
     expect(find.text('Backup / Restore'), findsOneWidget);
+    expect(find.text('Link Albums'), findsOneWidget);
     expect(find.text('Manual'), findsOneWidget);
     expect(find.byIcon(AppIcons.userManual), findsOneWidget);
 
@@ -137,5 +138,33 @@ void main() {
     await tester.pump();
     await tester.pumpAndSettle();
     expect(find.text('Backup / Restore'), findsOneWidget);
+  });
+
+  testWidgets('the link entry names the active library items', (tester) async {
+    tester.view.physicalSize = const Size(1280, 1200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AppNavigationDrawer(
+            type: defaultLibraryKindRegistry.require(CatalogMediaKind.game),
+            selectedAction: null,
+            isAdmin: false,
+            accent: const Color(0xFFE23149),
+            addLabel: 'Add Games from Core',
+            onSelected: (_, __) {},
+          ),
+        ),
+      ),
+    );
+    await tester.ensureVisible(find.text('Import / Export'));
+    await tester.tap(find.text('Import / Export'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Link Games'), findsOneWidget);
+    expect(find.text('Link Albums'), findsNothing);
   });
 }

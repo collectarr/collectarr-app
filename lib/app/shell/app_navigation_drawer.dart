@@ -191,9 +191,11 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
 
   Widget _action(BuildContext context, AppDrawerDestination destination) {
     final action = destination.action;
-    final label = action == DrawerAction.addFromCore
-        ? widget.addLabel
-        : destination.label;
+    final label = switch (action) {
+      DrawerAction.addFromCore => widget.addLabel,
+      DrawerAction.linkItems => 'Link ${widget.type.identity.pluralLabel}',
+      _ => destination.label,
+    };
     final icon = destination.icon;
     final key =
         destination.widgetKey == null ? null : Key(destination.widgetKey!);

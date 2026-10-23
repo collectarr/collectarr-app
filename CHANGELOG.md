@@ -20,6 +20,7 @@
 - Pick-list fields preserve spaces when typing a new value.
 - Horizontal cards keep labels and value/status badges readable at compact widths and in the light theme.
 - The sorting favorites button remains readable in the light theme.
+- The main menu's link entry names the open library's items, such as Link Games, instead of always saying Link Albums.
 
 ### ♻️ Refactors
 - Personal tags are stored as lists so tags can contain commas; existing entries and pending Sync changes upgrade together in one migration from the released schema.

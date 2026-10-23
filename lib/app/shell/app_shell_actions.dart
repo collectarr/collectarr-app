@@ -208,7 +208,7 @@ class AppShellActions {
           );
         });
         return;
-      case DrawerAction.linkAlbums:
+      case DrawerAction.linkItems:
         await _withShelf(
             (shelf) => Navigator.of(context).push<void>(MaterialPageRoute(
                   builder: (_) => LibraryLinkItemsPage(
