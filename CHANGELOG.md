@@ -8,6 +8,7 @@
 - Games supports platform and region search, atomic completeness and packaging values, purchase details, completion and storage tracking, front/back covers and trailers.
 - Games inventories include folders, sorting, columns, cards, details panels, guided CLZ XML import and lossless native CSV transfer.
 - Libraries can provide default folder favorites; clearing saved favorites keeps them empty.
+- Games, Hardware and Toys collection tabs show their kind icon.
 
 ### 🐛 Fixes
 - The light theme applies at startup and uses consistent content areas, editor fields, toolbars and collection tabs.

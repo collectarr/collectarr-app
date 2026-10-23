@@ -281,6 +281,34 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets('tabs of a multi-kind family show their kind icon',
+      (tester) async {
+    await tester.runAsync(() async {
+      await repo.ensureDefault('music');
+      await repo.ensureDefault('game');
+      await repo.ensureDefault('game_hardware');
+    });
+    Future<void> pump(String kind) async {
+      await tester.pumpWidget(ProviderScope(
+          overrides: [localDatabaseProvider.overrideWithValue(db)],
+          child: MaterialApp(
+              home: Scaffold(
+                  body: LibraryCollectionTabBar(
+                      mediaKind: kind, accent: Colors.red)))));
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 100)));
+      await tester.pumpAndSettle();
+    }
+
+    await pump('game');
+    expect(find.byIcon(Icons.sports_esports), findsOneWidget);
+    expect(find.byIcon(Icons.devices), findsOneWidget);
+    await pump('music');
+    expect(find.byIcon(Icons.sports_esports), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
   testWidgets(
       'collection tabs select real collections and open a compact manager',
       (tester) async {

@@ -103,6 +103,7 @@ comparison. The earlier Music pass below remains valid for shared mechanics.
 | Partial | Inventory import/export | Guided CLZ Web XML import has separate Games, Hardware and Toys mappings and rejects mixed types. Native CSV preserves complete typed entries. Human-readable CLZ CSV mapping, image attachments, loans and custom-field import remain open |
 | Deferred | PriceCharting | Refresh/integration explicitly deferred by the owner; recorded valuation snapshots remain supported |
 | Done | Loose packaging valuation | Box/Manual changes atomically recalculate an unlocked Loose value from recorded snapshots in the same currency; unavailable snapshots and locked values preserve the entered amount |
+| Done | Collection tabs | CLZ marks the Games, Hardware and Toys tabs with an icon each; Collectarr tabs of a multi-kind family now show the kind icon (compared passively 2026-10-23) |
 | Done | Horizontal cards | Footer reserves separate space for the platform, value and status; compact-width geometry checks prevent overlap |
 | Done | Hardware/Toy folders | Tags retain separate folders even when a tag contains commas; Added/Modified folders group by calendar day, and valuation folders use the Value category |
 

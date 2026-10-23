@@ -1,5 +1,7 @@
 import 'package:go_router/go_router.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/collections/library_collection_family.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
@@ -71,6 +73,8 @@ class _LibraryCollectionTabBarState
       WidgetsBinding.instance.addPostFrameCallback((_) => _clearPending());
     }
     final accent = widget.accent;
+    // Tabs of a multi-kind family (Games, Hardware, Toys) carry the kind icon.
+    final showKindIcon = collectionFamilyKinds(widget.mediaKind).length > 1;
     final activeId = activeLibraryCollectionId(saved
         .where((collection) => collection.kind == widget.mediaKind)
         .toList());
@@ -125,6 +129,11 @@ class _LibraryCollectionTabBarState
                             index: index,
                             child: LibraryCollectionTab(
                               label: collection.name,
+                              icon: showKindIcon
+                                  ? libraryIconForKind(
+                                      catalogMediaKindFromApiValue(
+                                          collection.kind))
+                                  : null,
                               isActive: collection.id == activeId,
                               accent: accent,
                               onTap: () => select(collection),
@@ -150,12 +159,14 @@ class LibraryCollectionTab extends StatelessWidget {
   const LibraryCollectionTab({
     super.key,
     required this.label,
+    this.icon,
     required this.isActive,
     required this.accent,
     required this.onTap,
   });
 
   final String label;
+  final IconData? icon;
   final bool isActive;
   final Color accent;
   final VoidCallback onTap;
@@ -193,13 +204,21 @@ class LibraryCollectionTab extends StatelessWidget {
                     color: background,
                     borderRadius: const BorderRadius.vertical(
                         bottom: Radius.circular(4))),
-                child: Text(label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: foreground)),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: 13, color: foreground),
+                    const SizedBox(width: 5),
+                  ],
+                  Flexible(
+                    child: Text(label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: foreground)),
+                  ),
+                ]),
               ),
             ),
           ),
