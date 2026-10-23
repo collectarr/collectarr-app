@@ -77,7 +77,7 @@ class ImportSourcePicker extends StatelessWidget {
                 padding: const EdgeInsets.all(11),
                 child: Row(
                   children: [
-                    _buildSourceLogo(source, 45),
+                    _buildSourceLogo(source, 45, palette.textPrimary),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -103,14 +103,17 @@ class ImportSourcePicker extends StatelessWidget {
   Widget _buildSourceLogo(
     LibraryImportSourceDefinition source,
     double size,
+    Color ink,
   ) {
     if (source.assetLogoPath != null) {
       if (source.isSvg) {
+        // SVG logos are single-color Simple Icons, drawn in the text color.
         return SvgPicture.asset(
           source.assetLogoPath!,
           width: size,
           height: size,
           fit: BoxFit.contain,
+          colorFilter: ColorFilter.mode(ink, BlendMode.srcIn),
         );
       } else {
         return Image.asset(

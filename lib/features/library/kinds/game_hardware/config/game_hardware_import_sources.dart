@@ -175,9 +175,7 @@ final gameHardwareKindImport = LibraryKindImportCapability(
       LibraryImportSourceDefinition(
           id: 'text',
           title: 'Import a Text or CSV file',
-          assetLogoPath: 'assets/import_logos/text.svg',
           fallbackIcon: Icons.description_outlined,
-          isSvg: true,
           sourceType: LibraryImportSourceType.csvTxt,
           fileExtensions: ['csv', 'txt']),
     ]);
