@@ -20,7 +20,10 @@ import 'package:collectarr_app/features/library/ui/primitives/library_collection
     show libraryCollectionStatusFromValue;
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 GameCatalogMetadata? _metadata(LibraryProjectionView item) =>
@@ -188,7 +191,38 @@ class _GameInspectorHeader extends StatelessWidget {
             ],
           ]),
         if (entry != null) _GameValueBadge(entry: entry),
+        _GameEbayLink(
+            query: [title, if (platform.isNotEmpty) platform].join(' '),
+            isWishlisted: inspector.item.source.isWishlisted),
       ]),
+    );
+  }
+}
+
+/// The reference's eBay link under the value box ("next to cover").
+class _GameEbayLink extends ConsumerWidget {
+  const _GameEbayLink({required this.query, required this.isWishlisted});
+
+  final String query;
+  final bool isWishlisted;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final preferences = ref.watch(uiPreferencesProvider);
+    if (!preferences.ebayNextToCover ||
+        !preferences.allowsEbayLinks(isWishlisted)) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 18),
+      child: InkWell(
+        onTap: () => launchEbaySearch(query, isWishlisted: isWishlisted),
+        child: Text('Find sold listings on eBay',
+            style: TextStyle(
+                fontSize: 15,
+                color: appPalette(context).link,
+                decoration: TextDecoration.underline)),
+      ),
     );
   }
 }
