@@ -1,6 +1,5 @@
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -45,8 +44,10 @@ void main() {
       expect(iconWidget.color, Colors.white);
 
       // Verify close button is present and white
-      final closeFinder = find.byIcon(AppIcons.close);
+      // The reference's close control is the "×" character.
+      final closeFinder = find.text('×');
       expect(closeFinder, findsOneWidget);
+      expect(tester.widget<Text>(closeFinder).style?.color, Colors.white);
 
       await tester.tap(closeFinder);
       expect(closed, isTrue);
@@ -89,9 +90,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Dialog Title'), findsOneWidget);
-      expect(find.byIcon(AppIcons.close), findsOneWidget);
+      expect(find.text('×'), findsOneWidget);
 
-      await tester.tap(find.byIcon(AppIcons.close));
+      await tester.tap(find.text('×'));
       await tester.pumpAndSettle();
 
       expect(find.text('Dialog Title'), findsNothing);
@@ -112,7 +113,7 @@ void main() {
       );
 
       expect(find.text('No Close'), findsOneWidget);
-      expect(find.byIcon(AppIcons.close), findsNothing);
+      expect(find.text('×'), findsNothing);
     });
   });
 
@@ -134,7 +135,7 @@ void main() {
       expect(titleFinder, findsOneWidget);
       final textWidget = tester.widget<Text>(titleFinder);
       expect(textWidget.style?.color, Colors.white);
-      expect(find.byIcon(AppIcons.close), findsOneWidget);
+      expect(find.text('×'), findsOneWidget);
     });
   });
 }

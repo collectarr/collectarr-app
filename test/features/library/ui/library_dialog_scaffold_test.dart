@@ -1,4 +1,3 @@
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
@@ -70,7 +69,7 @@ void main() {
 
     expect(find.text('Inspector'), findsOneWidget);
     expect(find.text('Body'), findsOneWidget);
-    expect(find.byIcon(AppIcons.close), findsOneWidget);
+    expect(find.text('×'), findsOneWidget);
 
     // The header is flat kind accent, as in the reference.
     final decorations = tester

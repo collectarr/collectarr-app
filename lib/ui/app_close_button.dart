@@ -1,8 +1,9 @@
-import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// The close icon of dialog and panel headers. Like the reference it has no
-/// hover, press or ripple effect.
+/// The close control of dialog and panel headers. Like the reference it is
+/// the "×" character at 28 px in the regular weight, without hover, press or
+/// ripple effect; callers may pass an [icon] instead.
 class AppCloseButton extends StatelessWidget {
   const AppCloseButton({
     super.key,
@@ -10,14 +11,14 @@ class AppCloseButton extends StatelessWidget {
     this.color,
     this.size = 24,
     this.iconSize = 16,
-    this.icon = AppIcons.close,
+    this.icon,
   });
 
   final VoidCallback? onPressed;
   final Color? color;
   final double size;
   final double iconSize;
-  final IconData icon;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) => IconButton(
@@ -39,6 +40,15 @@ class AppCloseButton extends StatelessWidget {
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ).copyWith(
             overlayColor: const WidgetStatePropertyAll(Colors.transparent)),
-        icon: Icon(icon, size: iconSize),
+        icon: icon == null
+            ? Builder(
+                builder: (context) => Text('×',
+                    style: TextStyle(
+                        fontFamily: appFontFamily,
+                        fontSize: 28,
+                        height: 20 / 28,
+                        fontWeight: FontWeight.w400,
+                        color: color ?? IconTheme.of(context).color)))
+            : Icon(icon, size: iconSize),
       );
 }
