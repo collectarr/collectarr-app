@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.3.0 - 2026-10-24
+
 ### ✨ Features
 - Games, Hardware and statistics show PlayStation (with its generation), PSP, Vita, Steam, Sega, Atari, Apple, Linux and Android platform logos.
 - Library headers use the compact CARR name and identify Web, Desktop or Mobile builds.
