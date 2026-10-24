@@ -24,6 +24,7 @@
 - Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
 
 ### 🐛 Fixes
+- Editor tab glyphs keep their natural width with the label 9 px after them, as in the reference.
 - Toolbar split buttons join both halves without a divider, as in the reference.
 - Manage Favorites in the columns menu opens the column favorites directly, and the column chooser no longer has its own gear button, as in the reference.
 - Dialog and panel headers close with the reference's plain "×" instead of an icon.

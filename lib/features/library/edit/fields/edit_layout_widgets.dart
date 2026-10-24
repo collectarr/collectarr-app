@@ -205,15 +205,28 @@ class EditTab extends StatelessWidget {
               );
             },
           )
-        : Icon(icon, size: 14);
+        // Drawn as text, so the glyph keeps its natural width as in the
+        // reference, instead of a square icon box.
+        : Builder(
+            builder: (context) => Text(
+              String.fromCharCode(icon!.codePoint),
+              style: TextStyle(
+                inherit: false,
+                fontFamily: icon!.fontFamily,
+                package: icon!.fontPackage,
+                fontSize: 14,
+                height: 1,
+                color: IconTheme.of(context).color,
+              ),
+            ),
+          );
 
-    // A fixed-width icon box, as in the reference tabs: wide glyphs such as
-    // the people icon no longer run into their label.
+    // The reference sets labels 9 px after the glyph's right edge.
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(width: 18, child: Center(child: iconWidget)),
-        const SizedBox(width: 3),
+        iconWidget,
+        const SizedBox(width: 9),
         Text(label),
       ],
     );
