@@ -48,11 +48,13 @@ class AppShellBrand extends StatelessWidget {
                           fontFamily: appFontFamily,
                           fontSize: 22,
                           height: 1,
-                          fontWeight: FontWeight.w800,
+                          // The reference outlines a lighter face than the
+                          // title, in a hairline.
+                          fontWeight: FontWeight.w500,
                           foreground: Paint()
                             ..color = Colors.white
                             ..style = PaintingStyle.stroke
-                            ..strokeWidth = .7)),
+                            ..strokeWidth = 1)),
                 ])),
           ),
         ],
