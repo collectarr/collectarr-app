@@ -80,6 +80,7 @@
 
 ### 🧰 CI & Build
 - The library column manager test exercises column favorites directly, keeping test suites in sync with the column dialog.
+- The library add integration test looks up the app shell element directly, keeping native flows passing with the CARR header.
 
 ## 1.2.0 - 2026-10-18
 

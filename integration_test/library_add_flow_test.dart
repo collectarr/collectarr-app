@@ -1,3 +1,4 @@
+import 'package:collectarr_app/app/app_shell.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
@@ -55,8 +56,8 @@ void main() {
     final saved = (await MusicEntryRepository(database).listActive()).single;
     expect(saved.metadata.title, 'Native Core Album');
     expect(saved.sourceCatalogRef?.id, 'native-core-album');
-    final container = ProviderScope.containerOf(
-        tester.element(find.text('COLLECTARR MUSIC').first));
+    final container =
+        ProviderScope.containerOf(tester.element(find.byType(AppShell)));
     expect(
         container
             .read(appRouterProvider)
