@@ -78,6 +78,9 @@
 - The README presents Collectarr as a Music and Games app, with Hardware and Toys libraries and CLZ Games import.
 - The living CLZ comparison records Games, Hardware and Toys workflows, deliberate differences and remaining gaps, including control sizes, hover states, editor icons, Statistics, Pre-fill, pick lists and menus.
 
+### 🧰 CI & Build
+- The library column manager test exercises column favorites directly, keeping test suites in sync with the column dialog.
+
 ## 1.2.0 - 2026-10-18
 
 ### ✨ Features

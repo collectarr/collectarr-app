@@ -15,12 +15,24 @@ void main() {
     await tester.pumpWidget(MaterialApp(
         home: Builder(
             builder: (context) => Scaffold(
-                    body: TextButton(
-                  onPressed: () => showGenericLibraryColumnChooser(
-                      context: context,
-                      type: const MusicRegistration(),
-                      viewState: musicKindViewProfile.defaults()),
-                  child: const Text('Columns'),
+                    body: Column(
+                  children: [
+                    TextButton(
+                      onPressed: () => showGenericLibraryColumnChooser(
+                          context: context,
+                          type: const MusicRegistration(),
+                          viewState: musicKindViewProfile.defaults()),
+                      child: const Text('Columns'),
+                    ),
+                    TextButton(
+                      onPressed: () => showGenericLibraryColumnChooser(
+                          context: context,
+                          type: const MusicRegistration(),
+                          manageFavorites: true,
+                          viewState: musicKindViewProfile.defaults()),
+                      child: const Text('Favorites'),
+                    ),
+                  ],
                 )))));
     await tester.tap(find.text('Columns'));
     await tester.pumpAndSettle();
@@ -34,7 +46,10 @@ void main() {
         containsAll(['Essential', 'Reference']));
     expect(
         dialog.presets.map((preset) => preset.label), contains('Collection'));
-    await tester.tap(find.byTooltip('Manage Favorites'));
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Favorites'));
     await tester.pumpAndSettle();
     expect(
         find.byKey(const ValueKey('column-preset-Essential')), findsOneWidget);
