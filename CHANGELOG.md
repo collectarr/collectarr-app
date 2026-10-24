@@ -24,6 +24,7 @@
 - Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
 
 ### 🐛 Fixes
+- Manage Favorites in the columns menu opens the column favorites directly, and the column chooser no longer has its own gear button, as in the reference.
 - Dialog and panel headers close with the reference's plain "×" instead of an icon.
 - Header buttons are 36 px circles with a light hover, as in the reference.
 - Loan Manager joins its active tab to a grey toolbar band and shows an empty list as a framed row, as in the reference.

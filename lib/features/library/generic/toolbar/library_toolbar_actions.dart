@@ -18,6 +18,7 @@ class LibraryToolbarActions {
     this.onClearSearch,
     this.onSearchSuggestionSelected,
     required this.onEditColumns,
+    this.onManageColumnFavorites,
     required this.onSortChanged,
     this.onEditSort,
     required this.onSidebarVisibilityChanged,
@@ -69,6 +70,9 @@ class LibraryToolbarActions {
   final ValueChanged<LibraryToolbarSearchSuggestion>?
       onSearchSuggestionSelected;
   final VoidCallback onEditColumns;
+
+  /// Opens the column chooser on its favorites; falls back to [onEditColumns].
+  final VoidCallback? onManageColumnFavorites;
   final ValueChanged<String> onSortChanged;
   final VoidCallback? onEditSort;
   final ValueChanged<bool> onSidebarVisibilityChanged;

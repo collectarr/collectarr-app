@@ -26,9 +26,12 @@ class LibraryColumnChooserDialog extends StatefulWidget {
     this.onTogglePinnedFavorite,
     this.onSavePreset,
     this.onDeletePreset,
+    this.showFavorites = false,
     super.key,
   });
 
+  /// Opens on the favorites list, from the Manage Favorites menu entry.
+  final bool showFavorites;
   final List<String> availableColumns;
   final Set<String> selectedColumns;
   final Set<String> defaultColumns;
@@ -65,7 +68,7 @@ class _LibraryColumnChooserDialogState
           text: _activePreset?.label ?? 'My List View columns');
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
-  bool _showFavorites = false;
+  late final bool _showFavorites = widget.showFavorites;
   bool _nameEdited = false;
   final Map<LibraryTableColumnGroup, bool> _expandedGroups = {};
 
@@ -124,10 +127,6 @@ class _LibraryColumnChooserDialogState
         icon: AppIcons.columns,
         title: 'Select Column Fields',
         accent: kindAccent,
-        headerAction: IconButton(
-            tooltip: 'Manage Favorites',
-            icon: const Icon(Icons.settings, color: Colors.white, size: 16),
-            onPressed: () => setState(() => _showFavorites = !_showFavorites)),
         onSave: _selected.isEmpty
             ? null
             : () async {

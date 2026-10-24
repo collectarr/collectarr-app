@@ -11,6 +11,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
   required BuildContext context,
   required LibraryKindRegistration type,
   required LibraryWorkspaceViewState viewState,
+  bool manageFavorites = false,
   Set<String> pinnedFavoriteKeys = const {},
   ValueChanged<LibraryTableColumnPreset>? onTogglePinnedFavorite,
 }) async {
@@ -37,6 +38,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
   return showAppDialog<Set<String>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
+      showFavorites: manageFavorites,
       availableColumns: [
         for (final def in fields.columns) def.id.value,
       ],

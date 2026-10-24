@@ -36,6 +36,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     required this.viewState,
     required this.counts,
     required this.onEditColumns,
+    this.onManageColumnFavorites,
     this.columnFavoritePresets = const [],
     this.activeColumnFavoriteLabel,
     this.onColumnFavoriteSelected,
@@ -97,6 +98,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final LibraryWorkspaceViewState viewState;
   final LibraryToolbarCounts counts;
   final VoidCallback onEditColumns;
+  final VoidCallback? onManageColumnFavorites;
   final List<LibraryTableColumnPreset> columnFavoritePresets;
   final String? activeColumnFavoriteLabel;
   final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
@@ -248,6 +250,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                           child: _LibraryColumnLauncher(
                             activeLabel: activeColumnFavoriteLabel,
                             onManageColumns: onEditColumns,
+                            onManageColumnFavorites: onManageColumnFavorites,
                             pinnedPresets: pinnedColumnPresets,
                             overflowPresets: overflowColumnPresets,
                             onPresetSelected: onColumnFavoriteSelected,
@@ -421,6 +424,7 @@ class _LibraryColumnLauncher extends StatelessWidget {
   const _LibraryColumnLauncher({
     required this.activeLabel,
     required this.onManageColumns,
+    this.onManageColumnFavorites,
     required this.pinnedPresets,
     required this.overflowPresets,
     required this.onPresetSelected,
@@ -428,6 +432,7 @@ class _LibraryColumnLauncher extends StatelessWidget {
 
   final String? activeLabel;
   final VoidCallback onManageColumns;
+  final VoidCallback? onManageColumnFavorites;
   final List<LibraryTableColumnPreset> pinnedPresets;
   final List<LibraryTableColumnPreset> overflowPresets;
   final ValueChanged<LibraryTableColumnPreset>? onPresetSelected;
@@ -464,7 +469,7 @@ class _LibraryColumnLauncher extends StatelessWidget {
           onPresetSelected?.call(value);
           return;
         }
-        onManageColumns();
+        (onManageColumnFavorites ?? onManageColumns)();
       },
       tone: LibraryDenseButtonTone.surface,
       tooltip: 'Change Columns',
@@ -855,6 +860,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.pinnedColumnFavoriteKeys = const {},
     this.onTogglePinnedColumnFavorite,
     required this.onManageColumns,
+    this.onManageColumnFavorites,
     this.canJumpToNumber = false,
     this.onJumpToNumberSubmitted,
     required this.hasActiveFilters,
@@ -923,6 +929,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final Set<String> pinnedColumnFavoriteKeys;
   final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedColumnFavorite;
   final VoidCallback onManageColumns;
+  final VoidCallback? onManageColumnFavorites;
   final bool canJumpToNumber;
   final ValueChanged<String>? onJumpToNumberSubmitted;
   final bool hasActiveFilters;
@@ -1145,6 +1152,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
             pinnedColumnFavoriteKeys: pinnedColumnFavoriteKeys,
             onTogglePinnedColumnFavorite: onTogglePinnedColumnFavorite,
             onManageColumns: onManageColumns,
+            onManageColumnFavorites: onManageColumnFavorites,
             canJumpToNumber: canJumpToNumber,
             onJumpToNumberSubmitted: onJumpToNumberSubmitted,
           ),
@@ -1240,6 +1248,7 @@ class LibraryToolbarChromeRow extends StatelessWidget {
     this.pinnedColumnFavoriteKeys = const {},
     this.onTogglePinnedColumnFavorite,
     required this.onManageColumns,
+    this.onManageColumnFavorites,
     this.canJumpToNumber = false,
     this.onJumpToNumberSubmitted,
   });
@@ -1262,6 +1271,7 @@ class LibraryToolbarChromeRow extends StatelessWidget {
   final Set<String> pinnedColumnFavoriteKeys;
   final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedColumnFavorite;
   final VoidCallback onManageColumns;
+  final VoidCallback? onManageColumnFavorites;
   final bool canJumpToNumber;
   final ValueChanged<String>? onJumpToNumberSubmitted;
 

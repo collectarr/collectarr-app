@@ -46,6 +46,7 @@ class LibraryToolbar extends StatelessWidget {
     this.searchSuggestions = const <LibraryToolbarSearchSuggestion>[],
     this.onSearchSuggestionSelected,
     required this.onEditColumns,
+    this.onManageColumnFavorites,
     required this.onSortChanged,
     this.onEditSort,
     required this.onSidebarVisibilityChanged,
@@ -139,6 +140,7 @@ class LibraryToolbar extends StatelessWidget {
         searchSuggestions = state.searchSuggestions,
         onSearchSuggestionSelected = actions.onSearchSuggestionSelected,
         onEditColumns = actions.onEditColumns,
+        onManageColumnFavorites = actions.onManageColumnFavorites,
         onSortChanged = actions.onSortChanged,
         onEditSort = actions.onEditSort,
         onSidebarVisibilityChanged = actions.onSidebarVisibilityChanged,
@@ -225,6 +227,7 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<LibraryToolbarSearchSuggestion>?
       onSearchSuggestionSelected;
   final VoidCallback onEditColumns;
+  final VoidCallback? onManageColumnFavorites;
   final ValueChanged<String> onSortChanged;
   final VoidCallback? onEditSort;
   final ValueChanged<bool> onSidebarVisibilityChanged;
@@ -363,6 +366,7 @@ class LibraryToolbar extends StatelessWidget {
                   pinnedColumnFavoriteKeys: pinnedColumnFavoriteKeys,
                   onTogglePinnedColumnFavorite: onTogglePinnedColumnFavorite,
                   onManageColumns: onEditColumns,
+                  onManageColumnFavorites: onManageColumnFavorites,
                   canJumpToNumber: canJumpToNumber,
                   onJumpToNumberSubmitted: onJumpToNumberSubmitted,
                   hasActiveFilters: hasActiveFilters,
@@ -428,6 +432,7 @@ class LibraryToolbar extends StatelessWidget {
                       viewState: viewState,
                       counts: counts,
                       onEditColumns: onEditColumns,
+                      onManageColumnFavorites: onManageColumnFavorites,
                       columnFavoritePresets: columnFavoritePresets,
                       activeColumnFavoriteLabel: activeColumnFavoriteLabel,
                       onColumnFavoriteSelected: onColumnFavoriteSelected,

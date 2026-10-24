@@ -342,10 +342,13 @@ class LibraryPageDialogCoordinator {
   // Column chooser
   // ---------------------------------------------------------------------------
 
-  Future<void> showColumnChooserFlow() async {
+  /// [manageFavorites] opens on the column favorites, as the reference's
+  /// Manage Favorites menu entry does.
+  Future<void> showColumnChooserFlow({bool manageFavorites = false}) async {
     final viewState = _page.viewState ?? _page.viewProfile.defaults();
     final selected = await showGenericLibraryColumnChooser(
       context: _page.context,
+      manageFavorites: manageFavorites,
       type: _page.type,
       viewState: viewState,
       pinnedFavoriteKeys: _page.pinnedColumnFavoriteKeys,

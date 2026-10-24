@@ -153,6 +153,8 @@ class LibraryPageToolbarController {
             onShowAddDialogFlow: _s._dialogCoordinator.showAddDialogFlow,
             onShowColumnChooserFlow:
                 _s._dialogCoordinator.showColumnChooserFlow,
+            onShowColumnFavoritesFlow: () => _s._dialogCoordinator
+                .showColumnChooserFlow(manageFavorites: true),
             onShowSortDialogFlow: _s._dialogCoordinator.showSortDialogFlow,
             onSetGroupingPanelVisibility: _s._setGroupingPanelVisibility,
             onSetGroupPresentation: _s._setGroupPresentation,

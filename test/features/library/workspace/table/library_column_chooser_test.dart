@@ -71,6 +71,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryColumnChooserDialog(
+            showFavorites: true,
             accent: Colors.cyan,
             availableColumns: availableColumns,
             selectedColumns: const {
@@ -117,9 +118,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Select Column Fields'), findsOneWidget);
-    expect(find.text('Column Favorites'), findsNothing);
-    await tester.tap(find.byTooltip('Manage Favorites'));
-    await tester.pumpAndSettle();
+    // Favorites open from the Manage Favorites menu entry; the dialog has no
+    // gear of its own, as in the reference.
+    expect(find.byTooltip('Manage Favorites'), findsNothing);
     expect(find.text('Column Favorites'), findsOneWidget);
     expect(find.text('Available fields'), findsNothing);
     expect(find.text('Selected columns'), findsNothing);
@@ -142,6 +143,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryColumnChooserDialog(
+            showFavorites: true,
             accent: Colors.cyan,
             availableColumns: availableColumns,
             selectedColumns: const {
@@ -178,8 +180,6 @@ void main() {
     expect(find.byKey(const ValueKey('selected-column-issue')), findsOneWidget);
     expect(find.byKey(const ValueKey('selected-column-barcode')), findsNothing);
 
-    await tester.tap(find.byTooltip('Manage Favorites'));
-    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('column-preset-Barcode View')));
     await tester.pumpAndSettle();
 
@@ -202,6 +202,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryColumnChooserDialog(
+            showFavorites: true,
             accent: Colors.cyan,
             availableColumns: availableColumns,
             selectedColumns: const {
@@ -233,9 +234,6 @@ void main() {
 
     // The compact CLZ-style shelf no longer exposes pin buttons directly;
     // verify the dialog renders without error when the callback is provided.
-    expect(find.text('Column Favorites'), findsNothing);
-    await tester.tap(find.byTooltip('Manage Favorites'));
-    await tester.pumpAndSettle();
     expect(find.text('Column Favorites'), findsOneWidget);
     expect(toggledPreset, isNull);
     expect(

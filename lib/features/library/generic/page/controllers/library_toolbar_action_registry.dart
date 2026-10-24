@@ -37,6 +37,7 @@ class LibraryToolbarViewContext {
     required this.type,
     required this.onShowAddDialogFlow,
     required this.onShowColumnChooserFlow,
+    required this.onShowColumnFavoritesFlow,
     required this.onShowSortDialogFlow,
     required this.onSetGroupingPanelVisibility,
     required this.onSetGroupPresentation,
@@ -59,6 +60,7 @@ class LibraryToolbarViewContext {
       libraryViewProfileForKind(type.kind);
   final VoidCallback onShowAddDialogFlow;
   final VoidCallback onShowColumnChooserFlow;
+  final VoidCallback onShowColumnFavoritesFlow;
   final VoidCallback onShowSortDialogFlow;
   final ValueChanged<bool> onSetGroupingPanelVisibility;
   final ValueChanged<LibraryGroupPresentation> onSetGroupPresentation;
@@ -240,6 +242,9 @@ class LibraryToolbarActionRegistry {
       onEditColumns: enabled(LibraryToolbarActionId.editColumns)
           ? actionContext.view.onShowColumnChooserFlow
           : () {},
+      onManageColumnFavorites: enabled(LibraryToolbarActionId.editColumns)
+          ? actionContext.view.onShowColumnFavoritesFlow
+          : null,
       onSortChanged: (String column) => actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) => next.withSortColumn(
           activeFields.decodeSortId(column),
