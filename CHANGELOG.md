@@ -24,6 +24,7 @@
 - Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
 
 ### 🐛 Fixes
+- Header buttons are 36 px circles with a light hover, as in the reference.
 - Loan Manager joins its active tab to a grey toolbar band and shows an empty list as a framed row, as in the reference.
 - Statistics and Loan Manager tabs are folder tabs with grey inactive tabs in the light theme, statistics boxes are framed, item titles use the reference blue, and charts show a value axis with grid lines.
 - The CSV import page is readable in the light theme, with shared-blue choices and visible source icons.

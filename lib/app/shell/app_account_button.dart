@@ -29,8 +29,8 @@ class AppAccountButton extends ConsumerWidget {
         key: const Key('app.account'),
         tooltip: 'Account',
         style: style,
-        visualDensity: VisualDensity.compact,
-        icon: const Icon(AppIcons.user, size: 16),
+        // 20 px, as the reference's header user glyph.
+        icon: const Icon(AppIcons.user, size: 20),
         onPressed: () => unawaited(_show(context, ref)),
       );
 

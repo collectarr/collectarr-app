@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
+import 'package:collectarr_app/ui/app_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -61,10 +62,8 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final iconButtonStyle = Theme.of(context).iconButtonTheme.style?.copyWith(
-              backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-            ) ??
-        IconButton.styleFrom(backgroundColor: Colors.transparent);
+    // The header's shared circular button, like Sync and Account.
+    final iconButtonStyle = appChromeIconButtonStyle(context);
     return MenuAnchor(
       key: _anchorKey,
       controller: _controller,
