@@ -352,8 +352,6 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
                   mouseCursor: WidgetStateMouseCursor.clickable,
                   onTap: onPressed,
                   hoverColor: libraryToolbarControlHover(context),
-                  borderRadius:
-                      const BorderRadius.horizontal(left: Radius.circular(4)),
                   child: Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: iconOnly ? 7 : 10,
@@ -383,7 +381,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
               ),
             ),
           ),
-          Container(width: 1, height: 30, color: palette.divider),
+          // The reference joins both halves without a rule.
           PopupMenuButton<T>(
             popUpAnimationStyle: AnimationStyle.noAnimation,
             tooltip: tooltip ?? label,
