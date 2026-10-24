@@ -219,7 +219,8 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
                           ),
                         ],
                         const SizedBox(width: 4),
-                        Icon(AppIcons.chevronDown, size: 12, color: triggerMuted),
+                        Icon(AppIcons.chevronDown,
+                            size: 12, color: triggerMuted),
                       ],
                     ),
                   )))
