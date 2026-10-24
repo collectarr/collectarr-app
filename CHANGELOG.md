@@ -5,25 +5,12 @@
 ## 1.3.0 - 2026-10-24
 
 ### ✨ Features
-- Games, Hardware and statistics show PlayStation (with its generation), PSP, Vita, Steam, Sega, Atari, Apple, Linux and Android platform logos.
-- Library headers use the compact CARR name and identify Web, Desktop or Mobile builds.
-- Games, Hardware and Toys use separate fixed-type collections, editors, search and Core catalogs; renaming a collection preserves its type.
-- The header account menu opens an overview of all local libraries, sync status and activity, and signs out without removing local collections.
-- Hardware has platform/device filters and personal serial numbers; Toys has its own classification, completeness and images.
-- Games supports platform and region search, atomic completeness and packaging values, purchase details, completion and storage tracking, front/back covers and trailers.
-- Games inventories include folders, sorting, columns (including Series, Collection Status and Completed), cards with portrait covers, details panels, guided CLZ XML import, XML export and lossless native CSV transfer.
-- Libraries can provide default folder favorites; clearing saved favorites keeps them empty.
-- Games, Hardware and Toys collection tabs show their kind icon.
-- Hardware and Toys workspaces offer the full set of folder groups, including tags, dates and value categories.
-- The default Games list shows Platform, Title, Release Date, Publisher, Developer, Genre and Added Date, with dates aligned right.
-- Games lists offer the reference's column choices, from Has Front Cover to Value CiB, Owner, Tags and Loaned To, and Games, Hardware and Toys have My List View, My Find Duplicates and My Print / Export column favorites.
-- Hardware lists lead with the platform icon and Platform, and Hardware and Toys details show the platform and year in the reference typography.
-- CLZ Games CSV / TXT exports import into Games, Hardware and Toys, matching columns by their header labels.
-- CSV imports create loans from Loaned To, Loan Date and Due Date, and can import any other column as a custom field.
-- Settings for Games, Hardware and Toys has "Show trailer videos" to hide the Trailer section of the details panel.
-- The main menu of Games, Hardware and Toys offers Add Games, Add Hardware and Add Toys from Core, each opening its own library.
-- Pre-fill Settings for Games, Hardware and Toys set completeness with Box/Manual, Owner, Quantity and Tags for new items, as in CLZ, instead of Condition.
-- Games statistics have a tab per Games, Hardware and Toys collection with platform, type, value, release year, genre, completeness and completion charts and the most valuable and most recent items.
+- **Games, Hardware & Toys Libraries**: Dedicated inventories, editors, Core catalog search, and fixed-type collections for video games, hardware/consoles, and toys/collectibles.
+- **CLZ Import & Export**: Guided CLZ XML import, lossless CSV/TXT mapping with custom fields, automatic loan tracking, and XML export.
+- **Rich Game Metadata & Media**: Platform logos (PlayStation generations, Steam, Sega, etc.), region filters, completion & storage tracking, front/back covers, and trailer integration.
+- **Reference-Grade Workspaces**: Portrait cover cards, customizable folder groups & favorites, right-aligned dates, and dedicated column presets (My List View, My Find Duplicates, My Print/Export).
+- **Statistics & Pre-fill**: Collection statistics with platform, value, and completion charts, plus reference Pre-fill Settings for fast cataloging.
+- **Shell & Account Overview**: Compact CARR header with platform badges (Web/Desktop/Mobile) and account drawer showing local library summaries and sync status.
 
 ### 🐛 Fixes
 - Editor tab glyphs keep their natural width with the label 9 px after them, as in the reference.
