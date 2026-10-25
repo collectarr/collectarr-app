@@ -277,6 +277,7 @@ class LibraryWorkspace extends ConsumerWidget {
           selectedIds: const <String>{},
           accent: accent,
           emptyBuilder: _emptyBuilder,
+          coverAspectRatio: fallbackCoverAspectRatio,
           selectionEnabled: false,
           onApplySelection: (_, __) {},
           onActivateItem: onActivateItem,

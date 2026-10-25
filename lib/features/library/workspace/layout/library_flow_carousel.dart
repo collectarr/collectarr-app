@@ -26,6 +26,7 @@ class LibraryFlowCarousel extends StatefulWidget {
     required this.selectedIds,
     required this.accent,
     required this.emptyBuilder,
+    this.coverAspectRatio = 2 / 3,
     this.selectionEnabled = true,
     required this.onApplySelection,
     required this.onActivateItem,
@@ -41,6 +42,9 @@ class LibraryFlowCarousel extends StatefulWidget {
   final Set<String> selectedIds;
   final Color accent;
   final WidgetBuilder emptyBuilder;
+
+  /// Cover width / height of the kind, kept by every card.
+  final double coverAspectRatio;
   final bool selectionEnabled;
   final void Function(Set<String> ids, String focusedId) onApplySelection;
   final ValueChanged<String> onActivateItem;
@@ -167,6 +171,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                       child: _FlowCarouselCard(
                                         item: item,
                                         accent: widget.accent,
+                                        coverAspectRatio:
+                                            widget.coverAspectRatio,
                                         selected: widget.selectionEnabled &&
                                             widget.selectedIds
                                                 .contains(item.target.id),
@@ -558,10 +564,17 @@ class _FlowShelfToggle extends StatelessWidget {
   }
 }
 
+// Flow card metrics: the widest cover, and the card's padding and the title
+// and subtitle beneath the cover.
+const _kFlowCoverMaxWidth = 232.0;
+const _kFlowCardHorizontalPadding = 28.0;
+const _kFlowCardChromeHeight = 104.0;
+
 class _FlowCarouselCard extends StatefulWidget {
   const _FlowCarouselCard({
     required this.item,
     required this.accent,
+    required this.coverAspectRatio,
     required this.selected,
     required this.selectionMode,
     required this.focused,
@@ -574,6 +587,7 @@ class _FlowCarouselCard extends StatefulWidget {
 
   final LibraryProjectionItem item;
   final Color accent;
+  final double coverAspectRatio;
   final bool selected;
   final bool selectionMode;
   final bool focused;
@@ -613,120 +627,131 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
     final showSelectionToggle = widget.onSelectionToggleTap != null &&
         (widget.selectionMode || widget.selected || _hovered);
     final showEditButton = _hovered && widget.onEditTap != null;
-    return SizedBox(
-      width: 260,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          mouseCursor: WidgetStateMouseCursor.clickable,
-          borderRadius: kAppRadiusLarge,
-          hoverColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          onTap: widget.onTap,
-          onDoubleTap: widget.onDoubleTap,
-          onSecondaryTapUp: widget.onSecondaryTapUp,
-          onHover: (value) {
-            if (_hovered == value) {
-              return;
-            }
-            setState(() => _hovered = value);
-          },
-          child: AnimatedContainer(
-            duration: kAppAnimFast,
-            curve: Curves.easeOutCubic,
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
-            decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius: kAppRadiusLarge,
-              border: Border.all(
-                color: widget.selected
-                    ? palette.utilityAction
-                    : widget.focused
-                        ? widget.accent.withValues(alpha: 0.55)
-                        : palette.cardBorder,
-                width: widget.selected ? 2.2 : 1.1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black
-                      .withValues(alpha: widget.focused ? 0.34 : 0.18),
-                  blurRadius: widget.focused ? 36 : 18,
-                  offset: Offset(0, widget.focused ? 18 : 10),
+    // The card hugs a cover of the kind's aspect ratio, as tall as the stage
+    // allows beneath it the title and subtitle, so the cover never gets bars.
+    return LayoutBuilder(
+      builder: (context, constraints) => SizedBox(
+        width: math.min(
+                _kFlowCoverMaxWidth,
+                math.max(0.0, constraints.maxHeight - _kFlowCardChromeHeight) *
+                    widget.coverAspectRatio) +
+            _kFlowCardHorizontalPadding,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            mouseCursor: WidgetStateMouseCursor.clickable,
+            borderRadius: kAppRadiusLarge,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            onTap: widget.onTap,
+            onDoubleTap: widget.onDoubleTap,
+            onSecondaryTapUp: widget.onSecondaryTapUp,
+            onHover: (value) {
+              if (_hovered == value) {
+                return;
+              }
+              setState(() => _hovered = value);
+            },
+            child: AnimatedContainer(
+              duration: kAppAnimFast,
+              curve: Curves.easeOutCubic,
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: kAppRadiusLarge,
+                border: Border.all(
+                  color: widget.selected
+                      ? palette.utilityAction
+                      : widget.focused
+                          ? widget.accent.withValues(alpha: 0.55)
+                          : palette.cardBorder,
+                  width: widget.selected ? 2.2 : 1.1,
                 ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: LibraryInteractiveCover(
-                            title: title,
-                            itemNumber: itemNumber,
-                            imageUrl: dto.imageUrl,
-                            libraryEntryRef: widget.item.source.libraryEntryRef,
-                            accentColor: widget.accent,
-                            enableFullscreen: false,
-                            enableSecondaryControl: false,
-                            enableHoverCue: false,
-                          ),
-                        ),
-                      ),
-                      if (showEditButton)
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: LibraryTileHoverActionButton(
-                            icon: Icons.edit_outlined,
-                            tooltip: 'Edit item',
-                            onTap: widget.onEditTap!,
-                          ),
-                        ),
-                      if (showSelectionToggle)
-                        Positioned(
-                          left: 8,
-                          bottom: 8,
-                          child: LibraryTileSelectionToggleButton(
-                            onTap: widget.onSelectionToggleTap,
-                            child: LibraryTileSelectionToggle(
-                              selected: widget.selected,
-                              accentColor: palette.utilityAction,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black
+                        .withValues(alpha: widget.focused ? 0.34 : 0.18),
+                    blurRadius: widget.focused ? 36 : 18,
+                    offset: Offset(0, widget.focused ? 18 : 10),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AspectRatio(
+                    aspectRatio: widget.coverAspectRatio,
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(18),
+                            child: LibraryInteractiveCover(
+                              title: title,
+                              itemNumber: itemNumber,
+                              imageUrl: dto.imageUrl,
+                              libraryEntryRef:
+                                  widget.item.source.libraryEntryRef,
+                              accentColor: widget.accent,
+                              enableFullscreen: false,
+                              enableSecondaryControl: false,
+                              enableHoverCue: false,
                             ),
                           ),
                         ),
-                    ],
+                        if (showEditButton)
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: LibraryTileHoverActionButton(
+                              icon: Icons.edit_outlined,
+                              tooltip: 'Edit item',
+                              onTap: widget.onEditTap!,
+                            ),
+                          ),
+                        if (showSelectionToggle)
+                          Positioned(
+                            left: 8,
+                            bottom: 8,
+                            child: LibraryTileSelectionToggleButton(
+                              onTap: widget.onSelectionToggleTap,
+                              child: LibraryTileSelectionToggle(
+                                selected: widget.selected,
+                                accentColor: palette.utilityAction,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: kLibraryCardTitleColor,
-                        height: 1.2,
-                      ),
-                ),
-                if (subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 14),
                   Text(
-                    subtitle,
-                    maxLines: 1,
+                    title,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: appPalette(context).textMuted,
-                          fontWeight: FontWeight.w600,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: kLibraryCardTitleColor,
+                          height: 1.2,
                         ),
                   ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: appPalette(context).textMuted,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
