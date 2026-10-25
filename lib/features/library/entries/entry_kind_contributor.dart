@@ -134,7 +134,7 @@ abstract interface class EntryKindContributor {
 
   /// The Index a new entry takes: one past the highest Index in use, or null
   /// when the kind has no Index numbering.
-  Future<int?> nextIndexNumber(LocalDatabase database);
+  Future<int?> nextOrdinal(LocalDatabase database);
 }
 
 /// Generic orchestration for a kind's typed repository.
@@ -159,9 +159,9 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
     required this.markDeleted,
     required this.updateItemLocation,
     this.onCreated,
-    this.indexNumber,
-    this.withIndexNumber,
-  })  : assert((indexNumber == null) == (withIndexNumber == null)),
+    this.readOrdinal,
+    this.withOrdinal,
+  })  : assert((readOrdinal == null) == (withOrdinal == null)),
         assert((createItem == null) != (createItemWithCatalog == null));
 
   @override
@@ -180,10 +180,10 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
   final EntryKindMarkDeleted<TItem> markDeleted;
   final EntryKindUpdateLocation<TItem> updateItemLocation;
 
-  /// Reads and sets a typed entry's Index; both are given for kinds that
+  /// Reads and sets a typed entry's ordinal (its Index); both are given for kinds that
   /// number their entries.
-  final int? Function(TItem item)? indexNumber;
-  final TItem Function(TItem item, int indexNumber)? withIndexNumber;
+  final int? Function(TItem item)? readOrdinal;
+  final TItem Function(TItem item, int ordinal)? withOrdinal;
 
   /// Kind-owned local activity staged alongside a newly added entry.
   final Future<void> Function(LocalDatabase database, TItem item,
@@ -269,9 +269,9 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
           ?.toJson(),
     });
     await database.transaction(() async {
-      final next = withIndexNumber;
-      if (next != null && indexNumber!(item) == null) {
-        item = next(item, (await nextIndexNumber(database))!);
+      final next = withOrdinal;
+      if (next != null && readOrdinal!(item) == null) {
+        item = next(item, (await nextOrdinal(database))!);
       }
       await upsert(database, item);
       await onCreated?.call(database, item, payload);
@@ -414,8 +414,8 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
   }
 
   @override
-  Future<int?> nextIndexNumber(LocalDatabase database) async {
-    final read = indexNumber;
+  Future<int?> nextOrdinal(LocalDatabase database) async {
+    final read = readOrdinal;
     if (read == null) return null;
     var highest = 0;
     for (final item in await listActive(database)) {

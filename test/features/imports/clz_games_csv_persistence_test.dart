@@ -64,9 +64,9 @@ void main() {
           mappings: mappings, multiValueDelimiter: ';', headers: csv.first);
       final importer = container.read(collectionImportOrchestratorProvider);
       expect(await importer.importRows(rows), 1);
-      expect(await entryContributorForKind(kind).nextIndexNumber(db), 2);
+      expect(await entryContributorForKind(kind).nextOrdinal(db), 2);
       expect(await importer.importRows(rows), 1);
-      expect(await entryContributorForKind(kind).nextIndexNumber(db), 2);
+      expect(await entryContributorForKind(kind).nextOrdinal(db), 2);
 
       final ref =
           LibraryEntryRef(kind: kind, id: LibraryEntryId(rows.single.itemId));
