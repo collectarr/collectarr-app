@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_multi_valu
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_integer_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -481,11 +482,12 @@ class _LibraryEntryStatusStripState
       case PersonalLibraryFieldEditor.integer:
         return LibraryFormField(
           label: field.label,
-          child: LibraryTextFormControl(
+          child: LibraryIntegerField(
             key: ValueKey('entry-${field.key}'),
             initialValue:
                 (draft.number(field.key) ?? field.defaultInteger)?.toString() ??
                     '',
+            minimum: field.minimum ?? 0,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return field.minimum == null ? null : 'Enter a value';
@@ -496,7 +498,6 @@ class _LibraryEntryStatusStripState
                   ? 'Minimum ${field.minimum}'
                   : null;
             },
-            keyboardType: TextInputType.number,
             onChanged: (value) => draft.set(field.key, int.tryParse(value)),
           ),
         );

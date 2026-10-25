@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_integer_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_responsive_field_layout.dart';
 import 'package:flutter/material.dart';
 
@@ -39,19 +40,14 @@ class LibraryAddStatusStrip extends StatelessWidget {
               ?.call(request.commonDraft!.copyWith(collectionStatus: value))),
       LibraryFormField(
           label: 'Index',
-          child: LibraryTextFormControl(
+          child: LibraryIntegerField(
               initialValue: indexValue?.toString() ?? '',
-              keyboardType: TextInputType.number,
-              validator: (value) =>
-                  value == null || value.isEmpty || int.tryParse(value) != null
-                      ? null
-                      : 'Enter a whole number',
               onChanged: (value) => onIndexChanged(int.tryParse(value)))),
       LibraryFormField(
           label: 'Quantity',
-          child: LibraryTextFormControl(
+          child: LibraryIntegerField(
               initialValue: quantity.toString(),
-              keyboardType: TextInputType.number,
+              minimum: 1,
               validator: (value) =>
                   (int.tryParse(value ?? '') ?? 0) < 1 ? 'Minimum 1' : null,
               onChanged: (value) {
