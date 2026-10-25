@@ -345,6 +345,11 @@ void main() {
     await tester.tap(find.text('Vinyl'));
     await tester.pumpAndSettle();
     expect(selected?.id, vinyl.id);
+    // The open collection's own tab does nothing, as in the reference.
+    selected = null;
+    await tester.tap(find.text('Vinyl'));
+    await tester.pumpAndSettle();
+    expect(selected, isNull);
     await tester.tap(find.byKey(const ValueKey('library-collection-menu')));
     await tester.pumpAndSettle();
     final menu = find.byKey(const ValueKey('library-collection-dropup'));
