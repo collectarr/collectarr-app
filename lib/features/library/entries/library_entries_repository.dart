@@ -597,8 +597,8 @@ final class LibraryEntriesRepository {
   }
 
   /// The Index a new [kind] entry takes, or null when it has no Index.
-  Future<int?> nextIndexNumber(CatalogMediaKind kind) =>
-      collectarrEntryKindContributors[kind]?.nextIndexNumber(database) ??
+  Future<int?> nextOrdinal(CatalogMediaKind kind) =>
+      collectarrEntryKindContributors[kind]?.nextOrdinal(database) ??
       Future.value();
 
   Future<void> updateLocation(LibraryEntryRef ref, String? locationId) {

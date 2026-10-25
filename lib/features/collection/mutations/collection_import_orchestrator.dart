@@ -150,7 +150,7 @@ final class CollectionImportOrchestrator {
                     null)) {
           if (!nextIndexByKind.containsKey(catalogKind)) {
             nextIndexByKind[catalogKind] =
-                await libraryEntries.nextIndexNumber(catalogKind);
+                await libraryEntries.nextOrdinal(catalogKind);
           }
           assignedIndex = nextIndexByKind[catalogKind];
           if (assignedIndex != null) {
