@@ -38,6 +38,7 @@
 - Single-value dropdowns in the editor (Platform, Series, Location…) list plain 32 px rows without radio buttons, shade the current and hovered value, attach to the field and open empty when the list has no values, as in CLZ.
 - Location no longer offers a "No location" choice in the editor, Add and Pre-fill Settings; clearing the field leaves it empty, as in CLZ.
 - Saving an editor or Add with an empty Quantity stores 0 instead of asking for a value, and a quantity of 0 is kept by every library and import, as in CLZ.
+- The editor's empty Custom Fields tab reads as in CLZ and points to Customization > Manage Custom Fields in the main menu.
 
 ### 📚 Docs
 - The CLZ comparison records the Add Games layout, platform picker, editor rechecks and pick list Manage switch, and the platform names and Add list extras still open.
