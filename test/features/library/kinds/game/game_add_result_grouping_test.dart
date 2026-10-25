@@ -91,6 +91,19 @@ void main() {
 
     await tester.tap(find.text('Default US Edition'));
     expect(result, results[0].reference.id);
+
+    // Regions narrow the editions in place; one without editions is dimmed.
+    Material segment(String value) =>
+        tester.widget(find.byKey(ValueKey('library-add-facet-$value')));
+    expect(segment('eu').color, const Color(0xff555555));
+    await tester.tap(find.byKey(const ValueKey('library-add-facet-eu')));
+    await tester.pump();
+    expect(find.text('2000000000039'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('library-add-facet-us')));
+    await tester.pump();
+    expect(find.text('Default US Edition'), findsOneWidget);
+    expect(find.text('2000000000039'), findsNothing);
+    expect(find.text('2 Results'), findsOneWidget);
   });
 
   testWidgets('the confirm sheet shows platform, year, edition and region',

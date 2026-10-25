@@ -1005,6 +1005,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         selectedGroupKey: _selectedGroupKey,
         onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
         headerTrailing: kindControls,
+        onAddManually: () => _openManualDialog(accent, addCapability),
       ),
       overlay: selectedItem == null
           ? null

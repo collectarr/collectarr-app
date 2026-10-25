@@ -69,9 +69,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
       inputBuilder: _buildGameCoreSearchInput,
       resultFilter: (items, context) => [
         for (final item in items)
-          if (gameAddCandidateMatchesPlatform(item, context) &&
-              gameAddCandidateMatchesRegion(item, context))
-            item,
+          if (gameAddCandidateMatchesPlatform(item, context)) item,
       ],
       ranking: buildLibraryAddSearchRanking(
         fields: [
@@ -91,7 +89,6 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     ),
     presentation: LibraryAddSearchPresentationCapability(
       queryTrailingBuilder: buildGameAddPlatformControl,
-      controlsBuilder: buildGameAddRegionControl,
     ),
   ),
   manualPaneBuilder: buildGameAddManualPane,

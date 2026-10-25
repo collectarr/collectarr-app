@@ -57,6 +57,7 @@ class LibraryAddResultGrouping {
     required this.groupDetail,
     required this.variantLabel,
     required this.variantBadge,
+    this.variantFacet,
   });
 
   /// Results with the same key form one row.
@@ -72,8 +73,24 @@ class LibraryAddResultGrouping {
   /// The short tag at the right of a variant's caption.
   final String Function(CatalogSearchCandidate item) variantBadge;
 
+  /// Segments above the variants that narrow the chosen group's variants,
+  /// such as release regions; null when the kind has none.
+  final LibraryAddVariantFacet? variantFacet;
+
   static const listWidth = 460.0;
   static const dialogWidth = 1200.0;
+}
+
+/// Segments that narrow a group's variants without a new search. "All"
+/// comes first; a segment without variants in the chosen group is disabled.
+class LibraryAddVariantFacet {
+  const LibraryAddVariantFacet({required this.segments, required this.valueOf});
+
+  /// The segments after "All", as value and label.
+  final List<({String value, String label})> segments;
+
+  /// The segment a variant belongs to; null lists it under every segment.
+  final String? Function(CatalogSearchCandidate item) valueOf;
 }
 
 class LibraryAddResultPolicy {
