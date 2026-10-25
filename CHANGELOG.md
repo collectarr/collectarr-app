@@ -52,6 +52,7 @@
 - The alphabet bar hides its options button and divider when there is only one field to choose.
 - The Tools menu no longer repeats Keyboard Shortcuts, Print / PDF report and Export to CSV / TXT, which are in the main menu, and drops Missing covers, Missing metadata (use folders instead), Download all covers and Tag values.
 - A search or filter without results shows CLZ's blue "No results found..." banner with a Reset all filters button.
+- The Collection Status filter follows each entry's status, so For Sale and On Order work and a changed status moves the entry at once, and folder counts count only the entries the filter shows, as in CLZ.
 
 ### ♻️ Refactors
 - Games no longer have a Core Region field or column: Collectarr never fetches PriceCharting prices, and the PriceCharting ID already names the NTSC or PAL release. Upgrading removes stored Core Region values.

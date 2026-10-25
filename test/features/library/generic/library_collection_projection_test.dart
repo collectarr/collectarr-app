@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -56,5 +57,58 @@ void main() {
     expect(project({}).allItems, isEmpty);
     expect(
         project({'entry-b'}).filteredItems.single.dto.primaryLabel, 'Album b');
+  });
+
+  test('Collection Status scope reads the entry status and scopes folders', () {
+    final type = defaultLibraryKindRegistry.require(CatalogMediaKind.music);
+    final shelf = ShelfState(
+      entries: [
+        for (final (id, artist, status) in [
+          ('a', 'Artist a', null),
+          ('b', 'Artist a', 'For Sale'),
+          ('c', 'Artist c', 'Wish List'),
+        ])
+          testLibraryWorkspaceSource(
+            itemId: 'catalog-$id',
+            kind: 'music',
+            title: 'Album $id',
+            libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+                id: 'entry-$id',
+                itemId: 'catalog-$id',
+                kind: 'music',
+                catalogTitle: 'Album $id',
+                collectionStatus: status)),
+            catalogData: MusicWorkspaceData.fromMusic(MusicAlbum(
+              id: CatalogItemRef(
+                  kind: CatalogMediaKind.music, id: 'catalog-$id'),
+              title: 'Album $id',
+              artist: artist,
+            )),
+          ),
+      ],
+      entryCount: 3,
+      wishlistCount: 0,
+      pricedCount: 0,
+      totalPaidCents: null,
+      primaryCurrency: null,
+      hasMixedCurrencies: false,
+    );
+    LibraryProjection project(LibraryCollectionStatusScope scope) =>
+        LibraryProjectionEngine().execute(
+          shelf: shelf,
+          type: type,
+          viewState: libraryViewProfileForKind(type.kind).defaults(),
+          query: LibraryProjectionQuery(collectionStatusScope: scope),
+        );
+    List<String> shown(LibraryCollectionStatusScope scope) =>
+        project(scope).filteredItems.map((i) => i.target.id).toList()..sort();
+    // In Collection keeps the owned For Sale copy; the others match exactly.
+    expect(shown(LibraryCollectionStatusScope.inCollection),
+        ['catalog-a', 'catalog-b']);
+    expect(shown(LibraryCollectionStatusScope.forSale), ['catalog-b']);
+    expect(shown(LibraryCollectionStatusScope.wishList), ['catalog-c']);
+    // Folders count only the scoped items, as in the reference.
+    final buckets = project(LibraryCollectionStatusScope.inCollection).buckets;
+    expect(buckets.any((b) => b.title == 'Artist c'), isFalse);
   });
 }
