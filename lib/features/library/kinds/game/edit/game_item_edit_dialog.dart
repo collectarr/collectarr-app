@@ -135,6 +135,7 @@ final class _GameItemEditDialogState extends State<_GameItemEditDialog> {
           label: 'Covers',
           icon: AppIcons.tabCovers,
           content: GameCoversTab(
+            searchTitle: () => _draft.values.title,
             images: [
               for (final image in widget.request.itemImages)
                 if (image.imageType == 'front_cover' ||

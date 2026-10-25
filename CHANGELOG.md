@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### ✨ Features
+- Game covers can be found online (Find Online) from the Covers tab.
+
 ### 🐛 Fixes
 - Cover panels separate their Find Online, Upload, Remove and Crop / Rotate actions with thin dividers.
 - Imports show a progress window while a file is read and while records are imported, and report success in a banner on the page instead of a dialog.

@@ -136,6 +136,7 @@ class _GameAddManualPaneState extends State<GameAddManualPane> {
           label: 'Covers',
           icon: AppIcons.tabCovers,
           content: GameCoversTab(
+            searchTitle: () => draft.values.title,
             images: [
               for (final image in request.itemImages)
                 if (_isCover(image)) image,

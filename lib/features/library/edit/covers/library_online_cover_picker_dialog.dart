@@ -2,35 +2,51 @@ import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_online_cover_search.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-final class MusicOnlineCoverPickerDialog extends StatefulWidget {
-  const MusicOnlineCoverPickerDialog(
-      {super.key,
-      this.artist = '',
-      this.title = '',
-      this.barcode = '',
-      this.search});
-  final String artist;
+/// One online cover result: the item it belongs to and the image to fetch.
+final class LibraryOnlineCoverCandidate {
+  const LibraryOnlineCoverCandidate(
+      {required this.title, required this.subtitle, required this.imageUrl});
   final String title;
-  final String barcode;
-  final MusicOnlineCoverSearch? search;
-  @override
-  State<MusicOnlineCoverPickerDialog> createState() =>
-      _MusicOnlineCoverPickerDialogState();
+  final String subtitle;
+  final String imageUrl;
 }
 
-final class _MusicOnlineCoverPickerDialogState
-    extends State<MusicOnlineCoverPickerDialog> {
-  late final _search = widget.search ?? MusicOnlineCoverSearch();
+/// Kind-owned online cover search; [barcode] is set when the barcode token is
+/// still part of the query.
+typedef LibraryOnlineCoverSearch = Future<List<LibraryOnlineCoverCandidate>>
+    Function(String query, {String? barcode});
+
+final class LibraryOnlineCoverPickerDialog extends StatefulWidget {
+  const LibraryOnlineCoverPickerDialog(
+      {super.key,
+      required this.search,
+      required this.hint,
+      this.tokens = const [],
+      this.barcode = ''});
+
+  /// Search terms offered as checkboxes and joined into the first query.
+  final List<String> tokens;
+  final String barcode;
+  final LibraryOnlineCoverSearch search;
+
+  /// What can be searched, e.g. "Album title, artist or barcode".
+  final String hint;
+  @override
+  State<LibraryOnlineCoverPickerDialog> createState() =>
+      _LibraryOnlineCoverPickerDialogState();
+}
+
+final class _LibraryOnlineCoverPickerDialogState
+    extends State<LibraryOnlineCoverPickerDialog> {
   late final TextEditingController _queryController;
   late final Map<String, bool> _tokens = {
-    for (final text in [widget.artist, widget.title, widget.barcode])
+    for (final text in [...widget.tokens, widget.barcode])
       if (text.trim().isNotEmpty) text.trim(): true
   };
-  List<MusicOnlineCoverCandidate> _candidates = const [];
+  List<LibraryOnlineCoverCandidate> _candidates = const [];
   String? _error;
   bool _loading = false;
   bool _hasSearched = false;
@@ -61,13 +77,12 @@ final class _MusicOnlineCoverPickerDialogState
     setState(() {
       _loading = query.isNotEmpty;
       _hasSearched = true;
-      _error =
-          query.isEmpty ? 'Enter an album title, artist or barcode.' : null;
+      _error = query.isEmpty ? 'Enter ${widget.hint.toLowerCase()}.' : null;
       _candidates = const [];
     });
     if (query.isEmpty) return;
     try {
-      final candidates = await _search.search(query,
+      final candidates = await widget.search(query,
           barcode:
               _tokens[widget.barcode.trim()] == true && query == _tokenQuery
                   ? widget.barcode.trim()
@@ -110,8 +125,8 @@ final class _MusicOnlineCoverPickerDialogState
                           autofocus: true,
                           style: context.libraryTextTheme.controlText,
                           textAlignVertical: TextAlignVertical.center,
-                          decoration: const InputDecoration(
-                              hintText: 'Album title, artist or barcode',
+                          decoration: InputDecoration(
+                              hintText: widget.hint,
                               isDense: true,
                               constraints: BoxConstraints(
                                   minHeight: LibraryMetrics.defaultFieldHeight),
@@ -162,7 +177,7 @@ final class _MusicOnlineCoverPickerDialogState
                                 ? Center(
                                     child: Text(_hasSearched
                                         ? 'No online covers found.'
-                                        : 'Search by album title, artist or barcode.'))
+                                        : 'Search by ${widget.hint.toLowerCase()}.'))
                                 : GridView.builder(
                                     padding: const EdgeInsets.all(13),
                                     gridDelegate:
@@ -172,12 +187,10 @@ final class _MusicOnlineCoverPickerDialogState
                                             mainAxisSpacing: 10,
                                             mainAxisExtent: 138),
                                     itemCount: _candidates.length,
-                                    itemBuilder: (_, index) =>
-                                        _MusicOnlineCoverTile(
-                                            candidate: _candidates[index],
-                                            onSelected: () =>
-                                                Navigator.of(context)
-                                                    .pop(_candidates[index])),
+                                    itemBuilder: (_, index) => _OnlineCoverTile(
+                                        candidate: _candidates[index],
+                                        onSelected: () => Navigator.of(context)
+                                            .pop(_candidates[index])),
                                   ))),
           ])),
     );
@@ -189,16 +202,15 @@ final class _MusicOnlineCoverPickerDialogState
   }
 }
 
-final class _MusicOnlineCoverTile extends StatefulWidget {
-  const _MusicOnlineCoverTile(
-      {required this.candidate, required this.onSelected});
-  final MusicOnlineCoverCandidate candidate;
+final class _OnlineCoverTile extends StatefulWidget {
+  const _OnlineCoverTile({required this.candidate, required this.onSelected});
+  final LibraryOnlineCoverCandidate candidate;
   final VoidCallback onSelected;
   @override
-  State<_MusicOnlineCoverTile> createState() => _MusicOnlineCoverTileState();
+  State<_OnlineCoverTile> createState() => _OnlineCoverTileState();
 }
 
-final class _MusicOnlineCoverTileState extends State<_MusicOnlineCoverTile> {
+final class _OnlineCoverTileState extends State<_OnlineCoverTile> {
   ImageStream? _stream;
   late final ImageStreamListener _listener = ImageStreamListener((info, _) {
     if (mounted) {
@@ -228,7 +240,7 @@ final class _MusicOnlineCoverTileState extends State<_MusicOnlineCoverTile> {
 
   @override
   Widget build(BuildContext context) => Tooltip(
-      message: '${widget.candidate.title}\n${widget.candidate.artist}',
+      message: '${widget.candidate.title}\n${widget.candidate.subtitle}',
       child: Material(
         color: appPalette(context).panelRaised,
         child: InkWell(

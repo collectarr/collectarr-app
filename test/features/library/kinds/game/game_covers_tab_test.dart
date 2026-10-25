@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_covers_tab.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 
@@ -12,7 +13,8 @@ void main() {
     final png =
         Uint8List.fromList(img.encodePng(img.Image(width: 2, height: 2)));
     List<ItemImageEdit>? edits;
-    await tester.pumpWidget(MaterialApp(
+    await tester.pumpWidget(ProviderScope(
+        child: MaterialApp(
       home: Scaffold(
         body: SizedBox(
           width: 1000,
@@ -29,15 +31,15 @@ void main() {
             originalCoverImageUrl: '',
             onCoverImageUrlChanged: (_) {},
             onEdits: (value) => edits = value,
+            searchTitle: () => 'Halo',
           ),
         ),
       ),
-    ));
+    )));
 
     expect(find.text('Front Cover'), findsOneWidget);
     expect(find.text('Back Cover'), findsOneWidget);
-    // Find Online needs a kind search; Games has none.
-    expect(find.text('Find Online'), findsNothing);
+    expect(find.text('Find Online'), findsNWidgets(2));
 
     await tester.tap(find.text('Remove'));
     await tester.pump();
