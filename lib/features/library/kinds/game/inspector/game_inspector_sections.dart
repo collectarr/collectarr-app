@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/game/data/game_library_ent
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/game_market_links.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
@@ -20,7 +21,6 @@ import 'package:collectarr_app/features/library/ui/primitives/library_collection
     show libraryCollectionStatusFromValue;
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -208,21 +208,12 @@ class _GameEbayLink extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final preferences = ref.watch(uiPreferencesProvider);
-    if (!preferences.ebayNextToCover ||
-        !preferences.allowsEbayLinks(isWishlisted)) {
+    if (!ref.watch(uiPreferencesProvider).ebayNextToCover) {
       return const SizedBox.shrink();
     }
     return Padding(
       padding: const EdgeInsets.only(top: 18),
-      child: InkWell(
-        onTap: () => launchEbaySearch(query, isWishlisted: isWishlisted),
-        child: Text('Find sold listings on eBay',
-            style: TextStyle(
-                fontSize: 15,
-                color: appPalette(context).link,
-                decoration: TextDecoration.underline)),
-      ),
+      child: GameEbaySoldLink(query: query, isWishlisted: isWishlisted),
     );
   }
 }
@@ -278,8 +269,13 @@ class _GameValueBadge extends StatelessWidget {
             color: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 3),
             alignment: Alignment.center,
-            child: const Text('Values by PriceCharting',
-                style: TextStyle(fontSize: 14, color: Color(0xFF3680A3))),
+            child: GamePriceChartingLink(
+              label: 'Values by PriceCharting',
+              priceChartingId: personal.details.priceChartingId,
+              fontSize: 14,
+              plainStyle:
+                  const TextStyle(fontSize: 14, color: Color(0xFF3680A3)),
+            ),
           ),
       ]),
     );
