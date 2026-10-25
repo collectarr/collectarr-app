@@ -81,6 +81,8 @@ class _LibraryCollectionTabBarState
         .where((collection) => collection.kind == widget.mediaKind)
         .toList());
     Future<void> select(LibraryCollectionSummary collection) async {
+      // As in the reference, the open collection's own tab does nothing.
+      if (collection.id == activeId) return;
       await repo.activate(collection.id);
       if (!context.mounted) return;
       if (collection.kind != widget.mediaKind) {
