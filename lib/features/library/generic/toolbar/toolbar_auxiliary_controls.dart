@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'library_alphabet_options.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
@@ -13,8 +14,10 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/generic/library_folder_reorder_list.dart';
+import 'package:collectarr_app/features/library/generic/library_folder_reorder_row.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:flutter/material.dart';
 
 const libraryManageSortFavoritesMenuValue = 'manage_sort_favorites';
@@ -24,6 +27,7 @@ Future<Set<String>?> showSortFavoritesManagerDialog({
   required LibraryKindRegistration type,
   required List<LibrarySortFavorite> favorites,
   required Set<String> initialPinnedIds,
+  String? activeFavoriteId,
 }) {
   return showAppDialog<Set<String>>(
     context: context,
@@ -31,6 +35,7 @@ Future<Set<String>?> showSortFavoritesManagerDialog({
       type: type,
       favorites: favorites,
       initialPinnedIds: initialPinnedIds,
+      activeFavoriteId: activeFavoriteId,
     ),
   );
 }
@@ -431,11 +436,13 @@ class _SortFavoritesManagerDialog extends StatefulWidget {
     required this.type,
     required this.favorites,
     required this.initialPinnedIds,
+    this.activeFavoriteId,
   });
 
   final LibraryKindRegistration type;
   final List<LibrarySortFavorite> favorites;
   final Set<String> initialPinnedIds;
+  final String? activeFavoriteId;
 
   @override
   State<_SortFavoritesManagerDialog> createState() =>
@@ -509,121 +516,250 @@ class _SortFavoritesManagerDialogState
     }
   }
 
+  String _fieldLabel(String id) {
+    final fields =
+        libraryKindWorkspaceForKind(widget.type.kind).workspaceFields;
+    return fields.sortDefinitionFor(fields.decodeSortId(id)).label;
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final isDark = palette.isDark;
     final available = _allFavorites
         .where((f) => !_pinnedFavorites.any((p) => p.id == f.id))
         .toList();
+    // The reference Sorting Favorites manager, laid out like Manage Folder
+    // Favorites: a heading with the blue add button over bordered rows.
     return Dialog(
-      insetPadding: const EdgeInsets.fromLTRB(20, kAppDialogTopInset, 20, 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      alignment: Alignment.topCenter,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
+      backgroundColor: pickListSurface(context),
       clipBehavior: Clip.antiAlias,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 600, maxHeight: 640),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          AccentDialogHeader(
-              title: 'Manage Sorting Favorites',
-              icon: AppIcons.sortAlpha,
-              onClose: _busy ? null : _close),
-          Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
-              child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text('Sorting Favorites',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: palette.textPrimary)))),
-          Flexible(
-              child: ReorderableListView.builder(
-            shrinkWrap: true,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            buildDefaultDragHandles: false,
-            itemCount: _pinnedFavorites.length,
-            onReorderItem: (oldIndex, newIndex) => setState(() {
-              _pinnedFavorites.insert(
-                  newIndex, _pinnedFavorites.removeAt(oldIndex));
-            }),
-            itemBuilder: (context, index) {
-              final favorite = _pinnedFavorites[index];
-              return SizedBox(
-                  key: ValueKey('sortFavorite_${favorite.id}'),
-                  height: 38,
-                  child: Row(children: [
-                    ReorderableDragStartListener(
-                        index: index,
-                        enabled: !_busy,
-                        child: const MouseRegion(
-                            cursor: SystemMouseCursors.grab,
-                            child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 6),
-                                child: Icon(Icons.drag_indicator, size: 16)))),
-                    Expanded(
-                        child: _LibraryToolbarSortMenuRow(
-                            label: favorite.label,
-                            icon: null,
-                            rules: favorite.rules,
-                            fieldLabel: (id) =>
-                                libraryKindWorkspaceForKind(widget.type.kind)
-                                    .workspaceFields
-                                    .sortDefinitionFor(
-                                        libraryKindWorkspaceForKind(
-                                                widget.type.kind)
-                                            .workspaceFields
-                                            .decodeSortId(id))
-                                    .label)),
-                    TextButton.icon(
-                        style: TextButton.styleFrom(
-                            foregroundColor: palette.textPrimary),
-                        onPressed: _busy ? null : () => _edit(favorite),
-                        icon: const Icon(AppIcons.inlineEdit, size: 14),
-                        label: const Text('Edit')),
-                    IconButton(
-                        tooltip: 'Remove favorite',
-                        icon: const Icon(AppIcons.delete, size: 16),
-                        onPressed: _busy
-                            ? null
-                            : () => setState(
-                                () => _pinnedFavorites.removeAt(index))),
-                  ]));
-            },
-          )),
-          if (_pinnedFavorites.isEmpty)
-            const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('No sorting favorites.')),
-          Padding(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 12),
-              child: Row(children: [
-                PopupMenuButton<LibrarySortFavorite>(
-                  popUpAnimationStyle: AnimationStyle.noAnimation,
-                  tooltip: 'Add Favorite',
-                  onSelected: (favorite) =>
-                      setState(() => _pinnedFavorites.add(favorite)),
-                  itemBuilder: (context) => [
-                    for (final favorite in available)
-                      PopupMenuItem(
-                          value: favorite, child: Text(favorite.label))
-                  ],
-                  child: const Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Row(children: [
-                        Icon(AppIcons.add, size: 14),
-                        SizedBox(width: 6),
-                        Text('Add Favorite'),
-                        Icon(AppIcons.chevronDown, size: 12)
-                      ])),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      child: SizedBox(
+        width: 600,
+        // Sized to its rows: 217 px for one favorite, as in the reference.
+        height: math.min(168.0 + 49 * math.max(_pinnedFavorites.length, 1),
+            math.max(0.0, MediaQuery.sizeOf(context).height - 60)),
+        child: DefaultTextStyle.merge(
+          style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: palette.textPrimary),
+          child: Column(children: [
+            PickListHeader(
+                icon: AppIcons.sortAlpha,
+                title: 'Manage Sorting Favorites',
+                onClose: _busy ? null : _close),
+            Expanded(
+              child: ColoredBox(
+                color: isDark ? const Color(0xff1d1d1d) : palette.panel,
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Row(children: [
+                            const Expanded(
+                              child: Text('Sorting Favorites',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      height: 26 / 18)),
+                            ),
+                            Tooltip(
+                              message: 'New sorting favorite',
+                              child: FilledButton(
+                                key: const ValueKey('sortFavoritesAddButton'),
+                                onPressed: _busy ? null : _edit,
+                                style: pickListButtonStyle(context),
+                                child: const Icon(Icons.add, size: 16),
+                              ),
+                            ),
+                          ]),
+                        ),
+                        const SizedBox(height: 15),
+                        if (_pinnedFavorites.isEmpty)
+                          Container(
+                            height: 44,
+                            alignment: Alignment.center,
+                            child: Text('No sorting favorites.',
+                                style: TextStyle(
+                                    color:
+                                        libraryToolbarMenuMutedText(context))),
+                          )
+                        else
+                          Expanded(
+                            child: LibraryFolderReorderList(
+                              padding: EdgeInsets.zero,
+                              placeholderColor: const Color(0xff808080),
+                              rowSpacing: 5,
+                              itemCount: _pinnedFavorites.length,
+                              onReorder: (oldIndex, newIndex) => setState(() {
+                                _pinnedFavorites.insert(newIndex,
+                                    _pinnedFavorites.removeAt(oldIndex));
+                              }),
+                              itemBuilder: (context, index) =>
+                                  _buildFavorite(context, index),
+                            ),
+                          ),
+                      ]),
                 ),
-                TextButton(
-                    onPressed: _busy ? null : _edit,
-                    child: const Text('New Favorite')),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xff383838)
+                    : libraryToolbarControlSurface(context),
+                border:
+                    Border(top: BorderSide(color: pickListDivider(context))),
+              ),
+              child: Row(children: [
+                // Re-adds a built-in favorite that was removed.
+                if (available.isNotEmpty)
+                  PopupMenuButton<LibrarySortFavorite>(
+                    popUpAnimationStyle: AnimationStyle.noAnimation,
+                    tooltip: 'Add Favorite',
+                    onSelected: (favorite) =>
+                        setState(() => _pinnedFavorites.add(favorite)),
+                    itemBuilder: (context) => [
+                      for (final favorite in available)
+                        PopupMenuItem(
+                            value: favorite,
+                            child: _SortFavoriteRules(
+                                rules: favorite.rules, fieldLabel: _fieldLabel))
+                    ],
+                    child: const Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Row(children: [
+                          Icon(AppIcons.add, size: 14),
+                          SizedBox(width: 6),
+                          Text('Add Favorite'),
+                          Icon(AppIcons.chevronDown, size: 12)
+                        ])),
+                  ),
                 const Spacer(),
-                DialogActionButtons.cancel(
-                    label: 'Close', onPressed: _busy ? null : _close),
-              ])),
-        ]),
+                FilledButton(
+                  key: const ValueKey('sortFavoritesCloseButton'),
+                  onPressed: _busy ? null : _close,
+                  style: pickListButtonStyle(context,
+                      primary: false, footer: true),
+                  child: const Text('Close'),
+                ),
+              ]),
+            ),
+          ]),
+        ),
       ),
+    );
+  }
+
+  Widget _buildFavorite(BuildContext context, int index) {
+    final favorite = _pinnedFavorites[index];
+    final isDark = appPalette(context).isDark;
+    final rowColor = isDark
+        ? const Color(0xff444444)
+        : libraryToolbarControlSurface(context);
+    return LibraryFolderReorderRow(
+      key: ValueKey('sortFavorite_${favorite.id}'),
+      color: rowColor,
+      hoverColor: rowColor,
+      borderColor:
+          isDark ? const Color(0xff666666) : libraryToolbarMenuBorder(context),
+      minHeight: 44,
+      padding: const EdgeInsets.all(5),
+      bottomSpacing: 5,
+      child: Row(children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 5),
+          child: Icon(AppIcons.menu,
+              size: 16, color: libraryToolbarMenuMutedText(context)),
+        ),
+        // The reference marks the favorite the list is sorted by.
+        SizedBox(
+          width: 28,
+          child: favorite.id == widget.activeFavoriteId
+              ? const Icon(Icons.radio_button_checked,
+                  key: ValueKey('sortFavoriteActive'), size: 16)
+              : null,
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: _SortFavoriteRules(
+                rules: favorite.rules, fieldLabel: _fieldLabel),
+          ),
+        ),
+        FilledButton.icon(
+          onPressed: _busy ? null : () => _edit(favorite),
+          style: pickListButtonStyle(context, primary: false).copyWith(
+            textStyle: const WidgetStatePropertyAll(
+                TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
+          ),
+          icon: const Icon(AppIcons.inlineEdit, size: 14),
+          label: const Text('Edit'),
+        ),
+        const SizedBox(width: 5),
+        Tooltip(
+          message: 'Remove favorite',
+          child: FilledButton(
+            onPressed: _busy
+                ? null
+                : () => setState(() => _pinnedFavorites.removeAt(index)),
+            style: pickListButtonStyle(context).copyWith(
+              backgroundColor: const WidgetStatePropertyAll(Color(0xffd9534f)),
+              foregroundColor: const WidgetStatePropertyAll(Colors.white),
+              minimumSize: const WidgetStatePropertyAll(Size(28, 32)),
+              fixedSize: const WidgetStatePropertyAll(Size(28, 32)),
+              padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+            ),
+            child: const Icon(AppIcons.removeAction, size: 14),
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+/// "Platform ASC | Title ASC": bold field names with the reference's white
+/// direction badges.
+class _SortFavoriteRules extends StatelessWidget {
+  const _SortFavoriteRules({required this.rules, required this.fieldLabel});
+
+  final List<LibrarySortRule> rules;
+  final String Function(String id) fieldLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    const style = TextStyle(fontSize: 14, fontWeight: FontWeight.w700);
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        for (final (index, rule) in rules.indexed) ...[
+          if (index > 0)
+            const Padding(
+                padding: EdgeInsets.only(right: 6),
+                child: Text('|', style: style)),
+          Text(fieldLabel(rule.column), style: style),
+          Container(
+            margin: const EdgeInsets.only(left: 4, right: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 3),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(4)),
+            child: Text(rule.ascending ? 'ASC' : 'DESC',
+                style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w400,
+                    height: 13 / 10,
+                    color: Color(0xff1d1d1d))),
+          ),
+        ],
+      ],
     );
   }
 }

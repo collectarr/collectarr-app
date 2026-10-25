@@ -513,6 +513,7 @@ void main() {
                   type: type,
                   favorites: [sortFavorite, secondFavorite],
                   initialPinnedIds: {sortFavorite.id},
+                  activeFavoriteId: sortFavorite.id,
                 );
               },
               child: const Text('Open'),
@@ -530,9 +531,20 @@ void main() {
     expect(find.text('Available Favorites'), findsNothing);
     expect(find.byKey(ValueKey('sortFavorite_${sortFavorite.id}')),
         findsOneWidget);
+    // As in the reference: the active favorite is marked and each rule
+    // carries an ASC or DESC badge.
+    expect(
+        find.descendant(
+            of: find.byKey(ValueKey('sortFavorite_${sortFavorite.id}')),
+            matching: find.byKey(const ValueKey('sortFavoriteActive'))),
+        findsOneWidget);
+    expect(find.text(sortFavorite.rules.first.ascending ? 'ASC' : 'DESC'),
+        findsWidgets);
+    expect(find.byKey(const ValueKey('sortFavoritesAddButton')),
+        findsOneWidget);
     await tester.tap(find.byTooltip('Add Favorite'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(secondFavorite.label));
+    await tester.tap(find.byType(PopupMenuItem<LibrarySortFavorite>).last);
     await tester.pumpAndSettle();
     expect(find.byKey(ValueKey('sortFavorite_${secondFavorite.id}')),
         findsOneWidget);
