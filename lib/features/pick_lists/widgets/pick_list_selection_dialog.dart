@@ -197,10 +197,9 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
         if (changes.apply(listName, selected) case final value?)
           normalizePickListValue(value)
     };
-    setState(() {
-      _managing = false;
-      _busy = true;
-    });
+    // The list stays on screen while it reloads, so returning does not
+    // flash a spinner.
+    setState(() => _managing = false);
     await _load();
   }
 

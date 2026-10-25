@@ -47,7 +47,7 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
           Text(text,
               style: TextStyle(
                   fontSize: secondary ? 12 : 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: kAppBoldFontWeight,
                   color: secondary ? appPalette(context).textMuted : null)),
           if (_sort == sort)
             Icon(_descending ? Icons.arrow_drop_down : Icons.arrow_drop_up,
@@ -121,9 +121,7 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                         foregroundPainter:
                             _PickListGrid(pickListDivider(context), selecting),
                         child: Material(
-                            color: selected
-                                ? palette.selection.withValues(alpha: 0.32)
-                                : pickListRow(context, index),
+                            color: pickListRow(context, index),
                             child: InkWell(
                                 onTap:
                                     onTap == null ? null : () => onTap(value),
@@ -139,17 +137,19 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                                                   ? Icon(selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
                                                       size: 18,
                                                       color: selected
-                                                          ? palette.accent
+                                                          ? palette
+                                                              .utilityAction
                                                           : palette.textMuted)
                                                   : Icon(
                                                       selected
-                                                          ? Icons
-                                                              .check_box_outlined
+                                                          ? Icons.check_box
                                                           : Icons
                                                               .check_box_outline_blank,
                                                       size: 18,
-                                                      color:
-                                                          palette.textPrimary))
+                                                      color: selected
+                                                          ? palette
+                                                              .utilityAction
+                                                          : palette.textMuted))
                                               : IconButton(
                                                   style: IconButton.styleFrom(
                                                       backgroundColor:
@@ -162,7 +162,8 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                                                   onPressed: onTap == null
                                                       ? null
                                                       : () => onTap(value),
-                                                  icon: const Icon(Icons.edit_outlined,
+                                                  icon: const Icon(
+                                                      Icons.edit_outlined,
                                                       size: 16),
                                                   color: palette.textMuted,
                                                   padding: EdgeInsets.zero,

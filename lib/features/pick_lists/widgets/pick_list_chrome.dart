@@ -61,6 +61,12 @@ ButtonStyle pickListButtonStyle(BuildContext context,
           width: 0,
           color: primary ? palette.utilityAction : pickListToolbar(context))
       .copyWith(
+          textStyle: WidgetStatePropertyAll(TextStyle(
+              fontFamily: appFontFamily,
+              fontFamilyFallback: kAppFontFamilyFallback,
+              fontSize: 14,
+              fontWeight: kAppBoldFontWeight,
+              height: 20 / 14)),
           foregroundColor: WidgetStatePropertyAll(
               primary ? Colors.white : palette.textPrimary));
 }
