@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 
 import 'package:collectarr_app/ui/pick_list_field_button.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_dropdown_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
@@ -142,42 +143,33 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     if (!widget.enabled) {
       return;
     }
-    final geometry = AnchoredPopupGeometry.measure(context, _fieldAnchorKey);
+    // The reference's menu overlaps the field's bottom border.
+    final geometry =
+        AnchoredPopupGeometry.measure(context, _fieldAnchorKey, gap: -1);
     if (geometry == null || geometry.bounds.height <= 0) {
       await _openPickerDialog(options);
       return;
     }
-    final currentValue = _emptyToNull(widget.controller.text);
-    final matchingOptions = options;
-    final popupItems = matchingOptions.isEmpty
+    final currentValue = _emptyToNull(widget.controller.text)?.toLowerCase();
+    final menu = AppDropdownMenuStyle.of(context);
+    // An empty list opens as the reference's empty menu.
+    final popupItems = options.isEmpty
         ? const <PopupMenuEntry<String>>[
             PopupMenuItem<String>(
-              enabled: false,
-              child: Text('No matching values'),
-            ),
+                enabled: false,
+                height: 0,
+                padding: EdgeInsets.zero,
+                child: SizedBox.shrink()),
           ]
         : <PopupMenuEntry<String>>[
-            for (final option in matchingOptions)
-              PopupMenuItem<String>(
-                value: option,
-                height: 30,
-                padding: const EdgeInsets.symmetric(horizontal: 7),
-                child: Row(
-                  children: [
-                    Icon(
-                      currentValue?.toLowerCase() == option.toLowerCase()
-                          ? Icons.radio_button_checked
-                          : Icons.radio_button_unchecked,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                        child: Text(option,
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w400))),
-                  ],
-                ),
-              ),
+            for (final option in options)
+              menu.row(
+                  value: option,
+                  current: currentValue == option.toLowerCase(),
+                  child: Text(option,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w400))),
           ];
     final selected = await showMenu<String>(
       context: context,
@@ -187,13 +179,11 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         maxWidth: geometry.bounds.width,
         maxHeight: geometry.bounds.height,
       ),
-      color: appPalette(context).panelRaised,
-      shape: RoundedRectangleBorder(
-        borderRadius: appPalette(context).menuBorderRadius,
-        side: BorderSide(color: appPalette(context).divider),
-      ),
+      color: menu.background,
+      shape: menu.shape,
+      elevation: AppDropdownMenuStyle.elevation,
       surfaceTintColor: Colors.transparent,
-      menuPadding: EdgeInsets.zero,
+      menuPadding: const EdgeInsets.only(top: 5),
       items: popupItems,
       popUpAnimationStyle: AnimationStyle.noAnimation,
     );

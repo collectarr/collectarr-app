@@ -2,6 +2,7 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_dropdown_menu.dart';
 import 'package:flutter/material.dart';
 
 /// Main Add action with a separately selectable destination status.
@@ -35,7 +36,6 @@ class LibraryAddStatusButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final accent = collectionStatus.color;
     return Row(mainAxisSize: MainAxisSize.min, children: [
       Flexible(
@@ -76,12 +76,10 @@ class LibraryAddStatusButton extends StatelessWidget {
         enabled: !isBusy && onStatusChanged != null,
         onSelected: onStatusChanged,
         menuPadding: EdgeInsets.zero,
-        color: palette.panelRaised,
+        color: AppDropdownMenuStyle.of(context).background,
         surfaceTintColor: Colors.transparent,
         constraints: const BoxConstraints(minWidth: 190, maxWidth: 240),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-            side: BorderSide(color: palette.divider)),
+        shape: AppDropdownMenuStyle.of(context).shape,
         itemBuilder: (context) => [
           ...libraryCollectionStatusEditMenuItems(context, rowHeight: 31),
           if (onPrefillSettings != null) ...[

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dropdown_menu.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -6,11 +7,12 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// CLZ's grouped status menu: dimmed bold group headings over indented
-/// statuses, with the [selected] status shaded.
+/// statuses, with the [selected] status and the hovered one shaded.
 List<PopupMenuEntry<LibraryCollectionStatusScope>>
     libraryCollectionStatusEditMenuItems(BuildContext context,
         {LibraryCollectionStatusScope? selected, double rowHeight = 32}) {
   final palette = appPalette(context);
+  final menu = AppDropdownMenuStyle.of(context);
   PopupMenuEntry<LibraryCollectionStatusScope> heading(String label) =>
       PopupMenuItem(
           enabled: false,
@@ -23,7 +25,7 @@ List<PopupMenuEntry<LibraryCollectionStatusScope>>
                   fontWeight: FontWeight.w700)));
   PopupMenuEntry<LibraryCollectionStatusScope> item(
           LibraryCollectionStatusScope status) =>
-      PopupMenuItem(
+      menu.shaded(PopupMenuItem(
           value: status,
           height: rowHeight,
           padding: EdgeInsets.zero,
@@ -32,7 +34,7 @@ List<PopupMenuEntry<LibraryCollectionStatusScope>>
               width: double.infinity,
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.only(left: 24, right: 7),
-              color: status == selected ? palette.divider : null,
+              color: status == selected ? menu.shade : null,
               child: Text(
                   status == LibraryCollectionStatusScope.wishList
                       ? 'On Wish List'
@@ -40,7 +42,7 @@ List<PopupMenuEntry<LibraryCollectionStatusScope>>
                   style: TextStyle(
                       color: palette.textPrimary,
                       fontSize: 14,
-                      fontWeight: FontWeight.w400))));
+                      fontWeight: FontWeight.w400)))));
   return [
     heading('Collection'),
     item(LibraryCollectionStatusScope.inCollection),
