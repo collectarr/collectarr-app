@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_vocabulary_options_loader.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
@@ -86,11 +85,31 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
   @override
   Widget build(BuildContext context) {
     if (widget.definitions.isEmpty) {
+      // The reference's empty tab points to the main menu entry.
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Text('No custom fields defined. Add them in Settings ? Data.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: kEditTextMuted, fontSize: 14)),
+        padding: const EdgeInsets.all(15),
+        child: DefaultTextStyle.merge(
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: appPalette(context).textPrimary,
+              fontSize: 14,
+              height: 20 / 14),
+          child: const Column(mainAxisSize: MainAxisSize.min, children: [
+            Text('You do not have any Custom Fields yet.\n'
+                'To start using Custom Fields open the main menu and go to:'),
+            SizedBox(height: 15),
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              Text('Customization',
+                  style: TextStyle(fontWeight: FontWeight.w700)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 2),
+                child: Icon(AppIcons.chevronRight, size: 12),
+              ),
+              Text('Manage Custom Fields',
+                  style: TextStyle(fontWeight: FontWeight.w700)),
+            ]),
+          ]),
+        ),
       );
     }
     return EditSection(
