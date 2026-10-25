@@ -25,19 +25,26 @@ final class LibrarySegmentedChoiceField<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final border = palette.isDark ? const Color(0xFF555555) : palette.divider;
+    // The reference's dark button group: #444 segments in a #666 frame, the
+    // selected one filled #666, with a lighter rule between segments.
+    final dark = palette.isDark;
+    final border = dark ? const Color(0xFF666666) : palette.divider;
+    final separator = dark ? const Color(0xFF999999) : palette.divider;
+    final fill = dark ? const Color(0xFF444444) : palette.field;
     final selectedFill =
-        palette.isDark ? const Color(0xFF555555) : const Color(0xFFE6E6E6);
+        dark ? const Color(0xFF666666) : const Color(0xFFE6E6E6);
+    final mutedText = dark ? const Color(0xFF999999) : palette.textMuted;
     return LibraryFormField(
       label: label,
       action: action,
       child: Container(
         height: LibraryMetrics.defaultFieldHeight,
         decoration: BoxDecoration(
-          color: palette.field,
+          color: fill,
           border: Border.all(color: border),
-          borderRadius: BorderRadius.circular(2),
+          borderRadius: BorderRadius.circular(4),
         ),
+        clipBehavior: Clip.antiAlias,
         child: Row(children: [
           for (final (index, option) in options.indexed)
             Expanded(
@@ -56,7 +63,7 @@ final class LibrarySegmentedChoiceField<T> extends StatelessWidget {
                         color: option.$1 == value ? selectedFill : null,
                         border: index == 0
                             ? null
-                            : Border(left: BorderSide(color: border)),
+                            : Border(left: BorderSide(color: separator)),
                       ),
                       child: Text(
                         option.$2,
@@ -66,7 +73,7 @@ final class LibrarySegmentedChoiceField<T> extends StatelessWidget {
                           fontSize: 14,
                           color: option.$1 == value
                               ? palette.textPrimary
-                              : palette.textMuted,
+                              : mutedText,
                         ),
                       ),
                     ),
