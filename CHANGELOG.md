@@ -9,6 +9,7 @@
 - Game covers can be found online (Find Online) from the Covers tab.
 
 ### 🐛 Fixes
+- Location in Pre-fill Settings uses the same boxed field and list button as the editor.
 - The item count reads "1 game" (or "1 album") instead of "1 games".
 - Choosing a platform in Add Games narrows the title results instead of returning none.
 - The Add dialog fills the window height, 10 px from the top and bottom, instead of stopping at 1200 px.

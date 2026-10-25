@@ -1,5 +1,7 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_responsive_field_layout.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
@@ -324,44 +326,18 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                             fontSize: 14, fontWeight: FontWeight.w400))))),
       ]);
 
-  Widget _locationField() {
-    final label = locationPathForId(_availableLocations, _selectedLocationId);
-    return LibraryFormField(
-        label: 'Location',
-        child: SizedBox(
-            height: 34,
-            child: Row(children: [
-              Expanded(
-                  child: InkWell(
-                onTap: _pickLocation,
-                mouseCursor: SystemMouseCursors.click,
-                child: Container(
-                  height: 34,
-                  padding: const EdgeInsets.symmetric(horizontal: 7),
-                  decoration: BoxDecoration(
-                      color: appPalette(context).field,
-                      border: Border.all(color: appPalette(context).divider),
-                      borderRadius: BorderRadius.circular(4)),
-                  child: Row(children: [
-                    Expanded(
-                        child: Text(label ?? '',
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 14))),
-                    const Icon(Icons.arrow_drop_down, size: 18)
-                  ]),
-                ),
-              )),
-              IconButton(
-                  tooltip: 'Manage Locations',
-                  onPressed: _pickLocation,
-                  icon: const Icon(Icons.list, size: 18)),
-              if (label != null)
-                IconButton(
-                    tooltip: 'Clear location',
-                    onPressed: () => setState(() => _selectedLocationId = null),
-                    icon: const Icon(Icons.clear, size: 16)),
-            ])));
-  }
+  Widget _locationField() => LibraryDropdownPickField<String>(
+      label: 'Location',
+      value: _selectedLocationId,
+      options: [
+        for (final location in _availableLocations)
+          LibraryFieldOption(
+              value: location.id, label: location.fullPath(_availableLocations))
+      ],
+      clearOptionLabel: 'No location',
+      onManage: _pickLocation,
+      manageTooltip: 'Manage Locations',
+      onChanged: (value) => setState(() => _selectedLocationId = value));
 
   Future<void> _pickLocation() async {
     final result = await showLocationPickerDialog(

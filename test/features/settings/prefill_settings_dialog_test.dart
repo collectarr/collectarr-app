@@ -6,6 +6,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 
 import '../../support/fixtures/test_constants.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -74,6 +75,12 @@ void main() {
     );
 
     await pumpUntilSettled(tester);
+    expect(
+        find.ancestor(
+            of: find.byTooltip('Manage Locations'),
+            matching: find.byType(LibraryDropdownPickField<String>)),
+        findsOneWidget,
+        reason: 'Location uses the boxed pick field like the editor');
     await tester.tap(find.byTooltip('Manage Locations'));
     await pumpUntilSettled(tester);
     expect(find.text('Assign Location'), findsOneWidget);
