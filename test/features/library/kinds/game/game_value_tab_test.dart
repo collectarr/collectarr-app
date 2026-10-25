@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_segmented_
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/game_market_links.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 GameValuationSet _values() {
@@ -202,6 +203,40 @@ void main() {
                     widget.label == 'Core Region'))
             .value,
         'EU');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('Edit links the PriceCharting page and eBay sold listings',
+      (tester) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final draft = LibraryEntryEditDraft(LibraryEntryRecord(
+        id: 'game-1',
+        kind: CatalogMediaKind.game,
+        catalogData: {
+          'title': 'Starlight Courier',
+          'platforms': ['PlayStation 4'],
+        },
+        personalData: GameEntryDetails(priceChartingId: '57416').toJson(),
+        updatedAt: DateTime.utc(2026)));
+    addTearDown(draft.dispose);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: MaterialApp(home: Scaffold(body: GameValueTab(draft: draft))),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('Check historical values at PriceCharting.com'),
+        findsOneWidget);
+    expect(tester.widget<GameEbaySoldLink>(find.byType(GameEbaySoldLink)).query,
+        'Starlight Courier PlayStation 4');
+    draft.set('game_pricecharting_id', null);
+    await tester.pumpAndSettle();
+    expect(find.text('Check historical values at PriceCharting.com'),
+        findsNothing);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }

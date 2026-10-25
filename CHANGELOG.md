@@ -7,6 +7,7 @@
 - Add Games picks the platform from inside the title field through a Pick Platform list grouped by console generation, with starred favorites at the top.
 - Add Games lists each game once per platform with its edition count and shows the chosen game's editions as covers beside the list on CLZ's slate background, with region segments above them that filter the editions in place and grey out regions without editions, and a "Not found? Add game manually." row after the results, as in CLZ.
 - Game covers can be found online (Find Online) from the Covers tab.
+- The Games Value tab links "Find sold listings on eBay" under the value and "Check historical values at PriceCharting.com" under the chart, and "Values by PriceCharting" in the details pane opens the game's PriceCharting page, as in CLZ.
 
 ### 🐛 Fixes
 - Saving an entry with an empty title no longer breaks the library; no field is required, as in CLZ.

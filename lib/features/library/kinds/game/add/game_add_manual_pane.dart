@@ -91,7 +91,7 @@ class _GameAddManualPaneState extends State<GameAddManualPane> {
             request: request,
             layoutBuilder: gameValueLayout,
             fieldOverrides: {
-              ...gameValueFields(_AddValueBindings(request, personal)),
+              ...gameValueFields(_AddValueBindings(request, personal, draft)),
               'purchase_date': _purchaseDate(personal),
             },
           ),
@@ -254,10 +254,11 @@ class _GameAddManualPaneState extends State<GameAddManualPane> {
 }
 
 final class _AddValueBindings implements GameValueBindings {
-  const _AddValueBindings(this.request, this.draft);
+  const _AddValueBindings(this.request, this.draft, this.manual);
 
   final LibraryAddManualPaneRequest request;
   final GameAddDraft draft;
+  final GameAddManualDraft manual;
 
   void _details(GameAddDraft Function() next) =>
       request.onKindDraftChanged?.call(next());
@@ -283,6 +284,8 @@ final class _AddValueBindings implements GameValueBindings {
   @override
   String get currency =>
       request.commonDraft?.currency ?? AppFormats.current.currency;
+  @override
+  String get marketQuery => '${manual.values.title} ${manual.values.platform}';
 
   @override
   void setCompleteness(String? value) =>

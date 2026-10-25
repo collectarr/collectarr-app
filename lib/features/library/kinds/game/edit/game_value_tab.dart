@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation
 import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
 import '../domain/game_completeness_selection.dart';
 import '../entries/game_entry_details.dart';
+import 'game_market_links.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
@@ -28,6 +29,9 @@ abstract interface class GameValueBindings {
   String? get coreRegion;
   GameValuationSet? get valuations;
   String get currency;
+
+  /// Title and platform searched by the eBay link.
+  String get marketQuery;
 
   void setCompleteness(String? value);
   void setHasBox(bool value);
@@ -52,6 +56,10 @@ Map<String, Widget> gameValueFields(GameValueBindings bindings) => {
       ),
       'box_manual': _GameBoxAndManual(bindings: bindings),
       'market_value_cents': _GameValueField(bindings: bindings),
+      'ebay_link': Align(
+        alignment: Alignment.centerRight,
+        child: GameEbaySoldLink(query: bindings.marketQuery, fontSize: 13),
+      ),
       'condition': LibraryManagedVocabularyField(
         label: 'Condition',
         listName: GameVocabularyIds.condition.value,
@@ -61,7 +69,9 @@ Map<String, Widget> gameValueFields(GameValueBindings bindings) => {
         onChanged: bindings.setCondition,
       ),
       'valuations': _GameValuationChart(
-          valuations: bindings.valuations, currency: bindings.currency),
+          valuations: bindings.valuations,
+          currency: bindings.currency,
+          priceChartingId: bindings.priceChartingId),
       'pricecharting_id': LibraryFormField(
         label: 'PriceCharting ID',
         child: LibraryTextFormControl(
@@ -95,7 +105,7 @@ Widget gameValueLayout(Map<String, Widget> fields, Widget? _) {
   final left =
       Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
     row([('completeness', 9), ('market_value_cents', 4)]),
-    row([('box_manual', 1)]),
+    row([('box_manual', 9), ('ebay_link', 4)]),
     row([('condition', 1), ('', 1)]),
     row([('price_paid_cents', 1), ('purchase_store', 1)]),
     row([('purchase_date', 1), ('', 1)]),
@@ -178,6 +188,14 @@ final class _EntryDraftValueBindings implements GameValueBindings {
   @override
   String get currency =>
       _text('currency')?.toUpperCase() ?? AppFormats.current.currency;
+  @override
+  String get marketQuery {
+    final catalog = draft.record.catalogData;
+    return [
+      catalog['title'],
+      if (catalog['platforms'] case [final platform, ...]) platform,
+    ].whereType<String>().join(' ');
+  }
 
   @override
   void setCompleteness(String? value) {
@@ -317,10 +335,14 @@ final class _GameValueField extends StatelessWidget {
 
 /// Bar chart of the recorded PriceCharting tiers.
 final class _GameValuationChart extends StatelessWidget {
-  const _GameValuationChart({required this.valuations, required this.currency});
+  const _GameValuationChart(
+      {required this.valuations,
+      required this.currency,
+      required this.priceChartingId});
 
   final GameValuationSet? valuations;
   final String currency;
+  final String? priceChartingId;
 
   @override
   Widget build(BuildContext context) {
@@ -377,6 +399,11 @@ final class _GameValuationChart extends StatelessWidget {
                       ),
                     ),
                 ]),
+        ),
+        GamePriceChartingLink(
+          label: 'Check historical values at PriceCharting.com',
+          priceChartingId: priceChartingId,
+          fontSize: 12,
         ),
       ]),
     );
