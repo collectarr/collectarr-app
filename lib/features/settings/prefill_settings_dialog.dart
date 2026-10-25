@@ -334,7 +334,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           LibraryFieldOption(
               value: location.id, label: location.fullPath(_availableLocations))
       ],
-      clearOptionLabel: 'No location',
       onManage: _pickLocation,
       manageTooltip: 'Manage Locations',
       onChanged: (value) => setState(() => _selectedLocationId = value));
