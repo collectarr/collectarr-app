@@ -3,6 +3,7 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_spinner.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 
+import 'library_add_grouped_results.dart';
 import 'library_add_pane_dependencies.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 
@@ -30,6 +31,8 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.onToggleResultCheck,
     this.searched = false,
     this.headerTrailing,
+    this.selectedGroupKey,
+    this.onSelectGroup,
   });
 
   final LibraryKindRegistration type;
@@ -56,13 +59,61 @@ class LibraryAddSearchPane extends StatelessWidget {
   /// the results.
   final bool searched;
 
-  /// Kind filter shown at the right of the results caption.
+  /// Kind filter shown at the right of the results caption, or above the
+  /// variants when the kind groups its results.
   final Widget? headerTrailing;
+
+  /// The group whose variants are shown, for kinds that group results.
+  final String? selectedGroupKey;
+  final ValueChanged<String>? onSelectGroup;
 
   @override
   Widget build(BuildContext context) {
     final showCaption =
         results.isNotEmpty || (searched && !isBusy && error == null);
+    final grouping = resultPolicy.grouping;
+    if (grouping != null) {
+      final groups = libraryAddResultGroups(results, grouping);
+      return ColoredBox(
+        color: libraryAddResultsBackground(context),
+        child: LibraryAddGroupedResults(
+          grouping: grouping,
+          groups: groups,
+          selectedGroupKey: selectedGroupKey,
+          selectedResultId: selectedResultId,
+          entryCatalogRefs: entryCatalogRefs,
+          onSelectGroup: (key) => onSelectGroup?.call(key),
+          onSelectResult: onSelectResult,
+          caption: showCaption
+              ? _LibraryAddResultsCaption(
+                  count: groups.length, hasMore: hasMoreResults)
+              : const SizedBox.shrink(),
+          list: results.isEmpty
+              ? _SearchResultsList(
+                  type: type,
+                  accent: selectionColor ?? accent,
+                  useGridResults: false,
+                  isBusy: isBusy,
+                  error: error,
+                  results: results,
+                  selectedResultId: selectedResultId,
+                  checkedResultIds: checkedResultIds,
+                  entryCatalogRefs: entryCatalogRefs,
+                  onSelectResult: onSelectResult,
+                  onToggleResultCheck: onToggleResultCheck,
+                )
+              : null,
+          footer: LibraryAddSearchResultsFooter(
+            accent: accent,
+            isLoading: isLoadingMoreResults,
+            hasMore: hasMoreResults,
+            error: loadMoreError,
+            onLoadMore: onLoadMoreResults,
+          ),
+          variantControls: headerTrailing,
+        ),
+      );
+    }
     return ColoredBox(
       color: results.isEmpty
           ? libraryAddSearchBackground(context)

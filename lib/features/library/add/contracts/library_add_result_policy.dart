@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:flutter/widgets.dart';
 
 typedef LibraryAddCoreResultVisibilityPredicate = bool Function(
   CatalogSearchCandidate item,
@@ -46,12 +47,42 @@ class LibraryAddResultPolicyContext {
       state.valueFor(id, fallback: defaultValues[id] ?? false);
 }
 
+/// Lists Core results once per group and offers the group's variants as a
+/// cover grid beside the list, as the reference's Add Games lists a game once
+/// per platform and shows its editions. The kind decides what a group and a
+/// variant are; the shared pane only lays them out.
+class LibraryAddResultGrouping {
+  const LibraryAddResultGrouping({
+    required this.groupKey,
+    required this.groupDetail,
+    required this.variantLabel,
+    required this.variantBadge,
+  });
+
+  /// Results with the same key form one row.
+  final String Function(CatalogSearchCandidate item) groupKey;
+
+  /// The line under a group's title, in the row and above the variants.
+  final Widget Function(BuildContext context, CatalogSearchCandidate item)
+      groupDetail;
+
+  /// The caption under a variant's cover.
+  final String Function(CatalogSearchCandidate item) variantLabel;
+
+  /// The short tag at the right of a variant's caption.
+  final String Function(CatalogSearchCandidate item) variantBadge;
+
+  static const listWidth = 460.0;
+  static const dialogWidth = 1200.0;
+}
+
 class LibraryAddResultPolicy {
   const LibraryAddResultPolicy({
     this.options = const [],
     this.initialState = const LibraryAddResultPolicyState(),
     this.useGridResults = false,
     this.coreResultVisibility,
+    this.grouping,
   });
 
   const LibraryAddResultPolicy.identity() : this();
@@ -60,6 +91,7 @@ class LibraryAddResultPolicy {
   final LibraryAddResultPolicyState initialState;
   final bool useGridResults;
   final LibraryAddCoreResultVisibilityPredicate? coreResultVisibility;
+  final LibraryAddResultGrouping? grouping;
 
   LibraryAddResultPolicyContext context({
     required LibraryAddResultPolicyState state,

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### ✨ Features
+- Add Games lists each game once per platform with its edition count and shows the chosen game's editions as covers beside the list, with the region filter above them, as in CLZ.
 - Game covers can be found online (Find Online) from the Covers tab.
 
 ### 🐛 Fixes

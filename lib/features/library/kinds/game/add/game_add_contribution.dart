@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../game_module_dependencies.dart';
+import 'game_add_result_grouping.dart';
 import 'game_add_search_controls.dart';
 import 'game_manual_candidate.dart';
 
@@ -91,6 +92,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     ),
   ),
   manualPaneBuilder: buildGameAddManualPane,
+  resultPolicy: LibraryAddResultPolicy(grouping: gameAddResultGrouping),
 );
 
 bool _gameAddHasSearchInput(LibraryAddSearchContext context) =>

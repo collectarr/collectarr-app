@@ -39,6 +39,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_bottom_bar
 import 'package:collectarr_app/features/library/add/panes/library_add_confirm_sheet.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_grouped_results.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -110,6 +111,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   double? _dialogWidth;
   double? _dialogHeight;
+
+  /// The result group whose variants are shown, and the search it belongs to.
+  String? _selectedGroupKey;
+  int _selectedGroupSearch = 0;
 
   bool _isClosing = false;
   bool _manualDialogOpen = false;
@@ -834,6 +839,19 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         : null;
     final queryTrailing = addCapability.search.presentation.queryTrailingBuilder
         ?.call(context, modeBarRequest);
+    final grouping = resultPolicy.grouping;
+    if (_selectedGroupSearch != state.search.coreSearchGeneration) {
+      _selectedGroupSearch = state.search.coreSearchGeneration;
+      _selectedGroupKey = null;
+    }
+    final selectedGroup = grouping == null
+        ? null
+        : libraryAddResultGroups(visibleCore, grouping)
+            .where((group) => group.key == _selectedGroupKey)
+            .firstOrNull;
+    final defaultDialogWidth = grouping == null
+        ? LibraryAddDialogLayout.defaultDialogWidth
+        : LibraryAddResultGrouping.dialogWidth;
 
     LibraryAddBottomBar bottomBar({required bool selectedOnly}) =>
         LibraryAddBottomBar(
@@ -864,7 +882,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     return LibraryDialogScaffold(
       accent: accent,
       themeData: dialogTheme,
-      width: _dialogWidth ?? LibraryAddDialogLayout.defaultDialogWidth,
+      width: _dialogWidth ?? defaultDialogWidth,
       height: _dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight,
       minWidth: LibraryAddDialogLayout.minDialogWidth,
       maxWidth: LibraryAddDialogLayout.maxDialogWidth,
@@ -872,7 +890,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       maxHeight: LibraryAddDialogLayout.maxDialogHeight,
       onResizeWidth: (delta) => setState(() {
         _dialogWidth = LibraryAddDialogLayout.clampDialogWidth(
-          (_dialogWidth ?? LibraryAddDialogLayout.defaultDialogWidth) + delta,
+          (_dialogWidth ?? defaultDialogWidth) + delta,
         );
       }),
       onResizeHeight: (delta) => setState(() {
@@ -882,8 +900,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             MediaQuery.sizeOf(context).height - 2 * kAppEditorTopInset);
         _dialogHeight = LibraryAddDialogLayout.clampDialogHeight(shown + delta);
       }),
-      insetPadding: const EdgeInsets.fromLTRB(
-          32, kAppEditorTopInset, 32, kAppEditorTopInset),
+      insetPadding: const EdgeInsets.symmetric(
+          horizontal: kAppEditorTopInset, vertical: kAppEditorTopInset),
       header: AccentDialogHeader(
         title: 'Add ${widget.type.identity.pluralLabel} By:',
         icon: widget.type.identity.icon,
@@ -946,6 +964,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               advancedFilterDescriptors:
                   modeBarRequest.advancedFilterDescriptors,
               onCoreDataSettings: _showCoreDataSettings,
+              searchRowWidth:
+                  grouping == null ? null : LibraryAddResultGrouping.listWidth,
+              searchRowBeside: grouping == null
+                  ? null
+                  : LibraryAddGroupHeader(
+                      group: selectedGroup, grouping: grouping),
             ),
           ),
         ],
@@ -978,6 +1002,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         onSelectResult: _controller.selectResult,
         onToggleResultCheck: _controller.toggleCheckedResult,
         searched: state.search.coreSearchGeneration > 0,
+        selectedGroupKey: _selectedGroupKey,
+        onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
         headerTrailing: kindControls,
       ),
       overlay: selectedItem == null
