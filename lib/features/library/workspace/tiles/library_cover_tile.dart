@@ -113,7 +113,6 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                           mouseCursor: WidgetStateMouseCursor.clickable,
                           hoverColor: Colors.transparent,
                           highlightColor: Colors.transparent,
-                          splashFactory: NoSplash.splashFactory,
                           onTap: onReleaseTap,
                           onDoubleTap: widget.onDoubleTap,
                           onSecondaryTapUp: widget.onSecondaryTapUp,

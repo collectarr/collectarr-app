@@ -509,7 +509,6 @@ class _LibraryEditFooter extends StatelessWidget {
       animationDuration: MediaQuery.disableAnimationsOf(context)
           ? Duration.zero
           : appControlHoverDuration,
-      splashFactory: NoSplash.splashFactory,
     );
     final compactIconButtonStyle = navigationStyle.copyWith(
       minimumSize: const WidgetStatePropertyAll(

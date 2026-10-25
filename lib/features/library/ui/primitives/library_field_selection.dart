@@ -38,7 +38,6 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
     return Theme(
       data: Theme.of(context).copyWith(
           // The reference lists have no click ripple.
-          splashFactory: NoSplash.splashFactory,
           highlightColor: Colors.transparent,
           colorScheme: Theme.of(context).colorScheme.copyWith(
               primary: palette.utilityAction, onPrimary: Colors.white),

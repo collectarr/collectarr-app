@@ -313,6 +313,8 @@ ThemeData applySharedSurfaceTheme(
   InputDecorationTheme? inputDecorationTheme,
 }) {
   return base.copyWith(
+    // The reference has no press ripples anywhere.
+    splashFactory: NoSplash.splashFactory,
     visualDensity: compact ? VisualDensity.compact : null,
     colorScheme: buildAppColorScheme(palette),
     textSelectionTheme: buildAppTextSelectionTheme(palette),

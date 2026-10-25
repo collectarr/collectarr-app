@@ -566,7 +566,6 @@ class _SidebarSearchAndSort extends StatelessWidget {
                                 child: IconButton(
                                   style: IconButton.styleFrom(
                                     backgroundColor: Colors.transparent,
-                                    splashFactory: NoSplash.splashFactory,
                                   ),
                                   tooltip: controller.text.isEmpty
                                       ? 'Search folders'
@@ -758,7 +757,6 @@ class _SidebarSortSwitch extends StatelessWidget {
           mouseCursor: SystemMouseCursors.click,
           hoverColor: libraryFolderHoverColor(context),
           // The reference list has no click ripple.
-          splashFactory: NoSplash.splashFactory,
           highlightColor: Colors.transparent,
           child: Center(
               child: AnimatedOpacity(
@@ -862,8 +860,6 @@ class _FolderTreeNodeView extends StatelessWidget {
                         constraints:
                             const BoxConstraints(minWidth: 26, minHeight: 26),
                         visualDensity: VisualDensity.compact,
-                        style: IconButton.styleFrom(
-                            splashFactory: NoSplash.splashFactory),
                         icon: Icon(
                             node.isExpanded
                                 ? Icons.expand_more
@@ -1007,7 +1003,6 @@ class _SidebarAncestorScopeRow extends StatelessWidget {
     }
     return InkWell(
         mouseCursor: WidgetStateMouseCursor.clickable,
-        splashFactory: NoSplash.splashFactory,
         highlightColor: Colors.transparent,
         onTap: onTap,
         child: row);

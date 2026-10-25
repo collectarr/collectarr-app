@@ -922,7 +922,6 @@ class _LibraryAddScanBarcodeButton extends StatelessWidget {
       child: InkWell(
         mouseCursor: WidgetStateMouseCursor.clickable,
         onTap: onPressed,
-        splashFactory: NoSplash.splashFactory,
         child: SizedBox(
           width: 34,
           height: 34,

@@ -52,6 +52,8 @@ ThemeData editDialogTheme({
       : ThemeData.light(useMaterial3: true);
   return base.copyWith(
     extensions: [palette],
+    // The reference has no press ripples anywhere.
+    splashFactory: NoSplash.splashFactory,
     visualDensity: VisualDensity.standard,
     tooltipTheme: buildAppTooltipTheme(palette),
     canvasColor: palette.panel,
@@ -76,6 +78,7 @@ ThemeData editDialogTheme({
       color: palette.panelRaised,
       surfaceTintColor: Colors.transparent,
       textStyle: buildAppPopupMenuTheme(palette).textStyle,
+      mouseCursor: appClickableMouseCursor,
       elevation: 12,
       shape: RoundedRectangleBorder(
         borderRadius: kAppMenuBorderRadius,
