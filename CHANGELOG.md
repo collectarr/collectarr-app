@@ -20,7 +20,7 @@
 - The Core Region choice in the Games editor now shows the selected region, and Hardware and Toys Value tabs refresh their choices the same way.
 - The app icon, taskbar logo and browser tab icon have transparent rounded corners instead of white ones.
 - The header brand reads CLR instead of CARR.
-- New Games, Hardware and Toys entries from Add and imports take the next free Index, and importing a file without an Index keeps the one already assigned.
+- New entries in every library, from Add and imports, take the next free Index, and importing a file without an Index keeps the one already assigned.
 - Index and Quantity accept only whole numbers, drop leading zeros and show up/down arrows on hover for quick increments.
 - The pick list selector no longer tints selected rows with the library accent, shows selection as a blue checked box, draws its column headers and New/Manage buttons bold, and keeps its list on screen when returning from Manage.
 - The date calendar opens and closes instantly, without a fade or scale animation.
