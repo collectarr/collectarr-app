@@ -28,7 +28,7 @@ class AppShellBrand extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Text(
-                    'CARR ${kindTitle.toUpperCase()}',
+                    'CLR ${kindTitle.toUpperCase()}',
                     key: titleKey,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

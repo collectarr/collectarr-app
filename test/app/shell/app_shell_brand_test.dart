@@ -26,7 +26,7 @@ void main() {
       final mobile =
           platform == TargetPlatform.android || platform == TargetPlatform.iOS;
       expect(find.text(mobile ? 'MOBILE' : 'DESKTOP'), findsOneWidget);
-      expect(find.text('CARR MUSIC'), findsOneWidget);
+      expect(find.text('CLR MUSIC'), findsOneWidget);
       expect(tester.takeException(), isNull);
     }, variant: TargetPlatformVariant({platform}));
   }
