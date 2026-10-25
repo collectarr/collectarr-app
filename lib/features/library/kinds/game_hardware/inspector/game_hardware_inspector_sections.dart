@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_collection
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_formatted_text.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../workspace/game_hardware_workspace_dto.dart';
@@ -166,7 +167,7 @@ List<Widget> buildGameHardwareInspectorSections(
     if (metadata.description?.isNotEmpty == true)
       section(
           'Description',
-          Text(metadata.description!,
+          AppFormattedText(metadata.description!,
               style: TextStyle(
                   fontSize: 14, color: appPalette(context).textPrimary))),
     if (metadata.links.any((link) => link.isTrailerLink))

@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_collection
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/ui/app_formatted_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -56,7 +57,7 @@ List<Widget> buildGameInspectorSections(
     if (description.isNotEmpty)
       section(
           'Description',
-          Text(description,
+          AppFormattedText(description,
               textAlign: TextAlign.justify,
               style: const TextStyle(fontSize: 14, height: 18 / 14))),
     if (trailers.isNotEmpty)
