@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   testWidgets('edit scaffold footer shows navigation and action buttons', (
@@ -110,12 +111,42 @@ void main() {
     expect(find.text('Details tab'), findsOneWidget);
     expect(find.text('Main tab'), findsNothing);
   });
+
+  testWidgets('an editor opened after a reorder starts in the saved order',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    const harness = _EditScaffoldHarness(tabOrderKey: 'scaffold_test_order');
+    await tester.pumpWidget(const MaterialApp(home: harness));
+    await tester.pumpAndSettle();
+
+    final gesture =
+        await tester.startGesture(tester.getCenter(find.text('Details')));
+    await tester.pump(const Duration(milliseconds: 700));
+    final start = tester.getCenter(find.text('Details'));
+    final target = tester.getCenter(find.text('Main')) + const Offset(20, 0);
+    for (var step = 1; step <= 5; step++) {
+      await gesture.moveTo(Offset.lerp(start, target, step / 5)!);
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await tester.pump();
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    // Previous/Next builds a new editor: its very first frame must already
+    // show the saved order, not the default one.
+    await tester.pumpWidget(const MaterialApp(
+        key: ValueKey('next'),
+        home: _EditScaffoldHarness(tabOrderKey: 'scaffold_test_order')));
+    expect(tester.getTopLeft(find.text('Details')).dx,
+        lessThan(tester.getTopLeft(find.text('Main')).dx));
+  });
 }
 
 class _EditScaffoldHarness extends StatefulWidget {
-  const _EditScaffoldHarness({this.contentHeight = 80});
+  const _EditScaffoldHarness({this.contentHeight = 80, this.tabOrderKey});
 
   final double contentHeight;
+  final String? tabOrderKey;
 
   @override
   State<_EditScaffoldHarness> createState() => _EditScaffoldHarnessState();
@@ -144,6 +175,7 @@ class _EditScaffoldHarnessState extends State<_EditScaffoldHarness>
           title: 'Edit album',
           badges: const [],
           tabController: _tabController,
+          tabOrderKey: widget.tabOrderKey,
           tabs: const [
             EditTab(icon: Icons.info_outline, label: 'Main'),
             EditTab(icon: Icons.tune, label: 'Details'),

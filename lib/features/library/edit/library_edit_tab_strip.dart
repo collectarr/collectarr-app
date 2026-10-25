@@ -26,6 +26,19 @@ void saveLibraryEditTabSelection({
   _activeEditTabIds[storageKey] = tabId;
 }
 
+// The last loaded or saved tab order, so an editor opened by Previous/Next
+// starts in the user's order instead of flashing the default one until the
+// stored order is read.
+final Map<String, List<int>> _knownEditTabOrders = {};
+
+List<int>? knownLibraryEditTabOrder({
+  required String? storageKey,
+  required int tabCount,
+}) {
+  final order = storageKey == null ? null : _knownEditTabOrders[storageKey];
+  return order != null && order.length == tabCount ? List.of(order) : null;
+}
+
 Future<List<int>?> loadLibraryEditTabOrder({
   required String? storageKey,
   required int tabCount,
@@ -43,6 +56,7 @@ Future<List<int>?> loadLibraryEditTabOrder({
       !sorted.indexed.every((entry) => entry.$1 == entry.$2)) {
     return null;
   }
+  _knownEditTabOrders[storageKey] = order;
   return order;
 }
 
@@ -51,6 +65,7 @@ Future<void> saveLibraryEditTabOrder({
   required List<int> order,
 }) async {
   if (storageKey == null) return;
+  _knownEditTabOrders[storageKey] = List.of(order);
   final prefs = await SharedPreferences.getInstance();
   await prefs.setStringList(
     storageKey,
