@@ -133,10 +133,15 @@ final class GameValueTab extends StatelessWidget {
   final LibraryEntryEditDraft draft;
 
   @override
-  Widget build(BuildContext context) => LibraryEntryPersonalSection(
-        draft: draft,
-        additionalFields: gameValueFields(_EntryDraftValueBindings(draft)),
-        layoutBuilder: gameValueLayout,
+  Widget build(BuildContext context) => AnimatedBuilder(
+        // The fields read the draft when built, so a choice such as Core
+        // Region must rebuild them to show the new value.
+        animation: draft,
+        builder: (context, _) => LibraryEntryPersonalSection(
+          draft: draft,
+          additionalFields: gameValueFields(_EntryDraftValueBindings(draft)),
+          layoutBuilder: gameValueLayout,
+        ),
       );
 }
 

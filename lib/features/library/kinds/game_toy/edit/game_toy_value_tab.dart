@@ -151,10 +151,13 @@ final class GameToyValueTab extends StatelessWidget {
   const GameToyValueTab({super.key, required this.draft});
   final LibraryEntryEditDraft draft;
   @override
-  Widget build(BuildContext context) => LibraryEntryPersonalSection(
-      draft: draft,
-      additionalFields: gameToyValueFields(_EntryBindings(draft)),
-      layoutBuilder: gameToyValueLayout);
+  Widget build(BuildContext context) => AnimatedBuilder(
+      // The fields read the draft when built, so a choice must rebuild them.
+      animation: draft,
+      builder: (context, _) => LibraryEntryPersonalSection(
+          draft: draft,
+          additionalFields: gameToyValueFields(_EntryBindings(draft)),
+          layoutBuilder: gameToyValueLayout));
 }
 
 final class _EntryBindings implements GameToyValueBindings {
