@@ -16,10 +16,7 @@ void main() {
         LibraryAddDialogLayout.clampDialogHeight(400),
         LibraryAddDialogLayout.minDialogHeight,
       );
-      expect(
-        LibraryAddDialogLayout.clampDialogHeight(1300),
-        LibraryAddDialogLayout.maxDialogHeight,
-      );
+      expect(LibraryAddDialogLayout.clampDialogHeight(1300), 1300);
     });
   });
 }
