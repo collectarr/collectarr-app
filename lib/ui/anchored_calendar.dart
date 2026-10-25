@@ -21,6 +21,9 @@ Future<DateTime?> showAppAnchoredCalendar({
     context: context,
     barrierColor: Colors.transparent,
     barrierDismissible: true,
+    // The reference calendar appears and disappears at once.
+    transitionDuration: Duration.zero,
+    transitionBuilder: (context, animation, secondary, child) => child,
     builder: (popupContext) => LayoutBuilder(builder: (context, constraints) {
       final safe = MediaQuery.paddingOf(context);
       const width = AppReferenceCalendar.width;
