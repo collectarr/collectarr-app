@@ -16,9 +16,9 @@ import 'package:collectarr_app/features/library/ui/primitives/library_form_contr
 import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_notes_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_personal_fields_layout.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/multi_pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_integer_field.dart';
@@ -275,13 +275,14 @@ class _LibraryEntryPersonalSectionState
                   required options,
                   searchHint,
                   customValueHint}) =>
-              showLibraryMultiValueOptionsDialog<String>(
+              showMultiPickListSelectDialog(
             context: context,
             label: label,
-            options: options,
+            options: [for (final option in options) option.value],
             selectedValues: selectedValues,
-            searchHint: searchHint,
-            customValueHint: customValueHint ?? 'Add value',
+            listName: field.vocabularyListName,
+            mediaKind: _kind,
+            db: ref.read(localDatabaseProvider),
           ),
           onChanged: (values) =>
               _setMultiVocabulary(field, values.toList(growable: false)),
