@@ -83,8 +83,7 @@ class LibraryAddStatusButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
             side: BorderSide(color: palette.divider)),
         itemBuilder: (context) => [
-          ...libraryCollectionStatusEditMenuItems(context,
-              rowHeight: 31, verticalPadding: 4),
+          ...libraryCollectionStatusEditMenuItems(context, rowHeight: 31),
           if (onPrefillSettings != null) ...[
             const PopupMenuDivider(height: 8),
             PopupMenuItem<LibraryCollectionStatusScope>(
