@@ -44,7 +44,7 @@
 - Pick list values that no entry uses any more are removed automatically when a list is opened, as in CLZ.
 
 ### 📚 Docs
-- The CLZ comparison records the Add Games layout, platform picker, editor rechecks and pick list Manage switch, and the platform names and Add list extras still open.
+- The CLZ comparison records the Add Games layout, platform picker, editor rechecks and pick list Manage switch, the import progress and success alert, the Covers tab and editor dropdowns, and the platform names still open.
 
 ## 1.3.0 - 2026-10-24
 
