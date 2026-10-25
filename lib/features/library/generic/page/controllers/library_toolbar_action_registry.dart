@@ -118,8 +118,6 @@ class LibraryToolbarCollectionActionsContext {
   const LibraryToolbarCollectionActionsContext({
     required this.onTransferFieldData,
     required this.onReassignIndex,
-    required this.onPrintReport,
-    required this.onExportCsvTxt,
     required this.onShareCollection,
     required this.onCompareMetadataWithServer,
     required this.onMissingSequenceReport,
@@ -127,8 +125,6 @@ class LibraryToolbarCollectionActionsContext {
 
   final ValueChanged<LibraryProjection?> onTransferFieldData;
   final ValueChanged<LibraryProjection?> onReassignIndex;
-  final ValueChanged<LibraryProjection?> onPrintReport;
-  final ValueChanged<LibraryProjection?> onExportCsvTxt;
   final ValueChanged<LibraryProjection?> onShareCollection;
   final Future<void> Function(
     LibraryProjection projection, {
@@ -140,17 +136,13 @@ class LibraryToolbarCollectionActionsContext {
 class LibraryToolbarAdminActionsContext {
   const LibraryToolbarAdminActionsContext({
     required this.onScanCover,
-    required this.onDownloadAllCovers,
     required this.onShowConditionPickListEditorFlow,
     required this.onShowGradePickListEditorFlow,
-    required this.onShowTagPickListEditorFlow,
   });
 
   final VoidCallback onScanCover;
-  final ValueChanged<ShelfState> onDownloadAllCovers;
   final VoidCallback? onShowConditionPickListEditorFlow;
   final VoidCallback? onShowGradePickListEditorFlow;
-  final VoidCallback onShowTagPickListEditorFlow;
 }
 
 class LibraryPageToolbarActionContext {
@@ -297,11 +289,6 @@ class LibraryToolbarActionRegistry {
       onScanCover: libraryAddForKind(registration.kind).chrome.canScanCover
           ? actionContext.adminActions.onScanCover
           : null,
-      onDownloadAllCovers:
-          libraryAddForKind(registration.kind).chrome.canScanCover &&
-                  shelfState != null
-              ? () => actionContext.adminActions.onDownloadAllCovers(shelfState)
-              : null,
       onSmartLists: shelfState == null
           ? null
           : () => actionContext.grouping.onSmartLists(shelfState),
@@ -314,7 +301,6 @@ class LibraryToolbarActionRegistry {
           actionContext.adminActions.onShowConditionPickListEditorFlow,
       onEditGradePickList:
           actionContext.adminActions.onShowGradePickListEditorFlow,
-      onEditTagPickList: actionContext.adminActions.onShowTagPickListEditorFlow,
       onTransferFieldData: projection == null
           ? null
           : () =>
@@ -324,12 +310,6 @@ class LibraryToolbarActionRegistry {
                   .allows(LibraryToolbarActionId.reassignIndex)
           ? null
           : () => actionContext.collectionActions.onReassignIndex(projection),
-      onPrintReport: projection != null && projection.filteredItems.isNotEmpty
-          ? () => actionContext.collectionActions.onPrintReport(projection)
-          : null,
-      onExportCsvTxt: projection != null && projection.filteredItems.isNotEmpty
-          ? () => actionContext.collectionActions.onExportCsvTxt(projection)
-          : null,
       onShareCollection: projection != null &&
               projection.filteredItems.isNotEmpty
           ? () => actionContext.collectionActions.onShareCollection(projection)

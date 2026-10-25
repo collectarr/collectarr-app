@@ -61,18 +61,14 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onTogglePinnedSortFavorite,
     this.onManageSortFavorites,
     this.onRandomPick,
-    this.onDownloadAllCovers,
     this.shelfState,
     this.onSmartLists,
     this.onFolders,
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
-    this.onEditTagPickList,
     this.onTransferFieldData,
     this.onReassignIndex,
-    this.onPrintReport,
-    this.onExportCsvTxt,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.extraActions = const [],
@@ -123,18 +119,14 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final ValueChanged<LibrarySortFavorite>? onTogglePinnedSortFavorite;
   final VoidCallback? onManageSortFavorites;
   final VoidCallback? onRandomPick;
-  final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
   final VoidCallback? onSmartLists;
   final VoidCallback? onFolders;
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
-  final VoidCallback? onEditTagPickList;
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
-  final VoidCallback? onPrintReport;
-  final VoidCallback? onExportCsvTxt;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraActions;
@@ -338,18 +330,14 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     onQuickViewSelected: onQuickViewSelected,
                     onClearFilters: onClearFilters,
                     onRandomPick: onRandomPick,
-                    onDownloadAllCovers: onDownloadAllCovers,
                     shelfState: shelfState,
                     onSmartLists: onSmartLists,
                     onFolders: onFolders,
                     onReadingQueue: onReadingQueue,
                     onEditConditionPickList: onEditConditionPickList,
                     onEditGradePickList: onEditGradePickList,
-                    onEditTagPickList: onEditTagPickList,
                     onTransferFieldData: onTransferFieldData,
                     onReassignIndex: onReassignIndex,
-                    onPrintReport: onPrintReport,
-                    onExportCsvTxt: onExportCsvTxt,
                     onShareCollection: onShareCollection,
                     onCompareMetadataWithServer: onCompareMetadataWithServer,
                     extraActions: extraActions,
@@ -867,13 +855,11 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     required this.onClearFilters,
     required this.onClearBucket,
     this.onRandomPick,
-    this.onDownloadAllCovers,
     this.onSmartLists,
     this.onFolders,
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
-    this.onEditTagPickList,
     this.onEditSort,
     this.onCompareMetadataWithServer,
     this.extraActions = const [],
@@ -936,13 +922,11 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final VoidCallback onClearFilters;
   final VoidCallback onClearBucket;
   final VoidCallback? onRandomPick;
-  final VoidCallback? onDownloadAllCovers;
   final VoidCallback? onSmartLists;
   final VoidCallback? onFolders;
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
-  final VoidCallback? onEditTagPickList;
   final VoidCallback? onEditSort;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraActions;
@@ -1051,13 +1035,11 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                 onQuickViewSelected: onQuickViewSelected,
                 onClearFilters: onClearFilters,
                 onRandomPick: onRandomPick,
-                onDownloadAllCovers: onDownloadAllCovers,
                 onSmartLists: onSmartLists,
                 onFolders: onFolders,
                 onReadingQueue: onReadingQueue,
                 onEditConditionPickList: onEditConditionPickList,
                 onEditGradePickList: onEditGradePickList,
-                onEditTagPickList: onEditTagPickList,
                 onEditSort: onEditSort,
                 onCompareMetadataWithServer: onCompareMetadataWithServer,
                 extraActions: extraActions,

@@ -11,17 +11,6 @@ class LibraryPageSharingCoordinator {
 
   final LibraryPageCoordinatorContext _page;
 
-  void exportCsvTxtFlow(LibraryProjection projection) {
-    exportCollectionCsvTxt(
-      context: _page.context,
-      title: _page.type.identity.title,
-      items: projection.filteredItems,
-      type: _page.type,
-      allItems: projection.allItems,
-      selectedItemIds: _page.selection.itemIds,
-    );
-  }
-
   void exportSelectedCsvTxtFlow(LibraryProjection? projection) {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     exportCollectionCsvTxt(
