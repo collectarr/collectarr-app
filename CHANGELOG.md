@@ -43,6 +43,7 @@
 - The "×" that closes dialogs is centred in its header in the browser too, not a few pixels low.
 - Games, Hardware and Toys pick lists (Platform, Genre, Format, Region, Condition, Audience Rating) start empty and list only values your entries use, as in CLZ; Toy Type keeps its fixed choices.
 - Pick list values that no entry uses any more are removed automatically when a list is opened, as in CLZ.
+- A locked Games value can no longer be typed over until it is unlocked, as in CLZ.
 
 ### 📚 Docs
 - The CLZ comparison records the Add Games layout, platform picker, editor rechecks and pick list Manage switch, the import progress and success alert, the Covers tab and editor dropdowns, and the platform names still open.

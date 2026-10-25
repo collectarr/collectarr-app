@@ -287,6 +287,8 @@ final class _GameValueField extends StatelessWidget {
         label: 'Value',
         amountMinorUnits: bindings.valueCents,
         currency: bindings.currency,
+        // A locked value is kept as entered, like the reference.
+        readOnly: locked,
         onChanged: bindings.setValueCents,
       ),
       Positioned(
