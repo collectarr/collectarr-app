@@ -20,6 +20,7 @@ final class LibraryCoverImagesTab extends StatefulWidget {
     required this.frontLabel,
     required this.backLabel,
     required this.placeholderIcon,
+    this.findOnline,
   });
 
   /// Existing images of the copy; only front and back covers are used.
@@ -27,6 +28,9 @@ final class LibraryCoverImagesTab extends StatefulWidget {
   final String frontLabel;
   final String backLabel;
   final IconData placeholderIcon;
+
+  /// Kind-owned online cover search offered on both panels; hidden when null.
+  final Future<LibraryOnlineCover?> Function(BuildContext context)? findOnline;
   final String coverImageUrl;
   final String originalCoverImageUrl;
   final ValueChanged<String> onCoverImageUrlChanged;
@@ -91,6 +95,7 @@ final class _LibraryCoverImagesTabState extends State<LibraryCoverImagesTab> {
         onRemoveCoreCover: () => _setCoverImageUrl(''),
         onChanged: (value) => _change(type, value),
         placeholderIcon: widget.placeholderIcon,
+        findOnline: widget.findOnline,
       );
 
   @override

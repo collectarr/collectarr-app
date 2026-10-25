@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/edit/sections/item_images_edit_s
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/library/edit/covers/library_cover_editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_online_cover_picker_dialog.dart';
+import 'package:collectarr_app/features/library/edit/covers/library_online_cover_picker_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_online_cover_search.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
@@ -176,19 +176,27 @@ final class MusicCoverEditor extends StatelessWidget {
       onRemoveCoreCover: onRemoveCoreCover,
       placeholderIcon: AppIcons.compactDisc,
       findOnline: (context) async {
-        final candidate = await showAppDialog<MusicOnlineCoverCandidate>(
+        final candidate = await showAppDialog<LibraryOnlineCoverCandidate>(
           context: context,
-          builder: (_) => MusicOnlineCoverPickerDialog(
-            artist: searchArtist,
-            title: searchTitle,
+          builder: (_) => LibraryOnlineCoverPickerDialog(
+            hint: 'Album title, artist or barcode',
+            tokens: [searchArtist, searchTitle],
             barcode: searchBarcode,
+            search: (query, {barcode}) async => [
+              for (final cover in await MusicOnlineCoverSearch()
+                  .search(query, barcode: barcode))
+                LibraryOnlineCoverCandidate(
+                    title: cover.title,
+                    subtitle: cover.artist,
+                    imageUrl: cover.imageUrl),
+            ],
           ),
         );
         return candidate == null
             ? null
             : LibraryOnlineCover(
                 url: candidate.imageUrl,
-                description: '${candidate.title} — ${candidate.artist}',
+                description: '${candidate.title} — ${candidate.subtitle}',
               );
       },
       onChanged: (value) {

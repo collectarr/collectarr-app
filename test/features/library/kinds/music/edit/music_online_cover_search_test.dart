@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/edit/music_online_cover_search.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_online_cover_picker_dialog.dart';
+import 'package:collectarr_app/features/library/edit/covers/library_online_cover_picker_dialog.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -96,11 +96,19 @@ void main() {
     client.httpClientAdapter = _CoverAdapter(
         (_) => jsonEncode({'releases': <Object>[], 'results': <Object>[]}));
     await tester.pumpWidget(MaterialApp(
-        home: MusicOnlineCoverPickerDialog(
-            artist: 'Powerwolf',
-            title: 'Lupus Dei',
+        home: LibraryOnlineCoverPickerDialog(
+            hint: 'Album title, artist or barcode',
+            tokens: const ['Powerwolf', 'Lupus Dei'],
             barcode: '039841461923',
-            search: MusicOnlineCoverSearch(client: client))));
+            search: (query, {barcode}) async => [
+                  for (final cover
+                      in await MusicOnlineCoverSearch(client: client)
+                          .search(query, barcode: barcode))
+                    LibraryOnlineCoverCandidate(
+                        title: cover.title,
+                        subtitle: cover.artist,
+                        imageUrl: cover.imageUrl)
+                ])));
     await tester.pumpAndSettle();
     expect(tester.widget<TextField>(find.byType(TextField)).controller!.text,
         'Powerwolf Lupus Dei 039841461923');
@@ -120,8 +128,10 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: MusicOnlineCoverPickerDialog(),
+      MaterialApp(
+        home: LibraryOnlineCoverPickerDialog(
+            hint: 'Album title, artist or barcode',
+            search: (query, {barcode}) async => const []),
       ),
     );
 
