@@ -118,13 +118,18 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
               ? const Text(
                   'Personal fields belong to your local library entry.',
                 )
-              : LibraryEntryPersonalSection(
-                  draft: entry,
-                  layoutBuilder: contribution?.layoutBuilder,
-                  additionalFields:
-                      contribution?.additionalFieldsBuilder?.call(entry) ??
-                          const {},
-                  history: contribution?.historyBuilder?.call(entry),
+              : AnimatedBuilder(
+                  // Kind fields read the draft when built, so a choice such as
+                  // the Game Completed toggle must rebuild them to show it.
+                  animation: entry,
+                  builder: (context, _) => LibraryEntryPersonalSection(
+                    draft: entry,
+                    layoutBuilder: contribution?.layoutBuilder,
+                    additionalFields:
+                        contribution?.additionalFieldsBuilder?.call(entry) ??
+                            const {},
+                    history: contribution?.historyBuilder?.call(entry),
+                  ),
                 ),
         ),
         afterTabId: contribution?.afterTabId,
