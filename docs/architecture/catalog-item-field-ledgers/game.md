@@ -92,7 +92,6 @@ under every tab.
 | Value | Purchase Store | single pick list | Personal | `purchase_store` |
 | Value | Purchase Date | partial date | Personal | `purchase_date_parts` |
 | Value | PriceCharting ID | text with refresh | Personal | `game_pricecharting_id` |
-| Value | Core Region | segmented US, EU | Personal | `game_core_region` |
 | Value | Values from PriceCharting | bar chart: Loose, Loose + Box, Loose + Manual, CIB, New, Graded | Personal | `game_valuations` |
 | Personal | Owner | single pick list | Personal | `owner_label` |
 | Personal | Storage Device | single pick list | Personal | `game_storage_device` |

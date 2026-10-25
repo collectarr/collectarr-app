@@ -98,18 +98,6 @@ abstract final class GameWorkspaceFieldMetadata {
     editable: true,
   );
 
-  static const coreRegion = LibraryKindFieldMetadata(
-    id: 'game.core_region',
-    label: 'Region',
-    valueType: LibraryFieldValueType.text,
-    cardinality: LibraryFieldCardinality.one,
-    source: LibraryFieldSource.libraryEntry,
-    sourcePath: 'core_region',
-    sortable: true,
-    groupable: true,
-    editable: true,
-  );
-
   static const cover = LibraryKindFieldMetadata(
     id: 'game.cover',
     label: 'Cover',
@@ -660,7 +648,6 @@ abstract final class GameWorkspaceFieldMetadata {
     completeness,
     completionStatus,
     condition,
-    coreRegion,
     country,
     cover,
     developer,

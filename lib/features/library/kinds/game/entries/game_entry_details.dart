@@ -16,7 +16,6 @@ class GameEntryDetails implements JsonEncodable {
     this.hasManual,
     this.priceChartingId,
     this.valuations,
-    this.coreRegion,
     this.valueIsLocked,
     this.storageDevice,
     this.storageSlot,
@@ -29,7 +28,6 @@ class GameEntryDetails implements JsonEncodable {
   final bool? hasManual;
   final String? priceChartingId;
   final GameValuationSet? valuations;
-  final String? coreRegion;
   final bool? valueIsLocked;
 
   /// Console, drive or card the game is installed on, as in the reference.
@@ -45,7 +43,6 @@ class GameEntryDetails implements JsonEncodable {
         if (hasManual != null) 'game_has_manual': hasManual,
         if (priceChartingId != null) 'game_pricecharting_id': priceChartingId,
         if (valuations != null) 'game_valuations': valuations!.toJson(),
-        if (coreRegion != null) 'game_core_region': coreRegion,
         if (valueIsLocked != null) 'game_value_is_locked': valueIsLocked,
         if (storageDevice != null) 'game_storage_device': storageDevice,
         if (storageSlot != null) 'game_storage_slot': storageSlot,
@@ -65,7 +62,6 @@ class GameEntryDetails implements JsonEncodable {
               Map<String, dynamic>.from(json['game_valuations'] as Map),
             )
           : null,
-      coreRegion: json['game_core_region'] as String?,
       valueIsLocked: json['game_value_is_locked'] as bool?,
       storageDevice: json['game_storage_device'] as String?,
       storageSlot: json['game_storage_slot'] as String?,
@@ -80,7 +76,6 @@ class GameEntryDetails implements JsonEncodable {
     Object? hasManual = _gameDetailsUnset,
     Object? priceChartingId = _gameDetailsUnset,
     Object? valuations = _gameDetailsUnset,
-    Object? coreRegion = _gameDetailsUnset,
     Object? valueIsLocked = _gameDetailsUnset,
     Object? storageDevice = _gameDetailsUnset,
     Object? storageSlot = _gameDetailsUnset,
@@ -95,7 +90,6 @@ class GameEntryDetails implements JsonEncodable {
       hasManual: pick(hasManual, this.hasManual),
       priceChartingId: pick(priceChartingId, this.priceChartingId),
       valuations: pick(valuations, this.valuations),
-      coreRegion: pick(coreRegion, this.coreRegion),
       valueIsLocked: pick(valueIsLocked, this.valueIsLocked),
       storageDevice: pick(storageDevice, this.storageDevice),
       storageSlot: pick(storageSlot, this.storageSlot),
@@ -114,7 +108,6 @@ class GameEntryDetails implements JsonEncodable {
           hasManual == other.hasManual &&
           priceChartingId == other.priceChartingId &&
           valuations == other.valuations &&
-          coreRegion == other.coreRegion &&
           valueIsLocked == other.valueIsLocked &&
           storageDevice == other.storageDevice &&
           storageSlot == other.storageSlot &&
@@ -128,7 +121,6 @@ class GameEntryDetails implements JsonEncodable {
         hasManual,
         priceChartingId,
         valuations,
-        coreRegion,
         valueIsLocked,
         storageDevice,
         storageSlot,

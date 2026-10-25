@@ -26,7 +26,6 @@ abstract interface class GameValueBindings {
   bool get valueLocked;
   String? get condition;
   String? get priceChartingId;
-  String? get coreRegion;
   GameValuationSet? get valuations;
   String get currency;
 
@@ -40,7 +39,6 @@ abstract interface class GameValueBindings {
   void setValueLocked(bool value);
   void setCondition(String? value);
   void setPriceChartingId(String? value);
-  void setCoreRegion(String value);
 }
 
 /// Game controls of the reference Value tab, laid out with the purchase
@@ -81,12 +79,6 @@ Map<String, Widget> gameValueFields(GameValueBindings bindings) => {
               .setPriceChartingId(value.trim().isEmpty ? null : value.trim()),
         ),
       ),
-      'core_region': LibrarySegmentedChoiceField<String>(
-        label: 'Core Region',
-        options: const [('US', 'US'), ('EU', 'EU')],
-        value: bindings.coreRegion ?? 'US',
-        onChanged: bindings.setCoreRegion,
-      ),
     };
 
 /// Reference Value layout: completeness, value, purchase facts on the left;
@@ -114,7 +106,7 @@ Widget gameValueLayout(Map<String, Widget> fields, Widget? _) {
       Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
     field('valuations'),
     const SizedBox(height: 12),
-    row([('pricecharting_id', 1), ('core_region', 1)]),
+    row([('pricecharting_id', 1), ('', 1)]),
   ]);
   return LayoutBuilder(
     builder: (context, constraints) => constraints.maxWidth >= 900
@@ -144,8 +136,8 @@ final class GameValueTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-        // The fields read the draft when built, so a choice such as Core
-        // Region must rebuild them to show the new value.
+        // The fields read the draft when built, so a choice such as the
+        // completeness must rebuild them to show the new value.
         animation: draft,
         builder: (context, _) => LibraryEntryPersonalSection(
           draft: draft,
@@ -177,8 +169,6 @@ final class _EntryDraftValueBindings implements GameValueBindings {
   String? get condition => _text('condition');
   @override
   String? get priceChartingId => _text('game_pricecharting_id');
-  @override
-  String? get coreRegion => _text('game_core_region');
   @override
   GameValuationSet? get valuations => switch (draft.values['game_valuations']) {
         Map<dynamic, dynamic> value =>
@@ -245,8 +235,6 @@ final class _EntryDraftValueBindings implements GameValueBindings {
   @override
   void setPriceChartingId(String? value) =>
       draft.set('game_pricecharting_id', value);
-  @override
-  void setCoreRegion(String value) => draft.set('game_core_region', value);
 }
 
 final class _GameBoxAndManual extends StatelessWidget {

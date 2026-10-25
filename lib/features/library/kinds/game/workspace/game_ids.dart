@@ -32,8 +32,6 @@ abstract final class GameFieldIds {
   static const hasManual = LibraryFieldId<GameKind, bool?>('game.has_manual');
   static const priceChartingId =
       LibraryFieldId<GameKind, String?>('game.pricecharting_id');
-  static const coreRegion =
-      LibraryFieldId<GameKind, String?>('game.core_region');
   static const region = LibraryFieldId<GameKind, String?>('game.region');
   static const valueLocked =
       LibraryFieldId<GameKind, bool?>('game.value_locked');

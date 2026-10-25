@@ -66,7 +66,6 @@ final class ClzGameWebImporter implements LibraryGuidedImporter {
             storageSlot: raw.text('storageslot'),
             completed: raw.boolean('completed'),
             completedDate: raw.date('completiondate'),
-            coreRegion: raw.text('coreregion'),
             priceChartingId: raw.text('pricechartingid'),
             valueIsLocked: raw.boolean('valueislocked')));
     return clzImportRow(
