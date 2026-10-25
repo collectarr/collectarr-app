@@ -153,35 +153,6 @@ abstract final class GameVocabularies {
     label: 'Platform',
     valuesFrom:
         TypedVocabularyProjector<GameCatalogMetadata>(_platformCatalogValues),
-    builtIns: [
-      'PlayStation 5',
-      'PlayStation 4',
-      'PlayStation 3',
-      'PlayStation 2',
-      'PlayStation',
-      'PlayStation Portable',
-      'PlayStation Vita',
-      'Nintendo Switch',
-      'Nintendo Wii U',
-      'Nintendo Wii',
-      'Nintendo GameCube',
-      'Nintendo 64',
-      'Super Nintendo Entertainment System',
-      'Nintendo Entertainment System',
-      'Nintendo 3DS',
-      'Nintendo DS',
-      'Game Boy Advance',
-      'Game Boy Color',
-      'Game Boy',
-      'Xbox Series X/S',
-      'Xbox One',
-      'Xbox 360',
-      'Xbox',
-      'PC',
-      'Sega Dreamcast',
-      'Sega Saturn',
-      'Sega Genesis',
-    ],
   );
 
   static const region = VocabularyDefinition<String>(
@@ -189,26 +160,11 @@ abstract final class GameVocabularies {
     label: 'Region',
     valuesFrom:
         TypedVocabularyProjector<GameCatalogMetadata>(_regionCatalogValues),
-    builtIns: [
-      'NTSC-U/C (US/Canada)',
-      'PAL (Europe/Australia)',
-      'NTSC-J (Japan)',
-      'NTSC-C (China)',
-      'Region Free',
-    ],
   );
 
   static const condition = VocabularyDefinition<String>(
     id: GameVocabularyIds.condition,
     label: 'Condition',
-    builtIns: [
-      'Brand New / Sealed',
-      'Complete in Box (CIB)',
-      'Boxed (Missing Manual)',
-      'Loose / Cartridge Only',
-      'Disc Only',
-      'Digital / Code',
-    ],
   );
 
   static const audienceRating = VocabularyDefinition<String>(
@@ -216,15 +172,6 @@ abstract final class GameVocabularies {
     label: 'Audience Rating',
     valuesFrom: TypedVocabularyProjector<GameCatalogMetadata>(
         _audienceRatingCatalogValues),
-    builtIns: [
-      'Early Childhood',
-      'Everyone',
-      'Everyone 10+',
-      'Teen',
-      'Mature',
-      'Adults Only',
-      'Rating Pending',
-    ],
   );
 
   static const series = VocabularyDefinition<String>(
@@ -253,20 +200,6 @@ abstract final class GameVocabularies {
     label: 'Genre',
     valuesFrom:
         TypedVocabularyProjector<GameCatalogMetadata>(_genreCatalogValues),
-    builtIns: [
-      'Action',
-      'Action/Adventure',
-      'Adventure',
-      'Fighting',
-      'Platformer',
-      'Puzzle',
-      'Racing',
-      'Role-Playing',
-      'Shooter',
-      'Simulation',
-      'Sports',
-      'Strategy',
-    ],
   );
 
   static const format = VocabularyDefinition<String>(
@@ -274,16 +207,6 @@ abstract final class GameVocabularies {
     label: 'Format',
     valuesFrom:
         TypedVocabularyProjector<GameCatalogMetadata>(_formatCatalogValues),
-    builtIns: [
-      'Blu-ray Disc',
-      'DVD-ROM',
-      'CD-ROM',
-      'Cartridge',
-      'Game Card',
-      'UMD',
-      'Steam Download',
-      'Digital Download',
-    ],
   );
 
   static const storageDevice = VocabularyDefinition<String>(
