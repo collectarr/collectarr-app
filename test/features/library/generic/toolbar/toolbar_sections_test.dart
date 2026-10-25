@@ -540,8 +540,8 @@ void main() {
         findsOneWidget);
     expect(find.text(sortFavorite.rules.first.ascending ? 'ASC' : 'DESC'),
         findsWidgets);
-    expect(find.byKey(const ValueKey('sortFavoritesAddButton')),
-        findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('sortFavoritesAddButton')), findsOneWidget);
     await tester.tap(find.byTooltip('Add Favorite'));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(PopupMenuItem<LibrarySortFavorite>).last);
