@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -271,6 +272,21 @@ void main() {
                 find.byType(LibraryDenseSplitButton<Object>))
             .iconOnly,
         isTrue);
+
+    // Like the view and sort buttons, it starts right after its separator.
+    final columnsLeft = tester
+        .getTopLeft(find.byKey(const ValueKey('library-column-split-button')))
+        .dx;
+    final separatorRight = find
+        .byType(LibraryWorkspaceSeparator)
+        .evaluate()
+        .map((element) {
+          final box = element.renderObject! as RenderBox;
+          return box.localToGlobal(Offset(box.size.width, 0)).dx;
+        })
+        .where((right) => right <= columnsLeft)
+        .reduce((a, b) => a > b ? a : b);
+    expect(columnsLeft, separatorRight);
 
     final splitButton = tester.widget<LibraryDenseSplitButton<Object>>(
       find.byType(LibraryDenseSplitButton<Object>),

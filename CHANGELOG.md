@@ -45,6 +45,7 @@
 - Games, Hardware and Toys pick lists (Platform, Genre, Format, Region, Condition, Audience Rating) start empty and list only values your entries use, as in CLZ; Toy Type keeps its fixed choices.
 - Pick list values that no entry uses any more are removed automatically when a list is opened, as in CLZ.
 - A locked Games value can no longer be typed over until it is unlocked, as in CLZ.
+- The Change Columns button in List view sits as close to its separator as the view and sort buttons, without extra space on its left.
 
 ### ♻️ Refactors
 - Games no longer have a Core Region field or column: Collectarr never fetches PriceCharting prices, and the PriceCharting ID already names the NTSC or PAL release. Upgrading removes stored Core Region values.
