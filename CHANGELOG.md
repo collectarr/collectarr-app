@@ -6,6 +6,7 @@
 - Game covers can be found online (Find Online) from the Covers tab.
 
 ### 🐛 Fixes
+- Hovering buttons in the Group By menu or a searchable dropdown no longer throws a layout error.
 - Previous and Next in the editor keep a reordered tab strip in its saved order instead of flashing the default one.
 - The Core Region choice in the Games editor now shows the selected region, and Hardware and Toys Value tabs refresh their choices the same way.
 - The app icon, taskbar logo and browser tab icon have transparent rounded corners instead of white ones.

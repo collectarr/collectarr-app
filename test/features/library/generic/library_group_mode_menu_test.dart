@@ -37,6 +37,36 @@ void main() {
     await tester.binding.setSurfaceSize(null);
     await tester.pumpWidget(const SizedBox());
   });
+  testWidgets('group menu tooltips work under a nested overlay',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: Overlay.wrap(
+                child: Align(
+      alignment: Alignment.topLeft,
+      child: LibraryGroupModeMenuButton(
+        type: const MusicRegistration(),
+        folderPreset: null,
+        accent: Colors.orange,
+        icon: Icons.folder,
+        onChanged: (_) {},
+        onPinnedPresetsChanged: (_) {},
+      ),
+    )))));
+    await tester.tap(find.byTooltip('Group By'));
+    await tester.pumpAndSettle();
+    final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await pointer.addPointer();
+    await pointer.moveTo(tester
+        .getCenter(find.byKey(const ValueKey('manageGroupFavoritesButton'))));
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.byKey(const ValueKey('manageGroupFavoritesButton')));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.text('Manage Folder Favorites'), findsOneWidget);
+    await pointer.removePointer();
+  });
   testWidgets('folder favorite actions inherit the kind accent',
       (tester) async {
     await tester.pumpWidget(MaterialApp(

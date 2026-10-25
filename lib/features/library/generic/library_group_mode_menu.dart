@@ -201,7 +201,10 @@ class _LibraryGroupModeMenuButtonState
         info.childPaintTransform, Offset.zero & info.childSize);
     final left = target.left.clamp(0.0,
         (info.overlaySize.width - menuWidth - 8).clamp(0.0, double.infinity));
-    return Stack(children: [
+    // The menu lays out in the root overlay, so its tooltips need an overlay
+    // of their own there instead of the nearest one in the widget tree.
+    return Overlay.wrap(
+        child: Stack(children: [
       Positioned.fill(
           child: GestureDetector(
               behavior: HitTestBehavior.translucent,
@@ -223,7 +226,7 @@ class _LibraryGroupModeMenuButtonState
             triggerIcon: widget.icon,
             onSelected: (value) => _handleMenuSelection(value, modes),
           )),
-    ]);
+    ]));
   }
 
   double _resolveMenuWidth(BuildContext context) =>
