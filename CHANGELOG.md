@@ -19,7 +19,7 @@
 - The Collection Status menu in the editor matches CLZ: dimmed bold group headings, indented statuses, the current and the hovered status shaded alike, and rounded corners with a shadow.
 - Hovering buttons in the Group By menu or a searchable dropdown no longer throws a layout error.
 - Previous and Next in the editor, and the first editor opened after a launch, keep a reordered tab strip in its saved order instead of flashing the default one.
-- The Core Region choice in the Games editor now shows the selected region, and Hardware and Toys Value tabs refresh their choices the same way.
+- Choices in the Hardware and Toys Value tabs now show the selected option.
 - The app icon, taskbar logo and browser tab icon have transparent rounded corners instead of white ones.
 - The header brand reads CLR instead of CARR.
 - New entries in every library, from Add and imports, take the next free Index, and importing a file without an Index keeps the one already assigned.
@@ -45,6 +45,9 @@
 - Games, Hardware and Toys pick lists (Platform, Genre, Format, Region, Condition, Audience Rating) start empty and list only values your entries use, as in CLZ; Toy Type keeps its fixed choices.
 - Pick list values that no entry uses any more are removed automatically when a list is opened, as in CLZ.
 - A locked Games value can no longer be typed over until it is unlocked, as in CLZ.
+
+### ♻️ Refactors
+- Games no longer have a Core Region field or column: Collectarr never fetches PriceCharting prices, and the PriceCharting ID already names the NTSC or PAL release. Upgrading removes stored Core Region values.
 
 ### 📚 Docs
 - The CLZ comparison records the Add Games layout, platform picker, editor rechecks and pick list Manage switch, the import progress and success alert, the Covers tab and editor dropdowns, and the platform names still open.

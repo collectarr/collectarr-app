@@ -8,9 +8,9 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 4);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 4);
 
     final tables = await db
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
@@ -88,7 +88,7 @@ void main() {
     expect(row.email, isNull);
     expect(row.address, isNull);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 4);
   });
 
   test('upgrades a schema 2 database by creating the Game tables', () async {
@@ -107,7 +107,7 @@ void main() {
     expect(kept, ['e1']);
     expect(await db.select(db.gameTrackingRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 4);
   });
 
   test('upgrades a schema 2 database by dropping the TV and Manga tables',
@@ -173,11 +173,38 @@ void main() {
       '{"personal_data":{"tags":"kept"}}',
     ]);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 4);
+  });
+
+  test('upgrades released schema 3 Games by dropping Core Region', () async {
+    final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
+      _createReleasedEntryTables(raw);
+      raw.execute("INSERT INTO library_entries VALUES "
+          "('e1', 'game', '{\"personal_data\":{\"game_core_region\":\"EU\","
+          "\"game_pricecharting_id\":\"57416\"}}', 0, NULL),"
+          "('e2', 'music', '{\"personal_data\":{\"tags\":[\"kept\"]}}', 0, NULL)");
+      raw.execute("INSERT INTO sync_queue VALUES "
+          "('c1', 'library_entry', 'e1', 'update', "
+          "'{\"personal_data\":{\"game_core_region\":\"US\"}}', 0)");
+      raw.execute('PRAGMA user_version = 3');
+    }));
+    addTearDown(db.close);
+
+    Future<List<String>> payloads(String table) => db
+        .customSelect('SELECT payload_json FROM $table ORDER BY rowid')
+        .map((row) => row.read<String>('payload_json'))
+        .get();
+    expect(await payloads('library_entries'), [
+      '{"personal_data":{"game_pricecharting_id":"57416"}}',
+      '{"personal_data":{"tags":["kept"]}}',
+    ]);
+    expect(await payloads('sync_queue'), ['{"personal_data":{}}']);
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.single, 4);
   });
 }
 
-/// The released entry and Sync queue tables, as schema 1 and 2 created them.
+/// The released entry and Sync queue tables, as schemas 1 to 3 created them.
 void _createReleasedEntryTables(Database raw) {
   raw.execute('CREATE TABLE library_entries (id TEXT NOT NULL, '
       'kind TEXT NOT NULL, payload_json TEXT NOT NULL, '

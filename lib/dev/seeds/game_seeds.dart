@@ -69,7 +69,6 @@ List<String> validateGameSeedEntry(GameLibraryEntry item) {
   final prefix = 'game/${item.id}';
   final details = item.personal.details;
   seedRequireText(issues, prefix, 'game.completeness', details.completeness);
-  seedRequireText(issues, prefix, 'game.core_region', details.coreRegion);
   seedRequireText(
       issues, prefix, 'game.pricecharting_id', details.priceChartingId);
   if (details.hasBox != true || details.hasManual != true) {
@@ -693,7 +692,6 @@ List<GameLibraryEntry> gameSeedLibraryEntries(DateTime now) {
             hasBox: true,
             hasManual: true,
             priceChartingId: 'seed-pricecharting-$itemId',
-            coreRegion: 'NTSC-U',
             valueIsLocked: false,
           ),
           purchaseDate: DateTime.utc(2022, 11, 15),

@@ -101,7 +101,6 @@ abstract final class GameVocabularies {
     }
     final key = switch (semanticName) {
       'game_completeness' => 'game_completeness',
-      'region' => 'game_core_region',
       'storage_device' => 'game_storage_device',
       _ => null,
     };
@@ -134,7 +133,6 @@ abstract final class GameVocabularies {
     }
     final key = switch (semanticName) {
       'game_completeness' => 'game_completeness',
-      'region' => 'game_core_region',
       'storage_device' => 'game_storage_device',
       _ => null,
     };

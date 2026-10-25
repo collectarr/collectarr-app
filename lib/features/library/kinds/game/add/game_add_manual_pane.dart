@@ -278,8 +278,6 @@ final class _AddValueBindings implements GameValueBindings {
   @override
   String? get priceChartingId => draft.details.priceChartingId;
   @override
-  String? get coreRegion => draft.details.coreRegion;
-  @override
   GameValuationSet? get valuations => draft.details.valuations;
   @override
   String get currency =>
@@ -317,9 +315,6 @@ final class _AddValueBindings implements GameValueBindings {
   @override
   void setPriceChartingId(String? value) => _details(() =>
       draft.copyWith(details: draft.details.copyWith(priceChartingId: value)));
-  @override
-  void setCoreRegion(String value) => _details(
-      () => draft.copyWith(details: draft.details.copyWith(coreRegion: value)));
 }
 
 final class _AddPersonalBindings implements GamePersonalBindings {

@@ -39,7 +39,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   // Dormant kind models remain available to their isolated source modules.
   // The release database exposes and creates only shared and released-kind
@@ -76,7 +76,7 @@ class LocalDatabase extends _$LocalDatabase {
         // Explicit, ordered upgrade steps; each runs once, from the released
         // schema it follows.
         onUpgrade: (migrator, from, to) async {
-          if (from < 1 || to > 3) {
+          if (from < 1 || to > 4) {
             throw StateError(
                 'No released migration exists from schema $from to $to.');
           }
@@ -103,14 +103,40 @@ class LocalDatabase extends _$LocalDatabase {
             }
             // Personal tags are a list instead of one comma-separated
             // string, in entries and in their pending Sync changes.
-            await _storeTagsAsLists('library_entries', '');
-            await _storeTagsAsLists(
-                'sync_queue', " WHERE entity_type = 'library_entry'");
+            await _updatePersonalData(_storeTagsAsList);
+          }
+          if (from < 4) {
+            // 4: Games drop Core Region; a PriceCharting ID already names
+            // the regional release.
+            await _updatePersonalData(
+                (personal) => personal.remove('game_core_region') != null);
           }
         },
       );
 
-  Future<void> _storeTagsAsLists(String table, String filter) async {
+  /// Rewrites the personal data of entries and of their pending Sync
+  /// changes; [change] returns whether it changed the map.
+  Future<void> _updatePersonalData(
+      bool Function(Map<String, dynamic> personal) change) async {
+    await _updatePersonalDataIn('library_entries', '', change);
+    await _updatePersonalDataIn(
+        'sync_queue', " WHERE entity_type = 'library_entry'", change);
+  }
+
+  static bool _storeTagsAsList(Map<String, dynamic> personal) {
+    final tags = personal['tags'];
+    if (tags is! String) return false;
+    final seen = <String>{};
+    personal['tags'] = [
+      for (final raw in tags.split(','))
+        if (raw.trim() case final tag when tag.isNotEmpty)
+          if (seen.add(tag.toLowerCase())) tag,
+    ];
+    return true;
+  }
+
+  Future<void> _updatePersonalDataIn(String table, String filter,
+      bool Function(Map<String, dynamic> personal) change) async {
     final rows = await customSelect(
       'SELECT rowid AS row_id, payload_json FROM $table$filter',
     ).get();
@@ -119,14 +145,7 @@ class LocalDatabase extends _$LocalDatabase {
       if (payload is! Map<String, dynamic>) continue;
       final personal = payload['personal_data'];
       if (personal is! Map<String, dynamic>) continue;
-      final tags = personal['tags'];
-      if (tags is! String) continue;
-      final seen = <String>{};
-      personal['tags'] = [
-        for (final raw in tags.split(','))
-          if (raw.trim() case final tag when tag.isNotEmpty)
-            if (seen.add(tag.toLowerCase())) tag,
-      ];
+      if (!change(personal)) continue;
       await customUpdate(
         'UPDATE $table SET payload_json = ? WHERE rowid = ?',
         variables: [

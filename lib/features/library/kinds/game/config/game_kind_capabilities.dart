@@ -103,7 +103,6 @@ final gameKindPersonalFieldContributor = LibraryPersonalFieldContributor(
       ('game_has_box', 'Box'),
       ('game_has_manual', 'Manual'),
       ('game_pricecharting_id', 'PriceCharting ID'),
-      ('game_core_region', 'Core Region'),
       ('game_value_is_locked', 'Value Locked'),
       ('game_storage_slot', 'Storage Slot'),
       ('game_completed', 'Completed'),

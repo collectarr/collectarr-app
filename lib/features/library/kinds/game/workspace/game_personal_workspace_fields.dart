@@ -107,13 +107,6 @@ abstract final class GamePersonalWorkspaceFields {
     getValue: (context) => _entry(context)?.personal.details.priceChartingId,
   );
 
-  static final coreRegion =
-      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
-    id: GameFieldIds.coreRegion,
-    metadata: GameWorkspaceFieldMetadata.coreRegion,
-    getValue: (context) => _entry(context)?.personal.details.coreRegion,
-  );
-
   static final valueLocked =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool?>(
     id: GameFieldIds.valueLocked,
@@ -313,7 +306,6 @@ abstract final class GamePersonalWorkspaceFields {
     completionStatus,
     completed,
     completeness,
-    coreRegion,
     hasBox,
     hasManual,
     priceChartingId,

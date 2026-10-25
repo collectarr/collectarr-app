@@ -60,7 +60,6 @@ void main() {
       'Value Loose': 'Value',
       'Value New': 'Value',
       'Barcode': 'Edition',
-      'Core Region': 'Edition',
       'Edition': 'Edition',
       'Format': 'Edition',
       'Region': 'Edition',

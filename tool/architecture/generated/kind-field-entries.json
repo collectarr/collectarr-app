@@ -2285,18 +2285,6 @@
             "game.condition"
           ]
         },
-        "coreRegion": {
-          "symbols": [
-            "coreRegion",
-            "core_region"
-          ],
-          "databaseColumns": [],
-          "databaseTables": [],
-          "sqlNames": [],
-          "workspaceFieldIds": [
-            "game.core_region"
-          ]
-        },
         "cover": {
           "symbols": [
             "cover"

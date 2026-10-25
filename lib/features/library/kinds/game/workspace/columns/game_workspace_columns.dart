@@ -120,13 +120,6 @@ final gamePersonalWorkspaceColumns = [
       isNumeric: true,
       defaultWidth: 100,
     ),
-  // Edition
-  columnFromField<GameKind, GameWorkspaceDto, String?>(
-    GamePersonalWorkspaceFields.coreRegion,
-    displayName: 'Core Region',
-    group: 'Edition',
-    defaultWidth: 110,
-  ),
   // Personal
   columnFromField<GameKind, GameWorkspaceDto, DateTime?>(
     GamePersonalWorkspaceFields.addedDateTime,
