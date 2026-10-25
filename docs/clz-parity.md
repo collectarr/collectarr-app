@@ -54,7 +54,7 @@ Keep these when matching the reference visually.
 | List header | No sort indicator | Shared-blue caret and priority number on sorted columns |
 | Chrome icons | Dialog and editor titles only | Kind icons in the top bar and dialog headers, kept at the owner's request |
 | Narrow windows | Folder panel and details keep their widths; the list collapses to nothing and details run off-screen | Folder panel keeps its width, details shrink to their minimum, the list keeps at least 320 px |
-| Settings | One page | The reference page is Appearance > Customization; Connection, Libraries, Proposals, Data, Account, Logs, Covers & layout and Typography are added tabs |
+| Settings | One page | The reference page is Appearance > Customization; Connection, Proposals, Data, Account, Updates and Logs are added tabs; pick lists and keyboard shortcuts stay in the main menu and Tools, so there is no Libraries tab |
 | Played History | Mark as listened records today | A date beside the button records listens on other days |
 | Search | Search field only; regular expressions only in the old desktop app | Extra barcode, cover-search and random-pick buttons; "matches:" regular expressions in the local search, never sent to Core |
 | Localization | Application language, time zone and a time display format | English only and the device time zone, shown read-only; Music lengths keep m:ss and h:mm:ss, which CLZ Music shows regardless of its time format |
