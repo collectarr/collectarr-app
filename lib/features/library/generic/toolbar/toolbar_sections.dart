@@ -322,6 +322,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   LibraryItemCountLabel(
                     shown: counts.shown,
                     total: counts.total,
+                    singularLabel: type.identity.singularLabel,
                     pluralLabel: type.identity.pluralLabel,
                   ),
                   if (linkedMetadataFilterLabel != null)
@@ -1113,6 +1114,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                     LibraryItemCountLabel(
                       shown: counts.shown,
                       total: counts.total,
+                      singularLabel: type.identity.singularLabel,
                       pluralLabel: type.identity.pluralLabel,
                     ),
                   ],

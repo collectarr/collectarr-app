@@ -12,6 +12,22 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('the item count uses the singular for one item', (tester) async {
+    Future<void> pump(int shown, int total) => tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: LibraryItemCountLabel(
+                shown: shown,
+                total: total,
+                singularLabel: 'Game',
+                pluralLabel: 'Games'))));
+    await pump(1, 1);
+    expect(find.text('1 game'), findsOneWidget);
+    await pump(0, 1);
+    expect(find.text('0 of 1 game'), findsOneWidget);
+    await pump(9, 9);
+    expect(find.text('9 games'), findsOneWidget);
+  });
+
   testWidgets('desktop secondary toolbar exposes a split sort launcher', (
     tester,
   ) async {
