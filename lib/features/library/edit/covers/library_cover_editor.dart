@@ -49,7 +49,6 @@ final class LibraryCoverEditor extends StatefulWidget {
     required this.onChanged,
     required this.placeholderIcon,
     this.findOnline,
-    this.aspectRatio = 1,
   });
 
   final String title;
@@ -63,7 +62,6 @@ final class LibraryCoverEditor extends StatefulWidget {
 
   /// Kind-owned online cover search; without one Find Online is hidden.
   final Future<LibraryOnlineCover?> Function(BuildContext context)? findOnline;
-  final double aspectRatio;
 
   @override
   State<LibraryCoverEditor> createState() => _LibraryCoverEditorState();
@@ -110,31 +108,46 @@ final class _LibraryCoverEditorState extends State<LibraryCoverEditor> {
         : hasCurrentCoreCover
             ? 'Remove'
             : null;
-    final colors = Theme.of(context).colorScheme;
+    final palette = appPalette(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(10, 7, 10, 5),
-          child: Text(
-            widget.title,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  height: 20 / 14,
-                ),
+          padding: const EdgeInsets.only(bottom: 1),
+          child: Opacity(
+            opacity: 0.7,
+            child: Text(
+              widget.title,
+              style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w700, height: 19 / 13),
+            ),
           ),
         ),
-        ColoredBox(
-          color: colors.surfaceContainerLowest,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  runSpacing: 2,
-                  children: [
+        // The reference's black toolbar with its top corners rounded.
+        ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 38),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+            decoration: BoxDecoration(
+              color: palette.isDark ? const Color(0xff131313) : palette.toolbar,
+              border: Border(
+                top: BorderSide(
+                    color: palette.isDark
+                        ? const Color(0xff252525)
+                        : palette.divider),
+                bottom: BorderSide(
+                    color: palette.isDark
+                        ? const Color(0xff010101)
+                        : palette.divider),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // A narrow panel wraps the left group instead of overflowing.
+                Expanded(
+                  child: Wrap(children: [
                     for (final (index, action) in [
                       if (widget.findOnline != null)
                         _toolbarAction(
@@ -171,81 +184,118 @@ final class _LibraryCoverEditorState extends State<LibraryCoverEditor> {
                       if (index > 0) _toolbarDivider(context),
                       action,
                     ],
-                  ],
+                  ]),
                 ),
-              ),
-              _toolbarDivider(context),
-              _toolbarAction(
-                context,
-                icon: AppIcons.inlineEdit,
-                label: 'Crop / Rotate',
-                onPressed: canEditCover ? _openCropEditor : null,
-              ),
-            ],
+                _toolbarAction(
+                  context,
+                  icon: AppIcons.inlineEdit,
+                  label: 'Crop / Rotate',
+                  onPressed: canEditCover ? _openCropEditor : null,
+                ),
+              ],
+            ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: AspectRatio(
-              aspectRatio: widget.aspectRatio,
-              child: ColoredBox(
-                color: appPalette(context).surface,
-                child: image != null
-                    ? Image.memory(image.bytes, fit: BoxFit.contain)
-                    : widget.coreCoverUrl?.trim().isNotEmpty == true
-                        ? Image.network(
-                            widget.coreCoverUrl!,
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => _placeholder(context),
-                          )
-                        : _placeholder(context),
+        // The cover keeps its own proportions across the full width.
+        ClipRRect(
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(4)),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: palette.isDark ? const Color(0xff444444) : palette.surface,
+              border: Border(
+                left: _previewBorder(palette),
+                right: _previewBorder(palette),
+                bottom: _previewBorder(palette),
               ),
             ),
+            child: image != null
+                ? Image.memory(image.bytes, fit: BoxFit.fitWidth)
+                : widget.coreCoverUrl?.trim().isNotEmpty == true
+                    ? Image.network(
+                        widget.coreCoverUrl!,
+                        fit: BoxFit.fitWidth,
+                        errorBuilder: (context, error, stack) =>
+                            _placeholder(context),
+                      )
+                    : _placeholder(context),
           ),
         ),
       ],
     );
   }
 
-  Widget _placeholder(BuildContext context) => Center(
+  BorderSide _previewBorder(AppThemePalette palette) => BorderSide(
+      color: palette.isDark ? const Color(0xff666666) : palette.divider);
+
+  /// The reference's 210 x 300 blank cover, centred at the top.
+  Widget _placeholder(BuildContext context) {
+    final palette = appPalette(context);
+    return Center(
+      child: Container(
+        width: 210,
+        height: 300,
+        color: palette.isDark ? const Color(0xff414141) : palette.surfaceDim,
+        alignment: Alignment.center,
         child: Icon(
           widget.placeholderIcon,
-          size: 56,
-          color: appPalette(context).textMuted.withValues(alpha: .35),
+          size: 96,
+          color: palette.isDark
+              ? const Color(0xff383838)
+              : palette.textMuted.withValues(alpha: .35),
         ),
-      );
+      ),
+    );
+  }
 
+  /// A 30 px toolbar button: 14 px glyph and label, a #464950 hover and a
+  /// quarter-opacity disabled state.
   Widget _toolbarAction(
     BuildContext context, {
     required IconData icon,
     required String label,
     required VoidCallback? onPressed,
-  }) =>
-      TextButton.icon(
+  }) {
+    final palette = appPalette(context);
+    return Opacity(
+      opacity: onPressed == null ? 0.25 : 1,
+      child: TextButton(
         onPressed: onPressed,
-        icon: Icon(icon, size: 18),
-        label: Text(label),
         style: TextButton.styleFrom(
           textStyle: TextStyle(
               fontFamily: appFontFamily,
               fontSize: 14,
               fontWeight: FontWeight.w400,
               height: 20 / 14),
-          foregroundColor: Theme.of(context).colorScheme.onSurface,
-          minimumSize: const Size(0, 38),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          foregroundColor: palette.textPrimary,
+          disabledForegroundColor: palette.textPrimary,
+          overlayColor: palette.isDark ? const Color(0xff464950) : null,
+          shape: const RoundedRectangleBorder(),
+          minimumSize: const Size(0, 30),
+          maximumSize: const Size(double.infinity, 30),
+          padding: const EdgeInsets.symmetric(horizontal: 5),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           visualDensity: VisualDensity.compact,
         ),
-      );
+        // The reference's fixed-width glyph sits right against its label.
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, size: 14),
+          const SizedBox(width: 3),
+          Flexible(
+              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis)),
+        ]),
+      ),
+    );
+  }
 
+  /// A dark 1 px rule in the 5 px gap before a button.
   Widget _toolbarDivider(BuildContext context) => Container(
         width: 1,
-        height: 22,
-        margin: const EdgeInsets.symmetric(horizontal: 2),
-        color: appPalette(context).divider,
+        height: 32,
+        margin: const EdgeInsets.only(right: 4),
+        color: appPalette(context).isDark
+            ? const Color(0xff010101)
+            : appPalette(context).divider,
       );
 
   Future<void> _upload() async {

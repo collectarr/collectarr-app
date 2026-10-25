@@ -31,7 +31,7 @@
 - Pick list select buttons in fields use the same icon as Manage Pick Lists in the sidebar groups.
 - Text typed into editor fields is a little heavier, closer to the reference.
 - Inactive editor tabs and their icons are dimmer than the selected tab instead of pure white.
-- Cover panels separate their Find Online, Upload, Remove and Crop / Rotate actions with thin dividers.
+- The editor's Covers tab looks like CLZ's: dimmed panel labels, a black toolbar with rounded top corners, 14 px actions split by dark dividers with a grey hover, a bordered preview showing the cover across its full width, and a cover-sized placeholder when there is none.
 - Imports show a progress window while a file is read, fill its bar as records are imported, and report success in an "Import Successful" box on the page, with a Link button for entries without a catalog match, as in CLZ.
 - The CSV / TXT import starts with the Comma field delimiter, as in CLZ.
 - Buttons, menus and lists no longer spread a ripple when pressed, as in CLZ, and editor menu options show the pointer cursor.
