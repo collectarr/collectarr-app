@@ -934,7 +934,12 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
         height: 30,
         child: LayoutBuilder(builder: (context, constraints) {
           final scale = MediaQuery.textScalerOf(context).scale(12) / 12;
-          final options = alphabetOptions;
+          // With a single field there is nothing to choose: no button and
+          // no divider.
+          final options =
+              alphabetOptions != null && alphabetOptions!.fields.length > 1
+                  ? alphabetOptions
+                  : null;
           final optionsWidth = options == null ? 0.0 : 46.0;
           if (constraints.maxWidth < 480 * scale) {
             return Align(

@@ -49,6 +49,7 @@
 - Games and Hardware start sorted by Platform then Title, with that sort as the checked built-in sorting favorite, as in CLZ.
 - Manage Sorting Favorites looks like CLZ's: a heading with a blue + button, bordered rows with a drag handle, a dot on the favorite in use, ASC/DESC badges and Edit, sized to its rows.
 - Clicking the open collection's own tab in the bottom bar does nothing, instead of flickering the selection and resetting folders and filters, as in CLZ.
+- The alphabet bar hides its options button and divider when there is only one field to choose.
 
 ### ♻️ Refactors
 - Games no longer have a Core Region field or column: Collectarr never fetches PriceCharting prices, and the PriceCharting ID already names the NTSC or PAL release. Upgrading removes stored Core Region values.

@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/library_alphabet_options.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_alphabet_field.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
@@ -82,6 +85,29 @@ void main() {
     await tester.pumpAndSettle();
     expect(selected, 'Z');
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('alphabet options show only with more than one field',
+      (tester) async {
+    Widget subject(List<LibraryAlphabetField> fields) => MaterialApp(
+        home: Scaffold(
+            body: SizedBox(
+                width: 1000,
+                child: LibraryToolbarAlphabetRow(
+                    letters: const {'A'},
+                    selectedLetter: null,
+                    alphabetOptions: LibraryAlphabetOptions(
+                        fields: fields,
+                        selected: fields.first,
+                        onChanged: (_) {}),
+                    accent: Colors.orange,
+                    onLetterSelected: (_) {}))));
+    const other =
+        LibraryAlphabetField(id: 'series', label: 'Series', values: _noValues);
+    await tester.pumpWidget(subject(const [LibraryAlphabetField.title]));
+    expect(find.byTooltip('Alphabet Options'), findsNothing);
+    await tester.pumpWidget(subject(const [LibraryAlphabetField.title, other]));
+    expect(find.byTooltip('Alphabet Options'), findsOneWidget);
   });
 
   testWidgets('collection status scope dropdown opens and selects a scope', (
@@ -177,3 +203,5 @@ void main() {
     expect(find.text('42'), findsNothing);
   });
 }
+
+Iterable<String> _noValues(LibraryProjectionView item) => const [];
