@@ -12,12 +12,16 @@ class LibraryAddConfirmSheet extends StatelessWidget {
     required this.content,
     required this.footer,
     required this.onDismiss,
+    this.size,
   });
 
   final Color accent;
   final Widget content;
   final Widget footer;
   final VoidCallback onDismiss;
+
+  /// The sheet's fixed size, centred; null spans the dialog.
+  final Size? size;
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +34,16 @@ class LibraryAddConfirmSheet extends StatelessWidget {
         autofocus: true,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final height = (constraints.maxHeight * 0.65)
-                .clamp(math.min(360.0, constraints.maxHeight),
-                    constraints.maxHeight)
-                .toDouble();
+            final fixed = size;
+            final height = fixed != null
+                ? math.min(fixed.height, constraints.maxHeight)
+                : (constraints.maxHeight * 0.65)
+                    .clamp(math.min(360.0, constraints.maxHeight),
+                        constraints.maxHeight)
+                    .toDouble();
+            final inset = fixed == null
+                ? 10.0
+                : math.max(10.0, (constraints.maxWidth - fixed.width) / 2);
             return Stack(
               children: [
                 Positioned.fill(
@@ -45,8 +55,8 @@ class LibraryAddConfirmSheet extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  left: 10,
-                  right: 10,
+                  left: inset,
+                  right: inset,
                   bottom: 0,
                   height: height,
                   child: Column(

@@ -36,4 +36,32 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     expect(dismissed(), 2);
   });
+
+  testWidgets('a fixed-size sheet is centred at the bottom', (tester) async {
+    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: SizedBox(
+          width: 1200,
+          height: 900,
+          child: LibraryAddConfirmSheet(
+            accent: Colors.red,
+            size: const Size(730, 369),
+            onDismiss: () {},
+            content: const Text('Game'),
+            footer: const SizedBox(height: 54),
+          ),
+        ),
+      ),
+    ));
+    final sheet =
+        tester.getRect(find.byKey(const ValueKey('library-add-confirm-sheet')));
+    expect(sheet.width, 730);
+    expect(sheet.height, 369);
+    expect(sheet.left, 235);
+    expect(sheet.bottom, 900);
+  });
 }

@@ -39,12 +39,17 @@ class LibraryAddChromeConfig {
     this.supportsTracking = true,
     this.kindFilterOptions = const [],
     this.defaultKindFilters = const {},
+    this.confirmSheetSize,
   });
 
   final bool canScanCover;
   final bool supportsTracking;
   final List<LibraryAddKindFilterOption> kindFilterOptions;
   final Set<LibraryAddSearchScope> defaultKindFilters;
+
+  /// A fixed "Confirm your selection" sheet, centred at the bottom, for kinds
+  /// whose preview is short; null spans the dialog at 65 % of its height.
+  final Size? confirmSheetSize;
 }
 
 class LibraryAddKindFilterOption {

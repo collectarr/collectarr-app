@@ -1010,6 +1010,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           ? null
           : LibraryAddConfirmSheet(
               accent: accent,
+              size: addCapability.chrome.confirmSheetSize,
               onDismiss: _controller.clearSelectedResult,
               content: LibraryAddPreviewPane(
                 type: widget.type,
