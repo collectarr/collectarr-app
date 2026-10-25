@@ -47,7 +47,6 @@ class _LibraryCollectionMenuState extends State<LibraryCollectionMenu> {
                     ? const Color(0xff383838)
                     : palette.surfaceBright,
                 highlightColor: Colors.transparent,
-                splashFactory: NoSplash.splashFactory,
                 child: SizedBox(
                     width: 30,
                     height: 30,

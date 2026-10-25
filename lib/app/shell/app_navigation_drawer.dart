@@ -229,7 +229,6 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
         key: key,
         onTap: onTap ?? () => widget.onSelected(context, action),
         mouseCursor: SystemMouseCursors.click,
-        splashFactory: NoSplash.splashFactory,
         highlightColor: Colors.transparent,
         hoverColor: palette.isDark ? const Color(0x26FFFFFF) : null,
         child: Container(
@@ -302,7 +301,6 @@ class _DrawerCollapsibleSectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      splashFactory: NoSplash.splashFactory,
       highlightColor: Colors.transparent,
       hoverColor: Colors.transparent,
       mouseCursor: SystemMouseCursors.click,

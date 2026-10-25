@@ -32,7 +32,6 @@ class AppCloseButton extends StatelessWidget {
           backgroundColor: Colors.transparent,
           hoverColor: Colors.transparent,
           highlightColor: Colors.transparent,
-          splashFactory: NoSplash.splashFactory,
           side: BorderSide.none,
           padding: EdgeInsets.zero,
           minimumSize: Size(size, size),

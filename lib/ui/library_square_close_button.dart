@@ -37,7 +37,6 @@ class LibrarySquareCloseButton extends StatelessWidget {
             ),
             side: BorderSide(color: resolvedBorderColor),
             foregroundColor: resolvedForegroundColor,
-            splashFactory: NoSplash.splashFactory,
           ).copyWith(
             mouseCursor: WidgetStateMouseCursor.clickable,
             overlayColor: const WidgetStatePropertyAll(Colors.transparent),

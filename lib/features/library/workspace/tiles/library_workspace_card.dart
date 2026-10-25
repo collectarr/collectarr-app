@@ -149,7 +149,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                   // a selected card repaints its own fill instead.
                   hoverColor: selected ? background : palette.surfaceBright,
                   highlightColor: Colors.transparent,
-                  splashFactory: NoSplash.splashFactory,
                   child: Stack(children: [
                     Padding(
                         padding: const EdgeInsets.all(4),
@@ -377,7 +376,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                     // transparent, which paints black.
                     hoverColor: selected ? background : palette.surfaceBright,
                     highlightColor: Colors.transparent,
-                    splashFactory: NoSplash.splashFactory,
                     onTap: onReleaseTap,
                     onDoubleTap: onDoubleTap,
                     onSecondaryTapUp: onSecondaryTapUp,
