@@ -46,7 +46,7 @@ final class GameCoversTab extends ConsumerWidget {
           builder: (_) => LibraryOnlineCoverPickerDialog(
             hint: 'Game title',
             tokens: [searchTitle()],
-            search: (query, {barcode}) async => [
+            search: (query, terms) async => [
               for (final item in await searchLibraryMetadataCandidates(
                   api, CatalogMediaKind.game, query: query, limit: 36))
                 if (item.summary.imageUrl?.trim().isNotEmpty == true)

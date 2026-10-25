@@ -180,11 +180,12 @@ final class MusicCoverEditor extends StatelessWidget {
           context: context,
           builder: (_) => LibraryOnlineCoverPickerDialog(
             hint: 'Album title, artist or barcode',
-            tokens: [searchArtist, searchTitle],
-            barcode: searchBarcode,
-            search: (query, {barcode}) async => [
-              for (final cover in await MusicOnlineCoverSearch()
-                  .search(query, barcode: barcode))
+            tokens: [searchArtist, searchTitle, searchBarcode],
+            search: (query, terms) async => [
+              for (final cover in await MusicOnlineCoverSearch().search(query,
+                  barcode: terms.contains(searchBarcode.trim())
+                      ? searchBarcode.trim()
+                      : null))
                 LibraryOnlineCoverCandidate(
                     title: cover.title,
                     subtitle: cover.artist,

@@ -98,12 +98,14 @@ void main() {
     await tester.pumpWidget(MaterialApp(
         home: LibraryOnlineCoverPickerDialog(
             hint: 'Album title, artist or barcode',
-            tokens: const ['Powerwolf', 'Lupus Dei'],
-            barcode: '039841461923',
-            search: (query, {barcode}) async => [
+            tokens: const ['Powerwolf', 'Lupus Dei', '039841461923'],
+            search: (query, terms) async => [
                   for (final cover
-                      in await MusicOnlineCoverSearch(client: client)
-                          .search(query, barcode: barcode))
+                      in await MusicOnlineCoverSearch(client: client).search(
+                          query,
+                          barcode: terms.contains('039841461923')
+                              ? '039841461923'
+                              : null))
                     LibraryOnlineCoverCandidate(
                         title: cover.title,
                         subtitle: cover.artist,
@@ -131,7 +133,7 @@ void main() {
       MaterialApp(
         home: LibraryOnlineCoverPickerDialog(
             hint: 'Album title, artist or barcode',
-            search: (query, {barcode}) async => const []),
+            search: (query, terms) async => const []),
       ),
     );
 
