@@ -79,7 +79,8 @@ class PickListManagerPage extends StatefulWidget {
       this.initialListName,
       this.initialMediaKind,
       this.onBack,
-      this.onClose});
+      this.onClose,
+      this.onLoaded});
   final LocalDatabase db;
   final PickListRegistry registry;
   final String? initialListName;
@@ -88,6 +89,9 @@ class PickListManagerPage extends StatefulWidget {
   /// When entered from a selector, CLZ hides the list switcher and offers Back.
   final ValueChanged<PickListManagerChanges>? onBack;
   final ValueChanged<PickListManagerChanges>? onClose;
+
+  /// Called once the first load has finished, successfully or not.
+  final VoidCallback? onLoaded;
   @override
   State<PickListManagerPage> createState() => _PickListManagerPageState();
 }
@@ -222,6 +226,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
         _error = error.toString();
       });
     }
+    if (generation == 1) widget.onLoaded?.call();
   }
 
   Future<void> _run(Future<void> Function() operation) async {
