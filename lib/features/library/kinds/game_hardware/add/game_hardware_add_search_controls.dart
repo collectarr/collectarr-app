@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/add/panes/library_add_choice_menu.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import '../vocabulary/game_hardware_vocabularies.dart';
 
 const gameHardwareAddPlatformId =
     LibraryAddFilterId('game_hardware.search.platform');
@@ -53,6 +52,18 @@ MetadataSearchQuery gameHardwareCoreSearchInput(LibraryAddSearchContext context,
           ],
         });
 
+/// Platforms the Add search narrows hardware to; the Platform pick list
+/// itself holds only the platforms entries use.
+const _searchPlatforms = [
+  'PlayStation 5',
+  'PlayStation 4',
+  'Nintendo Switch',
+  'Xbox Series X',
+  'Xbox One',
+  'PC',
+  'Other'
+];
+
 Widget buildGameHardwareAddPlatformControl(
     BuildContext context, LibraryAddModeBarRequest request) {
   final platform = request.advancedFilterText(gameHardwareAddPlatformId);
@@ -61,7 +72,7 @@ Widget buildGameHardwareAddPlatformControl(
       tooltip: 'Platform',
       width: 160,
       label: platform.isEmpty ? 'All platforms' : platform,
-      values: ['', ...GameHardwareVocabularies.platform.builtIns],
+      values: const ['', ..._searchPlatforms],
       labelFor: (value) => value.isEmpty ? 'All platforms' : value,
       onSelected: (value) {
         request.onAdvancedFilterChanged(

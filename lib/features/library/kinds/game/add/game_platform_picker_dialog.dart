@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
@@ -46,16 +45,15 @@ const _generations = [
   ],
 ];
 
-/// Platform groups for the picker: the generations, then any other known
-/// platform alphabetically.
+/// Platform groups for the picker: the generations, then [current] when it
+/// is not one of them.
 List<List<String>> gamePlatformPickerGroups([String? current]) {
   final listed = {for (final group in _generations) ...group};
-  final others = {
-    ...GameVocabularies.platform.builtIns,
-    if (current != null && current.trim().isNotEmpty) current.trim(),
-  }.where((platform) => !listed.contains(platform)).toList()
-    ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
-  return [..._generations, if (others.isNotEmpty) others];
+  final other = current?.trim() ?? '';
+  return [
+    ..._generations,
+    if (other.isNotEmpty && !listed.contains(other)) [other]
+  ];
 }
 
 /// Opens the reference's Pick Platform list; resolves to the chosen platform,

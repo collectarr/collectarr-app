@@ -10,27 +10,15 @@ abstract final class GameHardwareVocabularies {
   static const platform = VocabularyDefinition<String>(
       id: VocabularyId('game_hardware.platform'),
       label: 'Platform',
-      builtIns: [
-        'PlayStation 5',
-        'PlayStation 4',
-        'Nintendo Switch',
-        'Xbox Series X',
-        'Xbox One',
-        'PC',
-        'Other'
-      ],
       valuesFrom: TypedVocabularyProjector<GameHardwareCatalogMetadata>(
           _platformValues));
   static const series = VocabularyDefinition<String>(
       id: VocabularyId('game_hardware.series'),
       label: 'Series',
-      builtIns: [],
       valuesFrom:
           TypedVocabularyProjector<GameHardwareCatalogMetadata>(_seriesValues));
   static const condition = VocabularyDefinition<String>(
-      id: VocabularyId('game_hardware.condition'),
-      label: 'Condition',
-      builtIns: ['Mint', 'Near Mint', 'Very Good', 'Good', 'Fair', 'Poor']);
+      id: VocabularyId('game_hardware.condition'), label: 'Condition');
   static const all = <VocabularyDefinition<dynamic>>[
     platform,
     series,

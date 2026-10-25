@@ -16,19 +16,15 @@ abstract final class GameToyVocabularies {
   static const toySubtype = VocabularyDefinition<String>(
       id: VocabularyId('game_toy.toy_subtype'),
       label: 'Subtype',
-      builtIns: [],
       valuesFrom:
           TypedVocabularyProjector<GameToyCatalogMetadata>(_toySubtypeValues));
   static const series = VocabularyDefinition<String>(
       id: VocabularyId('game_toy.series'),
       label: 'Series',
-      builtIns: [],
       valuesFrom:
           TypedVocabularyProjector<GameToyCatalogMetadata>(_seriesValues));
   static const condition = VocabularyDefinition<String>(
-      id: VocabularyId('game_toy.condition'),
-      label: 'Condition',
-      builtIns: ['Mint', 'Near Mint', 'Very Good', 'Good', 'Fair', 'Poor']);
+      id: VocabularyId('game_toy.condition'), label: 'Condition');
   static const all = <VocabularyDefinition<dynamic>>[
     toyType,
     toySubtype,
