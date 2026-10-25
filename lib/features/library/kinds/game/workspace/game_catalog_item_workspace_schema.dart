@@ -33,5 +33,6 @@ final gameCatalogItemWorkspaceSchema =
     GameFieldIds.addedAt,
   },
   defaultSort: GameSortIds.platform,
+  defaultThenSort: GameSortIds.title,
   defaultGroup: GameGroupIds.platform,
 );

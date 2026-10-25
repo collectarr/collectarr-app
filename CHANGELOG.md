@@ -46,6 +46,7 @@
 - Pick list values that no entry uses any more are removed automatically when a list is opened, as in CLZ.
 - A locked Games value can no longer be typed over until it is unlocked, as in CLZ.
 - The Change Columns button in List view sits as close to its separator as the view and sort buttons, without extra space on its left.
+- Games and Hardware start sorted by Platform then Title, with that sort as the checked built-in sorting favorite, as in CLZ.
 
 ### ♻️ Refactors
 - Games no longer have a Core Region field or column: Collectarr never fetches PriceCharting prices, and the PriceCharting ID already names the NTSC or PAL release. Upgrading removes stored Core Region values.

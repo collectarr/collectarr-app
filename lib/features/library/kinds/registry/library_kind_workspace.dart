@@ -225,6 +225,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     primaryColumn: fields.primaryColumn,
     defaultVisibleColumns: fields.defaultVisibleColumns,
     defaultSort: fields.defaultSort,
+    defaultThenSort: fields.defaultThenSort,
     defaultGroup: fields.defaultGroup,
   );
 

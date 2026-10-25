@@ -15,6 +15,7 @@ class LibraryWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
     required this.primaryColumn,
     required this.defaultVisibleColumns,
     required this.defaultSort,
+    this.defaultThenSort,
     this.defaultGroup,
     this.containedSearchValues,
   });
@@ -28,6 +29,9 @@ class LibraryWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   final LibraryFieldIdRuntime primaryColumn;
   final Set<LibraryFieldIdRuntime> defaultVisibleColumns;
   final LibrarySortId<TKind> defaultSort;
+
+  /// Ascending tiebreak after [defaultSort] until a sort is chosen.
+  final LibrarySortId<TKind>? defaultThenSort;
   final LibraryGroupIdRuntime? defaultGroup;
   final Iterable<String> Function(TDto dto)? containedSearchValues;
 
@@ -45,6 +49,7 @@ class LibraryWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
       primaryColumn: primaryColumn,
       defaultVisibleColumns: defaultVisibleColumns,
       defaultSort: defaultSort,
+      defaultThenSort: defaultThenSort,
       defaultGroup: defaultGroup,
       containedSearchValues: containedSearchValues,
     );

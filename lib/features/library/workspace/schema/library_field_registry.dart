@@ -13,6 +13,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     required this.primaryColumn,
     required this.defaultVisibleColumns,
     required this.defaultSort,
+    this.defaultThenSort,
     this.defaultGroup,
     this.containedSearchValues,
   }) : _fieldsById = {
@@ -30,6 +31,9 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   final LibraryFieldIdRuntime primaryColumn;
   final Set<LibraryFieldIdRuntime> defaultVisibleColumns;
   final LibrarySortIdRuntime defaultSort;
+
+  /// Ascending tiebreak after [defaultSort] until a sort is chosen.
+  final LibrarySortIdRuntime? defaultThenSort;
   final LibraryGroupIdRuntime? defaultGroup;
   final Iterable<String> Function(TDto dto)? containedSearchValues;
   final Map<String, LibraryFieldDefinition<dynamic, TDto, Object?>> _fieldsById;
@@ -132,6 +136,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       primaryColumn: primaryColumn,
       defaultVisibleColumns: defaultVisibleColumns,
       defaultSort: defaultSort,
+      defaultThenSort: defaultThenSort,
       defaultGroup: defaultGroup,
       containedSearchValues: containedSearchValues == null
           ? null
@@ -484,6 +489,11 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     if (!sortIds.contains(defaultSort.value)) {
       throw StateError(
           'Default sort ${defaultSort.value} is missing from sort definitions for $kindNamespace.');
+    }
+
+    if (defaultThenSort != null && !sortIds.contains(defaultThenSort!.value)) {
+      throw StateError(
+          'Default then-sort ${defaultThenSort!.value} is missing from sort definitions for $kindNamespace.');
     }
 
     if (defaultGroup != null && !groupIds.contains(defaultGroup!.value)) {

@@ -114,11 +114,24 @@ class LibraryWorkspacePreferences {
         prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
     final fields =
         libraryKindWorkspaceForKind(registration.kind).workspaceFields;
-    final sortRules = _decodeSortRules(
-      prefs.getStringList(_key('sort_rules')),
-      fields,
-    );
     final savedSortColumn = prefs.getString(_key('sort_column'));
+    final defaultAscending =
+        defaultSortAscendingForColumn?.call(fields.defaultSort) ??
+            defaultSortAscending;
+    final sortRules = _decodeSortRules(
+          prefs.getStringList(_key('sort_rules')),
+          fields,
+        ) ??
+        // Until a sort is chosen, the default sort and its tiebreak.
+        switch ((savedSortColumn, fields.defaultThenSort)) {
+          (null, final then?) => [
+              LibrarySortRule(
+                  column: fields.defaultSort.value,
+                  ascending: defaultAscending),
+              LibrarySortRule(column: then.value, ascending: true),
+            ],
+          _ => null,
+        };
     var sortColumn = fields.defaultSort.value;
     if (savedSortColumn != null) {
       final directDef = fields.findSortDefinition(
@@ -153,9 +166,8 @@ class LibraryWorkspacePreferences {
       isSidebarVisible:
           prefs.getBool(_key('sidebar_visible')) ?? defaultSidebarVisible,
       sortColumn: sortColumn,
-      sortAscending: prefs.getBool(_key('sort_ascending')) ??
-          (defaultSortAscendingForColumn?.call(fields.defaultSort) ??
-              defaultSortAscending),
+      sortAscending:
+          prefs.getBool(_key('sort_ascending')) ?? defaultAscending,
       sortRules: sortRules,
       coverSize: _clamp(coverSize, minCoverSize, maxCoverSize),
       sidebarWidth: clampLibraryPaneWidth(
