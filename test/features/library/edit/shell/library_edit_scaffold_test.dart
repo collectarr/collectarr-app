@@ -151,8 +151,7 @@ void main() {
         home: _EditScaffoldHarness(tabOrderKey: 'scaffold_launch_order')));
     bool stripVisible() => tester
         .widget<Visibility>(find
-            .ancestor(
-                of: find.text('Main'), matching: find.byType(Visibility))
+            .ancestor(of: find.text('Main'), matching: find.byType(Visibility))
             .first)
         .visible;
     expect(stripVisible(), isFalse);
