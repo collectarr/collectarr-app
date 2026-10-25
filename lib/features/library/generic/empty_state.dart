@@ -23,6 +23,7 @@ class LibraryEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (hasActiveFilter) return _NoResultsBanner(onReset: onClearFilter);
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: accent),
       duration: kAppAnimNormal,
@@ -50,9 +51,7 @@ class LibraryEmptyState extends StatelessWidget {
                           Icon(icon, size: 44, color: animatedAccent),
                           const SizedBox(height: 12),
                           Text(
-                            hasActiveFilter
-                                ? 'No matching ${type.identity.pluralLabel.toLowerCase()}'
-                                : 'This collection has no ${type.identity.pluralLabel.toLowerCase()} yet',
+                            'This collection has no ${type.identity.pluralLabel.toLowerCase()} yet',
                             textAlign: TextAlign.center,
                             style:
                                 Theme.of(context).textTheme.panelTitle.copyWith(
@@ -61,9 +60,7 @@ class LibraryEmptyState extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            hasActiveFilter
-                                ? 'Clear filters to return to your local shelf.'
-                                : _emptyStateSummary(type),
+                            _emptyStateSummary(type),
                             textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
@@ -73,25 +70,18 @@ class LibraryEmptyState extends StatelessWidget {
                                 ),
                           ),
                           const SizedBox(height: 16),
-                          if (hasActiveFilter)
-                            OutlinedButton.icon(
-                              onPressed: onClearFilter,
-                              icon: const Icon(Icons.filter_alt_off),
-                              label: const Text('Clear filter'),
-                            )
-                          else
-                            FilledButton.icon(
-                              onPressed: onAdd,
-                              style: FilledButton.styleFrom(
-                                backgroundColor:
-                                    libraryAccentActionColor(animatedAccent),
-                                foregroundColor: appContrastingTextColor(
+                          FilledButton.icon(
+                            onPressed: onAdd,
+                            style: FilledButton.styleFrom(
+                              backgroundColor:
                                   libraryAccentActionColor(animatedAccent),
-                                ),
+                              foregroundColor: appContrastingTextColor(
+                                libraryAccentActionColor(animatedAccent),
                               ),
-                              icon: const Icon(Icons.add),
-                              label: const Text('Add from Collectarr Core'),
                             ),
+                            icon: const Icon(Icons.add),
+                            label: const Text('Add from Collectarr Core'),
+                          ),
                         ],
                       ),
                     ),
@@ -102,6 +92,67 @@ class LibraryEmptyState extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// The reference's blue "No results found..." banner over the empty list,
+/// with a white Reset all filters button.
+class _NoResultsBanner extends StatelessWidget {
+  const _NoResultsBanner({required this.onReset});
+
+  final VoidCallback onReset;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final blue = palette.utilityAction;
+    return ColoredBox(
+      color: palette.canvas,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+          padding: const EdgeInsets.all(20),
+          color: blue,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Row(children: [
+                Icon(Icons.search, size: 26, color: Colors.white),
+                SizedBox(width: 6),
+                Flexible(
+                  child: Text('No results found...',
+                      style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w700,
+                          height: 1.1,
+                          color: Colors.white)),
+                ),
+              ]),
+              const SizedBox(height: 20),
+              TextButton.icon(
+                onPressed: onReset,
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: blue,
+                  minimumSize: const Size(0, 32),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4)),
+                  textStyle: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w400),
+                ),
+                icon: const Icon(Icons.sync, size: 14),
+                label: const Text('Reset all filters'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
