@@ -80,6 +80,8 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.onAdvancedFilterChanged,
     required this.advancedFilterDescriptors,
     this.onCoreDataSettings,
+    this.searchRowWidth,
+    this.searchRowBeside,
   });
 
   final LibraryKindRegistration type;
@@ -118,6 +120,11 @@ class LibraryAddModeBar extends StatefulWidget {
 
   /// Opens the Add/Update from Core settings from the tab row's gear.
   final VoidCallback? onCoreDataSettings;
+
+  /// Narrows the search row to [searchRowWidth] and shows [searchRowBeside]
+  /// in the rest, for results laid out in two panes.
+  final double? searchRowWidth;
+  final Widget? searchRowBeside;
 
   @override
   State<LibraryAddModeBar> createState() => _LibraryAddModeBarState();
@@ -485,7 +492,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
               ? widget.onScanCover
               : null,
         ),
-        ColoredBox(
+        _besideSearchRow(ColoredBox(
           color: libraryAddSearchBackground(context),
           child: Padding(
             padding: const EdgeInsets.all(5),
@@ -577,8 +584,27 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
               ],
             ),
           ),
-        ),
+        )),
       ],
+    );
+  }
+
+  Widget _besideSearchRow(Widget searchRow) {
+    final width = widget.searchRowWidth;
+    final beside = widget.searchRowBeside;
+    if (width == null || beside == null) return searchRow;
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(width: width, child: searchRow),
+          ColoredBox(
+            color: appPalette(context).canvas,
+            child: const SizedBox(width: 6),
+          ),
+          Expanded(child: beside),
+        ],
+      ),
     );
   }
 }

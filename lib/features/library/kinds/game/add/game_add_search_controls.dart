@@ -93,7 +93,7 @@ Widget buildGameAddPlatformControl(
   );
 }
 
-/// Region segments above the results, as in the reference.
+/// Region segments above the editions, as in the reference.
 Widget buildGameAddRegionControl(
   BuildContext context,
   LibraryAddModeBarRequest request,
@@ -101,31 +101,44 @@ Widget buildGameAddRegionControl(
   final palette = appPalette(context);
   final region =
       gameAddRegion(request.advancedFilterState[gameAddRegionFilterId]);
-  return Container(
+  const radius = Radius.circular(4);
+  final last = GameAddRegion.values.length - 1;
+  return Row(
     key: const ValueKey('game-add-region-filter'),
-    height: 26,
-    decoration: BoxDecoration(border: Border.all(color: palette.divider)),
-    child: Row(mainAxisSize: MainAxisSize.min, children: [
+    mainAxisSize: MainAxisSize.min,
+    children: [
       for (final (index, value) in GameAddRegion.values.indexed)
-        InkWell(
-          onTap: () => _update(request, gameAddRegionFilterId, value.value),
-          child: Container(
-            width: 52,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: value == region
-                  ? (palette.isDark
-                      ? const Color(0xff555555)
-                      : const Color(0xffe6e6e6))
-                  : null,
-              border: index == 0
-                  ? null
-                  : Border(left: BorderSide(color: palette.divider)),
+        Material(
+          color: value == region
+              ? palette.utilityAction
+              : palette.isDark
+                  ? const Color(0xff444444)
+                  : const Color(0xffe6e6e6),
+          borderRadius: BorderRadius.horizontal(
+            left: index == 0 ? radius : Radius.zero,
+            right: index == last ? radius : Radius.zero,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => _update(request, gameAddRegionFilterId, value.value),
+            child: Container(
+              width: 65,
+              height: 32,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: index == 0
+                    ? null
+                    : Border(left: BorderSide(color: palette.divider)),
+              ),
+              child: Text(value.label,
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: value == region
+                          ? Colors.white
+                          : palette.textPrimary)),
             ),
-            child: Text(value.label,
-                style: TextStyle(fontSize: 13, color: palette.textPrimary)),
           ),
         ),
-    ]),
+    ],
   );
 }
