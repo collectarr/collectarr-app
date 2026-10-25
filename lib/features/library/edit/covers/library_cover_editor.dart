@@ -132,43 +132,49 @@ final class _LibraryCoverEditorState extends State<LibraryCoverEditor> {
             children: [
               Expanded(
                 child: Wrap(
-                  spacing: 2,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   runSpacing: 2,
                   children: [
-                    if (widget.findOnline != null)
+                    for (final (index, action) in [
+                      if (widget.findOnline != null)
+                        _toolbarAction(
+                          context,
+                          icon: AppIcons.findOnline,
+                          label: 'Find Online',
+                          onPressed: _transforming ? null : _findOnline,
+                        ),
                       _toolbarAction(
                         context,
-                        icon: AppIcons.findOnline,
-                        label: 'Find Online',
-                        onPressed: _transforming ? null : _findOnline,
+                        icon: AppIcons.upload,
+                        label: 'Upload',
+                        onPressed: _transforming ? null : _upload,
                       ),
-                    _toolbarAction(
-                      context,
-                      icon: AppIcons.upload,
-                      label: 'Upload',
-                      onPressed: _transforming ? null : _upload,
-                    ),
-                    if (removeActionLabel != null)
-                      _toolbarAction(
-                        context,
-                        icon: removeActionLabel == 'Restore'
-                            ? Icons.restore
-                            : AppIcons.removeAction,
-                        label: removeActionLabel,
-                        onPressed: () {
-                          if (image != null) {
-                            widget.onChanged(null);
-                            if (canRestoreCoreCover) {
-                              widget.onRestoreCoreCover();
+                      if (removeActionLabel != null)
+                        _toolbarAction(
+                          context,
+                          icon: removeActionLabel == 'Restore'
+                              ? Icons.restore
+                              : AppIcons.removeAction,
+                          label: removeActionLabel,
+                          onPressed: () {
+                            if (image != null) {
+                              widget.onChanged(null);
+                              if (canRestoreCoreCover) {
+                                widget.onRestoreCoreCover();
+                              }
+                            } else {
+                              widget.onRemoveCoreCover();
                             }
-                          } else {
-                            widget.onRemoveCoreCover();
-                          }
-                        },
-                      ),
+                          },
+                        ),
+                    ].indexed) ...[
+                      if (index > 0) _toolbarDivider(context),
+                      action,
+                    ],
                   ],
                 ),
               ),
+              _toolbarDivider(context),
               _toolbarAction(
                 context,
                 icon: AppIcons.inlineEdit,
@@ -233,6 +239,13 @@ final class _LibraryCoverEditorState extends State<LibraryCoverEditor> {
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           visualDensity: VisualDensity.compact,
         ),
+      );
+
+  Widget _toolbarDivider(BuildContext context) => Container(
+        width: 1,
+        height: 22,
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        color: appPalette(context).divider,
       );
 
   Future<void> _upload() async {
