@@ -14,22 +14,20 @@ final class LibraryOnlineCoverCandidate {
   final String imageUrl;
 }
 
-/// Kind-owned online cover search; [barcode] is set when the barcode token is
-/// still part of the query.
+/// Kind-owned online cover search. [terms] are the offered search terms still
+/// ticked while the query is untouched, and empty once the user edits it.
 typedef LibraryOnlineCoverSearch = Future<List<LibraryOnlineCoverCandidate>>
-    Function(String query, {String? barcode});
+    Function(String query, List<String> terms);
 
 final class LibraryOnlineCoverPickerDialog extends StatefulWidget {
   const LibraryOnlineCoverPickerDialog(
       {super.key,
       required this.search,
       required this.hint,
-      this.tokens = const [],
-      this.barcode = ''});
+      this.tokens = const []});
 
   /// Search terms offered as checkboxes and joined into the first query.
   final List<String> tokens;
-  final String barcode;
   final LibraryOnlineCoverSearch search;
 
   /// What can be searched, e.g. "Album title, artist or barcode".
@@ -43,7 +41,7 @@ final class _LibraryOnlineCoverPickerDialogState
     extends State<LibraryOnlineCoverPickerDialog> {
   late final TextEditingController _queryController;
   late final Map<String, bool> _tokens = {
-    for (final text in [...widget.tokens, widget.barcode])
+    for (final text in widget.tokens)
       if (text.trim().isNotEmpty) text.trim(): true
   };
   List<LibraryOnlineCoverCandidate> _candidates = const [];
@@ -82,11 +80,14 @@ final class _LibraryOnlineCoverPickerDialogState
     });
     if (query.isEmpty) return;
     try {
-      final candidates = await widget.search(query,
-          barcode:
-              _tokens[widget.barcode.trim()] == true && query == _tokenQuery
-                  ? widget.barcode.trim()
-                  : null);
+      final candidates = await widget.search(
+          query,
+          query == _tokenQuery
+              ? [
+                  for (final token in _tokens.entries)
+                    if (token.value) token.key
+                ]
+              : const []);
       if (!mounted || request != _request) return;
       setState(() => _candidates = candidates);
     } catch (_) {
