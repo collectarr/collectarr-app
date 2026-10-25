@@ -19,7 +19,7 @@ final class CustomEpisodeSyncRecord {
 
 /// Kind-entry persistence adapter for custom-episode sync only.
 ///
-/// TV and Anime own their complete custom-episode aggregates and repositories.
+/// Episodic kinds own their complete custom-episode aggregates and repositories.
 /// This contract intentionally exposes only serialization-boundary operations
 /// so generic sync never receives a common episode model.
 abstract interface class CustomEpisodeSyncCodec {

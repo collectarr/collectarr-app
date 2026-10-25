@@ -14,7 +14,6 @@ const _devSeedRegistryOutput =
     'lib/dev/seeds/collectarr_dev_seed_registry.g.dart';
 
 const _requiredKinds = {
-  'anime',
   'boardgame',
   'book',
   'comic',

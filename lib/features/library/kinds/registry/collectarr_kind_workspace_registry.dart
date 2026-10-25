@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/config/library_hierarchy_capabil
 import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
 import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
@@ -23,7 +22,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_work
 final Map<CatalogMediaKind, MediaTrackingProfile>
     collectarrKindTrackingProfiles =
     releasedKindContributions(<CatalogMediaKind, MediaTrackingProfile>{
-  CatalogMediaKind.anime: animeKindTrackingProfile,
   CatalogMediaKind.boardgame: boardGameKindTrackingProfile,
   CatalogMediaKind.book: bookKindTrackingProfile,
   CatalogMediaKind.comic: comicKindTrackingProfile,
@@ -37,7 +35,6 @@ final Map<CatalogMediaKind, MediaTrackingProfile>
 final Map<CatalogMediaKind, LibraryTrackingTopology>
     collectarrKindTrackingTopologies =
     releasedKindContributions(<CatalogMediaKind, LibraryTrackingTopology>{
-  CatalogMediaKind.anime: animeKindTrackingTopology,
   CatalogMediaKind.boardgame: boardGameKindTrackingTopology,
   CatalogMediaKind.book: bookKindTrackingTopology,
   CatalogMediaKind.comic: comicKindTrackingTopology,
@@ -51,7 +48,6 @@ final Map<CatalogMediaKind, LibraryTrackingTopology>
 final Map<CatalogMediaKind, LibraryHierarchyCapability>
     collectarrKindHierarchies =
     releasedKindContributions(<CatalogMediaKind, LibraryHierarchyCapability>{
-  CatalogMediaKind.anime: animeKindHierarchy,
   CatalogMediaKind.movie: movieKindHierarchy,
   CatalogMediaKind.music: musicKindHierarchy,
 });
@@ -59,7 +55,6 @@ final Map<CatalogMediaKind, LibraryHierarchyCapability>
 final Map<CatalogMediaKind, LibraryTargetVocabulary>
     collectarrKindEntityVocabularies =
     releasedKindContributions(<CatalogMediaKind, LibraryTargetVocabulary>{
-  CatalogMediaKind.anime: animeKindEntityVocabulary,
   CatalogMediaKind.boardgame: boardGameKindEntityVocabulary,
   CatalogMediaKind.book: bookKindEntityVocabulary,
   CatalogMediaKind.comic: comicKindEntityVocabulary,
@@ -73,7 +68,6 @@ final Map<CatalogMediaKind, LibraryTargetVocabulary>
 final Map<CatalogMediaKind, LibraryInspectorCapability>
     collectarrKindInspectors =
     releasedKindContributions(<CatalogMediaKind, LibraryInspectorCapability>{
-  CatalogMediaKind.anime: animeKindInspector,
   CatalogMediaKind.boardgame: boardGameKindInspector,
   CatalogMediaKind.book: bookKindInspector,
   CatalogMediaKind.comic: comicKindInspector,
@@ -86,7 +80,6 @@ final Map<CatalogMediaKind, LibraryInspectorCapability>
 
 final Map<CatalogMediaKind, LibraryKindToolbarModule?> collectarrKindToolbars =
     releasedKindContributions(<CatalogMediaKind, LibraryKindToolbarModule?>{
-  CatalogMediaKind.anime: animeKindToolbar as LibraryKindToolbarModule?,
   CatalogMediaKind.boardgame: boardGameKindToolbar as LibraryKindToolbarModule?,
   CatalogMediaKind.book: bookKindToolbar as LibraryKindToolbarModule?,
   CatalogMediaKind.comic: comicKindToolbar,
@@ -101,7 +94,6 @@ final Map<CatalogMediaKind, LibraryKindToolbarModule?> collectarrKindToolbars =
 final Map<CatalogMediaKind, List<LibrarySearchTarget>>
     collectarrKindSearchTargetOptions =
     releasedKindContributions(<CatalogMediaKind, List<LibrarySearchTarget>>{
-  CatalogMediaKind.anime: animeKindSearchTargetOptions,
   CatalogMediaKind.boardgame: boardGameKindSearchTargetOptions,
   CatalogMediaKind.book: bookKindSearchTargetOptions,
   CatalogMediaKind.comic: comicKindSearchTargetOptions,
@@ -115,7 +107,6 @@ final Map<CatalogMediaKind, List<LibrarySearchTarget>>
 final Map<CatalogMediaKind, LibraryWorkspaceViewProfile>
     collectarrKindViewProfiles =
     releasedKindContributions(<CatalogMediaKind, LibraryWorkspaceViewProfile>{
-  CatalogMediaKind.anime: animeKindViewProfile,
   CatalogMediaKind.boardgame: boardGameKindViewProfile,
   CatalogMediaKind.book: bookKindViewProfile,
   CatalogMediaKind.comic: comicKindViewProfile,
@@ -127,7 +118,6 @@ final Map<CatalogMediaKind, LibraryWorkspaceViewProfile>
 });
 
 final Map<CatalogMediaKind, LibraryKindWorkspace> collectarrKindWorkspaces = {
-  CatalogMediaKind.anime: animeKindWorkspace,
   CatalogMediaKind.boardgame: boardGameKindWorkspace,
   CatalogMediaKind.book: bookKindWorkspace,
   CatalogMediaKind.comic: comicKindWorkspace,
@@ -139,7 +129,6 @@ final Map<CatalogMediaKind, LibraryKindWorkspace> collectarrKindWorkspaces = {
 };
 
 final Map<CatalogMediaKind, LibraryFacetModule> collectarrKindFacetModules = {
-  CatalogMediaKind.anime: animeLibraryFacetModule,
   CatalogMediaKind.boardgame: boardGameLibraryFacetModule,
   CatalogMediaKind.book: bookLibraryFacetModule,
   CatalogMediaKind.comic: comicLibraryFacetModule,

@@ -31,8 +31,6 @@ export 'package:collectarr_app/features/collection/collection_kind_contributors.
 export 'package:collectarr_app/features/collection/csv/collection_csv_registry.dart';
 export 'package:collectarr_app/features/library/tracking/library_tracking_registry.dart';
 export 'package:collectarr_app/features/library/entries/entry_kind_contributor_registry.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
-export 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
@@ -52,7 +50,6 @@ export 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 
 final List<LibraryKindRegistration> collectarrKindRegistrationsList = [
   for (final registration in const <LibraryKindRegistration>[
-    AnimeRegistration(),
     BoardgameRegistration(),
     BookRegistration(),
     ComicRegistration(),
@@ -72,32 +69,6 @@ final Map<CatalogMediaKind, LibraryKindRegistration>
   for (final registration in collectarrKindRegistrationsList)
     registration.kind: registration,
 });
-
-final class AnimeRegistration implements LibraryKindRegistration {
-  const AnimeRegistration();
-
-  @override
-  CatalogMediaKind get kind => CatalogMediaKind.anime;
-
-  @override
-  LibraryKindIdentity get identity => animeKindIdentity;
-
-  @override
-  Widget buildLibraryPage({
-    required Widget topBar,
-    required Color accent,
-    required Uri routeUri,
-    LibraryLayoutSnapshot? switchLayoutSnapshot,
-  }) {
-    return AnimeLibraryPage(
-      type: const AnimeRegistration(),
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    );
-  }
-}
 
 final class BoardgameRegistration implements LibraryKindRegistration {
   const BoardgameRegistration();

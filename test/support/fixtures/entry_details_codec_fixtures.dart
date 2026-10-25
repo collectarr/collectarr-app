@@ -4,8 +4,6 @@ import 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_
 import 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_details_codec.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
@@ -58,10 +56,6 @@ final class _TypedEntryDetailsTestFixture<TDetails extends JsonEncodable>
 
 EntryDetailsTestFixture entryDetailsFixtureForTest(CatalogMediaKind kind) {
   return switch (kind) {
-    CatalogMediaKind.anime => _TypedEntryDetailsTestFixture<AnimeEntryDetails>(
-        decode: const AnimeEntryDetailsCodec().fromJson,
-        defaults: const AnimeEntryDetailsCodec().defaultDetails,
-      ),
     CatalogMediaKind.boardgame =>
       _TypedEntryDetailsTestFixture<BoardgameEntryDetails>(
         decode: const BoardgameEntryDetailsCodec().fromJson,

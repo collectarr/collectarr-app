@@ -50,11 +50,6 @@ const _libraryNavGroupSpecs = [
     label: 'Movies',
     memberKinds: ['movie'],
   ),
-  _LibraryNavGroupSpec(
-    id: 'anime',
-    label: 'Anime',
-    memberKinds: ['anime'],
-  ),
 ];
 
 String? canonicalLibraryNavKind(String? kind) {

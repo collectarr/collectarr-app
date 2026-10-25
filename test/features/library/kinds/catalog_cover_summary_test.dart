@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_transport_codec.dart';
@@ -11,21 +10,13 @@ import '../../../support/builders/catalog_item_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const anilistCover =
-      'https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/'
-      'bx1-GCsPm7waJ4kS.png';
+  const canonicalCover = 'https://covers.example/large/front-cover.png';
 
   test('every kind summary preserves the canonical cover URL', () {
     final cases = <({
       CatalogMediaKind kind,
       String? Function(CatalogItemDto) readSummaryCover,
     })>[
-      (
-        kind: CatalogMediaKind.anime,
-        readSummaryCover: (item) => const AnimeCatalogTransportCodec()
-            .summarizeTransport(item)
-            .imageUrl,
-      ),
       (
         kind: CatalogMediaKind.boardgame,
         readSummaryCover: (item) => const BoardGameCatalogTransportCodec()
@@ -68,22 +59,22 @@ void main() {
               id: 'cover-${testCase.kind.apiValue}',
               kind: testCase.kind.apiValue,
               title: 'Cover fixture',
-              coverImageUrl: anilistCover,
-              thumbnailImageUrl: anilistCover,
+              coverImageUrl: canonicalCover,
+              thumbnailImageUrl: canonicalCover,
             )
           : CatalogItemDto.raw(
               id: 'cover-${testCase.kind.apiValue}',
               mediaKind: testCase.kind,
               kindData: {
                 'title': 'Cover fixture',
-                'cover_image_url': anilistCover,
-                'thumbnail_image_url': anilistCover,
+                'cover_image_url': canonicalCover,
+                'thumbnail_image_url': canonicalCover,
               },
             );
 
       expect(
         testCase.readSummaryCover(item),
-        anilistCover,
+        canonicalCover,
         reason: '${testCase.kind.apiValue} dropped the cover URL',
       );
     }

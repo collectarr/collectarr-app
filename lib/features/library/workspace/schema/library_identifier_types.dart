@@ -20,10 +20,6 @@ sealed class MovieKind {
   const MovieKind();
 }
 
-sealed class AnimeKind {
-  const AnimeKind();
-}
-
 sealed class MusicKind {
   const MusicKind();
 }

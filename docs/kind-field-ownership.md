@@ -1,6 +1,6 @@
 # Collectarr Kind Field Ownership & Scope Classification
 
-This document classifies fields across Collectarr's nine source kinds (only Music is released in v1) as **Catalog Item metadata**, **Personal data**, or **Derived / Session data**. Each collectible edition, version, issue, or release is one Catalog Item. Personal values belong to that same local entry, but remain separate from canonical metadata so they never cross the Core boundary.
+This document classifies fields across Collectarr's source kinds (only Music is released in v1) as **Catalog Item metadata**, **Personal data**, or **Derived / Session data**. Each collectible edition, version, issue, or release is one Catalog Item. Personal values belong to that same local entry, but remain separate from canonical metadata so they never cross the Core boundary.
 
 The labels below describe field ownership only. They do not imply separate editable Work, Release, or Copy records. Music is grounded in the saved CLZ Music form; exact CLZ field parity for the other eight kinds remains unverified until their Edit-form captures are reviewed.
 
@@ -40,20 +40,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `pricePaid`, `location`, `lastBagBoardDate`| Personal Data | Storage and acquisition records |
 | `valuations` (`ValuationSnapshot`) | Personal Data | Valuation snapshots (e.g. CovrPrice, manual) |
 
-### 2. Anime
-| Field | Scope | Description |
-|---|---|---|
-| `nativeTitle`, `romajiTitle`, `englishTitle` | Catalog Item Metadata | Anime work titles |
-| `format` (TV, Movie, OVA, ONA, Special) | Catalog Item Metadata | Production format |
-| `studios`, `producers`, `sourceMaterial` | Catalog Item Metadata | Animation studios and origin |
-| `episodeCount`, `episodeRuntime` | Catalog Item Metadata | Runtime specs |
-| `season`, `seasonYear`, `airingStatus` | Catalog Item Metadata | Broadcast timeline |
-| `physicalRelease` (Blu-ray, DVD, Box Set) | Catalog Item Metadata | Home video physical release |
-| `region`, `discCount`, `packaging`, `hdr` | Catalog Item Metadata | Video media specifications |
-| `condition`, `storageDevice`, `storageSlot`| Personal Data | Copy location and state |
-| `watchSessions`, `progress` | Derived / Session | Personal tracking history |
-
-### 3. Book
+### 2. Book
 | Field | Scope | Description |
 |---|---|---|
 | `title`, `subtitle`, `sortTitle`, `synopsis`| Catalog Item Metadata | Canonical book title and overview |
@@ -67,7 +54,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `condition`, `signedBy`, `pricePaid` | Personal Data | Personal copy condition |
 | `dustJacketPresent`, `dustJacketCondition` | Personal Data | Dust jacket collector data |
 
-### 4. Game
+### 3. Game
 | Field | Scope | Description |
 |---|---|---|
 | `title`, `franchise`, `series`, `genres` | Catalog Item Metadata | Canonical game IP and series |
@@ -79,7 +66,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `hasBox`, `hasManual`, `valueLocked` | Personal Data | Box/manual presence and valuation lock |
 | `priceChartingId`, `valuations` | Personal Data | A user-owned valuation snapshot and its optional PriceCharting reference. The reference is stored locally with the entry; Collectarr does not query or ingest PriceCharting data. |
 
-### 5. Board Game
+### 4. Board Game
 | Field | Scope | Description |
 |---|---|---|
 | `title`, `originalTitle`, `synopsis` | Catalog Item Metadata | Game identity and description |
@@ -93,7 +80,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `isSleeved`, `hasCustomInsert`, `paintedMiniatures`| Personal Data | Collector upgrades and storage notes |
 | `playSessions`, `playStats` | Derived / Session | Dynamic session tracking and win stats |
 
-### 6. Movie
+### 5. Movie
 | Field | Scope | Description |
 |---|---|---|
 | `title`, `originalTitle`, `sortTitle` | Catalog Item Metadata | Canonical movie title |
@@ -104,7 +91,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `region`, `discCount`, `distributor` | Catalog Item Metadata | Distributor and region coding |
 | `condition`, `storageLocation`, `pricePaid` | Personal Data | Personal collection records |
 
-### 7. Music
+### 6. Music
 | Field | Scope | Description |
 |---|---|---|
 | `title`, `artist`, `originalReleaseDate` | Catalog Item Metadata | Canonical album and recording artist |

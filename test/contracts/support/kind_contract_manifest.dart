@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 const activeTypedKinds = <CatalogMediaKind>{
   CatalogMediaKind.comic,
-  CatalogMediaKind.anime,
   CatalogMediaKind.book,
   CatalogMediaKind.game,
   CatalogMediaKind.gameHardware,
@@ -44,7 +43,6 @@ const kindContractManifest = KindContractManifest(
   },
   optionalParticipants: {
     'release': {
-      CatalogMediaKind.anime,
       CatalogMediaKind.boardgame,
       CatalogMediaKind.book,
       CatalogMediaKind.comic,
@@ -53,7 +51,6 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.music,
     },
     'releaseRepository': {
-      CatalogMediaKind.anime,
       CatalogMediaKind.boardgame,
       CatalogMediaKind.book,
       CatalogMediaKind.comic,
@@ -62,11 +59,9 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.music,
     },
     'releaseProjection': {
-      CatalogMediaKind.anime,
       CatalogMediaKind.movie,
     },
     'releaseEdit': {
-      CatalogMediaKind.anime,
       CatalogMediaKind.boardgame,
       CatalogMediaKind.book,
       CatalogMediaKind.comic,
@@ -75,7 +70,6 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.music,
     },
     'releasePersistence': {
-      CatalogMediaKind.anime,
       CatalogMediaKind.boardgame,
       CatalogMediaKind.book,
       CatalogMediaKind.comic,
@@ -84,11 +78,8 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.music,
     },
     'calendar': activeTypedKinds,
-    'activity': {
-      CatalogMediaKind.anime,
-    },
+    'activity': {},
     'tracking': {
-      CatalogMediaKind.anime,
       CatalogMediaKind.boardgame,
       CatalogMediaKind.book,
       CatalogMediaKind.comic,
@@ -97,7 +88,6 @@ const kindContractManifest = KindContractManifest(
       CatalogMediaKind.music,
     },
     'hierarchy': {
-      CatalogMediaKind.anime,
       CatalogMediaKind.boardgame,
       CatalogMediaKind.book,
       CatalogMediaKind.comic,

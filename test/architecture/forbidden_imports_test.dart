@@ -24,8 +24,6 @@ void main() {
         (comic['tables'] as List<dynamic>).cast<Map<String, dynamic>>();
     final comicTableNames = comicTables.map((table) => table['name']).toSet();
     final series = fields['series'] as Map<String, dynamic>;
-    final animeFields = (kinds['anime'] as Map<String, dynamic>)['fields']
-        as Map<String, dynamic>;
     final boardGameFields = (kinds['boardgame']
         as Map<String, dynamic>)['fields'] as Map<String, dynamic>;
     final bookFields = (kinds['book'] as Map<String, dynamic>)['fields']
@@ -49,13 +47,11 @@ void main() {
     expect(comicTableNames, isNot(contains('ComicMediaRows')));
     expect(comicTableNames, isNot(contains('ComicReleaseRows')));
     expect(series['workspaceFieldIds'], contains('comic.series'));
-    expectWorkspaceId(animeFields, 'format', 'anime.format');
     expectWorkspaceId(boardGameFields, 'publisher', 'boardgame.publisher');
     expectWorkspaceId(bookFields, 'series', 'book.series');
     expectWorkspaceId(movieFields, 'title', 'movie.title');
     expectWorkspaceId(musicFields, 'artist', 'music.artist');
-    expect(
-        kinds.keys, containsAll(['anime', 'book', 'comic', 'game', 'music']));
+    expect(kinds.keys, containsAll(['book', 'comic', 'game', 'music']));
   });
 
   test('inferred kind fields flag declarations and generic map keys', () {
@@ -66,7 +62,7 @@ class SharedCatalogView {
 }
 
 String? coverArtistFunc(Map<String, dynamic> value) => value['cover_artist'] as String?;
-final nativeTitle = <String, Object?>{'native_title': 'test'};
+final issueNumber = <String, Object?>{'issue_number': 'test'};
 ''';
     final visitor = _visitorForArchitectureTest(
       code: code,
@@ -85,7 +81,7 @@ final nativeTitle = <String, Object?>{'native_title': 'test'};
     );
     expect(
       visitor.visitor.violations,
-      contains(contains('Kind-entry field "native_title"')),
+      contains(contains('Kind-entry field "issue_number"')),
     );
   });
 

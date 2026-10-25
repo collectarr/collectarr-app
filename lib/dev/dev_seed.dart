@@ -44,7 +44,6 @@ export 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 /// individual kind script fail before anything is written to the database.
 const devSeedCatalogCounts = <CatalogMediaKind, int>{
   CatalogMediaKind.movie: 15,
-  CatalogMediaKind.anime: 15,
   CatalogMediaKind.book: 15,
   CatalogMediaKind.music: 15,
   CatalogMediaKind.game: 15,
@@ -63,8 +62,6 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'game.catalog_item': 15,
   'boardgame.catalog_item': 15,
   'movie.catalog_item': 15,
-  'anime.catalog_item': 15,
-  'anime.episode_data': 30,
   'music.item': 15,
   'music.disc': 15,
   'music.track': 15,
@@ -79,7 +76,6 @@ const devSeedTypedEntryMinimumCounts = <String, int>{
   'game.entry': 15,
   'boardgame.entry': 15,
   'movie.entry': 15,
-  'anime.entry': 15,
   'music.entry': 15,
 };
 
@@ -90,19 +86,14 @@ const devSeedTypedTrackingMinimumCounts = <String, int>{
   'game.tracking': 15,
   'boardgame.tracking': 15,
   'movie.tracking': 15,
-  'anime.tracking': 30,
-  'anime.watch_sessions': 15,
-  'anime.custom_episodes': 15,
   'boardgame.play_sessions': 15,
 };
 
 /// Minimum kind-entry coordinate rows expected from the typed tracking-unit
-/// fixture. These rows exercise the per-kind tracking-unit codecs in addition
-/// to the Anime progress repositories above.
+/// fixture. These rows exercise the per-kind tracking-unit codecs.
 const devSeedTypedTrackingUnitMinimumCounts = <String, int>{
   'comic.issue_units': 15,
   'book.chapter_units': 15,
-  'anime.episode_units': 30,
 };
 
 /// Minimum coverage for the universal development fixtures that support the
@@ -125,9 +116,6 @@ const devSeedAuxiliaryMinimumCounts = <String, int>{
 Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
   final boardGameCatalogItems = await CatalogItemCacheRepository(db).findAll(
     kind: CatalogMediaKind.boardgame,
-  );
-  final animeCatalogItems = await CatalogItemCacheRepository(db).findAll(
-    kind: CatalogMediaKind.anime,
   );
   final comicCatalogItems = await CatalogItemCacheRepository(db).findAll(
     kind: CatalogMediaKind.comic,
@@ -152,14 +140,6 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
     'movie.catalog_item': (await CatalogItemCacheRepository(db)
             .findAll(kind: CatalogMediaKind.movie))
         .length,
-    'anime.catalog_item': animeCatalogItems.length,
-    'anime.episode_data': animeCatalogItems.fold<int>(
-      0,
-      (count, item) {
-        final episodes = item.payload['episodes'];
-        return count + (episodes is Iterable ? episodes.length : 0);
-      },
-    ),
     'music.item': musicCatalogItems.length,
     'music.disc': musicAlbums.fold<int>(
       0,
@@ -229,22 +209,6 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     }
     if (seedTitle(item).trim().isEmpty) {
       issues.add('Movie Catalog Item ${item.id} has an empty title');
-    }
-  }
-
-  final animeItems = await CatalogItemCacheRepository(db).findAll(
-    kind: CatalogMediaKind.anime,
-  );
-  for (final item in animeItems.where((item) => isSeed(item.id))) {
-    if (seedTitle(item).trim().isEmpty) {
-      issues.add('Anime Catalog Item ${item.id} has an empty title');
-    }
-    for (final entry in item.payload['episodes'] is Iterable
-        ? item.payload['episodes'] as Iterable
-        : const <Object?>[]) {
-      if (entry is! Map || entry['id']?.toString().trim().isEmpty == true) {
-        issues.add('Anime Catalog Item ${item.id} has an invalid episode');
-      }
     }
   }
 
@@ -341,11 +305,6 @@ Future<List<String>> devSeedTypedEntryIntegrityIssues(LocalDatabase db) async {
       .get();
   checkTypedRows(
       'movie_library_entries', 'movie', movieRows.map((row) => row.id));
-  final animeRows = await (db.select(db.libraryEntries)
-        ..where((t) => t.kind.equals('anime')))
-      .get();
-  checkTypedRows(
-      'anime_library_entries', 'anime', animeRows.map((row) => row.id));
   final musicRows = await (db.select(db.libraryEntries)
         ..where((t) => t.kind.equals('music')))
       .get();
@@ -378,10 +337,6 @@ Future<Map<String, int>> devSeedTypedEntryCounts(LocalDatabase db) async {
               ..where((t) => t.kind.equals('movie')))
             .get())
         .length,
-    'anime.entry': (await (db.select(db.libraryEntries)
-              ..where((t) => t.kind.equals('anime')))
-            .get())
-        .length,
     'music.entry': (await (db.select(db.libraryEntries)
               ..where((t) => t.kind.equals('music')))
             .get())
@@ -398,11 +353,6 @@ Future<Map<String, int>> devSeedTypedTrackingCounts(LocalDatabase db) async {
     'boardgame.tracking':
         (await db.select(db.boardGameTrackingRows).get()).length,
     'movie.tracking': (await db.select(db.movieTrackingRows).get()).length,
-    'anime.tracking': (await db.select(db.animeTrackingRows).get()).length,
-    'anime.watch_sessions':
-        (await db.select(db.animeWatchSessionRows).get()).length,
-    'anime.custom_episodes':
-        (await db.select(db.animeCustomEpisodeRows).get()).length,
     'boardgame.play_sessions':
         (await db.select(db.boardGamePlaySessionsRows).get()).length,
   };
@@ -417,8 +367,6 @@ Future<Map<String, int>> devSeedTypedTrackingUnitCounts(
         (await db.select(db.comicTrackingUnitRows).get()).length,
     'book.chapter_units':
         (await db.select(db.bookTrackingUnitRows).get()).length,
-    'anime.episode_units':
-        (await db.select(db.animeTrackingUnitRows).get()).length,
   };
 }
 
@@ -703,18 +651,6 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     bookTrackingUnits
         .every((row) => row.volumeNumber != null && row.volumeNumber! > 0),
     'book seed tracking units are missing volume coordinates',
-  );
-  final animeTrackingUnits = (await db.select(db.animeTrackingUnitRows).get())
-      .where((row) => row.id.startsWith('seed-'));
-  require(
-    animeTrackingUnits.every(
-      (row) =>
-          row.seasonNumber != null &&
-          row.seasonNumber! > 0 &&
-          row.episodeNumber != null &&
-          row.episodeNumber! > 0,
-    ),
-    'anime seed tracking units are missing season/episode coordinates',
   );
 
   final bookItems = (await CatalogItemCacheRepository(db)

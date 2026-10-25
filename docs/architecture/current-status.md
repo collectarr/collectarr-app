@@ -13,7 +13,7 @@ contracts. Published release v1.2.0 contains Music only; the Games family ships
 with the next release. Hardware and Toys are separate kinds with their own
 collections, models and Core catalogs, and store their entries in the shared
 library entry table; Game also has its own tracking table. The other kinds
-(Comic, Book, Board Game, Movie, Anime) remain isolated source
+(Comic, Book, Board Game, Movie) remain isolated source
 modules under `lib/features/library/kinds/`; a fresh database creates shared,
 Music and Game tables only. Releasing another kind means its own tables where
 needed, an explicit migration and its own verification.

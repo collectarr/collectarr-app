@@ -75,7 +75,6 @@ class CollectarrApiClient {
     CancelToken? cancelToken,
   }) async {
     const routes = <CatalogMediaKind, String>{
-      CatalogMediaKind.anime: 'anime',
       CatalogMediaKind.boardgame: 'boardgames',
       CatalogMediaKind.book: 'books',
       CatalogMediaKind.comic: 'comics',

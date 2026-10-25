@@ -8,7 +8,7 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 
 /// Aggregates kind-entry watch-session tables at the tracking boundary.
 ///
-/// The shared host only aggregates lifecycle projections. TV/Anime mapping and
+/// The shared host only aggregates lifecycle projections. Kind mapping and
 /// persistence are supplied through their explicit codecs.
 class WatchSessionsRepository {
   WatchSessionsRepository(

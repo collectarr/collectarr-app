@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
-import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
@@ -66,11 +65,6 @@ void main() {
           contains('Criterion Collection'));
       expect(MovieVocabularies.audio.builtIns, contains('Dolby Atmos'));
       expect(MovieVocabularies.hdr.builtIns, contains('Dolby Vision'));
-    });
-
-    test('Anime vocabularies have demographic and studio', () {
-      expect(AnimeVocabularies.demographic.builtIns, contains('Shounen'));
-      expect(AnimeVocabularies.studio.builtIns, contains('Kyoto Animation'));
     });
 
     test('Book, Music, and BoardGame vocabularies are properly registered', () {

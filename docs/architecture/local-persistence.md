@@ -60,11 +60,11 @@ catalog data, such as a wishlist item or optional source provenance.
 
 Kind-owned models, forms, field schemas, and projections define the semantic
 meaning of each kind's catalog and personal values. The generic entry table is
-the persistence source of truth. Repeated content such as Music discs/tracks or
-Anime episodes is contained kind data, not another editable Work/Release
+the persistence source of truth. Repeated content such as Music discs/tracks is
+contained kind data, not another editable Work/Release
 level.
 
-The nine field ledgers are the source of field ownership and naming. The Music
+The seven field ledgers are the source of field ownership and naming. The Music
 ledger uses the saved CLZ Music Edit form. Exact CLZ parity for the other eight
 kinds is unverified until the relevant Edit-form captures and reference
 decisions are available.

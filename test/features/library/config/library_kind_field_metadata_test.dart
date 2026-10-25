@@ -5,9 +5,6 @@ import 'package:collectarr_app/features/library/config/generic_library_media_pre
 import 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config/anime_field_identities.dart';
-import 'package:collectarr_app/features/library/kinds/anime/config/anime_workspace_field_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
@@ -43,8 +40,6 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const fields = <LibraryKindFieldMetadata>[
     ...LibraryEntryFieldMetadata.all,
-    ...AnimeFieldIdentities.all,
-    ...AnimeWorkspaceFieldMetadata.all,
     ...BoardGameFieldIdentities.all,
     ...BoardGameWorkspaceFieldMetadata.all,
     ...BookFieldIdentities.all,
@@ -266,7 +261,7 @@ void main() {
   });
 
   test('all workspace targets register fields with matching metadata', () {
-    expect(collectarrKindWorkspaces, hasLength(9));
+    expect(collectarrKindWorkspaces, hasLength(8));
 
     for (final workspace in collectarrKindWorkspaces.values) {
       for (final registry in [workspace.fields, workspace.libraryEntryFields]) {
@@ -298,7 +293,6 @@ void main() {
     };
     final presentationFilterIds = {
       for (final filter in [
-        ...animeLibraryFilterDefinitions,
         ...boardGamesLibraryFilterDefinitions,
         ...bookLibraryFilterDefinitions,
         ...comicLibraryFilterDefinitions,
@@ -391,7 +385,6 @@ void main() {
     final fieldIds = fields.map((field) => field.id).toSet();
     final definitions = <LibraryFilterDefinition<Object?>>[
       ...genericLibraryFilterDefinitions,
-      ...animeLibraryFilterDefinitions,
       ...boardGamesLibraryFilterDefinitions,
       ...bookLibraryFilterDefinitions,
       ...comicLibraryFilterDefinitions,
