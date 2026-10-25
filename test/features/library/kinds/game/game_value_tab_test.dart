@@ -162,4 +162,38 @@ void main() {
     expect(record.personalData, original);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets('Edit Core Region shows the chosen region', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final draft = LibraryEntryEditDraft(LibraryEntryRecord(
+        id: 'game-1',
+        kind: CatalogMediaKind.game,
+        catalogData: {'title': 'Starlight Courier'},
+        personalData: GameEntryDetails().toJson(),
+        updatedAt: DateTime.utc(2026)));
+    addTearDown(draft.dispose);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      // No outer listener: the tab itself must follow the draft.
+      child: MaterialApp(home: Scaffold(body: GameValueTab(draft: draft))),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('EU'));
+    await tester.pumpAndSettle();
+    expect(draft.values['game_core_region'], 'EU');
+    expect(
+        tester
+            .widget<LibrarySegmentedChoiceField<String>>(find.byWidgetPredicate(
+                (widget) =>
+                    widget is LibrarySegmentedChoiceField<String> &&
+                    widget.label == 'Core Region'))
+            .value,
+        'EU');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 }
