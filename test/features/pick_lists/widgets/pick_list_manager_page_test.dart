@@ -28,7 +28,9 @@ void main() {
                 db: db,
                 registry: defaultPickListRegistry,
                 initialListName: 'music.genre',
-                initialMediaKind: 'music'))));
+                initialMediaKind: 'music',
+                // Opened from a selector, so the unused value is kept.
+                onBack: (_) {}))));
     await pumpUntilSettled(tester);
     await tester.tap(find.byTooltip('Edit Audit Jazz'));
     await tester.pumpAndSettle();

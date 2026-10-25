@@ -46,6 +46,7 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
   List<PickListValue> _values = [];
   Map<String, int> _counts = {};
   bool _busy = true;
+  bool _pruned = false;
   bool _managing = false;
   bool _managerReady = false;
   String? _error;
@@ -94,6 +95,16 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
       for (final option in widget.options) {
         final value = _changes.apply(listName ?? '', option);
         if (value != null) add(value);
+      }
+      final mediaKind = widget.mediaKind;
+      if (repository != null &&
+          listName != null &&
+          mediaKind != null &&
+          !_pruned) {
+        _pruned = true;
+        await repository.deleteUnusedValues(listName,
+            mediaKind: mediaKind,
+            keep: [...widget.options, ...widget.selectedValues]);
       }
       if (repository != null && listName != null) {
         for (final value in await repository.entryOptions(listName,
