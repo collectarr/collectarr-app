@@ -307,6 +307,9 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                       onNext: widget.onNext,
                       chromeVariant: widget.chromeVariant,
                       isBusy: widget.isBusy,
+                      // The reference draws no rule between the status row
+                      // and the buttons.
+                      ruled: widget.footerContent == null,
                     ),
                 maxWidth: maxWidth,
                 minHeight: 0,
@@ -361,12 +364,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                             // Aligned with the tab content, as the
                             // reference's Collection Status row is.
                             padding: const EdgeInsets.fromLTRB(15, 5, 15, 8),
-                            decoration: BoxDecoration(
-                              color: p.panel,
-                              border: Border(
-                                top: BorderSide(color: p.divider),
-                              ),
-                            ),
+                            color: p.panel,
                             child: widget.footerContent!,
                           ),
                       ],
@@ -486,7 +484,9 @@ class _LibraryEditFooter extends StatelessWidget {
     this.onNext,
     required this.chromeVariant,
     required this.isBusy,
+    required this.ruled,
   });
+  final bool ruled;
   final VoidCallback onCancel;
   final VoidCallback? onSave;
   final VoidCallback? onProposeToCore;
@@ -613,7 +613,7 @@ class _LibraryEditFooter extends StatelessWidget {
 
     return LibraryActionFooter(
       backgroundColor: appPalette(context).toolbar,
-      borderColor: appPalette(context).divider,
+      borderColor: ruled ? appPalette(context).divider : Colors.transparent,
       padding: const EdgeInsets.all(10),
       child: windowClass.isCompact
           ? SingleChildScrollView(
