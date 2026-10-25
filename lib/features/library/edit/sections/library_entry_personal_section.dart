@@ -531,7 +531,6 @@ class _LibraryEntryStatusStripState
             label: location.fullPath(_locations),
           ),
       ],
-      clearOptionLabel: 'No location',
       onChanged: (value) => draft.set(field.key, value),
       openPicker: (
           {required label, required selectedValue, required options}) async {

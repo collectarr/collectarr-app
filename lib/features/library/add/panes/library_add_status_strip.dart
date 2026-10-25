@@ -65,7 +65,6 @@ class LibraryAddStatusStrip extends StatelessWidget {
                   value: location.id,
                   label: location.fullPath(request.locations))
           ],
-          clearOptionLabel: 'No location',
           onChanged: (value) => request.onCommonDraftChanged?.call(request
               .commonDraft!
               .copyWith(locationId: value, clearLocation: value == null))),

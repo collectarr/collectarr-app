@@ -290,7 +290,6 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
             label: location.fullPath(request.locations),
           ),
       ],
-      clearOptionLabel: 'No location',
       onChanged: (value) => _updateCommon(locationId: value),
     );
   }
