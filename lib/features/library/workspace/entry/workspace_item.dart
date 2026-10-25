@@ -36,10 +36,7 @@ final class WorkspaceItem {
       _ => '',
     };
     if (kindLabel.isNotEmpty) return kindLabel;
-    final displayTitle = presentation?.primaryLabel.trim();
-    if (displayTitle != null && displayTitle.isNotEmpty) return displayTitle;
-    throw StateError(
-      'Workspace item ${kind.apiValue}:$id has no kind presentation title.',
-    );
+    // No field is required, as in the reference: an entry may have no title.
+    return presentation?.primaryLabel.trim() ?? '';
   }
 }
