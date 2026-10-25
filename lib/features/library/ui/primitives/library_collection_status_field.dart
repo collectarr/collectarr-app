@@ -5,37 +5,42 @@ import 'package:collectarr_app/features/library/ui/primitives/library_form_contr
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+/// CLZ's grouped status menu: dimmed bold group headings over indented
+/// statuses, with the [selected] status shaded.
 List<PopupMenuEntry<LibraryCollectionStatusScope>>
     libraryCollectionStatusEditMenuItems(BuildContext context,
-        {double rowHeight = 26, double verticalPadding = 0}) {
+        {LibraryCollectionStatusScope? selected, double rowHeight = 32}) {
+  final palette = appPalette(context);
   PopupMenuEntry<LibraryCollectionStatusScope> heading(String label) =>
       PopupMenuItem(
           enabled: false,
-          height: 26,
-          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+          height: rowHeight - 1,
+          padding: const EdgeInsets.symmetric(horizontal: 7),
           child: Text(label,
               style: TextStyle(
-                  color: appPalette(context).textMuted,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400)));
+                  color: palette.textPrimary.withValues(alpha: 0.5),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700)));
   PopupMenuEntry<LibraryCollectionStatusScope> item(
           LibraryCollectionStatusScope status) =>
       PopupMenuItem(
           value: status,
           height: rowHeight,
-          padding:
-              EdgeInsets.symmetric(horizontal: 7, vertical: verticalPadding),
-          child: Row(children: [
-            Expanded(
-                child: Text(
-                    status == LibraryCollectionStatusScope.wishList
-                        ? 'On Wish List'
-                        : status.label,
-                    style: TextStyle(
-                        color: appPalette(context).textPrimary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400)))
-          ]));
+          padding: EdgeInsets.zero,
+          child: Container(
+              height: rowHeight,
+              width: double.infinity,
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.only(left: 24, right: 7),
+              color: status == selected ? palette.divider : null,
+              child: Text(
+                  status == LibraryCollectionStatusScope.wishList
+                      ? 'On Wish List'
+                      : status.label,
+                  style: TextStyle(
+                      color: palette.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400))));
   return [
     heading('Collection'),
     item(LibraryCollectionStatusScope.inCollection),
@@ -73,13 +78,14 @@ class LibraryCollectionStatusField extends StatelessWidget {
                 ? const Color(0xff444444)
                 : appPalette(context).panelRaised,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.zero,
+                borderRadius: BorderRadius.circular(4),
                 side: BorderSide(color: appPalette(context).divider)),
+            elevation: 6,
             surfaceTintColor: Colors.transparent,
-            menuPadding: EdgeInsets.zero,
+            menuPadding: const EdgeInsets.only(top: 5),
             constraints: BoxConstraints(minWidth: constraints.maxWidth),
             itemBuilder: (context) =>
-                libraryCollectionStatusEditMenuItems(context),
+                libraryCollectionStatusEditMenuItems(context, selected: status),
             onSelected: (value) =>
                 onChanged(libraryCollectionStatusValue(value)),
             child: MouseRegion(

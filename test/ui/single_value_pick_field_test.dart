@@ -86,6 +86,20 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Collection'), findsOneWidget);
     expect(find.text('Wish List'), findsOneWidget);
+    expect(tester.widget<Text>(find.text('Wish List')).style?.fontWeight,
+        FontWeight.w700);
+    Color? shade(String status) => tester
+        .widget<Container>(find
+            .ancestor(
+                of: find.text(status).last, matching: find.byType(Container))
+            .first)
+        .color;
+    expect(shade('In Collection'), isNotNull);
+    expect(shade('For Sale'), isNull);
+    expect(
+        tester.getTopLeft(find.text('For Sale')).dx -
+            tester.getTopLeft(find.text('Collection')).dx,
+        17);
     await tester.tap(find.text('For Sale'));
     await tester.pumpAndSettle();
     expect(changedStatus, 'For Sale');
