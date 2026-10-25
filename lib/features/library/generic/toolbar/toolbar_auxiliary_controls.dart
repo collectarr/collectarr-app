@@ -1171,18 +1171,19 @@ class LibraryItemCountLabel extends StatelessWidget {
     super.key,
     required this.shown,
     required this.total,
+    required this.singularLabel,
     required this.pluralLabel,
   });
 
   final int shown;
   final int total;
+  final String singularLabel;
   final String pluralLabel;
 
   @override
   Widget build(BuildContext context) {
-    final label = shown == total
-        ? '$total ${pluralLabel.toLowerCase()}'
-        : '$shown of $total ${pluralLabel.toLowerCase()}';
+    final noun = (total == 1 ? singularLabel : pluralLabel).toLowerCase();
+    final label = shown == total ? '$total $noun' : '$shown of $total $noun';
     final palette = appPalette(context);
     return _ToolbarPill(
       color: palette.isDark ? const Color(0xFF4A4A4A) : palette.panelRaised,

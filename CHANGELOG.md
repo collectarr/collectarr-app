@@ -9,6 +9,7 @@
 - Game covers can be found online (Find Online) from the Covers tab.
 
 ### 🐛 Fixes
+- The item count reads "1 game" (or "1 album") instead of "1 games".
 - Choosing a platform in Add Games narrows the title results instead of returning none.
 - The Add dialog fills the window height, 10 px from the top and bottom, instead of stopping at 1200 px.
 - Opening Manage from a pick list selector switches straight to the managed list instead of flashing a spinner.
