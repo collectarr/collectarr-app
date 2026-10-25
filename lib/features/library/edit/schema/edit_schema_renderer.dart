@@ -150,6 +150,10 @@ class EditSchemaRendererState<TModel, TDraft>
   final _textControllers = LibrarySchemaTextControllerStore();
   final Map<String, FocusNode> _fieldFocusNodes = {};
   late List<int> _tabOrder;
+
+  /// False until a saved order is known, so an editor opened after a reorder
+  /// never paints the default order before the saved one.
+  late bool _tabOrderReady;
   late int _selectedTabIndex;
   String? _selectedTabId;
   final _localVocabularyAccumulator = LibraryVocabularyEditAccumulator();
@@ -163,7 +167,7 @@ class EditSchemaRendererState<TModel, TDraft>
   @override
   void initState() {
     super.initState();
-    _tabOrder = List.generate(_totalTabCount, (index) => index);
+    _useKnownTabOrder();
     final savedTabId = loadLibraryEditTabSelection(widget.tabOrderKey);
     final savedSourceIndex = _sourceIndexForTabId(savedTabId);
     final visibleIndexes = _orderedVisibleTabIndexes();
@@ -222,6 +226,15 @@ class EditSchemaRendererState<TModel, TDraft>
     return _tabIdForSourceIndex(visibleIndexes[index]);
   }
 
+  void _useKnownTabOrder() {
+    final known = widget.showTabBar
+        ? knownLibraryEditTabOrder(
+            storageKey: widget.tabOrderKey, tabCount: _totalTabCount)
+        : null;
+    _tabOrder = known ?? List.generate(_totalTabCount, (index) => index);
+    _tabOrderReady = known != null || !widget.showTabBar || _totalTabCount == 0;
+  }
+
   int get _totalTabCount => widget.schema.tabs.length + widget.extraTabs.length;
 
   Future<void> _loadSavedTabOrder() async {
@@ -230,6 +243,7 @@ class EditSchemaRendererState<TModel, TDraft>
       tabCount: _totalTabCount,
     );
     if (!mounted) return;
+    if (!_tabOrderReady) setState(() => _tabOrderReady = true);
     if (order != null) {
       setState(() {
         _tabOrder = order;
@@ -362,7 +376,7 @@ class EditSchemaRendererState<TModel, TDraft>
       for (final tab in widget.extraTabs) tab.id,
     ];
     if (!listEquals(oldTabIds, nextTabIds)) {
-      _tabOrder = List.generate(_totalTabCount, (index) => index);
+      _useKnownTabOrder();
       final visibleIndexes = _orderedVisibleTabIndexes();
       final selectedSourceIndex = _sourceIndexForTabId(_selectedTabId);
       final selectedVisibleIndex = selectedSourceIndex == null
@@ -485,19 +499,22 @@ class EditSchemaRendererState<TModel, TDraft>
       for (final index in tabIndexes) _tabForSourceIndex(index),
     ];
     return LibraryEditTabStripFrame(
-      child: LibraryEditReorderableTabStrip(
-        tabs: tabs,
-        accent: widget.tabAccent ?? Theme.of(context).colorScheme.primary,
-        selectedIndex: selectedIndex,
-        onSelect: (index) => setState(() {
-          _selectedTabIndex = index;
-          _selectedTabId = _tabIdForVisibleIndex(tabIndexes, index);
-          _rememberSelectedTab();
-        }),
-        allowReorder: widget.tabNavigationEnabled,
-        enabled: widget.tabNavigationEnabled,
-        onReorderItem: (oldIndex, newIndex) =>
-            _onReorderTab(oldIndex, newIndex, tabIndexes),
+      child: Visibility.maintain(
+        visible: _tabOrderReady,
+        child: LibraryEditReorderableTabStrip(
+          tabs: tabs,
+          accent: widget.tabAccent ?? Theme.of(context).colorScheme.primary,
+          selectedIndex: selectedIndex,
+          onSelect: (index) => setState(() {
+            _selectedTabIndex = index;
+            _selectedTabId = _tabIdForVisibleIndex(tabIndexes, index);
+            _rememberSelectedTab();
+          }),
+          allowReorder: widget.tabNavigationEnabled,
+          enabled: widget.tabNavigationEnabled,
+          onReorderItem: (oldIndex, newIndex) =>
+              _onReorderTab(oldIndex, newIndex, tabIndexes),
+        ),
       ),
     );
   }
