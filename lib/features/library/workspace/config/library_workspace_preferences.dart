@@ -166,8 +166,7 @@ class LibraryWorkspacePreferences {
       isSidebarVisible:
           prefs.getBool(_key('sidebar_visible')) ?? defaultSidebarVisible,
       sortColumn: sortColumn,
-      sortAscending:
-          prefs.getBool(_key('sort_ascending')) ?? defaultAscending,
+      sortAscending: prefs.getBool(_key('sort_ascending')) ?? defaultAscending,
       sortRules: sortRules,
       coverSize: _clamp(coverSize, minCoverSize, maxCoverSize),
       sidebarWidth: clampLibraryPaneWidth(
