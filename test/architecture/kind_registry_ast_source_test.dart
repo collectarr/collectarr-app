@@ -7,14 +7,14 @@ import '../../tool/kind_registry/ast_source.dart';
 void main() {
   test('discovers an inferred typed dev-seed contributor', () {
     final contributor = findTopLevelVariable(
-      File('lib/dev/seeds/anime_seeds.dart'),
-      nameWhere: (name) => name == 'animeDevSeedContributor',
+      File('lib/dev/seeds/boardgame_seeds.dart'),
+      nameWhere: (name) => name == 'boardgameDevSeedContributor',
     );
 
-    expect(contributor?.name, 'animeDevSeedContributor');
+    expect(contributor?.name, 'boardgameDevSeedContributor');
     expect(
       contributor?.declaredType,
-      startsWith('TypedDevSeedKindContributor<AnimeLibraryEntry>'),
+      startsWith('TypedDevSeedKindContributor<BoardGameLibraryEntry>'),
     );
   });
 

@@ -82,24 +82,10 @@ List<CatalogMediaType> selectableLibraryHomeTypes(
   List<CatalogMediaType> catalog,
   LibraryNavPreferences preferences,
 ) {
-  final allTypes = orderedLibraryHomeTypes(catalog, preferences);
-  final visibleTypes = visibleLibraryHomeTypes(allTypes, preferences);
-  const requiredKinds = {'anime'};
-  final result = visibleTypes.toList(growable: true);
-  final visibleKinds = {for (final type in result) type.kind};
-  for (final kind in requiredKinds) {
-    if (visibleKinds.contains(kind)) {
-      continue;
-    }
-    for (final type in allTypes) {
-      if (type.kind == kind) {
-        result.add(type);
-        visibleKinds.add(kind);
-        break;
-      }
-    }
-  }
-  return result;
+  return visibleLibraryHomeTypes(
+    orderedLibraryHomeTypes(catalog, preferences),
+    preferences,
+  ).toList();
 }
 
 CatalogMediaType selectedLibraryHomeType(

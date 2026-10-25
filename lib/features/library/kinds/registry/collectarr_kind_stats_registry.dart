@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/config/library_relation_capabili
 import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
 import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 import 'package:collectarr_app/features/library/config/library_value_capability.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
@@ -17,7 +16,6 @@ import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 
 final Map<CatalogMediaKind, LibraryStatsCapability> collectarrKindStats =
     releasedKindContributions(<CatalogMediaKind, LibraryStatsCapability>{
-  CatalogMediaKind.anime: animeKindStats,
   CatalogMediaKind.boardgame: boardGameKindStats,
   CatalogMediaKind.book: bookKindStats,
   CatalogMediaKind.comic: comicKindStats,
@@ -30,7 +28,6 @@ final Map<CatalogMediaKind, LibraryStatsCapability> collectarrKindStats =
 
 final Map<CatalogMediaKind, LibraryValueCapability?> collectarrKindValues =
     releasedKindContributions(<CatalogMediaKind, LibraryValueCapability?>{
-  CatalogMediaKind.anime: animeKindValue,
   CatalogMediaKind.boardgame: boardGameKindValue,
   CatalogMediaKind.book: bookKindValue,
   CatalogMediaKind.comic: comicKindValue,
@@ -44,7 +41,6 @@ final Map<CatalogMediaKind, LibraryValueCapability?> collectarrKindValues =
 final Map<CatalogMediaKind, LibraryRelationCapability?>
     collectarrKindRelations =
     releasedKindContributions(<CatalogMediaKind, LibraryRelationCapability?>{
-  CatalogMediaKind.anime: animeKindRelations,
   CatalogMediaKind.boardgame: boardGameKindRelations,
   CatalogMediaKind.book: bookKindRelations,
   CatalogMediaKind.comic: comicKindRelations,
@@ -57,7 +53,6 @@ final Map<CatalogMediaKind, LibraryRelationCapability?>
 
 final Map<CatalogMediaKind, LibraryUiPolicy> collectarrKindUiPolicies =
     releasedKindContributions(<CatalogMediaKind, LibraryUiPolicy>{
-  CatalogMediaKind.anime: animeKindUiPolicy,
   CatalogMediaKind.boardgame: boardGameKindUiPolicy,
   CatalogMediaKind.book: bookKindUiPolicy,
   CatalogMediaKind.comic: comicKindUiPolicy,
@@ -71,7 +66,6 @@ final Map<CatalogMediaKind, LibraryUiPolicy> collectarrKindUiPolicies =
 final Map<CatalogMediaKind, LibraryLinkedMetadataCapability>
     collectarrKindLinkedMetadata = releasedKindContributions(<CatalogMediaKind,
         LibraryLinkedMetadataCapability>{
-  CatalogMediaKind.anime: animeKindLinkedMetadata,
   CatalogMediaKind.boardgame: boardGameKindLinkedMetadata,
   CatalogMediaKind.book: bookKindLinkedMetadata,
   CatalogMediaKind.comic: comicKindLinkedMetadata,

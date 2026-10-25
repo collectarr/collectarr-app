@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 final Map<CatalogMediaKind, LibraryEntryPolicyCapability>
     collectarrKindEntryPolicyCapabilities =
     releasedKindContributions(<CatalogMediaKind, LibraryEntryPolicyCapability>{
-  CatalogMediaKind.anime: const LibraryEntryPolicyCapability.allowEverywhere(),
   CatalogMediaKind.boardgame:
       const LibraryEntryPolicyCapability.allowEverywhere(),
   CatalogMediaKind.book: const LibraryEntryPolicyCapability.allowEverywhere(),

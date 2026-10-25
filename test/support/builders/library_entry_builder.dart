@@ -9,7 +9,6 @@ import '../fixtures/test_library_entry_fixture.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
@@ -123,9 +122,6 @@ BookLibraryEntry testBookLibraryEntryFrom(TestLibraryEntry item) =>
 MovieLibraryEntry testMovieLibraryEntryFrom(TestLibraryEntry item) =>
     MovieLibraryEntry.fromJson(item.toJson());
 
-AnimeLibraryEntry testAnimeLibraryEntryFrom(TestLibraryEntry item) =>
-    AnimeLibraryEntry.fromJson(item.toJson());
-
 BoardGameLibraryEntry testBoardGameLibraryEntryFrom(TestLibraryEntry item) =>
     BoardGameLibraryEntry.fromJson(item.toJson());
 
@@ -147,11 +143,6 @@ MusicLibraryEntry testMusicLibraryEntryFrom(TestLibraryEntry item) =>
 
 LibraryEntryDispatch testLibraryEntryDispatchFrom(TestLibraryEntry item) {
   return switch (item.catalogRef.kind) {
-    CatalogMediaKind.anime => OpaqueLibraryEntryDispatch(
-        kind: CatalogMediaKind.anime,
-        ref: item.ref,
-        value: testAnimeLibraryEntryFrom(item),
-      ),
     CatalogMediaKind.boardgame => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.boardgame,
         ref: item.ref,

@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/activity/activity_event_contributor.dart
 /// Context supplied by the Activity host to a kind-entry activity projector.
 ///
 /// The host owns loading and merging. A kind owns interpretation of its
-/// semantic coordinates, such as TV/Anime episode numbers.
+/// semantic coordinates, such as episode numbers.
 final class LibraryActivityContext {
   const LibraryActivityContext({required this.watchSessions});
 

@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
@@ -69,7 +68,6 @@ AddLibraryEntryCommand typedAddLibraryEntryCommand({
 LibraryAddKindDraft? _addDraftWithGrade(CatalogMediaKind kind, String? grade) {
   if (grade == null) return null;
   return switch (kind) {
-    CatalogMediaKind.anime => AnimeAddDraft(grade: grade),
     CatalogMediaKind.boardgame => BoardgameAddDraft(grade: grade),
     CatalogMediaKind.book => BookAddDraft(grade: grade),
     CatalogMediaKind.comic => ComicAddDraft(grade: grade),

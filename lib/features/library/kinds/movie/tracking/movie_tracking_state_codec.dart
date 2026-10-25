@@ -8,7 +8,7 @@ import 'package:drift/drift.dart';
 
 import 'movie_tracking_state.dart';
 
-/// Movie-entry lifecycle tracking mapping. Movies have no TV/Anime episode
+/// Movie-entry lifecycle tracking mapping. Movies have no episode
 /// coordinate payload.
 final class MovieTrackingStateCodec
     with TrackingStorageCodecSupport

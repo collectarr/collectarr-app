@@ -9,7 +9,7 @@ the correctness suite. Production code cannot depend on test support.
 
 Tests now follow production locations, with no root stray tests or `lib/test/`.
 Small catalog, entry, workspace, add and tracking builders live in support;
-entry details require an explicit matching kind. Book/Anime CSV expectations
+entry details require an explicit matching kind. Book CSV expectations
 share scaffolding while remaining owned by their kind. Auth/provider/app setup
 is shared by widget and native flows.
 

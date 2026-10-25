@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
@@ -14,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 final Map<CatalogMediaKind, LibraryEditCapabilitySet>
     collectarrKindEditCapabilities =
     releasedKindContributions(<CatalogMediaKind, LibraryEditCapabilitySet>{
-  CatalogMediaKind.anime: animeKindEditCapabilities,
   CatalogMediaKind.boardgame: boardGameKindEditCapabilities,
   CatalogMediaKind.book: bookKindEditCapabilities,
   CatalogMediaKind.comic: comicKindEditCapabilities,

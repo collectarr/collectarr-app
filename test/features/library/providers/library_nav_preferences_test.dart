@@ -25,7 +25,7 @@ void main() {
     await store.write(
       LibraryNavPreferences(
         order: const ['book', 'comic', 'games'],
-        hiddenKinds: const {'music', 'anime'},
+        hiddenKinds: const {'music', 'movie'},
         placement: LibraryNavPlacement.left,
       ),
     );
@@ -33,7 +33,7 @@ void main() {
     final restored = await store.read();
 
     expect(restored.order, ['book', 'comic', 'games']);
-    expect(restored.hiddenKinds, {'music', 'anime'});
+    expect(restored.hiddenKinds, {'music', 'movie'});
     expect(restored.placement, LibraryNavPlacement.left);
   });
 }

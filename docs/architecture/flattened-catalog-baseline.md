@@ -14,7 +14,7 @@ new local ID. Keep the existing `quantity` value where a kind uses it (Music
 currently does); it is personal data and must not be removed or silently
 reinterpreted as separate local records.
 
-Repeated information such as Music discs and tracks, credits, Anime episode graphs, or
+Repeated information such as Music discs and tracks, credits, or
 episodes remains contained kind data. It does not create an editable Work or
 Release identity. Personal state and kind metadata are both editable on the
 local record; they remain separate maps so the App can keep user data out of
@@ -70,7 +70,7 @@ this implementation.
 
 ## Field decisions and limits
 
-Keep the nine kind field ledgers as the field ownership source. Music is based
+Keep the seven kind field ledgers as the field ownership source. Music is based
 on the saved CLZ Music Edit form. Exact CLZ parity for Comics, Books, Movies,
-and Games is unverified until their Edit-form captures are provided. Anime and Board Games do not have a dedicated CLZ product form in the
+and Games is unverified until their Edit-form captures are provided. Board Games does not have a dedicated CLZ product form in the
 available references; their ledger fields remain explicitly provisional.

@@ -294,11 +294,6 @@ void main() {
           'kind': 'comic',
           'title': 'Saga',
         });
-        interceptor.onGet('/api/v1/metadata/anime/items/anime-1', {
-          'id': 'anime-1',
-          'kind': 'anime',
-          'title': 'Naruto',
-        });
         interceptor.onGet('/api/v1/metadata/movies/items/movie-1', {
           'id': 'movie-1',
           'kind': 'movie',
@@ -308,7 +303,6 @@ void main() {
 
         for (final (kind, id, title) in [
           (CatalogMediaKind.comic, 'comic-1', 'Saga'),
-          (CatalogMediaKind.anime, 'anime-1', 'Naruto'),
           (CatalogMediaKind.movie, 'movie-1', 'Alien'),
         ]) {
           final item = await client.getCatalogItemJson(kind: kind, id: id);

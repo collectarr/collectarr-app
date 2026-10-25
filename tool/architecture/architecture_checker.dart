@@ -58,12 +58,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'MovieWorkspaceDto',
     'MovieCatalogItem',
     'MovieEntryDetails',
-    // Anime
-    'AnimeCatalogMetadata',
-    'AnimeMetadata',
-    'AnimeWorkspaceDto',
-    'AnimeCatalogItem',
-    'AnimeEntryDetails',
     // Book
     'BookCatalogMetadata',
     'BookWorkspaceDto',
@@ -844,7 +838,6 @@ bool _isStructuralComparisonFile(String relativePath) {
     'lib/core/models/catalog_media_kind.dart',
     'lib/features/collection/csv/collection_csv_codec.dart',
     'lib/features/collection/mutations/wishlist_mutations.dart',
-    'lib/features/imports/personal_lists/anime_list_import_service.dart',
     'lib/features/library/selection/library_bulk_actions.dart',
   }.contains(relativePath);
 }

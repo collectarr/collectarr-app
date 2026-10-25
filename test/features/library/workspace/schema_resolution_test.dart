@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
@@ -15,7 +14,6 @@ void main() {
     ('Game', gameKindWorkspace),
     ('Music', musicKindWorkspace),
     ('Movie', movieKindWorkspace),
-    ('Anime', animeKindWorkspace),
   ];
 
   for (final (name, workspace) in workspaces) {

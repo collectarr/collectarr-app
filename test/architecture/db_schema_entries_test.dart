@@ -7,7 +7,6 @@ final _tableDeclarationPattern = RegExp(
 );
 
 const _kindNames = [
-  'anime',
   'boardgame',
   'book',
   'comic',

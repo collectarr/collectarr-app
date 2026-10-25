@@ -38,7 +38,6 @@ void main() {
 
     expect(source, contains('LibraryKindRegistration'));
     expect(source, isNot(contains('CatalogMediaKind')));
-    expect(source, isNot(contains('kinds/anime/page.dart')));
     expect(source, isNot(contains('kinds/movie/page.dart')));
     expect(source, isNot(contains('GenericLibraryPage')));
     expect(source, contains('registration.buildLibraryPage'));
@@ -53,7 +52,6 @@ void main() {
       'GameLibraryPage',
       'BoardGameLibraryPage',
       'MovieLibraryPage',
-      'AnimeLibraryPage',
       'MusicLibraryPage',
     ]) {
       expect(registrations, contains(pageType));

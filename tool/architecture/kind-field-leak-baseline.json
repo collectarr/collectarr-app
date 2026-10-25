@@ -42,16 +42,6 @@
                         "symbol":  "signedBy"
                     },
                     {
-                        "path":  "lib/features/library/bundles/models/library_bundle_detail.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "thumbnailImageUrl"
-                    },
-                    {
-                        "path":  "lib/features/library/bundles/models/library_bundle_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "thumbnailImageUrl"
-                    },
-                    {
                         "path":  "lib/features/library/details/library_detail_panel_scaffold.dart",
                         "surface":  "member-declaration",
                         "symbol":  "variant"
@@ -155,11 +145,6 @@
                         "path":  "lib/features/library/tracking/media_tracking.dart",
                         "surface":  "member-declaration",
                         "symbol":  "progressTotal"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/session_history_presenter.dart",
-                        "surface":  "member-access",
-                        "symbol":  "watchedAt"
                     },
                     {
                         "path":  "lib/features/library/tracking/tracking_storage_codec.dart",

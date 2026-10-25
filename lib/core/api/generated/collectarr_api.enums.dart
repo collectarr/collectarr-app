@@ -1,6 +1,5 @@
 enum CollectarrItemKind {
   comic('comic'),
-  anime('anime'),
   book('book'),
   game('game'),
   boardgame('boardgame'),

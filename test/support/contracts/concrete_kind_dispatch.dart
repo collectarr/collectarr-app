@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_work
 /// than exercising the erased registry lookup they are meant to validate.
 LibraryKindRegistration testKindRegistration(CatalogMediaKind kind) {
   return switch (kind) {
-    CatalogMediaKind.anime => const AnimeRegistration(),
     CatalogMediaKind.boardgame => const BoardgameRegistration(),
     CatalogMediaKind.book => const BookRegistration(),
     CatalogMediaKind.comic => const ComicRegistration(),
@@ -24,7 +23,6 @@ LibraryKindRegistration testKindRegistration(CatalogMediaKind kind) {
 
 LibraryKindWorkspace testKindWorkspace(CatalogMediaKind kind) {
   return switch (kind) {
-    CatalogMediaKind.anime => animeKindWorkspace,
     CatalogMediaKind.boardgame => boardGameKindWorkspace,
     CatalogMediaKind.book => bookKindWorkspace,
     CatalogMediaKind.comic => comicKindWorkspace,

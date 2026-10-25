@@ -25,15 +25,11 @@ void main() {
     expect(names, contains('music_tracking_rows'));
     expect(names, contains('music_listen_events_rows'));
     expect(names, contains('game_tracking_rows'));
-    expect(names, isNot(contains('anime_watch_session_rows')));
     expect(names, isNot(contains('comic_media_rows')));
     expect(names, isNot(contains('comic_library_entries_rows')));
     expect(names, isNot(contains('book_release_rows')));
     expect(names, isNot(contains('tv_episode_rows')));
     expect(names, isNot(contains('music_library_entries_rows')));
-    expect(names, isNot(contains('anime_media_rows')));
-    expect(names, isNot(contains('anime_episode_rows')));
-    expect(names, isNot(contains('anime_release_rows')));
     expect(names, isNot(contains('music_album_rows')));
     expect(names, isNot(contains('music_medium_rows')));
     expect(names, isNot(contains('music_track_rows')));

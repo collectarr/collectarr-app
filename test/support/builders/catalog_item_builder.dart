@@ -1,5 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart'
-    show animeKindMetadata;
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart'
     show boardGameKindMetadata;
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart'
@@ -173,7 +171,6 @@ extension ShelfCatalogFixture on CatalogItemDto {
 
 LibraryWorkspaceKindData testWorkspaceCatalogData(CatalogItemDto item) {
   final codecs = {
-    CatalogMediaKind.anime: animeKindMetadata.catalogTransportCodec,
     CatalogMediaKind.boardgame: boardGameKindMetadata.catalogTransportCodec,
     CatalogMediaKind.book: bookKindMetadata.catalogTransportCodec,
     CatalogMediaKind.comic: comicKindMetadata.catalogTransportCodec,

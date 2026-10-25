@@ -4,16 +4,16 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('synthetic catalog transport exposes structural catalog identity', () {
     final item = CatalogItemDto.fromJson({
-      'id': 'anilist-local:42',
-      'kind': CatalogMediaKind.anime.apiValue,
+      'id': 'tmdb-local:42',
+      'kind': CatalogMediaKind.movie.apiValue,
       'title': 'A Place Further Than the Universe',
       'display_title': 'A Place Further Than the Universe',
       'release_date': DateTime.utc(2018, 1, 6).toIso8601String(),
     });
 
-    expect(item.catalogItemRef.kind, CatalogMediaKind.anime);
-    expect(item.catalogItemRef.id, 'anilist-local:42');
+    expect(item.catalogItemRef.kind, CatalogMediaKind.movie);
+    expect(item.catalogItemRef.id, 'tmdb-local:42');
     expect(item.kindData['title'], 'A Place Further Than the Universe');
-    expect(item.mediaKind, CatalogMediaKind.anime);
+    expect(item.mediaKind, CatalogMediaKind.movie);
   });
 }

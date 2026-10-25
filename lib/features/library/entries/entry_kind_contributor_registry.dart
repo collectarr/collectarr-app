@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_release_s
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
@@ -21,7 +20,6 @@ import 'package:collectarr_app/features/library/entries/entry_kind_contributor.d
 final Map<CatalogMediaKind, EntryKindContributor>
     collectarrEntryKindContributors =
     releasedKindContributions(<CatalogMediaKind, EntryKindContributor>{
-  CatalogMediaKind.anime: animeEntryContributor,
   CatalogMediaKind.boardgame: boardGameEntryContributor,
   CatalogMediaKind.book: bookEntryContributor,
   CatalogMediaKind.comic: comicEntryContributor,
