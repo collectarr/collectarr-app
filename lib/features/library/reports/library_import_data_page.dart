@@ -1,8 +1,6 @@
-import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/ui/app_management_page_scaffold.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
@@ -34,6 +32,8 @@ class LibraryImportDataPage extends ConsumerStatefulWidget {
 class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
   String? _activeSourceId;
   bool _warningDismissed = false;
+  int? _importedCount;
+  int _importRun = 0;
   String get _pluralLabel =>
       libraryEntityVocabularyForKind(widget.type.kind).catalogItem.plural;
   int get _collectionCount =>
@@ -49,7 +49,10 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
 
   void _navigateBack() {
     if (_activeSourceId != null) {
-      setState(() => _activeSourceId = null);
+      setState(() {
+        _activeSourceId = null;
+        _importedCount = null;
+      });
     } else {
       Navigator.of(context).pop();
     }
@@ -84,6 +87,10 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (_importedCount != null) ...[
+                    _buildSuccessBanner(_importedCount!),
+                    const SizedBox(height: 16)
+                  ],
                   if (source != null &&
                       !_warningDismissed &&
                       _collectionCount > 0) ...[
@@ -96,19 +103,19 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                         onSelect: (id) => setState(() => _activeSourceId = id))
                   else if (source.sourceType == LibraryImportSourceType.csvTxt)
                     CsvImportPanel(
-                        key: ValueKey(source.id),
+                        key: ValueKey('${source.id}.$_importRun'),
                         capability: capability,
                         pluralLabel: _pluralLabel,
                         onImport: _importRows,
-                        onComplete: _showSuccessDialog,
+                        onComplete: _showSuccessBanner,
                         filePicker: widget.filePicker)
                   else
                     GuidedImportPanel(
                         pluralLabel: _pluralLabel,
-                        key: ValueKey(source.id),
+                        key: ValueKey('${source.id}.$_importRun'),
                         source: source,
                         onImport: _importRows,
-                        onComplete: _showSuccessDialog,
+                        onComplete: _showSuccessBanner,
                         filePicker: widget.filePicker),
                 ])));
   }
@@ -169,22 +176,43 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
     );
   }
 
-  void _showSuccessDialog(int count) {
-    showAppDialog<void>(
-      context: context,
-      builder: (ctx) => AccentAlertDialog(
-        headerIcon: AppIcons.importData,
-        title: const Text('Import Complete'),
-        content: Text(
-          'Successfully imported $count $_pluralLabel into your collection.',
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.of(context).pop();
-            },
-            child: const Text('Done'),
+  void _showSuccessBanner(int count) {
+    setState(() {
+      _importedCount = count;
+      _importRun++;
+    });
+  }
+
+  Widget _buildSuccessBanner(int count) {
+    const green = Color(0xFF3C763D);
+    return Container(
+      key: const Key('import_data.success'),
+      decoration: BoxDecoration(
+        color: const Color(0xFFDFF0D8),
+        border: Border.all(color: const Color(0xFFD6E9C6)),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Import successful: $count $_pluralLabel added to your collection.',
+              style: const TextStyle(fontSize: 14, height: 1.4, color: green),
+            ),
+          ),
+          IconButton(
+            key: const Key('import_data.dismiss_success'),
+            icon: const Icon(AppIcons.close, size: 14),
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              foregroundColor: green.withValues(alpha: 0.5),
+              hoverColor: Colors.transparent,
+            ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+            tooltip: 'Dismiss',
+            onPressed: () => setState(() => _importedCount = null),
           ),
         ],
       ),

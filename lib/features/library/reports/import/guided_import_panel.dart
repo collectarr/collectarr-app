@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_models.dar
 import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
 import 'package:collectarr_app/features/library/config/library_import_capability.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/app_progress_dialog.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 import 'import_file_picker.dart';
@@ -43,7 +44,12 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
       if (importer == null) {
         throw const FormatException('No importer registered for this source.');
       }
-      final rows = importer.parse(file.content);
+      final rows = await runWithProgressDialog(
+          context: context,
+          title: 'Reading file',
+          message: 'Parsing the records in ${file.name}...',
+          task: () async => importer.parse(file.content));
+      if (!mounted) return;
       if (rows.isEmpty) {
         throw const FormatException(
             '0 records parsed. This export has no supported records.');
@@ -66,7 +72,11 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
       _error = null;
     });
     try {
-      final count = await widget.onImport(_rows);
+      final count = await runWithProgressDialog(
+          context: context,
+          title: 'Import',
+          message: 'Importing ${_rows.length} ${widget.pluralLabel}...',
+          task: () => widget.onImport(_rows));
       if (!mounted) return;
       setState(() {
         _importing = false;
