@@ -45,5 +45,6 @@ final gameLibraryEntryWorkspaceSchema =
   },
   // Reference defaults: Platform folders, sorted by Platform then Title.
   defaultSort: GameSortIds.platform,
+  defaultThenSort: GameSortIds.title,
   defaultGroup: GameGroupIds.platform,
 );

@@ -25,5 +25,6 @@ final gameHardwareCatalogItemWorkspaceSchema =
           _Catalog.releaseDate.id
         },
         defaultSort: const LibrarySortId('game_hardware.platform'),
+        defaultThenSort: const LibrarySortId('game_hardware.title'),
         defaultGroup: const LibraryGroupId<GameHardwareKind, String>(
             'game_hardware.platform'));

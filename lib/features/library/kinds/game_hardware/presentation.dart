@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'inspector/game_hardware_inspector_sections.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -69,6 +70,17 @@ final gameHardwareLibraryMediaPresentation = LibraryMediaPresentation(
     defaultFolderFavorites: const [
       ['game_hardware.platform'],
       ['game_hardware.completeness']
+    ],
+    // The reference's one built-in favorite, matching the default sort.
+    sortFavorites: const [
+      LibrarySortFavorite(
+          id: 'platform_title',
+          label: 'Platform / Title',
+          icon: AppIcons.sortAlpha,
+          rules: [
+            LibrarySortRule(column: 'game_hardware.platform', ascending: true),
+            LibrarySortRule(column: 'game_hardware.title', ascending: true),
+          ]),
     ],
     // The reference column favorites, limited to the Hardware columns.
     duplicateColumns: const [

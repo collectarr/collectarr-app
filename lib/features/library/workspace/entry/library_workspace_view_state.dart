@@ -95,6 +95,13 @@ class LibraryWorkspaceViewProfile {
       isSidebarVisible: defaultSidebarVisible,
       sortId: workspace.workspaceFields.defaultSort,
       sortAscending: defaultSortAscending,
+      sortRules: [
+        LibrarySortRuleRuntime(
+            sortId: workspace.workspaceFields.defaultSort,
+            ascending: defaultSortAscending),
+        if (workspace.workspaceFields.defaultThenSort case final then?)
+          LibrarySortRuleRuntime(sortId: then, ascending: true),
+      ],
       coverSize: defaultCoverSize,
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
