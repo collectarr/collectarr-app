@@ -5,7 +5,7 @@
 ### ✨ Features
 - Choosing an edition in Add Games opens a compact Confirm your selection sheet with the cover, platform and year, edition and region, as in CLZ.
 - Add Games picks the platform from inside the title field through a Pick Platform list grouped by console generation, with starred favorites at the top.
-- Add Games lists each game once per platform with its edition count and shows the chosen game's editions as covers beside the list, with the region filter above them, as in CLZ.
+- Add Games lists each game once per platform with its edition count and shows the chosen game's editions as covers beside the list on CLZ's slate background, with region segments above them that filter the editions in place and grey out regions without editions, and a "Not found? Add game manually." row after the results, as in CLZ.
 - Game covers can be found online (Find Online) from the Covers tab.
 
 ### 🐛 Fixes

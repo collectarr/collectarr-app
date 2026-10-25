@@ -80,7 +80,7 @@ class LibraryAddGroupHeader extends StatelessWidget {
 }
 
 /// Group rows at the left, the chosen group's variants at the right.
-class LibraryAddGroupedResults extends StatelessWidget {
+class LibraryAddGroupedResults extends StatefulWidget {
   const LibraryAddGroupedResults({
     super.key,
     required this.grouping,
@@ -114,77 +114,208 @@ class LibraryAddGroupedResults extends StatelessWidget {
   final Widget? variantControls;
 
   @override
+  State<LibraryAddGroupedResults> createState() =>
+      _LibraryAddGroupedResultsState();
+}
+
+class _LibraryAddGroupedResultsState extends State<LibraryAddGroupedResults> {
+  /// The chosen facet segment; null is "All".
+  String? _segment;
+
+  @override
+  Widget build(BuildContext context) {
+    final grouping = widget.grouping;
+    final facet = grouping.variantFacet;
+    final selected = widget.groups
+        .where((group) => group.key == widget.selectedGroupKey)
+        .firstOrNull;
+    final available = <String?>{
+      if (facet != null && selected != null)
+        for (final item in selected.variants) facet.valueOf(item)
+    };
+    // A segment the chosen group has no variants for falls back to "All".
+    final segment = available.contains(_segment) ? _segment : null;
+    final variants = selected == null
+        ? const <CatalogSearchCandidate>[]
+        : [
+            for (final item in selected.variants)
+              if (facet == null ||
+                  segment == null ||
+                  facet.valueOf(item) == null ||
+                  facet.valueOf(item) == segment)
+                item
+          ];
+    return ColoredBox(
+      // The reference's slate dialog body shows below the rows and behind
+      // the variants.
+      color: libraryAddSearchBackground(context),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: LibraryAddResultGrouping.listWidth,
+            child: Column(
+              children: [
+                widget.caption,
+                Flexible(
+                  child: widget.list ??
+                      ListView(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        children: [
+                          for (final group in widget.groups)
+                            _GroupRow(
+                              group: group,
+                              grouping: grouping,
+                              selected: group.key == widget.selectedGroupKey,
+                              isEntry: group.variants.any((item) => widget
+                                  .entryCatalogRefs
+                                  .contains(item.reference)),
+                              onTap: () => widget.onSelectGroup(group.key),
+                            ),
+                        ],
+                      ),
+                ),
+                widget.footer,
+              ],
+            ),
+          ),
+          ColoredBox(
+            color: libraryAddPaneDivider(context),
+            child: const SizedBox(width: 6),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (facet != null || widget.variantControls != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Center(
+                      child: Wrap(spacing: 10, children: [
+                        if (facet != null)
+                          _FacetSegments(
+                            facet: facet,
+                            selected: segment,
+                            available: selected == null ? null : available,
+                            onSelected: (value) =>
+                                setState(() => _segment = value),
+                          ),
+                        if (widget.variantControls case final controls?)
+                          controls,
+                      ]),
+                    ),
+                  ),
+                Expanded(
+                  child: selected == null
+                      ? const SizedBox.shrink()
+                      // Fixed tiles flowing from the left, as in the reference.
+                      : SingleChildScrollView(
+                          key: const ValueKey('library-add-variant-grid'),
+                          padding: const EdgeInsets.fromLTRB(4, 5, 0, 5),
+                          child: Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: [
+                              for (final item in variants)
+                                _VariantTile(
+                                  item: item,
+                                  grouping: grouping,
+                                  selected: item.reference.id ==
+                                      widget.selectedResultId,
+                                  onTap: () =>
+                                      widget.onSelectResult(item.reference.id),
+                                ),
+                            ],
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The reference's joined 65 x 32 segments; one without variants in the
+/// chosen group is greyed out and cannot be chosen.
+class _FacetSegments extends StatelessWidget {
+  const _FacetSegments({
+    required this.facet,
+    required this.selected,
+    required this.available,
+    required this.onSelected,
+  });
+
+  final LibraryAddVariantFacet facet;
+  final String? selected;
+
+  /// Segment values with variants, null while no group is chosen.
+  final Set<String?>? available;
+  final ValueChanged<String?> onSelected;
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final selected =
-        groups.where((group) => group.key == selectedGroupKey).firstOrNull;
+    const radius = Radius.circular(4);
+    final segments = <({String? value, String label})>[
+      (value: null, label: 'All'),
+      for (final segment in facet.segments)
+        (value: segment.value, label: segment.label)
+    ];
+    final last = segments.length - 1;
+    final available = this.available;
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      key: const ValueKey('library-add-variant-facet'),
+      mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: LibraryAddResultGrouping.listWidth,
-          child: Column(
-            children: [
-              caption,
-              Expanded(
-                child: list ??
-                    ListView(
-                      padding: EdgeInsets.zero,
-                      children: [
-                        for (final group in groups)
-                          _GroupRow(
-                            group: group,
-                            grouping: grouping,
-                            selected: group.key == selectedGroupKey,
-                            isEntry: group.variants.any((item) =>
-                                entryCatalogRefs.contains(item.reference)),
-                            onTap: () => onSelectGroup(group.key),
-                          ),
-                      ],
-                    ),
+        for (final (index, segment) in segments.indexed)
+          Builder(builder: (context) {
+            final chosen = segment.value == selected;
+            final enabled = segment.value == null ||
+                available == null ||
+                available.contains(segment.value);
+            return Material(
+              key: ValueKey('library-add-facet-${segment.value ?? 'all'}'),
+              color: chosen
+                  ? palette.utilityAction
+                  : enabled
+                      ? palette.isDark
+                          ? const Color(0xff444444)
+                          : const Color(0xffe6e6e6)
+                      : palette.isDark
+                          ? const Color(0xff555555)
+                          : palette.surfaceSubtle,
+              borderRadius: BorderRadius.horizontal(
+                left: index == 0 ? radius : Radius.zero,
+                right: index == last ? radius : Radius.zero,
               ),
-              footer,
-            ],
-          ),
-        ),
-        ColoredBox(
-          color: palette.canvas,
-          child: const SizedBox(width: 6),
-        ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (variantControls != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Center(child: variantControls),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: enabled ? () => onSelected(segment.value) : null,
+                child: Container(
+                  width: 65,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: index == 0
+                        ? null
+                        : Border(left: BorderSide(color: palette.divider)),
+                  ),
+                  child: Text(segment.label,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: chosen
+                              ? Colors.white
+                              : enabled
+                                  ? palette.textPrimary
+                                  : const Color(0xff888888))),
                 ),
-              Expanded(
-                child: selected == null
-                    ? const SizedBox.shrink()
-                    // Fixed tiles flowing from the left, as in the reference.
-                    : SingleChildScrollView(
-                        key: const ValueKey('library-add-variant-grid'),
-                        padding: const EdgeInsets.fromLTRB(4, 5, 0, 5),
-                        child: Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: [
-                            for (final item in selected.variants)
-                              _VariantTile(
-                                item: item,
-                                grouping: grouping,
-                                selected: item.reference.id == selectedResultId,
-                                onTap: () => onSelectResult(item.reference.id),
-                              ),
-                          ],
-                        ),
-                      ),
               ),
-            ],
-          ),
-        ),
+            );
+          }),
       ],
     );
   }
@@ -210,10 +341,14 @@ class _GroupRow extends StatelessWidget {
     final palette = appPalette(context);
     final item = group.first;
     return Material(
-      color: selected ? palette.utilityAction : Colors.transparent,
+      color: selected
+          ? palette.utilityAction
+          : libraryAddResultsBackground(context),
       child: InkWell(
         key: ValueKey('library-add-result-group-${group.key}'),
         mouseCursor: WidgetStateMouseCursor.clickable,
+        // The reference darkens a hovered row.
+        hoverColor: palette.isDark ? const Color(0xff2d2d2d) : null,
         onTap: onTap,
         child: Container(
           height: 71,

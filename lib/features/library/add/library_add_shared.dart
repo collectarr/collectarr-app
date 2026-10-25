@@ -94,6 +94,12 @@ Color libraryAddResultsBackground(BuildContext context) {
   return palette.isDark ? const Color(0xff383838) : palette.panelRaised;
 }
 
+/// The draggable rule between the result rows and the variants.
+Color libraryAddPaneDivider(BuildContext context) {
+  final palette = appPalette(context);
+  return palette.isDark ? const Color(0xff262626) : palette.divider;
+}
+
 /// Rule between results.
 Color libraryAddResultsDivider(BuildContext context) {
   final palette = appPalette(context);

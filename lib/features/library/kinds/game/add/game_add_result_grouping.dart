@@ -37,4 +37,12 @@ final gameAddResultGrouping = LibraryAddResultGrouping(
     final region = gameAddRegionFor(_metadata(item).releaseRegion);
     return region == null || region == GameAddRegion.other ? '' : region.label;
   },
+  // The reference's region segments above the editions.
+  variantFacet: LibraryAddVariantFacet(
+    segments: [
+      for (final region in GameAddRegion.values)
+        (value: region.value, label: region.label)
+    ],
+    valueOf: (item) => gameAddRegionFor(_metadata(item).releaseRegion)?.value,
+  ),
 );

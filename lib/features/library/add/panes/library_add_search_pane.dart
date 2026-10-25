@@ -33,6 +33,7 @@ class LibraryAddSearchPane extends StatelessWidget {
     this.headerTrailing,
     this.selectedGroupKey,
     this.onSelectGroup,
+    this.onAddManually,
   });
 
   final LibraryKindRegistration type;
@@ -55,6 +56,9 @@ class LibraryAddSearchPane extends StatelessWidget {
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onToggleResultCheck;
 
+  /// Opens Add Manually from the "Not found?" row under the results.
+  final VoidCallback? onAddManually;
+
   /// Whether a search has run, so the caption stays while a filter empties
   /// the results.
   final bool searched;
@@ -71,6 +75,10 @@ class LibraryAddSearchPane extends StatelessWidget {
   Widget build(BuildContext context) {
     final showCaption =
         results.isNotEmpty || (searched && !isBusy && error == null);
+    final notFound = onAddManually != null && results.isNotEmpty
+        ? LibraryAddNotFoundRow(
+            singularLabel: type.identity.singularLabel, onTap: onAddManually!)
+        : null;
     final grouping = resultPolicy.grouping;
     if (grouping != null) {
       final groups = libraryAddResultGroups(results, grouping);
@@ -103,13 +111,16 @@ class LibraryAddSearchPane extends StatelessWidget {
                   onToggleResultCheck: onToggleResultCheck,
                 )
               : null,
-          footer: LibraryAddSearchResultsFooter(
-            accent: accent,
-            isLoading: isLoadingMoreResults,
-            hasMore: hasMoreResults,
-            error: loadMoreError,
-            onLoadMore: onLoadMoreResults,
-          ),
+          footer: Column(mainAxisSize: MainAxisSize.min, children: [
+            if (notFound != null) notFound,
+            LibraryAddSearchResultsFooter(
+              accent: accent,
+              isLoading: isLoadingMoreResults,
+              hasMore: hasMoreResults,
+              error: loadMoreError,
+              onLoadMore: onLoadMoreResults,
+            ),
+          ]),
           variantControls: headerTrailing,
         ),
       );
@@ -149,6 +160,7 @@ class LibraryAddSearchPane extends StatelessWidget {
               onToggleResultCheck: onToggleResultCheck,
             ),
           ),
+          if (notFound != null) notFound,
           LibraryAddSearchResultsFooter(
             accent: accent,
             isLoading: isLoadingMoreResults,
@@ -157,6 +169,65 @@ class LibraryAddSearchPane extends StatelessWidget {
             onLoadMore: onLoadMoreResults,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The reference's "Not found?" row after the results, opening Add Manually.
+class LibraryAddNotFoundRow extends StatelessWidget {
+  const LibraryAddNotFoundRow(
+      {super.key, required this.singularLabel, required this.onTap});
+
+  final String singularLabel;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Material(
+      color: libraryAddResultsBackground(context),
+      child: InkWell(
+        key: const ValueKey('library-add-not-found'),
+        mouseCursor: WidgetStateMouseCursor.clickable,
+        hoverColor: palette.isDark ? const Color(0xff2d2d2d) : null,
+        onTap: onTap,
+        child: Container(
+          height: 62,
+          padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
+          decoration: BoxDecoration(
+            border: Border(
+                bottom: BorderSide(color: libraryAddResultsDivider(context))),
+          ),
+          child: DefaultTextStyle.merge(
+            style: TextStyle(color: palette.textPrimary),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(width: 35, child: Icon(AppIcons.edit, size: 20)),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Not found?',
+                          style: TextStyle(
+                              fontSize: 15,
+                              height: 20 / 15,
+                              fontWeight: FontWeight.w700)),
+                      Text('Add ${singularLabel.toLowerCase()} manually.',
+                          style:
+                              const TextStyle(fontSize: 14, height: 20 / 14)),
+                    ],
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(top: 11),
+                  child: Icon(AppIcons.chevronRight, size: 14),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
