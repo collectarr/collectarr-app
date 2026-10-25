@@ -107,7 +107,11 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   @override
   void initState() {
     super.initState();
-    _tabOrder = List.generate(widget.tabs.length, (i) => i);
+    _tabOrder = (widget.allowTabReorder
+            ? knownLibraryEditTabOrder(
+                storageKey: widget.tabOrderKey, tabCount: widget.tabs.length)
+            : null) ??
+        List.generate(widget.tabs.length, (i) => i);
     _observeTabController(widget.tabController);
     if (widget.allowTabReorder && widget.tabs.isNotEmpty) {
       _loadSavedTabOrder();
