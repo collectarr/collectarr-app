@@ -33,14 +33,11 @@ void main() {
 
     test('Game vocabularies cover the reference Main, Value and Personal lists',
         () {
-      expect(GameVocabularies.platform.builtIns, contains('PlayStation 5'));
-      expect(GameVocabularies.platform.builtIns, contains('Nintendo Switch'));
+      // As in the reference, the lists hold only the values entries use.
       expect(
-          GameVocabularies.region.builtIns, contains('NTSC-U/C (US/Canada)'));
-      expect(GameVocabularies.condition.builtIns,
-          contains('Complete in Box (CIB)'));
-      expect(GameVocabularies.format.builtIns, contains('Steam Download'));
-      expect(GameVocabularies.audienceRating.builtIns, contains('Mature'));
+          GameVocabularies.all
+              .where((vocabulary) => vocabulary.builtIns.isNotEmpty),
+          isEmpty);
       expect(
         GameVocabularies.all.map((vocabulary) => vocabulary.key),
         containsAll([

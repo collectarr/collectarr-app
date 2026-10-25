@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_pick_list_field.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +55,10 @@ void main() {
         .descendant(of: find.byType(Dialog), matching: find.text('Lordi'))
         .first);
     await tester.pump();
-    expect(find.byIcon(Icons.check_box), findsNWidgets(3));
+    expect(
+        find.byWidgetPredicate(
+            (widget) => widget is PickListCheckbox && widget.selected),
+        findsNWidgets(3));
     expect(find.byIcon(Icons.radio_button_unchecked), findsNothing);
 
     await tester.tap(find.text('Save'));
