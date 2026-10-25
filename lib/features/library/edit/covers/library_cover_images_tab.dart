@@ -100,18 +100,19 @@ final class _LibraryCoverImagesTabState extends State<LibraryCoverImagesTab> {
 
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
-        padding: const EdgeInsets.all(8),
+        // The editor body already pads the tab by 15 px.
+        padding: const EdgeInsets.only(bottom: 10),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final front = _panel(widget.frontLabel, _front);
             final back = _panel(widget.backLabel, _back);
             if (constraints.maxWidth < 680) {
               return Column(
-                  children: [front, const SizedBox(height: 12), back]);
+                  children: [front, const SizedBox(height: 15), back]);
             }
             return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Expanded(child: front),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(child: back),
             ]);
           },
