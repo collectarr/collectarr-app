@@ -10,9 +10,11 @@ import 'package:collectarr_app/features/library/ui/primitives/library_form_contr
 import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_notes_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_personal_fields_layout.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/multi_pick_list_select_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Shared personal fields supported by the manual Add submission path.
 final class LibraryAddManualPersonalTab extends StatelessWidget {
@@ -235,13 +237,15 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
               required options,
               searchHint,
               customValueHint}) =>
-          showLibraryMultiValueOptionsDialog<String>(
+          showMultiPickListSelectDialog(
         context: context,
         label: label,
-        options: options,
+        options: [for (final option in options) option.value],
         selectedValues: selectedValues,
-        searchHint: searchHint ?? 'Search ${field.label.toLowerCase()}',
-        customValueHint: customValueHint ?? 'Add value',
+        listName: field.vocabularyListName,
+        mediaKind: request.kind.apiValue,
+        db: ProviderScope.containerOf(context, listen: false)
+            .read(localDatabaseProvider),
       ),
       onChanged: (selected) {
         final values = selected.toList(growable: false);
