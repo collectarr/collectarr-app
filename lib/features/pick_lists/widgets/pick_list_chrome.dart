@@ -59,7 +59,9 @@ ButtonStyle pickListButtonStyle(BuildContext context,
   return dialogActionButtonStyle(context,
           primary: true,
           width: 0,
-          color: primary ? palette.utilityAction : pickListToolbar(context))
+          color: primary
+              ? palette.utilityAction
+              : pickListSecondaryButton(context))
       .copyWith(
           textStyle: WidgetStatePropertyAll(TextStyle(
               fontFamily: appFontFamily,
@@ -164,6 +166,36 @@ Color pickListSurface(BuildContext context) => appPalette(context).isDark
 Color pickListDivider(BuildContext context) => appPalette(context).isDark
     ? const Color(0xff383838)
     : appPalette(context).divider;
+
+/// The reference's grey Manage button beside the blue New one.
+Color pickListSecondaryButton(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xff555555)
+        : appPalette(context).divider;
+
+/// The reference's selection box: a white outline, filled white with a dark
+/// check once ticked (the text colours in the light theme).
+class PickListCheckbox extends StatelessWidget {
+  const PickListCheckbox({super.key, required this.selected});
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final ink = palette.isDark ? Colors.white : palette.textPrimary;
+    return Container(
+        width: 14,
+        height: 14,
+        decoration: BoxDecoration(
+            color: selected ? ink : null,
+            border: Border.all(color: ink, width: 1.5),
+            borderRadius: BorderRadius.circular(2)),
+        child: selected
+            ? Icon(AppIcons.check, size: 10, color: pickListSurface(context))
+            : null);
+  }
+}
+
 Color pickListToolbar(BuildContext context) => appPalette(context).isDark
     ? const Color(0xff464950)
     : appPalette(context).panelRaised;

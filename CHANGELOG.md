@@ -23,7 +23,7 @@
 - The header brand reads CLR instead of CARR.
 - New entries in every library, from Add and imports, take the next free Index, and importing a file without an Index keeps the one already assigned.
 - Index and Quantity accept only whole numbers, drop leading zeros and show up/down arrows on hover for quick increments.
-- The pick list selector no longer tints selected rows with the library accent, shows selection as a blue checked box, draws its column headers and New/Manage buttons bold, and keeps its list on screen when returning from Manage.
+- The pick list selector no longer tints selected rows with the library accent, ticks selections with CLZ's white checkbox, draws its column headers and New/Manage buttons bold with Manage in grey, points the Name caret down for A to Z, and keeps its list on screen when returning from Manage.
 - The date calendar opens and closes instantly, without a fade or scale animation.
 - Dropdown arrows in editor fields use the muted text colour.
 - The editor's Collection Status row has no rules above and below it.

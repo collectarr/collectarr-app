@@ -1,5 +1,6 @@
 import 'pick_list_chrome.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import '../models/pick_list_value.dart';
 
@@ -49,9 +50,12 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                   fontSize: secondary ? 12 : 14,
                   fontWeight: kAppBoldFontWeight,
                   color: secondary ? appPalette(context).textMuted : null)),
+          // The reference points the caret down for A to Z.
           if (_sort == sort)
-            Icon(_descending ? Icons.arrow_drop_down : Icons.arrow_drop_up,
-                size: 16),
+            Padding(
+                padding: const EdgeInsets.only(left: 5),
+                child: Icon(_descending ? AppIcons.caretUp : AppIcons.caretDown,
+                    size: 12)),
         ]),
       );
 
@@ -101,9 +105,12 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                             ]))),
                 SizedBox(
                     width: 84,
-                    child: Align(
-                        alignment: Alignment.centerRight,
-                        child: _heading('Count', PickListTableSort.count))),
+                    child: Padding(
+                        padding: const EdgeInsets.only(right: 5),
+                        child: Align(
+                            alignment: Alignment.centerRight,
+                            child:
+                                _heading('Count', PickListTableSort.count)))),
                 if (!selecting) const SizedBox(width: 36),
               ]))),
       Expanded(
@@ -134,22 +141,20 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                                           width: 36,
                                           child: selecting
                                               ? (widget.mode == PickListTableMode.singleSelect
-                                                  ? Icon(selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                                                  ? Icon(
+                                                      selected
+                                                          ? Icons
+                                                              .radio_button_checked
+                                                          : Icons
+                                                              .radio_button_unchecked,
                                                       size: 18,
                                                       color: selected
                                                           ? palette
                                                               .utilityAction
                                                           : palette.textMuted)
-                                                  : Icon(
-                                                      selected
-                                                          ? Icons.check_box
-                                                          : Icons
-                                                              .check_box_outline_blank,
-                                                      size: 18,
-                                                      color: selected
-                                                          ? palette
-                                                              .utilityAction
-                                                          : palette.textMuted))
+                                                  : Center(
+                                                      child: PickListCheckbox(
+                                                          selected: selected)))
                                               : IconButton(
                                                   style: IconButton.styleFrom(
                                                       backgroundColor:
