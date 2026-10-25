@@ -2,6 +2,8 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_grouped_results.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/game_add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_result_grouping.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:flutter/material.dart';
@@ -89,5 +91,44 @@ void main() {
 
     await tester.tap(find.text('Default US Edition'));
     expect(result, results[0].reference.id);
+  });
+
+  testWidgets('the confirm sheet shows platform, year, edition and region',
+      (tester) async {
+    final item = CatalogSearchCandidate.fromApiJson(json: {
+      'id': '30000000-0000-4000-8000-000000000009',
+      'kind': 'game',
+      'kind_data': {
+        'title': 'Brick Knight',
+        'platforms': ['PC'],
+        'edition_title': 'Default US Edition',
+        'release_region': 'US',
+        'release_date_parts': {'year': 2008},
+      },
+    });
+    await tester.pumpWidget(ProviderScope(
+      child: MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => buildGameAddPreview(
+              context,
+              LibraryAddPreviewPaneRequest(
+                type: const GameRegistration(),
+                accent: Colors.red,
+                item: item,
+                isFetchingPreview: false,
+                searched: true,
+              ),
+            ),
+          ),
+        ),
+      ),
+    ));
+    expect(find.text('Brick Knight'), findsOneWidget);
+    expect(find.text('PC'), findsOneWidget);
+    expect(find.text(' (2008)'), findsOneWidget);
+    expect(find.text('Default US Edition'), findsOneWidget);
+    expect(find.text('US'), findsOneWidget);
+    expect(gameKindAdd.chrome.confirmSheetSize, const Size(730, 369));
   });
 }
