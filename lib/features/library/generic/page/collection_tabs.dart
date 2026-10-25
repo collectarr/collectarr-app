@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/collections/library_collection_family.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
+import 'package:collectarr_app/ui/app_reorderable_row.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/features/library/collections/library_collections_dialog.dart';
@@ -115,23 +116,14 @@ class _LibraryCollectionTabBarState
                     ),
                     const SizedBox(width: 3),
                     Expanded(
-                      child: ReorderableListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        buildDefaultDragHandles: false,
-                        // The default proxy adds an elevation shadow that shows as
-                        // a lighter rim on the dragged tab's edges.
-                        proxyDecorator: (child, _, __) => Material(
-                            type: MaterialType.transparency, child: child),
-                        itemCount: values.length,
+                      child: AppReorderableRow(
                         onReorderItem: (oldIndex, newIndex) =>
                             _reorder(repo, values, oldIndex, newIndex),
-                        itemBuilder: (_, index) {
-                          final collection = values[index];
-                          return ReorderableDragStartListener(
-                            key: ValueKey(
-                                'library-collection-tab-${collection.id}'),
-                            index: index,
-                            child: LibraryCollectionTab(
+                        children: [
+                          for (final collection in values)
+                            LibraryCollectionTab(
+                              key: ValueKey(
+                                  'library-collection-tab-${collection.id}'),
                               label: collection.name,
                               icon: showKindIcon
                                   ? libraryIconForKind(
@@ -149,8 +141,7 @@ class _LibraryCollectionTabBarState
                               accent: accent,
                               onTap: () => select(collection),
                             ),
-                          );
-                        },
+                        ],
                       ),
                     ),
                   ],

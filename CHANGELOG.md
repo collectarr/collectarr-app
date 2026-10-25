@@ -59,6 +59,7 @@
 - Choosing Yes or No for Completed in the Games editor's Personal tab now shows the selected option.
 - Choice buttons such as Completeness and Completed have CLZ's rounder corners and, in the dark theme, its grey segments with a lighter selected one.
 - Tags in the editor and in Add open the same pick list selector as Genre, with New and Manage.
+- Dragging editor tabs or collection tabs while the app is zoomed keeps the tab under the pointer and drops it where it shows.
 
 ### ♻️ Refactors
 - Games no longer have a Core Region field or column: Collectarr never fetches PriceCharting prices, and the PriceCharting ID already names the NTSC or PAL release. Upgrading removes stored Core Region values.

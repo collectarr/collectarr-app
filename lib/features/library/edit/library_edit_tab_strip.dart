@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/ui/app_reorderable_row.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -273,52 +274,23 @@ class _LibraryEditReorderableTabStripState
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateScroll());
     final canReorder = enabled && allowReorder && onReorderItem != null;
 
-    Widget buildTab(int index, {required bool draggable}) {
-      final tab = tabs[index];
-      final child = _tabButton(
-        index: index,
-        currentIndex: currentIndex,
-        highlighted: false,
-        enabled: enabled,
-      );
-      final key = tab.key ?? ObjectKey(tab);
-      return draggable
-          ? ReorderableDragStartListener(
-              key: key,
+    final strip = AppReorderableRow(
+      controller: _scroll,
+      onReorderItem: canReorder ? onReorderItem : null,
+      dragDecorator: _decorateDraggedTab,
+      children: [
+        for (var index = 0; index < tabs.length; index++)
+          KeyedSubtree(
+            key: tabs[index].key ?? ObjectKey(tabs[index]),
+            child: _tabButton(
               index: index,
-              child: child,
-            )
-          : KeyedSubtree(key: key, child: child);
-    }
-
-    final Widget strip = canReorder
-        ? ReorderableListView.builder(
-            scrollController: _scroll,
-            scrollDirection: Axis.horizontal,
-            physics: const ClampingScrollPhysics(),
-            shrinkWrap: true,
-            primary: false,
-            padding: EdgeInsets.zero,
-            clipBehavior: Clip.none,
-            dragBoundaryProvider: (_) => null,
-            buildDefaultDragHandles: false,
-            itemCount: tabs.length,
-            onReorderItem: (oldIndex, newIndex) =>
-                onReorderItem!(oldIndex, newIndex),
-            proxyDecorator: _decorateDraggedTab,
-            itemBuilder: (context, index) => buildTab(index, draggable: true),
-          )
-        : SingleChildScrollView(
-            controller: _scroll,
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var index = 0; index < tabs.length; index++)
-                  buildTab(index, draggable: false),
-              ],
+              currentIndex: currentIndex,
+              highlighted: false,
+              enabled: enabled,
             ),
-          );
+          ),
+      ],
+    );
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: kLibraryEditTabStripHeight),
@@ -348,11 +320,7 @@ class _LibraryEditReorderableTabStripState
     );
   }
 
-  Widget _decorateDraggedTab(
-    Widget child,
-    int index,
-    Animation<double> animation,
-  ) {
+  Widget _decorateDraggedTab(Widget child, Animation<double> animation) {
     return AnimatedBuilder(
       animation: animation,
       child: child,

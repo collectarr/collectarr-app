@@ -265,6 +265,8 @@ void main() {
     await gesture.moveBy(const Offset(40, 0));
     await tester.pump(const Duration(milliseconds: 100));
     await gesture.moveBy(const Offset(320, 0));
+    // Let the neighbour slide into the gap before dropping.
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     await gesture.up();
     // One frame after the drop, before the save can have reached the stream.
