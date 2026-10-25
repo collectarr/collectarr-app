@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
-import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
@@ -318,21 +317,6 @@ class LibraryPageDialogCoordinator {
       mediaKind: _page.type.kind.apiValue,
       builtInValues:
           definition.builtIns.map((value) => value.toString()).toList(),
-    );
-    if (_page.mounted) {
-      _page.rebuild(() {});
-    }
-  }
-
-  Future<void> showTagPickListEditorFlow() async {
-    final db = _page.ref.read(localDatabaseProvider);
-    await showPickListEditorDialog(
-      context: _page.context,
-      db: db,
-      listName: UniversalVocabularies.tags.key,
-      label: 'Tag',
-      mediaKind: _page.type.kind.apiValue,
-      builtInValues: const [],
     );
     if (_page.mounted) {
       _page.rebuild(() {});

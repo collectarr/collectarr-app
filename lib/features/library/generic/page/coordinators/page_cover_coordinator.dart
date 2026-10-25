@@ -2,56 +2,18 @@ import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 // ignore_for_file: use_build_context_synchronously
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/state/api_provider.dart';
-import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-/// Handles cover scanning (gallery/camera → API) and bulk cover download.
+/// Handles cover scanning (gallery/camera → API).
 class LibraryPageCoverCoordinator {
   LibraryPageCoverCoordinator(this._page);
 
   final LibraryPageCoordinatorContext _page;
-
-  Future<void> downloadAllCoversFlow(ShelfState shelfState) async {
-    final db = _page.ref.read(localDatabaseProvider);
-    final imagesRepo = ItemImagesCacheRepository(db);
-    final service = ImageDownloadService(imagesRepo: imagesRepo);
-
-    final itemsToCover = <LibraryEntryRef, String?>{};
-    for (final entry in shelfState.entries) {
-      final libraryEntryRef = entry.libraryEntryRef;
-      if (libraryEntryRef == null) continue;
-      itemsToCover[libraryEntryRef] = entry.catalogSummary?.imageUrl;
-    }
-    if (itemsToCover.isEmpty) return;
-
-    if (!_page.mounted) return;
-    ScaffoldMessenger.of(_page.context).showSnackBar(
-      SnackBar(
-        content: Text('Downloading covers for ${itemsToCover.length} items...'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-
-    final results = await service.downloadCoversForItems(itemsToCover);
-
-    if (_page.mounted) {
-      ScaffoldMessenger.of(_page.context).showSnackBar(
-        SnackBar(
-          content: Text('Downloaded ${results.length} covers.'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
 
   Future<void> scanCoverFlow() async {
     final picker = ImagePicker();

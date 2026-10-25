@@ -205,14 +205,6 @@ class LibraryPageToolbarController {
               if (value == null) return;
               _s._dialogCoordinator.reassignIndexFlow(value);
             },
-            onPrintReport: (value) {
-              if (value == null) return;
-              _s._reportCoordinator.printReportFlow(value);
-            },
-            onExportCsvTxt: (value) {
-              if (value == null) return;
-              _s._sharingCoordinator.exportCsvTxtFlow(value);
-            },
             onMissingSequenceReport: (value) {
               if (value == null) return;
               _s._reportCoordinator.showMissingSequenceReportFlow(value);
@@ -230,7 +222,6 @@ class LibraryPageToolbarController {
           ),
           adminActions: LibraryToolbarAdminActionsContext(
             onScanCover: _s._coverCoordinator.scanCoverFlow,
-            onDownloadAllCovers: _s._coverCoordinator.downloadAllCoversFlow,
             onShowConditionPickListEditorFlow:
                 libraryEditPresentationForKind(_s.widget.type.kind)
                         .hasConditionPickList
@@ -241,8 +232,6 @@ class LibraryPageToolbarController {
                         .hasCollectionValuePickList
                     ? _s._dialogCoordinator.showGradePickListEditorFlow
                     : null,
-            onShowTagPickListEditorFlow:
-                _s._dialogCoordinator.showTagPickListEditorFlow,
           ),
         ),
         projection: projection,

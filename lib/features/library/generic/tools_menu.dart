@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:flutter/material.dart';
@@ -17,19 +16,15 @@ class LibraryToolsButton extends StatelessWidget {
     required this.onQuickViewSelected,
     required this.onClearFilters,
     this.onRandomPick,
-    this.onDownloadAllCovers,
     this.shelfState,
     this.onSmartLists,
     this.onFolders,
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
-    this.onEditTagPickList,
     this.onEditSort,
     this.onReassignIndex,
     this.onTransferFieldData,
-    this.onPrintReport,
-    this.onExportCsvTxt,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.extraActions = const [],
@@ -43,19 +38,15 @@ class LibraryToolsButton extends StatelessWidget {
   final ValueChanged<LibraryQuickView> onQuickViewSelected;
   final VoidCallback onClearFilters;
   final VoidCallback? onRandomPick;
-  final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
   final VoidCallback? onSmartLists;
   final VoidCallback? onFolders;
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
-  final VoidCallback? onEditTagPickList;
   final VoidCallback? onEditSort;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onTransferFieldData;
-  final VoidCallback? onPrintReport;
-  final VoidCallback? onExportCsvTxt;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraActions;
@@ -84,30 +75,6 @@ class LibraryToolsButton extends StatelessWidget {
             section: 'Collection',
             onSelected: onEditSort!,
           ),
-        if (onDownloadAllCovers != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.download_outlined,
-            label: 'Download all covers',
-            section: 'Collection',
-            onSelected: onDownloadAllCovers!,
-          ),
-        LibraryUtilityMenuAction(
-          icon: Icons.image_not_supported_outlined,
-          label: 'Missing covers',
-          section: 'Collection',
-          enabled: counts.missingCover > 0,
-          trailing: Text(counts.missingCover.toString()),
-          onSelected: () => onQuickViewSelected(LibraryQuickView.missingCovers),
-        ),
-        LibraryUtilityMenuAction(
-          icon: Icons.manage_search,
-          label: 'Missing metadata',
-          section: 'Collection',
-          enabled: counts.missingMetadata > 0,
-          trailing: Text(counts.missingMetadata.toString()),
-          onSelected: () =>
-              onQuickViewSelected(LibraryQuickView.missingMetadata),
-        ),
         if (onCompareMetadataWithServer != null)
           LibraryUtilityMenuAction(
             icon: Icons.compare_arrows,
@@ -138,13 +105,6 @@ class LibraryToolsButton extends StatelessWidget {
             label: 'Grade values...',
             section: 'Administration',
             onSelected: onEditGradePickList!,
-          ),
-        if (onEditTagPickList != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.sell_outlined,
-            label: 'Tag values...',
-            section: 'Administration',
-            onSelected: onEditTagPickList!,
           ),
         if (onTransferFieldData != null)
           LibraryUtilityMenuAction(
@@ -181,20 +141,6 @@ class LibraryToolsButton extends StatelessWidget {
             section: 'Lists',
             onSelected: onReadingQueue!,
           ),
-        if (onPrintReport != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.print_outlined,
-            label: 'Print / PDF report',
-            section: 'Share',
-            onSelected: onPrintReport!,
-          ),
-        if (onExportCsvTxt != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.table_view_outlined,
-            label: 'Export to CSV / TXT',
-            section: 'Share',
-            onSelected: onExportCsvTxt!,
-          ),
         if (onShareCollection != null)
           LibraryUtilityMenuAction(
             icon: Icons.share_outlined,
@@ -202,12 +148,6 @@ class LibraryToolsButton extends StatelessWidget {
             section: 'Share',
             onSelected: onShareCollection!,
           ),
-        LibraryUtilityMenuAction(
-          icon: Icons.keyboard_command_key,
-          label: 'Keyboard shortcuts',
-          section: 'Help',
-          onSelected: () => showKeyboardShortcutsDialog(context),
-        ),
       ],
     );
   }

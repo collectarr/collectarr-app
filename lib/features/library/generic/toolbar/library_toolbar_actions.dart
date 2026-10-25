@@ -42,17 +42,13 @@ class LibraryToolbarActions {
     required this.onClearFilters,
     this.onRandomPick,
     this.onScanCover,
-    this.onDownloadAllCovers,
     this.onSmartLists,
     this.onFolders,
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
-    this.onEditTagPickList,
     this.onTransferFieldData,
     this.onReassignIndex,
-    this.onPrintReport,
-    this.onExportCsvTxt,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.onPinnedFolderPresetsChanged,
@@ -97,17 +93,13 @@ class LibraryToolbarActions {
   final VoidCallback onClearFilters;
   final VoidCallback? onRandomPick;
   final VoidCallback? onScanCover;
-  final VoidCallback? onDownloadAllCovers;
   final VoidCallback? onSmartLists;
   final VoidCallback? onFolders;
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
-  final VoidCallback? onEditTagPickList;
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
-  final VoidCallback? onPrintReport;
-  final VoidCallback? onExportCsvTxt;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;

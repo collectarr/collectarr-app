@@ -87,7 +87,6 @@ class LibraryToolbar extends StatelessWidget {
     required this.onClearFilters,
     this.onRandomPick,
     this.onScanCover,
-    this.onDownloadAllCovers,
     this.selectionEnabled = false,
     this.selectedCount = 0,
     this.totalSelectableCount = 0,
@@ -98,11 +97,8 @@ class LibraryToolbar extends StatelessWidget {
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
-    this.onEditTagPickList,
     this.onTransferFieldData,
     this.onReassignIndex,
-    this.onPrintReport,
-    this.onExportCsvTxt,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.extraUtilityActions = const [],
@@ -181,7 +177,6 @@ class LibraryToolbar extends StatelessWidget {
         onClearFilters = actions.onClearFilters,
         onRandomPick = actions.onRandomPick,
         onScanCover = actions.onScanCover,
-        onDownloadAllCovers = actions.onDownloadAllCovers,
         selectionEnabled = state.selectionEnabled,
         selectedCount = state.selectedCount,
         totalSelectableCount = state.totalSelectableCount,
@@ -192,11 +187,8 @@ class LibraryToolbar extends StatelessWidget {
         onReadingQueue = actions.onReadingQueue,
         onEditConditionPickList = actions.onEditConditionPickList,
         onEditGradePickList = actions.onEditGradePickList,
-        onEditTagPickList = actions.onEditTagPickList,
         onTransferFieldData = actions.onTransferFieldData,
         onReassignIndex = actions.onReassignIndex,
-        onPrintReport = actions.onPrintReport,
-        onExportCsvTxt = actions.onExportCsvTxt,
         onShareCollection = actions.onShareCollection,
         onCompareMetadataWithServer = actions.onCompareMetadataWithServer,
         extraUtilityActions = actions.extraUtilityActions,
@@ -269,7 +261,6 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback onClearFilters;
   final VoidCallback? onRandomPick;
   final VoidCallback? onScanCover;
-  final VoidCallback? onDownloadAllCovers;
   final ShelfState? shelfState;
   final bool selectionEnabled;
   final int selectedCount;
@@ -280,11 +271,8 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
-  final VoidCallback? onEditTagPickList;
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
-  final VoidCallback? onPrintReport;
-  final VoidCallback? onExportCsvTxt;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraUtilityActions;
@@ -373,13 +361,11 @@ class LibraryToolbar extends StatelessWidget {
                   onClearFilters: onClearFilters,
                   onClearBucket: onClearBucket,
                   onRandomPick: onRandomPick,
-                  onDownloadAllCovers: onDownloadAllCovers,
                   onSmartLists: onSmartLists,
                   onFolders: onFolders,
                   onReadingQueue: effectiveReadingQueue,
                   onEditConditionPickList: onEditConditionPickList,
                   onEditGradePickList: onEditGradePickList,
-                  onEditTagPickList: onEditTagPickList,
                   onEditSort: onEditSort,
                   onCompareMetadataWithServer: onCompareMetadataWithServer,
                   extraActions: extraUtilityActions,
@@ -457,18 +443,14 @@ class LibraryToolbar extends StatelessWidget {
                       onQuickViewSelected: onQuickViewSelected,
                       onClearFilters: onClearFilters,
                       onRandomPick: onRandomPick,
-                      onDownloadAllCovers: onDownloadAllCovers,
                       shelfState: shelfState,
                       onSmartLists: onSmartLists,
                       onFolders: onFolders,
                       onReadingQueue: effectiveReadingQueue,
                       onEditConditionPickList: onEditConditionPickList,
                       onEditGradePickList: onEditGradePickList,
-                      onEditTagPickList: onEditTagPickList,
                       onTransferFieldData: onTransferFieldData,
                       onReassignIndex: effectiveReassignIndex,
-                      onPrintReport: onPrintReport,
-                      onExportCsvTxt: onExportCsvTxt,
                       onShareCollection: onShareCollection,
                       onCompareMetadataWithServer: onCompareMetadataWithServer,
                       extraActions: extraUtilityActions,

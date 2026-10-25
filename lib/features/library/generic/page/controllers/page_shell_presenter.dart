@@ -371,8 +371,6 @@ abstract final class LibraryPageShellPresenter {
               ? () => state._collectionActionCoordinator
                   .pickRandomItemFlow(state._visibleItems(projection))
               : null,
-          onDownloadAllCovers: () =>
-              state._coverCoordinator.downloadAllCoversFlow(shelfState),
           shelfState: shelfState,
           onSmartLists: () =>
               state._dialogCoordinator.showSmartListsFlow(shelfState),
@@ -391,7 +389,6 @@ abstract final class LibraryPageShellPresenter {
                       .hasCollectionValuePickList
                   ? state._dialogCoordinator.showGradePickListEditorFlow
                   : null,
-          onEditTagPickList: state._dialogCoordinator.showTagPickListEditorFlow,
           onTransferFieldData: state._hasLibraryEntriesInProjection(projection)
               ? () =>
                   state._dialogCoordinator.showTransferFieldDataFlow(projection)
@@ -400,12 +397,6 @@ abstract final class LibraryPageShellPresenter {
                       .allows(LibraryToolbarActionId.reassignIndex) &&
                   state._hasLibraryEntriesInProjection(projection)
               ? () => state._dialogCoordinator.reassignIndexFlow(projection)
-              : null,
-          onPrintReport: projection.filteredItems.isNotEmpty
-              ? () => state._reportCoordinator.printReportFlow(projection)
-              : null,
-          onExportCsvTxt: projection.filteredItems.isNotEmpty
-              ? () => state._sharingCoordinator.exportCsvTxtFlow(projection)
               : null,
           onShareCollection: projection.filteredItems.isNotEmpty
               ? () => state._sharingCoordinator.shareCollectionFlow(projection)
