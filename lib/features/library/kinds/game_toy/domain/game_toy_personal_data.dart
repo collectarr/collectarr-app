@@ -104,7 +104,7 @@ final class GameToyPersonalData implements JsonEncodable {
         purchaseStore: json['purchase_store'] as String?,
         collectionStatus: json['collection_status'] as String?,
         marketValueCents: (json['market_value_cents'] as num?)?.toInt(),
-        quantity: math.max(1, (json['quantity'] as num?)?.toInt() ?? 1),
+        quantity: math.max(0, (json['quantity'] as num?)?.toInt() ?? 1),
         rating: (json['rating'] as num?)?.toInt(),
         purchaseDateParts: PartialDate.tryParse(json['purchase_date_parts']),
         details: GameToyEntryDetails.fromJson(json),

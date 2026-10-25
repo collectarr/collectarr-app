@@ -58,7 +58,7 @@ final gameToyKindPersonalFieldContributor =
       syncable: true,
       inputKind: PersonalLibraryFieldEditor.integer,
       area: PersonalLibraryFieldArea.statusStrip,
-      minimum: 1,
+      minimum: 0,
       defaultInteger: 1),
   for (final (key, label) in const [
     ('game_toy_completeness', 'Completeness'),

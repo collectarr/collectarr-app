@@ -43,7 +43,7 @@ final class ClzGameHardwareWebImporter implements LibraryGuidedImporter {
         tags: raw.values('tags', 'tag'),
         condition: raw.text('condition'),
         rating: raw.integer('myrating', max: 10),
-        quantity: raw.integer('quantity', min: 1) ?? 1,
+        quantity: raw.integer('quantity') ?? 1,
         indexNumber: raw.integer('index'),
         pricePaidCents: raw.money('purchaseprice'),
         marketValueCents: raw.money('currentvalue'),

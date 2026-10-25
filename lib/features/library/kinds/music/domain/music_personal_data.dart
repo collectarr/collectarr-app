@@ -211,8 +211,8 @@ DateTime? _musicPersonalDate(Object? value) {
 
 int _quantity(Object? value) {
   if (value == null) return 1;
-  if (value is! num || value != value.toInt() || value < 1) {
-    throw const FormatException('Music quantity must be a positive integer.');
+  if (value is! num || value != value.toInt() || value < 0) {
+    throw const FormatException('Music quantity must be a whole number.');
   }
   return value.toInt();
 }

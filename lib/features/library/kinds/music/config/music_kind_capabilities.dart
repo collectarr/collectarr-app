@@ -31,7 +31,7 @@ final musicKindPersonalFieldContributor = LibraryPersonalFieldContributor(
         inputKind: PersonalLibraryFieldEditor.integer,
         area: PersonalLibraryFieldArea.statusStrip,
         editOrder: 2,
-        minimum: 1,
+        minimum: 0,
         defaultInteger: 1),
     const PersonalLibraryFieldSpec(
         key: 'media_condition',

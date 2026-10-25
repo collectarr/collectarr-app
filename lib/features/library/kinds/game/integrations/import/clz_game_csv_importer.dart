@@ -57,7 +57,7 @@ final class GameMappedCsvImporter implements LibraryMappedCsvImporter {
         tags: record.list('tags', delimiter),
         condition: record.text('condition'),
         rating: record.integer('my_rating', 'My Rating', max: 10),
-        quantity: record.integer('quantity', 'Quantity', min: 1) ?? 1,
+        quantity: record.integer('quantity', 'Quantity') ?? 1,
         indexNumber: record.integer('index', 'Index'),
         pricePaidCents: record.money('purchase_price', 'Purchase Price'),
         marketValueCents: record.money('value', 'Value'),
