@@ -112,6 +112,7 @@ final class CollectionImportOrchestrator {
     final wishlistUpserts = <WishlistItem>[];
     final syncChanges = <SyncChange>[];
     var imported = 0;
+    final nextIndexByKind = <CatalogMediaKind, int?>{};
 
     for (final row in resolvedRows) {
       if (!row.isEntry && !row.isWishlisted) continue;
@@ -137,9 +138,29 @@ final class CollectionImportOrchestrator {
           rowRef,
           importedCatalogItemsByRef,
         );
+        // A new entry without an Index takes the next free one, as the
+        // reference numbers imports.
+        int? assignedIndex;
+        final fullPayload = row.fullEntryPayload;
+        if (existingLibraryEntrySummary == null &&
+            row.personal.indexNumber == null &&
+            (fullPayload == null ||
+                LibraryEntryRecord.fromJson(fullPayload)
+                        .personalData['index_number'] ==
+                    null)) {
+          if (!nextIndexByKind.containsKey(catalogKind)) {
+            nextIndexByKind[catalogKind] =
+                await libraryEntries.nextIndexNumber(catalogKind);
+          }
+          assignedIndex = nextIndexByKind[catalogKind];
+          if (assignedIndex != null) {
+            nextIndexByKind[catalogKind] = assignedIndex + 1;
+          }
+        }
         final entryImport = await _libraryEntryImportFromCsvRow(
           row,
           now,
+          assignedIndex: assignedIndex,
           catalogData: entryCatalogData,
           existingSummary: existingLibraryEntrySummary,
           existingPayload: existingEntryPayload,
@@ -471,6 +492,7 @@ final class CollectionImportOrchestrator {
     LibraryEntrySummary? existingSummary,
     JsonMap? existingPayload,
     CatalogMediaKind? catalogKind,
+    int? assignedIndex,
   }) async {
     final kind = existingSummary?.ref.kind ?? catalogKind ?? row.mediaKind;
     if (row.fullEntryPayload case final fullPayload?) {
@@ -492,6 +514,15 @@ final class CollectionImportOrchestrator {
       final personalData = Map<String, dynamic>.from(incoming.personalData);
       if (row.personal.quantity != null) {
         personalData['quantity'] = row.personal.quantity;
+      }
+      if (assignedIndex != null) {
+        personalData['index_number'] = assignedIndex;
+      } else if (personalData['index_number'] == null &&
+          existingPayload != null) {
+        // A file without an Index must not erase the one already assigned.
+        personalData['index_number'] = LibraryEntryRecord.fromJson(
+          existingPayload,
+        ).personalData['index_number'];
       }
       final importedRecord = LibraryEntryRecord(
         id: id,
@@ -533,7 +564,7 @@ final class CollectionImportOrchestrator {
           currency: personal.currency,
           personalNotes: personal.notes,
           locationId: personal.locationId,
-          indexNumber: personal.indexNumber,
+          indexNumber: personal.indexNumber ?? assignedIndex,
           tags: personal.tags,
           soldAt: personal.soldAt,
           sellPriceCents: personal.sellPriceCents,
