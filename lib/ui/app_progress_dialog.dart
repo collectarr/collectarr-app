@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Shortest time the progress dialog stays up, so quick local work does not
@@ -12,23 +13,45 @@ Future<T> runWithProgressDialog<T>({
   required String title,
   required String message,
   required Future<T> Function() task,
+}) =>
+    runWithReportedProgressDialog(
+        context: context, title: title, message: message, task: (_) => task());
+
+/// Reports how far a task has got: the filled share of the bar (0 to 1) and
+/// an optional caption under it.
+typedef AppProgressReporter = void Function(double fraction, [String? caption]);
+
+/// The share of the bar to fill and the caption shown under it.
+typedef AppProgress = ({double fraction, String? caption});
+
+/// [runWithProgressDialog] for a task that reports how far it has got: the
+/// bar fills as the reference's import bar does, with a caption under it.
+Future<T> runWithReportedProgressDialog<T>({
+  required BuildContext context,
+  required String title,
+  required String message,
+  required Future<T> Function(AppProgressReporter report) task,
 }) async {
   final navigator = Navigator.of(context, rootNavigator: true);
+  final progress = ValueNotifier<AppProgress?>(null);
   final shown = showAppDialog<void>(
     context: context,
-    builder: (_) => AppProgressDialog(title: title, message: message),
+    builder: (_) =>
+        AppProgressDialog(title: title, message: message, progress: progress),
   );
   try {
     // Let the dialog paint before synchronous work can block the frame.
     await WidgetsBinding.instance.endOfFrame;
     final results = await Future.wait<Object?>([
-      task(),
+      task((fraction, [caption]) =>
+          progress.value = (fraction: fraction, caption: caption)),
       Future<void>.delayed(kAppProgressMinimumDuration),
     ]);
     return results.first as T;
   } finally {
     navigator.pop();
     await shown;
+    progress.dispose();
   }
 }
 
@@ -36,9 +59,13 @@ Future<T> runWithProgressDialog<T>({
 /// animated striped bar, as the reference shows while it works.
 class AppProgressDialog extends StatelessWidget {
   const AppProgressDialog(
-      {super.key, required this.title, required this.message});
+      {super.key, required this.title, required this.message, this.progress});
   final String title;
   final String message;
+
+  /// Fills the bar and captions it once the task reports; until then the bar
+  /// is full and moving.
+  final ValueListenable<AppProgress?>? progress;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +97,7 @@ class AppProgressDialog extends StatelessWidget {
                   const SizedBox(height: 10),
                   Text(message, style: const TextStyle(height: 20 / 14)),
                   const SizedBox(height: 20),
-                  const AppStripedProgressBar(),
+                  _ProgressBar(progress),
                   const SizedBox(height: 5),
                 ],
               ),
@@ -79,6 +106,27 @@ class AppProgressDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _ProgressBar extends StatelessWidget {
+  const _ProgressBar(this.progress);
+  final ValueListenable<AppProgress?>? progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final listenable = progress;
+    if (listenable == null) return const AppStripedProgressBar();
+    return ValueListenableBuilder<AppProgress?>(
+        valueListenable: listenable,
+        builder: (context, value, _) =>
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              AppStripedProgressBar(value: value?.fraction),
+              if (value?.caption case final caption?) ...[
+                const SizedBox(height: 10),
+                Text(caption, style: const TextStyle(color: Color(0xffaaaaaa))),
+              ],
+            ]));
   }
 }
 

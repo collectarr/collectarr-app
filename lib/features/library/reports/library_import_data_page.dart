@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/metadata/library_link_items_page.dart';
+import 'package:collectarr_app/ui/app_block_button.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/ui/app_management_page_scaffold.dart';
@@ -32,15 +34,25 @@ class LibraryImportDataPage extends ConsumerStatefulWidget {
 class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
   String? _activeSourceId;
   bool _warningDismissed = false;
-  int? _importedCount;
+  bool _imported = false;
   int _importRun = 0;
-  String get _pluralLabel =>
-      libraryEntityVocabularyForKind(widget.type.kind).catalogItem.plural;
-  int get _collectionCount =>
-      widget.allShelfEntries
-          ?.where((e) => e.mediaKind == widget.type.kind)
-          .length ??
-      0;
+  late List<LibraryWorkspaceContext> _shelfEntries =
+      widget.allShelfEntries ?? const [];
+  LibraryTargetLabel get _label =>
+      libraryEntityVocabularyForKind(widget.type.kind).catalogItem;
+  String get _pluralLabel => _label.plural;
+  String _count(int count) =>
+      '$count ${count == 1 ? _label.singular : _pluralLabel}';
+  Iterable<LibraryWorkspaceContext> get _kindEntries =>
+      _shelfEntries.where((e) => e.mediaKind == widget.type.kind);
+  int get _collectionCount => _kindEntries.length;
+
+  /// Entries without a catalog match, which Link offers to match.
+  List<LibraryWorkspaceContext> get _unlinked => [
+        for (final entry in _kindEntries)
+          if (entry.libraryEntryRef != null && entry.sourceCatalogRef == null)
+            entry
+      ];
   @override
   void initState() {
     super.initState();
@@ -51,17 +63,22 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
     if (_activeSourceId != null) {
       setState(() {
         _activeSourceId = null;
-        _importedCount = null;
+        _imported = false;
       });
     } else {
       Navigator.of(context).pop();
     }
   }
 
-  Future<int> _importRows(List<CollectionImportRow> rows) async {
-    final count =
-        await ref.read(collectionImportOrchestratorProvider).importRows(rows);
-    if (mounted) ref.invalidate(shelfProvider);
+  Future<int> _importRows(List<CollectionImportRow> rows,
+      void Function(double fraction) onProgress) async {
+    final count = await ref
+        .read(collectionImportOrchestratorProvider)
+        .importRows(rows, onProgress: onProgress);
+    if (!mounted) return count;
+    ref.invalidate(shelfProvider);
+    final shelf = await ref.read(shelfProvider.future);
+    _shelfEntries = shelf.entries;
     return count;
   }
 
@@ -87,11 +104,10 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (_importedCount != null) ...[
-                    _buildSuccessBanner(_importedCount!),
+                  if (_imported) ...[
+                    _buildSuccessBanner(),
                     const SizedBox(height: 16)
-                  ],
-                  if (source != null &&
+                  ] else if (source != null &&
                       !_warningDismissed &&
                       _collectionCount > 0) ...[
                     _buildAttentionBanner(appPalette(context)),
@@ -146,7 +162,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'You currently have $_collectionCount $_pluralLabel in your collection. '
+                  'You currently have ${_count(_collectionCount)} in your collection. '
                   'Importing a list of $_pluralLabel could result in duplicates being added. '
                   'Review the parsed records before confirming the import.',
                   style: const TextStyle(
@@ -178,43 +194,77 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
 
   void _showSuccessBanner(int count) {
     setState(() {
-      _importedCount = count;
+      _imported = true;
       _importRun++;
     });
   }
 
-  Widget _buildSuccessBanner(int count) {
+  /// The reference's "Import Successful" alert, which offers to link the
+  /// entries that found no catalog match.
+  Widget _buildSuccessBanner() {
     const green = Color(0xFF3C763D);
+    final unlinked = _unlinked;
     return Container(
       key: const Key('import_data.success'),
       decoration: BoxDecoration(
         color: const Color(0xFFDFF0D8),
         border: Border.all(color: const Color(0xFFD6E9C6)),
-        borderRadius: BorderRadius.circular(4),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Import successful: $count $_pluralLabel added to your collection.',
-              style: const TextStyle(fontSize: 14, height: 1.4, color: green),
+      padding: const EdgeInsets.fromLTRB(15, 10, 10, 10),
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(fontSize: 14, height: 1.4, color: green),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text('Import Successful',
+                      style: TextStyle(
+                          fontSize: 20,
+                          height: 1.1,
+                          fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 10),
+                  if (unlinked.isEmpty)
+                    Text('Your ${_pluralLabel.toLowerCase()} have been '
+                        'added to your collection.')
+                  else
+                    Row(children: [
+                      Expanded(
+                          child: Text('You have ${unlinked.length} unlinked '
+                              '${unlinked.length == 1 ? _label.singular : _pluralLabel}, '
+                              'find matches and link your $_pluralLabel')),
+                      const SizedBox(width: 10),
+                      IntrinsicWidth(
+                          child: AppBlockButton(
+                        key: const Key('import_data.link'),
+                        label: 'Link $_pluralLabel',
+                        color: appPalette(context).utilityAction,
+                        onPressed: () => Navigator.of(context).push<void>(
+                            MaterialPageRoute(
+                                builder: (_) => LibraryLinkItemsPage(
+                                    type: widget.type, entries: unlinked))),
+                      )),
+                    ]),
+                ],
+              ),
             ),
-          ),
-          IconButton(
-            key: const Key('import_data.dismiss_success'),
-            icon: const Icon(AppIcons.close, size: 14),
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              foregroundColor: green.withValues(alpha: 0.5),
-              hoverColor: Colors.transparent,
+            IconButton(
+              key: const Key('import_data.dismiss_success'),
+              icon: const Icon(AppIcons.close, size: 14),
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: green.withValues(alpha: 0.5),
+                hoverColor: Colors.transparent,
+              ),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+              tooltip: 'Dismiss',
+              onPressed: () => setState(() => _imported = false),
             ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-            tooltip: 'Dismiss',
-            onPressed: () => setState(() => _importedCount = null),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

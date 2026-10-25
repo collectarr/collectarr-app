@@ -26,7 +26,7 @@ void main() {
                         .singleWhere((s) => s.id == 'discogs'),
                     filePicker: ({required label, required extensions}) async =>
                         (name: 'collection.csv', content: content),
-                    onImport: (rows) async {
+                    onImport: (rows, _) async {
                       saved += rows.length;
                       return rows.length;
                     },
@@ -57,7 +57,7 @@ void main() {
       (tester) async {
     await tester.binding.setSurfaceSize(const Size(1280, 1400));
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    var content = 'Artist;Label\nMira;Example';
+    var content = 'Artist,Label\nMira,Example';
     var saved = 0;
     await tester.pumpWidget(MaterialApp(
         theme: buildLibraryTheme(),
@@ -68,7 +68,7 @@ void main() {
                     pluralLabel: 'Albums',
                     filePicker: ({required label, required extensions}) async =>
                         (name: 'collection.csv', content: content),
-                    onImport: (rows) async {
+                    onImport: (rows, _) async {
                       saved += rows.length;
                       return rows.length;
                     },
@@ -81,7 +81,7 @@ void main() {
     expect(find.textContaining('Map a column to Title'), findsOneWidget);
     expect(saved, 0);
     content =
-        'Title;Artist;Purchase Price;Notes\nAfter & Before;Mira;12.50;Example';
+        'Title,Artist,Purchase Price,Notes\nAfter & Before,Mira,12.50,Example';
     await tester.ensureVisible(find.byKey(const Key('import_file_picker_btn')));
     await tester.tap(find.byKey(const Key('import_file_picker_btn')));
     await tester.pumpAndSettle();

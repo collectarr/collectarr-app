@@ -18,7 +18,10 @@ class CsvImportPanel extends StatefulWidget {
       required this.filePicker});
   final LibraryKindImportCapability capability;
   final String pluralLabel;
-  final Future<int> Function(List<CollectionImportRow>) onImport;
+
+  /// Imports the rows, reporting the share done (0 to 1).
+  final Future<int> Function(List<CollectionImportRow> rows,
+      void Function(double fraction) onProgress) onImport;
   final ValueChanged<int> onComplete;
   final ImportFilePicker filePicker;
   @override
@@ -32,7 +35,7 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
   List<String> _csvHeaders = [];
   Map<int, String?> _columnMappings = {};
   bool _skipFirstRow = true;
-  ImportFieldDelimiter _delimiter = ImportFieldDelimiter.semicolon;
+  ImportFieldDelimiter _delimiter = ImportFieldDelimiter.comma;
   ImportFieldEnclosure _enclosure = ImportFieldEnclosure.doubleQuote;
   ImportMultiFieldDelimiter _multiDelimiter =
       ImportMultiFieldDelimiter.semicolon;
@@ -512,11 +515,14 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
       _statusMessage = null;
     });
     try {
-      final count = await runWithProgressDialog(
+      final count = await runWithReportedProgressDialog(
           context: context,
           title: 'Import',
-          message: 'Importing ${rows.length} ${widget.pluralLabel}...',
-          task: () => widget.onImport(rows));
+          message: 'Importing your ${widget.pluralLabel.toLowerCase()}...',
+          task: (report) => widget.onImport(
+              rows,
+              (fraction) =>
+                  report(fraction, fraction >= 1 ? 'Finishing...' : null)));
       if (!mounted) return;
       setState(() {
         _isImporting = false;
