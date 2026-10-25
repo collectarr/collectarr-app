@@ -40,6 +40,7 @@
 - Saving an editor or Add with an empty Quantity stores 0 instead of asking for a value, and a quantity of 0 is kept by every library and import, as in CLZ.
 - The editor's empty Custom Fields tab reads as in CLZ and points to Customization > Manage Custom Fields in the main menu.
 - Settings no longer has a Libraries tab; Manage Pick Lists and the keyboard shortcuts remain in the main menu and Tools.
+- The "×" that closes dialogs is centred in its header in the browser too, not a few pixels low.
 - Games, Hardware and Toys pick lists (Platform, Genre, Format, Region, Condition, Audience Rating) start empty and list only values your entries use, as in CLZ; Toy Type keeps its fixed choices.
 - Pick list values that no entry uses any more are removed automatically when a list is opened, as in CLZ.
 

@@ -69,7 +69,7 @@ void main() {
 
     expect(find.text('Inspector'), findsOneWidget);
     expect(find.text('Body'), findsOneWidget);
-    expect(find.text('×'), findsOneWidget);
+    expect(find.byTooltip('Close'), findsOneWidget);
 
     // The header is flat kind accent, as in the reference.
     final decorations = tester
