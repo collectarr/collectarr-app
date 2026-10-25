@@ -49,7 +49,7 @@ void main() {
 
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Connection'), findsOneWidget);
-    expect(find.text('Libraries'), findsOneWidget);
+    expect(find.text('Libraries'), findsNothing);
     expect(find.text('Appearance'), findsOneWidget);
     expect(find.text('Data'), findsOneWidget);
     expect(find.text('Account'), findsOneWidget);
@@ -66,11 +66,6 @@ void main() {
     expect(find.text('Show pairing QR'), findsOneWidget);
     expect(find.text('Apply pairing code'), findsOneWidget);
     expect(find.text('Reset connection defaults'), findsOneWidget);
-
-    await _openSettingsTab(tester, 'Libraries');
-    expect(find.text('Library customization'), findsOneWidget);
-    expect(find.text('Keyboard shortcuts'), findsOneWidget);
-    expect(find.text('View shortcuts'), findsOneWidget);
 
     await _openSettingsTab(tester, 'Appearance');
     expect(find.text('Appearance'), findsWidgets);
@@ -119,7 +114,7 @@ void main() {
     // List of settings sections
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Connection'), findsOneWidget);
-    expect(find.text('Libraries'), findsOneWidget);
+    expect(find.text('Libraries'), findsNothing);
     expect(find.text('Appearance'), findsOneWidget);
     expect(find.text('Proposals'), findsOneWidget);
     expect(find.text('Data'), findsOneWidget);
@@ -175,33 +170,6 @@ void main() {
 
     expect(find.text('Application Skin'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
-  });
-
-  testWidgets('settings page hides keyboard shortcuts on Android',
-      (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    tester.view.physicalSize = const Size(1000, 1200);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp(
-          theme: ThemeData(platform: TargetPlatform.android),
-          home: const SettingsPage(initialSection: SettingsSection.connection),
-        ),
-      ),
-    );
-    await pumpUntilSettled(tester);
-
-    await _openSettingsTab(tester, 'Libraries');
-    expect(find.text('Library customization'), findsOneWidget);
-    expect(find.text('Keyboard shortcuts'), findsNothing);
-    expect(find.text('View shortcuts'), findsNothing);
   });
 
   testWidgets('settings page persists animation preference', (tester) async {

@@ -5,7 +5,6 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:async';
 
-import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
@@ -17,14 +16,8 @@ import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
 import 'package:collectarr_app/features/settings/settings_proposal_history.dart';
-import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
-import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
-import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
-import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
-import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
@@ -90,7 +83,6 @@ enum SettingsSection {
   // Font Awesome glyphs, as everywhere else in the app chrome.
   appearance('Appearance', AppIcons.palette),
   connection('Connection', AppIcons.plug),
-  libraries('Libraries', AppIcons.layerGroup),
   proposals('Proposals', AppIcons.clipboardCheck),
   data('Data', AppIcons.database),
   account('Account', AppIcons.user),
@@ -163,15 +155,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     final settings = ref.watch(connectionSettingsProvider);
     final sync = ref.watch(syncControllerProvider);
-    final mediaCatalog = ref.watch(mediaCatalogProvider).maybeWhen(
-          data: (catalog) => catalog,
-          orElse: () => fallbackMediaCatalog,
-        );
-    final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final metadataProposalHistory = ref.watch(_metadataProposalHistoryProvider);
     final accent = appPalette(context).utilityAction;
-    final isAndroidPlatform =
-        Theme.of(context).platform == TargetPlatform.android;
     _syncTextControllers(settings);
 
     final windowClass = AppWindowClass.of(context);
@@ -181,10 +166,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         section: section,
         settings: settings,
         sync: sync,
-        mediaCatalog: mediaCatalog,
-        navPreferences: navPreferences,
         metadataProposalHistory: metadataProposalHistory,
-        isAndroidPlatform: isAndroidPlatform,
       );
     }
 
@@ -288,17 +270,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     required SettingsSection section,
     required ConnectionSettings settings,
     required SyncState sync,
-    required List<CatalogMediaType> mediaCatalog,
-    required LibraryNavPreferences navPreferences,
     required AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
-    required bool isAndroidPlatform,
   }) {
     switch (section) {
       case SettingsSection.connection:
         return _buildConnectionSection(settings, sync);
-      case SettingsSection.libraries:
-        return _buildLibrariesSection(
-            mediaCatalog, navPreferences, isAndroidPlatform);
       case SettingsSection.appearance:
         return const SettingsAppearanceSection();
       case SettingsSection.proposals:
@@ -549,64 +525,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           label: 'Reset connection defaults',
           onReset: _resetConnectionDefaults,
         ),
-      ],
-    );
-  }
-
-  Widget _buildLibrariesSection(
-    List<CatalogMediaType> mediaCatalog,
-    LibraryNavPreferences navPreferences,
-    bool isAndroidPlatform,
-  ) {
-    return SettingsTabBody(
-      children: [
-        SettingsPanel(
-          icon: Icons.view_list_outlined,
-          title: 'Library customization',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Manage reusable pick lists for edit dialogs, custom fields, filters, and cleanup flows.',
-              ),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: () => showPickListManagerDialog(
-                    context: context,
-                    db: ref.read(localDatabaseProvider),
-                    registry: defaultPickListRegistry,
-                  ),
-                  icon: const Icon(Icons.tune),
-                  label: const Text('Manage pick lists'),
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (!isAndroidPlatform)
-          SettingsPanel(
-            icon: Icons.keyboard_command_key,
-            title: 'Keyboard shortcuts',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Review current shortcuts and manage key bindings. Shortcut remapping will be configurable here.',
-                ),
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: OutlinedButton.icon(
-                    onPressed: () => showKeyboardShortcutsDialog(context),
-                    icon: const Icon(Icons.keyboard_outlined),
-                    label: const Text('View shortcuts'),
-                  ),
-                ),
-              ],
-            ),
-          ),
       ],
     );
   }

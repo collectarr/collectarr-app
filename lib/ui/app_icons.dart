@@ -249,8 +249,6 @@ abstract final class AppIcons {
   // --- Settings sections ---
   static const IconData plug =
       IconData(0xf1e6, fontFamily: _solid, fontPackage: _fontPackage);
-  static const IconData layerGroup =
-      IconData(0xf5fd, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData clipboardCheck =
       IconData(0xf46c, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData database =
