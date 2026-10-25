@@ -40,8 +40,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('PlayStation 4'), findsNWidgets(2));
     final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getStringList('game.add.platformFavorites'),
-        ['PlayStation 4']);
+    expect(
+        prefs.getStringList('game.add.platformFavorites'), ['PlayStation 4']);
 
     await tester.enterText(
         find.byKey(const ValueKey('game-platform-picker-search')), 'cube');
