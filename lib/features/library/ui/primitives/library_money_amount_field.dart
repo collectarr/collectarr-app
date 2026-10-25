@@ -15,6 +15,7 @@ final class LibraryMoneyAmountField extends StatelessWidget {
     required this.onChanged,
     this.controller,
     this.fieldKey,
+    this.readOnly = false,
   });
 
   final String label;
@@ -23,6 +24,7 @@ final class LibraryMoneyAmountField extends StatelessWidget {
   final ValueChanged<int?> onChanged;
   final TextEditingController? controller;
   final Key? fieldKey;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) => LibraryFormField(
@@ -31,6 +33,7 @@ final class LibraryMoneyAmountField extends StatelessWidget {
           key: fieldKey,
           controller: controller,
           initialValue: controller == null ? _formattedAmount : null,
+          readOnly: readOnly,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             // Follows Settings > Localization > Currency display.

@@ -101,6 +101,14 @@ void main() {
       expect(personal.details.hasBox, isTrue);
       expect(personal.details.hasManual, isTrue);
       expect(personal.marketValueCents, locked ? 999 : 1758);
+      final valueField = tester.widget<TextField>(find.descendant(
+          of: find.byWidgetPredicate((widget) =>
+              widget.key is ValueKey<String> &&
+              (widget.key! as ValueKey<String>)
+                  .value
+                  .startsWith('game-value-')),
+          matching: find.byType(TextField)));
+      expect(valueField.readOnly, locked);
       await tester.tap(tier('Loose'));
       await tester.pumpAndSettle();
       expect(emissions, 2);
