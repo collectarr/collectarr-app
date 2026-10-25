@@ -101,6 +101,7 @@ LibraryEntrySummary testLibraryEntrySummary(TestLibraryEntry item) {
     purchaseStore: item.purchaseStore,
     pricePaidCents: item.pricePaidCents,
     currency: item.currency,
+    collectionStatus: item.collectionStatus,
     soldAt: item.soldAt,
     soldTo: item.soldTo,
     sellPriceCents: item.sellPriceCents,

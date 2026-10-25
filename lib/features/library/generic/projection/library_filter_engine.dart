@@ -5,6 +5,8 @@ import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
+    show libraryCollectionStatusFromValue;
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 
@@ -42,7 +44,7 @@ class LibraryFilterEngine {
             query.selectedBucket, index)) {
       return false;
     }
-    if (!_matchesCollectionStatusScope(item, query.collectionStatusScope)) {
+    if (!matchesCollectionStatusScope(item, query.collectionStatusScope)) {
       return false;
     }
     if (!_matchesQuickView(item, type, query.quickView)) {
@@ -100,26 +102,34 @@ class LibraryFilterEngine {
     return query.groupId ?? fields.defaultGroup ?? fields.groups.first.id;
   }
 
-  bool _matchesCollectionStatusScope(
+  /// Whether [item] belongs to the Collection Status [scope], read from the
+  /// entry's own status as in the reference. In Collection also covers For
+  /// Sale copies, which are still owned.
+  bool matchesCollectionStatusScope(
     LibraryProjectionItem item,
     LibraryCollectionStatusScope scope,
   ) {
-    final isSold = item.source.libraryEntrySummary?.soldAt != null;
-    final isWishlistOnly = item.source.isWishlisted && !item.source.isEntry;
-    final isCatalogOnly = !item.source.isEntry && !item.source.isWishlisted;
-    final isInCollection = item.source.isEntry && !isSold;
+    if (scope == LibraryCollectionStatusScope.all) return true;
+    final status = _collectionStatus(item);
+    return scope == LibraryCollectionStatusScope.inCollection
+        ? status == LibraryCollectionStatusScope.inCollection ||
+            status == LibraryCollectionStatusScope.forSale
+        : status == scope;
+  }
 
-    return switch (scope) {
-      LibraryCollectionStatusScope.all => true,
-      LibraryCollectionStatusScope.inCollection => isInCollection,
-      // For-sale and on-order are kind-entry states. The mixed workspace has
-      // no semantic status field and therefore cannot infer either one.
-      LibraryCollectionStatusScope.forSale => false,
-      LibraryCollectionStatusScope.wishList => isWishlistOnly,
-      LibraryCollectionStatusScope.onOrder => false,
-      LibraryCollectionStatusScope.sold => isSold,
-      LibraryCollectionStatusScope.notInCollection => isCatalogOnly,
-    };
+  LibraryCollectionStatusScope _collectionStatus(LibraryProjectionItem item) {
+    final source = item.source;
+    final entry = source.libraryEntrySummary;
+    if (source.isEntry && entry != null) {
+      final status = libraryCollectionStatusFromValue(entry.collectionStatus);
+      return status == LibraryCollectionStatusScope.inCollection &&
+              entry.soldAt != null
+          ? LibraryCollectionStatusScope.sold
+          : status;
+    }
+    return source.isWishlisted
+        ? LibraryCollectionStatusScope.wishList
+        : LibraryCollectionStatusScope.notInCollection;
   }
 
   bool _matchesQuickView(

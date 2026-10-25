@@ -61,8 +61,12 @@ class LibraryProjectionEngine {
           !query.constrainedItemIds!.contains(item.target.id)) {
         continue;
       }
-      var matchesScope = true;
+      // Folder counts follow the Collection Status scope, as in the
+      // reference.
+      var matchesScope = filterEngine.matchesCollectionStatusScope(
+          item, query.collectionStatusScope);
       for (final filter in query.bucketScopeFilters) {
+        if (!matchesScope) break;
         if (!groupingEngine
             .bucketsForItem(item, type, filter.groupId, index: index)
             .contains(filter.bucket)) {
