@@ -51,5 +51,22 @@ void main() {
     expect(entry.personal.personalNotes, 'Keep this local note');
     expect(entry.toJson()['catalog_data'], contains('publisher'));
     expect(entry.toJson()['catalog_data'], isNot(contains('label')));
+    expect(entry.personal.indexNumber, 1);
+
+    // A second entry without an Index takes the next free one.
+    await musicEntryContributor.createLibraryEntry(
+      database: db,
+      payload:
+          MusicLibraryEntryCreatePayload(details: MusicEntryDetailsDraft()),
+      resolvedCatalogRef: catalog.catalogItemRef,
+      id: 'ui-core-entry-2',
+      createdAt: DateTime.utc(2026, 10, 14),
+      existingIsDigital: null,
+      ownerUserId: null,
+      ownerLabel: null,
+    );
+    final second = await MusicEntryRepository(db)
+        .findById(const LibraryEntryId('ui-core-entry-2'));
+    expect(second!.personal.indexNumber, 2);
   });
 }

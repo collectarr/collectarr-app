@@ -596,7 +596,7 @@ final class LibraryEntriesRepository {
     return _persistence.markDeletedByRef(ref, deletedAt);
   }
 
-  /// The Index a new [kind] entry takes, or null when it has no Index.
+  /// The Index a new [kind] entry takes, or null when the kind is not released.
   Future<int?> nextOrdinal(CatalogMediaKind kind) =>
       collectarrEntryKindContributors[kind]?.nextOrdinal(database) ??
       Future.value();

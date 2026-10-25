@@ -64,4 +64,7 @@ final boardGameEntryContributor =
       item.copyWith(deletedAt: deletedAt, updatedAt: deletedAt),
   updateItemLocation: (item, locationId) =>
       item.copyWith(personal: item.personal.copyWith(locationId: locationId)),
+  readOrdinal: (item) => item.personal.indexNumber,
+  withOrdinal: (item, ordinal) =>
+      item.copyWith(personal: item.personal.copyWith(indexNumber: ordinal)),
 );
