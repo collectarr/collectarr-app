@@ -68,7 +68,9 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
       inputBuilder: _buildGameCoreSearchInput,
       resultFilter: (items, context) => [
         for (final item in items)
-          if (gameAddCandidateMatchesRegion(item, context)) item,
+          if (gameAddCandidateMatchesPlatform(item, context) &&
+              gameAddCandidateMatchesRegion(item, context))
+            item,
       ],
       ranking: buildLibraryAddSearchRanking(
         fields: [
@@ -98,8 +100,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
 bool _gameAddHasSearchInput(LibraryAddSearchContext context) =>
     context.query.trim().isNotEmpty ||
     context.identifierCode.trim().isNotEmpty ||
-    context.codeQuery.trim().isNotEmpty ||
-    gameAddPlatform(context) != null;
+    context.codeQuery.trim().isNotEmpty;
 
 MetadataSearchQuery _buildGameCoreSearchInput(
   LibraryAddSearchContext context, {
@@ -107,8 +108,7 @@ MetadataSearchQuery _buildGameCoreSearchInput(
 }) {
   return MetadataSearchQuery(
     query: _optionalGameText(
-      buildLibraryAddSearchQuery(
-          [context.query, context.codeQuery, gameAddPlatform(context)]),
+      buildLibraryAddSearchQuery([context.query, context.codeQuery]),
     ),
     barcode: _optionalGameText(context.identifierCode),
     limit: limit,

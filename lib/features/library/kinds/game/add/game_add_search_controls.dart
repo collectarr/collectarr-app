@@ -69,6 +69,21 @@ bool gameAddCandidateMatchesRegion(
   return region == null || region == wanted;
 }
 
+/// Keeps Core results released on the chosen platform. Core has no platform
+/// filter for games, so the platform narrows the title results here instead
+/// of joining the search text.
+bool gameAddCandidateMatchesPlatform(
+  CatalogSearchCandidate item,
+  LibraryAddSearchContext context,
+) {
+  final wanted = gameAddPlatform(context)?.toLowerCase();
+  if (wanted == null) return true;
+  final metadata = item.kindCapability.mapTransport(
+      (transport) => GameCatalogMetadata.fromJson(transport.kindData));
+  return metadata.platforms
+      .any((platform) => platform.trim().toLowerCase() == wanted);
+}
+
 void _update(
     LibraryAddModeBarRequest request, LibraryAddFilterId id, String value) {
   request.onAdvancedFilterChanged(id, LibraryAddOptionFilterValue(value));
