@@ -244,7 +244,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                         ),
                       if (viewState.viewMode == LibraryViewMode.list) ...[
                         const _LibraryDesktopToolbarSeparator(),
-                        const SizedBox(width: 8),
                         _LibraryDesktopToolbarSection(
                           label: 'Columns',
                           child: _LibraryColumnLauncher(
