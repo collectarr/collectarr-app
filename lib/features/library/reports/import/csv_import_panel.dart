@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/library/config/library_import_capability.dart';
+import 'package:collectarr_app/ui/app_progress_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'import_file_picker.dart';
@@ -394,11 +395,14 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
       final file = await widget
           .filePicker(label: 'CSV or Text', extensions: ['csv', 'txt']);
       if (file == null || !mounted) return;
-      setState(() {
-        _selectedFileName = file.name;
-        _csvRawContent = file.content;
-        _reparseCsv();
-      });
+      _selectedFileName = file.name;
+      _csvRawContent = file.content;
+      await runWithProgressDialog(
+          context: context,
+          title: 'Reading file',
+          message: 'Parsing ${file.name}...',
+          task: () async => _reparseCsv());
+      if (mounted) setState(() {});
     } catch (error) {
       if (mounted) {
         setState(() {
@@ -469,20 +473,25 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
     }
   }
 
-  void _prepareReview() {
+  Future<void> _prepareReview() async {
     try {
       final importer = widget.capability.mappedCsvImporter;
       if (importer == null) {
         throw const FormatException(
             'This kind does not support mapped CSV import.');
       }
-      final rows = importer.parse(_parsedRows,
-          mappings: {
-            for (final entry in _columnMappings.entries)
-              if (entry.value != null) entry.key: entry.value!,
-          },
-          multiValueDelimiter: _multiDelimiter.char,
-          headers: _csvHeaders);
+      final rows = await runWithProgressDialog(
+          context: context,
+          title: 'Reading file',
+          message: 'Preparing ${_parsedRows.length} ${widget.pluralLabel}...',
+          task: () async => importer.parse(_parsedRows,
+              mappings: {
+                for (final entry in _columnMappings.entries)
+                  if (entry.value != null) entry.key: entry.value!,
+              },
+              multiValueDelimiter: _multiDelimiter.char,
+              headers: _csvHeaders));
+      if (!mounted) return;
       setState(() {
         _reviewRows = rows;
         _statusMessage = null;
@@ -503,7 +512,11 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
       _statusMessage = null;
     });
     try {
-      final count = await widget.onImport(rows);
+      final count = await runWithProgressDialog(
+          context: context,
+          title: 'Import',
+          message: 'Importing ${rows.length} ${widget.pluralLabel}...',
+          task: () => widget.onImport(rows));
       if (!mounted) return;
       setState(() {
         _isImporting = false;
