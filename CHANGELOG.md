@@ -6,6 +6,7 @@
 - Game covers can be found online (Find Online) from the Covers tab.
 
 ### 🐛 Fixes
+- Opening Manage from a pick list selector switches straight to the managed list instead of flashing a spinner.
 - The Collection Status menu in the editor matches CLZ: dimmed bold group headings, indented statuses, the current status shaded, and rounded corners with a shadow.
 - Hovering buttons in the Group By menu or a searchable dropdown no longer throws a layout error.
 - Previous and Next in the editor keep a reordered tab strip in its saved order instead of flashing the default one.

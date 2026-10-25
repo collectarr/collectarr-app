@@ -47,6 +47,7 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
   Map<String, int> _counts = {};
   bool _busy = true;
   bool _managing = false;
+  bool _managerReady = false;
   String? _error;
   String _labelFor(String value) {
     final definition = defaultPickListRegistry
@@ -186,7 +187,10 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
 
   void _manage() {
     if (widget.db == null || widget.listName == null || _busy) return;
-    setState(() => _managing = true);
+    setState(() {
+      _managing = true;
+      _managerReady = false;
+    });
   }
 
   Future<void> _backFromManage(PickListManagerChanges changes) async {
@@ -215,16 +219,29 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    if (_managing) {
-      return PickListDialog(
-          child: PickListManagerPage(
-              db: widget.db!,
-              registry: defaultPickListRegistry,
-              initialListName: widget.listName,
-              initialMediaKind: widget.mediaKind,
-              onBack: _backFromManage,
-              onClose: (_) => Navigator.pop(context)));
-    }
+    // Manage builds hidden behind the list and takes over once it has
+    // loaded, so the switch shows no spinner.
+    final showManager = _managing && _managerReady;
+    return Stack(children: [
+      Offstage(
+          offstage: showManager,
+          child: TickerMode(enabled: !showManager, child: _buildSelector())),
+      if (_managing)
+        Offstage(
+            offstage: !showManager,
+            child: PickListDialog(
+                child: PickListManagerPage(
+                    db: widget.db!,
+                    registry: defaultPickListRegistry,
+                    initialListName: widget.listName,
+                    initialMediaKind: widget.mediaKind,
+                    onLoaded: () => setState(() => _managerReady = true),
+                    onBack: _backFromManage,
+                    onClose: (_) => Navigator.pop(context)))),
+    ]);
+  }
+
+  Widget _buildSelector() {
     final query = normalizePickListValue(_search.text);
     final visible = _values
         .where((value) =>
