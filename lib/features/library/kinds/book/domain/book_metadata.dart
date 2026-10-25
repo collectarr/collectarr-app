@@ -714,8 +714,8 @@ final class BookCatalogMetadata implements JsonEncodable {
 
   factory BookCatalogMetadata.fromJson(Map<String, dynamic> json) {
     final rawTitle = json['title'];
-    if (rawTitle is! String || rawTitle.trim().isEmpty) {
-      throw const FormatException('Book catalog metadata requires a title.');
+    if (rawTitle is! String) {
+      throw const FormatException('Book catalog metadata title must be text.');
     }
     return BookCatalogMetadata(
       transportId: json['id'] as String?,
