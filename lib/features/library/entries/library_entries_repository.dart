@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/commands/library_entry_comman
 import 'package:collectarr_app/features/library/config/library_entry_mutation_result.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_entry_persistence.dart';
 import 'package:collectarr_app/features/library/entries/entry_import_transport.dart';
+import 'package:collectarr_app/features/library/entries/entry_kind_contributor_registry.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
@@ -594,6 +595,11 @@ final class LibraryEntriesRepository {
   ) {
     return _persistence.markDeletedByRef(ref, deletedAt);
   }
+
+  /// The Index a new [kind] entry takes, or null when it has no Index.
+  Future<int?> nextIndexNumber(CatalogMediaKind kind) =>
+      collectarrEntryKindContributors[kind]?.nextIndexNumber(database) ??
+      Future.value();
 
   Future<void> updateLocation(LibraryEntryRef ref, String? locationId) {
     return _persistence.updateLocation(ref, locationId);

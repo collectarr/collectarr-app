@@ -131,6 +131,10 @@ abstract interface class EntryKindContributor {
   );
 
   Future<List<LibraryEntrySummary>> listActiveSummaries(LocalDatabase database);
+
+  /// The Index a new entry takes: one past the highest Index in use, or null
+  /// when the kind has no Index numbering.
+  Future<int?> nextIndexNumber(LocalDatabase database);
 }
 
 /// Generic orchestration for a kind's typed repository.
@@ -155,7 +159,10 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
     required this.markDeleted,
     required this.updateItemLocation,
     this.onCreated,
-  }) : assert((createItem == null) != (createItemWithCatalog == null));
+    this.indexNumber,
+    this.withIndexNumber,
+  })  : assert((indexNumber == null) == (withIndexNumber == null)),
+        assert((createItem == null) != (createItemWithCatalog == null));
 
   @override
   final CatalogMediaKind kind;
@@ -172,6 +179,11 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
   final EntryKindItemId<TItem> itemId;
   final EntryKindMarkDeleted<TItem> markDeleted;
   final EntryKindUpdateLocation<TItem> updateItemLocation;
+
+  /// Reads and sets a typed entry's Index; both are given for kinds that
+  /// number their entries.
+  final int? Function(TItem item)? indexNumber;
+  final TItem Function(TItem item, int indexNumber)? withIndexNumber;
 
   /// Kind-owned local activity staged alongside a newly added entry.
   final Future<void> Function(LocalDatabase database, TItem item,
@@ -247,7 +259,7 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
             ownerUserId: ownerUserId,
             ownerLabel: ownerLabel,
           );
-    final item = fromJson({
+    var item = fromJson({
       ...toJson(personal),
       if (createWithCatalog == null) 'catalog_data': source.kindData,
       'source_catalog_ref': (sourceEntry?.sourceCatalogRef ??
@@ -257,6 +269,10 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
           ?.toJson(),
     });
     await database.transaction(() async {
+      final next = withIndexNumber;
+      if (next != null && indexNumber!(item) == null) {
+        item = next(item, (await nextIndexNumber(database))!);
+      }
       await upsert(database, item);
       await onCreated?.call(database, item, payload);
     });
@@ -395,5 +411,17 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
   ) async {
     final items = await listActive(database);
     return [for (final item in items) summary(item)];
+  }
+
+  @override
+  Future<int?> nextIndexNumber(LocalDatabase database) async {
+    final read = indexNumber;
+    if (read == null) return null;
+    var highest = 0;
+    for (final item in await listActive(database)) {
+      final value = read(item);
+      if (value != null && value > highest) highest = value;
+    }
+    return highest + 1;
   }
 }

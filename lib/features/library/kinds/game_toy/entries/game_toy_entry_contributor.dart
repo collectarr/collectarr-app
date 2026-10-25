@@ -63,4 +63,7 @@ final gameToyEntryContributor = TypedEntryKindContributor<GameToyLibraryEntry>(
       item.copyWith(deletedAt: deletedAt, updatedAt: deletedAt),
   updateItemLocation: (item, locationId) =>
       item.copyWith(personal: item.personal.copyWith(locationId: locationId)),
+  indexNumber: (item) => item.personal.indexNumber,
+  withIndexNumber: (item, indexNumber) =>
+      item.copyWith(personal: item.personal.copyWith(indexNumber: indexNumber)),
 );

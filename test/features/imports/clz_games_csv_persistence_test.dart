@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/config/library_import_capability.dart';
+import 'package:collectarr_app/features/library/entries/entry_kind_contributor_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_import_contributors.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
@@ -51,11 +52,21 @@ void main() {
       mappings.removeWhere((column, key) =>
           key == importCustomFieldMappingKey &&
           csv.first[column] != 'Shelf Code');
-      final rows = capability.mappedCsvImporter!.parse(csv.skip(1).toList(),
+      // Without an Index in the file, the new entry takes the first free one.
+      final data = [
+        for (final row in csv.skip(1))
+          [
+            for (var i = 0; i < row.length; i++)
+              csv.first[i] == 'Index' ? '' : row[i]
+          ]
+      ];
+      final rows = capability.mappedCsvImporter!.parse(data,
           mappings: mappings, multiValueDelimiter: ';', headers: csv.first);
       final importer = container.read(collectionImportOrchestratorProvider);
       expect(await importer.importRows(rows), 1);
+      expect(await entryContributorForKind(kind).nextIndexNumber(db), 2);
       expect(await importer.importRows(rows), 1);
+      expect(await entryContributorForKind(kind).nextIndexNumber(db), 2);
 
       final ref =
           LibraryEntryRef(kind: kind, id: LibraryEntryId(rows.single.itemId));
