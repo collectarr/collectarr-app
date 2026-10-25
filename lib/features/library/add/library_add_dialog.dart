@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 
@@ -875,9 +876,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         );
       }),
       onResizeHeight: (delta) => setState(() {
-        _dialogHeight = LibraryAddDialogLayout.clampDialogHeight(
-          (_dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight) + delta,
-        );
+        // Resize from the height on screen, not the unbounded default.
+        final shown = math.min(
+            _dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight,
+            MediaQuery.sizeOf(context).height - 2 * kAppEditorTopInset);
+        _dialogHeight = LibraryAddDialogLayout.clampDialogHeight(shown + delta);
       }),
       insetPadding: const EdgeInsets.fromLTRB(
           32, kAppEditorTopInset, 32, kAppEditorTopInset),
