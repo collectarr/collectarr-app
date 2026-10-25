@@ -1,9 +1,8 @@
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// The close control of dialog and panel headers. Like the reference it is
-/// the "×" character at 28 px in the regular weight, without hover, press or
-/// ripple effect; callers may pass an [icon] instead.
+/// a plain 10 px "×", without hover, press or ripple effect; callers may pass
+/// an [icon] instead.
 class AppCloseButton extends StatelessWidget {
   const AppCloseButton({
     super.key,
@@ -41,13 +40,33 @@ class AppCloseButton extends StatelessWidget {
             overlayColor: const WidgetStatePropertyAll(Colors.transparent)),
         icon: icon == null
             ? Builder(
-                builder: (context) => Text('×',
-                    style: TextStyle(
-                        fontFamily: appFontFamily,
-                        fontSize: 28,
-                        height: 20 / 28,
-                        fontWeight: FontWeight.w400,
-                        color: color ?? IconTheme.of(context).color)))
+                builder: (context) => CustomPaint(
+                    size: const Size.square(10),
+                    painter: _CrossPainter(
+                        color ?? IconTheme.of(context).color ?? Colors.white)))
             : Icon(icon, size: iconSize),
       );
+}
+
+/// The reference's 10 px "×", drawn rather than set as text: font fallback
+/// placed the character a few pixels low in the browser.
+class _CrossPainter extends CustomPainter {
+  const _CrossPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    const inset = 1.2;
+    canvas.drawLine(const Offset(inset, inset),
+        Offset(size.width - inset, size.height - inset), paint);
+    canvas.drawLine(Offset(size.width - inset, inset),
+        Offset(inset, size.height - inset), paint);
+  }
+
+  @override
+  bool shouldRepaint(_CrossPainter old) => old.color != color;
 }

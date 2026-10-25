@@ -44,10 +44,13 @@ void main() {
       expect(iconWidget.color, Colors.white);
 
       // Verify close button is present and white
-      // The reference's close control is the "×" character.
-      final closeFinder = find.text('×');
+      // The reference's close control is a plain "×", drawn so it stays
+      // centred whatever font the platform falls back to.
+      final closeFinder = find.byTooltip('Close');
       expect(closeFinder, findsOneWidget);
-      expect(tester.widget<Text>(closeFinder).style?.color, Colors.white);
+      final cross =
+          find.descendant(of: closeFinder, matching: find.byType(CustomPaint));
+      expect(tester.getCenter(cross.last), tester.getCenter(closeFinder));
 
       await tester.tap(closeFinder);
       expect(closed, isTrue);
@@ -90,9 +93,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Dialog Title'), findsOneWidget);
-      expect(find.text('×'), findsOneWidget);
+      expect(find.byTooltip('Close'), findsOneWidget);
 
-      await tester.tap(find.text('×'));
+      await tester.tap(find.byTooltip('Close'));
       await tester.pumpAndSettle();
 
       expect(find.text('Dialog Title'), findsNothing);
@@ -113,7 +116,7 @@ void main() {
       );
 
       expect(find.text('No Close'), findsOneWidget);
-      expect(find.text('×'), findsNothing);
+      expect(find.byTooltip('Close'), findsNothing);
     });
   });
 
@@ -135,7 +138,7 @@ void main() {
       expect(titleFinder, findsOneWidget);
       final textWidget = tester.widget<Text>(titleFinder);
       expect(textWidget.style?.color, Colors.white);
-      expect(find.text('×'), findsOneWidget);
+      expect(find.byTooltip('Close'), findsOneWidget);
     });
   });
 }
