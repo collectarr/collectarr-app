@@ -101,17 +101,23 @@ class LibraryEditDialogScaffold extends StatefulWidget {
 
 class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   late List<int> _tabOrder;
+
+  /// False until a saved order is known, so the first editor after a launch
+  /// never paints the default order before the saved one.
+  late bool _tabOrderReady;
   TabController? _observedTabController;
   final _schemaTextControllers = LibrarySchemaTextControllerStore();
 
   @override
   void initState() {
     super.initState();
-    _tabOrder = (widget.allowTabReorder
-            ? knownLibraryEditTabOrder(
-                storageKey: widget.tabOrderKey, tabCount: widget.tabs.length)
-            : null) ??
-        List.generate(widget.tabs.length, (i) => i);
+    final known = widget.allowTabReorder
+        ? knownLibraryEditTabOrder(
+            storageKey: widget.tabOrderKey, tabCount: widget.tabs.length)
+        : null;
+    _tabOrder = known ?? List.generate(widget.tabs.length, (i) => i);
+    _tabOrderReady =
+        known != null || !widget.allowTabReorder || widget.tabs.isEmpty;
     _observeTabController(widget.tabController);
     if (widget.allowTabReorder && widget.tabs.isNotEmpty) {
       _loadSavedTabOrder();
@@ -164,8 +170,12 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
       storageKey: widget.tabOrderKey,
       tabCount: widget.tabs.length,
     );
-    if (!mounted || order == null) return;
-    setState(() => _tabOrder = order);
+    if (!mounted) return;
+    setState(() {
+      _tabOrderReady = true;
+      if (order != null) _tabOrder = order;
+    });
+    if (order == null) return;
     final controller = widget.tabController;
     if (controller != null) _restoreSelectedTab(controller);
   }
@@ -331,14 +341,17 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                       children: [
                         if (hasTabStrip)
                           LibraryEditTabStripFrame(
-                            child: LibraryEditReorderableTabStrip(
-                              tabController: widget.tabController!,
-                              tabs: orderedTabs,
-                              accent: widget.accent,
-                              allowReorder:
-                                  widget.allowTabReorder && !widget.isBusy,
-                              enabled: !widget.isBusy,
-                              onReorderItem: _onReorderItem,
+                            child: Visibility.maintain(
+                              visible: _tabOrderReady,
+                              child: LibraryEditReorderableTabStrip(
+                                tabController: widget.tabController!,
+                                tabs: orderedTabs,
+                                accent: widget.accent,
+                                allowReorder:
+                                    widget.allowTabReorder && !widget.isBusy,
+                                enabled: !widget.isBusy,
+                                onReorderItem: _onReorderItem,
+                              ),
                             ),
                           ),
                         Flexible(

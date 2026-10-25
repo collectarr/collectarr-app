@@ -46,7 +46,14 @@ Future<List<int>?> loadLibraryEditTabOrder({
   if (storageKey == null || tabCount == 0) return null;
   final prefs = await SharedPreferences.getInstance();
   await prefs.reload();
-  final saved = prefs.getStringList(storageKey);
+  final order = _validTabOrder(prefs.getStringList(storageKey), tabCount);
+  // Remember the default order too, so later editors start without waiting.
+  _knownEditTabOrders[storageKey] =
+      order ?? List.generate(tabCount, (index) => index);
+  return order;
+}
+
+List<int>? _validTabOrder(List<String>? saved, int tabCount) {
   if (saved == null || saved.length != tabCount) return null;
   final parsed = saved.map(int.tryParse).toList();
   if (parsed.any((value) => value == null)) return null;
@@ -56,7 +63,6 @@ Future<List<int>?> loadLibraryEditTabOrder({
       !sorted.indexed.every((entry) => entry.$1 == entry.$2)) {
     return null;
   }
-  _knownEditTabOrders[storageKey] = order;
   return order;
 }
 

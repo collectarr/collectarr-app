@@ -17,7 +17,7 @@
 - Opening Manage from a pick list selector switches straight to the managed list instead of flashing a spinner.
 - The Collection Status menu in the editor matches CLZ: dimmed bold group headings, indented statuses, the current and the hovered status shaded alike, and rounded corners with a shadow.
 - Hovering buttons in the Group By menu or a searchable dropdown no longer throws a layout error.
-- Previous and Next in the editor keep a reordered tab strip in its saved order instead of flashing the default one.
+- Previous and Next in the editor, and the first editor opened after a launch, keep a reordered tab strip in its saved order instead of flashing the default one.
 - The Core Region choice in the Games editor now shows the selected region, and Hardware and Toys Value tabs refresh their choices the same way.
 - The app icon, taskbar logo and browser tab icon have transparent rounded corners instead of white ones.
 - The header brand reads CLR instead of CARR.
