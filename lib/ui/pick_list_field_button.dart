@@ -1,4 +1,3 @@
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -12,12 +11,12 @@ class PickListFieldButton extends StatelessWidget {
     required this.tooltip,
     required this.onPressed,
     this.embeddedInField = true,
-    this.icon,
+    this.icon = AppIcons.viewHorizontalCards,
   });
 
   static const double width = 33;
   final bool embeddedInField;
-  final IconData? icon;
+  final IconData icon;
   final String tooltip;
   final VoidCallback? onPressed;
 
@@ -54,17 +53,10 @@ class PickListFieldButton extends StatelessWidget {
                                     right: Radius.circular(3))
                                 : BorderRadius.circular(3),
                             child: Center(
-                                child: icon != null
-                                    ? Icon(icon, size: 16, color: foreground)
-                                    : SvgPicture.asset(
-                                        AppIcons.pickListManageSvg,
-                                        width: embeddedInField ? 14 : 16,
-                                        height: embeddedInField ? 14 : 16,
-                                        colorFilter: ColorFilter.mode(
-                                            onPressed == null
-                                                ? foreground.withValues(
-                                                    alpha: .45)
-                                                : foreground,
-                                            BlendMode.srcIn)))))))));
+                                child: Icon(icon,
+                                    size: 16,
+                                    color: onPressed == null
+                                        ? foreground.withValues(alpha: .45)
+                                        : foreground))))))));
   }
 }
