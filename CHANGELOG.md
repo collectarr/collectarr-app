@@ -6,6 +6,7 @@
 - Game covers can be found online (Find Online) from the Covers tab.
 
 ### 🐛 Fixes
+- The app icon, taskbar logo and browser tab icon have transparent rounded corners instead of white ones.
 - The header brand reads CLR instead of CARR.
 - New Games, Hardware and Toys entries from Add and imports take the next free Index, and importing a file without an Index keeps the one already assigned.
 - Index and Quantity accept only whole numbers, drop leading zeros and show up/down arrows on hover for quick increments.
