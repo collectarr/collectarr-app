@@ -23,7 +23,7 @@ void main() {
             body: PickListSelectionDialog(
                 label: 'Genre',
                 options: const [],
-                selectedValues: const [],
+                selectedValues: const ['Audit Jazz'],
                 multiple: true,
                 listName: 'music.genre',
                 mediaKind: 'music',

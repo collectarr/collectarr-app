@@ -326,6 +326,39 @@ class PickListRepository {
     return counts;
   }
 
+  /// Deletes [mediaKind]'s stored values of [listName] that no entry uses,
+  /// as the reference keeps a pick list value only while an entry has it.
+  /// Values in [keep] (a fixed list's values, a field's current selection)
+  /// stay. Shared values, locations, borrowers and custom field options are
+  /// left alone.
+  Future<void> deleteUnusedValues(String listName,
+      {required String mediaKind, Iterable<String> keep = const []}) async {
+    if (listName == 'locations' ||
+        listName == 'borrower' ||
+        listName.startsWith('customField:')) {
+      return;
+    }
+    // Without the kind's contributor every count would read 0.
+    final kind = _requestedKind(listName: listName, mediaKind: mediaKind);
+    if (!PickListReferences(_db).handles(listName) &&
+        !_contributors.any((contributor) => contributor.kind == kind)) {
+      return;
+    }
+    final rows = await valuesForList(
+        listName: listName, mediaKind: mediaKind, includeGlobal: false);
+    if (rows.isEmpty) return;
+    final kept = {for (final value in keep) normalizePickListValue(value)};
+    final counts = await usageCountsByValue(
+        listName: listName,
+        mediaKind: mediaKind,
+        values: rows.map((row) => row.value));
+    for (final row in rows) {
+      final normalized = normalizePickListValue(row.value);
+      if (kept.contains(normalized) || (counts[normalized] ?? 0) > 0) continue;
+      await deleteValue(row.id);
+    }
+  }
+
   Future<void> captureValues(
     String listName,
     Iterable<String?> values, {

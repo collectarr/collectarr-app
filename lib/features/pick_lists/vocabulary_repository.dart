@@ -1,5 +1,6 @@
 import 'models/pick_list_value.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
@@ -28,7 +29,8 @@ class DatabaseVocabularyRepository implements VocabularyRepository {
   DatabaseVocabularyRepository(this._db);
 
   final LocalDatabase _db;
-  late final _pickLists = PickListRepository(_db);
+  late final _pickLists = PickListRepository(_db,
+      contributors: defaultPickListDefinitionContributors);
 
   @override
   Future<List<String>> loadOptions<T>({
@@ -36,6 +38,10 @@ class DatabaseVocabularyRepository implements VocabularyRepository {
     required VocabularyDefinition<T> definition,
     Iterable<String?> selectedValues = const [],
   }) async {
+    final builtIns = [for (final item in definition.builtIns) item.toString()];
+    await _pickLists.deleteUnusedValues(definition.key,
+        mediaKind: mediaKind,
+        keep: [...builtIns, ...selectedValues.whereType<String>()]);
     final customValues = await _pickLists.getValues(
       definition.key,
       mediaKind: mediaKind,
@@ -43,8 +49,7 @@ class DatabaseVocabularyRepository implements VocabularyRepository {
 
     final hidden =
         await _pickLists.hiddenValues(definition.key, mediaKind: mediaKind);
-    final builtInStrings = definition.builtIns
-        .map((item) => item.toString())
+    final builtInStrings = builtIns
         .where((value) => !hidden.contains(normalizePickListValue(value)))
         .toList(growable: false);
 

@@ -107,6 +107,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
   List<PickListValue> _values = [];
   Map<String, int> _counts = {};
   String? _selectedListName;
+  final _prunedLists = <String>{};
   bool _loading = true;
   bool _busy = false;
   bool _mergeMode = false;
@@ -164,6 +165,16 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
       final kind = definition?.listName == 'locations'
           ? null
           : definition?.mediaKind ?? widget.initialMediaKind;
+      // A standalone Manage drops unused values as it opens a list; inside
+      // a selector they were dropped when it opened, and a value just
+      // created there must survive until the entry is saved.
+      if (definition != null &&
+          kind != null &&
+          widget.onBack == null &&
+          _prunedLists.add(definition.listName)) {
+        await _repo.deleteUnusedValues(definition.listName,
+            mediaKind: kind, keep: definition.builtInValues);
+      }
       final stored = definition == null
           ? <PickListValue>[]
           : await _repo.valuesForList(
