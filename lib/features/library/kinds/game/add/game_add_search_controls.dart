@@ -1,12 +1,14 @@
-import 'package:collectarr_app/features/library/add/panes/library_add_choice_menu.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
+import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+
+import 'game_platform_picker_dialog.dart';
 
 const gameAddPlatformFilterId = LibraryAddFilterId('game.search.platform');
 const gameAddRegionFilterId = LibraryAddFilterId('game.search.region');
@@ -90,21 +92,45 @@ void _update(
   request.onSearch();
 }
 
-/// Platform picker beside the title field, as in the reference.
+/// The platform inside the title field, opening Pick Platform, as in the
+/// reference.
 Widget buildGameAddPlatformControl(
   BuildContext context,
   LibraryAddModeBarRequest request,
 ) {
   final platform =
       _option(request.advancedFilterState[gameAddPlatformFilterId]) ?? '';
-  return LibraryAddChoiceMenu<String>(
-    key: const ValueKey('game-add-platform-filter'),
-    tooltip: 'Platform',
-    width: 160,
-    label: platform.isEmpty ? 'All platforms' : platform,
-    values: ['', ...GameVocabularies.platform.builtIns],
-    labelFor: (value) => value.isEmpty ? 'All platforms' : value,
-    onSelected: (value) => _update(request, gameAddPlatformFilterId, value),
+  final palette = appPalette(context);
+  final muted = palette.isDark ? const Color(0xff888888) : palette.textMuted;
+  return Tooltip(
+    message: 'Platform',
+    child: InkWell(
+      key: const ValueKey('game-add-platform-filter'),
+      mouseCursor: WidgetStateMouseCursor.clickable,
+      onTap: () async {
+        final chosen =
+            await showGamePlatformPicker(context, selected: platform);
+        if (chosen != null) _update(request, gameAddPlatformFilterId, chosen);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 7),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          if (platform.isNotEmpty) ...[
+            PlatformIcon(platform, size: 18, color: muted),
+            const SizedBox(width: 6),
+          ],
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 140),
+            child: Text(platform.isEmpty ? 'All' : platform,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 14, color: muted)),
+          ),
+          const SizedBox(width: 5),
+          Icon(AppIcons.chevronDown, size: 12, color: muted),
+        ]),
+      ),
+    ),
   );
 }
 

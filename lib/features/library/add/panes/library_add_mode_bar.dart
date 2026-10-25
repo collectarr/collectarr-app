@@ -97,7 +97,7 @@ class LibraryAddModeBar extends StatefulWidget {
   final bool isSearching;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
 
-  /// Kind control beside the title field in Search mode.
+  /// Kind control inside the end of the title field in Search mode.
   final Widget? queryTrailing;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
@@ -527,6 +527,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                                   hintText: searchLabels.queryHint,
                                   onChanged: _handleQueryChanged,
                                   onSubmitted: _handleSearch,
+                                  trailing: widget.queryTrailing,
                                 ),
                               ),
                             ),
@@ -549,15 +550,10 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                             label: widget.codeSearchTab!.label,
                             hintText: widget.codeSearchTab!.hintText,
                             onSubmitted: widget.onSearchCode,
+                            trailing: widget.queryTrailing,
                           ),
                       },
                     ),
-                    if ((widget.mode == LibraryAddDialogMode.search ||
-                            widget.mode == LibraryAddDialogMode.code) &&
-                        widget.queryTrailing != null) ...[
-                      const SizedBox(width: 6),
-                      widget.queryTrailing!,
-                    ],
                     const SizedBox(width: 10),
                     _LibraryAddSearchButton(
                       isBusy: widget.isSearching,
