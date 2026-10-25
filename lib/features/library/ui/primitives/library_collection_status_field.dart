@@ -105,11 +105,13 @@ class LibraryCollectionStatusField extends StatelessWidget {
                       )),
                       ColoredBox(
                           color: appPalette(context).divider,
-                          child: const SizedBox(
+                          child: SizedBox(
                               width: 34,
                               height: 34,
                               child: Center(
-                                  child: Icon(AppIcons.caretDown, size: 12)))),
+                                  child: Icon(AppIcons.caretDown,
+                                      size: 12,
+                                      color: appPalette(context).textMuted)))),
                     ]),
                   ),
                 ),
