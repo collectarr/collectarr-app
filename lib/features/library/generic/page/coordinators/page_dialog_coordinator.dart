@@ -235,6 +235,7 @@ class LibraryPageDialogCoordinator {
       type: _page.type,
       favorites: _page.sortFavorites,
       initialPinnedIds: _page.pinnedSortFavoriteIds,
+      activeFavoriteId: _page.activeSortFavorite?.id,
     );
     if (_page.mounted) {
       _page.ref.invalidate(librarySavedSortFavoritesProvider(_page.type));
