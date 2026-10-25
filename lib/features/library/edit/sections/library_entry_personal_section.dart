@@ -489,16 +489,19 @@ class _LibraryEntryStatusStripState
                     '',
             minimum: field.minimum ?? 0,
             validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return field.minimum == null ? null : 'Enter a value';
-              }
+              if (value == null || value.trim().isEmpty) return null;
               final number = int.tryParse(value);
               if (number == null) return 'Enter a whole number';
               return field.minimum != null && number < field.minimum!
                   ? 'Minimum ${field.minimum}'
                   : null;
             },
-            onChanged: (value) => draft.set(field.key, int.tryParse(value)),
+            // An emptied field with a minimum, such as Quantity, saves that
+            // minimum, as the reference saves an empty Quantity as 0.
+            onChanged: (value) => draft.set(
+                field.key,
+                int.tryParse(value) ??
+                    (value.trim().isEmpty ? field.minimum : null)),
           ),
         );
       case PersonalLibraryFieldEditor.location:

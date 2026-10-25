@@ -111,4 +111,11 @@ void main() {
     expect(summary, startsWith('CIB | '));
     expect(summary, contains('17.58'));
   });
+
+  test('a zero quantity is kept, as CLZ saves an emptied Quantity', () {
+    final personal = GamePersonalData.fromJson({'quantity': 0});
+    expect(personal.quantity, 0);
+    expect(GamePersonalData.fromJson(personal.toJson()).quantity, 0);
+    expect(GamePersonalData.fromJson(const {}).quantity, 1);
+  });
 }

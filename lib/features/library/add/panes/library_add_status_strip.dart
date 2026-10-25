@@ -47,13 +47,9 @@ class LibraryAddStatusStrip extends StatelessWidget {
           label: 'Quantity',
           child: LibraryIntegerField(
               initialValue: quantity.toString(),
-              minimum: 1,
-              validator: (value) =>
-                  (int.tryParse(value ?? '') ?? 0) < 1 ? 'Minimum 1' : null,
-              onChanged: (value) {
-                final parsed = int.tryParse(value);
-                if (parsed != null && parsed >= 1) onQuantityChanged(parsed);
-              })),
+              // An emptied Quantity saves as 0, as in the reference.
+              onChanged: (value) =>
+                  onQuantityChanged(int.tryParse(value) ?? 0))),
       LibraryDropdownPickField<String>(
           label: 'Location',
           value: request.commonDraft?.clearLocation == true

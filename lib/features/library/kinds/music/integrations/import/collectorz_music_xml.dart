@@ -152,10 +152,9 @@ List<CollectionImportRow> parseCollectorzMusicXml(String source,
           personalNotes: xmlMusicValue(record, 'notes'),
           mediaCondition: xmlMusicValue(record, 'condition'),
           indexNumber: musicImportInt(xmlMusicValue(record, 'index'), 'Index'),
-          quantity: musicImportInt(
-                  xmlMusicValue(record, 'quantity'), 'Quantity',
-                  min: 1) ??
-              1,
+          quantity:
+              musicImportInt(xmlMusicValue(record, 'quantity'), 'Quantity') ??
+                  1,
           rating: rating,
           purchaseDateParts: purchase,
           purchaseDate: purchase?.asDateTime,
