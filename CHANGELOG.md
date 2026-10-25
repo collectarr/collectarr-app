@@ -6,6 +6,7 @@
 - Game covers can be found online (Find Online) from the Covers tab.
 
 ### 🐛 Fixes
+- Dropdown arrows in editor fields use the muted text colour.
 - The editor's Collection Status row has no rules above and below it.
 - The focused editor field has a thicker blue outline.
 - Pick list select buttons in fields use the same icon as Manage Pick Lists in the sidebar groups.

@@ -246,9 +246,7 @@ class _LibrarySidebarToolbarButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isPickList) {
       return PickListFieldButton(
-          tooltip: tooltip,
-          onPressed: onPressed,
-          embeddedInField: false);
+          tooltip: tooltip, onPressed: onPressed, embeddedInField: false);
     }
     final palette = appPalette(context);
     final resolvedActiveColor = activeColor ?? palette.textPrimary;

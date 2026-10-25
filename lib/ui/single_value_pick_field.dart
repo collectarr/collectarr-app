@@ -227,6 +227,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                 child: Icon(
                   icon,
                   size: 12,
+                  color: appPalette(context).textMuted,
                 ),
               ),
             ),
