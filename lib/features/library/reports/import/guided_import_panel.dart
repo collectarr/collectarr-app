@@ -18,7 +18,10 @@ class GuidedImportPanel extends StatefulWidget {
       required this.filePicker});
   final LibraryImportSourceDefinition source;
   final String pluralLabel;
-  final Future<int> Function(List<CollectionImportRow>) onImport;
+
+  /// Imports the rows, reporting the share done (0 to 1).
+  final Future<int> Function(List<CollectionImportRow> rows,
+      void Function(double fraction) onProgress) onImport;
   final ValueChanged<int> onComplete;
   final ImportFilePicker filePicker;
   @override
@@ -72,11 +75,14 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
       _error = null;
     });
     try {
-      final count = await runWithProgressDialog(
+      final count = await runWithReportedProgressDialog(
           context: context,
           title: 'Import',
-          message: 'Importing ${_rows.length} ${widget.pluralLabel}...',
-          task: () => widget.onImport(_rows));
+          message: 'Importing your ${widget.pluralLabel.toLowerCase()}...',
+          task: (report) => widget.onImport(
+              _rows,
+              (fraction) =>
+                  report(fraction, fraction >= 1 ? 'Finishing...' : null)));
       if (!mounted) return;
       setState(() {
         _importing = false;

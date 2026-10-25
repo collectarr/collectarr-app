@@ -32,7 +32,8 @@
 - Text typed into editor fields is a little heavier, closer to the reference.
 - Inactive editor tabs and their icons are dimmer than the selected tab instead of pure white.
 - Cover panels separate their Find Online, Upload, Remove and Crop / Rotate actions with thin dividers.
-- Imports show a progress window while a file is read and while records are imported, and report success in a banner on the page instead of a dialog.
+- Imports show a progress window while a file is read, fill its bar as records are imported, and report success in an "Import Successful" box on the page, with a Link button for entries without a catalog match, as in CLZ.
+- The CSV / TXT import starts with the Comma field delimiter, as in CLZ.
 
 ### 📚 Docs
 - The CLZ comparison records the Add Games layout, platform picker, editor rechecks and pick list Manage switch, and the platform names and Add list extras still open.

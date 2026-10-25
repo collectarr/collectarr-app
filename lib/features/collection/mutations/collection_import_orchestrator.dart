@@ -56,10 +56,15 @@ final class CollectionImportOrchestrator {
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
 
-  Future<int> importRows(List<CollectionImportRow> rows) async {
+  /// Imports [rows]; [onProgress] receives the share done (0 to 1) as rows
+  /// are matched, prepared and written.
+  Future<int> importRows(List<CollectionImportRow> rows,
+      {void Function(double fraction)? onProgress}) async {
     if (rows.isEmpty) return 0;
 
-    final preview = await previewImportRows(rows);
+    final preview = await previewImportRows(rows,
+        onProgress:
+            onProgress == null ? null : (fraction) => onProgress(fraction / 3));
     final resolvedRows = [...preview.resolvedRows, ...preview.conflictRows];
     if (resolvedRows.isEmpty) return 0;
 
@@ -114,7 +119,9 @@ final class CollectionImportOrchestrator {
     var imported = 0;
     final nextIndexByKind = <CatalogMediaKind, int?>{};
 
+    var prepared = 0;
     for (final row in resolvedRows) {
+      onProgress?.call((1 + prepared++ / resolvedRows.length) / 3);
       if (!row.isEntry && !row.isWishlisted) continue;
       final rowRef = _catalogRefForRow(row);
       if (rowRef == null) continue;
@@ -238,8 +245,9 @@ final class CollectionImportOrchestrator {
         if (importedCatalogItems.isNotEmpty) {
           await catalogTransport.upsertTransports(importedCatalogItems);
         }
-        for (final write in entryWrites) {
-          final persisted = await write();
+        for (var i = 0; i < entryWrites.length; i++) {
+          onProgress?.call((2 + i / entryWrites.length) / 3);
+          final persisted = await entryWrites[i]();
           syncChanges.add(
             await libraryEntries.syncChangeForCurrentEntry(
               persisted.ref,
@@ -248,6 +256,7 @@ final class CollectionImportOrchestrator {
             ),
           );
         }
+        onProgress?.call(1);
         if (trackingImports.isNotEmpty) {
           final trackingResults =
               await trackingRecords.upsertImportedAll(trackingImports);
@@ -286,13 +295,16 @@ final class CollectionImportOrchestrator {
   }
 
   Future<CollectionImportPreview> previewImportRows(
-    List<CollectionImportRow> rows,
-  ) async {
+    List<CollectionImportRow> rows, {
+    void Function(double fraction)? onProgress,
+  }) async {
     final candidateRows = <CollectionImportRow>[];
     final unresolvedRows = <CollectionImportRow>[];
     final skippedRows = <CollectionImportRow>[];
 
+    var checked = 0;
     for (final r in rows) {
+      onProgress?.call(checked++ / rows.length);
       var row = r;
       final lookup = _importLookupValues(row);
       if (row.itemId.trim().isEmpty) {

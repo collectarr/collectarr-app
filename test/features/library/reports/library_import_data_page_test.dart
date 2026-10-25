@@ -129,7 +129,7 @@ void main() {
       // Attention banner is visible because entryCount is 1
       expect(find.text('Attention!'), findsOneWidget);
       expect(
-        find.textContaining('You currently have 1 Albums in your collection'),
+        find.textContaining('You currently have 1 Album in your collection'),
         findsOneWidget,
       );
 
