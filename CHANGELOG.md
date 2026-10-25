@@ -6,6 +6,7 @@
 - Game covers can be found online (Find Online) from the Covers tab.
 
 ### 🐛 Fixes
+- The focused editor field has a thicker blue outline.
 - Pick list select buttons in fields use the same icon as Manage Pick Lists in the sidebar groups.
 - Text typed into editor fields is a little heavier, closer to the reference.
 - Inactive editor tabs and their icons are dimmer than the selected tab instead of pure white.

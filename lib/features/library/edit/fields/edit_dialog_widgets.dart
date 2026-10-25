@@ -135,7 +135,7 @@ ThemeData editDialogTheme({
         borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: palette.utilityAction),
+        borderSide: BorderSide(color: palette.utilityAction, width: 2),
         borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
     ),
