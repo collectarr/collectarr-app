@@ -140,6 +140,28 @@ void main() {
     expect(tester.getTopLeft(find.text('Details')).dx,
         lessThan(tester.getTopLeft(find.text('Main')).dx));
   });
+
+  testWidgets('the first editor after a launch hides the default tab order',
+      (tester) async {
+    // A key no editor has loaded yet, as right after the app starts.
+    SharedPreferences.setMockInitialValues({
+      'scaffold_launch_order': ['1', '0'],
+    });
+    await tester.pumpWidget(const MaterialApp(
+        home: _EditScaffoldHarness(tabOrderKey: 'scaffold_launch_order')));
+    bool stripVisible() => tester
+        .widget<Visibility>(find
+            .ancestor(
+                of: find.text('Main'), matching: find.byType(Visibility))
+            .first)
+        .visible;
+    expect(stripVisible(), isFalse);
+
+    await tester.pumpAndSettle();
+    expect(stripVisible(), isTrue);
+    expect(tester.getTopLeft(find.text('Details')).dx,
+        lessThan(tester.getTopLeft(find.text('Main')).dx));
+  });
 }
 
 class _EditScaffoldHarness extends StatefulWidget {
