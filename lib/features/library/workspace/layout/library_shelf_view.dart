@@ -275,8 +275,11 @@ class _ShelfRow<T> extends StatelessWidget {
     final entry = entryOf(item);
     final active = isActive(item);
     final selected = isSelected(item);
-    final bookHeight = shelfHeight - 8;
     final bookW = bookWidth - 8;
+    // The book keeps the cover's aspect ratio; trimming the same 8 px from
+    // both sides would make it slightly taller and letterbox the cover.
+    final bookHeight =
+        math.min(shelfHeight - 8, bookW / fallbackCoverAspectRatio);
     final palette = appPalette(context);
     return Semantics(
       button: true,
