@@ -54,7 +54,7 @@ void main() {
         .descendant(of: find.byType(Dialog), matching: find.text('Lordi'))
         .first);
     await tester.pump();
-    expect(find.byIcon(Icons.check_box_outlined), findsNWidgets(3));
+    expect(find.byIcon(Icons.check_box), findsNWidgets(3));
     expect(find.byIcon(Icons.radio_button_unchecked), findsNothing);
 
     await tester.tap(find.text('Save'));
