@@ -1,6 +1,7 @@
 import 'package:collectarr_app/ui/anchored_popup_geometry.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -67,5 +68,40 @@ void main() {
     await tester.pumpAndSettle();
     expect(selected, 'two');
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('popup tooltips work under a nested overlay', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Overlay.wrap(
+          child: Stack(children: [
+            Positioned(
+              left: 20,
+              top: 40,
+              width: 240,
+              child: CompactSearchDropdownFormField<String>(
+                initialValue: 'one',
+                items: const [
+                  DropdownMenuItem(value: 'one', child: Text('One')),
+                  DropdownMenuItem(value: 'two', child: Text('Two')),
+                ],
+                onChanged: (_) {},
+              ),
+            ),
+          ]),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('One'));
+    await tester.pumpAndSettle();
+    expect(find.text('Two'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).last, 'tw');
+    await tester.pump();
+    final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await pointer.addPointer();
+    await pointer.moveTo(tester.getCenter(find.byTooltip('Clear search')));
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.takeException(), isNull);
+    await pointer.removePointer();
   });
 }

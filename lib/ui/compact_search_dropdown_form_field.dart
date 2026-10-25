@@ -425,116 +425,124 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
             shape: shape,
             clipBehavior: Clip.antiAlias,
             child: SizedBox(
-              width: _fieldWidth,
-              height: _menuHeight,
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: math.min(42.0, math.max(0.0, _menuHeight - 1)),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
-                      child: TextField(
-                        controller: _searchController,
-                        cursorColor: appPalette(context).utilityAction,
-                        focusNode: _searchFocusNode,
-                        onChanged: (query) =>
-                            setState(() => _searchQuery = query),
-                        textInputAction: TextInputAction.search,
-                        style: theme.textTheme.bodySmall,
-                        decoration: InputDecoration(
-                          hintText: 'Search…',
-                          prefixIcon: const Icon(Icons.search, size: 18),
-                          prefixIconConstraints:
-                              const BoxConstraints(minWidth: 34, minHeight: 32),
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 7,
+                width: _fieldWidth,
+                height: _menuHeight,
+                // The menu follows its field from the root overlay, so its tooltips
+                // need an overlay inside the follower.
+                child: Overlay.wrap(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: math.min(42.0, math.max(0.0, _menuHeight - 1)),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+                          child: TextField(
+                            controller: _searchController,
+                            cursorColor: appPalette(context).utilityAction,
+                            focusNode: _searchFocusNode,
+                            onChanged: (query) =>
+                                setState(() => _searchQuery = query),
+                            textInputAction: TextInputAction.search,
+                            style: theme.textTheme.bodySmall,
+                            decoration: InputDecoration(
+                              hintText: 'Search…',
+                              prefixIcon: const Icon(Icons.search, size: 18),
+                              prefixIconConstraints: const BoxConstraints(
+                                  minWidth: 34, minHeight: 32),
+                              isDense: true,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 7,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              suffixIcon: _searchQuery.isEmpty
+                                  ? null
+                                  : IconButton(
+                                      visualDensity: VisualDensity.compact,
+                                      tooltip: 'Clear search',
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        setState(() => _searchQuery = '');
+                                        _searchFocusNode.requestFocus();
+                                      },
+                                      icon: const Icon(Icons.close, size: 16),
+                                    ),
+                            ),
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          suffixIcon: _searchQuery.isEmpty
-                              ? null
-                              : IconButton(
-                                  visualDensity: VisualDensity.compact,
-                                  tooltip: 'Clear search',
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    setState(() => _searchQuery = '');
-                                    _searchFocusNode.requestFocus();
-                                  },
-                                  icon: const Icon(Icons.close, size: 16),
-                                ),
                         ),
                       ),
-                    ),
-                  ),
-                  Divider(height: 1, color: theme.colorScheme.outlineVariant),
-                  Expanded(
-                    child: options.isEmpty
-                        ? Center(
-                            child: Text(
-                              'No matches',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          )
-                        : Scrollbar(
-                            controller: _menuScrollController,
-                            thumbVisibility: options.length > 5,
-                            child: ListView.builder(
-                              controller: _menuScrollController,
-                              padding: const EdgeInsets.symmetric(vertical: 3),
-                              itemCount: options.length,
-                              itemExtent: itemHeight,
-                              itemBuilder: (context, index) {
-                                final item = options[index];
-                                final isSelected = item.value == value;
-                                return Material(
-                                  color: isSelected
-                                      ? appPalette(context)
-                                          .utilityAction
-                                          .withValues(alpha: .22)
-                                          .withValues(alpha: 0.42)
-                                      : Colors.transparent,
-                                  child: InkWell(
-                                    mouseCursor:
-                                        WidgetStateMouseCursor.clickable,
-                                    onTap: item.enabled
-                                        ? () => _selectItem(item)
-                                        : null,
-                                    child: SizedBox(
-                                      height: itemHeight,
-                                      child: Padding(
-                                        padding: itemPadding,
-                                        child: Align(
-                                          alignment: _dropdown._alignment,
-                                          child: DefaultTextStyle.merge(
-                                            style: item.enabled
-                                                ? (_dropdown._style ??
-                                                    theme.textTheme.bodyMedium)
-                                                : theme.textTheme.bodyMedium
-                                                    ?.copyWith(
-                                                    color: theme.disabledColor,
-                                                  ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            child: ClipRect(child: item.child),
+                      Divider(
+                          height: 1, color: theme.colorScheme.outlineVariant),
+                      Expanded(
+                        child: options.isEmpty
+                            ? Center(
+                                child: Text(
+                                  'No matches',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              )
+                            : Scrollbar(
+                                controller: _menuScrollController,
+                                thumbVisibility: options.length > 5,
+                                child: ListView.builder(
+                                  controller: _menuScrollController,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 3),
+                                  itemCount: options.length,
+                                  itemExtent: itemHeight,
+                                  itemBuilder: (context, index) {
+                                    final item = options[index];
+                                    final isSelected = item.value == value;
+                                    return Material(
+                                      color: isSelected
+                                          ? appPalette(context)
+                                              .utilityAction
+                                              .withValues(alpha: .22)
+                                              .withValues(alpha: 0.42)
+                                          : Colors.transparent,
+                                      child: InkWell(
+                                        mouseCursor:
+                                            WidgetStateMouseCursor.clickable,
+                                        onTap: item.enabled
+                                            ? () => _selectItem(item)
+                                            : null,
+                                        child: SizedBox(
+                                          height: itemHeight,
+                                          child: Padding(
+                                            padding: itemPadding,
+                                            child: Align(
+                                              alignment: _dropdown._alignment,
+                                              child: DefaultTextStyle.merge(
+                                                style: item.enabled
+                                                    ? (_dropdown._style ??
+                                                        theme.textTheme
+                                                            .bodyMedium)
+                                                    : theme.textTheme.bodyMedium
+                                                        ?.copyWith(
+                                                        color:
+                                                            theme.disabledColor,
+                                                      ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                child:
+                                                    ClipRect(child: item.child),
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
+                                    );
+                                  },
+                                ),
+                              ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                )),
           ),
         ),
       ),
