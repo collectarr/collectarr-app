@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### 🐛 Fixes
+- Cover panels separate their Find Online, Upload, Remove and Crop / Rotate actions with thin dividers.
 - Imports show a progress window while a file is read and while records are imported, and report success in a banner on the page instead of a dialog.
 
 ## 1.3.0 - 2026-10-24
