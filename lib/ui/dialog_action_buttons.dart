@@ -1,6 +1,26 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+/// A filled button's hover and press fill, as on the reference's Save: the
+/// colour darkened slightly.
+Color filledButtonHoverColor(Color background) {
+  final hover = HSLColor.fromColor(background);
+  return hover.withLightness((hover.lightness - .07).clamp(0.0, 1.0)).toColor();
+}
+
+/// Swaps a filled button's fill for [filledButtonHoverColor] while it is
+/// hovered, pressed or focused, without an ink overlay.
+ButtonStyle withFilledButtonHover(ButtonStyle style, Color background) =>
+    style.copyWith(
+      backgroundColor: WidgetStateProperty.resolveWith((states) =>
+          states.contains(WidgetState.hovered) ||
+                  states.contains(WidgetState.pressed) ||
+                  states.contains(WidgetState.focused)
+              ? filledButtonHoverColor(background)
+              : background),
+      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+    );
+
 ButtonStyle dialogActionButtonStyle(BuildContext context,
     {bool primary = false, double width = 100, Color? color}) {
   final palette = appPalette(context);
@@ -9,12 +29,11 @@ ButtonStyle dialogActionButtonStyle(BuildContext context,
       : palette.isDark
           ? const Color(0xff494949)
           : const Color(0xffeeeeee);
-  final hover = HSLColor.fromColor(background);
   // The reference lifts a grey button by 10 levels (#494949 to #535353) and
   // darkens everything else slightly.
   final hoverBackground = !primary && palette.isDark
       ? Color.alphaBlend(Colors.white.withValues(alpha: .055), background)
-      : hover.withLightness((hover.lightness - .07).clamp(0.0, 1.0)).toColor();
+      : filledButtonHoverColor(background);
   return FilledButton.styleFrom(
           backgroundColor: background,
           foregroundColor:
