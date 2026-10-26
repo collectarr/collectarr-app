@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/ast/token.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/source/line_info.dart';
 import 'package:path/path.dart' as p;
@@ -94,7 +95,11 @@ List<KindDuplicationCluster> findKindDuplicationClusters(
     final occurrences = [...entry.value]..sort((left, right) {
         final kindOrder = left.kind.compareTo(right.kind);
         if (kindOrder != 0) return kindOrder;
-        return left.path.compareTo(right.path);
+        final pathOrder = left.path.compareTo(right.path);
+        if (pathOrder != 0) return pathOrder;
+        final lineOrder = left.line.compareTo(right.line);
+        if (lineOrder != 0) return lineOrder;
+        return left.nodeKind.compareTo(right.nodeKind);
       });
     clusters.add(
       KindDuplicationCluster(
@@ -107,7 +112,10 @@ List<KindDuplicationCluster> findKindDuplicationClusters(
   clusters.sort((left, right) {
     final kindOrder = right.kinds.length.compareTo(left.kinds.length);
     if (kindOrder != 0) return kindOrder;
-    return right.fingerprint.length.compareTo(left.fingerprint.length);
+    final lengthOrder =
+        right.fingerprint.length.compareTo(left.fingerprint.length);
+    if (lengthOrder != 0) return lengthOrder;
+    return left.fingerprint.compareTo(right.fingerprint);
   });
   return clusters;
 }
@@ -157,6 +165,12 @@ final class _DuplicationVisitor extends RecursiveAstVisitor<void> {
   final int minimumFingerprintLength;
   final void Function(KindDuplicationOccurrence occurrence, String fingerprint)
       onOccurrence;
+  // Match compound kinds before their prefixes (game_hardware before game).
+  late final _kindPatterns = ([...kindNames]
+        ..sort((left, right) => right.length.compareTo(left.length)))
+      .expand((kind) => {kind, kind.replaceAll('_', '')})
+      .map((spelling) => RegExp(RegExp.escape(spelling), caseSensitive: false))
+      .toList();
 
   @override
   void visitMethodDeclaration(MethodDeclaration node) {
@@ -187,15 +201,14 @@ final class _DuplicationVisitor extends RecursiveAstVisitor<void> {
   }
 
   void _recordBody(AstNode node, AstNode body, String name, String nodeKind) {
-    final source = body.toSource();
-    final lineCount = _lineCount(source);
-    if (lineCount < minimumBodyLines ||
-        source.length < minimumFingerprintLength ||
-        _isTrivialName(name)) {
+    final lineCount = lineInfo.getLocation(body.end - 1).lineNumber -
+        lineInfo.getLocation(body.offset).lineNumber +
+        1;
+    if (lineCount < minimumBodyLines || _isTrivialName(name)) {
       return;
     }
 
-    final fingerprint = _normalize(source);
+    final fingerprint = _normalize(body);
     if (fingerprint.length < minimumFingerprintLength) return;
 
     onOccurrence(
@@ -210,20 +223,47 @@ final class _DuplicationVisitor extends RecursiveAstVisitor<void> {
     );
   }
 
-  String _normalize(String source) {
-    var normalized = source.replaceAll(RegExp(r'\s+'), ' ').trim();
-    for (final kindName in kindNames) {
-      final escaped = RegExp.escape(kindName);
-      normalized = normalized.replaceAll(
-        RegExp('\b[A-Za-z_][A-Za-z0-9_]*$escaped[A-Za-z0-9_]*\b',
-            caseSensitive: false),
-        '<KIND_IDENTIFIER>',
+  String _normalize(AstNode body) {
+    final lexemes = <String>[];
+    var token = body.beginToken;
+    while (token.offset < body.end) {
+      final lexeme = token.lexeme;
+      lexemes.add(token.type == TokenType.IDENTIFIER
+          ? _normalizeIdentifier(lexeme)
+          : lexeme);
+      final next = token.next;
+      if (next == null || identical(next, token)) break;
+      token = next;
+    }
+    return lexemes.join(' ');
+  }
+
+  String _normalizeIdentifier(String identifier) {
+    var normalized = identifier;
+    for (final pattern in _kindPatterns) {
+      normalized = normalized.replaceAllMapped(
+        pattern,
+        (match) {
+          final start = match.start;
+          final end = match.end;
+          final startsWord = start == 0 ||
+              normalized[start - 1] == '_' ||
+              (_isLower(normalized[start - 1]) && _isUpper(normalized[start]));
+          final endsWord = end == normalized.length ||
+              normalized[end] == '_' ||
+              _isUpper(normalized[end]);
+          return startsWord && endsWord ? '<KIND>' : match[0]!;
+        },
       );
     }
     return normalized;
   }
 
-  int _lineCount(String source) => '\n'.allMatches(source).length + 1;
+  bool _isLower(String character) =>
+      character.codeUnitAt(0) >= 97 && character.codeUnitAt(0) <= 122;
+
+  bool _isUpper(String character) =>
+      character.codeUnitAt(0) >= 65 && character.codeUnitAt(0) <= 90;
 
   bool _isTrivialName(String name) =>
       name == 'toString' || name == 'hashCode' || name == 'operator ==';

@@ -46,6 +46,13 @@ old modules.
 The current boundary is guarded by typed registration, declarative schemas,
 Core contract checks, and architecture tests.
 
+Run `dart run tool/check_kind_duplication.dart` for an informational list of
+repeated implementation bodies across kinds. It counts original source lines
+and compares tokens, normalizing kind words in identifiers while preserving
+their remaining names and string literals. Classes, methods, and functions
+are reported separately, so groups can overlap. Review each group against
+kind ownership before extracting shared code.
+
 Related evidence:
 
 - [current architecture status](current-status.md)
