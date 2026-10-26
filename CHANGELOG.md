@@ -67,6 +67,7 @@
 - Hovering the Add Games, Add Music (and other Add) buttons darkens them the same way as the editor's Save button.
 
 ### ♻️ Refactors
+- Games, Hardware and Toys share responsive Value tab layout mechanics while keeping their existing field arrangements and spacing.
 - Kind UI files use shorter responsibility-based names, making library modules easier to navigate without changing collection behavior or stored data.
 - Games no longer have a Core Region field or column: Collectarr never fetches PriceCharting prices, and the PriceCharting ID already names the NTSC or PAL release. Upgrading removes stored Core Region values.
 

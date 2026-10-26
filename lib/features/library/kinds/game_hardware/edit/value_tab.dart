@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_dr
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_responsive_form_row.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_segmented_choice_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -135,16 +136,16 @@ Widget gameHardwareValueLayout(Map<String, Widget> fields, Widget? history) {
         const SizedBox(height: 12),
         field('pricecharting_id')
       ]);
-  return LayoutBuilder(
-      builder: (context, constraints) => constraints.maxWidth < 900
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [left, right])
-          : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Expanded(flex: 69, child: left),
-              const SizedBox(width: 14),
-              Expanded(flex: 48, child: right)
-            ]));
+  return LibraryResponsiveFormRow(
+    breakpoint: 900,
+    horizontalGap: 14,
+    verticalGap: 0,
+    stackedMainAxisSize: MainAxisSize.max,
+    children: [
+      LibraryResponsiveFormItem(flex: 69, child: left),
+      LibraryResponsiveFormItem(flex: 48, child: right),
+    ],
+  );
 }
 
 /// Completeness and Box/Manual of the reference Hardware pre-fill.
