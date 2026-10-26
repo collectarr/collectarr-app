@@ -73,12 +73,61 @@ InputDecoration settingsSelectDecoration(BuildContext context) {
     isDense: true,
     filled: true,
     fillColor: palette.isDark ? _fieldFill : palette.panelRaised,
-    // A dense dropdown line is 16 px; 9 px above and below make 34 px.
+    // A dense text line is 16 px; 9 px above and below make 34 px.
     contentPadding: const EdgeInsets.symmetric(horizontal: 7, vertical: 9),
     border: border(palette.isDark ? _fieldBorder : palette.divider),
     enabledBorder: border(palette.isDark ? _fieldBorder : palette.divider),
     focusedBorder: border(palette.utilityAction),
   );
+}
+
+/// The 34 px select box: the 20 px value line with 7 px above and below, the
+/// value 7 px from the left and the arrow 4 px from the right. Padding sets
+/// the height because the outline is drawn around the content, not around
+/// any larger constraint, and it makes up for the 4 px per density step that
+/// a compact theme (desktop and web) takes off the decorator.
+InputDecoration settingsDropdownDecoration(BuildContext context) {
+  final vertical = 7 - Theme.of(context).visualDensity.vertical * 2;
+  return settingsSelectDecoration(context).copyWith(
+    contentPadding: EdgeInsets.fromLTRB(7, vertical, 4, vertical),
+  );
+}
+
+/// The reference select arrow: a bold 9x6 chevron, white in the dark skin
+/// and dimmed while the select is disabled.
+Widget settingsSelectArrow(BuildContext context, bool enabled) {
+  final palette = appPalette(context);
+  final color = palette.isDark ? Colors.white : palette.textPrimary;
+  return CustomPaint(
+    size: const Size(9, 6),
+    painter: _SelectChevronPainter(enabled ? color : color.withAlpha(0x66)),
+  );
+}
+
+class _SelectChevronPainter extends CustomPainter {
+  const _SelectChevronPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeJoin = StrokeJoin.miter;
+    canvas.drawPath(
+      Path()
+        ..moveTo(0.7, 0.7)
+        ..lineTo(size.width / 2, size.height - 1)
+        ..lineTo(size.width - 0.7, 0.7),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SelectChevronPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 /// A select styled like the reference, without a floating label.
@@ -99,7 +148,8 @@ class SettingsSelect<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AppSelect<T>(
         value: value,
-        decoration: settingsSelectDecoration(context),
+        decoration: settingsDropdownDecoration(context),
+        arrow: (enabled) => settingsSelectArrow(context, enabled),
         options: [for (final option in values) (option, labelOf(option))],
         onChanged: onChanged == null
             ? null

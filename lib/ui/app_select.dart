@@ -13,6 +13,7 @@ class AppSelect<T> extends StatefulWidget {
     required this.decoration,
     this.hint,
     this.style,
+    this.arrow,
   });
 
   final T? value;
@@ -23,6 +24,9 @@ class AppSelect<T> extends StatefulWidget {
   final InputDecoration decoration;
   final Widget? hint;
   final TextStyle? style;
+
+  /// Replaces the default muted chevron, given whether the select is enabled.
+  final Widget Function(bool enabled)? arrow;
 
   @override
   State<AppSelect<T>> createState() => _AppSelectState<T>();
@@ -119,11 +123,12 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
                             overflow: TextOverflow.ellipsis,
                             style: textStyle)
                         : (widget.hint ?? const SizedBox.shrink())),
-                Icon(Icons.expand_more,
-                    size: 16,
-                    color: enabled
-                        ? const Color(0xFF999999)
-                        : const Color(0xFF666666)),
+                widget.arrow?.call(enabled) ??
+                    Icon(Icons.expand_more,
+                        size: 16,
+                        color: enabled
+                            ? const Color(0xFF999999)
+                            : const Color(0xFF666666)),
               ]),
             ),
           ),
