@@ -4,11 +4,11 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.da
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_album_details_pane.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_album_structure_tabs.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_details_form_pane.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_disc_details_view.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/album_details_pane.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/album_structure_tabs.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/details_form_pane.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/disc_details_view.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/theme/library_theme.dart';

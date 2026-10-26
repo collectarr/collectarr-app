@@ -1,5 +1,5 @@
 import '../boardgame_module_dependencies.dart';
-import '../add/boardgame_add_contribution.dart';
+import '../add/contribution.dart';
 
 const boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
 const boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');

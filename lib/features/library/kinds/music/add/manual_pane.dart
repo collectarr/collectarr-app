@@ -1,0 +1,211 @@
+import 'package:collectarr_app/features/library/kinds/music/add/images_pane.dart';
+import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/personal_pane.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_status_strip.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/details_form_pane.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/manual_details_pane.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/main_form_section.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema_validation.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/manual_credits_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/manual_covers_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/manual_links_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/manual_tracks_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+
+class MusicAddManualPane extends StatelessWidget {
+  const MusicAddManualPane({super.key, required this.request});
+
+  final LibraryAddManualPaneRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final draft = request.manualDraftAs<MusicAddManualDraft>();
+    final personalDraft = (request.kindDraft is MusicAddDraft)
+        ? request.kindDraft as MusicAddDraft
+        : const MusicAddDraft();
+    final fieldsById = {
+      for (final section in musicAddSchema.sections)
+        for (final field in section.fields) field.id: field,
+    };
+    final mainSection = musicMainFormSection<MusicAddManualDraft>(
+      fields: fieldsById.values,
+      titleFieldId: 'catalog_title',
+    );
+    final mainSchema = LibraryFormSchema<MusicAddManualDraft>(
+      validate: musicAddSchema.validate,
+      sections: [mainSection],
+    );
+    return LibraryAddManualPaneShell(
+      request: request,
+      footerContent: LibraryAddStatusStrip(
+        request: request,
+        indexValue: personalDraft.indexNumber,
+        quantity: personalDraft.quantity,
+        onIndexChanged: (value) => request.onKindDraftChanged
+            ?.call(personalDraft.copyWith(indexNumber: value)),
+        onQuantityChanged: (value) => request.onKindDraftChanged
+            ?.call(personalDraft.copyWith(quantity: value)),
+      ),
+      tabs: [
+        LibraryAddManualPaneTab.fromSchema<MusicAddManualDraft>(
+          id: 'main',
+          label: 'Main',
+          icon: AppIcons.tabMain,
+          schema: mainSchema,
+          draft: draft,
+          mediaKind: request.kind.apiValue,
+          onVocabularyValueChanged: request.onVocabularyValueChanged,
+          onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          onChanged: request.onManualDraftChanged,
+          validateSchema: true,
+        ),
+        LibraryAddManualPaneTab.fromForm<MusicAddManualDraft>(
+          id: 'details',
+          label: 'Details',
+          icon: AppIcons.tabDetails,
+          schema: musicAddSchema,
+          draft: draft,
+          content: MusicAddManualDetailsPane(
+            draft: draft,
+            request: request,
+            generalContent: MusicDetailsFormPane<MusicAddManualDraft>(
+              draft: draft,
+              values: (draft) => draft.values,
+              onChanged: request.onManualDraftChanged,
+              onVocabularyValueChanged: request.onVocabularyValueChanged,
+              onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+              packageCondition: LibraryManagedVocabularyField(
+                  label: 'Package/Sleeve Condition',
+                  listName: MusicVocabularies.condition.key,
+                  mediaKind: 'music',
+                  value: request.commonDraft?.condition,
+                  builtIns: MusicVocabularies.condition.builtIns,
+                  onChanged: (value) {
+                    request.onCommonDraftChanged?.call(
+                        request.commonDraft!.copyWith(condition: value ?? ''));
+                    request.onVocabularyValueChanged?.call(
+                        fieldId: 'condition',
+                        listName: MusicVocabularies.condition.key,
+                        value: value);
+                  }),
+              mediaCondition: LibraryManagedVocabularyField(
+                  label: 'Media Condition',
+                  listName: MusicVocabularies.mediaCondition.key,
+                  mediaKind: 'music',
+                  value: personalDraft.mediaCondition,
+                  builtIns: MusicVocabularies.mediaCondition.builtIns,
+                  onChanged: (value) {
+                    request.onKindDraftChanged
+                        ?.call(personalDraft.copyWith(mediaCondition: value));
+                    request.onVocabularyValueChanged?.call(
+                        fieldId: 'media_condition',
+                        listName: MusicVocabularies.mediaCondition.key,
+                        value: value);
+                  }),
+            ),
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'credits',
+          label: 'Credits',
+          icon: AppIcons.tabCredits,
+          validate: (_) => _validateCredits(draft),
+          content: MusicAddManualCreditsTab(draft: draft),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'tracks',
+          label: 'Tracks',
+          icon: AppIcons.tabTracks,
+          validate: (_) => _validateTrackDurations(draft),
+          content: MusicAddManualTracksTab(
+            request: request,
+            draft: draft,
+            accent: request.accent,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'personal',
+          label: 'Personal',
+          icon: AppIcons.tabPersonal,
+          content: MusicAddPersonalPane(request: request),
+        ),
+        LibraryAddManualPaneTab(
+            id: 'custom_fields',
+            label: 'Custom Fields',
+            icon: AppIcons.tabCustomFields,
+            content: CustomFieldsEditSection(
+                definitions: request.customFieldDefinitions,
+                values: request.customFieldValues,
+                accent: request.accent,
+                mediaKind: 'music',
+                onChanged: (values) =>
+                    request.onCustomFieldValuesChanged?.call(values),
+                onCustomValueChanged: (id, value) =>
+                    request.onVocabularyValueChanged?.call(
+                        fieldId: 'customField:$id',
+                        listName: 'customField:$id',
+                        value: value))),
+        LibraryAddManualPaneTab(
+          id: 'covers',
+          label: 'Covers',
+          icon: AppIcons.tabCovers,
+          content: MusicAddManualCoversTab(draft: draft, request: request),
+        ),
+        LibraryAddManualPaneTab(
+            id: 'my_images',
+            label: 'My Images',
+            icon: AppIcons.tabImages,
+            content: MusicAddImagesPane(request: request)),
+        LibraryAddManualPaneTab(
+          id: 'links',
+          label: 'Links',
+          icon: AppIcons.tabLinks,
+          content: MusicAddManualLinksTab(
+            draft: draft,
+            accent: request.accent,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+LibraryFormValidationProblem? _validateCredits(MusicAddManualDraft draft) {
+  if (draft.credits.any(
+      (credit) => credit.name.trim().isEmpty || credit.role.trim().isEmpty)) {
+    return const LibraryFormValidationProblem(
+      'Complete or remove each unfinished music credit',
+    );
+  }
+  return null;
+}
+
+LibraryFormValidationProblem? _validateTrackDurations(
+  MusicAddManualDraft draft,
+) {
+  for (final disc in draft.discs) {
+    for (final track in disc.tracks) {
+      if (track.duration.trim().isNotEmpty && track.durationMs == null) {
+        return const LibraryFormValidationProblem(
+          'Enter a valid track length in seconds, MM:SS, or HH:MM:SS.',
+        );
+      }
+    }
+  }
+  return null;
+}
+
+Widget buildMusicAddManualPane(
+  BuildContext context,
+  LibraryAddManualPaneRequest request,
+) =>
+    MusicAddManualPane(request: request);

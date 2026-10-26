@@ -2,7 +2,7 @@ import '../music_module_dependencies.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
-export 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_facets.dart'
+export 'package:collectarr_app/features/library/kinds/music/workspace/facets.dart'
     show musicLibraryFacetModule, musicLibraryFacetDefinitions;
 
 TransferableField musicTransferField({

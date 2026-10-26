@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/game/edit/game_market_links.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/market_links.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

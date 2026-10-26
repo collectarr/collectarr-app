@@ -1,5 +1,5 @@
 import '../comic_module_dependencies.dart';
-import '../add/comic_add_contribution.dart';
+import '../add/contribution.dart';
 
 const comicSeriesFilterId = LibraryAddFilterId('comic.series');
 const comicIssueFilterId = LibraryAddFilterId('comic.issue');

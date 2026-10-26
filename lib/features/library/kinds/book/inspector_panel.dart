@@ -5,8 +5,8 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/book/detail/book_author_spotlight.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/detail/author_spotlight.dart';
 import 'package:flutter/material.dart';
 
 Widget buildBookInspectorPanel(

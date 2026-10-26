@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_metadata_capabili
 import 'package:collectarr_app/features/library/kinds/music/config/music_kind_configuration.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../../../support/builders/workspace_item_builder.dart';
 

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_xml.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart';
 import 'package:flutter/material.dart';
 
 final class ComicExportPreviewContributor

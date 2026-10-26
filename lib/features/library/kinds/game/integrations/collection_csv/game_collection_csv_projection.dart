@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profi
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/data.dart';
 
 /// Game's semantic contribution to the generic collection CSV host.
 final class GameCollectionCsvProjection

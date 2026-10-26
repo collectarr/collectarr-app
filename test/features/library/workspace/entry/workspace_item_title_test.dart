@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 

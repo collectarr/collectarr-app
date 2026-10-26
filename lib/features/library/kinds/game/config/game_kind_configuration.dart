@@ -1,5 +1,5 @@
 import '../game_module_dependencies.dart';
-import '../edit/game_edit_contribution.dart';
+import '../edit/contribution.dart';
 
 TransferableField gameTransferField({
   required String key,

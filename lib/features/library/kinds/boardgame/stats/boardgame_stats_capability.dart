@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';

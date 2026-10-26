@@ -1,6 +1,6 @@
 import 'dart:ui' show PointerDeviceKind;
 
-import 'package:collectarr_app/features/library/kinds/music/forms/music_disc_tab_button.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/disc_tab_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

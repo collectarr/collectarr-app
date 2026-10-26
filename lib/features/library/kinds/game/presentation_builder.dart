@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/groups.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -10,8 +10,8 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 

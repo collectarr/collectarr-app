@@ -4,10 +4,10 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.
 import 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/game_item_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/game_item_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/catalog_form_adapters.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 GameCatalogMetadata _metadata() => GameCatalogMetadata.fromJson({

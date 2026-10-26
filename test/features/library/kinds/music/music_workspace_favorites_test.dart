@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_library_entry_workspace_schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/entry_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/ids.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

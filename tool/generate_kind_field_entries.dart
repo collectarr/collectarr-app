@@ -161,7 +161,7 @@ Map<String, Object?> _buildKindManifest(String repoRoot, String kind) {
   final workspaceIdFiles = _dartFiles(Directory(kindRoot)).where((file) {
     final relative = _relative(repoRoot, file.path);
     return relative.contains('/workspace/') &&
-        p.basename(file.path).endsWith('_ids.dart');
+        p.basename(file.path) == 'ids.dart';
   }).toList()
     ..sort((left, right) => left.path.compareTo(right.path));
   final stringConstants = <String, String>{};

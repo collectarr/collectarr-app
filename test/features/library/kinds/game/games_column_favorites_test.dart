@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_library_entry_workspace_schema.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/entry_schema.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

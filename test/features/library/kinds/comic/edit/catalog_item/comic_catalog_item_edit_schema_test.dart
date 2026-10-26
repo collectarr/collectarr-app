@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/catalog_item/comic_catalog_item_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_adapters.dart';
-import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/catalog_item/catalog_item_schema.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:flutter_test/flutter_test.dart';
 

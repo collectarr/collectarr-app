@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/game/add/game_platform_picker_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/platform_picker_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
