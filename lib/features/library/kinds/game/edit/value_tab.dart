@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_field_sele
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_responsive_form_row.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_segmented_choice_field.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -108,17 +109,15 @@ Widget gameValueLayout(Map<String, Widget> fields, Widget? _) {
     const SizedBox(height: 12),
     row([('pricecharting_id', 1), ('', 1)]),
   ]);
-  return LayoutBuilder(
-    builder: (context, constraints) => constraints.maxWidth >= 900
-        ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(flex: 69, child: left),
-            const SizedBox(width: 14),
-            Expanded(flex: 48, child: right),
-          ])
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [left, right],
-          ),
+  return LibraryResponsiveFormRow(
+    breakpoint: 900,
+    horizontalGap: 14,
+    verticalGap: 0,
+    stackedMainAxisSize: MainAxisSize.max,
+    children: [
+      LibraryResponsiveFormItem(flex: 69, child: left),
+      LibraryResponsiveFormItem(flex: 48, child: right),
+    ],
   );
 }
 

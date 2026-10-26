@@ -27,6 +27,7 @@ class LibraryResponsiveFormRow extends StatelessWidget {
     this.horizontalGap = 10.0,
     this.verticalGap = 10.0,
     this.crossAxisAlignment = CrossAxisAlignment.start,
+    this.stackedMainAxisSize = MainAxisSize.min,
   });
 
   final List<LibraryResponsiveFormItem> children;
@@ -34,6 +35,7 @@ class LibraryResponsiveFormRow extends StatelessWidget {
   final double horizontalGap;
   final double verticalGap;
   final CrossAxisAlignment crossAxisAlignment;
+  final MainAxisSize stackedMainAxisSize;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,7 @@ class LibraryResponsiveFormRow extends StatelessWidget {
         if (isStacked) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: stackedMainAxisSize,
             children: [
               for (var index = 0; index < children.length; index++) ...[
                 children[index].child,
