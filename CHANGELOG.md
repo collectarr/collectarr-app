@@ -78,6 +78,7 @@
 - The CLZ comparison records the Add Games layout, platform picker, editor rechecks and pick list Manage switch, the import progress and success alert, the Covers tab and editor dropdowns, and the platform names still open.
 
 ### 🧰 CI & Build
+- Refresh the native SQLite runtime through sqlite3 3.7.1.
 - Update navigation routing to go_router 18.1.0.
 - Update the development VM service client to vm_service 15.4.0.
 - Contract tests validate the pinned App bundle independently of neighboring checkouts; Core comparisons require an explicit manifest path.
