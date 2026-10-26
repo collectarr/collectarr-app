@@ -41,7 +41,8 @@ class _LibraryLayoutSettingState extends ConsumerState<LibraryLayoutSetting> {
         builder: (context, snapshot) => AppSelect<LibraryDetailsLayout>(
           value: _selection ?? snapshot.data?.detailsLayout,
           // Labelled by its Settings group legend.
-          decoration: settingsSelectDecoration(context),
+          decoration: settingsDropdownDecoration(context),
+          arrow: (enabled) => settingsSelectArrow(context, enabled),
           options: const [
             (LibraryDetailsLayout.right, 'Vertical split'),
             (LibraryDetailsLayout.bottom, 'Horizontal split'),
