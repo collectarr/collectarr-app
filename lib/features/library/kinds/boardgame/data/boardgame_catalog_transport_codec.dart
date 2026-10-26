@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/data.dart';
 
 final class BoardGameCatalogTransportCodec
     implements CatalogKindTransportCodec<BoardGameMetadata> {

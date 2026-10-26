@@ -1,0 +1,963 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_summary_widgets.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/host.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/person_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/people_editors.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
+import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
+import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:flutter/material.dart';
+
+extension ComicEditTabBuilders on ComicEditHost {
+  Widget buildComicEntryDetailsTab() {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Details',
+          accent: comicAccent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LibraryEditResponsiveRow(children: [
+                LibraryEditTextField(
+                  controller: comicTitleController,
+                  label: 'Title',
+                ),
+                LibraryEditTextField(
+                  controller: comicOriginalTitleController,
+                  label: 'Original Title',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              LibraryEditResponsiveRow(children: [
+                LibraryEditTextField(
+                  controller: comicEditionTitleController,
+                  label: 'Edition title',
+                ),
+                LibraryEditTextField(
+                  controller: comicVariantController,
+                  label: 'Variant / format',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              LibraryEditResponsiveRow(children: [
+                buildComicCrossoverPickField(),
+                buildComicStoryArcPickField(),
+              ]),
+              const SizedBox(height: 10),
+              LibraryEditResponsiveRow(children: [
+                buildComicCountryPickField(),
+                LibraryEditTextField(
+                    controller: comicLanguageController, label: 'Language'),
+              ]),
+              const SizedBox(height: 10),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth < 620) {
+                    return Column(
+                      children: [
+                        LibraryEditTextField(
+                          controller: comicAgeRatingController,
+                          label: 'Age',
+                        ),
+                        const SizedBox(height: 10),
+                        LibraryEditTextField(
+                          controller: comicPageCountController,
+                          label: 'No. of Pages',
+                          validator: optionalIntValidator,
+                        ),
+                        const SizedBox(height: 10),
+                        LibraryVocabularyField(
+                          controller: comicGenresEditController,
+                          options: comicGenreOptions,
+                          label: 'Genres',
+                          multiSelect: true,
+                        ),
+                      ],
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: LibraryEditTextField(
+                                controller: comicAgeRatingController,
+                                label: 'Age',
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: LibraryEditTextField(
+                                controller: comicPageCountController,
+                                label: 'No. of Pages',
+                                validator: optionalIntValidator,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: LibraryVocabularyField(
+                          controller: comicGenresEditController,
+                          options: comicGenreOptions,
+                          label: 'Genres',
+                          multiSelect: true,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Advanced',
+          accent: comicAccent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LibraryEditResponsiveRow(children: [
+                LibraryEditTextField(
+                    controller: comicSortKeyController, label: 'Sort Title'),
+                LibraryEditTextField(
+                  controller: comicSearchAliasesController,
+                  maxLines: 3,
+                  label: 'Search Aliases',
+                  hint: 'Comma-separated aliases',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              LibraryEditResponsiveRow(children: [
+                LibraryEditTextField(
+                  controller: comicLocalizedTitleController,
+                  label: 'Localized title',
+                ),
+              ]),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildComicCreatorsTab() {
+    return EditTabShell(
+      children: [
+        ComicCreatorListEditor(
+          creators: comicCreators,
+          accent: comicAccent,
+          onAdd: () => comicMutateState(
+            () => comicCreators.add(EditableComicCreator.custom()),
+          ),
+          onRemove: (index) => comicMutateState(
+            () => comicCreators.removeAt(index).dispose(),
+          ),
+          onReorder: (oldIndex, newIndex) => comicMutateState(() {
+            final item = comicCreators.removeAt(oldIndex);
+            comicCreators.insert(newIndex, item);
+          }),
+          onChanged: () => comicMutateState(() {}),
+          onFindInCatalog: _addCatalogComicCreator,
+          onLookupCreator: _lookupComicCreatorForRow,
+          roleOpenPicker: ({
+            required label,
+            required selectedValue,
+            required options,
+          }) =>
+              showPickListSelectDialog(
+            context: comicContext,
+            label: label,
+            options: options,
+            selectedValue: selectedValue,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildComicCharactersTab() {
+    return EditTabShell(
+      children: [
+        ComicCharacterListEditor(
+          characters: comicCharacters,
+          accent: comicAccent,
+          onAdd: () => comicMutateState(
+            () => comicCharacters.add(EditableComicCharacter.custom('')),
+          ),
+          onRemove: (index) => comicMutateState(
+            () => comicCharacters.removeAt(index).dispose(),
+          ),
+          onReorder: (oldIndex, newIndex) => comicMutateState(() {
+            final item = comicCharacters.removeAt(oldIndex);
+            comicCharacters.insert(newIndex, item);
+          }),
+          onChanged: () => comicMutateState(() {}),
+          onFindInCatalog: _addCatalogComicCharacter,
+        ),
+      ],
+    );
+  }
+
+  Widget buildComicLinksTab() {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'External Links',
+          accent: comicAccent,
+          child: LibraryExternalLinksDraftEditor(
+            links: comicLinks,
+            accent: comicAccent,
+            addLabel: 'New Link',
+            onChanged: () => comicMutateState(() {}),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildComicMainTab() {
+    return EditTabShell(
+      children: [
+        _entryComicMainOverviewCard(),
+        EditSection(
+          title: 'Storage & Notes',
+          accent: comicAccent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (comicShowPhysicalEntryFields) ...[
+                LibraryEditResponsiveRow(children: [
+                  buildComicCollectionStatusPickField(),
+                  buildComicLocationPickerField(),
+                ]),
+                const SizedBox(height: 10),
+                LibraryEditResponsiveRow(children: [
+                  LibraryEditTextField(
+                    controller: comicIndexNumberController,
+                    label: 'Index',
+                    validator: optionalIntValidator,
+                  ),
+                  LibraryEditTextField(
+                    controller: comicOwnerLabelController,
+                    label: 'Owner',
+                    hint: 'Name of the owner',
+                  ),
+                ]),
+                const SizedBox(height: 10),
+              ] else ...[
+                Text(
+                  'Digital items do not expose physical storage fields.',
+                  style: TextStyle(color: appPalette(comicContext).textMuted),
+                ),
+                const SizedBox(height: 10),
+              ],
+              LibraryMultiVocabularyField(
+                controller: comicTags,
+                options: comicTagOptions,
+                label: 'Tags',
+              ),
+              const SizedBox(height: 10),
+              LibraryEditResponsiveRow(children: [
+                LibraryDateFieldButton(
+                  label: 'Started',
+                  value: comicStartedAt,
+                  onChanged: (v) => comicMutateState(() => comicStartedAt = v),
+                ),
+                LibraryDateFieldButton(
+                  label: 'Finished',
+                  value: comicFinishedAt,
+                  onChanged: (v) => comicMutateState(() => comicFinishedAt = v),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              LibraryEditTextField(
+                controller: comicTrackingNotesController,
+                label: 'Tracking notes',
+                minLines: 2,
+                maxLines: 4,
+              ),
+              const SizedBox(height: 10),
+              LibraryEditTextField(
+                controller: comicNotesController,
+                label: 'Personal notes',
+                minLines: 4,
+                maxLines: 7,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildComicValueTab() {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Value',
+          accent: comicAccent,
+          child: Column(
+            children: [
+              LibraryEditResponsiveRow(children: [
+                LibraryEditTextField(
+                  controller: comicPriceController,
+                  label: 'Price paid',
+                  validator: optionalMoneyValidator,
+                ),
+              ]),
+              const SizedBox(height: 10),
+              LibraryEditResponsiveRow(children: [
+                LibraryCurrencyField(controller: comicCurrencyController),
+                LibraryEditTextField(
+                  controller: comicMarketValueController,
+                  label: 'My value',
+                  validator: optionalMoneyValidator,
+                ),
+              ]),
+              const SizedBox(height: 10),
+              LibraryEditResponsiveRow(children: [
+                LibraryEditTextField(
+                  controller: comicPurchaseStoreController,
+                  label: 'Purchase store',
+                ),
+                LibraryDateFieldButton(
+                  label: 'Purchase date',
+                  value: parseDate(comicPurchaseDateController.text),
+                  onChanged: (value) {
+                    comicMutateState(() {
+                      comicPurchaseDateController.text =
+                          value == null ? '' : formatDate(value);
+                    });
+                  },
+                ),
+              ]),
+              const SizedBox(height: 10),
+              LibrarySwitchField(
+                label: 'Mark as sold',
+                value: comicSoldAt != null,
+                onChanged: (value) {
+                  comicMutateState(() {
+                    comicSoldAt = value ? DateTime.now() : null;
+                  });
+                },
+              ),
+              if (comicSoldAt != null)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10, top: 4),
+                    child: Text(
+                      'Sold on ${formatDate(comicSoldAt!)}',
+                      style: TextStyle(
+                        color: appPalette(comicContext).textMuted,
+                      ),
+                    ),
+                  ),
+                ),
+              if (comicSoldAt != null) ...[
+                const SizedBox(height: 12),
+                LibraryEditResponsiveRow(children: [
+                  LibraryEditTextField(
+                    controller: comicSellPriceController,
+                    label: 'Price sold',
+                    validator: optionalMoneyValidator,
+                  ),
+                  LibraryDateFieldButton(
+                    label: 'Sold date',
+                    value: comicSoldAt,
+                    onChanged: (value) =>
+                        comicMutateState(() => comicSoldAt = value),
+                  ),
+                  LibraryEditTextField(
+                    controller: comicSoldToController,
+                    label: 'Sold to',
+                  ),
+                ]),
+                const SizedBox(height: 12),
+                SoldSummaryPanel(
+                  pricePaidCents: parseMoneyCents(comicPriceController.text),
+                  sellPriceCents:
+                      parseMoneyCents(comicSellPriceController.text),
+                  currency: comicCurrencyController.text,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildComicPersonalTab() {
+    final isRead = comicTrackingController.text.trim().toLowerCase() == 'read';
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Personal',
+          accent: comicAccent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildComicFlexRow(
+                [
+                  InputDecorator(
+                    decoration: const InputDecoration(labelText: 'Read'),
+                    child: SegmentedButton<bool>(
+                      segments: const [
+                        ButtonSegment<bool>(value: false, label: Text('No')),
+                        ButtonSegment<bool>(value: true, label: Text('Yes')),
+                      ],
+                      selected: {isRead},
+                      showSelectedIcon: false,
+                      style: ButtonStyle(
+                        shape: WidgetStatePropertyAll(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      onSelectionChanged: (selection) {
+                        final selected = selection.first;
+                        comicMutateState(() {
+                          comicTrackingController.text = selected ? 'Read' : '';
+                          if (!selected) {
+                            comicFinishedAt = null;
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                  LibraryDateFieldButton(
+                    label: 'Read Date',
+                    value: comicFinishedAt,
+                    onChanged: (value) => comicMutateState(() {
+                      comicFinishedAt = value;
+                      if (value != null) {
+                        comicTrackingController.text = 'Read';
+                      }
+                    }),
+                  ),
+                  buildComicOwnerPickField(label: 'Owner'),
+                ],
+                flexes: const [4, 4, 8],
+                breakpoint: 980,
+              ),
+              const SizedBox(height: 10),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth < 980) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        LibraryEditTextField(
+                          controller: comicNotesController,
+                          label: 'Notes',
+                          minLines: 6,
+                          maxLines: 9,
+                        ),
+                        const SizedBox(height: 10),
+                        MediaRatingField(controller: comicRatingController),
+                        const SizedBox(height: 10),
+                        buildComicTagsDropdownField(label: 'Tags'),
+                        const SizedBox(height: 10),
+                        LibraryDateFieldButton(
+                          label: 'Bag/Board Date',
+                          value: comicLastBagBoardDate,
+                          onChanged: (value) => comicMutateState(
+                            () => comicLastBagBoardDate = value,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return SizedBox(
+                    height: 248,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          flex: 8,
+                          child: LibraryEditTextField(
+                            controller: comicNotesController,
+                            label: 'Notes',
+                            expands: true,
+                            minLines: null,
+                            maxLines: null,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 8,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 88,
+                                child: MediaRatingField(
+                                  controller: comicRatingController,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              buildComicTagsDropdownField(label: 'Tags'),
+                              const Spacer(),
+                              LibraryDateFieldButton(
+                                label: 'Bag/Board Date',
+                                value: comicLastBagBoardDate,
+                                onChanged: (value) => comicMutateState(
+                                  () => comicLastBagBoardDate = value,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _entryComicMainOverviewCard() {
+    final palette = appPalette(comicContext);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: palette.gridCanvas,
+        shape: Border(
+          left: BorderSide(color: comicAccent, width: 2),
+          top: BorderSide(color: palette.surfaceBright),
+          right: BorderSide(color: palette.surfaceBright),
+          bottom: BorderSide(color: palette.surfaceBright),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 11),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final stacked = constraints.maxWidth < 920;
+              final leftColumn = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildComicSeriesField(),
+                  const SizedBox(height: 10),
+                  buildComicFlexRow(
+                    [
+                      LibraryEditTextField(
+                          controller: comicBarcodeController, label: 'Barcode'),
+                      _comicFormatField(),
+                    ],
+                    flexes: const [1, 1],
+                    breakpoint: 520,
+                  ),
+                  const SizedBox(height: 10),
+                  buildComicSeriesGroupField(label: 'Series Group'),
+                ],
+              );
+              final rightColumn = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildComicFlexRow(
+                    [
+                      LibraryEditTextField(
+                          controller: comicNumberController,
+                          label: 'Issue No.'),
+                      LibraryEditTextField(
+                          controller: comicVariantController, label: 'Variant'),
+                      LibraryEditTextField(
+                        controller: comicEditionTitleController,
+                        label: 'Variant Description',
+                      ),
+                    ],
+                    flexes: const [3, 2, 7],
+                    breakpoint: 720,
+                  ),
+                  const SizedBox(height: 10),
+                  buildComicFlexRow(
+                    [
+                      _coverDatePartsField(),
+                      _releaseDatePartsField(),
+                    ],
+                    flexes: const [1, 1],
+                    breakpoint: 720,
+                  ),
+                  const SizedBox(height: 10),
+                  buildComicFlexRow(
+                    [
+                      buildComicPublisherField(),
+                      buildComicImprintField(),
+                    ],
+                    flexes: const [1, 1],
+                    breakpoint: 720,
+                  ),
+                ],
+              );
+              if (stacked) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    leftColumn,
+                    const SizedBox(height: 10),
+                    rightColumn,
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 5, child: leftColumn),
+                  const SizedBox(width: 10),
+                  Expanded(flex: 7, child: rightColumn),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _comicFormatField() {
+    return buildComicPhysicalFormatField(label: 'Format');
+  }
+
+  Widget _coverDatePartsField() {
+    return _comicDateInput(
+      label: 'Cover Date',
+      dateController: comicCoverDateController,
+      fieldKeyPrefix: 'comic-cover-date',
+    );
+  }
+
+  Widget _releaseDatePartsField() {
+    return _comicDateInput(
+      label: 'Release Date',
+      dateController: comicReleaseDateController,
+      fieldKeyPrefix: 'comic-release-date',
+    );
+  }
+
+  Widget _comicDateInput({
+    required String label,
+    required TextEditingController dateController,
+    required String fieldKeyPrefix,
+  }) {
+    return LibraryDateFieldButton(
+      label: label,
+      value: parseDate(dateController.text),
+      fieldKeyPrefix: fieldKeyPrefix,
+      onChanged: (value) => comicMutateState(
+        () => dateController.text = value == null ? '' : formatDate(value),
+      ),
+    );
+  }
+
+  Future<void> _addCatalogComicCreator() async {
+    final api = comicRef.read(apiClientProvider);
+    final creator = await _showComicLookupDialog(
+      title: 'Find creator',
+      searchHint: 'Search creators',
+      search: (query) =>
+          ComicCatalogBrowseApi(api).searchCreators(query: query, limit: 24),
+      titleForResult: (result) => result['name']?.toString() ?? 'Creator',
+      subtitleForResult: (result) {
+        final itemCount = (result['item_count'] as num?)?.toInt();
+        final description = result['description']?.toString().trim();
+        return [
+          if (itemCount != null) '$itemCount credits',
+          if (description != null && description.isNotEmpty) description,
+        ].join(' · ');
+      },
+    );
+    if (creator == null) return;
+    comicMutateState(
+      () => comicCreators.add(EditableComicCreator.fromLookupResult(creator)),
+    );
+  }
+
+  Future<void> _lookupComicCreatorForRow(int index) async {
+    if (index < 0 || index >= comicCreators.length) return;
+    final api = comicRef.read(apiClientProvider);
+    final creator = await _showComicLookupDialog(
+      title: 'Find creator',
+      searchHint: 'Search creators',
+      search: (query) =>
+          ComicCatalogBrowseApi(api).searchCreators(query: query, limit: 24),
+      titleForResult: (result) => result['name']?.toString() ?? 'Creator',
+      subtitleForResult: (result) {
+        final itemCount = (result['item_count'] as num?)?.toInt();
+        final description = result['description']?.toString().trim();
+        return [
+          if (itemCount != null) '$itemCount credits',
+          if (description != null && description.isNotEmpty) description,
+        ].join(' · ');
+      },
+    );
+    if (creator == null) return;
+    final role = creator['role']?.toString().trim().isNotEmpty == true
+        ? creator['role']!.toString().trim()
+        : creator['job']?.toString().trim().isNotEmpty == true
+            ? creator['job']!.toString().trim()
+            : '';
+    comicMutateState(() {
+      final current = comicCreators[index];
+      current.nameController.text = creator['name']?.toString() ?? '';
+      if (role.isNotEmpty) {
+        current.roleController.text = role;
+      }
+      current.metadata
+        ..addAll(creator)
+        ..['source_type'] = 'core';
+    });
+  }
+
+  Future<void> _addCatalogComicCharacter() async {
+    final api = comicRef.read(apiClientProvider);
+    final character = await _showComicLookupDialog(
+      title: 'Find character',
+      searchHint: 'Search characters',
+      search: (query) =>
+          ComicCatalogBrowseApi(api).searchCharacters(query: query, limit: 24),
+      titleForResult: (result) => result['name']?.toString() ?? 'Character',
+      subtitleForResult: (result) {
+        final count = (result['appearance_count'] as num?)?.toInt();
+        return count == null ? '' : '$count appearances';
+      },
+    );
+    if (character == null) return;
+    final normalized = character['name']?.toString().trim() ?? '';
+    if (normalized.isEmpty) return;
+    final exists = comicCharacters.any((entry) =>
+        entry.nameController.text.trim().toLowerCase() ==
+        normalized.toLowerCase());
+    if (exists) return;
+    comicMutateState(
+      () => comicCharacters
+          .add(EditableComicCharacter.fromLookupResult(character)),
+    );
+  }
+
+  Future<Map<String, dynamic>?> _showComicLookupDialog({
+    required String title,
+    required String searchHint,
+    required Future<List<Map<String, dynamic>>> Function(String query) search,
+    required String Function(Map<String, dynamic> result) titleForResult,
+    required String Function(Map<String, dynamic> result) subtitleForResult,
+  }) async {
+    final searchController = TextEditingController();
+    var results = const <Map<String, dynamic>>[];
+    var isLoading = false;
+    String? error;
+
+    Future<void> runSearch(StateSetter setDialogState) async {
+      setDialogState(() {
+        isLoading = true;
+        error = null;
+      });
+      try {
+        final rows = await search(searchController.text.trim());
+        setDialogState(() {
+          results = rows;
+          isLoading = false;
+        });
+      } catch (_) {
+        setDialogState(() {
+          error = 'Search failed. Try again.';
+          isLoading = false;
+        });
+      }
+    }
+
+    try {
+      return await showAppDialog<Map<String, dynamic>>(
+        context: comicContext,
+        builder: (dialogContext) {
+          return StatefulBuilder(
+            builder: (context, setDialogState) {
+              return AccentAlertDialog(
+                headerIcon: AppIcons.tabDetails,
+                title: Text(title),
+                content: SizedBox(
+                  width: 620,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: LibraryTextFormControl(
+                              controller: searchController,
+                              decoration: InputDecoration(hintText: searchHint),
+                              onFieldSubmitted: (_) =>
+                                  runSearch(setDialogState),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          FilledButton(
+                            onPressed: () => runSearch(setDialogState),
+                            child: const Text('Search'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (isLoading)
+                        const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: CircularProgressIndicator(),
+                        )
+                      else if (error != null)
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            error!,
+                            style: const TextStyle(color: Colors.redAccent),
+                          ),
+                        )
+                      else
+                        Flexible(
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: results.length,
+                            separatorBuilder: (_, __) =>
+                                const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final result = results[index];
+                              final subtitle = subtitleForResult(result);
+                              return ListTile(
+                                title: Text(titleForResult(result)),
+                                subtitle:
+                                    subtitle.isEmpty ? null : Text(subtitle),
+                                onTap: () =>
+                                    Navigator.of(dialogContext).pop(result),
+                              );
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    } finally {
+      searchController.dispose();
+    }
+  }
+
+  List<ResolvedComicEditImage> _resolvedEditImages() {
+    return resolveComicEditImages(
+      images: comicItemImages,
+      edits: comicItemImageEdits,
+    );
+  }
+
+  String _buildComicMarketSearchQuery() {
+    return [
+      comicCatalogItem.title,
+      if (emptyToNull(comicNumberController.text) case final issue?) '#$issue',
+      if (emptyToNull(comicPhysicalFormatLabelController.text)
+          case final format?)
+        format,
+      if (emptyToNull(comicVariantController.text) case final variant?) variant,
+    ].join(' ').trim();
+  }
+
+  Widget buildComicCoverTab() {
+    final coverUrl = emptyToNull(comicCoverController.text) ??
+        emptyToNull(comicThumbnailController.text) ??
+        comicCatalogItem.coverImageUrl;
+    final resolvedImages = _resolvedEditImages();
+    final backCover = firstResolvedComicEditImageOfType(
+      resolvedImages,
+      'back_cover',
+    );
+    final frontAlt = firstResolvedComicEditImageOfType(
+      resolvedImages,
+      'front_cover',
+    );
+    final auxiliaryCount =
+        resolvedImages.where((image) => image.imageType == 'auxiliary').length;
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Covers',
+          accent: comicAccent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LibraryEditTextField(
+                  controller: comicCoverController, label: 'Front Cover URL'),
+              const SizedBox(height: 12),
+              ComicCoverPreviewRow(
+                coverUrl: coverUrl,
+                frontCoverOverride: frontAlt,
+                backCover: backCover,
+              ),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Cover workflow',
+          accent: comicAccent,
+          child: ComicCoverWorkflowContent(
+            imageCount: resolvedImages.length,
+            auxiliaryCount: auxiliaryCount,
+            bodyStyle: TextStyle(color: appPalette(comicContext).textMuted),
+            onManageImages: () => comicOpenEditTab('photos'),
+            onFindBetterCover: () =>
+                launchEbaySearch(_buildComicMarketSearchQuery()),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildComicPhotosTab() {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'My Images Workflow',
+          accent: comicAccent,
+          child: ComicPhotosWorkflowText(
+            style: TextStyle(color: appPalette(comicContext).textMuted),
+          ),
+        ),
+        ItemImagesEditSection(
+          images: comicItemImages,
+          accent: comicAccent,
+          onChanged: (edits) => comicItemImageEdits = edits,
+        ),
+      ],
+    );
+  }
+}

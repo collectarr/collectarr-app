@@ -1,0 +1,111 @@
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/person_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
+
+abstract class ComicEditHost {
+  BuildContext get comicContext;
+  ProviderContainer get comicRef;
+  Color get comicAccent;
+  LibraryKindRegistration get comicLibraryType;
+  ComicCatalogItem get comicCatalogItem;
+  List<ItemImage> get comicItemImages;
+  List<EditableComicCreator> get comicCreators;
+  List<EditableComicCharacter> get comicCharacters;
+  List<LibraryExternalLinkDraftRow> get comicLinks;
+  TextEditingController get comicTitleController;
+  TextEditingController get comicOriginalTitleController;
+  TextEditingController get comicEditionTitleController;
+  TextEditingController get comicVariantController;
+  TextEditingController get comicNumberController;
+  TextEditingController get comicBarcodeController;
+  TextEditingController get comicPhysicalFormatLabelController;
+  TextEditingController get comicCoverDateController;
+  TextEditingController get comicReleaseDateController;
+  TextEditingController get comicLocalizedTitleController;
+  TextEditingController get comicSearchAliasesController;
+  TextEditingController get comicSortKeyController;
+  TextEditingController get comicAgeRatingController;
+  TextEditingController get comicPageCountController;
+  TextEditingController get comicGenresEditController;
+  TextEditingController get comicLanguageController;
+  TextEditingController get comicOwnerLabelController;
+  LibraryValuesController get comicTags;
+  TextEditingController get comicTrackingNotesController;
+  TextEditingController get comicNotesController;
+  TextEditingController get comicTrackingController;
+  TextEditingController get comicRatingController;
+  TextEditingController get comicGradeController;
+  TextEditingController get comicConditionController;
+  TextEditingController get comicRawOrSlabbedController;
+  TextEditingController get comicGradingCompanyController;
+  TextEditingController get comicGraderNotesController;
+  TextEditingController get comicSignedByController;
+  TextEditingController get comicLabelTypeController;
+  TextEditingController get comicCertificationNumberController;
+  TextEditingController get comicCoverPriceController;
+  TextEditingController get comicKeyReasonController;
+  TextEditingController get comicKeyCategoryController;
+  TextEditingController get comicPriceController;
+  TextEditingController get comicCurrencyController;
+  TextEditingController get comicMarketValueController;
+  TextEditingController get comicPurchaseDateController;
+  TextEditingController get comicPurchaseStoreController;
+  TextEditingController get comicSellPriceController;
+  TextEditingController get comicSoldToController;
+  TextEditingController get comicCoverController;
+  TextEditingController get comicThumbnailController;
+  TextEditingController get comicIndexNumberController;
+  String? get comicCollectionStatus;
+  set comicCollectionStatus(String? value);
+  String? get comicSelectedLocationId;
+  String? get comicSelectedLocationName;
+
+  bool get comicKeyComic;
+  set comicKeyComic(bool value);
+  DateTime? get comicLastBagBoardDate;
+  set comicLastBagBoardDate(DateTime? value);
+  DateTime? get comicStartedAt;
+  set comicStartedAt(DateTime? value);
+  DateTime? get comicFinishedAt;
+  set comicFinishedAt(DateTime? value);
+  DateTime? get comicSoldAt;
+  set comicSoldAt(DateTime? value);
+  bool get comicShowPhysicalEntryFields;
+  List<ItemImageEdit> get comicItemImageEdits;
+  set comicItemImageEdits(List<ItemImageEdit> value);
+
+  List<String> get comicGenreOptions;
+  List<String> get comicTagOptions;
+  List<String> get comicOwnerOptions;
+
+  void comicMutateState(VoidCallback fn);
+  void comicOpenEditTab(String id);
+
+  Widget buildComicCrossoverPickField({String label = 'Crossover'});
+  Widget buildComicStoryArcPickField({String label = 'Story Arc'});
+  Widget buildComicCountryPickField({String label = 'Country'});
+  Widget buildComicPageQualityPickField({String label = 'Page quality'});
+  Widget buildComicKeyCategoryPickField({String label = 'Key category'});
+  Widget buildComicSeriesField();
+  Widget buildComicPublisherField({String label = 'Publisher'});
+  Widget buildComicImprintField();
+  Widget buildComicSeriesGroupField({String label = 'Series Group'});
+  Widget buildComicPhysicalFormatField({String label = 'Format'});
+  Widget buildComicTagsDropdownField({String label = 'Tags'});
+  Widget buildComicOwnerPickField({String label = 'Owner'});
+  Widget buildComicCollectionStatusPickField(
+      {String label = 'Collection Status'});
+  Widget buildComicLocationPickerField({String label = 'Location'});
+
+  Widget buildComicFlexRow(
+    List<Widget> children, {
+    required List<int> flexes,
+    double breakpoint = 880,
+  });
+}

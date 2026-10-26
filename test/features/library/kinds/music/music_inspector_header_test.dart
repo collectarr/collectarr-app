@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dar
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';

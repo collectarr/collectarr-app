@@ -1,0 +1,34 @@
+import 'package:collectarr_app/features/library/kinds/movie/edit/controller.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/credits_editor.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
+import 'package:flutter/material.dart';
+
+class MovieEditCrewTab extends StatelessWidget {
+  const MovieEditCrewTab({
+    super.key,
+    required this.movieEdit,
+    required this.accent,
+    required this.markDirty,
+  });
+
+  final MovieEditController movieEdit;
+  final Color accent;
+  final VoidCallback markDirty;
+
+  @override
+  Widget build(BuildContext context) {
+    return EditTabShell(
+      children: [
+        MovieCreditsEditor(
+          title: 'Crew',
+          emptyMessage: 'No crew data yet.',
+          addLabel: 'Add Crew',
+          defaultRole: 'Director',
+          accent: accent,
+          credits: movieEdit.crewCredits,
+          onChanged: markDirty,
+        ),
+      ],
+    );
+  }
+}

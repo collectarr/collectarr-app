@@ -4,9 +4,9 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_credits_tab.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_disc_details_view.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/credits_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/disc_details_view.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:drift/native.dart';

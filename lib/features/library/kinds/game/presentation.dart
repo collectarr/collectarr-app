@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_groups.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/groups.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -7,8 +7,8 @@ import 'package:collectarr_app/features/library/config/library_entry_field_metad
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_card_presentation.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const gamesMetadataLabels = LibraryMetadataLabels(

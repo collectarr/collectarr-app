@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/game_covers_tab.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/covers_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -2,8 +2,8 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_data.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/dto.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_sections.dart';

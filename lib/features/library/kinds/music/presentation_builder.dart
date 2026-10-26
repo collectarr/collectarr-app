@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_groups.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_fields.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
@@ -9,16 +9,16 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
-import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_track_list.dart';
-import 'package:collectarr_app/features/library/kinds/music/inspector/music_inspector_view_model.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_catalog_candidate_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/inspector/track_list.dart';
+import 'package:collectarr_app/features/library/kinds/music/inspector/view_model.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/catalog_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_physical_media_formats.dart';

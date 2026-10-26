@@ -1,0 +1,371 @@
+import 'dart:async';
+
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
+
+typedef BoardGameFormValuesReader<TDraft> = BoardGameCatalogFormValues Function(
+    TDraft draft);
+
+/// Fields for one concrete edition in the shared Catalog Item Add/Edit form.
+List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
+  required BoardGameFormValuesReader<TDraft> values,
+  Set<String>? include,
+  Iterable<String>? publisherOptions,
+  Iterable<String>? categoryOptions,
+  Iterable<String>? formatOptions,
+  FutureOr<void> Function()? onManagePublisher,
+}) =>
+    [
+      LibraryTextFieldSpec<TDraft>(
+        id: 'original_title',
+        label: 'Original Title',
+        value: (draft) => values(draft).originalTitle,
+        setValue: (draft, value) => values(draft).originalTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'localized_title',
+        label: 'Localized Title',
+        value: (draft) => values(draft).localizedTitle,
+        setValue: (draft, value) => values(draft).localizedTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'sort_title',
+        label: 'Sort Title',
+        value: (draft) => values(draft).sortTitle,
+        setValue: (draft, value) => values(draft).sortTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'subtitle',
+        label: 'Subtitle',
+        value: (draft) => values(draft).subtitle,
+        setValue: (draft, value) => values(draft).subtitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'description',
+        label: 'Description',
+        value: (draft) => values(draft).description,
+        setValue: (draft, value) => values(draft).description = value,
+        maxLines: 4,
+      ),
+      LibraryVocabularyFieldSpec<TDraft, String>(
+        id: BoardGameFieldIdentities.publisherId,
+        label: BoardGameFieldIdentities.publisherLabel,
+        value: (draft) => _nullable(values(draft).publisher),
+        setValue: (draft, value) => values(draft).publisher = value ?? '',
+        options: _options(
+          publisherOptions ?? BoardGameVocabularies.publisher.builtIns,
+        ),
+        pickListKey: BoardGameVocabularyIds.publisher.value,
+        onManage: onManagePublisher == null ? null : (_) => onManagePublisher(),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'platforms',
+        label: 'Platforms',
+        value: (draft) => values(draft).platforms.join(', '),
+        setValue: (draft, value) => values(draft).platforms = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'identifiers',
+        label: 'Identifiers',
+        value: (draft) => values(draft).identifiers.join(', '),
+        setValue: (draft, value) => values(draft).identifiers = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'contributors',
+        label: 'Contributors',
+        value: (draft) => values(draft).contributors.join(', '),
+        setValue: (draft, value) => values(draft).contributors = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'designers',
+        label: 'Designers',
+        value: (draft) => values(draft).designers.join(', '),
+        setValue: (draft, value) => values(draft).designers = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'artists',
+        label: 'Artists',
+        value: (draft) => values(draft).artists.join(', '),
+        setValue: (draft, value) => values(draft).artists = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'characters',
+        label: 'Characters',
+        value: (draft) => values(draft).characters.join(', '),
+        setValue: (draft, value) => values(draft).characters = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'mechanics',
+        label: 'Mechanics',
+        value: (draft) => values(draft).mechanics.join(', '),
+        setValue: (draft, value) => values(draft).mechanics = _split(value),
+      ),
+      LibraryMultiVocabularyFieldSpec<TDraft, String>(
+        id: 'categories',
+        label: 'Categories',
+        values: (draft) => values(draft).categories.toSet(),
+        setValues: (draft, next) =>
+            values(draft).categories = next.toList(growable: false),
+        options: _options(
+          categoryOptions ?? BoardGameVocabularies.category.builtIns,
+        ),
+        pickListKey: BoardGameVocabularyIds.category.value,
+        allowCustomValues: true,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'families',
+        label: 'Families',
+        value: (draft) => values(draft).families.join(', '),
+        setValue: (draft, value) => values(draft).families = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'themes',
+        label: 'Themes',
+        value: (draft) => values(draft).themes.join(', '),
+        setValue: (draft, value) => values(draft).themes = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'expansions',
+        label: 'Expansions',
+        value: (draft) => values(draft).expansions.join(', '),
+        setValue: (draft, value) => values(draft).expansions = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: BoardGameFieldIdentities.expansionForId,
+        label: BoardGameFieldIdentities.expansionForLabel,
+        value: (draft) => values(draft).expansionFor,
+        setValue: (draft, value) => values(draft).expansionFor = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'rankings',
+        label: 'Rankings',
+        value: (draft) => values(draft).rankings.join(', '),
+        setValue: (draft, value) => values(draft).rankings = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'search_aliases',
+        label: 'Search Aliases',
+        value: (draft) => values(draft).searchAliases.join(', '),
+        setValue: (draft, value) => values(draft).searchAliases = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'original_language',
+        label: 'Original language',
+        value: (draft) => values(draft).originalLanguage,
+        setValue: (draft, value) => values(draft).originalLanguage = value,
+      ),
+      LibraryNumberFieldSpec<TDraft>(
+        id: 'year_published',
+        label: 'Year published',
+        minimum: 1,
+        value: (draft) => values(draft).yearPublished,
+        setValue: (draft, value) =>
+            values(draft).yearPublished = value?.toInt(),
+      ),
+      _number<TDraft>(
+        id: BoardGameFieldIdentities.minPlayersId,
+        label: BoardGameFieldIdentities.minPlayersLabel,
+        read: (draft) => values(draft).minPlayers,
+        write: (draft, value) => values(draft).minPlayers = value,
+        minimum: 1,
+      ),
+      _number<TDraft>(
+        id: BoardGameFieldIdentities.maxPlayersId,
+        label: BoardGameFieldIdentities.maxPlayersLabel,
+        read: (draft) => values(draft).maxPlayers,
+        write: (draft, value) => values(draft).maxPlayers = value,
+        minimum: 1,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: BoardGameFieldIdentities.recommendedPlayersId,
+        label: BoardGameFieldIdentities.recommendedPlayersLabel,
+        value: (draft) => values(draft).recommendedPlayers,
+        setValue: (draft, value) => values(draft).recommendedPlayers = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: BoardGameFieldIdentities.bestPlayersId,
+        label: BoardGameFieldIdentities.bestPlayersLabel,
+        value: (draft) => values(draft).bestPlayers,
+        setValue: (draft, value) => values(draft).bestPlayers = value,
+      ),
+      _number<TDraft>(
+        id: BoardGameFieldIdentities.minPlaytimeMinutesId,
+        label: BoardGameFieldIdentities.minPlaytimeMinutesLabel,
+        read: (draft) => values(draft).minPlaytimeMinutes,
+        write: (draft, value) => values(draft).minPlaytimeMinutes = value,
+        minimum: 0,
+      ),
+      _number<TDraft>(
+        id: BoardGameFieldIdentities.maxPlaytimeMinutesId,
+        label: BoardGameFieldIdentities.maxPlaytimeMinutesLabel,
+        read: (draft) => values(draft).maxPlaytimeMinutes,
+        write: (draft, value) => values(draft).maxPlaytimeMinutes = value,
+        minimum: 0,
+      ),
+      _number<TDraft>(
+        id: 'playing_time_minutes',
+        label: 'Playing time (minutes)',
+        read: (draft) => values(draft).playingTimeMinutes,
+        write: (draft, value) => values(draft).playingTimeMinutes = value,
+        minimum: 0,
+      ),
+      _number<TDraft>(
+        id: 'min_age',
+        label: 'Minimum age',
+        read: (draft) => values(draft).minimumAge,
+        write: (draft, value) => values(draft).minimumAge = value,
+        minimum: 0,
+      ),
+      LibraryNumberFieldSpec<TDraft>(
+        id: BoardGameFieldIdentities.complexityWeightId,
+        label: BoardGameFieldIdentities.complexityWeightLabel,
+        minimum: 0,
+        value: (draft) => values(draft).complexityWeight,
+        setValue: (draft, value) =>
+            values(draft).complexityWeight = value?.toDouble(),
+      ),
+      LibraryNumberFieldSpec<TDraft>(
+        id: BoardGameFieldIdentities.bggRatingId,
+        label: BoardGameFieldIdentities.bggRatingLabel,
+        minimum: 0,
+        value: (draft) => values(draft).bggRating,
+        setValue: (draft, value) => values(draft).bggRating = value?.toDouble(),
+      ),
+      _number<TDraft>(
+        id: 'bgg_rating_count',
+        label: 'Rating count',
+        read: (draft) => values(draft).bggRatingCount,
+        write: (draft, value) => values(draft).bggRatingCount = value,
+        minimum: 0,
+      ),
+      _number<TDraft>(
+        id: BoardGameFieldIdentities.bggRankId,
+        label: BoardGameFieldIdentities.bggRankLabel,
+        read: (draft) => values(draft).bggRank,
+        write: (draft, value) => values(draft).bggRank = value,
+        minimum: 1,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: BoardGameFieldIdentities.seriesId,
+        label: BoardGameFieldIdentities.seriesLabel,
+        value: (draft) => values(draft).seriesTitle,
+        setValue: (draft, value) => values(draft).seriesTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'edition_title',
+        label: 'Edition title',
+        value: (draft) => values(draft).editionTitle,
+        setValue: (draft, value) => values(draft).editionTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'item_number',
+        label: 'Item number',
+        value: (draft) => values(draft).itemNumber,
+        setValue: (draft, value) => values(draft).itemNumber = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: BoardGameFieldIdentities.barcodeId,
+        label: BoardGameFieldIdentities.barcodeLabel,
+        value: (draft) => values(draft).barcode,
+        setValue: (draft, value) => values(draft).barcode = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'catalog_number',
+        label: 'Catalog number',
+        value: (draft) => values(draft).catalogNumber,
+        setValue: (draft, value) => values(draft).catalogNumber = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'variant',
+        label: 'Variant',
+        value: (draft) => values(draft).variant,
+        setValue: (draft, value) => values(draft).variant = value,
+      ),
+      LibraryVocabularyFieldSpec<TDraft, String>(
+        id: 'format',
+        label: 'Format',
+        value: (draft) => _nullable(values(draft).format),
+        setValue: (draft, value) => values(draft).format = value ?? '',
+        options:
+            _options(formatOptions ?? BoardGameVocabularies.format.builtIns),
+        pickListKey: BoardGameVocabularyIds.format.value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'country',
+        label: 'Country / region',
+        value: (draft) => values(draft).country,
+        setValue: (draft, value) => values(draft).country = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'language',
+        label: 'Language',
+        value: (draft) => values(draft).language,
+        setValue: (draft, value) => values(draft).language = value,
+      ),
+      LibraryDateFieldSpec<TDraft>(
+        id: BoardGameFieldIdentities.releaseDateId,
+        label: BoardGameFieldIdentities.releaseDateLabel,
+        value: (draft) => values(draft).releaseDate,
+        setValue: (draft, value) {
+          values(draft).releaseDate = value;
+          values(draft).releaseDateParts =
+              value == null ? null : PartialDate.fromDateTime(value);
+        },
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'age_rating',
+        label: 'Age rating',
+        value: (draft) => values(draft).ageRating,
+        setValue: (draft, value) => values(draft).ageRating = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'audience_rating',
+        label: 'Audience rating',
+        value: (draft) => values(draft).audienceRating,
+        setValue: (draft, value) => values(draft).audienceRating = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'release_status',
+        label: 'Release status',
+        value: (draft) => values(draft).releaseStatus,
+        setValue: (draft, value) => values(draft).releaseStatus = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'cover_image_url',
+        label: 'Cover image URL',
+        value: (draft) => values(draft).coverImageUrl,
+        setValue: (draft, value) => values(draft).coverImageUrl = value,
+      ),
+    ].where((field) => include == null || include.contains(field.id)).toList();
+
+LibraryNumberFieldSpec<TDraft> _number<TDraft>({
+  required String id,
+  required String label,
+  required int? Function(TDraft draft) read,
+  required void Function(TDraft draft, int? value) write,
+  double? minimum,
+}) =>
+    LibraryNumberFieldSpec<TDraft>(
+      id: id,
+      label: label,
+      value: (draft) => read(draft)?.toDouble(),
+      setValue: (draft, value) => write(draft, value?.toInt()),
+      minimum: minimum,
+    );
+
+String? _nullable(String value) => value.trim().isEmpty ? null : value;
+
+List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
+      for (final value in values)
+        LibraryFieldOption(value: value, label: value),
+    ];
+
+List<String> _split(String value) => value
+    .split(RegExp(r'[,;\r\n]+'))
+    .map((entry) => entry.trim())
+    .where((entry) => entry.isNotEmpty)
+    .toSet()
+    .toList(growable: false);

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/inspector/library_duplicate_item
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
 import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';

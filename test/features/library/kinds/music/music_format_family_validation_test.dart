@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/manual_contents.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/album_schema.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

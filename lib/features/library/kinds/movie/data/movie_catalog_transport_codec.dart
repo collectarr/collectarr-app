@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/data.dart';
 
 final class MovieCatalogTransportCodec
     implements CatalogKindTransportCodec<MovieCatalogMetadata> {

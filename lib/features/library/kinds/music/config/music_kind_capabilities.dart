@@ -3,7 +3,7 @@ import '../actions/music_merge_albums.dart';
 import '../music_module_dependencies.dart';
 import 'music_kind_configuration.dart';
 import '../actions/music_log_listen_action.dart';
-import '../add/music_add_contribution.dart';
+import '../add/contribution.dart';
 import '../reports/music_export_capability.dart';
 import '../data/music_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';

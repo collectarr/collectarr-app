@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profi
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 
 /// Movie's semantic contribution to the collection CSV host.

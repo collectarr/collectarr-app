@@ -1,5 +1,5 @@
 import '../book_module_dependencies.dart';
-import '../add/book_add_contribution.dart';
+import '../add/contribution.dart';
 
 const bookAuthorFilterId = LibraryAddFilterId('book.author');
 const bookIsbnFilterId = LibraryAddFilterId('book.isbn');

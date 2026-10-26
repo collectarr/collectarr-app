@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profi
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart';
 
 /// Comic's semantic contribution to the generic collection CSV host.
 ///

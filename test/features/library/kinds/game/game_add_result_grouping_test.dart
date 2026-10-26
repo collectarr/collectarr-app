@@ -3,8 +3,8 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_result
 import 'package:collectarr_app/features/library/add/panes/library_add_grouped_results.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
-import 'package:collectarr_app/features/library/kinds/game/add/game_add_preview.dart';
-import 'package:collectarr_app/features/library/kinds/game/add/game_add_result_grouping.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/preview.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/result_grouping.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

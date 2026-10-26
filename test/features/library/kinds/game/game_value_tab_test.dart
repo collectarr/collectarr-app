@@ -6,11 +6,11 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
-import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_pane.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/game_value_tab.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/value_tab.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_segmented_
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/game_market_links.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/market_links.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 GameValuationSet _values() {

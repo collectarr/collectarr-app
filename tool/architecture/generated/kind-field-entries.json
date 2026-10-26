@@ -111,7 +111,7 @@
         }
       ],
       "workspaceIdSources": [
-        "lib/features/library/kinds/boardgame/workspace/boardgame_ids.dart"
+        "lib/features/library/kinds/boardgame/workspace/ids.dart"
       ],
       "mapperSources": [
         "lib/features/library/kinds/boardgame/data/local/boardgame_local_mapper.dart"
@@ -813,7 +813,7 @@
         }
       ],
       "workspaceIdSources": [
-        "lib/features/library/kinds/book/workspace/book_ids.dart"
+        "lib/features/library/kinds/book/workspace/ids.dart"
       ],
       "mapperSources": [],
       "fields": {
@@ -1457,7 +1457,7 @@
         }
       ],
       "workspaceIdSources": [
-        "lib/features/library/kinds/comic/workspace/comic_ids.dart"
+        "lib/features/library/kinds/comic/workspace/ids.dart"
       ],
       "mapperSources": [],
       "fields": {
@@ -2177,7 +2177,7 @@
         }
       ],
       "workspaceIdSources": [
-        "lib/features/library/kinds/game/workspace/game_ids.dart"
+        "lib/features/library/kinds/game/workspace/ids.dart"
       ],
       "mapperSources": [],
       "fields": {
@@ -2764,7 +2764,7 @@
     "game_hardware": {
       "tables": [],
       "workspaceIdSources": [
-        "lib/features/library/kinds/game_hardware/workspace/game_hardware_ids.dart"
+        "lib/features/library/kinds/game_hardware/workspace/ids.dart"
       ],
       "mapperSources": [],
       "fields": {}
@@ -2772,7 +2772,7 @@
     "game_toy": {
       "tables": [],
       "workspaceIdSources": [
-        "lib/features/library/kinds/game_toy/workspace/game_toy_ids.dart"
+        "lib/features/library/kinds/game_toy/workspace/ids.dart"
       ],
       "mapperSources": [],
       "fields": {}
@@ -2839,7 +2839,7 @@
         }
       ],
       "workspaceIdSources": [
-        "lib/features/library/kinds/movie/workspace/movie_ids.dart"
+        "lib/features/library/kinds/movie/workspace/ids.dart"
       ],
       "mapperSources": [],
       "fields": {
@@ -3473,7 +3473,7 @@
         }
       ],
       "workspaceIdSources": [
-        "lib/features/library/kinds/music/workspace/music_ids.dart"
+        "lib/features/library/kinds/music/workspace/ids.dart"
       ],
       "mapperSources": [],
       "fields": {

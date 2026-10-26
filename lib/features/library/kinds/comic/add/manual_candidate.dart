@@ -1,0 +1,75 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/schema.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_adapters.dart';
+
+CatalogSearchCandidate? buildComicManualCandidate(
+  LibraryKindAddDraft draft, {
+  required String title,
+}) {
+  if (draft is! ComicAddManualDraft || title.trim().isEmpty) return null;
+  if (comicAddSchema.validate?.call(draft) != null) return null;
+  final id = 'manual-comic-${DateTime.now().microsecondsSinceEpoch}';
+  final values = draft.values..title = title.trim();
+  final metadata = comicCatalogItemFromFormValues(
+    original: ComicCatalogItem(
+      id: CatalogItemRef(kind: CatalogMediaKind.comic, id: id),
+      title: title.trim(),
+    ),
+    values: values,
+    externalLinks: [
+      for (final link in draft.externalLinks)
+        if (link.urlController.text.trim().isNotEmpty)
+          ComicLink(
+            url: link.urlController.text.trim(),
+            title: _nullable(link.titleController.text),
+            description: _nullable(link.descriptionController.text),
+            source: 'manual',
+            isAutomatic: false,
+            kind: 'external',
+          ),
+    ],
+    creators: [
+      for (final creator in draft.creators)
+        if (creator.nameController.text.trim().isNotEmpty)
+          ComicCreator.fromValue(creator.toMap()),
+    ],
+    characters: [
+      for (final character in draft.characters)
+        if (character.nameController.text.trim().isNotEmpty)
+          ComicCharacter.fromValue(character.toMap()),
+    ],
+  );
+  return CatalogSearchCandidate.fromItem(
+    CatalogItemDto(
+      ref: CatalogItemRef(kind: CatalogMediaKind.comic, id: id),
+      kindData: metadata,
+      origin: CatalogItemOrigin.privateLocal,
+    ),
+  );
+}
+
+String? _nullable(String value) {
+  final normalized = value.trim();
+  return normalized.isEmpty ? null : normalized;
+}
+
+/// Serializes this kind's typed manual catalog model for Core review.
+///
+/// Core projects the supplied object onto the recognized flattened fields for
+/// this kind, so this mapper does not maintain a second field denylist.
+Map<String, Object?>? buildComicManualProposalData(
+  LibraryKindAddDraft draft, {
+  required String title,
+}) {
+  final candidate = buildComicManualCandidate(draft, title: title);
+  if (candidate == null) return null;
+  return candidate.kindCapability.mapTransport(
+    (item) => Map<String, Object?>.from(item.kindData),
+  );
+}

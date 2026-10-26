@@ -6,8 +6,8 @@ import 'package:collectarr_app/features/library/config/library_entry_field_metad
 import 'package:collectarr_app/features/library/kinds/movie/config/movie_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/dto.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:flutter/material.dart';
 

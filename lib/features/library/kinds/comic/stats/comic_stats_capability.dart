@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_e
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
 

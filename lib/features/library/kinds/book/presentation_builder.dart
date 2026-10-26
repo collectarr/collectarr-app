@@ -9,9 +9,9 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
 import 'package:collectarr_app/features/library/hierarchy/ui/hierarchy_children_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';

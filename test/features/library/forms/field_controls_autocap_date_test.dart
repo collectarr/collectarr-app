@@ -1,6 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec_control_builder.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';

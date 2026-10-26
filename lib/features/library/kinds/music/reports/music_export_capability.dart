@@ -4,10 +4,10 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/catalog_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
 
 final musicExportCapability = LibraryExportCapability(

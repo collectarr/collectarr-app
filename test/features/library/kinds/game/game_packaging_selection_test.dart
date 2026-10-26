@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
-import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -10,8 +10,8 @@ import 'package:drift/native.dart';
 import 'dart:convert';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/kinds/game_hardware/add/game_hardware_add_contribution.dart';
-import 'package:collectarr_app/features/library/kinds/game_hardware/add/game_hardware_add_search_controls.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/add/contribution.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/add/search_controls.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _CaptureApi extends ApiClient {

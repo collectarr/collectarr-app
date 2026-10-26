@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_contribution.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/contribution.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -7,8 +7,8 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_e
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 

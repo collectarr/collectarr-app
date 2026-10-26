@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
 
 final class MusicCatalogTransportCodec

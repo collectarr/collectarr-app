@@ -1,0 +1,155 @@
+import '../boardgame_module_dependencies.dart';
+import '../config/boardgame_kind_configuration.dart';
+import 'manual_candidate.dart';
+
+final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
+  kind: CatalogMediaKind.boardgame,
+  initialDraftBuilder: BoardgameAddDraft.new,
+  coreCatalogProjectionBuilder: boardGameCatalogTransportFromCoreItem,
+  manualDraftBuilder: BoardgameAddManualDraft.new,
+  manualCandidateBuilder: buildBoardgameManualCandidate,
+  manualProposalBuilder: buildBoardgameManualProposalData,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      BoardgameLibraryEntryCreatePayload(
+    details: details as BoardgameEntryDetailsDraft,
+    condition: common.condition,
+    grade: kindValue ?? draft.grade,
+    purchaseDate: common.purchaseDate,
+    pricePaidCents: common.pricePaidCents,
+    currency: common.currency,
+    personalNotes: common.personalNotes,
+    tags: common.tags ?? const [],
+    locationId: common.locationId,
+    purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
+    collectionStatus: common.collectionStatus,
+    isDigital: common.isDigital,
+  ),
+  digitalCopyFlagBuilder: (item) {
+    final payload =
+        item.kindCapability.mapTransport((transport) => transport).payload;
+    final direct = payload['is_digital'];
+    if (direct is bool) return direct;
+    final format =
+        (payload['physical_format'] ?? payload['physical_format_label'])
+            ?.toString()
+            .toLowerCase();
+    if (format == 'digital' || format == 'ebook' || format == 'web') {
+      return true;
+    }
+    final series = payload['series'];
+    if (series is Map && series['is_digital'] is bool) {
+      return series['is_digital'] as bool;
+    }
+    final publishing = payload['publishing'];
+    if (publishing is Map && publishing['is_digital'] is bool) {
+      return publishing['is_digital'] as bool;
+    }
+    return null;
+  },
+  search: LibraryAddSearchCapability(
+    input: LibraryAddSearchInputCapability(
+      advancedFilterDescriptorsBuilder: buildBoardGameAddAdvancedFilterFields,
+    ),
+    core: LibraryAddCoreSearchCapability(
+      inputBuilder: buildBoardGameCoreSearchInput,
+      ranking: buildLibraryAddSearchRanking(
+        fields: [
+          LibraryAddSearchRankField(
+            id: boardGameDesignerFilterId,
+            exactWeight: 110,
+            containsWeight: 44,
+            metadataValues: (item) {
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BoardGameMetadata.fromJson(transport.kindData));
+              return [...metadata.designers, ...metadata.artists];
+            },
+          ),
+          LibraryAddSearchRankField(
+            id: boardGamePublisherFilterId,
+            exactWeight: 60,
+            containsWeight: 24,
+            metadataValues: (item) {
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BoardGameMetadata.fromJson(transport.kindData));
+              return [...metadata.publishers, metadata.publisher];
+            },
+          ),
+          LibraryAddSearchRankField(
+            id: boardGameYearFilterId,
+            exactWeight: 55,
+            containsWeight: 20,
+            metadataValues: (item) {
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BoardGameMetadata.fromJson(transport.kindData));
+              return [metadata.yearPublished];
+            },
+          ),
+        ],
+      ),
+    ),
+  ),
+  manualPaneBuilder: buildBoardgameAddManualPane,
+);
+
+final boardGameKindStats = const BoardGameStatsCapability();
+
+Iterable<String> getBoardGameFacetValues(
+  BoardGameWorkspaceDto dto,
+  LibraryFacetIdRuntime facetId,
+) {
+  for (final definition in boardgameLibraryFacetDefinitions) {
+    if (definition.id.sameIdentityAs(facetId)) {
+      return definition.extractValues(dto);
+    }
+  }
+  return const [];
+}
+
+List<LibraryAddAdvancedFilterField<String>>
+    buildBoardGameAddAdvancedFilterFields(
+  LibraryAddModeBarRequest req,
+) =>
+        [
+          LibraryAddAdvancedFilterField<String>(
+            id: boardGameDesignerFilterId,
+            key: const ValueKey('library-add-designer-field'),
+            label: 'Designer',
+            value: req.advancedFilterText(boardGameDesignerFilterId),
+            parse: (text) => text.trim(),
+          ),
+          LibraryAddAdvancedFilterField<String>(
+            id: boardGamePublisherFilterId,
+            key: const ValueKey('library-add-publisher-field'),
+            label: 'Publisher',
+            value: req.advancedFilterText(boardGamePublisherFilterId),
+            parse: (text) => text.trim(),
+          ),
+          LibraryAddAdvancedFilterField<String>(
+            id: boardGameYearFilterId,
+            key: const ValueKey('library-add-year-field'),
+            label: 'Year',
+            value: req.advancedFilterText(boardGameYearFilterId),
+            parse: (text) => text.trim(),
+            width: 120,
+          ),
+        ];
+
+MetadataSearchQuery buildBoardGameCoreSearchInput(
+  LibraryAddSearchContext context, {
+  required int limit,
+}) {
+  return MetadataSearchQuery(
+    query: optionalBoardGameText(context.query),
+    publisher:
+        optionalBoardGameText(context.textValueFor(boardGamePublisherFilterId)),
+    year: int.tryParse(context.textValueFor(boardGameYearFilterId)),
+    barcode: optionalBoardGameText(context.identifierCode),
+    limit: limit,
+  );
+}
+
+String? optionalBoardGameText(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}

@@ -1,8 +1,8 @@
-export 'add/game_toy_add_contribution.dart';
-export 'edit/game_toy_edit_contribution.dart';
+export 'add/contribution.dart';
+export 'edit/contribution.dart';
 export 'config/game_toy_kind_capabilities.dart';
 export 'config/game_toy_kind_configuration.dart';
-export 'workspace/game_toy_workspace_contribution.dart';
+export 'workspace/contribution.dart';
 export 'admin/game_toy_admin_contributor.dart';
 export 'barcode/game_toy_barcode_resolver.dart';
 export 'calendar/game_toy_calendar_contributor.dart';
