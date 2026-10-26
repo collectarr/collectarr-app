@@ -8,9 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 /// `tool/core_contracts/` actually match the SHA-256 hashes recorded in the
 /// local `contract-manifest.json`.
 ///
-/// Unlike `contract_manifest_sync_test.dart` (which compares against the Core
-/// repo and is a no-op when Core is absent, e.g. in CI), this test needs no
-/// external repo and therefore runs everywhere. It catches partial/corrupt
+/// This test needs no external repo and therefore runs everywhere. An explicit
+/// Core comparison uses `tool/check_core_contract_sync.dart`. It catches partial/corrupt
 /// `update_core_contracts.ps1` runs where the manifest and the payload files
 /// drift out of sync.
 void main() {

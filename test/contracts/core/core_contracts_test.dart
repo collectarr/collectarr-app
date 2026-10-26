@@ -40,12 +40,6 @@ void main() {
       manifest['activeKindsHash'],
       _fileHash('tool/core_contracts/active-kinds.json'),
     );
-    final coreManifest =
-        File(r'..\collectarr-core\contracts\contract-manifest.json');
-    if (coreManifest.existsSync()) {
-      expect(manifest, jsonDecode(coreManifest.readAsStringSync()));
-    }
-
     expect(
       Set<String>.from(activeKinds['kinds'] as List<dynamic>),
       equals({'game', 'music'}),
