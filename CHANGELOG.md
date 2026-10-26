@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.4.0 - 2026-10-26
+
 ### ✨ Features
 - Choosing an edition in Add Games opens a compact Confirm your selection sheet with the cover, platform and year, edition and region, as in CLZ.
 - Add Games picks the platform from inside the title field through a Pick Platform list grouped by console generation, with starred favorites at the top.
