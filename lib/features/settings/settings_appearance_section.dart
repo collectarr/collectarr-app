@@ -158,16 +158,24 @@ class _SettingsAppearanceSectionState
                 value: preferences.formats.currency,
                 values: kCurrencyCodes,
                 labelOf: (code) => code,
-                onChanged: (code) => controller
-                    .setFormats(preferences.formats.copyWith(currency: code)),
+                // As in the reference, a new currency starts on its default
+                // display, since the choices depend on the currency.
+                onChanged: (code) => controller.setFormats(preferences.formats
+                    .copyWith(
+                        currency: code,
+                        currencyDisplay: defaultCurrencyDisplay(code))),
               ),
             ),
             right: SettingsGroup(
               legend: 'Currency display',
               child: SettingsSelect<CurrencyDisplay>(
-                value: preferences.formats.currencyDisplay,
-                values: CurrencyDisplay.values,
-                labelOf: (value) => value.example,
+                value: currencyDisplaysFor(preferences.formats.currency)
+                        .contains(preferences.formats.currencyDisplay)
+                    ? preferences.formats.currencyDisplay
+                    : CurrencyDisplay.symbol,
+                values: currencyDisplaysFor(preferences.formats.currency),
+                labelOf: (value) =>
+                    currencyLabel(preferences.formats.currency, value),
                 onChanged: (value) => controller.setFormats(
                     preferences.formats.copyWith(currencyDisplay: value)),
               ),

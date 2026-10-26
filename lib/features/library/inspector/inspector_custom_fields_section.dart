@@ -84,7 +84,7 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
                         CustomFieldMultiValueDisplay.list
                 ? parseCustomFieldMultiValues(value).join('\n')
                 : def.valueType == CustomFieldValueType.currency
-                    ? '${currencySymbol(data.display[def.id]?.currencyCode ?? AppFormats.current.currency)} $value'
+                    ? '${AppFormats.current.currencyName(data.display[def.id]?.currencyCode)} $value'
                     : displayCustomFieldValue(def, value),
           ),
         );

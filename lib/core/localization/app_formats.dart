@@ -79,63 +79,99 @@ enum NumberFormatStyle {
   final String decimal;
 }
 
+/// How a price names its currency, as in the reference's Currency display.
 enum CurrencyDisplay {
-  code('USD 12.50'),
-  symbol(r'$12.50');
+  /// The local symbol: `$`, `€`, `kr`.
+  symbol,
 
-  const CurrencyDisplay(this.example);
+  /// The symbol with its country: `US$`, `JP ¥`. Not every currency has one.
+  regional,
 
-  final String example;
+  /// The ISO code, with the symbol where the reference adds it: `USD`,
+  /// `HUF Ft`.
+  code,
 }
 
-const List<String> kCurrencyCodes = <String>[
-  'USD',
-  'SGD',
-  'EUR',
-  'GBP',
-  'RON',
-  'CHF',
-  'JPY',
-  'CAD',
-  'AUD',
-  'NZD',
-  'SEK',
-  'NOK',
-  'DKK',
-  'PLN',
-  'CZK',
-  'HUF',
-  'TRY',
-  'INR',
-  'BRL',
-  'MXN',
+/// The reference's labels for one currency.
+final class _CurrencyLabels {
+  const _CurrencyLabels(this.symbol, {this.regional, String? code})
+      : _code = code;
+
+  final String symbol;
+  final String? regional;
+  final String? _code;
+}
+
+/// Currencies in the reference's order, followed by those Collectarr adds.
+/// Symbols, regional symbols and codes follow the reference's Currency
+/// display options for each currency.
+const Map<String, _CurrencyLabels> _currencies = {
+  'USD': _CurrencyLabels(r'$', regional: r'US$'),
+  'EUR': _CurrencyLabels('€'),
+  'GBP': _CurrencyLabels('£'),
+  'CAD': _CurrencyLabels(r'$', regional: r'CA$'),
+  'AUD': _CurrencyLabels(r'$', regional: r'AU$'),
+  'NZD': _CurrencyLabels(r'$', regional: r'NZ$'),
+  'NOK': _CurrencyLabels('kr'),
+  'SEK': _CurrencyLabels('kr'),
+  'DKK': _CurrencyLabels('kr.'),
+  'CHF': _CurrencyLabels('fr.'),
+  'ZAR': _CurrencyLabels('R', regional: 'ZA R', code: 'ZAR R'),
+  'BRL': _CurrencyLabels(r'R$', regional: r'BR R$', code: r'BRL R$'),
+  'RUB': _CurrencyLabels('₽', regional: 'RU ₽', code: 'RUB ₽'),
+  'PLN': _CurrencyLabels('zł', regional: 'PL zł', code: 'PLN zł'),
+  'INR': _CurrencyLabels('₹', regional: 'IN ₹', code: 'INR ₹'),
+  'CZK': _CurrencyLabels('Kč', regional: 'CZ Kč', code: 'CZK Kč'),
+  'SGD': _CurrencyLabels(r'S$', regional: r'SG S$', code: r'SGD S$'),
+  'JPY': _CurrencyLabels('¥', regional: 'JP ¥', code: 'JPY ¥'),
+  'HUF': _CurrencyLabels('Ft', regional: 'HU Ft', code: 'HUF Ft'),
+  'RON': _CurrencyLabels('lei', regional: 'RO lei', code: 'RON lei'),
+  'TRY': _CurrencyLabels('₺', regional: 'TR ₺', code: 'TRY ₺'),
+  'MXN': _CurrencyLabels(r'$', regional: r'MX$'),
+};
+
+/// The currencies offered for prices, in the reference's order.
+const List<String> kCurrencyCodes = [
+  'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'NOK', 'SEK', 'DKK', 'CHF', //
+  'ZAR', 'BRL', 'RUB', 'PLN', 'INR', 'CZK', 'SGD', 'JPY', 'HUF', //
+  'RON', 'TRY', 'MXN',
 ];
 
+String _normalizedCurrency(String? currency) =>
+    currency?.trim().toUpperCase() ?? '';
+
+/// The local symbol of [currency], or its code when it has none.
 String currencySymbol(String? currency) {
-  final normalized = currency?.trim().toUpperCase() ?? '';
-  return switch (normalized) {
-    'USD' => r'$',
-    'SGD' => r'S$',
-    'EUR' => '€',
-    'GBP' => '£',
-    'RON' => 'lei',
-    'CHF' => 'CHF',
-    'JPY' => '¥',
-    'CAD' => r'$',
-    'AUD' => r'$',
-    'NZD' => r'$',
-    'SEK' => 'kr',
-    'NOK' => 'kr',
-    'DKK' => 'kr',
-    'PLN' => 'zł',
-    'CZK' => 'Kč',
-    'HUF' => 'Ft',
-    'TRY' => '₺',
-    'INR' => '₹',
-    'BRL' => r'R$',
-    'MXN' => r'$',
-    _ when normalized.isNotEmpty => normalized,
-    _ => '¤',
+  final normalized = _normalizedCurrency(currency);
+  return _currencies[normalized]?.symbol ??
+      (normalized.isEmpty ? '¤' : normalized);
+}
+
+/// The Currency display choices of [currency], in the reference's order.
+List<CurrencyDisplay> currencyDisplaysFor(String? currency) => [
+      CurrencyDisplay.symbol,
+      if (_currencies[_normalizedCurrency(currency)]?.regional != null)
+        CurrencyDisplay.regional,
+      CurrencyDisplay.code,
+    ];
+
+/// The choice the reference makes for a newly chosen currency: the regional
+/// symbol where there is one, otherwise the local symbol.
+CurrencyDisplay defaultCurrencyDisplay(String? currency) =>
+    currencyDisplaysFor(currency).contains(CurrencyDisplay.regional)
+        ? CurrencyDisplay.regional
+        : CurrencyDisplay.symbol;
+
+/// How [currency] is named under [display]; a currency without a regional
+/// symbol falls back to its local one.
+String currencyLabel(String? currency, CurrencyDisplay display) {
+  final normalized = _normalizedCurrency(currency);
+  final labels = _currencies[normalized];
+  if (labels == null) return normalized.isEmpty ? '¤' : normalized;
+  return switch (display) {
+    CurrencyDisplay.symbol => labels.symbol,
+    CurrencyDisplay.regional => labels.regional ?? labels.symbol,
+    CurrencyDisplay.code => labels._code ?? normalized,
   };
 }
 
@@ -145,7 +181,7 @@ final class AppFormats {
     this.dateEntry = DateEntryOrder.yearMonthDay,
     this.number = NumberFormatStyle.plain,
     this.currency = 'USD',
-    this.currencyDisplay = CurrencyDisplay.code,
+    this.currencyDisplay = CurrencyDisplay.regional,
   });
 
   final DateDisplayFormat date;
@@ -227,18 +263,18 @@ final class AppFormats {
     return '${negative ? '-' : ''}$grouped$fraction';
   }
 
+  /// How [currencyCode] is named in prices under the Currency display.
+  String currencyName(String? currencyCode) =>
+      currencyLabel(currencyCode ?? currency, currencyDisplay);
+
+  /// A price as the reference shows it: the currency name, a space and the
+  /// amount with two decimals, such as `US$ 12.50` or `HUF Ft 12.50`.
   String formatMoney(int? cents, String? currencyCode) {
     if (cents == null) return '';
-    final amount = formatNumber(cents / 100, decimals: 2);
-    final code = currencyCode == null || currencyCode.isEmpty
-        ? null
-        : currencyCode.toUpperCase();
-    if (code == null) return amount;
-    return switch (currencyDisplay) {
-      CurrencyDisplay.code => '$code $amount',
-      CurrencyDisplay.symbol => amount.startsWith('-')
-          ? '-${currencySymbol(code)}${amount.substring(1)}'
-          : '${currencySymbol(code)}$amount',
-    };
+    final amount = formatNumber(cents.abs() / 100, decimals: 2);
+    if (currencyCode == null || currencyCode.trim().isEmpty) {
+      return cents < 0 ? '-$amount' : amount;
+    }
+    return '${cents < 0 ? '-' : ''}${currencyName(currencyCode)} $amount';
   }
 }
