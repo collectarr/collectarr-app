@@ -666,6 +666,7 @@ class _InspectorTrackingDetailsEditorState
           timesCompleted: _parseInt(_timesCompletedController.text),
           notes: _emptyToNull(_trackingNotesController.text),
           kindPatch: _trackingEditorMutation,
+          replaceNullableFields: true,
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

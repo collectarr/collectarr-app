@@ -105,24 +105,42 @@ class LibraryTrackingEditSelection {
   final DateTime? finishedAt;
 
   LibraryTrackingEditSelection copyWith({
-    int? rating,
-    String? readStatus,
-    int? progressCurrent,
-    int? progressTotal,
-    int? timesCompleted,
-    String? notes,
-    DateTime? startedAt,
-    DateTime? finishedAt,
+    Object? rating = _unchangedTrackingValue,
+    Object? readStatus = _unchangedTrackingValue,
+    Object? progressCurrent = _unchangedTrackingValue,
+    Object? progressTotal = _unchangedTrackingValue,
+    Object? timesCompleted = _unchangedTrackingValue,
+    Object? notes = _unchangedTrackingValue,
+    Object? startedAt = _unchangedTrackingValue,
+    Object? finishedAt = _unchangedTrackingValue,
   }) {
     return LibraryTrackingEditSelection(
-      rating: rating ?? this.rating,
-      readStatus: readStatus ?? this.readStatus,
-      progressCurrent: progressCurrent ?? this.progressCurrent,
-      progressTotal: progressTotal ?? this.progressTotal,
-      timesCompleted: timesCompleted ?? this.timesCompleted,
-      notes: notes ?? this.notes,
-      startedAt: startedAt ?? this.startedAt,
-      finishedAt: finishedAt ?? this.finishedAt,
+      rating: identical(rating, _unchangedTrackingValue)
+          ? this.rating
+          : rating as int?,
+      readStatus: identical(readStatus, _unchangedTrackingValue)
+          ? this.readStatus
+          : readStatus as String?,
+      progressCurrent: identical(progressCurrent, _unchangedTrackingValue)
+          ? this.progressCurrent
+          : progressCurrent as int?,
+      progressTotal: identical(progressTotal, _unchangedTrackingValue)
+          ? this.progressTotal
+          : progressTotal as int?,
+      timesCompleted: identical(timesCompleted, _unchangedTrackingValue)
+          ? this.timesCompleted
+          : timesCompleted as int?,
+      notes: identical(notes, _unchangedTrackingValue)
+          ? this.notes
+          : notes as String?,
+      startedAt: identical(startedAt, _unchangedTrackingValue)
+          ? this.startedAt
+          : startedAt as DateTime?,
+      finishedAt: identical(finishedAt, _unchangedTrackingValue)
+          ? this.finishedAt
+          : finishedAt as DateTime?,
     );
   }
 }
+
+const Object _unchangedTrackingValue = Object();
