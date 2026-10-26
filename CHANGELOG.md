@@ -8,7 +8,7 @@
 - Add Games lists each game once per platform with its edition count and shows the chosen game's editions as covers beside the list on CLZ's slate background, with region segments above them that filter the editions in place and grey out regions without editions, and a "Not found? Add game manually." row after the results, as in CLZ.
 - Game covers can be found online (Find Online) from the Covers tab.
 - The Games Value tab links "Find sold listings on eBay" under the value and "Check historical values at PriceCharting.com" under the chart, and "Values by PriceCharting" in the details pane opens the game's PriceCharting page, as in CLZ.
-- Game, Hardware and Toy descriptions show their bold, italic and underlined text and line breaks in the details pane, as in CLZ, instead of raw tags.
+- Game, Hardware and Toy descriptions show their bold, italic and underlined text, line breaks and bulleted or numbered lists in the details pane, as in CLZ, instead of raw tags.
 - Settings > Localization lists CLZ's application languages with their flags; only English is available for now, the others are marked "not translated yet".
 
 ### 🐛 Fixes
