@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
+import 'library_report_generator.dart';
 import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/reports/library_report_field_dialogs.dart';
 import 'package:collectarr_app/ui/app_management_content.dart';
@@ -13,17 +15,11 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_block_button.dart';
 import 'package:collectarr_app/ui/app_progress_dialog.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 enum PrintSubset { all, currentList, checkboxed }
 
 enum ExportMode { itemList, childList }
-
-enum PdfOrientation { portrait, landscape }
-
-enum PdfBorderType { none, middle, outside, all }
 
 enum PdfMarginSetting {
   extraSmall('Extra small', 5),
@@ -104,6 +100,7 @@ class LibraryPrintPdfPage extends StatefulWidget {
     this.selectedItemIds,
     this.allShelfEntries,
     this.initialTitle,
+    this.generator = const LibraryReportGenerator(),
   });
 
   final LibraryKindRegistration type;
@@ -112,6 +109,7 @@ class LibraryPrintPdfPage extends StatefulWidget {
   final Set<String>? selectedItemIds;
   final List<LibraryWorkspaceContext>? allShelfEntries;
   final String? initialTitle;
+  final LibraryReportGenerator generator;
 
   @override
   State<LibraryPrintPdfPage> createState() => _LibraryPrintPdfPageState();
@@ -1484,300 +1482,83 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   // ==========================================
   // PDF GENERATION LOGIC
   // ==========================================
-  Future<void> _generatePdf() async {
-    setState(() => _isGenerating = true);
-    await runWithProgressDialog(
-        context: context,
-        title: 'Print to PDF',
-        message: 'Generating your PDF file...',
-        task: _buildPdf);
+  LibraryPdfReport _capturePdfReport() {
+    final child = _exportMode == ExportMode.childList;
+    final List<String> headers;
+    final List<List<String>> rows;
+    if (child) {
+      final columns = [
+        for (final id in _selectedChildColumnIds)
+          _availableChildColumns.firstWhere((column) => column.id == id)
+      ];
+      headers = [for (final column in columns) column.label];
+      rows = [
+        for (final row in _activeChildRows)
+          [for (final column in columns) column.getValue(row)]
+      ];
+    } else {
+      final columns = [
+        for (final id in _selectedItemColumnIds)
+          _availableItemColumns.firstWhere((column) => column.id == id)
+      ];
+      headers = [for (final column in columns) column.label];
+      rows = [
+        for (final row in _activeItems)
+          [for (final column in columns) column.getValue(row)]
+      ];
+    }
+    return LibraryPdfReport(
+        title: _titleController.text.trim(),
+        emptyTitle: child
+            ? (_exportCapability?.pdfChildTitle ?? 'My $_childLabel')
+            : 'My Collection',
+        headers: headers,
+        rows: rows,
+        orientation: _orientation,
+        marginMm: _margin.mm,
+        fontFamily: _fontFamily,
+        fontSize: _fontSize,
+        fontColor: _fontColor.toARGB32(),
+        rowsPerPage: _limitRowsPerPage ? _maxRowsPerPage : (child ? 40 : 35),
+        repeatTitle: _repeatTitleOnEveryPage,
+        dateTime: _printDateTime ? _formattedCurrentDateTime : null,
+        repeatDateTime: _repeatDateTime,
+        headerRow: _headerRow,
+        repeatHeaderRow: _repeatHeaderRow,
+        alternatingRows: _alternatingRows,
+        pageNumbers: _pageNumbers,
+        borderType: _borderType);
   }
 
-  Future<void> _buildPdf() async {
+  Future<void> _generatePdf() async {
+    if (_isGenerating) return;
+    setState(() => _isGenerating = true);
     try {
-      final doc = pw.Document(
-        title: _titleController.text.trim(),
-        author: 'Collectarr',
-      );
-
-      final format = _orientation == PdfOrientation.landscape
-          ? PdfPageFormat.a4.landscape
-          : PdfPageFormat.a4.portrait;
-
-      final marginEdge = pw.EdgeInsets.all(_margin.mm * PdfPageFormat.mm);
-      final pdfFont = _fontFamily == 'Times New Roman'
-          ? pw.Font.times()
-          : (_fontFamily == 'Courier New'
-              ? pw.Font.courier()
-              : pw.Font.helvetica());
-      final pdfBoldFont = _fontFamily == 'Times New Roman'
-          ? pw.Font.timesBold()
-          : (_fontFamily == 'Courier New'
-              ? pw.Font.courierBold()
-              : pw.Font.helveticaBold());
-
-      final pdfColor = PdfColor.fromInt(_fontColor.toARGB32());
-
-      final tableBorder = switch (_borderType) {
-        PdfBorderType.none => const pw.TableBorder(),
-        PdfBorderType.middle => pw.TableBorder.symmetric(
-            inside: const pw.BorderSide(color: PdfColors.grey400, width: 0.5),
-          ),
-        PdfBorderType.outside => pw.TableBorder.all(
-            color: PdfColors.grey400,
-            width: 0.5,
-          ),
-        PdfBorderType.all => pw.TableBorder.all(
-            color: PdfColors.grey400,
-            width: 0.5,
-          ),
-      };
-
-      if (_exportMode == ExportMode.itemList) {
-        final items = _activeItems;
-        final activeCols = [
-          for (final id in _selectedItemColumnIds)
-            _availableItemColumns.firstWhere((column) => column.id == id)
-        ];
-
-        final itemsPerPage = _limitRowsPerPage ? _maxRowsPerPage : 35;
-        final pages = <List<LibraryProjectionView>>[];
-        for (var i = 0; i < items.length; i += itemsPerPage) {
-          pages.add(items.sublist(
-              i,
-              i + itemsPerPage > items.length
-                  ? items.length
-                  : i + itemsPerPage));
-        }
-        if (pages.isEmpty) pages.add([]);
-
-        for (var p = 0; p < pages.length; p++) {
-          final pageItems = pages[p];
-          doc.addPage(
-            pw.Page(
-              pageFormat: format,
-              margin: marginEdge,
-              build: (context) {
-                return pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-                  children: [
-                    if (p == 0 || _repeatTitleOnEveryPage) ...[
-                      pw.Text(
-                        _titleController.text.trim().isEmpty
-                            ? 'My Collection'
-                            : _titleController.text.trim(),
-                        style: pw.TextStyle(
-                          font: pdfBoldFont,
-                          fontSize: 18,
-                          color: pdfColor,
-                        ),
-                      ),
-                      if (_printDateTime && (p == 0 || _repeatDateTime))
-                        pw.Text(
-                          _formattedCurrentDateTime,
-                          style: pw.TextStyle(
-                            font: pdfFont,
-                            fontSize: 8,
-                            color: PdfColors.grey600,
-                          ),
-                        ),
-                      pw.SizedBox(height: 10),
-                    ],
-                    pw.Table(
-                      border: tableBorder,
-                      children: [
-                        if (_headerRow && (p == 0 || _repeatHeaderRow))
-                          pw.TableRow(
-                            decoration: const pw.BoxDecoration(
-                                color: PdfColors.grey200),
-                            children: [
-                              for (final col in activeCols)
-                                pw.Padding(
-                                  padding: const pw.EdgeInsets.all(4),
-                                  child: pw.Text(
-                                    col.label,
-                                    style: pw.TextStyle(
-                                      font: pdfBoldFont,
-                                      fontSize: _fontSize.toDouble(),
-                                      color: pdfColor,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        for (var i = 0; i < pageItems.length; i++)
-                          pw.TableRow(
-                            decoration: pw.BoxDecoration(
-                              color: _alternatingRows && i % 2 == 1
-                                  ? PdfColors.grey100
-                                  : PdfColors.white,
-                            ),
-                            children: [
-                              for (final col in activeCols)
-                                pw.Padding(
-                                  padding: const pw.EdgeInsets.all(4),
-                                  child: pw.Text(
-                                    col.getValue(pageItems[i]),
-                                    style: pw.TextStyle(
-                                      font: pdfFont,
-                                      fontSize: _fontSize.toDouble(),
-                                      color: pdfColor,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                      ],
-                    ),
-                    pw.Spacer(),
-                    if (_pageNumbers)
-                      pw.Align(
-                        alignment: pw.Alignment.centerRight,
-                        child: pw.Text(
-                          'Page ${p + 1} of ${pages.length}',
-                          style: pw.TextStyle(
-                            font: pdfFont,
-                            fontSize: 8,
-                            color: PdfColors.grey600,
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
-          );
-        }
-      } else {
-        // Kind-owned child list export mode
-        final rows = _activeChildRows;
-        final activeCols = [
-          for (final id in _selectedChildColumnIds)
-            _availableChildColumns.firstWhere((column) => column.id == id)
-        ];
-
-        final itemsPerPage = _limitRowsPerPage ? _maxRowsPerPage : 40;
-        final pages = <List<LibraryExportChildRow>>[];
-        for (var i = 0; i < rows.length; i += itemsPerPage) {
-          pages.add(rows.sublist(i,
-              i + itemsPerPage > rows.length ? rows.length : i + itemsPerPage));
-        }
-        if (pages.isEmpty) pages.add([]);
-
-        for (var p = 0; p < pages.length; p++) {
-          final pageRows = pages[p];
-          doc.addPage(
-            pw.Page(
-              pageFormat: format,
-              margin: marginEdge,
-              build: (context) {
-                return pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-                  children: [
-                    if (p == 0 || _repeatTitleOnEveryPage) ...[
-                      pw.Text(
-                        _titleController.text.trim().isEmpty
-                            ? (_exportCapability?.pdfChildTitle ??
-                                'My $_childLabel')
-                            : _titleController.text.trim(),
-                        style: pw.TextStyle(
-                          font: pdfBoldFont,
-                          fontSize: 18,
-                          color: pdfColor,
-                        ),
-                      ),
-                      if (_printDateTime && (p == 0 || _repeatDateTime))
-                        pw.Text(
-                          _formattedCurrentDateTime,
-                          style: pw.TextStyle(
-                            font: pdfFont,
-                            fontSize: 8,
-                            color: PdfColors.grey600,
-                          ),
-                        ),
-                      pw.SizedBox(height: 10),
-                    ],
-                    pw.Table(
-                      border: tableBorder,
-                      children: [
-                        if (_headerRow && (p == 0 || _repeatHeaderRow))
-                          pw.TableRow(
-                            decoration: const pw.BoxDecoration(
-                                color: PdfColors.grey200),
-                            children: [
-                              for (final col in activeCols)
-                                pw.Padding(
-                                  padding: const pw.EdgeInsets.all(4),
-                                  child: pw.Text(
-                                    col.label,
-                                    style: pw.TextStyle(
-                                      font: pdfBoldFont,
-                                      fontSize: _fontSize.toDouble(),
-                                      color: pdfColor,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        for (var i = 0; i < pageRows.length; i++)
-                          pw.TableRow(
-                            decoration: pw.BoxDecoration(
-                              color: _alternatingRows && i % 2 == 1
-                                  ? PdfColors.grey100
-                                  : PdfColors.white,
-                            ),
-                            children: [
-                              for (final col in activeCols)
-                                pw.Padding(
-                                  padding: const pw.EdgeInsets.all(4),
-                                  child: pw.Text(
-                                    col.getValue(pageRows[i]),
-                                    style: pw.TextStyle(
-                                      font: pdfFont,
-                                      fontSize: _fontSize.toDouble(),
-                                      color: pdfColor,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                      ],
-                    ),
-                    pw.Spacer(),
-                    if (_pageNumbers)
-                      pw.Align(
-                        alignment: pw.Alignment.centerRight,
-                        child: pw.Text(
-                          'Page ${p + 1} of ${pages.length}',
-                          style: pw.TextStyle(
-                            font: pdfFont,
-                            fontSize: 8,
-                            color: PdfColors.grey600,
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
-          );
-        }
-      }
-
-      final bytes = await doc.save();
+      final report = _capturePdfReport();
+      final generator = widget.generator;
+      final bytes = await runWithProgressDialog(
+          context: context,
+          title: 'Print to PDF',
+          message: 'Generating your PDF file...',
+          task: () => generator.pdf(report));
+      if (!mounted) return;
       final sizeKb = (bytes.lengthInBytes / 1024).toStringAsFixed(1);
       setState(() {
         _generatedPdfBytes = bytes;
         _generatedFileSize = '$sizeKb KB';
-        _isGenerating = false;
       });
-    } catch (e) {
-      setState(() => _isGenerating = false);
+    } catch (error, stack) {
+      logRecoverableError(
+          source: 'reports',
+          message: 'PDF generation failed',
+          error: error,
+          stackTrace: stack);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to generate PDF: $e')),
-        );
+            SnackBar(content: Text('Failed to generate PDF: $error')));
       }
+    } finally {
+      if (mounted) setState(() => _isGenerating = false);
     }
   }
 

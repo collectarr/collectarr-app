@@ -34,10 +34,14 @@ Future<T> runWithReportedProgressDialog<T>({
 }) async {
   final navigator = Navigator.of(context, rootNavigator: true);
   final progress = ValueNotifier<AppProgress?>(null);
+  ModalRoute<void>? dialogRoute;
   final shown = showAppDialog<void>(
     context: context,
-    builder: (_) =>
-        AppProgressDialog(title: title, message: message, progress: progress),
+    builder: (dialogContext) {
+      dialogRoute = ModalRoute.of<void>(dialogContext);
+      return AppProgressDialog(
+          title: title, message: message, progress: progress);
+    },
   );
   try {
     // Let the dialog paint before synchronous work can block the frame.
@@ -49,9 +53,19 @@ Future<T> runWithReportedProgressDialog<T>({
     ]);
     return results.first as T;
   } finally {
-    navigator.pop();
-    await shown;
-    progress.dispose();
+    try {
+      final route = dialogRoute;
+      if (navigator.mounted && route != null && route.isActive) {
+        if (route.isCurrent) {
+          navigator.pop();
+        } else {
+          navigator.removeRoute(route);
+        }
+        await shown;
+      }
+    } finally {
+      progress.dispose();
+    }
   }
 }
 

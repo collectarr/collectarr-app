@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
+import 'library_report_generator.dart';
 import 'package:collectarr_app/features/library/reports/library_report_field_dialogs.dart';
 import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
@@ -51,6 +53,7 @@ class LibraryExportCsvTxtPage extends StatefulWidget {
     this.selectedItemIds,
     this.allShelfEntries,
     this.initialTitle,
+    this.generator = const LibraryReportGenerator(),
   });
 
   final LibraryKindRegistration type;
@@ -59,6 +62,7 @@ class LibraryExportCsvTxtPage extends StatefulWidget {
   final Set<String>? selectedItemIds;
   final List<LibraryWorkspaceContext>? allShelfEntries;
   final String? initialTitle;
+  final LibraryReportGenerator generator;
 
   @override
   State<LibraryExportCsvTxtPage> createState() =>
@@ -273,31 +277,11 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
     _generatedFileSize = null;
   }
 
-  String _formatCell(String value) {
-    final delim = _delimiter.char;
-    final enc = _enclosure.char;
-
-    if (enc.isEmpty) {
-      return value.replaceAll(delim, ' ').replaceAll('\n', ' ');
-    }
-
-    final needsQuote = value.contains(delim) ||
-        value.contains(enc) ||
-        value.contains('\n') ||
-        value.contains('\r') ||
-        _enclosure == FieldEnclosure.doubleQuote;
-
-    if (needsQuote) {
-      final escaped = value.replaceAll(enc, '$enc$enc');
-      return '$enc$escaped$enc';
-    }
-
-    return value;
-  }
-
-  String _generateRowString(List<String> cells) {
-    return cells.map(_formatCell).join(_delimiter.char);
-  }
+  String _generateRowString(List<String> cells) =>
+      formatLibraryDelimitedRow(cells,
+          delimiter: _delimiter.char,
+          enclosure: _enclosure.char,
+          quoteAll: _enclosure == FieldEnclosure.doubleQuote);
 
   List<String> _buildPreviewLines({int limit = 30}) {
     final lines = <String>[];
@@ -345,65 +329,74 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
     return lines;
   }
 
-  String _generateFullExportContent() {
-    final buffer = StringBuffer();
-    final isChildList =
-        _supportsChildList && _exportMode == ExportMode.childList;
-
-    if (isChildList) {
-      final activeColumns = [
+  LibraryDelimitedReport _captureDelimitedReport() {
+    final child = _supportsChildList && _exportMode == ExportMode.childList;
+    final List<String> headers;
+    final List<List<String>> rows;
+    if (child) {
+      final columns = [
         for (final id in _selectedChildColumnIds)
-          _availableChildColumns.firstWhere((col) => col.id == id)
+          _availableChildColumns.firstWhere((column) => column.id == id)
       ];
-
-      if (_includeHeaderRow) {
-        buffer.writeln(
-            _generateRowString(activeColumns.map((c) => c.label).toList()));
-      }
-
-      for (final pair in _activeChildRows) {
-        final cells = activeColumns.map((col) => col.getValue(pair)).toList();
-        buffer.writeln(_generateRowString(cells));
-      }
+      headers = [for (final column in columns) column.label];
+      rows = [
+        for (final row in _activeChildRows)
+          [for (final column in columns) column.getValue(row)]
+      ];
     } else {
-      final activeColumns = [
+      final columns = [
         for (final id in _selectedAlbumColumnIds)
-          _availableAlbumColumns.firstWhere((col) => col.id == id)
+          _availableAlbumColumns.firstWhere((column) => column.id == id)
       ];
-
-      if (_includeHeaderRow) {
-        buffer.writeln(
-            _generateRowString(activeColumns.map((c) => c.label).toList()));
-      }
-
-      for (final item in _activeItems) {
-        final cells = activeColumns.map((col) => col.getValue(item)).toList();
-        buffer.writeln(_generateRowString(cells));
-      }
+      headers = [for (final column in columns) column.label];
+      rows = [
+        for (final row in _activeItems)
+          [for (final column in columns) column.getValue(row)]
+      ];
     }
-
-    return buffer.toString();
+    return LibraryDelimitedReport(
+        headers: headers,
+        rows: rows,
+        delimiter: _delimiter.char,
+        enclosure: _enclosure.char,
+        quoteAll: _enclosure == FieldEnclosure.doubleQuote,
+        includeHeaders: _includeHeaderRow);
   }
 
   Future<void> _handleGenerate() async {
+    if (_isGenerating) return;
     setState(() => _isGenerating = true);
-    final type = _fileType == ExportFileType.csv ? 'CSV' : 'TXT';
-    final content = await runWithProgressDialog(
-        context: context,
-        title: 'Export to $type',
-        message: 'Generating your $type file...',
-        task: () async => _generateFullExportContent());
-    if (!mounted) return;
-    final kb = utf8.encode(content).length / 1024;
-    final sizeStr = kb >= 1024
-        ? '${(kb / 1024).toStringAsFixed(1)} MB'
-        : '${kb.toStringAsFixed(1)} KB';
-
-    setState(() {
-      _generatedContent = content;
-      _generatedFileSize = sizeStr;
-      _isGenerating = false;
-    });
+    try {
+      final report = _captureDelimitedReport();
+      final generator = widget.generator;
+      final type = _fileType == ExportFileType.csv ? 'CSV' : 'TXT';
+      final content = await runWithProgressDialog(
+          context: context,
+          title: 'Export to $type',
+          message: 'Generating your $type file...',
+          task: () => generator.delimited(report));
+      if (!mounted) return;
+      final kb = utf8.encode(content).length / 1024;
+      final size = kb >= 1024
+          ? '${(kb / 1024).toStringAsFixed(1)} MB'
+          : '${kb.toStringAsFixed(1)} KB';
+      setState(() {
+        _generatedContent = content;
+        _generatedFileSize = size;
+      });
+    } catch (error, stack) {
+      logRecoverableError(
+          source: 'reports',
+          message: 'Export generation failed',
+          error: error,
+          stackTrace: stack);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to generate export: $error')));
+      }
+    } finally {
+      if (mounted) setState(() => _isGenerating = false);
+    }
   }
 
   Future<void> _handleDownload() async {
