@@ -61,6 +61,7 @@ flutter:
     - assets/logos/
     - assets/platform_logos/
     - assets/import_logos/
+    - assets/flags/
     - web/icons/Icon-maskable-192.png
     - assets/fonts/PlusJakartaSans-OFL.txt
   fonts:

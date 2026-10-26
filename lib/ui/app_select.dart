@@ -14,6 +14,8 @@ class AppSelect<T> extends StatefulWidget {
     this.hint,
     this.style,
     this.arrow,
+    this.leadingOf,
+    this.isOptionEnabled,
   });
 
   final T? value;
@@ -28,6 +30,13 @@ class AppSelect<T> extends StatefulWidget {
   /// Replaces the default muted chevron, given whether the select is enabled.
   final Widget Function(bool enabled)? arrow;
 
+  /// A widget before an option's text, in the list and in the field, such as
+  /// a language's flag.
+  final Widget? Function(T option)? leadingOf;
+
+  /// Whether an option can be chosen; others are listed dimmed.
+  final bool Function(T option)? isOptionEnabled;
+
   @override
   State<AppSelect<T>> createState() => _AppSelectState<T>();
 }
@@ -38,6 +47,18 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
 
   final _controller = MenuController();
   bool _open = false;
+
+  Widget _optionContent(T option, String label, {TextStyle? style}) {
+    final text =
+        Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: style);
+    final leading = widget.leadingOf?.call(option);
+    if (leading == null) return text;
+    return Row(children: [
+      leading,
+      const SizedBox(width: 3),
+      Flexible(child: text),
+    ]);
+  }
 
   String? get _selectedLabel {
     for (final (option, label) in widget.options) {
@@ -88,7 +109,10 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
                 padding: const WidgetStatePropertyAll(
                     EdgeInsets.symmetric(horizontal: 7)),
                 shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
-                foregroundColor: WidgetStatePropertyAll(palette.textPrimary),
+                foregroundColor: WidgetStateProperty.resolveWith((states) =>
+                    states.contains(WidgetState.disabled)
+                        ? palette.textMuted
+                        : palette.textPrimary),
                 backgroundColor: WidgetStateProperty.resolveWith((states) =>
                     states.contains(WidgetState.hovered) ||
                             states.contains(WidgetState.focused)
@@ -97,11 +121,12 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
                 overlayColor: const WidgetStatePropertyAll(Colors.transparent),
                 textStyle: WidgetStatePropertyAll(textStyle),
               ),
-              onPressed: () => widget.onChanged?.call(option),
+              onPressed: widget.isOptionEnabled?.call(option) ?? true
+                  ? () => widget.onChanged?.call(option)
+                  : null,
               child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(label,
-                      maxLines: 1, overflow: TextOverflow.ellipsis)),
+                  child: _optionContent(option, label)),
             ),
         ],
         child: MouseRegion(
@@ -118,9 +143,7 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
               child: Row(children: [
                 Expanded(
                     child: _selectedLabel != null
-                        ? Text(_selectedLabel!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        ? _optionContent(widget.value as T, _selectedLabel!,
                             style: textStyle)
                         : (widget.hint ?? const SizedBox.shrink())),
                 widget.arrow?.call(enabled) ??

@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/core/localization/app_languages.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/settings/title_case_exceptions_dialog.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
 import 'ebay_search_preferences.dart';
@@ -133,15 +135,21 @@ class _SettingsAppearanceSectionState
         title: 'Localization',
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          // Collectarr is English-only and follows the device time zone; the
-          // fields show that instead of offering choices.
+          // The reference's languages with their flags; Collectarr is
+          // English-only so far, so the others are listed but disabled. The
+          // time zone follows the device.
           SettingsGroup(
             legend: 'Application Language',
-            child: SettingsSelect<String>(
-                value: 'English',
-                values: const ['English'],
-                labelOf: (value) => value,
-                onChanged: null),
+            child: SettingsSelect<AppLanguage>(
+                value: kAppLanguages.first,
+                values: kAppLanguages,
+                labelOf: (language) => language.translated
+                    ? language.nativeName
+                    : '${language.nativeName} (not translated yet)',
+                leadingOf: (language) => SvgPicture.asset(language.flagAsset,
+                    width: 21, height: 16, fit: BoxFit.fill),
+                isOptionEnabled: (language) => language.translated,
+                onChanged: (_) {}),
           ),
           SettingsGroup(
             legend: 'Time zone',

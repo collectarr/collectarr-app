@@ -20,3 +20,10 @@ tints them.
 Do not add logos copied from CLZ or files without a known license. Sources
 and platforms without a logo here (Xbox, Nintendo and Windows have none in
 Simple Icons) use a generic icon.
+
+## Flags
+
+`flags/` holds the 4:3 country flags of the languages in Settings >
+Localization, unchanged from [flag-icons](https://github.com/lipis/flag-icons)
+7.2.3 by Panayiotis Lipiridis, released under the MIT License
+(`flags/LICENSE.flag-icons.txt`). Do not use the reference's flag images.
