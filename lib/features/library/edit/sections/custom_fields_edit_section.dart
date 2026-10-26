@@ -450,7 +450,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
         validator: validator,
         decoration: InputDecoration(
             prefixText: def.valueType == CustomFieldValueType.currency
-                ? '${currencySymbol(_display[def.id]?.currencyCode ?? AppFormats.current.currency)} '
+                ? '${AppFormats.current.currencyName(_display[def.id]?.currencyCode)} '
                 : null,
             suffixText: suffixText,
             helperText: widget.preview ? null : _scopeLabel(def.targetScope)),

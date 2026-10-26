@@ -37,10 +37,7 @@ final class LibraryMoneyAmountField extends StatelessWidget {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             // Follows Settings > Localization > Currency display.
-            prefixText:
-                AppFormats.current.currencyDisplay == CurrencyDisplay.symbol
-                    ? '${currencySymbol(_currencyCode)} '
-                    : '$_currencyCode ',
+            prefixText: '${AppFormats.current.currencyName(_currencyCode)} ',
           ),
           validator: _validate,
           onChanged: _handleChanged,

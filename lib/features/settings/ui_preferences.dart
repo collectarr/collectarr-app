@@ -335,7 +335,7 @@ class UiPreferencesStore {
             prefs.getString(numberFormatKey), NumberFormatStyle.plain),
         currency: prefs.getString(defaultCurrencyKey) ?? 'USD',
         currencyDisplay: _named(CurrencyDisplay.values,
-            prefs.getString(currencyDisplayKey), CurrencyDisplay.code),
+            prefs.getString(currencyDisplayKey), CurrencyDisplay.regional),
       ),
       showEbayLinks: prefs.getBool(showEbayLinksKey) ?? true,
       ebayWishlistOnly: prefs.getBool(ebayWishlistOnlyKey) ?? false,
