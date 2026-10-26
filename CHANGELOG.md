@@ -75,6 +75,7 @@
 - The CLZ comparison records the Add Games layout, platform picker, editor rechecks and pick list Manage switch, the import progress and success alert, the Covers tab and editor dropdowns, and the platform names still open.
 
 ### 🧰 CI & Build
+- Contract tests validate the pinned App bundle independently of neighboring checkouts; Core comparisons require an explicit manifest path.
 - The kind duplication audit detects repeated implementations across libraries while preserving meaningful identifier and string differences.
 
 ## 1.3.0 - 2026-10-24
