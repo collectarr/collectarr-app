@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -205,13 +203,7 @@ class LibraryToolbarActionRegistry {
           label: action.label,
           section: 'Kind actions',
           enabled: enabled,
-          onSelected: enabled
-              ? () => unawaited(
-                    Future<void>.sync(
-                      () => action.run(kindActionContext),
-                    ),
-                  )
-              : null,
+          onSelected: enabled ? () => action.run(kindActionContext) : null,
         ),
       );
     }

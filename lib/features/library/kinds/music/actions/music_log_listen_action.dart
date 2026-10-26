@@ -65,6 +65,7 @@ Future<void> runMusicLogListenAction(
             updatedAt: now,
           ),
         );
+    if (!action.buildContext.mounted) return;
     container.invalidate(musicListeningEventsProvider(libraryEntryRef));
     container.invalidate(musicEntryListeningSummaryProvider(libraryEntryRef));
   } finally {

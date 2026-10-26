@@ -78,6 +78,10 @@ colors are fixed. Fonts: bundled OFL Plus Jakarta Sans, optionally a
 user-supplied local font (see [local font loading](local-font-loading.md));
 Gilroy is never bundled.
 
+Async action hosts share busy, repeat-submit and error handling across action
+menus, semantic inspector actions, and standalone tracking/listening controls.
+Kind modules retain the operations and their domain rules.
+
 ## Guards
 
 - `tool/check_library_kind_boundaries.dart`: AST ownership rules; kinds never
@@ -91,8 +95,6 @@ Gilroy is never bundled.
 
 ## Known limits
 
-- Standalone activity controls (outside the editor) are separate commands
-  without a shared busy/error/repeat-submit pass.
 - Field parity with CLZ is verified for Music only. The CLZ Games Edit form
   is captured in the [Game ledger](catalog-item-field-ledgers/game.md) with its
   gaps; the other kinds' ledgers in `catalog-item-field-ledgers/` are

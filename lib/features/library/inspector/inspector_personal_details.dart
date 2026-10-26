@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/actions/async_action_host.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -463,154 +464,161 @@ class _InspectorTrackingDetailsEditorState
   @override
   Widget build(BuildContext context) {
     final accent = widget.accent;
-    return LibraryDetailSection(
-      title: 'Tracking details',
-      children: [
-        const LibraryDetailFieldRow(
-          field: LibraryDetailField(
-            label: 'Mode',
-            value:
-                'Quick actions save immediately. Editor changes save when applied.',
-          ),
-        ),
-        _InspectorEditorRow(
-          label: 'My Rating',
-          child: MediaRatingField(controller: _ratingController),
-        ),
-        _InspectorEditorRow(
-          label: 'Status',
-          child: MediaTrackingStatusField(
-            profile: widget.profile,
-            value: _statusController.text,
-            label: 'Tracking status',
-            onChanged: (value) {
-              _statusController.text = value ?? '';
-            },
-          ),
-        ),
-        _InspectorEditorRow(
-          label: 'Adjust',
-          child: TrackingQuickAdjustments(
-            accent: accent,
-            progressCurrentController: _progressCurrentController,
-            progressTotalController: _progressTotalController,
-            onDecrementProgress: () => _bumpProgress(-1),
-            onIncrementProgress: () => _bumpProgress(1),
-          ),
-        ),
-        if (widget.trackingEditor != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: widget.trackingEditor!.build(
-              context,
-              summary: widget.trackingSummary,
-              onChanged: (mutation) => setState(
-                () => _trackingEditorMutation = mutation,
-              ),
-              accent: accent,
-            ),
-          ),
-        _InspectorEditorRow(
-          label: 'Progress',
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _progressCurrentController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    hintText: 'Current',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  controller: _progressTotalController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    hintText: 'Total',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        _InspectorEditorRow(
-          label: 'Completed',
-          child: TextField(
-            controller: _timesCompletedController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              hintText: 'Times completed',
-              border: OutlineInputBorder(),
-              isDense: true,
-            ),
-          ),
-        ),
-        _InspectorEditorRow(
-          label: 'Notes',
-          alignTop: true,
-          child: TextField(
-            controller: _trackingNotesController,
-            minLines: 2,
-            maxLines: 4,
-            decoration: const InputDecoration(
-              hintText: 'Tracking notes',
-              border: OutlineInputBorder(),
-              isDense: true,
-            ),
-          ),
-        ),
-        _InspectorEditorRow(
-          label: 'Dates',
-          child: Column(
-            children: [
-              _dateField(
-                label: 'Started',
-                value: _startedAt,
-                onChanged: (value) => setState(() => _startedAt = value),
-              ),
-              const SizedBox(height: 10),
-              _dateField(
-                label: 'Finished',
-                value: _finishedAt,
-                onChanged: (value) => setState(() => _finishedAt = value),
-              ),
-            ],
-          ),
-        ),
-        _InspectorEditorRow(
-          label: 'Actions',
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+    return AsyncActionHost(
+        builder: (context, busy, run) => LibraryDetailSection(
+              title: 'Tracking details',
               children: [
-                TextButton.icon(
-                  onPressed: _stopTracking,
-                  icon: const Icon(Icons.playlist_remove, size: 18),
-                  label: const Text('Stop tracking'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.error,
+                const LibraryDetailFieldRow(
+                  field: LibraryDetailField(
+                    label: 'Mode',
+                    value:
+                        'Quick actions save immediately. Editor changes save when applied.',
                   ),
                 ),
-                const SizedBox(width: 8),
-                FilledButton.icon(
-                  onPressed: _save,
-                  icon: const Icon(Icons.save_outlined),
-                  label: const Text('Apply tracking changes'),
+                _InspectorEditorRow(
+                  label: 'My Rating',
+                  child: MediaRatingField(controller: _ratingController),
+                ),
+                _InspectorEditorRow(
+                  label: 'Status',
+                  child: MediaTrackingStatusField(
+                    profile: widget.profile,
+                    value: _statusController.text,
+                    label: 'Tracking status',
+                    onChanged: (value) {
+                      _statusController.text = value ?? '';
+                    },
+                  ),
+                ),
+                _InspectorEditorRow(
+                  label: 'Adjust',
+                  child: TrackingQuickAdjustments(
+                    accent: accent,
+                    progressCurrentController: _progressCurrentController,
+                    progressTotalController: _progressTotalController,
+                    onDecrementProgress: () => _bumpProgress(-1),
+                    onIncrementProgress: () => _bumpProgress(1),
+                  ),
+                ),
+                if (widget.trackingEditor != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: widget.trackingEditor!.build(
+                      context,
+                      summary: widget.trackingSummary,
+                      onChanged: (mutation) => setState(
+                        () => _trackingEditorMutation = mutation,
+                      ),
+                      accent: accent,
+                    ),
+                  ),
+                _InspectorEditorRow(
+                  label: 'Progress',
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _progressCurrentController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            hintText: 'Current',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: _progressTotalController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            hintText: 'Total',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _InspectorEditorRow(
+                  label: 'Completed',
+                  child: TextField(
+                    controller: _timesCompletedController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      hintText: 'Times completed',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                _InspectorEditorRow(
+                  label: 'Notes',
+                  alignTop: true,
+                  child: TextField(
+                    controller: _trackingNotesController,
+                    minLines: 2,
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      hintText: 'Tracking notes',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                _InspectorEditorRow(
+                  label: 'Dates',
+                  child: Column(
+                    children: [
+                      _dateField(
+                        label: 'Started',
+                        value: _startedAt,
+                        onChanged: (value) =>
+                            setState(() => _startedAt = value),
+                      ),
+                      const SizedBox(height: 10),
+                      _dateField(
+                        label: 'Finished',
+                        value: _finishedAt,
+                        onChanged: (value) =>
+                            setState(() => _finishedAt = value),
+                      ),
+                    ],
+                  ),
+                ),
+                _InspectorEditorRow(
+                  label: 'Actions',
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextButton.icon(
+                          onPressed: busy
+                              ? null
+                              : () => run('Stop tracking', _stopTracking),
+                          icon: const Icon(Icons.playlist_remove, size: 18),
+                          label: const Text('Stop tracking'),
+                          style: TextButton.styleFrom(
+                            foregroundColor:
+                                Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        FilledButton.icon(
+                          onPressed:
+                              busy ? null : () => run('Save tracking', _save),
+                          icon: const Icon(Icons.save_outlined),
+                          label: const Text('Apply tracking changes'),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
-            ),
-          ),
-        ),
-      ],
-    );
+            ));
   }
 
   void _syncFromSummary(TrackingSummary summary) {
