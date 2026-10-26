@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:collectarr_app/features/library/actions/async_action_host.dart';
 import 'library_workspace_menus.dart';
 import 'library_workspace_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -30,7 +32,7 @@ class LibraryUtilityMenuAction {
 
   final String label;
   final IconData icon;
-  final VoidCallback? onSelected;
+  final FutureOr<void> Function()? onSelected;
   final bool enabled;
   final Widget? trailing;
   final String? section;
@@ -90,28 +92,31 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
         ),
       ),
     );
-    return Badge(
-      isLabelVisible: badgeCount > 0,
-      largeSize: 14,
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      label: Text(
-        badgeCount.toString(),
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-      ),
-      child: PopupMenuButton<Object>(
-        popUpAnimationStyle: AnimationStyle.noAnimation,
-        tooltip: tooltip,
-        padding: EdgeInsets.zero,
-        color: libraryToolbarMenuSurface(context),
-        shape: libraryToolbarDropdownMenuShape(context),
-        menuPadding: EdgeInsets.zero,
-        surfaceTintColor: Colors.transparent,
-        position: PopupMenuPosition.under,
-        onSelected: _handleSelected,
-        itemBuilder: (context) => _buildMenuItems(context),
-        child: trigger,
-      ),
-    );
+    return AsyncActionHost(
+        builder: (context, busy, run) => Badge(
+              isLabelVisible: badgeCount > 0,
+              largeSize: 14,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              label: Text(
+                badgeCount.toString(),
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              ),
+              child: PopupMenuButton<Object>(
+                enabled: !busy,
+                popUpAnimationStyle: AnimationStyle.noAnimation,
+                tooltip: tooltip,
+                padding: EdgeInsets.zero,
+                color: libraryToolbarMenuSurface(context),
+                shape: libraryToolbarDropdownMenuShape(context),
+                menuPadding: EdgeInsets.zero,
+                surfaceTintColor: Colors.transparent,
+                position: PopupMenuPosition.under,
+                onSelected: (selection) => _handleSelected(selection, run),
+                itemBuilder: (context) => _buildMenuItems(context),
+                child: trigger,
+              ),
+            ));
   }
 
   List<PopupMenuEntry<Object>> _buildMenuItems(BuildContext context) {
@@ -216,13 +221,14 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
     return null;
   }
 
-  void _handleSelected(Object selection) {
+  void _handleSelected(Object selection, AsyncActionRun run) {
     if (selection is _LibraryUtilityQuickViewSelection<T>) {
       onQuickViewSelected(selection.value);
       return;
     }
     if (selection is LibraryUtilityMenuAction) {
-      selection.onSelected?.call();
+      final action = selection.onSelected;
+      if (selection.enabled && action != null) run(selection.label, action);
     }
   }
 }

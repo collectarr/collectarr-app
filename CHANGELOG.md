@@ -12,6 +12,7 @@
 - Settings > Localization lists CLZ's application languages with their flags; only English is available for now, the others are marked "not translated yet".
 
 ### 🐛 Fixes
+- Async library actions prevent repeat submissions, release busy state after failures and report errors consistently across menus and standalone controls.
 - Tracking drafts distinguish clearing a rating, note, date or progress value from leaving it unchanged.
 - Saving an entry with an empty title no longer breaks the library; no field is required, as in CLZ.
 - Location in Pre-fill Settings uses the same boxed field and list button as the editor.

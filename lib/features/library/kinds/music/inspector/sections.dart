@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/actions/async_action_host.dart';
 import 'package:collectarr_app/features/library/generic/projection/library_search_index.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
 import 'dart:math' as math;
@@ -171,46 +172,52 @@ class _MusicListeningSection extends ConsumerWidget {
     final summary = ref.watch(
       musicEntryListeningSummaryProvider(libraryEntryRef),
     );
-    return summary.when(
-      loading: () => const LinearProgressIndicator(minHeight: 2),
-      error: (error, _) => Text(
-        'Unable to load listening history: $error',
-        style: TextStyle(color: appPalette(context).textMuted),
-      ),
-      data: (stats) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    stats.totalListenCount == 0
-                        ? 'No listens logged yet.'
-                        : '${stats.totalListenCount} ${stats.totalListenCount == 1 ? 'listen' : 'listens'} / Last ${formatDate(stats.lastListened!)}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: appPalette(context).textMuted,
-                          fontWeight: FontWeight.w700,
+    return AsyncActionHost(
+        builder: (context, busy, run) => summary.when(
+              loading: () => const LinearProgressIndicator(minHeight: 2),
+              error: (error, _) => Text(
+                'Unable to load listening history: $error',
+                style: TextStyle(color: appPalette(context).textMuted),
+              ),
+              data: (stats) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            stats.totalListenCount == 0
+                                ? 'No listens logged yet.'
+                                : '${stats.totalListenCount} ${stats.totalListenCount == 1 ? 'listen' : 'listens'} / Last ${formatDate(stats.lastListened!)}',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: appPalette(context).textMuted,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                          ),
                         ),
-                  ),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () =>
-                      _logListen(context, ref, model, libraryEntryRef),
-                  icon: const Icon(Icons.headphones_outlined, size: 16),
-                  label: const Text('Log listen'),
-                ),
-              ],
-            ),
-            if (stats.recentEvents.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              for (final event in stats.recentEvents.take(5))
-                _MusicListenEventTile(event: event),
-            ],
-          ],
-        );
-      },
-    );
+                        OutlinedButton.icon(
+                          onPressed: busy
+                              ? null
+                              : () => run(
+                                  'Log listen',
+                                  () => _logListen(
+                                      context, ref, model, libraryEntryRef)),
+                          icon: const Icon(Icons.headphones_outlined, size: 16),
+                          label: const Text('Log listen'),
+                        ),
+                      ],
+                    ),
+                    if (stats.recentEvents.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      for (final event in stats.recentEvents.take(5))
+                        _MusicListenEventTile(event: event),
+                    ],
+                  ],
+                );
+              },
+            ));
   }
 
   Future<void> _logListen(
@@ -260,6 +267,7 @@ class _MusicListeningSection extends ConsumerWidget {
               updatedAt: now,
             ),
           );
+      if (!context.mounted) return;
       ref.invalidate(musicListeningEventsProvider(libraryEntryRef));
       ref.invalidate(musicEntryListeningSummaryProvider(libraryEntryRef));
       ref.invalidate(shelfProvider);
@@ -277,60 +285,66 @@ class _MusicListenEventTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.headphones_outlined, size: 15, color: palette.accent),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  formatDate(event.listenedAt),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-                if (event.location?.trim().isNotEmpty == true ||
-                    event.notes?.trim().isNotEmpty == true)
-                  Text(
-                    [
-                      if (event.location?.trim().isNotEmpty == true)
-                        event.location!.trim(),
-                      if (event.notes?.trim().isNotEmpty == true)
-                        event.notes!.trim(),
-                    ].join(' / '),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: palette.textMuted,
+    return AsyncActionHost(
+        builder: (context, busy, run) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.headphones_outlined,
+                      size: 15, color: palette.accent),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          formatDate(event.listenedAt),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
                         ),
+                        if (event.location?.trim().isNotEmpty == true ||
+                            event.notes?.trim().isNotEmpty == true)
+                          Text(
+                            [
+                              if (event.location?.trim().isNotEmpty == true)
+                                event.location!.trim(),
+                              if (event.notes?.trim().isNotEmpty == true)
+                                event.notes!.trim(),
+                            ].join(' / '),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: palette.textMuted,
+                                    ),
+                          ),
+                      ],
+                    ),
                   ),
-              ],
-            ),
-          ),
-          PopupMenuButton<String>(
-            popUpAnimationStyle: AnimationStyle.noAnimation,
-            tooltip: 'Event actions',
-            padding: EdgeInsets.zero,
-            iconSize: 18,
-            onSelected: (action) {
-              switch (action) {
-                case 'edit':
-                  _edit(context, ref);
-                case 'delete':
-                  _delete(context, ref);
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'edit', child: Text('Edit notes')),
-              PopupMenuItem(value: 'delete', child: Text('Delete event')),
-            ],
-          ),
-        ],
-      ),
-    );
+                  PopupMenuButton<String>(
+                    enabled: !busy,
+                    popUpAnimationStyle: AnimationStyle.noAnimation,
+                    tooltip: 'Event actions',
+                    padding: EdgeInsets.zero,
+                    iconSize: 18,
+                    onSelected: (action) {
+                      switch (action) {
+                        case 'edit':
+                          run('Edit listen', () => _edit(context, ref));
+                        case 'delete':
+                          run('Delete listen', () => _delete(context, ref));
+                      }
+                    },
+                    itemBuilder: (context) => const [
+                      PopupMenuItem(value: 'edit', child: Text('Edit notes')),
+                      PopupMenuItem(
+                          value: 'delete', child: Text('Delete event')),
+                    ],
+                  ),
+                ],
+              ),
+            ));
   }
 
   Future<void> _edit(BuildContext context, WidgetRef ref) async {
@@ -377,7 +391,7 @@ class _MusicListenEventTile extends ConsumerWidget {
               updatedAt: now,
             ),
           );
-      _invalidate(ref);
+      if (context.mounted) _invalidate(ref);
     } finally {
       notesController.dispose();
     }
@@ -407,7 +421,7 @@ class _MusicListenEventTile extends ConsumerWidget {
           event,
           DateTime.now().toUtc(),
         );
-    _invalidate(ref);
+    if (context.mounted) _invalidate(ref);
   }
 
   void _invalidate(WidgetRef ref) {

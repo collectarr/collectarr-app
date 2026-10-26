@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/actions/async_action_host.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -162,15 +163,16 @@ class InspectorActionBar extends StatelessWidget {
               label: 'Edit',
             ),
             for (final action in semanticActions)
-              _InspectorActionPillButton(
-                tooltip: action.label,
-                onPressed: action.onInvoke == null
-                    ? null
-                    : () {
-                        action.onInvoke!();
-                      },
-                icon: action.icon,
-                label: action.label,
+              AsyncActionHost(
+                key: ValueKey('semantic-${action.id}'),
+                builder: (context, busy, run) => _InspectorActionPillButton(
+                  tooltip: action.label,
+                  onPressed: busy || action.onInvoke == null
+                      ? null
+                      : () => run(action.label, action.onInvoke!),
+                  icon: action.icon,
+                  label: action.label,
+                ),
               ),
             for (final action in extraActions) action,
           ],

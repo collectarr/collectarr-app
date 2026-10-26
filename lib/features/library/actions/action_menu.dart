@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'async_action_host.dart';
 
 import 'package:flutter/material.dart';
 
@@ -39,31 +39,35 @@ class ActionMenu<TContext> extends StatelessWidget {
         )
         .toList(growable: false);
 
-    return PopupMenuButton<UiAction<TContext>>(
-      tooltip: tooltip,
-      icon: Icon(icon),
-      itemBuilder: (context) => [
-        for (final action in availableActions)
-          PopupMenuItem<UiAction<TContext>>(
-            value: action,
-            enabled: action.isEnabled(contextValue),
-            child: ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(action.icon, size: 18),
-              title: Text(action.label),
-            ),
-          ),
-      ],
-      onSelected: (action) => unawaited(_runAction(action)),
-    );
-  }
-
-  Future<void> _runAction(UiAction<TContext> action) async {
-    try {
-      await action.run(contextValue);
-    } catch (error, stackTrace) {
-      onActionError?.call(action, error, stackTrace);
-    }
+    return AsyncActionHost(
+        builder: (context, busy, run) => PopupMenuButton<UiAction<TContext>>(
+              enabled: !busy,
+              tooltip: tooltip,
+              icon: Icon(icon),
+              itemBuilder: (context) => [
+                for (final action in availableActions)
+                  PopupMenuItem<UiAction<TContext>>(
+                    value: action,
+                    enabled: action.isEnabled(contextValue),
+                    child: ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(action.icon, size: 18),
+                      title: Text(action.label),
+                    ),
+                  ),
+              ],
+              onSelected: (action) {
+                if (!action.isVisible(contextValue) ||
+                    !action.isEnabled(contextValue)) {
+                  return;
+                }
+                run(action.label, () => action.run(contextValue),
+                    onError: onActionError == null
+                        ? null
+                        : (error, stack) =>
+                            onActionError!(action, error, stack));
+              },
+            ));
   }
 }

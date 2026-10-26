@@ -1,9 +1,53 @@
+import 'dart:async';
 import 'package:collectarr_app/features/library/actions/action_menu.dart';
 import 'package:collectarr_app/features/library/actions/ui_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets(
+      'menu disables while running and reports errors without a handler',
+      (tester) async {
+    final pending = Completer<void>();
+    var calls = 0;
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: ActionMenu<String>(
+      contextValue: 'fixture',
+      placement: UiActionPlacement.itemMenu,
+      actions: [
+        _TestAction(
+            id: 'save',
+            label: 'Save item',
+            placement: UiActionPlacement.itemMenu,
+            onRun: () {
+              calls++;
+              return pending.future;
+            })
+      ],
+    ))));
+    await tester.tap(find.byIcon(Icons.more_horiz));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save item'));
+    await tester.pumpAndSettle();
+    expect(calls, 1);
+    expect(
+        tester
+            .widget<PopupMenuButton<UiAction<String>>>(
+                find.byType(PopupMenuButton<UiAction<String>>))
+            .enabled,
+        isFalse);
+    pending.completeError(StateError('failed save'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Save item failed:'), findsOneWidget);
+    expect(
+        tester
+            .widget<PopupMenuButton<UiAction<String>>>(
+                find.byType(PopupMenuButton<UiAction<String>>))
+            .enabled,
+        isTrue);
+  });
+
   testWidgets('renders only visible actions for its placement', (tester) async {
     var runs = 0;
     final actions = <UiAction<String>>[
@@ -71,7 +115,7 @@ final class _TestAction implements UiAction<String> {
   @override
   final UiActionPlacement placement;
 
-  final VoidCallback onRun;
+  final FutureOr<void> Function() onRun;
   final bool visible;
 
   @override
@@ -84,5 +128,5 @@ final class _TestAction implements UiAction<String> {
   bool isEnabled(String context) => true;
 
   @override
-  void run(String context) => onRun();
+  FutureOr<void> run(String context) => onRun();
 }
