@@ -9,6 +9,7 @@
 - Game covers can be found online (Find Online) from the Covers tab.
 - The Games Value tab links "Find sold listings on eBay" under the value and "Check historical values at PriceCharting.com" under the chart, and "Values by PriceCharting" in the details pane opens the game's PriceCharting page, as in CLZ.
 - Game, Hardware and Toy descriptions show their bold, italic and underlined text and line breaks in the details pane, as in CLZ, instead of raw tags.
+- Settings > Localization lists CLZ's application languages with their flags; only English is available for now, the others are marked "not translated yet".
 
 ### 🐛 Fixes
 - Saving an entry with an empty title no longer breaks the library; no field is required, as in CLZ.

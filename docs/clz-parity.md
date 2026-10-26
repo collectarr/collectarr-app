@@ -58,7 +58,7 @@ Keep these when matching the reference visually.
 | Settings | One page | The reference page is Appearance > Customization; Connection, Proposals, Data, Account, Updates and Logs are added tabs; pick lists and keyboard shortcuts stay in the main menu and Tools, so there is no Libraries tab |
 | Played History | Mark as listened records today | A date beside the button records listens on other days |
 | Search | Search field only; regular expressions only in the old desktop app | Extra barcode, cover-search and random-pick buttons; "matches:" regular expressions in the local search, never sent to Core |
-| Localization | Application language, time zone and a time display format | English only and the device time zone, shown read-only; Music lengths keep m:ss and h:mm:ss, which CLZ Music shows regardless of its time format |
+| Localization | Application language, time zone and a time display format | The Application Language list shows CLZ's 12 languages with their flags (FOSS flag-icons) and native names; the interface is English only so far, so the others are listed but disabled. The time zone follows the device, shown read-only; Music lengths keep m:ss and h:mm:ss, which CLZ Music shows regardless of its time format |
 | Sort fields | Back/Front Cover sorts | Has Back/Has Front cover the same need; no separate cover sorts |
 | Loan Manager | Current loans only | Also deletes loan records and lends or returns by barcode |
 | Add dialog | Search field only | Advanced artist, label and year fields toggle beside the field; cover search sits in the tab row |

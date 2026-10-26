@@ -138,18 +138,24 @@ class SettingsSelect<T> extends StatelessWidget {
     required this.values,
     required this.labelOf,
     required this.onChanged,
+    this.leadingOf,
+    this.isOptionEnabled,
   });
 
   final T? value;
   final List<T> values;
   final String Function(T value) labelOf;
   final ValueChanged<T>? onChanged;
+  final Widget? Function(T value)? leadingOf;
+  final bool Function(T value)? isOptionEnabled;
 
   @override
   Widget build(BuildContext context) => AppSelect<T>(
         value: value,
         decoration: settingsDropdownDecoration(context),
         arrow: (enabled) => settingsSelectArrow(context, enabled),
+        leadingOf: leadingOf,
+        isOptionEnabled: isOptionEnabled,
         options: [for (final option in values) (option, labelOf(option))],
         onChanged: onChanged == null
             ? null
