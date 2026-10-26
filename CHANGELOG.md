@@ -64,6 +64,7 @@
 - Settings dropdowns are as tall as CLZ's and show its bold white arrow at the right edge.
 - Currency display offers the chosen currency's own options, as in CLZ (for example $, US$ or USD; kr. or DKK), and prices everywhere read like CLZ's, such as "US$ 12.50".
 - Settings > Localization offers CLZ's 17 date display formats and 6 number formats, and the date format for editing shows an example such as "YYYY-MM-DD (2026-08-31)".
+- Hovering the Add Games, Add Music (and other Add) buttons darkens them the same way as the editor's Save button.
 
 ### ♻️ Refactors
 - Games no longer have a Core Region field or column: Collectarr never fetches PriceCharting prices, and the PriceCharting ID already names the NTSC or PAL release. Upgrading removes stored Core Region values.
