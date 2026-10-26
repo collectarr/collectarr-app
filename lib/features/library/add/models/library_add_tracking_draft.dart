@@ -21,18 +21,30 @@ class LibraryAddTrackingDraft {
   final String? notes;
 
   LibraryAddTrackingDraft copyWith({
-    int? rating,
-    String? readStatus,
-    DateTime? startedAt,
-    DateTime? finishedAt,
-    String? notes,
+    Object? rating = _unchangedTrackingValue,
+    Object? readStatus = _unchangedTrackingValue,
+    Object? startedAt = _unchangedTrackingValue,
+    Object? finishedAt = _unchangedTrackingValue,
+    Object? notes = _unchangedTrackingValue,
   }) {
     return LibraryAddTrackingDraft(
-      rating: rating ?? this.rating,
-      readStatus: readStatus ?? this.readStatus,
-      startedAt: startedAt ?? this.startedAt,
-      finishedAt: finishedAt ?? this.finishedAt,
-      notes: notes ?? this.notes,
+      rating: identical(rating, _unchangedTrackingValue)
+          ? this.rating
+          : rating as int?,
+      readStatus: identical(readStatus, _unchangedTrackingValue)
+          ? this.readStatus
+          : readStatus as String?,
+      startedAt: identical(startedAt, _unchangedTrackingValue)
+          ? this.startedAt
+          : startedAt as DateTime?,
+      finishedAt: identical(finishedAt, _unchangedTrackingValue)
+          ? this.finishedAt
+          : finishedAt as DateTime?,
+      notes: identical(notes, _unchangedTrackingValue)
+          ? this.notes
+          : notes as String?,
     );
   }
 }
+
+const Object _unchangedTrackingValue = Object();

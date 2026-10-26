@@ -121,6 +121,7 @@ void main() {
         sourceType: 'digital',
         status: 'Want to listen',
         rating: 7,
+        notes: 'Existing note',
         startedAt: DateTime.utc(2026, 5, 20),
         updatedAt: DateTime.utc(2026, 5, 23),
       ),
@@ -139,6 +140,7 @@ void main() {
                   sourceType: 'digital',
                   status: 'Want to listen',
                   rating: 7,
+                  notes: 'Existing note',
                   startedAt: DateTime.utc(2026, 5, 20),
                   updatedAt: DateTime.utc(2026, 5, 23),
                 ),
@@ -164,5 +166,19 @@ void main() {
     expect(updated.rating, 7);
     expect(updated.libraryEntryRef.id.value, 'music-1');
     expect(updated.updatedAt.isAfter(DateTime.utc(2026, 5, 23)), isTrue);
+    expect(updated.notes, 'Existing note');
+    final notes = find.byWidgetPredicate((widget) =>
+        widget is TextField && widget.decoration?.hintText == 'Tracking notes');
+    await tester.ensureVisible(notes);
+    await tester.enterText(notes, '');
+    await tester.ensureVisible(
+        find.widgetWithText(FilledButton, 'Apply tracking changes'));
+    await tester
+        .tap(find.widgetWithText(FilledButton, 'Apply tracking changes'));
+    await pumpUntilSettled(tester);
+    final cleared = await readSingleTrackingState(db);
+    expect(cleared.notes, isNull);
+    expect(cleared.rating, 7);
+    expect(cleared.sourceTypeApiValue, 'digital');
   });
 }
