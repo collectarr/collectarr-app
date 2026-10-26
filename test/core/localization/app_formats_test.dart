@@ -88,4 +88,35 @@ void main() {
             .formatMoney(1569, 'HUF'),
         'HUF Ft 15.69');
   });
+
+  test('formats match the reference Localization lists', () {
+    // Recorded from the reference's Settings > Localization (2026-10-26).
+    expect(DateDisplayFormat.values.take(17).map((format) => format.example), [
+      '31 August 2026', '31 August 2026', '31 Aug 2026', '31 Aug 2026', //
+      'August 31, 2026', 'August 31, 2026', 'Aug 31, 2026', 'Aug 31, 2026',
+      '31/08/2026', '31/8/2026', '31/08/26', '31/8/26', //
+      '08/31/2026', '8/31/2026', '08/31/26', '8/31/26', '2026-08-31',
+    ]);
+    expect(DateEntryOrder.values.map((order) => order.label), [
+      'YYYY-MM-DD (2026-08-31)',
+      'DD-MM-YYYY (31-08-2026)',
+      'MM-DD-YYYY (08-31-2026)',
+    ]);
+    expect(NumberFormatStyle.values.map((style) => style.example), [
+      '1234567.89', '1234567,89', '1,234,567.89', //
+      '1.234.567,89', '1 234 567.89', '1 234 567,89',
+    ]);
+  });
+
+  test('day and month without a leading zero', () {
+    String on(DateDisplayFormat format) => AppFormats(date: format)
+        .formatPartialDate(const PartialDate(year: 2014, month: 3, day: 5));
+    expect(on(DateDisplayFormat.dayNoZeroFullMonthYear), '5 March 2014');
+    expect(on(DateDisplayFormat.dayFullMonthYear), '05 March 2014');
+    expect(on(DateDisplayFormat.usNumericNoZerosShortYear), '3/5/14');
+    expect(
+        AppFormats(date: DateDisplayFormat.fullMonthDayNoZeroYear)
+            .formatPartialDate(const PartialDate(year: 2014, month: 3)),
+        'March 2014');
+  });
 }

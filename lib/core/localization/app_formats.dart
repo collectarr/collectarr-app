@@ -8,68 +8,102 @@ library;
 import 'package:collectarr_app/core/models/partial_date.dart';
 
 const _monthNames = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
+  'January',
+  'February',
+  'March',
+  'April',
   'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 String _two(int value) => value.toString().padLeft(2, '0');
 
+/// The reference's date display formats, in its order, then Collectarr's
+/// dotted one. Each is a pattern of `d`/`j` (day with or without a leading
+/// zero), `m`/`n` (month number with or without one), `F`/`M` (full or
+/// short month name) and `Y`/`y` (four- or two-digit year), with a
+/// year-and-month pattern for dates known only to the month.
 enum DateDisplayFormat {
-  monthDayYear('Aug 31, 2026'),
-  dayMonthYear('31 Aug 2026'),
-  iso('2026-08-31'),
-  usNumeric('08/31/2026'),
-  europeanNumeric('31/08/2026'),
-  dotted('31.08.2026');
+  dayFullMonthYear('d F Y', 'F Y'),
+  dayNoZeroFullMonthYear('j F Y', 'F Y'),
+  dayMonthYear('d M Y', 'M Y'),
+  dayNoZeroMonthYear('j M Y', 'M Y'),
+  fullMonthDayYear('F d, Y', 'F Y'),
+  fullMonthDayNoZeroYear('F j, Y', 'F Y'),
+  monthDayYear('M d, Y', 'M Y'),
+  monthDayNoZeroYear('M j, Y', 'M Y'),
+  europeanNumeric('d/m/Y', 'm/Y'),
+  europeanNumericNoZeros('j/n/Y', 'n/Y'),
+  europeanNumericShortYear('d/m/y', 'm/y'),
+  europeanNumericNoZerosShortYear('j/n/y', 'n/y'),
+  usNumeric('m/d/Y', 'm/Y'),
+  usNumericNoZeros('n/j/Y', 'n/Y'),
+  usNumericShortYear('m/d/y', 'm/y'),
+  usNumericNoZerosShortYear('n/j/y', 'n/y'),
+  iso('Y-m-d', 'Y-m'),
+  dotted('d.m.Y', 'm.Y');
 
-  const DateDisplayFormat(this.example);
+  const DateDisplayFormat(this.pattern, this.yearMonthPattern);
 
-  /// The format shown on 31 August 2026.
-  final String example;
+  final String pattern;
+  final String yearMonthPattern;
 
-  String format(int year, int month, int day) => switch (this) {
-        monthDayYear => '${_monthNames[month - 1]} ${_two(day)}, $year',
-        dayMonthYear => '${_two(day)} ${_monthNames[month - 1]} $year',
-        iso => '$year-${_two(month)}-${_two(day)}',
-        usNumeric => '${_two(month)}/${_two(day)}/$year',
-        europeanNumeric => '${_two(day)}/${_two(month)}/$year',
-        dotted => '${_two(day)}.${_two(month)}.$year',
-      };
+  /// The format shown on 31 August 2026, as the reference lists it.
+  String get example => format(2026, 8, 31);
 
-  String formatYearMonth(int year, int month) => switch (this) {
-        iso => '$year-${_two(month)}',
-        usNumeric => '${_two(month)}/$year',
-        europeanNumeric => '${_two(month)}/$year',
-        dotted => '${_two(month)}.$year',
-        monthDayYear || dayMonthYear => '${_monthNames[month - 1]} $year',
-      };
+  String format(int year, int month, int day) =>
+      _apply(pattern, year, month, day);
+
+  String formatYearMonth(int year, int month) =>
+      _apply(yearMonthPattern, year, month, 1);
+
+  static String _apply(String pattern, int year, int month, int day) {
+    final out = StringBuffer();
+    for (final token in pattern.split('')) {
+      out.write(switch (token) {
+        'd' => _two(day),
+        'j' => '$day',
+        'm' => _two(month),
+        'n' => '$month',
+        'F' => _monthNames[month - 1],
+        'M' => _monthNames[month - 1].substring(0, 3),
+        'Y' => '$year',
+        'y' => _two(year % 100),
+        _ => token,
+      });
+    }
+    return out.toString();
+  }
 }
 
 /// Order of the year, month and day boxes when entering a date.
 enum DateEntryOrder {
-  yearMonthDay('YYYY-MM-DD'),
-  dayMonthYear('DD-MM-YYYY'),
-  monthDayYear('MM-DD-YYYY');
+  yearMonthDay('YYYY-MM-DD', '2026-08-31'),
+  dayMonthYear('DD-MM-YYYY', '31-08-2026'),
+  monthDayYear('MM-DD-YYYY', '08-31-2026');
 
-  const DateEntryOrder(this.label);
+  const DateEntryOrder(this.order, this.exampleDate);
 
-  final String label;
+  final String order;
+  final String exampleDate;
+
+  /// The reference's label: the order with 31 August 2026 written in it.
+  String get label => '$order ($exampleDate)';
 }
 
+/// The reference's number formats, in its order.
 enum NumberFormatStyle {
   plain('1234567.89', '', '.'),
+  plainComma('1234567,89', '', ','),
   commaGroups('1,234,567.89', ',', '.'),
   dotGroups('1.234.567,89', '.', ','),
+  spaceGroupsDot('1 234 567.89', ' ', '.'),
   spaceGroups('1 234 567,89', ' ', ',');
 
   const NumberFormatStyle(this.example, this.groupSeparator, this.decimal);
