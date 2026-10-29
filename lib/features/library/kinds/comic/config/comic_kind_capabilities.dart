@@ -60,79 +60,82 @@ final comicKindTrackingTopology = const LibraryTrackingTopology(
   contentTargets: {LibraryTrackingTarget.content},
 );
 
-final comicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
+final comicKindPersonalFieldContributor = LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.comic,
   fields: [
-    ...commonPersonalLibraryFields,
-    PersonalLibraryFieldSpec(
+    for (final field in commonPersonalLibraryFields)
+      field.key == 'location_id'
+          ? relabelPersonalLibraryField(field, 'Storage Box')
+          : field,
+    const PersonalLibraryFieldSpec(
       key: 'last_bag_board_date',
       label: 'Last bag/board date',
       group: 'Storage',
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'cover_price_cents',
       label: 'Cover price',
       group: 'Acquisition',
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'raw_or_slabbed',
       label: 'Raw or slabbed',
       group: 'Grading',
       syncable: true,
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'grading_company',
       label: 'Grading company',
       group: 'Grading',
       syncable: true,
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'grader_notes',
       label: 'Grader notes',
       group: 'Grading',
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'signed_by',
       label: 'Signed by',
       group: 'Grading',
       syncable: true,
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'label_type',
       label: 'Label type',
       group: 'Grading',
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'custom_label',
       label: 'Custom label',
       group: 'Grading',
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'page_quality',
       label: 'Page quality',
       group: 'Grading',
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'certification_number',
       label: 'Certification number',
       group: 'Grading',
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'keycomic',
       label: 'Key comic',
       group: 'Comic flags',
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'key_reason',
       label: 'Key reason',
       group: 'Comic flags',
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'key_category',
       label: 'Key category',
       group: 'Comic flags',
     ),
-    PersonalLibraryFieldSpec(
+    const PersonalLibraryFieldSpec(
       key: 'key_severity',
       label: 'Key severity',
       group: 'Comic flags',

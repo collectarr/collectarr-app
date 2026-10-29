@@ -1,41 +1,41 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
-import 'package:flutter/material.dart';
 
 const _comicMediaTabs = [
   LibraryEditTabSpec(
       id: 'main',
-      icon: Icons.article,
+      icon: AppIcons.book,
       label: 'Main',
       sectionIds: ['catalog_snapshot']),
   LibraryEditTabSpec(
       id: 'details',
-      icon: Icons.search,
+      icon: AppIcons.tabDetails,
       label: 'Details',
       sectionIds: ['catalog_details']),
   LibraryEditTabSpec(
       id: 'cover',
-      icon: Icons.image,
+      icon: AppIcons.tabCovers,
       label: 'Covers',
       sectionIds: ['cover_images']),
   LibraryEditTabSpec(
       id: 'creators',
-      icon: Icons.group,
+      icon: AppIcons.tabCredits,
       label: 'Creators',
       sectionIds: ['comic_creators']),
   LibraryEditTabSpec(
       id: 'characters',
-      icon: Icons.face,
+      icon: AppIcons.tabPersonal,
       label: 'Characters',
       sectionIds: ['comic_characters']),
   LibraryEditTabSpec(
       id: 'synopsis',
-      icon: Icons.notes,
+      icon: AppIcons.tabDescription,
       label: 'Plot',
       sectionIds: ['synopsis']),
   LibraryEditTabSpec(
       id: 'links',
-      icon: Icons.public,
+      icon: AppIcons.tabLinks,
       label: 'Links',
       sectionIds: ['external_links']),
 ];
@@ -43,57 +43,57 @@ const _comicMediaTabs = [
 const _comicCombinedTabs = [
   LibraryEditTabSpec(
       id: 'main',
-      icon: Icons.article,
+      icon: AppIcons.book,
       label: 'Main',
       sectionIds: ['catalog_snapshot']),
   LibraryEditTabSpec(
       id: 'details',
-      icon: Icons.search,
+      icon: AppIcons.tabDetails,
       label: 'Details',
       sectionIds: ['catalog_details']),
   LibraryEditTabSpec(
       id: 'value',
-      icon: Icons.attach_money,
+      icon: AppIcons.tabValue,
       label: 'Value',
       sectionIds: ['purchase']),
   LibraryEditTabSpec(
       id: 'personal',
-      icon: Icons.person,
+      icon: AppIcons.tabPersonal,
       label: 'Personal',
       sectionIds: ['tracking_personal']),
   LibraryEditTabSpec(
       id: 'custom',
-      icon: Icons.tune,
+      icon: AppIcons.tabCustomFields,
       label: 'Custom Fields',
       sectionIds: ['custom_fields']),
   LibraryEditTabSpec(
       id: 'cover',
-      icon: Icons.image,
+      icon: AppIcons.tabCovers,
       label: 'Covers',
       sectionIds: ['cover_images']),
   LibraryEditTabSpec(
       id: 'photos',
-      icon: Icons.photo_library,
+      icon: AppIcons.tabImages,
       label: 'My Images',
       sectionIds: ['photos']),
   LibraryEditTabSpec(
       id: 'creators',
-      icon: Icons.group,
+      icon: AppIcons.tabCredits,
       label: 'Creators',
       sectionIds: ['comic_creators']),
   LibraryEditTabSpec(
       id: 'characters',
-      icon: Icons.face,
+      icon: AppIcons.tabPersonal,
       label: 'Characters',
       sectionIds: ['comic_characters']),
   LibraryEditTabSpec(
       id: 'synopsis',
-      icon: Icons.notes,
+      icon: AppIcons.tabDescription,
       label: 'Plot',
       sectionIds: ['synopsis']),
   LibraryEditTabSpec(
       id: 'links',
-      icon: Icons.public,
+      icon: AppIcons.tabLinks,
       label: 'Links',
       sectionIds: ['external_links']),
 ];

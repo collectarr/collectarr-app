@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../forms/catalog_form_layout.dart';
 
 import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/manual_draft.dart';
@@ -31,36 +32,33 @@ LibraryFormSchema<ComicAddManualDraft> comicAddSchemaFor({
           LibraryFormSectionSpec<ComicAddManualDraft>(
             id: 'issue',
             label: 'Issue',
+            columns: fieldIds?.contains('comic.series') == true
+                ? comicMainColumns
+                : fieldIds?.contains('catalog_title') == true
+                    ? comicDetailsColumns('catalog_title')
+                    : const [],
             fields: [
               LibraryTextFieldSpec<ComicAddManualDraft>(
-                id: 'catalog_title',
-                label: 'Title',
-                value: (draft) => draft.catalogTitle,
-                setValue: (draft, value) => draft.catalogTitle = value,
-              ),
+                  id: 'catalog_title',
+                  label: 'Title',
+                  value: (draft) => draft.catalogTitle,
+                  setValue: (draft, value) => draft.catalogTitle = value),
               ...comicCatalogItemIdentityFields(
-                values: (draft) => draft.values,
-                includeTitle: includeTitle,
-                physicalFormatOptions: physicalFormatOptions ??
-                    ComicVocabularies.physicalFormat.builtIns,
-                onManagePhysicalFormat: onManagePhysicalFormat,
-                includeSeries: true,
-              ),
+                  values: (ComicAddManualDraft draft) => draft.values,
+                  includeTitle: includeTitle,
+                  includeSeries: true,
+                  physicalFormatOptions: physicalFormatOptions ??
+                      ComicVocabularies.physicalFormat.builtIns,
+                  onManagePhysicalFormat: onManagePhysicalFormat),
+              ...comicCatalogItemPublicationFields(
+                  values: (ComicAddManualDraft draft) => draft.values,
+                  publisherOptions: publisherOptions,
+                  imprintOptions: imprintOptions,
+                  seriesGroupOptions: seriesGroupOptions,
+                  onManagePublisher: onManagePublisher,
+                  onManageImprint: onManageImprint,
+                  onManageSeriesGroup: onManageSeriesGroup),
             ],
-            fullWidthFieldIds: const {'catalog_title'},
-          ),
-          LibraryFormSectionSpec<ComicAddManualDraft>(
-            id: 'publication',
-            label: 'Publication',
-            fields: comicCatalogItemPublicationFields(
-              values: (draft) => draft.values,
-              publisherOptions: publisherOptions,
-              imprintOptions: imprintOptions,
-              seriesGroupOptions: seriesGroupOptions,
-              onManagePublisher: onManagePublisher,
-              onManageImprint: onManageImprint,
-              onManageSeriesGroup: onManageSeriesGroup,
-            ),
           ),
         ],
       ),

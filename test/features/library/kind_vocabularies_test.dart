@@ -28,7 +28,7 @@ void main() {
       expect(ComicVocabularies.keyCategory.builtIns, contains('Origin'));
       expect(ComicVocabularies.publisher.builtIns, contains('Marvel Comics'));
       expect(ComicVocabularies.publisher.builtIns, contains('DC Comics'));
-      expect(ComicVocabularies.all.length, 11);
+      expect(ComicVocabularies.all.length, 14);
       expect(ComicVocabularies.publicationAge.builtIns, isEmpty);
       expect(ComicVocabularies.publicationAge.label, 'Age');
     });

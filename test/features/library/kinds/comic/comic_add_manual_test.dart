@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_manual_draft.dart';
@@ -90,6 +91,34 @@ void main() {
       expect(find.text(label), findsWidgets);
     }
     expect(find.text('Edition Details'), findsNothing);
+    expect(find.text('Main'), findsOneWidget);
+    Finder field(String label) => find.descendant(
+        of: find.byWidgetPredicate(
+            (widget) => widget is LibraryFormField && widget.label == label),
+        matching: find.byType(TextFormField));
+    await tester.enterText(field('Series'), 'QA Series');
+    await tester.enterText(field('Issue Number'), '12.1');
+    await tester.enterText(field('Variant'), 'A');
+    await tester.enterText(field('Variant Description'), 'Standard cover');
+    await tester.tap(find.text('Details').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Publication details'), findsNothing);
+    expect(
+        tester.widget<TextFormField>(field('Title')).controller!.text, isEmpty);
+    await tester.enterText(field('Title'), 'Signal at Dawn');
+    await tester.tap(find.text('Main').first);
+    await tester.pumpAndSettle();
+    expect(tester.widget<TextFormField>(field('Series')).controller!.text,
+        'QA Series');
+    expect(tester.widget<TextFormField>(field('Issue Number')).controller!.text,
+        '12.1');
+    expect(
+        tester
+            .widget<TextFormField>(field('Variant Description'))
+            .controller!
+            .text,
+        'Standard cover');
+
     await tester.tap(find.text('Personal').first);
     await tester.pumpAndSettle();
     final read = find.descendant(

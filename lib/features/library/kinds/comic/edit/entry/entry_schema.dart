@@ -33,10 +33,12 @@ final EditSchema<ComicEntryDetails, ComicEntryEditDraft> comicEntryEditSchema =
                 LibraryFieldOption(value: 'Slabbed', label: 'Slabbed'),
               ],
             ),
-            LibraryTextFieldSpec<ComicEntryEditDraft>(
+            LibraryVocabularyFieldSpec<ComicEntryEditDraft, String>(
               id: 'grading_company',
+              options: const [],
+              pickListKey: ComicVocabularyIds.gradingCompany.value,
               label: 'Grading company',
-              value: (draft) => draft.gradingCompany ?? '',
+              value: (draft) => draft.gradingCompany,
               setValue: (draft, value) => draft.gradingCompany = value,
             ),
             LibraryTextFieldSpec<ComicEntryEditDraft>(
@@ -45,16 +47,20 @@ final EditSchema<ComicEntryDetails, ComicEntryEditDraft> comicEntryEditSchema =
               value: (draft) => draft.certificationNumber ?? '',
               setValue: (draft, value) => draft.certificationNumber = value,
             ),
-            LibraryTextFieldSpec<ComicEntryEditDraft>(
+            LibraryVocabularyFieldSpec<ComicEntryEditDraft, String>(
               id: 'label_type',
+              options: const [],
+              pickListKey: ComicVocabularyIds.labelType.value,
               label: 'Label type',
-              value: (draft) => draft.labelType ?? '',
+              value: (draft) => draft.labelType,
               setValue: (draft, value) => draft.labelType = value,
             ),
-            LibraryTextFieldSpec<ComicEntryEditDraft>(
+            LibraryVocabularyFieldSpec<ComicEntryEditDraft, String>(
               id: 'custom_label',
+              options: const [],
+              pickListKey: ComicVocabularyIds.customLabel.value,
               label: 'Custom label',
-              value: (draft) => draft.customLabel ?? '',
+              value: (draft) => draft.customLabel,
               setValue: (draft, value) => draft.customLabel = value,
             ),
             LibraryVocabularyFieldSpec<ComicEntryEditDraft, String>(
