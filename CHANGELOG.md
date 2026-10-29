@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### CI & Build
+- Keep Drift runtime and generator upgrades compatible with generated database code.
+
 ## 1.4.0 - 2026-10-26
 
 ### ✨ Features
