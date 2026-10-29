@@ -20,7 +20,6 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
     showsIssueBadge: true,
     showsPhysicalFormatBadge: true,
   ),
-  createSession: createComicEditDraft,
   entryDigitalFlagResolver: resolveComicEntryDigitalFlag,
   entryFormatHintResolver: resolveComicEntryFormatHint,
   entryIndexUpdatePayloadBuilder: (_, indexNumber) =>

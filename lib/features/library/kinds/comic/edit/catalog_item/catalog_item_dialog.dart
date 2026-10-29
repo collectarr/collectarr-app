@@ -1,3 +1,13 @@
+import 'dart:convert';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import '../../domain/comic_personal_data.dart';
+import '../entry/entry_draft.dart';
+import '../covers_tab.dart';
+import '../personal_form.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -20,21 +30,36 @@ Widget buildComicCatalogItemLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) =>
-    _ComicCatalogItemEditDialog(request: request);
+    ComicItemEditDialog(request: request);
 
-class _ComicCatalogItemEditDialog extends StatefulWidget {
-  const _ComicCatalogItemEditDialog({required this.request});
+class ComicItemEditDialog extends StatefulWidget {
+  const ComicItemEditDialog({super.key, required this.request});
 
   final LibraryEditDialogRequest request;
 
   @override
-  State<_ComicCatalogItemEditDialog> createState() =>
-      _ComicCatalogItemEditDialogState();
+  State<ComicItemEditDialog> createState() => _ComicItemEditDialogState();
 }
 
-class _ComicCatalogItemEditDialogState
-    extends State<_ComicCatalogItemEditDialog> {
+class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
   late final ComicCatalogItem _media;
+  late final String _initialJson;
+  ComicEntryEditDraft? _entry;
+  late Map<String, String?> _customFieldEdits;
+  late final String _initialCustomJson;
+  List<ItemImageEdit> _imageEdits = const [];
+  List<ItemImageEdit> _coverEdits = const [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final personal = LibraryEntryEditScope.maybeOf(context);
+    if (personal != null && _entry == null) {
+      _entry = ComicEntryEditDraft.fromDetails(
+          ComicPersonalData.fromJson(personal.values).details);
+    }
+  }
+
   late final ComicCatalogItemFormValues _draft;
   late final List<EditableComicCreator> _creators;
   late final List<EditableComicCharacter> _characters;
@@ -48,6 +73,11 @@ class _ComicCatalogItemEditDialogState
         .mapTransport((transport) => transport);
     _media = ComicCatalogItem.fromJson(transport.payload);
     _draft = comicCatalogItemFormValuesFrom(_media);
+    _customFieldEdits = {
+      for (final value in widget.request.customFieldValues)
+        value.fieldDefinitionId: value.value
+    };
+    _initialCustomJson = jsonEncode(_customFieldEdits);
     _creators = initComicCreators(_media);
     _characters = initComicCharacters(_media);
     _externalLinks = [];
@@ -61,6 +91,7 @@ class _ComicCatalogItemEditDialogState
       _externalLinks.add(row);
       _originalExternalLinks[row] = link;
     }
+    _initialJson = jsonEncode(_editedMedia().toJson());
   }
 
   @override
@@ -74,6 +105,7 @@ class _ComicCatalogItemEditDialogState
     for (final link in _externalLinks) {
       link.dispose();
     }
+    _entry?.dispose();
     super.dispose();
   }
 
@@ -87,10 +119,70 @@ class _ComicCatalogItemEditDialogState
         icon: widget.request.type.identity.icon,
         mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
-        tabOrderKey: 'library_edit_tabs_comic_catalog_item',
+        tabOrderKey: 'library_edit_tabs_comic_typed',
+        hasUnsavedChanges: () =>
+            _initialJson != jsonEncode(_editedMedia().toJson()) ||
+            _imageEdits.isNotEmpty ||
+            _coverEdits.isNotEmpty ||
+            _initialCustomJson != jsonEncode(_customFieldEdits),
         extraTabs: [
+          if (LibraryEntryEditScope.maybeOf(context) case final personal?) ...[
+            _personalTab(personal, valueTab: true),
+            _personalTab(personal, valueTab: false),
+          ],
+          EditSchemaExtraTab(
+              id: 'custom_fields',
+              label: 'Custom Fields',
+              icon: Icons.edit_note,
+              content: CustomFieldsEditSection(
+                definitions: widget.request.customFieldDefinitions,
+                values: _customFieldEdits,
+                accent: widget.request.accent,
+                mediaKind: 'comic',
+                onChanged: (values) =>
+                    setState(() => _customFieldEdits = Map.of(values)),
+              )),
+          EditSchemaExtraTab(
+              id: 'covers',
+              label: 'Covers',
+              icon: Icons.camera_alt_outlined,
+              content: ComicCoversTab(
+                images: [
+                  for (final image in widget.request.itemImages)
+                    if (_isCover(image)) image
+                ],
+                coverImageUrl: _draft.coverImageUrl,
+                originalCoverImageUrl: _media.coverImageUrl ?? '',
+                onCoverImageUrlChanged: (value) => _draft.coverImageUrl = value,
+                onEdits: (edits) => setState(() => _coverEdits = edits),
+                searchTitle: () => _draft.seriesTitle,
+              )),
+          EditSchemaExtraTab(
+              id: 'my_images',
+              label: 'My Images',
+              icon: Icons.photo_library_outlined,
+              content: ItemImagesEditSection(
+                images: [
+                  for (final image in widget.request.itemImages)
+                    if (!_isCover(image)) image
+                ],
+                accent: widget.request.accent,
+                onChanged: (edits) => setState(() => _imageEdits = edits),
+              )),
           _creatorsTab(),
           _charactersTab(),
+          EditSchemaExtraTab(
+              id: 'plot',
+              label: 'Plot',
+              icon: Icons.subject,
+              content: LibraryFormField(
+                  label: 'Plot',
+                  child: LibraryTextFormControl(
+                    initialValue: _draft.description,
+                    minLines: 18,
+                    maxLines: 18,
+                    onChanged: (value) => _draft.description = value,
+                  ))),
           _linksTab(),
         ],
         coreCorrectionSourceBuilder: () =>
@@ -113,9 +205,45 @@ class _ComicCatalogItemEditDialogState
           );
           await commitLibraryEdit(
             context,
-            LibraryEditSelection(kindItem: updated),
+            LibraryEditSelection(
+                kindItem: updated,
+                customFieldEdits: Map.unmodifiable(_customFieldEdits),
+                itemImageEdits: [..._imageEdits, ..._coverEdits]),
           );
         },
+      );
+
+  EditSchemaExtraTab _personalTab(LibraryEntryEditDraft draft,
+          {required bool valueTab}) =>
+      EditSchemaExtraTab(
+        id: valueTab ? 'value' : 'personal',
+        label: valueTab ? 'Value' : 'Personal',
+        icon: valueTab ? Icons.payments_outlined : Icons.person_outline,
+        content: AnimatedBuilder(
+          animation: draft,
+          builder: (context, _) => LibraryEntryPersonalSection(
+            draft: draft,
+            layoutBuilder: (fields, _) => ComicPersonalForm(
+              personal: ComicPersonalData.fromJson(draft.values),
+              entry: _entry!,
+              valueTab: valueTab,
+              currency: draft.text('currency').isEmpty
+                  ? 'USD'
+                  : draft.text('currency'),
+              commonFields: fields,
+              update: (value) {
+                final previous =
+                    ComicPersonalData.fromJson(draft.values).toJson();
+                final next = value.toJson();
+                for (final key in {...previous.keys, ...next.keys}) {
+                  if (jsonEncode(previous[key]) != jsonEncode(next[key])) {
+                    draft.set(key, next[key]);
+                  }
+                }
+              },
+            ),
+          ),
+        ),
       );
 
   EditSchemaExtraTab _creatorsTab() => EditSchemaExtraTab(
@@ -216,3 +344,6 @@ String? _nullable(String value) {
   final normalized = value.trim();
   return normalized.isEmpty ? null : normalized;
 }
+
+bool _isCover(ItemImageContent image) =>
+    image.imageType == 'front_cover' || image.imageType == 'back_cover';

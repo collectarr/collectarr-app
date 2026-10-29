@@ -39,6 +39,18 @@ List<LibraryFieldSpec<ComicCatalogItemFormValues>>
   ];
 }
 
+List<LibraryFieldSpec<ComicCatalogItemFormValues>> _fields(List<String> ids) {
+  final fields = {
+    for (final field in [
+      ..._comicIdentityFieldsWithSeriesSelector(),
+      ...comicCatalogItemPublicationFields<ComicCatalogItemFormValues>(
+          values: (values) => values),
+    ])
+      field.id: field,
+  };
+  return [for (final id in ids) fields[id]!];
+}
+
 final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
     comicCatalogItemEditSchema = EditSchema(
   title: (_) => 'Edit comic',
@@ -49,43 +61,49 @@ final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
       label: 'Main',
       icon: Icons.article,
       sections: [
-        LibraryFormSectionSpec<ComicCatalogItemFormValues>(
-          id: 'catalog_snapshot',
-          label: 'Issue',
-          fields: _comicIdentityFieldsWithSeriesSelector(),
-        ),
+        LibraryFormSectionSpec(
+          id: 'issue',
+          label: '',
+          fields: _fields(const [
+            'comic.series',
+            'barcode',
+            'physical_format',
+            'series_group',
+            'comic.issue_number',
+            'comic.variant',
+            'variant_description',
+            'cover_date',
+            'release_date',
+            'publisher',
+            'comic.imprint'
+          ]),
+        )
       ],
     ),
     EditTabSpec<ComicCatalogItemFormValues>(
       id: 'details',
       label: 'Details',
-      icon: Icons.search,
+      icon: Icons.info_outline,
       sections: [
-        LibraryFormSectionSpec<ComicCatalogItemFormValues>(
-          id: 'catalog_details',
-          label: 'Publication details',
-          fields: [
-            for (final field in comicCatalogItemPublicationFields<
-                ComicCatalogItemFormValues>(
-              values: (values) => values,
-            ))
-              if (field.id != 'cover_image_url') field,
-          ],
-        ),
-      ],
-    ),
-    EditTabSpec<ComicCatalogItemFormValues>(
-      id: 'covers',
-      label: 'Covers',
-      icon: Icons.camera_alt_outlined,
-      sections: [
-        LibraryFormSectionSpec<ComicCatalogItemFormValues>(
-          id: 'cover',
-          label: 'Cover',
-          fields: comicCatalogItemCoverFields<ComicCatalogItemFormValues>(
-            values: (values) => values,
-          ),
-        ),
+        LibraryFormSectionSpec(
+          id: 'publication',
+          label: '',
+          fields: _fields(const [
+            'crossover',
+            'story_arcs',
+            'title',
+            'subtitle',
+            'country',
+            'language',
+            'publication_age',
+            'comic.page_count',
+            'genres',
+            'age_rating',
+            'edition_title',
+            'isbn',
+            'upc'
+          ]),
+        )
       ],
     ),
   ],

@@ -28,7 +28,6 @@ export 'package:collectarr_app/features/library/kinds/comic/detail/personal_fiel
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
-export 'package:collectarr_app/features/library/kinds/comic/edit/draft.dart';
 export 'package:collectarr_app/features/library/kinds/comic/edit/transferable_fields.dart';
 export 'package:collectarr_app/features/library/kinds/comic/edit/catalog_item/catalog_item_dialog.dart';
 export 'package:collectarr_app/features/library/kinds/comic/edit/dialog.dart';

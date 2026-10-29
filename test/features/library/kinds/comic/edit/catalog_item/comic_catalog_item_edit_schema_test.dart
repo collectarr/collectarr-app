@@ -27,7 +27,6 @@ void main() {
     expect(comicCatalogItemEditSchema.tabs.map((tab) => tab.id), [
       'main',
       'details',
-      'covers',
     ]);
     expect(
       [
@@ -41,18 +40,17 @@ void main() {
       comicCatalogItemEditSchema.tabs.first.sections.first.fields
           .map((field) => field.id),
       [
-        'title',
         'comic.series',
+        'barcode',
+        'physical_format',
+        'series_group',
         'comic.issue_number',
         'comic.variant',
         'variant_description',
-        'edition_title',
-        'barcode',
-        'isbn',
-        'upc',
-        'physical_format',
         'cover_date',
         'release_date',
+        'publisher',
+        'comic.imprint',
       ],
     );
   });
