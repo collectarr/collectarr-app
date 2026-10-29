@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### CI & Build
+- Keep the Drift runtime and generated database code aligned when updating dependencies.
+
 ## 1.4.0 - 2026-10-26
 
 ### ✨ Features
