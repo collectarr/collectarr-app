@@ -7,7 +7,6 @@ final class MusicArtistCredit implements JsonEncodable {
     required this.id,
     required this.creditedName,
     this.sortName,
-    this.artistId,
     this.joinPhrase,
     required this.sequence,
   });
@@ -15,7 +14,6 @@ final class MusicArtistCredit implements JsonEncodable {
   final String id;
   final String creditedName;
   final String? sortName;
-  final String? artistId;
   final String? joinPhrase;
   final int sequence;
 
@@ -24,7 +22,6 @@ final class MusicArtistCredit implements JsonEncodable {
       'id',
       'credited_name',
       'sort_name',
-      'artist_id',
       'join_phrase',
       'sequence',
     };
@@ -41,7 +38,6 @@ final class MusicArtistCredit implements JsonEncodable {
     return MusicArtistCredit(
       id: _requiredText(json['id'], 'id'),
       creditedName: _requiredText(json['credited_name'], 'credited_name'),
-      artistId: _optionalText(json['artist_id'], 'artist_id'),
       sortName: _optionalText(json['sort_name'], 'sort_name'),
       joinPhrase: _optionalString(json['join_phrase'], 'join_phrase'),
       sequence: sequence,
@@ -53,7 +49,6 @@ final class MusicArtistCredit implements JsonEncodable {
         'id': id,
         'credited_name': creditedName,
         if (sortName != null) 'sort_name': sortName,
-        if (artistId != null) 'artist_id': artistId,
         if (joinPhrase != null) 'join_phrase': joinPhrase,
         'sequence': sequence,
       };

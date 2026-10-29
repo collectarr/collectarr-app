@@ -256,9 +256,44 @@ void main() {
     final version = await db.customSelect('PRAGMA user_version').getSingle();
     expect(version.data.values.single, 5);
   });
+
+  test('upgrades released schema 4 Music credits to names', () async {
+    const album = '{"artist_credits":[{"id":"a1","artist_id":"x"}],'
+        '"credits":[{"id":"c1","contributor_id":null}],'
+        '"discs":[{"id":"d1","credits":[{"id":"c2","contributor_id":"y"}]}]}';
+    const names = '{"artist_credits":[{"id":"a1"}],"credits":[{"id":"c1"}],'
+        '"discs":[{"id":"d1","credits":[{"id":"c2"}]}]}';
+    final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
+      _createReleasedEntryTables(raw);
+      raw.execute("INSERT INTO library_entries VALUES "
+          "('e1', 'music', '{\"catalog_data\":$album}', 0, NULL),"
+          "('e2', 'game', '{\"catalog_data\":{\"title\":\"Kept\"}}', 0, NULL)");
+      raw.execute("INSERT INTO sync_queue VALUES "
+          "('c1', 'library_entry', 'e1', 'update', "
+          "'{\"kind\":\"music\",\"catalog_data\":$album}', 0)");
+      raw.execute("INSERT INTO catalog_items_cache VALUES "
+          "('music', 'i1', 'core', '{\"id\":\"i1\",\"kind_data\":$album}', 0)");
+      raw.execute('PRAGMA user_version = 4');
+    }));
+    addTearDown(db.close);
+
+    Future<List<String>> payloads(String table) => db
+        .customSelect('SELECT payload_json FROM $table ORDER BY rowid')
+        .map((row) => row.read<String>('payload_json'))
+        .get();
+    expect(await payloads('library_entries'), [
+      '{"catalog_data":$names}',
+      '{"catalog_data":{"title":"Kept"}}',
+    ]);
+    expect(await payloads('sync_queue'),
+        ['{"kind":"music","catalog_data":$names}']);
+    expect(await payloads('catalog_items_cache'),
+        ['{"id":"i1","kind_data":$names}']);
+  });
 }
 
-/// The released entry and Sync queue tables, as schemas 1 to 3 created them.
+/// The released entry, Sync queue and catalog cache tables, as schemas 1 to 4
+/// created them.
 void _createReleasedEntryTables(Database raw) {
   raw.execute('CREATE TABLE library_entries (id TEXT NOT NULL, '
       'kind TEXT NOT NULL, payload_json TEXT NOT NULL, '
@@ -269,4 +304,8 @@ void _createReleasedEntryTables(Database raw) {
       'action TEXT NOT NULL, payload_json TEXT NOT NULL, '
       'client_changed_at INTEGER NOT NULL, '
       'PRIMARY KEY (entity_type, entity_id))');
+  raw.execute('CREATE TABLE catalog_items_cache (catalog_kind TEXT NOT NULL, '
+      "item_id TEXT NOT NULL, origin TEXT NOT NULL DEFAULT 'core', "
+      'payload_json TEXT NOT NULL, fetched_at INTEGER NOT NULL, '
+      'PRIMARY KEY (catalog_kind, item_id))');
 }

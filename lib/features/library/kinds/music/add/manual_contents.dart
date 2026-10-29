@@ -12,7 +12,6 @@ final class MusicAddManualCredit {
     String? id,
     this.name = '',
     this.sortName = '',
-    this.contributorId,
     this.role = '',
     List<String> instruments = const [],
     this.discId,
@@ -22,7 +21,6 @@ final class MusicAddManualCredit {
   final String id;
   String name;
   String sortName;
-  String? contributorId;
   String role;
   List<String> instruments;
   String? discId;
@@ -33,8 +31,6 @@ final class MusicAddManualCredit {
         'role': role.trim(),
         'sequence': sequence,
         'instruments': List<String>.of(instruments),
-        if (contributorId?.trim().isNotEmpty == true)
-          'contributor_id': contributorId!.trim(),
         if (sortName.trim().isNotEmpty) 'sort_name': sortName.trim(),
       };
 }

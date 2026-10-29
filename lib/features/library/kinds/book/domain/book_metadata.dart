@@ -57,7 +57,6 @@ final class BookCatalogCredit implements JsonEncodable {
   const BookCatalogCredit({
     required this.name,
     this.id,
-    this.artistId,
     this.creditedName,
     this.imageUrl,
     this.instrument,
@@ -70,7 +69,6 @@ final class BookCatalogCredit implements JsonEncodable {
 
   final String name;
   final String? id;
-  final String? artistId;
   final String? creditedName;
   final String? imageUrl;
   final String? instrument;
@@ -93,7 +91,6 @@ final class BookCatalogCredit implements JsonEncodable {
     return BookCatalogCredit(
       name: name,
       id: json['id'] as String?,
-      artistId: json['artist_id'] as String?,
       creditedName: json['credited_name'] as String?,
       imageUrl: json['image_url'] as String?,
       instrument: json['instrument'] as String?,
@@ -109,7 +106,6 @@ final class BookCatalogCredit implements JsonEncodable {
   Map<String, dynamic> toJson() => {
         'name': name,
         if (id != null) 'id': id,
-        if (artistId != null) 'artist_id': artistId,
         if (creditedName != null) 'credited_name': creditedName,
         if (imageUrl != null) 'image_url': imageUrl,
         if (instrument != null) 'instrument': instrument,

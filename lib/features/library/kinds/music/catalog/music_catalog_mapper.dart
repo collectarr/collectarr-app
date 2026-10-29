@@ -59,7 +59,6 @@ final class MusicCatalogMapper {
 
   static const creditFields = <String>{
     'id',
-    'contributor_id',
     'name',
     'sort_name',
     'role',
@@ -105,7 +104,6 @@ final class MusicCatalogMapper {
             'name': credit.creditedName,
             'sequence': credit.sequence,
             if (credit.sortName != null) 'sort_name': credit.sortName,
-            if (credit.artistId != null) 'artist_id': credit.artistId,
             if (credit.joinPhrase != null) 'join_phrase': credit.joinPhrase,
           },
       ],
@@ -296,7 +294,6 @@ final class MusicCatalogMapper {
             'credited_name': credit['name'],
             'sequence': credit['sequence'],
             if (credit['sort_name'] != null) 'sort_name': credit['sort_name'],
-            if (credit['artist_id'] != null) 'artist_id': credit['artist_id'],
             if (credit['join_phrase'] != null)
               'join_phrase': credit['join_phrase'],
           },
@@ -325,7 +322,6 @@ final class MusicCatalogMapper {
         'id',
         'name',
         'sort_name',
-        'artist_id',
         'sequence',
         'join_phrase',
       };
@@ -333,7 +329,6 @@ final class MusicCatalogMapper {
       final id = _requiredText(credit['id'], 'Music artist credit id');
       _requiredText(credit['name'], 'Music artist credit name');
       _optionalText(credit['sort_name'], 'Music artist credit sort_name');
-      _optionalText(credit['artist_id'], 'Music artist credit artist_id');
       final joinPhrase = credit['join_phrase'];
       if (joinPhrase != null && joinPhrase is! String) {
         throw const FormatException(
@@ -362,7 +357,6 @@ final class MusicCatalogMapper {
       final credit = credits[index];
       _assertFields(credit, creditFields, '$path ${index + 1}');
       final id = _requiredText(credit['id'], '$path id');
-      _optionalText(credit['contributor_id'], '$path contributor_id');
       _requiredText(credit['name'], '$path name');
       _optionalText(credit['sort_name'], '$path sort_name');
       _requiredText(credit['role'], '$path role');

@@ -78,8 +78,6 @@ Map<String, Object?>? buildMusicManualProposalData(
           'name': draft.artistCredits[index].creditedName,
           if (draft.artistCredits[index].sortName != null)
             'sort_name': draft.artistCredits[index].sortName,
-          if (draft.artistCredits[index].artistId != null)
-            'artist_id': draft.artistCredits[index].artistId,
           if (draft.artistCredits[index].joinPhrase != null)
             'join_phrase': draft.artistCredits[index].joinPhrase,
           'sequence': index + 1,

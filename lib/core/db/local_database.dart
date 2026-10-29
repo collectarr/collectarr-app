@@ -119,6 +119,22 @@ class LocalDatabase extends _$LocalDatabase {
             await migrator.createTable(comicReadingRows);
             await migrator.createTable(comicTrackingUnitRows);
             await migrator.createTable(comicTrackingRows);
+            // Music credits are names: drop the retired artist and
+            // contributor ids from entries, pending changes and the cache.
+            await _updatePayloadSectionIn('library_entries',
+                " WHERE kind = 'music'", 'catalog_data', _dropMusicCreditIds);
+            // Only Music credits carry these keys, so pending changes of
+            // every kind can be checked.
+            await _updatePayloadSectionIn(
+                'sync_queue',
+                " WHERE entity_type = 'library_entry'",
+                'catalog_data',
+                _dropMusicCreditIds);
+            await _updatePayloadSectionIn(
+                'catalog_items_cache',
+                " WHERE catalog_kind = 'music'",
+                'kind_data',
+                _dropMusicCreditIds);
           }
         },
       );
@@ -127,9 +143,10 @@ class LocalDatabase extends _$LocalDatabase {
   /// changes; [change] returns whether it changed the map.
   Future<void> _updatePersonalData(
       bool Function(Map<String, dynamic> personal) change) async {
-    await _updatePersonalDataIn('library_entries', '', change);
-    await _updatePersonalDataIn(
-        'sync_queue', " WHERE entity_type = 'library_entry'", change);
+    await _updatePayloadSectionIn(
+        'library_entries', '', 'personal_data', change);
+    await _updatePayloadSectionIn('sync_queue',
+        " WHERE entity_type = 'library_entry'", 'personal_data', change);
   }
 
   static bool _storeTagsAsList(Map<String, dynamic> personal) {
@@ -144,17 +161,41 @@ class LocalDatabase extends _$LocalDatabase {
     return true;
   }
 
-  Future<void> _updatePersonalDataIn(String table, String filter,
-      bool Function(Map<String, dynamic> personal) change) async {
+  static bool _dropMusicCreditIds(Map<String, dynamic> album) {
+    var changed = false;
+    void drop(Object? rows, String key) {
+      if (rows is! List) return;
+      for (final row in rows) {
+        if (row is Map && row.containsKey(key)) {
+          row.remove(key);
+          changed = true;
+        }
+      }
+    }
+
+    drop(album['artist_credits'], 'artist_id');
+    drop(album['credits'], 'contributor_id');
+    final discs = album['discs'];
+    if (discs is List) {
+      for (final disc in discs) {
+        if (disc is Map) drop(disc['credits'], 'contributor_id');
+      }
+    }
+    return changed;
+  }
+
+  /// Rewrites one JSON object [section] of each payload in [table].
+  Future<void> _updatePayloadSectionIn(String table, String filter,
+      String section, bool Function(Map<String, dynamic> data) change) async {
     final rows = await customSelect(
       'SELECT rowid AS row_id, payload_json FROM $table$filter',
     ).get();
     for (final row in rows) {
       final payload = jsonDecode(row.read<String>('payload_json'));
       if (payload is! Map<String, dynamic>) continue;
-      final personal = payload['personal_data'];
-      if (personal is! Map<String, dynamic>) continue;
-      if (!change(personal)) continue;
+      final data = payload[section];
+      if (data is! Map<String, dynamic>) continue;
+      if (!change(data)) continue;
       await customUpdate(
         'UPDATE $table SET payload_json = ? WHERE rowid = ?',
         variables: [

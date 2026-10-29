@@ -2,12 +2,12 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "9f318105c496b2e84ba5de547229bcb47689c13c",
+  "coreCommit": "fc20ab95d835235567edcc44b19f6eb4eace040d",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form"
   },
-  "generatedAt": "2026-10-29T20:59:24.656899Z",
+  "generatedAt": "2026-10-29T21:02:39.089505Z",
   "kinds": {
     "comic": {
       "additionalProperties": false,
@@ -2256,16 +2256,6 @@
               "items": {
                 "additionalProperties": false,
                 "properties": {
-                  "artist_id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
                   "id": {
                     "minLength": 1,
                     "type": "string"
@@ -2384,16 +2374,6 @@
               "items": {
                 "additionalProperties": false,
                 "properties": {
-                  "contributor_id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
                   "id": {
                     "minLength": 1,
                     "type": "string"
@@ -2475,16 +2455,6 @@
                         "items": {
                           "additionalProperties": false,
                           "properties": {
-                            "contributor_id": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
-                            },
                             "id": {
                               "minLength": 1,
                               "type": "string"

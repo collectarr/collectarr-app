@@ -106,7 +106,6 @@ final class MusicAlbumCreditsEditor {
       target.add(
         MusicCredit(
           id: MusicCreditId(row.id),
-          contributorId: row.contributorId,
           name: row.name.trim(),
           sortName: _optional(row.sortName),
           role: row.role.trim(),
@@ -324,12 +323,10 @@ final class _MusicCreditEditRow {
   String role;
   List<String> instruments;
   String scopeId;
-  String? contributorId;
   String? sortName;
   String? roleId;
 
   void copyReference(MusicCredit credit) {
-    contributorId = credit.contributorId;
     sortName = credit.sortName;
     roleId = credit.roleId;
   }

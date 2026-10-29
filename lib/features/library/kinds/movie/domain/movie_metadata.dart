@@ -9,7 +9,6 @@ class MoviePersonCredit {
   const MoviePersonCredit({
     required this.name,
     this.id,
-    this.artistId,
     this.role,
     this.roleId,
     this.sequence,
@@ -22,7 +21,6 @@ class MoviePersonCredit {
   });
 
   final String? id;
-  final String? artistId;
   final String name;
   final String? role;
   final String? roleId;
@@ -36,7 +34,6 @@ class MoviePersonCredit {
 
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
-        if (artistId != null) 'artist_id': artistId,
         'name': name,
         if (role != null) 'role': role,
         if (roleId != null) 'role_id': roleId,
@@ -54,7 +51,6 @@ class MoviePersonCredit {
         json,
         const {
           'id',
-          'artist_id',
           'name',
           'role',
           'role_id',
@@ -69,7 +65,6 @@ class MoviePersonCredit {
         'Movie person credit');
     return MoviePersonCredit(
       id: json['id'] as String?,
-      artistId: json['artist_id'] as String?,
       name: (json['name'] as String?) ?? '',
       role: json['role'] as String?,
       roleId: json['role_id'] as String?,
