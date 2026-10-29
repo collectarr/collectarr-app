@@ -49,7 +49,7 @@ final comicKindMetadata = LibraryMetadataCapability(
 // A Comic Catalog Item already represents one concrete issue or edition.
 // There is no Work -> issue -> variant child tree to fetch.
 final comicKindEntityVocabulary = const LibraryTargetVocabulary(
-  catalogItem: LibraryTargetLabel(singular: 'Issue', plural: 'Issues'),
+  catalogItem: LibraryTargetLabel(singular: 'Comic', plural: 'Comics'),
   libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
