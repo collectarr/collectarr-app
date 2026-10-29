@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 final class ComicStoryArc implements JsonEncodable {
   const ComicStoryArc({
     this.id,
-    this.storyArcId,
     this.name,
     this.description,
     this.publisher,
@@ -15,7 +14,6 @@ final class ComicStoryArc implements JsonEncodable {
   });
 
   final String? id;
-  final String? storyArcId;
   final String? name;
   final String? description;
   final String? publisher;
@@ -32,7 +30,6 @@ final class ComicStoryArc implements JsonEncodable {
     final json = Map<String, dynamic>.from(value);
     return ComicStoryArc(
       id: json['id'] as String?,
-      storyArcId: json['story_arc_id'] as String?,
       name: json['name'] as String?,
       description: json['description'] as String?,
       publisher: json['publisher'] as String?,
@@ -43,7 +40,6 @@ final class ComicStoryArc implements JsonEncodable {
 
   ComicStoryArc copyWith({String? name}) => ComicStoryArc(
         id: id,
-        storyArcId: storyArcId,
         name: name ?? this.name,
         description: description,
         publisher: publisher,
@@ -54,7 +50,6 @@ final class ComicStoryArc implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
-        if (storyArcId != null) 'story_arc_id': storyArcId,
         if (name != null) 'name': name,
         if (description != null) 'description': description,
         if (publisher != null) 'publisher': publisher,
@@ -63,7 +58,6 @@ final class ComicStoryArc implements JsonEncodable {
       };
 
   Object toJsonValue() => id == null &&
-          storyArcId == null &&
           description == null &&
           publisher == null &&
           startDate == null &&

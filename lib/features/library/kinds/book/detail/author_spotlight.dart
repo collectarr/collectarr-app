@@ -1,10 +1,8 @@
-import 'package:collectarr_app/features/library/kinds/book/detail/routes.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class BookCreatorCredit {
   const BookCreatorCredit({
@@ -75,88 +73,71 @@ class BookAuthorSpotlight extends StatelessWidget {
       if (spotlight.supportingLabel != null) spotlight.supportingLabel,
     ].join('  |  ');
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        mouseCursor: WidgetStateMouseCursor.clickable,
+    return DecoratedBox(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        onTap: () => context.push(bookAuthorLocation(spotlight.name)),
-        child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: accent.withValues(alpha: 0.42)),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                palette.surfaceSubtle.withValues(alpha: 0.7),
-                accent.withValues(alpha: 0.12),
-                palette.surface.withValues(alpha: 0.82),
-              ],
+        border: Border.all(color: accent.withValues(alpha: 0.42)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            palette.surfaceSubtle.withValues(alpha: 0.7),
+            accent.withValues(alpha: 0.12),
+            palette.surface.withValues(alpha: 0.82),
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _AuthorAvatar(
+              imageUrl: spotlight.imageUrl,
+              initials: spotlight.initials,
+              accent: accent,
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _AuthorAvatar(
-                  imageUrl: spotlight.imageUrl,
-                  initials: spotlight.initials,
-                  accent: accent,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: centered
-                        ? CrossAxisAlignment.center
-                        : CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Author view',
-                        textAlign:
-                            centered ? TextAlign.center : TextAlign.start,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: accent,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        spotlight.name,
-                        textAlign:
-                            centered ? TextAlign.center : TextAlign.start,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: palette.textPrimary,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      if (description.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          description,
-                          textAlign:
-                              centered ? TextAlign.center : TextAlign.start,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: palette.textMuted,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: centered
+                    ? CrossAxisAlignment.center
+                    : CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Author',
+                    textAlign: centered ? TextAlign.center : TextAlign.start,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: accent,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.4,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14,
-                  color: accent.withValues(alpha: 0.88),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    spotlight.name,
+                    textAlign: centered ? TextAlign.center : TextAlign.start,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: palette.textPrimary,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  if (description.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      textAlign: centered ? TextAlign.center : TextAlign.start,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: palette.textMuted,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

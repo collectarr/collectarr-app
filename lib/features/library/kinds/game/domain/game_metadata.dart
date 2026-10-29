@@ -62,7 +62,6 @@ final class GameCatalogPersonCredit implements JsonEncodable {
   const GameCatalogPersonCredit({
     required this.name,
     this.id,
-    this.personId,
     this.role,
     this.roleId,
     this.sequence,
@@ -75,7 +74,6 @@ final class GameCatalogPersonCredit implements JsonEncodable {
 
   final String name;
   final String? id;
-  final String? personId;
   final String? role;
   final String? roleId;
   final int? sequence;
@@ -94,7 +92,6 @@ final class GameCatalogPersonCredit implements JsonEncodable {
     return GameCatalogPersonCredit(
       name: _text(json['name']) ?? '',
       id: _text(json['id']),
-      personId: _text(json['person_id']),
       role: _text(json['role']),
       roleId: _text(json['role_id']),
       sequence: sequence is num ? sequence.toInt() : null,
@@ -109,7 +106,6 @@ final class GameCatalogPersonCredit implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
-        if (personId != null) 'person_id': personId,
         'name': name,
         if (role != null) 'role': role,
         if (roleId != null) 'role_id': roleId,

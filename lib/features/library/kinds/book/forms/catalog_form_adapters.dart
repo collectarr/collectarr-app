@@ -274,7 +274,6 @@ List<BookCatalogCredit> _withBookRole(
           name: credits[index].name,
           id: credits[index].id,
           artistId: credits[index].artistId,
-          personId: credits[index].personId,
           creditedName: credits[index].creditedName,
           imageUrl: credits[index].imageUrl,
           instrument: credits[index].instrument,

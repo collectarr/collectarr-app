@@ -9,7 +9,6 @@ class MoviePersonCredit {
   const MoviePersonCredit({
     required this.name,
     this.id,
-    this.personId,
     this.artistId,
     this.role,
     this.roleId,
@@ -23,7 +22,6 @@ class MoviePersonCredit {
   });
 
   final String? id;
-  final String? personId;
   final String? artistId;
   final String name;
   final String? role;
@@ -38,7 +36,6 @@ class MoviePersonCredit {
 
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
-        if (personId != null) 'person_id': personId,
         if (artistId != null) 'artist_id': artistId,
         'name': name,
         if (role != null) 'role': role,
@@ -57,7 +54,6 @@ class MoviePersonCredit {
         json,
         const {
           'id',
-          'person_id',
           'artist_id',
           'name',
           'role',
@@ -73,7 +69,6 @@ class MoviePersonCredit {
         'Movie person credit');
     return MoviePersonCredit(
       id: json['id'] as String?,
-      personId: json['person_id'] as String?,
       artistId: json['artist_id'] as String?,
       name: (json['name'] as String?) ?? '',
       role: json['role'] as String?,
@@ -93,7 +88,6 @@ class MoviePersonCredit {
 class MovieCharacter {
   const MovieCharacter({
     this.id,
-    this.characterId,
     required this.name,
     this.aliases = const [],
     this.role,
@@ -102,7 +96,6 @@ class MovieCharacter {
   });
 
   final String? id;
-  final String? characterId;
   final String name;
   final List<String> aliases;
   final String? role;
@@ -111,7 +104,6 @@ class MovieCharacter {
 
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
-        if (characterId != null) 'character_id': characterId,
         'name': name,
         if (aliases.isNotEmpty) 'aliases': aliases,
         if (role != null) 'role': role,
@@ -120,7 +112,6 @@ class MovieCharacter {
       };
 
   Object toJsonValue() => id == null &&
-          characterId == null &&
           aliases.isEmpty &&
           role == null &&
           description == null &&
@@ -133,7 +124,6 @@ class MovieCharacter {
         json,
         const {
           'id',
-          'character_id',
           'name',
           'aliases',
           'role',
@@ -143,7 +133,6 @@ class MovieCharacter {
         'Movie character');
     return MovieCharacter(
       id: json['id'] as String?,
-      characterId: json['character_id'] as String?,
       name: (json['name'] as String?) ?? '',
       aliases: _strictStringList(json['aliases'], 'Movie character aliases'),
       role: json['role'] as String?,
