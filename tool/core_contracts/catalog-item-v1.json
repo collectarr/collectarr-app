@@ -2,12 +2,12 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "cdfff6a26b9a8dfd0c9951d3b2f76e8b7ff9433d",
+  "coreCommit": "5a368d07080e2a98cc3801664b062ee6177b11eb",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form"
   },
-  "generatedAt": "2026-10-29T20:21:14.906114Z",
+  "generatedAt": "2026-10-29T20:45:30.440119Z",
   "kinds": {
     "comic": {
       "additionalProperties": false,
@@ -74,16 +74,6 @@
                               "type": "string"
                             },
                             "type": "array"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "character_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
                           },
                           {
                             "type": "null"
@@ -241,16 +231,6 @@
                       },
                       "name": {
                         "type": "string"
-                      },
-                      "person_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
                       },
                       "role": {
                         "type": "string"

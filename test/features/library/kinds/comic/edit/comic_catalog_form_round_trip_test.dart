@@ -56,27 +56,27 @@ void main() {
       title: 'Issue',
       isKeyComic: true,
       creators: [
-        ComicCreator(name: 'Core Writer', role: 'Writer', personId: 'p-1'),
-        ComicCreator(name: 'Typed Inker', role: 'Inker'),
+        ComicCreator(name: 'Writer', role: 'Writer'),
+        ComicCreator(name: 'Inker', role: 'Inker'),
       ],
       characters: [
-        ComicCharacter(name: 'Core Hero', characterId: 'c-1'),
-        ComicCharacter(name: 'Typed Sidekick'),
+        ComicCharacter(name: 'Hero', realName: 'Secret'),
+        ComicCharacter(name: 'Sidekick'),
       ],
     );
     final reloaded = ComicCatalogItem.fromJson(item.toJson());
     expect(reloaded.isKeyComic, isTrue);
     expect([
-      for (final c in reloaded.creators) (c.name, c.personId)
+      for (final c in reloaded.creators) (c.name, c.role)
     ], [
-      ('Core Writer', 'p-1'),
-      ('Typed Inker', null),
+      ('Writer', 'Writer'),
+      ('Inker', 'Inker'),
     ]);
     expect([
-      for (final c in reloaded.characters) (c.name, c.characterId)
+      for (final c in reloaded.characters) (c.name, c.realName)
     ], [
-      ('Core Hero', 'c-1'),
-      ('Typed Sidekick', null),
+      ('Hero', 'Secret'),
+      ('Sidekick', null),
     ]);
   });
 }
