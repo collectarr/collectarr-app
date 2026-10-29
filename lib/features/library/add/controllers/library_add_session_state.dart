@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_state.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_browse_state.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -18,6 +19,7 @@ final class LibraryAddSessionState {
     required this.mode,
     required this.target,
     required this.search,
+    this.browse = const LibraryAddBrowseState(),
     required this.selection,
     required this.preview,
     required this.commonDraft,
@@ -36,6 +38,7 @@ final class LibraryAddSessionState {
   final LibraryAddDialogMode mode;
   final LibraryAddTarget target;
   final LibraryAddSearchState search;
+  final LibraryAddBrowseState browse;
   final LibraryAddSelectionState selection;
   final LibraryAddPreviewState preview;
   final LibraryAddCommonDraft commonDraft;
@@ -79,6 +82,7 @@ final class LibraryAddSessionState {
     LibraryAddDialogMode? mode,
     LibraryAddTarget? target,
     LibraryAddSearchState? search,
+    LibraryAddBrowseState? browse,
     LibraryAddSelectionState? selection,
     LibraryAddPreviewState? preview,
     LibraryAddCommonDraft? commonDraft,
@@ -102,6 +106,7 @@ final class LibraryAddSessionState {
       mode: mode ?? this.mode,
       target: target ?? this.target,
       search: search ?? this.search,
+      browse: browse ?? this.browse,
       selection: selection ?? this.selection,
       preview: preview ?? this.preview,
       commonDraft: commonDraft ?? this.commonDraft,

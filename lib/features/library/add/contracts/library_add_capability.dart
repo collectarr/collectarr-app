@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -72,13 +73,65 @@ class LibraryAddSearchCapability {
     required this.input,
     required this.core,
     this.coverScan,
+    this.browse,
     this.presentation = const LibraryAddSearchPresentationCapability(),
   });
 
   final LibraryAddSearchInputCapability input;
   final LibraryAddCoreSearchCapability core;
   final LibraryAddCoverScanCapability? coverScan;
+
+  /// Adds a tab that finds a group of catalog items, such as a comic
+  /// series, and checks those to add.
+  final LibraryAddBrowseCapability? browse;
   final LibraryAddSearchPresentationCapability presentation;
+}
+
+/// One Core group of catalog items in the Add dialog's browse tab.
+@immutable
+class LibraryAddBrowseGroup {
+  const LibraryAddBrowseGroup({
+    required this.title,
+    required this.countLabel,
+    required this.query,
+    this.details,
+    this.coverImageUrl,
+  });
+
+  final String title;
+
+  /// How many items the group holds, as "12 issues".
+  final String countLabel;
+
+  /// The Core query parameters that select exactly this group's items.
+  final Map<String, Object> query;
+
+  /// The kind's facts about the group, as one line.
+  final String? details;
+  final String? coverImageUrl;
+}
+
+class LibraryAddBrowseCapability {
+  const LibraryAddBrowseCapability({
+    required this.label,
+    required this.hintText,
+    required this.icon,
+    required this.searchGroups,
+    required this.loadItemRows,
+  });
+
+  /// Names the tab, the group list and its empty state, as "Series".
+  final String label;
+  final String hintText;
+  final IconData icon;
+
+  /// Groups whose title matches the query.
+  final Future<List<LibraryAddBrowseGroup>> Function(
+      ApiClient api, String query) searchGroups;
+
+  /// Core search envelopes for every item of a group, in order.
+  final Future<List<Map<String, dynamic>>> Function(
+      ApiClient api, LibraryAddBrowseGroup group) loadItemRows;
 }
 
 /// An Add tab that searches Core by one typed code, labelled by the kind.

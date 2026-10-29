@@ -488,7 +488,7 @@ class _SearchResultsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final notice = _SearchPaneNoticeStack(error: error);
     if (isBusy && results.isEmpty) {
-      return const _SearchingPlaceholder();
+      return const LibraryAddSearchingPlaceholder();
     }
     if (results.isEmpty) {
       return ListView(padding: EdgeInsets.zero, children: [notice]);
@@ -856,7 +856,7 @@ class SearchResultTile extends StatelessWidget {
                 const SizedBox(width: 20),
                 Padding(
                   padding: const EdgeInsets.only(top: 20, right: 13),
-                  child: _ResultCheckbox(
+                  child: LibraryAddResultCheckbox(
                     checked: checked,
                     onPressed: onToggleCheck,
                   ),
@@ -873,8 +873,9 @@ class SearchResultTile extends StatelessWidget {
   }
 }
 
-class _ResultCheckbox extends StatelessWidget {
-  const _ResultCheckbox({required this.checked, required this.onPressed});
+class LibraryAddResultCheckbox extends StatelessWidget {
+  const LibraryAddResultCheckbox(
+      {super.key, required this.checked, required this.onPressed});
 
   final bool checked;
   final VoidCallback onPressed;
@@ -917,8 +918,8 @@ class _ResultCheckbox extends StatelessWidget {
 
 /// Spinner over "Searching..." in the reference's dark placeholder grey,
 /// shown while a search has no results yet.
-class _SearchingPlaceholder extends StatelessWidget {
-  const _SearchingPlaceholder();
+class LibraryAddSearchingPlaceholder extends StatelessWidget {
+  const LibraryAddSearchingPlaceholder({super.key});
 
   @override
   Widget build(BuildContext context) {

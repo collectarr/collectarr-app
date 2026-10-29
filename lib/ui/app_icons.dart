@@ -96,6 +96,8 @@ abstract final class AppIcons {
       IconData(0xf022, fontFamily: _regular, fontPackage: _fontPackage);
   static const IconData collections =
       IconData(0xf51e, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData series =
+      IconData(0xf5fd, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData libraries =
       IconData(0xf009, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData print =

@@ -58,6 +58,9 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.identifierController,
     this.codeSearchTab,
     this.codeQueryController,
+    this.browseTab,
+    this.browseQueryController,
+    this.onSearchBrowse,
     this.queryTrailing,
     required this.isSearching,
     required this.onModeChanged,
@@ -94,6 +97,12 @@ class LibraryAddModeBar extends StatefulWidget {
   /// Set with [codeQueryController] when the kind adds a code search tab.
   final LibraryAddCodeSearchTab? codeSearchTab;
   final TextEditingController? codeQueryController;
+
+  /// Set with [browseQueryController] and [onSearchBrowse] when the kind
+  /// adds a browse tab.
+  final LibraryAddBrowseCapability? browseTab;
+  final TextEditingController? browseQueryController;
+  final VoidCallback? onSearchBrowse;
   final bool isSearching;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
 
@@ -485,6 +494,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
           searchLabel: searchLabels.addSearchTabLabel,
           mode: widget.mode,
           onModeChanged: widget.onModeChanged,
+          browseTab: widget.browseTab,
           codeSearchTab: widget.codeSearchTab,
           onManual: widget.onManual,
           onCoreDataSettings: widget.onCoreDataSettings,
@@ -512,6 +522,14 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                     ],
                     Expanded(
                       child: switch (widget.mode) {
+                        LibraryAddDialogMode.browse => _LibraryAddModeTextField(
+                            fieldKey:
+                                const ValueKey('library-add-browse-field'),
+                            controller: widget.browseQueryController!,
+                            label: widget.browseTab!.label,
+                            hintText: widget.browseTab!.hintText,
+                            onSubmitted: widget.onSearchBrowse!,
+                          ),
                         LibraryAddDialogMode.search => OverlayPortal(
                             controller: _suggestionsOverlayController,
                             overlayChildBuilder: _buildSuggestionsOverlay,
@@ -560,6 +578,8 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                       onPressed: isBusy
                           ? null
                           : switch (widget.mode) {
+                              LibraryAddDialogMode.browse =>
+                                widget.onSearchBrowse,
                               LibraryAddDialogMode.search => _handleSearch,
                               LibraryAddDialogMode.identifier =>
                                 widget.onLookupIdentifier,
@@ -610,6 +630,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
     required this.searchLabel,
     required this.mode,
     required this.onModeChanged,
+    required this.browseTab,
     required this.codeSearchTab,
     required this.onManual,
     this.onCoreDataSettings,
@@ -619,6 +640,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
   final String searchLabel;
   final LibraryAddDialogMode mode;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
+  final LibraryAddBrowseCapability? browseTab;
   final LibraryAddCodeSearchTab? codeSearchTab;
   final VoidCallback onManual;
   final VoidCallback? onCoreDataSettings;
@@ -640,6 +662,13 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
+                  if (browseTab case final tab?)
+                    LibraryAddModeTab(
+                      icon: Icon(tab.icon),
+                      label: tab.label,
+                      selected: mode == LibraryAddDialogMode.browse,
+                      onTap: () => onModeChanged(LibraryAddDialogMode.browse),
+                    ),
                   LibraryAddModeTab(
                     icon: const Icon(AppIcons.search),
                     label: searchLabel,

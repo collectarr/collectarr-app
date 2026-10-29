@@ -3157,6 +3157,81 @@
         "title": "CatalogComicLinkResponse",
         "type": "object"
       },
+      "CatalogComicSeriesResponse": {
+        "additionalProperties": false,
+        "description": "One series: the issues sharing a series title, publisher and volume start year.",
+        "properties": {
+          "cover_image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover Image Url"
+          },
+          "first_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Year"
+          },
+          "issue_count": {
+            "title": "Issue Count",
+            "type": "integer"
+          },
+          "last_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Year"
+          },
+          "publisher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publisher"
+          },
+          "series_title": {
+            "title": "Series Title",
+            "type": "string"
+          },
+          "volume_start_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume Start Year"
+          }
+        },
+        "required": [
+          "series_title",
+          "issue_count"
+        ],
+        "title": "CatalogComicSeriesResponse",
+        "type": "object"
+      },
       "CatalogComicStoryArcResponse": {
         "additionalProperties": false,
         "properties": {
@@ -7862,6 +7937,150 @@
           }
         },
         "summary": "Get Comic Item",
+        "tags": [
+          "metadata",
+          "metadata"
+        ]
+      }
+    },
+    "/api/v1/metadata/comics/series": {
+      "get": {
+        "operationId": "search_comic_series_api_v1_metadata_comics_series_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogComicSeriesResponse"
+                  },
+                  "title": "Response Search Comic Series Api V1 Metadata Comics Series Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Search Comic Series",
+        "tags": [
+          "metadata",
+          "metadata"
+        ]
+      }
+    },
+    "/api/v1/metadata/comics/series/issues": {
+      "get": {
+        "description": "Every issue of one series. An omitted publisher or volume start year selects the series without one.",
+        "operationId": "get_comic_series_issues_api_v1_metadata_comics_series_issues_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "series_title",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "title": "Series Title",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "publisher",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Publisher"
+            }
+          },
+          {
+            "in": "query",
+            "name": "volume_start_year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2200,
+                  "minimum": 1800,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Volume Start Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogSearchItemEnvelope"
+                  },
+                  "title": "Response Get Comic Series Issues Api V1 Metadata Comics Series Issues Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Comic Series Issues",
         "tags": [
           "metadata",
           "metadata"
