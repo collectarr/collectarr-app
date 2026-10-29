@@ -121,7 +121,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             ? 'Wishlist'
             : 'Not entry';
     final synopsis = comic?.synopsis?.trim();
-    const String? plotDescription = null;
+    final plotDescription = comic?.description?.trim();
     final comicDetails = libraryEntry?.personal.details;
     final slabLabel = _slabMarkerLabel(
       comicDetails?.rawOrSlabbed,
