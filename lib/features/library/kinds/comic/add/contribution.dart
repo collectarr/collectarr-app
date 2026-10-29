@@ -2,7 +2,6 @@ import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../comic_module_dependencies.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import '../config/comic_kind_configuration.dart';
 import 'manual_candidate.dart';
@@ -205,20 +204,6 @@ Iterable<String> getComicFacetValues(
     }
   }
   return const [];
-}
-
-Future<List<LibraryFacetRow>> loadComicFacetRows({
-  required LibraryFacetIdRuntime facetId,
-  required Set<String> itemIds,
-  required ApiClient api,
-}) {
-  if (facetId == ComicFacetIds.storyArc) {
-    return ComicCatalogBrowseApi(api).storyArcFacets(itemIds);
-  }
-  if (facetId == ComicFacetIds.character) {
-    return ComicCatalogBrowseApi(api).characterFacets(itemIds);
-  }
-  return Future.value(const <LibraryFacetRow>[]);
 }
 
 Future<void> _showJumpToIssueDialog(

@@ -102,10 +102,5 @@ MetadataSearchQuery comicMetadataSearchQuery({
 }
 
 final comicLibraryFacetModule = TypedLibraryFacetModule<ComicWorkspaceDto>(
-  loadRows: loadComicFacetRows,
   getFacetValues: getComicFacetValues,
-  externalFacetBucketIdsByMode: {
-    'comic.story_arc': ComicFacetIds.storyArc,
-    'comic.character': ComicFacetIds.character,
-  },
 );
