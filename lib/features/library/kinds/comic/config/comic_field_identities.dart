@@ -6,7 +6,7 @@ abstract final class ComicFieldIdentities {
   static const seriesId = 'comic.series';
   static const seriesLabel = 'Series';
   static const issueNumberId = 'comic.issue_number';
-  static const issueNumberLabel = 'Issue Number';
+  static const issueNumberLabel = 'Issue No.';
   static const variantId = 'comic.variant';
   static const variantLabel = 'Variant';
   static const imprintId = 'comic.imprint';

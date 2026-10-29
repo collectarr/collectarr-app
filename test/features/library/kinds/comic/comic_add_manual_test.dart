@@ -97,7 +97,7 @@ void main() {
             (widget) => widget is LibraryFormField && widget.label == label),
         matching: find.byType(TextFormField));
     await tester.enterText(field('Series'), 'QA Series');
-    await tester.enterText(field('Issue Number'), '12.1');
+    await tester.enterText(field('Issue No.'), '12.1');
     await tester.enterText(field('Variant'), 'A');
     await tester.enterText(field('Variant Description'), 'Standard cover');
     await tester.tap(find.text('Details').first);
@@ -110,7 +110,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.widget<TextFormField>(field('Series')).controller!.text,
         'QA Series');
-    expect(tester.widget<TextFormField>(field('Issue Number')).controller!.text,
+    expect(tester.widget<TextFormField>(field('Issue No.')).controller!.text,
         '12.1');
     expect(
         tester

@@ -52,9 +52,19 @@ List<LibraryFieldSpec<ComicCatalogItemFormValues>> _fields(List<String> ids) {
   return [for (final id in ids) fields[id]!];
 }
 
+/// The reference editor title: series, then issue number and variant ("#2A").
+String comicEditHeaderTitle(ComicCatalogItem item) {
+  final series = item.seriesTitle?.trim() ?? '';
+  final name = series.isEmpty ? item.title.trim() : series;
+  final issue =
+      '${item.issueNumber?.trim() ?? ''}${item.variant?.trim() ?? ''}';
+  if (name.isEmpty) return 'Edit comic';
+  return issue.isEmpty ? name : '$name #$issue';
+}
+
 final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
     comicCatalogItemEditSchema = EditSchema(
-  title: (_) => 'Edit comic',
+  title: comicEditHeaderTitle,
   validate: (_, values) => validateComicCatalogItem(values),
   tabs: [
     EditTabSpec<ComicCatalogItemFormValues>(

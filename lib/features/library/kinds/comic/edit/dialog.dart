@@ -126,7 +126,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
           24,
         ),
         draft: _draft,
-        title: comicCatalogItemEditSchema.title?.call(_media) ?? 'Edit comic',
+        title: comicEditHeaderTitle(_media),
         icon: widget.request.type.identity.icon,
         mediaKind: widget.request.type.kind.apiValue,
         accent: widget.request.accent,
