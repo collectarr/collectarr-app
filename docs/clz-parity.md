@@ -104,6 +104,13 @@ Comics remains inactive publicly while its catalog contracts, ordered migration,
 end-to-end saves, imports and sync are not yet validated against the released
 Music/Games baseline.
 
+Editor implementation now lives under `comic/edit/`, with separate Main,
+Details, Value, Personal, credits, images and links files, matching the
+kind-owned organization used for Music/Games. The old root dialog,
+presentation and image-section paths and the monolithic tab file were removed.
+The generic editor lifecycle still needs conversion to a dedicated typed
+dialog before the Comics implementation matches Games in architecture.
+
 Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
 editors and dialogs with Cancel. Record observed fields and remaining gaps
 here; validate Collectarr saves and upgrades only in isolated test storage.

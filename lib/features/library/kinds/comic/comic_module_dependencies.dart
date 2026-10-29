@@ -31,8 +31,8 @@ export 'package:collectarr_app/features/library/kinds/comic/domain/comic_persona
 export 'package:collectarr_app/features/library/kinds/comic/edit/draft.dart';
 export 'package:collectarr_app/features/library/kinds/comic/edit/transferable_fields.dart';
 export 'package:collectarr_app/features/library/kinds/comic/edit/catalog_item/catalog_item_dialog.dart';
-export 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
-export 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
+export 'package:collectarr_app/features/library/kinds/comic/edit/dialog.dart';
+export 'package:collectarr_app/features/library/kinds/comic/edit/presentation.dart';
 export 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 export 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 export 'package:collectarr_app/features/library/kinds/comic/metadata/comic_metadata_compare.dart';
