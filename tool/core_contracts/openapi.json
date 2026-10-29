@@ -2414,20 +2414,6 @@
             ],
             "title": "Catalog Number"
           },
-          "character_details": {
-            "anyOf": [
-              {
-                "items": {
-                  "$ref": "#/components/schemas/CatalogComicCharacterResponse"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Character Details"
-          },
           "characters": {
             "anyOf": [
               {
@@ -2448,27 +2434,6 @@
               }
             ],
             "title": "Characters"
-          },
-          "contributors": {
-            "anyOf": [
-              {
-                "items": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/CatalogComicCreatorResponse"
-                    },
-                    {
-                      "type": "string"
-                    }
-                  ]
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Contributors"
           },
           "country": {
             "anyOf": [
@@ -5540,6 +5505,23 @@
         },
         "title": "HTTPValidationError",
         "type": "object"
+      },
+      "ItemKind": {
+        "enum": [
+          "boardgame",
+          "book",
+          "collection",
+          "comic",
+          "game",
+          "game_hardware",
+          "game_toy",
+          "manga",
+          "movie",
+          "music",
+          "tv"
+        ],
+        "title": "ItemKind",
+        "type": "string"
       },
       "JsonObject-Input": {
         "additionalProperties": {

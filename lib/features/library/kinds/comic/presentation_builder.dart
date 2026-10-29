@@ -298,7 +298,7 @@ class ComicLibraryCatalogItemPresentationBuilder
       ],
       sections: {
         'creators': LibraryMetadataSection(
-          values: [...metadata.contributors, ...metadata.creators]
+          values: metadata.creators
               .map((creator) => creator.toJson())
               .toList(growable: false),
           placement: LibraryMetadataSectionPlacement.credits,

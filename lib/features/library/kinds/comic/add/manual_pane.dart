@@ -255,7 +255,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           creators: comicDraft.creators,
           accent: request.accent,
           onAdd: () => setState(
-            () => comicDraft.creators.add(EditableComicCreator.custom()),
+            () => comicDraft.creators.add(EditableComicCreator.blank()),
           ),
           onRemove: (index) => setState(
             () => comicDraft.creators.removeAt(index).dispose(),
@@ -275,7 +275,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           characters: comicDraft.characters,
           accent: request.accent,
           onAdd: () => setState(
-            () => comicDraft.characters.add(EditableComicCharacter.custom('')),
+            () => comicDraft.characters.add(EditableComicCharacter.blank()),
           ),
           onRemove: (index) => setState(
             () => comicDraft.characters.removeAt(index).dispose(),

@@ -28,11 +28,9 @@ final class EditableComicCreator {
               text: metadata?['image_url']?.toString() ?? '',
             );
 
-  factory EditableComicCreator.custom({String name = '', String role = ''}) =>
-      EditableComicCreator(
-        nameController: TextEditingController(text: name),
-        roleController: TextEditingController(text: role),
-        metadata: const {'source_type': 'custom'},
+  factory EditableComicCreator.blank() => EditableComicCreator(
+        nameController: TextEditingController(),
+        roleController: TextEditingController(),
       );
 
   factory EditableComicCreator.fromMetadata(Map<String, dynamic> metadata) =>
@@ -45,20 +43,6 @@ final class EditableComicCreator {
         ),
         metadata: metadata,
       );
-
-  factory EditableComicCreator.fromLookupResult(Map<String, dynamic> result) {
-    final role = result['role']?.toString().trim().isNotEmpty == true
-        ? result['role']!.toString().trim()
-        : result['job']?.toString().trim().isNotEmpty == true
-            ? result['job']!.toString().trim()
-            : '';
-    return EditableComicCreator(
-      nameController:
-          TextEditingController(text: result['name']?.toString() ?? ''),
-      roleController: TextEditingController(text: role),
-      metadata: {...result, 'source_type': 'core'},
-    );
-  }
 
   final TextEditingController nameController;
   final TextEditingController roleController;
@@ -77,7 +61,6 @@ final class EditableComicCreator {
       'sort_name': sortNameController.text.trim(),
       'join_phrase': joinPhraseController.text.trim(),
       'image_url': imageUrlController.text.trim(),
-      'source_type': metadata['source_type']?.toString() ?? 'custom',
     };
     result.removeWhere(
       (key, value) =>
@@ -121,10 +104,9 @@ final class EditableComicCharacter {
               text: metadata?['image_url']?.toString() ?? '',
             );
 
-  factory EditableComicCharacter.custom(String name) => EditableComicCharacter(
-        nameController: TextEditingController(text: name),
+  factory EditableComicCharacter.blank() => EditableComicCharacter(
+        nameController: TextEditingController(),
         realNameController: TextEditingController(),
-        metadata: const {'source_type': 'custom'},
       );
 
   factory EditableComicCharacter.fromMetadata(Map<String, dynamic> metadata) =>
@@ -134,16 +116,6 @@ final class EditableComicCharacter {
         realNameController: TextEditingController(
             text: metadata['real_name']?.toString() ?? ''),
         metadata: metadata,
-      );
-
-  factory EditableComicCharacter.fromLookupResult(
-          Map<String, dynamic> result) =>
-      EditableComicCharacter(
-        nameController:
-            TextEditingController(text: result['name']?.toString() ?? ''),
-        realNameController:
-            TextEditingController(text: result['real_name']?.toString() ?? ''),
-        metadata: {...result, 'source_type': 'core'},
       );
 
   final TextEditingController nameController;
@@ -166,7 +138,6 @@ final class EditableComicCharacter {
       'role': roleController.text.trim(),
       'description': descriptionController.text.trim(),
       'image_url': imageUrlController.text.trim(),
-      'source_type': metadata['source_type']?.toString() ?? 'custom',
     };
     result.removeWhere(
       (key, value) =>
@@ -197,19 +168,8 @@ List<EditableComicCreator> initComicCreators(ComicCatalogItem item) => [
         EditableComicCreator.fromMetadata(creator.toJson()),
     ];
 
-List<EditableComicCharacter> initComicCharacters(ComicCatalogItem item) {
-  if (item.characterDetails.isNotEmpty) {
-    return [
-      for (final character in item.characterDetails)
-        EditableComicCharacter.fromMetadata(character.toJson()),
-    ];
-  }
-  if (item.characters.isNotEmpty) {
-    return [
+List<EditableComicCharacter> initComicCharacters(ComicCatalogItem item) => [
       for (final character in item.characters)
         if (character.name?.trim().isNotEmpty == true)
           EditableComicCharacter.fromMetadata(character.toJson()),
     ];
-  }
-  return const [];
-}

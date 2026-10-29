@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:flutter/material.dart';
 
@@ -143,12 +144,12 @@ List<MetadataDiffEntry> _creatorsEntries(
   Map<String, dynamic> localP,
   Map<String, dynamic> serverP,
 ) {
-  final localCreators =
-      (localP['creators'] as List?)?.cast<Map<String, dynamic>>() ??
-          const <Map<String, dynamic>>[];
-  final serverCreators =
-      (serverP['creators'] as List?)?.cast<Map<String, dynamic>>() ??
-          const <Map<String, dynamic>>[];
+  final localCreators = [
+    for (final creator in comicCreatorsFromJson(localP)) creator.toJson(),
+  ];
+  final serverCreators = [
+    for (final creator in comicCreatorsFromJson(serverP)) creator.toJson(),
+  ];
   final count = math.max(localCreators.length, serverCreators.length);
   return [
     for (var i = 0; i < count; i++)
@@ -181,8 +182,13 @@ List<MetadataDiffEntry> _charactersEntries(
   Map<String, dynamic> localP,
   Map<String, dynamic> serverP,
 ) {
-  final localCharacters = _characterList(localP);
-  final serverCharacters = _characterList(serverP);
+  final localCharacters = [
+    for (final character in comicCharactersFromJson(localP)) character.toJson(),
+  ];
+  final serverCharacters = [
+    for (final character in comicCharactersFromJson(serverP))
+      character.toJson(),
+  ];
   final count = math.max(localCharacters.length, serverCharacters.length);
   return [
     for (var i = 0; i < count; i++)
@@ -195,22 +201,6 @@ List<MetadataDiffEntry> _charactersEntries(
           i < serverCharacters.length ? serverCharacters[i] : null,
         ),
       ),
-  ];
-}
-
-List<Map<String, dynamic>> _characterList(Map<String, dynamic> payload) {
-  final details =
-      (payload['character_details'] as List?)?.cast<Map<String, dynamic>>();
-  if (details != null && details.isNotEmpty) {
-    return details;
-  }
-  final chars =
-      (payload['characters'] as List?)?.map((e) => e.toString()).toList();
-  return [
-    for (final name in chars ?? const <String>[])
-      <String, dynamic>{
-        'name': name,
-      },
   ];
 }
 

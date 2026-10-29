@@ -366,9 +366,7 @@ class ComicCatalogItem implements JsonEncodable {
     this.plotDescription,
     this.plotSummary,
     this.releaseStatus,
-    this.contributors = const [],
     this.characters = const [],
-    this.characterDetails = const [],
     this.creators = const [],
     this.storyArcs = const [],
     this.keyEvents = const [],
@@ -428,10 +426,9 @@ class ComicCatalogItem implements JsonEncodable {
   final String? plotDescription;
   final String? plotSummary;
   final String? releaseStatus;
-  final List<ComicCreator> contributors;
-  final List<ComicCharacter> characters;
-  final List<ComicCharacter> characterDetails;
+
   final List<ComicCreator> creators;
+  final List<ComicCharacter> characters;
   final List<ComicStoryArc> storyArcs;
   final List<ComicKeyEvent> keyEvents;
   final bool isKeyComic;
@@ -518,14 +515,6 @@ class ComicCatalogItem implements JsonEncodable {
         'characters': [
           for (final character in characters) character.toJsonValue()
         ],
-      if (characterDetails.isNotEmpty)
-        'character_details': [
-          for (final character in characterDetails) character.toJson(),
-        ],
-      if (contributors.isNotEmpty)
-        'contributors': [
-          for (final contributor in contributors) contributor.toJsonValue(),
-        ],
       if (creators.isNotEmpty)
         'creators': [for (final creator in creators) creator.toJsonValue()],
       if (storyArcs.isNotEmpty)
@@ -590,9 +579,7 @@ class ComicCatalogItem implements JsonEncodable {
     String? plotDescription,
     String? plotSummary,
     String? releaseStatus,
-    List<ComicCreator>? contributors,
     List<ComicCharacter>? characters,
-    List<ComicCharacter>? characterDetails,
     List<ComicCreator>? creators,
     List<ComicStoryArc>? storyArcs,
     List<ComicKeyEvent>? keyEvents,
@@ -648,9 +635,7 @@ class ComicCatalogItem implements JsonEncodable {
       plotDescription: plotDescription ?? this.plotDescription,
       plotSummary: plotSummary ?? this.plotSummary,
       releaseStatus: releaseStatus ?? this.releaseStatus,
-      contributors: contributors ?? this.contributors,
       characters: characters ?? this.characters,
-      characterDetails: characterDetails ?? this.characterDetails,
       creators: creators ?? this.creators,
       storyArcs: storyArcs ?? this.storyArcs,
       keyEvents: keyEvents ?? this.keyEvents,
@@ -714,30 +699,8 @@ class ComicCatalogItem implements JsonEncodable {
       plotDescription: json['plot_description'] as String?,
       plotSummary: json['plot_summary'] as String?,
       releaseStatus: json['release_status'] as String?,
-      contributors: _comicChildList<ComicCreator>(
-        json['contributors'],
-        'contributors',
-        ComicCreator.fromValue,
-        allowStrings: true,
-      ),
-      characters: _comicChildList<ComicCharacter>(
-        json['characters'],
-        'characters',
-        ComicCharacter.fromValue,
-        allowStrings: true,
-      ),
-      characterDetails: _comicChildList<ComicCharacter>(
-        json['character_details'],
-        'character_details',
-        ComicCharacter.fromValue,
-        allowStrings: false,
-      ),
-      creators: _comicChildList<ComicCreator>(
-        json['creators'],
-        'creators',
-        ComicCreator.fromValue,
-        allowStrings: true,
-      ),
+      characters: comicCharactersFromJson(json),
+      creators: comicCreatorsFromJson(json),
       storyArcs: _comicChildList<ComicStoryArc>(
         json['story_arcs'],
         'story_arcs',
@@ -787,6 +750,24 @@ List<String> _comicStringList(Object? value, String field) {
   }
   return List<String>.unmodifiable(value.cast<String>());
 }
+
+/// Reads the appearance list: plain names or objects with a Core character ID.
+List<ComicCharacter> comicCharactersFromJson(Map<String, dynamic> json) =>
+    _comicChildList<ComicCharacter>(
+      json['characters'],
+      'characters',
+      ComicCharacter.fromValue,
+      allowStrings: true,
+    );
+
+/// Reads the credit list: plain names or objects with a Core person ID.
+List<ComicCreator> comicCreatorsFromJson(Map<String, dynamic> json) =>
+    _comicChildList<ComicCreator>(
+      json['creators'],
+      'creators',
+      ComicCreator.fromValue,
+      allowStrings: true,
+    );
 
 List<T> _comicChildList<T>(
   Object? value,

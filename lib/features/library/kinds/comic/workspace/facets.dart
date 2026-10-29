@@ -58,10 +58,8 @@ Iterable<String> _comicCharacterValues(ComicWorkspaceDto dto) =>
 Iterable<String> _comicStoryArcValues(ComicWorkspaceDto dto) =>
     dto.comic.storyArcs.map((arc) => arc.name).whereType<String>();
 
-Iterable<String> _creatorNamesForRole(ComicWorkspaceDto dto, String role) => [
-      ...dto.comic.contributors,
-      ...dto.comic.creators,
-    ]
+Iterable<String> _creatorNamesForRole(ComicWorkspaceDto dto, String role) =>
+    dto.comic.creators
         .where((creator) {
           final value = (creator.roleId ?? creator.role ?? '')
               .toLowerCase()

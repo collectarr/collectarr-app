@@ -42,6 +42,7 @@ Keep these when matching the reference visually.
 | Format | One album-level Format pick list | Format is derived from discs; each disc has a format family with format-aware fields (vinyl weight/RPM/side matrices only where they apply) |
 | Recording | Album-level Recording Date | Recording data lives on discs, with explicit disc values taking precedence |
 | Credits | Separate People and Classical tabs | One Credits tab with album/disc scope, stable contributor IDs and role vocabularies |
+| Comic creators and characters | Read-only Core lists plus a separate per-copy Custom list for each | One editable list each; an entry picked from Core keeps its person or character ID, a typed one has none, and both look the same |
 | Dates | Fixed date fields | Partial dates (year, year-month, full) everywhere |
 | Statistics | One tab per collection | Adds an All Collections tab |
 | Views | List, Vertical/Horizontal Cards, Covers, Shelves | Adds Flow Carousel |
@@ -97,7 +98,7 @@ storage. The following is an observed inventory, not a parity signoff.
 | Key selector | Implemented Major/Minor/Trivia/No in the typed entry editor, replacing the boolean plus free-text severity. Key Reason and Key Category remain available even with No; round-trip coverage added. Visual comparison remains open |
 | Personal | Read No/Yes, Read Date, Notes, Owner, My Rating, Tags, Bag/Board Date |
 | Images | Separate Front/Back Cover controls; My Images supports descriptions and types. Preserve Collectarr's independently implemented image system |
-| Credits and characters | Separate Core and Custom lists; verify ownership, editing and ordering without modifying canonical credits through personal fields |
+| Credits and characters | CLZ shows read-only Core lists beside per-copy Custom lists. Collectarr keeps one editable Creators list and one Characters list (see Deliberate improvements); Core and App dropped the duplicate `contributors` and `character_details` fields. Core person/character pickers and ID-based detail navigation remain open |
 | Add modes | Series, Issue, Barcode, NCBD and Add Manually. Series/Issue/Barcode shells inspected; search results, variants, confirmation and NCBD remain open |
 
 Manual Add now follows the same eleven-tab order, with Main publication fields,
