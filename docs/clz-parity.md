@@ -100,6 +100,15 @@ storage. The following is an observed inventory, not a parity signoff.
 | Credits and characters | Separate Core and Custom lists; verify ownership, editing and ordering without modifying canonical credits through personal fields |
 | Add modes | Series, Issue, Barcode, NCBD and Add Manually. Series/Issue/Barcode shells inspected; search results, variants, confirmation and NCBD remain open |
 
+Manual Add now follows the same eleven-tab order, with Main publication fields,
+Details issue title/subtitle, Value grading/purchase/sale controls, Personal
+reading/rating/Bag/Board Date and an editable Plot. Front/Back Cover controls
+are separate from My Images. Its common footer preserves Index and Quantity;
+the typed create payload now retains reading, quantity, index, value and sale
+data. A widget regression traverses Personal and Plot and verifies the resulting
+copy snapshot. Empty private issue titles are allowed, matching Music/Games.
+Layout density and complete browser save/reload checks remain open.
+
 The branch now registers Comics in Core, Sync and App. Core's ordered schema
 upgrade preserves existing Music/Game records; App schema 5 adds the three
 Comics tracking tables without replacing existing data or pending sync work.

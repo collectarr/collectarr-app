@@ -41,8 +41,8 @@ Widget? buildComicCustomTabView({
       throw StateError('Expected ComicEditDraft for Comic entry editing');
     }
     return host.buildComicValueTab(
-        collectorFields:
-            buildComicEntryFields(comicDraft: kindDraft, onChanged: markDirty));
+        collectorFields: buildComicEntryFields(
+            draft: kindDraft.entryEdit, onChanged: markDirty));
   }
   return switch (tabId) {
     'main' => host.buildComicMainTab(),

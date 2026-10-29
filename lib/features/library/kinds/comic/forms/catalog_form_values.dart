@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 final class ComicCatalogItemFormValues {
   ComicCatalogItemFormValues({
     this.title = '',
+    this.description = '',
     this.seriesTitle = '',
     this.seriesId,
     this.issueNumber = '',
@@ -34,6 +35,7 @@ final class ComicCatalogItemFormValues {
   });
 
   String title;
+  String description;
   String seriesTitle;
   String? seriesId;
   String issueNumber;

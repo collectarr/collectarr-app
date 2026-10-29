@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
-import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
@@ -33,14 +32,19 @@ LibraryFormSchema<ComicAddManualDraft> comicAddSchemaFor({
             id: 'issue',
             label: 'Issue',
             fields: [
-              libraryAddCatalogTitleField<ComicAddManualDraft>(),
+              LibraryTextFieldSpec<ComicAddManualDraft>(
+                id: 'catalog_title',
+                label: 'Title',
+                value: (draft) => draft.catalogTitle,
+                setValue: (draft, value) => draft.catalogTitle = value,
+              ),
               ...comicCatalogItemIdentityFields(
                 values: (draft) => draft.values,
                 includeTitle: includeTitle,
                 physicalFormatOptions: physicalFormatOptions ??
                     ComicVocabularies.physicalFormat.builtIns,
                 onManagePhysicalFormat: onManagePhysicalFormat,
-                includeSeries: false,
+                includeSeries: true,
               ),
             ],
             fullWidthFieldIds: const {'catalog_title'},

@@ -6,10 +6,16 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
 import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/serial/library_series_selector_field.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add/manual_draft.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_status_strip.dart';
+import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import '../edit/entry/entry_draft.dart';
+import '../edit/covers_tab.dart';
+import 'draft.dart';
+import '../domain/comic_personal_data.dart';
+import 'personal_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/links_tab.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add/schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/person_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/people_editors.dart';
@@ -30,6 +36,21 @@ class ComicAddManualPane extends ConsumerStatefulWidget {
 
 class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
   late final LocalDatabase _database;
+  late final ComicEntryEditDraft _entry;
+
+  ComicAddDraft get _personal => widget.request.kindDraft is ComicAddDraft
+      ? widget.request.kindDraft as ComicAddDraft
+      : const ComicAddDraft();
+  void _updatePersonal(ComicPersonalData value) =>
+      widget.request.onKindDraftChanged
+          ?.call(_personal.copyWith(personal: value));
+
+  @override
+  void dispose() {
+    _entry.dispose();
+    super.dispose();
+  }
+
   List<String> _publisherOptions = const [];
   List<String> _imprintOptions = const [];
   List<String> _seriesGroupOptions = const [];
@@ -39,6 +60,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
   void initState() {
     super.initState();
     _database = ref.read(localDatabaseProvider);
+    _entry = ComicEntryEditDraft.fromDetails(_personal.personal.details);
     _loadVocabularies();
   }
 
@@ -181,128 +203,242 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           onChanged: request.onManualDraftChanged,
           validateSchema: validateSchema,
         );
+    final tabs = <LibraryAddManualPaneTab>[
+      schemaTab(
+        id: 'main',
+        label: 'Main',
+        icon: Icons.article_outlined,
+        fieldIds: const {
+          ComicFieldIdentities.seriesId,
+          ComicFieldIdentities.issueNumberId,
+          ComicFieldIdentities.variantId,
+          'variant_description',
+          'barcode',
+          'physical_format',
+          'series_group',
+          'cover_date',
+          'release_date',
+          'publisher',
+          ComicFieldIdentities.imprintId,
+        },
+        sectionLabel: 'Main',
+        validateSchema: true,
+      ),
+      schemaTab(
+        id: 'details',
+        label: 'Details',
+        icon: Icons.info_outline,
+        fieldIds: const {
+          'catalog_title',
+          'edition_title',
+          'isbn',
+          'upc',
+          ComicFieldIdentities.pageCountId,
+          'age_rating',
+          'publication_age',
+          'subtitle',
+          'genres',
+          'language',
+          'country',
+          'crossover',
+          'story_arcs',
+        },
+        sectionLabel: 'Publication details',
+      ),
+      LibraryAddManualPaneTab(
+        id: 'creators',
+        label: 'Creators',
+        icon: Icons.people_outline,
+        content: ComicCreatorListEditor(
+          creators: comicDraft.creators,
+          accent: request.accent,
+          onAdd: () => setState(
+            () => comicDraft.creators.add(EditableComicCreator.custom()),
+          ),
+          onRemove: (index) => setState(
+            () => comicDraft.creators.removeAt(index).dispose(),
+          ),
+          onReorder: (oldIndex, newIndex) => setState(() {
+            final creator = comicDraft.creators.removeAt(oldIndex);
+            comicDraft.creators.insert(newIndex, creator);
+          }),
+          onChanged: request.onManualDraftChanged ?? () {},
+        ),
+      ),
+      LibraryAddManualPaneTab(
+        id: 'characters',
+        label: 'Characters',
+        icon: Icons.face_outlined,
+        content: ComicCharacterListEditor(
+          characters: comicDraft.characters,
+          accent: request.accent,
+          onAdd: () => setState(
+            () => comicDraft.characters.add(EditableComicCharacter.custom('')),
+          ),
+          onRemove: (index) => setState(
+            () => comicDraft.characters.removeAt(index).dispose(),
+          ),
+          onReorder: (oldIndex, newIndex) => setState(() {
+            final character = comicDraft.characters.removeAt(oldIndex);
+            comicDraft.characters.insert(newIndex, character);
+          }),
+          onChanged: request.onManualDraftChanged ?? () {},
+        ),
+      ),
+      LibraryAddManualPaneTab(
+        id: 'covers',
+        label: 'Covers',
+        icon: Icons.camera_alt_outlined,
+        content: ComicCoversTab(
+          searchTitle: () => comicDraft.values.seriesTitle,
+          images: [
+            for (final image in request.itemImages)
+              if (_isCover(image)) image
+          ],
+          coverImageUrl: comicDraft.values.coverImageUrl,
+          originalCoverImageUrl: '',
+          onCoverImageUrlChanged: (value) {
+            comicDraft.values.coverImageUrl = value;
+            request.onManualDraftChanged?.call();
+          },
+          onEdits: (edits) {
+            final changed = {for (final edit in edits) edit.imageType};
+            request.onItemImagesChanged?.call([
+              for (final image in request.itemImages)
+                if (!changed.contains(image.imageType)) _imageEdit(image),
+              for (final edit in edits)
+                if (!edit.deleted) edit,
+            ]);
+          },
+        ),
+      ),
+      LibraryAddManualPaneTab(
+        id: 'links',
+        label: 'Links',
+        icon: Icons.public,
+        content: ComicAddLinksTab(
+          draft: comicDraft,
+          accent: request.accent,
+          onChanged: request.onManualDraftChanged,
+        ),
+      ),
+      LibraryAddManualPaneTab(
+        id: 'value',
+        label: 'Value',
+        icon: Icons.payments_outlined,
+        content: ComicAddPersonalTab(
+            request: request, entry: _entry, valueTab: true),
+      ),
+      LibraryAddManualPaneTab(
+        id: 'personal',
+        label: 'Personal',
+        icon: Icons.person_outline,
+        content: ComicAddPersonalTab(
+            request: request, entry: _entry, valueTab: false),
+      ),
+      LibraryAddManualPaneTab(
+        id: 'custom_fields',
+        label: 'Custom Fields',
+        icon: Icons.edit_note_outlined,
+        content: CustomFieldsEditSection(
+          definitions: request.customFieldDefinitions,
+          values: request.customFieldValues,
+          accent: request.accent,
+          mediaKind: request.kind.apiValue,
+          onChanged: (values) =>
+              request.onCustomFieldValuesChanged?.call(values),
+          onCustomValueChanged: (id, value) => request.onVocabularyValueChanged
+              ?.call(
+                  fieldId: 'customField:$id',
+                  listName: 'customField:$id',
+                  value: value),
+        ),
+      ),
+      LibraryAddManualPaneTab(
+        id: 'my_images',
+        label: 'My Images',
+        icon: Icons.photo_library_outlined,
+        content: ItemImagesEditSection(
+          images: [
+            for (final image in request.itemImages)
+              if (!_isCover(image)) image
+          ],
+          accent: request.accent,
+          onChanged: (edits) => request.onItemImagesChanged?.call([
+            for (final image in request.itemImages)
+              if (_isCover(image)) _imageEdit(image),
+            for (final edit in edits)
+              if (!edit.deleted) edit,
+          ]),
+        ),
+      ),
+      LibraryAddManualPaneTab.fromSchema<ComicAddManualDraft>(
+        id: 'plot',
+        label: 'Plot',
+        icon: Icons.subject,
+        schema: LibraryFormSchema(sections: [
+          LibraryFormSectionSpec(
+            id: 'plot',
+            label: '',
+            maxColumns: 1,
+            fields: [
+              LibraryTextFieldSpec<ComicAddManualDraft>(
+                id: 'description',
+                label: 'Plot',
+                maxLines: 18,
+                value: (draft) => draft.values.description,
+                setValue: (draft, value) => draft.values.description = value,
+              )
+            ],
+          )
+        ]),
+        draft: comicDraft,
+        mediaKind: request.kind.apiValue,
+        onChanged: request.onManualDraftChanged,
+      ),
+    ];
+    final byId = {for (final tab in tabs) tab.id: tab};
     return LibraryAddManualPaneShell(
       request: request,
-      identityDetails: LibrarySeriesSelectorField(
-        database: _database,
-        mediaKind: CatalogMediaKind.comic.apiValue,
-        initialTitle: comicDraft.values.seriesTitle,
-        initialSeriesId: comicDraft.values.seriesId,
-        onChanged: (title, coreSeriesId) {
-          comicDraft.values
-            ..seriesTitle = title
-            ..seriesId = coreSeriesId;
-          request.onManualDraftChanged?.call();
-        },
+      footerContent: LibraryAddStatusStrip(
+        request: request,
+        indexValue: _personal.personal.indexNumber,
+        quantity: _personal.personal.quantity,
+        onIndexChanged: (value) =>
+            _updatePersonal(_personal.personal.copyWith(indexNumber: value)),
+        onQuantityChanged: (value) =>
+            _updatePersonal(_personal.personal.copyWith(quantity: value)),
       ),
       tabs: [
-        schemaTab(
-          id: 'main',
-          label: 'Main',
-          icon: Icons.article_outlined,
-          fieldIds: const {'catalog_title', ComicFieldIdentities.issueNumberId},
-          sectionLabel: 'Main',
-          validateSchema: true,
-        ),
-        schemaTab(
-          id: 'edition',
-          label: 'Edition Details',
-          icon: Icons.inventory_2_outlined,
-          fieldIds: const {
-            ComicFieldIdentities.variantId,
-            'edition_title',
-            'variant_description',
-            'barcode',
-            'isbn',
-            'upc',
-            'physical_format',
-            'cover_date',
-            'release_date',
-          },
-          sectionLabel: 'Edition details',
-        ),
-        schemaTab(
-          id: 'details',
-          label: 'Details',
-          icon: Icons.info_outline,
-          fieldIds: const {
-            'publisher',
-            ComicFieldIdentities.imprintId,
-            'series_group',
-            ComicFieldIdentities.pageCountId,
-            'age_rating',
-            'publication_age',
-            'subtitle',
-            'genres',
-            'language',
-            'country',
-            'crossover',
-            'story_arcs',
-          },
-          sectionLabel: 'Publication details',
-        ),
-        LibraryAddManualPaneTab(
-          id: 'creators',
-          label: 'Creators',
-          icon: Icons.people_outline,
-          content: ComicCreatorListEditor(
-            creators: comicDraft.creators,
-            accent: request.accent,
-            onAdd: () => setState(
-              () => comicDraft.creators.add(EditableComicCreator.custom()),
-            ),
-            onRemove: (index) => setState(
-              () => comicDraft.creators.removeAt(index).dispose(),
-            ),
-            onReorder: (oldIndex, newIndex) => setState(() {
-              final creator = comicDraft.creators.removeAt(oldIndex);
-              comicDraft.creators.insert(newIndex, creator);
-            }),
-            onChanged: request.onManualDraftChanged ?? () {},
-          ),
-        ),
-        LibraryAddManualPaneTab(
-          id: 'characters',
-          label: 'Characters',
-          icon: Icons.face_outlined,
-          content: ComicCharacterListEditor(
-            characters: comicDraft.characters,
-            accent: request.accent,
-            onAdd: () => setState(
-              () =>
-                  comicDraft.characters.add(EditableComicCharacter.custom('')),
-            ),
-            onRemove: (index) => setState(
-              () => comicDraft.characters.removeAt(index).dispose(),
-            ),
-            onReorder: (oldIndex, newIndex) => setState(() {
-              final character = comicDraft.characters.removeAt(oldIndex);
-              comicDraft.characters.insert(newIndex, character);
-            }),
-            onChanged: request.onManualDraftChanged ?? () {},
-          ),
-        ),
-        schemaTab(
-          id: 'covers',
-          label: 'Covers',
-          icon: Icons.camera_alt_outlined,
-          fieldIds: const {'cover_image_url'},
-          sectionLabel: 'Cover',
-        ),
-        LibraryAddManualPaneTab(
-          id: 'links',
-          label: 'Links',
-          icon: Icons.public,
-          content: ComicAddLinksTab(
-            draft: comicDraft,
-            accent: request.accent,
-            onChanged: request.onManualDraftChanged,
-          ),
-        ),
+        for (final id in const [
+          'main',
+          'details',
+          'value',
+          'personal',
+          'custom_fields',
+          'covers',
+          'my_images',
+          'creators',
+          'characters',
+          'plot',
+          'links'
+        ])
+          byId[id]!
       ],
     );
   }
 }
+
+bool _isCover(ItemImageContent image) =>
+    image.imageType == 'front_cover' || image.imageType == 'back_cover';
+ItemImageEdit _imageEdit(ItemImageDraft image) => ItemImageEdit(
+      id: image.id,
+      imageData: image.imageData,
+      caption: image.caption,
+      createdAt: image.createdAt,
+      imageType: image.imageType,
+      sortOrder: image.sortOrder,
+    );
 
 Widget buildComicAddManualPane(
   BuildContext context,

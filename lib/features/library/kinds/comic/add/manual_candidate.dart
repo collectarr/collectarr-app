@@ -12,7 +12,7 @@ CatalogSearchCandidate? buildComicManualCandidate(
   LibraryKindAddDraft draft, {
   required String title,
 }) {
-  if (draft is! ComicAddManualDraft || title.trim().isEmpty) return null;
+  if (draft is! ComicAddManualDraft) return null;
   if (comicAddSchema.validate?.call(draft) != null) return null;
   final id = 'manual-comic-${DateTime.now().microsecondsSinceEpoch}';
   final values = draft.values..title = title.trim();
