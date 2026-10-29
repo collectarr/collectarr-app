@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### CI & Build
+- Update build tooling with consistent generated database code.
 - Keep long release change lists within GitHub limits while linking the complete history.
 - Keep the Drift runtime and generated database code aligned when updating dependencies.
 
