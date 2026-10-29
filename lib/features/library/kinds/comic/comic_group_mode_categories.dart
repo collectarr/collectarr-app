@@ -33,7 +33,7 @@ List<LibraryGroupModeCategory> buildComicGroupModeCategories(
   const valueIds = {
     'grade',
     'condition',
-    'is_key_comic',
+    'key_comic',
     'raw_or_slabbed',
     'my_rating',
     'purchase_date',
