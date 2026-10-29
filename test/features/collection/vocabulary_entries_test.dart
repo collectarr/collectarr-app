@@ -38,7 +38,7 @@ void main() {
     test(
         'DatabaseVocabularyRepository loads and merges built-ins, custom values, and selected values',
         () async {
-      const gradeId = VocabularyId<String>('comic.grade');
+      const gradeId = VocabularyId<String>('music.grade');
       const gradeDef = VocabularyDefinition<String>(
         id: gradeId,
         label: 'Grade',
@@ -48,13 +48,13 @@ void main() {
 
       // Save custom user grade
       await repo.saveCustomValue(
-        mediaKind: 'comic',
+        mediaKind: 'music',
         definition: gradeDef,
         value: '9.9 (Mint+)',
       );
 
       final options = await repo.loadOptions(
-        mediaKind: 'comic',
+        mediaKind: 'music',
         definition: gradeDef,
         selectedValues: ['Ungraded'],
       );

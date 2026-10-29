@@ -5,6 +5,9 @@
 ### Features
 - Prepare Comics editing with the eleven CLZ tabs, grading and key significance in Value, distinct issue subtitle and variant-description fields, partial publication dates, and Age separate from audience ratings; Comics remains in development.
 
+### Fixes
+- Keep manually added pick-list values available when opening a selector, even before an item uses them.
+
 ### CI & Build
 - Update build tooling with consistent generated database code.
 - Release notes list every merged pull request, direct commit and closed issue, and record new release summaries in the repository.

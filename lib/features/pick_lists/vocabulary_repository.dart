@@ -39,9 +39,6 @@ class DatabaseVocabularyRepository implements VocabularyRepository {
     Iterable<String?> selectedValues = const [],
   }) async {
     final builtIns = [for (final item in definition.builtIns) item.toString()];
-    await _pickLists.deleteUnusedValues(definition.key,
-        mediaKind: mediaKind,
-        keep: [...builtIns, ...selectedValues.whereType<String>()]);
     final customValues = await _pickLists.getValues(
       definition.key,
       mediaKind: mediaKind,
