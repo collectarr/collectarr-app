@@ -8,6 +8,7 @@ const Object _comicPersonalUnset = Object();
 @immutable
 final class ComicPersonalData implements JsonEncodable {
   const ComicPersonalData({
+    this.quantity = 1,
     this.isDigital,
     this.condition,
     this.grade,
@@ -31,6 +32,7 @@ final class ComicPersonalData implements JsonEncodable {
   });
 
   final bool? isDigital;
+  final int quantity;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -53,6 +55,7 @@ final class ComicPersonalData implements JsonEncodable {
 
   @override
   Map<String, dynamic> toJson() => {
+        'quantity': quantity,
         'is_digital': isDigital,
         'condition': condition,
         'grade': grade,
@@ -77,6 +80,7 @@ final class ComicPersonalData implements JsonEncodable {
 
   factory ComicPersonalData.fromJson(Map<String, dynamic> json) =>
       ComicPersonalData(
+        quantity: (json['quantity'] as num?)?.toInt() ?? 1,
         isDigital: json['is_digital'] as bool?,
         condition: json['condition'] as String?,
         grade: json['grade'] as String?,
@@ -103,6 +107,7 @@ final class ComicPersonalData implements JsonEncodable {
       );
 
   ComicPersonalData copyWith({
+    int? quantity,
     Object? isDigital = _comicPersonalUnset,
     Object? condition = _comicPersonalUnset,
     Object? grade = _comicPersonalUnset,
@@ -125,6 +130,7 @@ final class ComicPersonalData implements JsonEncodable {
     ComicReadingState? reading,
   }) =>
       ComicPersonalData(
+        quantity: quantity ?? this.quantity,
         isDigital: identical(isDigital, _comicPersonalUnset)
             ? this.isDigital
             : isDigital as bool?,

@@ -44,7 +44,7 @@ abstract final class ComicFieldIdentities {
     valueType: LibraryFieldValueType.text,
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.catalog,
-    sourcePath: 'variant_name',
+    sourcePath: 'variant',
     editable: true,
   );
   static const imprint = LibraryKindFieldMetadata(

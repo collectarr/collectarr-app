@@ -23,7 +23,7 @@ const _requiredKinds = {
 };
 
 // Mirrors releasedLibraryKinds in library_release_scope.dart.
-const _releasedKinds = {'game', 'music'};
+const _releasedKinds = {'comic', 'game', 'music'};
 
 Future<void> main() async {
   final tableFiles = await _discoverKindTableFiles();

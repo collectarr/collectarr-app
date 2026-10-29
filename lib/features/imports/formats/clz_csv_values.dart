@@ -128,13 +128,17 @@ List<ClzCsvRecord> readClzCsvRecords(
   List<List<String>> rows, {
   required Map<int, String> mappings,
   List<String> headers = const [],
+  Set<String> identityFieldKeys = const {'title'},
 }) {
   if (rows.isEmpty) {
     throw const LibraryImportFormatException('The file has no data rows.');
   }
-  if (!mappings.values.contains('title')) {
-    throw const LibraryImportFormatException(
-        'Map a column to Title before importing.');
+  if (!identityFieldKeys.any(mappings.values.contains)) {
+    final labels = identityFieldKeys
+        .map((key) => '${key[0].toUpperCase()}${key.substring(1)}')
+        .join(' or ');
+    throw LibraryImportFormatException(
+        'Map a column to $labels before importing.');
   }
   final fixed = {
     for (final mapping in mappings.entries)

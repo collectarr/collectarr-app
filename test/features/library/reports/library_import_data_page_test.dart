@@ -29,7 +29,7 @@ void main() {
     });
 
     test('unreleased kinds cannot borrow Music import semantics', () {
-      for (final kind in [CatalogMediaKind.book, CatalogMediaKind.comic]) {
+      for (final kind in [CatalogMediaKind.book, CatalogMediaKind.movie]) {
         expect(() => libraryImportForKind(kind), throwsArgumentError);
       }
     });

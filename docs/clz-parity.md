@@ -69,8 +69,8 @@ Keep these when matching the reference visually.
 ## Comics comparison
 
 Comics is the next public kind under development on `comics`. Existing Comics
-code is scaffolding, not evidence of reference parity. Public activation waits
-for inspection, implementation and validation of the workflows below.
+code is scaffolding, not evidence of reference parity. The branch exposes the
+library for isolated validation; release readiness depends on the workflows below.
 
 | Status | Workflow | Reference and validation needed |
 | --- | --- | --- |
@@ -100,9 +100,15 @@ storage. The following is an observed inventory, not a parity signoff.
 | Credits and characters | Separate Core and Custom lists; verify ownership, editing and ordering without modifying canonical credits through personal fields |
 | Add modes | Series, Issue, Barcode, NCBD and Add Manually. Series/Issue/Barcode shells inspected; search results, variants, confirmation and NCBD remain open |
 
-Comics remains inactive publicly while its catalog contracts, ordered migration,
-end-to-end saves, imports and sync are not yet validated against the released
-Music/Games baseline.
+The branch now registers Comics in Core, Sync and App. Core's ordered schema
+upgrade preserves existing Music/Game records; App schema 5 adds the three
+Comics tracking tables without replacing existing data or pending sync work.
+Catalog create/read/search and Sync snapshot tests pass in isolated storage.
+App connects Comics to barcode, calendar, managed lists, serial authority and
+CSV import. The CSV importer preserves series/issue/variant identity, publication
+date precision, personal grading, reading and quantity. The actual CLZ Web XML
+export was inspected read-only in temporary storage; XML and image import remain
+open. End-to-end saves and the remaining parity checks are still release gates.
 
 Editor implementation now lives under `comic/edit/`, with separate Main,
 Details, Value, Personal, credits, images and links files, matching the
@@ -119,8 +125,8 @@ Cover Date and Release Date now use Music's shared partial-date input in the
 collection editor and typed Add/Edit field schemas. Missing year, month or day
 remain missing through the typed model; clearing a date removes its stored
 parts. Removed the Comics text-date/year controllers rather than maintaining
-two editable date representations. Core contract and import/sync validation
-remain prerequisites for public activation.
+two editable date representations. Core contracts and Sync snapshot validation
+are covered; end-to-end import and editor validation remain open.
 
 Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
 editors and dialogs with Cancel. Record observed fields and remaining gaps

@@ -5,6 +5,15 @@
       "editable": false,
       "input": "text",
       "key": "physical_format_label",
+      "kind": "comic",
+      "label": "Physical format label",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_label",
       "kind": "game",
       "label": "Physical format label",
       "section": "internal",
@@ -41,6 +50,15 @@
       "editable": false,
       "input": "text",
       "key": "physical_format_media_family",
+      "kind": "comic",
+      "label": "Physical format media family",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_media_family",
       "kind": "game",
       "label": "Physical format media family",
       "section": "internal",
@@ -77,6 +95,15 @@
       "editable": false,
       "input": "text",
       "key": "physical_format_variant_type",
+      "kind": "comic",
+      "label": "Physical format variant type",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "physical_format_variant_type",
       "kind": "game",
       "label": "Physical format variant type",
       "section": "internal",
@@ -113,6 +140,15 @@
       "editable": false,
       "input": "text",
       "key": "format_templateimage",
+      "kind": "comic",
+      "label": "Format template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_templateimage",
       "kind": "game",
       "label": "Format template image",
       "section": "internal",
@@ -149,6 +185,15 @@
       "editable": false,
       "input": "text",
       "key": "format_scaledimage",
+      "kind": "comic",
+      "label": "Format scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "format_scaledimage",
       "kind": "game",
       "label": "Format scaled image",
       "section": "internal",
@@ -185,6 +230,15 @@
       "editable": false,
       "input": "text",
       "key": "country_scaledimage",
+      "kind": "comic",
+      "label": "Country scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "country_scaledimage",
       "kind": "game",
       "label": "Country scaled image",
       "section": "internal",
@@ -221,6 +275,15 @@
       "editable": false,
       "input": "text",
       "key": "language_scaledimage",
+      "kind": "comic",
+      "label": "Language scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "language_scaledimage",
       "kind": "game",
       "label": "Language scaled image",
       "section": "internal",
@@ -257,6 +320,15 @@
       "editable": false,
       "input": "text",
       "key": "audiencerating_templateimage",
+      "kind": "comic",
+      "label": "Audience rating template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audiencerating_templateimage",
       "kind": "game",
       "label": "Audience rating template image",
       "section": "internal",
@@ -293,6 +365,15 @@
       "editable": false,
       "input": "text",
       "key": "region_scaledimage",
+      "kind": "comic",
+      "label": "Region scaled image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "region_scaledimage",
       "kind": "game",
       "label": "Region scaled image",
       "section": "internal",
@@ -329,6 +410,15 @@
       "editable": false,
       "input": "text",
       "key": "audio_templateimage",
+      "kind": "comic",
+      "label": "Audio template image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "audio_templateimage",
       "kind": "game",
       "label": "Audio template image",
       "section": "internal",
@@ -365,6 +455,15 @@
       "editable": false,
       "input": "text",
       "key": "associated_image_id",
+      "kind": "comic",
+      "label": "Associated image",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "associated_image_id",
       "kind": "game",
       "label": "Associated image",
       "section": "internal",
@@ -401,6 +500,15 @@
       "editable": false,
       "input": "text",
       "key": "cover_delivery_url",
+      "kind": "comic",
+      "label": "Cover delivery URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_delivery_url",
       "kind": "game",
       "label": "Cover delivery URL",
       "section": "internal",
@@ -437,6 +545,15 @@
       "editable": false,
       "input": "text",
       "key": "cover_policy",
+      "kind": "comic",
+      "label": "Cover policy",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_policy",
       "kind": "game",
       "label": "Cover policy",
       "section": "internal",
@@ -473,6 +590,15 @@
       "editable": false,
       "input": "text",
       "key": "cover_source_url",
+      "kind": "comic",
+      "label": "Cover source URL",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_source_url",
       "kind": "game",
       "label": "Cover source URL",
       "section": "internal",
@@ -509,6 +635,15 @@
       "editable": false,
       "input": "text",
       "key": "cover_status",
+      "kind": "comic",
+      "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_status",
       "kind": "game",
       "label": "Cover status",
       "section": "internal",
@@ -538,6 +673,15 @@
       "key": "cover_status",
       "kind": "music",
       "label": "Cover status",
+      "section": "internal",
+      "valueType": "string"
+    },
+    {
+      "editable": false,
+      "input": "text",
+      "key": "cover_storage",
+      "kind": "comic",
+      "label": "Cover storage",
       "section": "internal",
       "valueType": "string"
     },
@@ -581,6 +725,15 @@
       "editable": true,
       "input": "text",
       "key": "physical_format",
+      "kind": "comic",
+      "label": "Physical format",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "physical_format",
       "kind": "game",
       "label": "Physical format",
       "section": "publishing",
@@ -603,6 +756,15 @@
       "label": "Physical format",
       "section": "publishing",
       "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "genres",
+      "kind": "comic",
+      "label": "Genres",
+      "section": "relations",
+      "valueType": "string_list"
     },
     {
       "editable": true,
@@ -639,6 +801,51 @@
       "label": "Genres",
       "section": "relations",
       "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publication_age",
+      "kind": "comic",
+      "label": "Age",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "imprint",
+      "kind": "comic",
+      "label": "Imprint",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_group",
+      "kind": "comic",
+      "label": "Series group",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "page_count",
+      "kind": "comic",
+      "label": "Page count",
+      "section": "publishing",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "crossover",
+      "kind": "comic",
+      "label": "Crossover",
+      "section": "artwork",
+      "valueType": "string"
     },
     {
       "editable": true,
@@ -815,6 +1022,15 @@
       "editable": true,
       "input": "text",
       "key": "title",
+      "kind": "comic",
+      "label": "Title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title",
       "kind": "game",
       "label": "Title",
       "section": "item",
@@ -851,6 +1067,15 @@
       "editable": true,
       "input": "text",
       "key": "original_title",
+      "kind": "comic",
+      "label": "Original title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_title",
       "kind": "game",
       "label": "Original title",
       "section": "item",
@@ -878,6 +1103,15 @@
       "editable": true,
       "input": "text",
       "key": "localized_title",
+      "kind": "comic",
+      "label": "Localized title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "localized_title",
       "kind": "game",
       "label": "Localized title",
       "section": "item",
@@ -905,6 +1139,15 @@
       "editable": true,
       "input": "text",
       "key": "title_extension",
+      "kind": "comic",
+      "label": "Title extension",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "title_extension",
       "kind": "game",
       "label": "Title extension",
       "section": "item",
@@ -932,6 +1175,15 @@
       "editable": true,
       "input": "text",
       "key": "sort_key",
+      "kind": "comic",
+      "label": "Sort key",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "sort_key",
       "kind": "game",
       "label": "Sort key",
       "section": "item",
@@ -959,6 +1211,15 @@
       "editable": true,
       "input": "list",
       "key": "search_aliases",
+      "kind": "comic",
+      "label": "Search aliases",
+      "section": "item",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "search_aliases",
       "kind": "game",
       "label": "Search aliases",
       "section": "item",
@@ -986,6 +1247,15 @@
       "editable": true,
       "input": "text",
       "key": "item_number",
+      "kind": "comic",
+      "label": "Item number",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "item_number",
       "kind": "game",
       "label": "Item number",
       "section": "item",
@@ -1013,6 +1283,15 @@
       "editable": true,
       "input": "text",
       "key": "series_title",
+      "kind": "comic",
+      "label": "Series title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "series_title",
       "kind": "game",
       "label": "Series title",
       "section": "item",
@@ -1040,6 +1319,15 @@
       "editable": true,
       "input": "text",
       "key": "edition_title",
+      "kind": "comic",
+      "label": "Edition title",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "edition_title",
       "kind": "game",
       "label": "Edition title",
       "section": "item",
@@ -1062,6 +1350,15 @@
       "label": "Edition title",
       "section": "item",
       "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date",
+      "kind": "comic",
+      "label": "Release date",
+      "section": "item",
+      "valueType": "partial_date"
     },
     {
       "editable": true,
@@ -1103,6 +1400,15 @@
       "editable": true,
       "input": "text",
       "key": "publisher",
+      "kind": "comic",
+      "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "publisher",
       "kind": "game",
       "label": "Publisher",
       "section": "publishing",
@@ -1123,6 +1429,15 @@
       "key": "publisher",
       "kind": "game_toy",
       "label": "Publisher",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "subtitle",
+      "kind": "comic",
+      "label": "Subtitle",
       "section": "publishing",
       "valueType": "string"
     },
@@ -1159,6 +1474,15 @@
       "key": "subtitle",
       "kind": "music",
       "label": "Subtitle",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "barcode",
+      "kind": "comic",
+      "label": "Barcode",
       "section": "publishing",
       "valueType": "string"
     },
@@ -1202,6 +1526,15 @@
       "editable": true,
       "input": "text",
       "key": "variant_name",
+      "kind": "comic",
+      "label": "Primary variant",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_name",
       "kind": "game",
       "label": "Primary variant",
       "section": "publishing",
@@ -1229,6 +1562,15 @@
       "editable": true,
       "input": "text",
       "key": "catalog_number",
+      "kind": "comic",
+      "label": "Catalog number",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "catalog_number",
       "kind": "game",
       "label": "Catalog number",
       "section": "technical",
@@ -1265,6 +1607,15 @@
       "editable": true,
       "input": "text",
       "key": "release_status",
+      "kind": "comic",
+      "label": "Release status",
+      "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "release_status",
       "kind": "game",
       "label": "Release status",
       "section": "technical",
@@ -1286,6 +1637,15 @@
       "kind": "game_toy",
       "label": "Release status",
       "section": "technical",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "country",
+      "kind": "comic",
+      "label": "Country",
+      "section": "regional",
       "valueType": "string"
     },
     {
@@ -1328,6 +1688,15 @@
       "editable": true,
       "input": "text",
       "key": "language",
+      "kind": "comic",
+      "label": "Language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "language",
       "kind": "game",
       "label": "Language",
       "section": "regional",
@@ -1355,6 +1724,15 @@
       "editable": true,
       "input": "text",
       "key": "age_rating",
+      "kind": "comic",
+      "label": "Age rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "age_rating",
       "kind": "game",
       "label": "Age rating",
       "section": "regional",
@@ -1382,6 +1760,15 @@
       "editable": true,
       "input": "text",
       "key": "audience_rating",
+      "kind": "comic",
+      "label": "Audience rating",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "audience_rating",
       "kind": "game",
       "label": "Audience rating",
       "section": "regional",
@@ -1409,6 +1796,15 @@
       "editable": true,
       "input": "list",
       "key": "series_tags",
+      "kind": "comic",
+      "label": "Series tags",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "series_tags",
       "kind": "game",
       "label": "Series tags",
       "section": "regional",
@@ -1431,6 +1827,15 @@
       "label": "Series tags",
       "section": "regional",
       "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "cover_image_url",
+      "kind": "comic",
+      "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
     },
     {
       "editable": true,
@@ -1465,6 +1870,15 @@
       "key": "cover_image_url",
       "kind": "music",
       "label": "Cover URL",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "thumbnail_image_url",
+      "kind": "comic",
+      "label": "Thumbnail URL",
       "section": "artwork",
       "valueType": "string"
     },
@@ -1508,6 +1922,15 @@
       "editable": true,
       "input": "multiline",
       "key": "synopsis",
+      "kind": "comic",
+      "label": "Synopsis",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "synopsis",
       "kind": "game",
       "label": "Synopsis",
       "section": "artwork",
@@ -1535,6 +1958,15 @@
       "editable": true,
       "input": "multiline",
       "key": "plot_summary",
+      "kind": "comic",
+      "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_summary",
       "kind": "game",
       "label": "Plot summary",
       "section": "artwork",
@@ -1555,6 +1987,15 @@
       "key": "plot_summary",
       "kind": "game_toy",
       "label": "Plot summary",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "plot_description",
+      "kind": "comic",
+      "label": "Plot description",
       "section": "artwork",
       "valueType": "string"
     },
@@ -1609,6 +2050,15 @@
       "key": "trailer_urls",
       "kind": "game_toy",
       "label": "Trailer URLs",
+      "section": "relations",
+      "valueType": "link_list"
+    },
+    {
+      "editable": true,
+      "input": "multiline",
+      "key": "external_links",
+      "kind": "comic",
+      "label": "External links",
       "section": "relations",
       "valueType": "link_list"
     },
@@ -1649,5 +2099,5 @@
       "valueType": "link_list"
     }
   ],
-  "generatedAt": "2026-10-25T15:14:46.330904Z"
+  "generatedAt": "2026-10-29T10:58:44.145932Z"
 }
