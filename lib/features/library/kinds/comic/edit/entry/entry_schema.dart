@@ -90,18 +90,26 @@ final EditSchema<ComicEntryDetails, ComicEntryEditDraft> comicEntryEditSchema =
           id: 'key_comic',
           label: 'Key comic',
           fields: [
-            LibraryToggleFieldSpec<ComicEntryEditDraft>(
+            LibrarySelectFieldSpec<ComicEntryEditDraft, String>(
               id: 'key_comic',
-              label: 'Key comic',
-              value: (draft) => draft.keyComic,
-              setValue: (draft, value) => draft.keyComic = value,
+              label: 'Key',
+              value: (draft) => draft.keyComic ? draft.keySeverity : 'No',
+              setValue: (draft, value) {
+                draft.keyComic = value != null && value != 'No';
+                draft.keySeverity = draft.keyComic ? value : null;
+              },
+              options: const [
+                LibraryFieldOption(value: 'Major', label: 'Major'),
+                LibraryFieldOption(value: 'Minor', label: 'Minor'),
+                LibraryFieldOption(value: 'Trivia', label: 'Trivia'),
+                LibraryFieldOption(value: 'No', label: 'No'),
+              ],
             ),
             LibraryTextFieldSpec<ComicEntryEditDraft>(
               id: 'key_reason',
               label: 'Key reason',
               value: (draft) => draft.keyReason ?? '',
               setValue: (draft, value) => draft.keyReason = value,
-              visibleWhen: (draft) => draft.keyComic,
             ),
             LibraryVocabularyFieldSpec<ComicEntryEditDraft, String>(
               id: 'key_category',
@@ -110,14 +118,6 @@ final EditSchema<ComicEntryDetails, ComicEntryEditDraft> comicEntryEditSchema =
               setValue: (draft, value) => draft.keyCategory = value,
               options: _options(ComicVocabularies.keyCategory.builtIns),
               pickListKey: ComicVocabularyIds.keyCategory.value,
-              visibleWhen: (draft) => draft.keyComic,
-            ),
-            LibraryTextFieldSpec<ComicEntryEditDraft>(
-              id: 'key_severity',
-              label: 'Key severity',
-              value: (draft) => draft.keySeverity ?? '',
-              setValue: (draft, value) => draft.keySeverity = value,
-              visibleWhen: (draft) => draft.keyComic,
             ),
           ],
         ),
