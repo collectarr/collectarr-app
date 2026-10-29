@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+- Begin Comics editor parity with Major, Minor, Trivia and No key significance choices; Comics remains in development.
+
 ### CI & Build
 - Update build tooling with consistent generated database code.
 - Release notes list every merged pull request, direct commit and closed issue, and record new release summaries in the repository.

@@ -1,6 +1,6 @@
 # CLZ parity
 
-Collectarr aims to be an improved, fully FOSS CLZ Music and Games: familiar
+Collectarr aims to be an improved, fully FOSS CLZ Music, Games and Comics: familiar
 workflows and density, a stricter data model, and no proprietary code, fonts or
 assets. CLZ is a reference only. This is the single living comparison; update
 it instead of adding dated audit files.
@@ -65,6 +65,49 @@ Keep these when matching the reference visually.
 | Backups | Web: one downloadable backup file made on request; the old desktop app kept time-stamped backups for a set number of days | Desktop and mobile copy the database daily and before every restore or clear, prune by a kept period and restore from Settings > Data; a restore first keeps a copy of the current data, so it can be undone |
 | Number order | Text compares character by character: 12 before 2, Raft 10 before Raft 2 (checked on CLZ Music Web, 2026-10-18) | Digit runs compare by value: 2 before 12, Raft 2 before Raft 10 |
 | Sort Names | Shown only on the person lists (Artist, Composer, Conductor, Musician, Engineer, Producer, Songwriter, Signee) and Box Set; the other lists store one but hide it, so "The End Records" stays under T | Every pick list shows its Sort Name, fills it from the Name as it is typed (the article rule, as for Sort Title), and every pick-list folder is ordered by it |
+
+## Comics comparison
+
+Comics is the next public kind under development on `comics`. Existing Comics
+code is scaffolding, not evidence of reference parity. Public activation waits
+for inspection, implementation and validation of the workflows below.
+
+| Status | Workflow | Reference and validation needed |
+| --- | --- | --- |
+| Pending inspection | Library and series browsing | Views, grouping, sorting, columns, filters, issue numbering and inspector density |
+| Partially inspected | Add Comics | Mode shells and manual entry inspected; search results, variants and confirmation remain open |
+| Inspected; gaps open | Issue editor | Eleven tabs inspected; pick-list contents, save round-trips and visual comparison remain open |
+| Inspected; gaps open | Personal collection | Reading, grading, signatures, purchase, value and storage fields inspected; collection actions and loans remain open |
+| Pending inspection | Series completeness | Missing issues, variants, collection boundaries and available actions |
+| Pending inspection | Bulk and portability | Multi-selection, bulk editing, import/export mappings and kind-specific sync snapshots |
+| Pending inspection | Visual and accessibility checks | Default/dark appearance, narrow windows, keyboard traversal, empty states and invalid input |
+
+The signed-in reference library and all eleven issue editor tabs have now been
+inspected, including the manual-add shell. Editors were closed with Cancel;
+no reference records were added or changed. Captures remain in temporary
+storage. The following is an observed inventory, not a parity signoff.
+
+| Reference surface | Observed controls and remaining work |
+| --- | --- |
+| Editor tabs | Main, Details, Value, Personal, Custom Fields, Covers, My Images, Creators, Characters, Plot, Links; reconcile the existing extra Entry tab and field placement |
+| Main | Series, Barcode, Format, Series Group, Issue No., Variant, Variant Description, partial Cover/Release Dates, Publisher, Imprint |
+| Shared editor footer | Collection Status, Index, Quantity and Storage Box remain visible on every tab; Previous/Next appear for existing issues |
+| Details | Crossover, Story Arc, Title, Subtitle, Country, Language, Age, No. of Pages, Genre; check historical Age separately from age rating |
+| Value | Grade, Raw/Slabbed, My Value, Signed by, Grading Company, Slab Certification Number, Grader Notes, Label Type, Custom Label, Page Quality, Key, Key Reason, Key Category, purchase and sale facts, Cover Price |
+| Key selector | Implemented Major/Minor/Trivia/No in the typed entry editor, replacing the boolean plus free-text severity. Key Reason and Key Category remain available even with No; round-trip coverage added. Visual comparison remains open |
+| Personal | Read No/Yes, Read Date, Notes, Owner, My Rating, Tags, Bag/Board Date |
+| Images | Separate Front/Back Cover controls; My Images supports descriptions and types. Preserve Collectarr's independently implemented image system |
+| Credits and characters | Separate Core and Custom lists; verify ownership, editing and ordering without modifying canonical credits through personal fields |
+| Add modes | Series, Issue, Barcode, NCBD and Add Manually. Series/Issue/Barcode shells inspected; search results, variants, confirmation and NCBD remain open |
+
+Comics remains inactive publicly while its catalog contracts, ordered migration,
+end-to-end saves, imports and sync are not yet validated against the released
+Music/Games baseline.
+
+Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
+editors and dialogs with Cancel. Record observed fields and remaining gaps
+here; validate Collectarr saves and upgrades only in isolated test storage.
+Keep the deliberate improvements above when matching the reference.
 
 ## Games comparison
 

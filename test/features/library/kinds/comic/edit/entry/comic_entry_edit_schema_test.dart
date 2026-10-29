@@ -86,17 +86,28 @@ void main() {
     expect(coverPrice.cents(draft), 599);
   });
 
-  test('hides key detail fields until the Comic is marked as key', () {
+  test('selects CLZ key significance and keeps descriptive fields available',
+      () {
     final draft = ComicEntryEditDraft.fromDetails(
       const ComicEntryDetails(),
     );
     addTearDown(draft.dispose);
 
-    expect(_field('key_reason').isVisible(draft), isFalse);
-    expect(_field('key_category').isVisible(draft), isFalse);
-    draft.keyComic = true;
+    final key = _field('key_comic')
+        as LibrarySelectFieldSpec<ComicEntryEditDraft, String>;
+    expect(key.value(draft), 'No');
     expect(_field('key_reason').isVisible(draft), isTrue);
     expect(_field('key_category').isVisible(draft), isTrue);
+    for (final significance in ['Major', 'Minor', 'Trivia']) {
+      key.setValue(draft, significance);
+      expect(draft.toDetails().keyComic, isTrue);
+      expect(draft.toDetails().keySeverity, significance);
+    }
+    draft.keyReason = 'First appearance';
+    key.setValue(draft, 'No');
+    expect(draft.toDetails().keyComic, isFalse);
+    expect(draft.toDetails().keySeverity, isNull);
+    expect(draft.keyReason, 'First appearance');
   });
 
   test('rejects a negative Comic cover price', () {
