@@ -13502,19 +13502,19 @@ class $$LibraryCollectionsTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (libraryCollectionMembershipsRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                             LibraryCollection,
                             $LibraryCollectionsTable,
-                            LibraryCollectionMembership>(
+                            LibraryCollectionMembership,
+                            $LibraryCollectionMembershipsTable>(
                         currentTable: table,
                         referencedTable: $$LibraryCollectionsTableReferences
                             ._libraryCollectionMembershipsRefsTable(db),
                         managerFromTypedResult: (p0) =>
                             $$LibraryCollectionsTableReferences(db, table, p0)
                                 .libraryCollectionMembershipsRefs,
-                        referencedItemsForCurrentItem:
-                            (item, referencedItems) => referencedItems
-                                .where((e) => e.collectionId == item.id),
+                        currentColumn: 'id',
+                        referencedColumn: 'collection_id',
                         typedResults: items)
                 ];
               },

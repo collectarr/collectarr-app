@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### CI & Build
+- Regenerate database code with compatible build tooling and Drift dependencies.
+
 ## 1.4.0 - 2026-10-26
 
 ### ✨ Features
