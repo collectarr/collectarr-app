@@ -10,3 +10,7 @@ changelog:
       labels:
         - dependencies
         - ci
+
+    - title: Other Changes
+      labels:
+        - '*'
