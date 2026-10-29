@@ -7,6 +7,7 @@ ComicCatalogItemFormValues comicCatalogItemFormValuesFrom(
 ) =>
     ComicCatalogItemFormValues(
       title: media.title,
+      description: media.description ?? '',
       seriesTitle: media.seriesTitle ?? '',
       seriesId: media.seriesId,
       issueNumber: media.issueNumber ?? '',
@@ -79,7 +80,7 @@ ComicCatalogItem comicCatalogItemFromFormValues({
     genres: List<String>.unmodifiable(values.genres),
     searchAliases: original.searchAliases,
     synopsis: original.synopsis,
-    description: original.description,
+    description: _nullable(values.description),
     subtitle: _nullable(values.subtitle),
     localizedTitle: original.localizedTitle,
     originalTitle: original.originalTitle,

@@ -19,8 +19,14 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       ComicLibraryEntryCreatePayload(
     details: details as ComicEntryDetailsDraft,
+    quantity: draft.personal.quantity,
+    indexNumber: draft.personal.indexNumber,
+    reading: draft.personal.reading,
+    marketValueCents: draft.personal.marketValueCents,
+    soldAt: draft.personal.soldAt,
+    sellPriceCents: draft.personal.sellPriceCents,
     condition: common.condition,
-    grade: kindValue ?? draft.grade,
+    grade: kindValue ?? draft.personal.grade ?? draft.grade,
     purchaseDate: common.purchaseDate,
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,

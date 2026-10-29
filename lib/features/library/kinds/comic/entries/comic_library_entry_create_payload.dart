@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
+import '../domain/comic_reading_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
 
@@ -17,6 +18,12 @@ final class ComicLibraryEntryCreatePayload
     implements LibraryEntryCreatePayload {
   const ComicLibraryEntryCreatePayload({
     required this.details,
+    this.quantity = 1,
+    this.indexNumber,
+    this.reading = const ComicReadingState(),
+    this.marketValueCents,
+    this.soldAt,
+    this.sellPriceCents,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -36,6 +43,12 @@ final class ComicLibraryEntryCreatePayload
   ) {
     return ComicLibraryEntryCreatePayload(
       details: ComicEntryDetailsCodec().draftFromDetails(item.personal.details),
+      quantity: item.personal.quantity,
+      indexNumber: item.personal.indexNumber,
+      reading: item.personal.reading,
+      marketValueCents: item.personal.marketValueCents,
+      soldAt: item.personal.soldAt,
+      sellPriceCents: item.personal.sellPriceCents,
       condition: item.personal.condition,
       grade: item.personal.grade,
       purchaseDate: item.personal.purchaseDate,
@@ -52,6 +65,12 @@ final class ComicLibraryEntryCreatePayload
   }
 
   final ComicEntryDetailsDraft details;
+  final int quantity;
+  final int? indexNumber;
+  final ComicReadingState reading;
+  final int? marketValueCents;
+  final DateTime? soldAt;
+  final int? sellPriceCents;
 
   @override
   ComicEntryDetailsDraft get detailsDraft => details;
@@ -94,6 +113,12 @@ final class ComicLibraryEntryCreatePayload
           : null,
       createdAt: createdAt,
       personal: ComicPersonalData(
+        quantity: quantity,
+        indexNumber: indexNumber,
+        reading: reading,
+        marketValueCents: marketValueCents,
+        soldAt: soldAt,
+        sellPriceCents: sellPriceCents,
         isDigital: isDigital ?? existingIsDigital,
         details: details.toDetails(),
         condition: condition,
