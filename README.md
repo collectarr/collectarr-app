@@ -3,6 +3,11 @@
 Your collection, your way. Collectarr helps you organize music, games, gaming
 hardware and toys, with an offline-first library and optional self-hosted sync.
 
+**License:** [GNU GPLv3 only](LICENSE) (`GPL-3.0-only`). Collectarr Core and
+Sync use AGPLv3. See [contributing](CONTRIBUTING.md) for contribution terms and
+historical MIT licensing information. Third-party assets retain their own
+licenses.
+
 Collectarr covers **Music** and **Games**, with separate **Hardware** and
 **Toys** libraries. Other media kinds will be introduced individually in future
 releases, with their own tables and explicit migrations.
@@ -83,7 +88,7 @@ flutter run
 
 Run the correctness suite with `dart run tool/run_tests.dart`.
 
-See [contributor instructions](AGENTS.md), [versioning policy](docs/versioning-policy.md),
+See [contribution guide](CONTRIBUTING.md), [contributor instructions](AGENTS.md), [versioning policy](docs/versioning-policy.md),
 the [architecture status](docs/architecture/current-status.md), [testing](docs/testing.md)
 and the [CLZ parity report](docs/clz-parity.md) for technical work. Do not
 publish a release until its verification gates pass.
