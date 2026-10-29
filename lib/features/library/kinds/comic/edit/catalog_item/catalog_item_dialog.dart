@@ -19,6 +19,8 @@ import 'package:collectarr_app/features/library/edit/fields/library_external_lin
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_character.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/catalog_item/catalog_item_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/people_editors.dart';

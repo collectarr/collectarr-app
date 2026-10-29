@@ -5,6 +5,8 @@ import 'package:collectarr_app/features/library/add/models/library_kind_add_draf
 import 'package:collectarr_app/features/library/kinds/comic/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_character.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_adapters.dart';
 

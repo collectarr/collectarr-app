@@ -1,4 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_identifier.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_story_arc.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_character.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_values.dart';
 
