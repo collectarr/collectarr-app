@@ -63,3 +63,5 @@
 - Preserve important findings across context compaction.
 
 **Rule:** Minimize token usage without sacrificing correctness.
+
+- Follow docs/release-notes.md for release descriptions. Write the editorial summary in docs/release-summaries.json; generate What's Changed with tool/release_notes.py. Keep contributor credit and comparison links.

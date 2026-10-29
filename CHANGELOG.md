@@ -3,7 +3,10 @@
 ## Unreleased
 
 ### CI & Build
-- Keep Drift runtime and generator upgrades compatible with generated database code.
+- Keep the Drift runtime and generated database code aligned when updating dependencies.
+
+### Docs
+- Present releases with Collectarr artwork, editorial summaries, contributor credits and automatic change lists.
 
 ## 1.4.0 - 2026-10-26
 
