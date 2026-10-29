@@ -5,7 +5,13 @@ import 'package:flutter/material.dart';
 
 import 'host_adapter.dart';
 import 'draft.dart';
-import 'tabs.dart';
+import 'details_tab.dart';
+import 'credits_tabs.dart';
+import 'links_tab.dart';
+import 'main_tab.dart';
+import 'value_tab.dart';
+import 'personal_tab.dart';
+import 'images_tabs.dart';
 import 'entry/entry_tab.dart';
 
 Widget? buildComicCustomTabView({
