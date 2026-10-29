@@ -2134,17 +2134,6 @@
             ],
             "title": "Aliases"
           },
-          "character_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Character Id"
-          },
           "description": {
             "anyOf": [
               {
@@ -2272,17 +2261,6 @@
               }
             ],
             "title": "Name"
-          },
-          "person_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Person Id"
           },
           "role": {
             "anyOf": [

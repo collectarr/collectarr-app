@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 final class ComicCharacter implements JsonEncodable {
   const ComicCharacter({
     this.id,
-    this.characterId,
     this.name,
     this.realName,
     this.aliases = const [],
@@ -15,7 +14,6 @@ final class ComicCharacter implements JsonEncodable {
   });
 
   final String? id;
-  final String? characterId;
   final String? name;
   final String? realName;
   final List<String> aliases;
@@ -38,7 +36,6 @@ final class ComicCharacter implements JsonEncodable {
     }
     return ComicCharacter(
       id: json['id'] as String?,
-      characterId: json['character_id'] as String?,
       name: json['name'] as String?,
       realName: json['real_name'] as String?,
       aliases: (aliasesValue as List<dynamic>?)?.cast<String>() ?? const [],
@@ -51,7 +48,6 @@ final class ComicCharacter implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
-        if (characterId != null) 'character_id': characterId,
         if (name != null) 'name': name,
         if (realName != null) 'real_name': realName,
         if (aliases.isNotEmpty) 'aliases': aliases,
@@ -61,7 +57,6 @@ final class ComicCharacter implements JsonEncodable {
       };
 
   Object toJsonValue() => id == null &&
-          characterId == null &&
           realName == null &&
           aliases.isEmpty &&
           role == null &&
