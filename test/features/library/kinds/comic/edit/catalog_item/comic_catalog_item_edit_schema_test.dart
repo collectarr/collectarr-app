@@ -44,6 +44,7 @@ void main() {
         'comic.series',
         'comic.issue_number',
         'comic.variant',
+        'variant_description',
         'edition_title',
         'barcode',
         'isbn',
@@ -53,6 +54,36 @@ void main() {
         'release_date',
       ],
     );
+  });
+
+  test('edits subtitle and variant description independently of edition', () {
+    const original = ComicCatalogItem(
+      title: 'The issue title',
+      seriesTitle: 'The series',
+      subtitle: 'Original subtitle',
+      variantDescription: 'Regular Edition',
+      editionTitle: 'Collected edition',
+    );
+    final draft = comicCatalogItemFormValuesFrom(original);
+    expect(draft.subtitle, 'Original subtitle');
+    expect(draft.variantDescription, 'Regular Edition');
+    (_field('subtitle') as LibraryTextFieldSpec<ComicCatalogItemFormValues>)
+        .setValue(draft, 'New subtitle');
+    (_field('variant_description')
+            as LibraryTextFieldSpec<ComicCatalogItemFormValues>)
+        .setValue(draft, 'Foil cover');
+    final updated =
+        comicCatalogItemFromFormValues(original: original, values: draft);
+    expect(updated.subtitle, 'New subtitle');
+    expect(updated.variantDescription, 'Foil cover');
+    expect(updated.editionTitle, 'Collected edition');
+    expect(updated.title, 'The issue title');
+    draft.subtitle = '';
+    draft.variantDescription = '';
+    final cleared =
+        comicCatalogItemFromFormValues(original: original, values: draft);
+    expect(cleared.subtitle, isNull);
+    expect(cleared.variantDescription, isNull);
   });
 
   test('binds Comic vocabularies and preserves typed media values', () {

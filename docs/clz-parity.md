@@ -89,10 +89,10 @@ storage. The following is an observed inventory, not a parity signoff.
 
 | Reference surface | Observed controls and remaining work |
 | --- | --- |
-| Editor tabs | Main, Details, Value, Personal, Custom Fields, Covers, My Images, Creators, Characters, Plot, Links; reconcile the existing extra Entry tab and field placement |
+| Editor tabs | Main, Details, Value, Personal, Custom Fields, Covers, My Images, Creators, Characters, Plot, Links. Collection editor navigation now follows this order. Removed the extra Entry tab and embedded its grading fields in Value; full visual comparison remains open |
 | Main | Series, Barcode, Format, Series Group, Issue No., Variant, Variant Description, partial Cover/Release Dates, Publisher, Imprint |
 | Shared editor footer | Collection Status, Index, Quantity and Storage Box remain visible on every tab; Previous/Next appear for existing issues |
-| Details | Crossover, Story Arc, Title, Subtitle, Country, Language, Age, No. of Pages, Genre; check historical Age separately from age rating |
+| Details | Crossover, Story Arc, Title, Subtitle, Country, Language, Age, No. of Pages, Genre. Subtitle and Variant Description now round-trip independently of edition title. Series edits preserve the issue title. Historical Age still needs a field separate from age rating |
 | Value | Grade, Raw/Slabbed, My Value, Signed by, Grading Company, Slab Certification Number, Grader Notes, Label Type, Custom Label, Page Quality, Key, Key Reason, Key Category, purchase and sale facts, Cover Price |
 | Key selector | Implemented Major/Minor/Trivia/No in the typed entry editor, replacing the boolean plus free-text severity. Key Reason and Key Category remain available even with No; round-trip coverage added. Visual comparison remains open |
 | Personal | Read No/Yes, Read Date, Notes, Owner, My Rating, Tags, Bag/Board Date |
@@ -110,6 +110,11 @@ kind-owned organization used for Music/Games. The old root dialog,
 presentation and image-section paths and the monolithic tab file were removed.
 The generic editor lifecycle still needs conversion to a dedicated typed
 dialog before the Comics implementation matches Games in architecture.
+Catalog and collection edit targets now select their respective dialogs;
+the previous registry mapping was inverted. Bag/Board Date in Personal now
+updates the typed entry draft that is serialized on save instead of a duplicate
+draft property. Pixel layout, all pick lists and the remaining schema gaps are
+still open; tab ordering alone is not a parity signoff.
 
 Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
 editors and dialogs with Cancel. Record observed fields and remaining gaps

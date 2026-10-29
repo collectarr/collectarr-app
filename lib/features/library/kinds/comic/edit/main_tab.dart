@@ -128,7 +128,7 @@ extension ComicMainTab on ComicEditHost {
                       LibraryEditTextField(
                           controller: comicVariantController, label: 'Variant'),
                       LibraryEditTextField(
-                        controller: comicEditionTitleController,
+                        controller: comicVariantDescriptionController,
                         label: 'Variant Description',
                       ),
                     ],

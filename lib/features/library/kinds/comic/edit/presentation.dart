@@ -5,91 +5,101 @@ import 'package:flutter/material.dart';
 
 const _comicMediaTabs = [
   LibraryEditTabSpec(
-    id: 'main',
-    icon: Icons.article,
-    label: 'Main',
-    sectionIds: ['catalog_snapshot'],
-  ),
+      id: 'main',
+      icon: Icons.article,
+      label: 'Main',
+      sectionIds: ['catalog_snapshot']),
   LibraryEditTabSpec(
-    id: 'details',
-    icon: Icons.search,
-    label: 'Details',
-    sectionIds: ['catalog_details'],
-  ),
+      id: 'details',
+      icon: Icons.search,
+      label: 'Details',
+      sectionIds: ['catalog_details']),
   LibraryEditTabSpec(
-    id: 'creators',
-    icon: Icons.group,
-    label: 'Creators',
-    sectionIds: ['comic_creators'],
-  ),
+      id: 'cover',
+      icon: Icons.image,
+      label: 'Covers',
+      sectionIds: ['cover_images']),
   LibraryEditTabSpec(
-    id: 'characters',
-    icon: Icons.face,
-    label: 'Characters',
-    sectionIds: ['comic_characters'],
-  ),
+      id: 'creators',
+      icon: Icons.group,
+      label: 'Creators',
+      sectionIds: ['comic_creators']),
   LibraryEditTabSpec(
-    id: 'cover',
-    icon: Icons.image,
-    label: 'Covers',
-    sectionIds: ['cover_images'],
-  ),
+      id: 'characters',
+      icon: Icons.face,
+      label: 'Characters',
+      sectionIds: ['comic_characters']),
+  LibraryEditTabSpec(
+      id: 'synopsis',
+      icon: Icons.notes,
+      label: 'Plot',
+      sectionIds: ['synopsis']),
+  LibraryEditTabSpec(
+      id: 'links',
+      icon: Icons.public,
+      label: 'Links',
+      sectionIds: ['external_links']),
 ];
 
 const _comicCombinedTabs = [
   LibraryEditTabSpec(
-    id: 'main',
-    icon: Icons.article,
-    label: 'Main',
-    sectionIds: ['catalog_snapshot'],
-  ),
+      id: 'main',
+      icon: Icons.article,
+      label: 'Main',
+      sectionIds: ['catalog_snapshot']),
   LibraryEditTabSpec(
-    id: 'synopsis',
-    icon: Icons.notes,
-    label: 'Plot',
-    sectionIds: ['synopsis'],
-  ),
+      id: 'details',
+      icon: Icons.search,
+      label: 'Details',
+      sectionIds: ['catalog_details']),
   LibraryEditTabSpec(
-    id: 'details',
-    icon: Icons.search,
-    label: 'Details',
-    sectionIds: ['catalog_details'],
-  ),
+      id: 'value',
+      icon: Icons.attach_money,
+      label: 'Value',
+      sectionIds: ['purchase']),
   LibraryEditTabSpec(
-    id: 'creators',
-    icon: Icons.group,
-    label: 'Creators',
-    sectionIds: ['comic_creators'],
-  ),
+      id: 'personal',
+      icon: Icons.person,
+      label: 'Personal',
+      sectionIds: ['tracking_personal']),
   LibraryEditTabSpec(
-    id: 'characters',
-    icon: Icons.face,
-    label: 'Characters',
-    sectionIds: ['comic_characters'],
-  ),
+      id: 'custom',
+      icon: Icons.tune,
+      label: 'Custom Fields',
+      sectionIds: ['custom_fields']),
   LibraryEditTabSpec(
-    id: 'cover',
-    icon: Icons.image,
-    label: 'Covers',
-    sectionIds: ['cover_images'],
-  ),
+      id: 'cover',
+      icon: Icons.image,
+      label: 'Covers',
+      sectionIds: ['cover_images']),
   LibraryEditTabSpec(
-    id: 'value',
-    icon: Icons.attach_money,
-    label: 'Value',
-    sectionIds: ['purchase', 'value_summary'],
-  ),
+      id: 'photos',
+      icon: Icons.photo_library,
+      label: 'My Images',
+      sectionIds: ['photos']),
+  LibraryEditTabSpec(
+      id: 'creators',
+      icon: Icons.group,
+      label: 'Creators',
+      sectionIds: ['comic_creators']),
+  LibraryEditTabSpec(
+      id: 'characters',
+      icon: Icons.face,
+      label: 'Characters',
+      sectionIds: ['comic_characters']),
+  LibraryEditTabSpec(
+      id: 'synopsis',
+      icon: Icons.notes,
+      label: 'Plot',
+      sectionIds: ['synopsis']),
+  LibraryEditTabSpec(
+      id: 'links',
+      icon: Icons.public,
+      label: 'Links',
+      sectionIds: ['external_links']),
 ];
 
-const _comicEntryTabs = [
-  ..._comicCombinedTabs,
-  LibraryEditTabSpec(
-    id: 'entry',
-    icon: Icons.inventory_2,
-    label: 'Entry',
-    sectionIds: ['comic_entry'],
-  ),
-];
+const _comicEntryTabs = _comicCombinedTabs;
 
 class ComicLibraryCombinedEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
@@ -132,52 +142,4 @@ class ComicLibraryCatalogItemEditPresentationBuilder
 const comicsLibraryEditPresentation = LibraryEditPresentation(
   builder: ComicLibraryCombinedEditPresentationBuilder(),
   catalogItemBuilder: ComicLibraryCatalogItemEditPresentationBuilder(),
-  sharedTabs: [
-    LibraryEditTabContribution(
-      tab: LibraryEditTabSpec(
-        id: 'links',
-        icon: Icons.public,
-        label: 'Links',
-        sectionIds: ['external_links'],
-      ),
-      afterTabId: 'characters',
-    ),
-    LibraryEditTabContribution(
-      tab: LibraryEditTabSpec(
-        id: 'photos',
-        icon: Icons.photo_library,
-        label: 'My Images',
-        sectionIds: ['photos'],
-      ),
-      afterTabId: 'cover',
-    ),
-    LibraryEditTabContribution(
-      tab: LibraryEditTabSpec(
-        id: 'custom',
-        icon: Icons.tune,
-        label: 'Custom Fields',
-        sectionIds: ['custom_fields'],
-      ),
-      scope: LibraryEditTabTargetScope.libraryEntry,
-      afterTabId: 'photos',
-    ),
-    LibraryEditTabContribution(
-      tab: LibraryEditTabSpec(
-        id: 'personal',
-        icon: Icons.person,
-        label: 'Personal',
-        sectionIds: [
-          'tracking_personal',
-          'entries_fields',
-          'purchase_fields',
-          'sold_fields',
-          'wishlist_reference',
-          'entry_notes',
-          'collection_fields_info',
-        ],
-      ),
-      scope: LibraryEditTabTargetScope.libraryEntry,
-      afterTabId: 'value',
-    ),
-  ],
 );

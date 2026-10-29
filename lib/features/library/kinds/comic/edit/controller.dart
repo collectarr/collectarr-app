@@ -34,6 +34,9 @@ class ComicEditController {
         publisherController = TextEditingController(text: item.publisher ?? ''),
         editionTitleController =
             TextEditingController(text: item.editionTitle ?? ''),
+        subtitleController = TextEditingController(text: item.subtitle ?? ''),
+        variantDescriptionController =
+            TextEditingController(text: item.variantDescription ?? ''),
         barcodeController = TextEditingController(text: item.barcode ?? ''),
         variantController = TextEditingController(text: item.variant ?? ''),
         physicalFormatLabelController = TextEditingController(
@@ -66,6 +69,8 @@ class ComicEditController {
   final TextEditingController numberController;
   final TextEditingController publisherController;
   final TextEditingController editionTitleController;
+  final TextEditingController subtitleController;
+  final TextEditingController variantDescriptionController;
   final TextEditingController barcodeController;
   final TextEditingController variantController;
   final TextEditingController physicalFormatLabelController;
@@ -120,6 +125,8 @@ class ComicEditController {
     numberController.dispose();
     publisherController.dispose();
     editionTitleController.dispose();
+    subtitleController.dispose();
+    variantDescriptionController.dispose();
     barcodeController.dispose();
     variantController.dispose();
     physicalFormatLabelController.dispose();
@@ -140,7 +147,7 @@ class ComicEditController {
     }
   }
 
-  LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
+  ComicCatalogItem buildMetadata(ComicCatalogItem currentMeta) {
     final parsedStoryArcs = storyArcsController.text
         .split(RegExp(r'[,\r\n]+'))
         .map((s) => s.trim())
@@ -152,12 +159,9 @@ class ComicEditController {
         .where((s) => s.isNotEmpty)
         .toList();
 
-    final currentMeta = selection.kindItem.kindCapability.mapTransport(
-      (transport) => ComicCatalogItem.fromJson(transport.kindData),
-    );
-
     final updatedMeta = currentMeta.copyWith(
-      title: emptyToNull(seriesTitleController.text) ?? currentMeta.title,
+      subtitle: emptyToNull(subtitleController.text),
+      variantDescription: emptyToNull(variantDescriptionController.text),
       crossover: emptyToNull(crossoverController.text),
       storyArcs: _replaceStoryArcs(currentMeta.storyArcs, parsedStoryArcs),
       ageRating: emptyToNull(ageRatingController.text),
@@ -178,6 +182,20 @@ class ComicEditController {
       seriesId: seriesId ?? currentMeta.seriesId,
       seriesGroup: emptyToNull(seriesGroupController.text),
     );
+
+    return ComicCatalogItem.fromJson({
+      ...updatedMeta.toJson(),
+      'subtitle': emptyToNull(subtitleController.text),
+      'variant_description': emptyToNull(variantDescriptionController.text),
+    });
+  }
+
+  LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
+    final currentMeta = selection.kindItem.kindCapability.mapTransport(
+      (transport) => ComicCatalogItem.fromJson(transport.kindData),
+    );
+
+    final updatedMeta = buildMetadata(currentMeta);
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(

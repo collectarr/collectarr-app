@@ -9,6 +9,8 @@ final class ComicCatalogItemFormValues {
     this.issueNumber = '',
     this.variant = '',
     this.editionTitle = '',
+    this.subtitle = '',
+    this.variantDescription = '',
     this.barcode = '',
     this.isbn = '',
     this.upc = '',
@@ -35,6 +37,8 @@ final class ComicCatalogItemFormValues {
   String issueNumber;
   String variant;
   String editionTitle;
+  String subtitle;
+  String variantDescription;
   String barcode;
   String isbn;
   String upc;

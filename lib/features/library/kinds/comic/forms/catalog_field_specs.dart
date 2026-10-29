@@ -49,6 +49,12 @@ List<LibraryFieldSpec<T>> comicCatalogItemIdentityFields<T>({
         setValue: (draft, value) => values(draft).variant = value,
       ),
       _text<T>(
+        id: 'variant_description',
+        label: 'Variant Description',
+        value: (draft) => values(draft).variantDescription,
+        setValue: (draft, value) => values(draft).variantDescription = value,
+      ),
+      _text<T>(
         id: 'edition_title',
         label: 'Edition title',
         value: (draft) => values(draft).editionTitle,
@@ -147,6 +153,12 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         value: (draft) => values(draft).pageCount,
         setValue: (draft, value) => values(draft).pageCount = value?.round(),
         minimum: 0,
+      ),
+      _text<T>(
+        id: 'subtitle',
+        label: 'Subtitle',
+        value: (draft) => values(draft).subtitle,
+        setValue: (draft, value) => values(draft).subtitle = value,
       ),
       _text<T>(
         id: 'age_rating',

@@ -21,6 +21,8 @@ abstract class ComicEditHost {
   TextEditingController get comicTitleController;
   TextEditingController get comicOriginalTitleController;
   TextEditingController get comicEditionTitleController;
+  TextEditingController get comicSubtitleController;
+  TextEditingController get comicVariantDescriptionController;
   TextEditingController get comicVariantController;
   TextEditingController get comicNumberController;
   TextEditingController get comicBarcodeController;
