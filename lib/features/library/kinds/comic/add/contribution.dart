@@ -9,6 +9,7 @@ import 'series.dart';
 
 final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   kind: CatalogMediaKind.comic,
+  chrome: const LibraryAddChromeConfig(menuAddsManually: true),
   initialDraftBuilder: ComicAddDraft.new,
   coreCatalogProjectionBuilder: comicCatalogTransportFromCoreItem,
   manualDraftBuilder: ComicAddManualDraft.new,

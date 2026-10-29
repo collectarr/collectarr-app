@@ -198,4 +198,42 @@ void main() {
     await tester.tap(find.text('Add Toys from Core'));
     expect(opened, [CatalogMediaKind.gameToy]);
   });
+
+  for (final (kind, label) in [
+    (CatalogMediaKind.comic, 'Add Comics Manually'),
+    (CatalogMediaKind.music, null),
+  ]) {
+    testWidgets('${kind.apiValue} menu Add Manually entry', (tester) async {
+      tester.view.physicalSize = const Size(1280, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final selected = <DrawerAction>[];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: AppNavigationDrawer(
+              type: defaultLibraryKindRegistry.require(kind),
+              selectedAction: null,
+              isAdmin: false,
+              accent: const Color(0xFF2A9FD6),
+              onAddFromCore: (_, __) {},
+              onSelected: (_, action) => selected.add(action),
+            ),
+          ),
+        ),
+      );
+
+      if (label == null) {
+        expect(find.textContaining('Manually'), findsNothing);
+        return;
+      }
+      // The reference lists it right after Add from Core.
+      expect(tester.getTopLeft(find.text(label)).dy,
+          greaterThan(tester.getTopLeft(find.text('Add Comics from Core')).dy));
+      await tester.tap(find.text(label));
+      expect(selected, [DrawerAction.addManually]);
+    });
+  }
 }

@@ -11,6 +11,7 @@ Future<LibraryAddDialogResult?> showLibraryAddDialog({
   Color? accent,
   String? initialQuery,
   String? initialIdentifier,
+  bool startManually = false,
 }) {
   final request = LibraryAddDialogRequest(
     type: type,
@@ -18,12 +19,13 @@ Future<LibraryAddDialogResult?> showLibraryAddDialog({
     initialQuery: initialQuery,
     initialIdentifier: initialIdentifier,
   );
-  return _showDefaultLibraryAddDialog(context, request);
+  return _showDefaultLibraryAddDialog(context, request, startManually);
 }
 
 Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
   BuildContext context,
   LibraryAddDialogRequest request,
+  bool startManually,
 ) {
   final windowClass = AppWindowClass.of(context);
   if (windowClass.isCompact) {
@@ -37,6 +39,7 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
               accent: request.accent,
               initialQuery: request.initialQuery,
               initialIdentifier: request.initialIdentifier,
+              startManually: startManually,
             ),
           ),
         ),
@@ -46,11 +49,14 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
   return showAppDialog<LibraryAddDialogResult>(
     context: context,
     barrierDismissible: false,
+    // Add Manually brings its own barrier; the Add dialog stays hidden.
+    barrierColor: startManually ? Colors.transparent : kAppDialogBarrierColor,
     builder: (context) => LibraryAddDialog(
       type: request.type,
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialIdentifier: request.initialIdentifier,
+      startManually: startManually,
     ),
   );
 }

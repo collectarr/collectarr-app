@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 
 enum DrawerAction {
   addFromCore,
+  addManually,
   managePickLists,
   manageCollections,
   printToPdf,
@@ -87,6 +88,12 @@ const appDrawerDestinations = <AppDrawerDestination>[
   AppDrawerDestination(
       action: DrawerAction.addFromCore,
       label: 'Add from Core',
+      icon: AppIcons.add,
+      section: AppDrawerSection.collection,
+      behavior: DrawerActionBehavior.libraryAdd),
+  AppDrawerDestination(
+      action: DrawerAction.addManually,
+      label: 'Add Manually',
       icon: AppIcons.add,
       section: AppDrawerSection.collection,
       behavior: DrawerActionBehavior.libraryAdd),
