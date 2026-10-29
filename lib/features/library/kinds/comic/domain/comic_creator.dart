@@ -6,7 +6,6 @@ final class ComicCreator implements JsonEncodable {
   const ComicCreator({
     this.id,
     this.personId,
-    this.artistId,
     this.name,
     this.role,
     this.roleId,
@@ -15,12 +14,10 @@ final class ComicCreator implements JsonEncodable {
     this.joinPhrase,
     this.imageUrl,
     this.sortName,
-    this.instrument,
   });
 
   final String? id;
   final String? personId;
-  final String? artistId;
   final String? name;
   final String? role;
   final String? roleId;
@@ -29,7 +26,6 @@ final class ComicCreator implements JsonEncodable {
   final String? joinPhrase;
   final String? imageUrl;
   final String? sortName;
-  final String? instrument;
 
   factory ComicCreator.fromValue(Object value) {
     if (value is String) return ComicCreator(name: value);
@@ -40,7 +36,6 @@ final class ComicCreator implements JsonEncodable {
     return ComicCreator(
       id: json['id'] as String?,
       personId: json['person_id'] as String?,
-      artistId: json['artist_id'] as String?,
       name: json['name'] as String?,
       role: json['role'] as String?,
       roleId: json['role_id'] as String?,
@@ -49,7 +44,6 @@ final class ComicCreator implements JsonEncodable {
       joinPhrase: json['join_phrase'] as String?,
       imageUrl: json['image_url'] as String?,
       sortName: json['sort_name'] as String?,
-      instrument: json['instrument'] as String?,
     );
   }
 
@@ -57,7 +51,6 @@ final class ComicCreator implements JsonEncodable {
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
         if (personId != null) 'person_id': personId,
-        if (artistId != null) 'artist_id': artistId,
         if (name != null) 'name': name,
         if (role != null) 'role': role,
         if (roleId != null) 'role_id': roleId,
@@ -66,20 +59,17 @@ final class ComicCreator implements JsonEncodable {
         if (joinPhrase != null) 'join_phrase': joinPhrase,
         if (imageUrl != null) 'image_url': imageUrl,
         if (sortName != null) 'sort_name': sortName,
-        if (instrument != null) 'instrument': instrument,
       };
 
   Object toJsonValue() => id == null &&
           personId == null &&
-          artistId == null &&
           role == null &&
           roleId == null &&
           sequence == null &&
           creditedName == null &&
           joinPhrase == null &&
           imageUrl == null &&
-          sortName == null &&
-          instrument == null
+          sortName == null
       ? name ?? ''
       : toJson();
 }
