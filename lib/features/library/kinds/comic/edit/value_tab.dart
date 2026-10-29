@@ -3,13 +3,21 @@ import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.da
 import 'package:collectarr_app/features/library/edit/fields/edit_summary_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/host.dart';
+import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 extension ComicValueTab on ComicEditHost {
-  Widget buildComicValueTab() {
+  Widget buildComicValueTab({required Widget collectorFields}) {
     return EditTabShell(
       children: [
+        LibraryVocabularyField(
+          controller: comicGradeController,
+          options: ComicVocabularies.grade.builtIns,
+          label: 'Grade',
+          multiSelect: false,
+        ),
+        collectorFields,
         EditSection(
           title: 'Value',
           accent: comicAccent,

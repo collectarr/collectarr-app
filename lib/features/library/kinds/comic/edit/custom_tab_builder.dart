@@ -12,7 +12,7 @@ import 'main_tab.dart';
 import 'value_tab.dart';
 import 'personal_tab.dart';
 import 'images_tabs.dart';
-import 'entry/entry_tab.dart';
+import 'entry/fields.dart';
 
 Widget? buildComicCustomTabView({
   required String tabId,
@@ -35,19 +35,20 @@ Widget? buildComicCustomTabView({
     accent: accent,
     markDirty: markDirty,
   );
-  if (tabId == 'entry') {
+  if (tabId == 'value') {
     final kindDraft = draft.session.catalogItemSession;
     if (kindDraft is! ComicEditDraft) {
       throw StateError('Expected ComicEditDraft for Comic entry editing');
     }
-    return buildComicEntryEditSchemaTab(comicDraft: kindDraft);
+    return host.buildComicValueTab(
+        collectorFields:
+            buildComicEntryFields(comicDraft: kindDraft, onChanged: markDirty));
   }
   return switch (tabId) {
     'main' => host.buildComicMainTab(),
     'creators' => host.buildComicCreatorsTab(),
     'characters' => host.buildComicCharactersTab(),
     'links' => host.buildComicLinksTab(),
-    'value' => host.buildComicValueTab(),
     'personal' => host.buildComicPersonalTab(),
     'details' => host.buildComicEntryDetailsTab(),
     'cover' => host.buildComicCoverTab(),

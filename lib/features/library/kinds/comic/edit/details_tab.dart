@@ -20,8 +20,8 @@ extension ComicDetailsTab on ComicEditHost {
                   label: 'Title',
                 ),
                 LibraryEditTextField(
-                  controller: comicOriginalTitleController,
-                  label: 'Original Title',
+                  controller: comicSubtitleController,
+                  label: 'Subtitle',
                 ),
               ]),
               const SizedBox(height: 10),

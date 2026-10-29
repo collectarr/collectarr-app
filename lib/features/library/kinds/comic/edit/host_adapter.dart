@@ -133,6 +133,14 @@ class ComicEditHostAdapter implements ComicEditHost {
       draft.formFields.controller(ComicCanonicalEditField.originalTitle);
 
   @override
+  TextEditingController get comicSubtitleController =>
+      _comicDraft.comicEdit.subtitleController;
+
+  @override
+  TextEditingController get comicVariantDescriptionController =>
+      _comicDraft.comicEdit.variantDescriptionController;
+
+  @override
   TextEditingController get comicEditionTitleController =>
       _comicDraft.comicEdit.editionTitleController;
 
@@ -304,11 +312,11 @@ class ComicEditHostAdapter implements ComicEditHost {
   }
 
   @override
-  DateTime? get comicLastBagBoardDate => _comicDraft.lastBagBoardDate;
+  DateTime? get comicLastBagBoardDate => _comicDraft.entryEdit.lastBagBoardDate;
 
   @override
   set comicLastBagBoardDate(DateTime? value) {
-    _comicDraft.lastBagBoardDate = value;
+    _comicDraft.entryEdit.lastBagBoardDate = value;
     markDirty();
   }
 
