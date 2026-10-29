@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
@@ -27,8 +28,10 @@ abstract class ComicEditHost {
   TextEditingController get comicNumberController;
   TextEditingController get comicBarcodeController;
   TextEditingController get comicPhysicalFormatLabelController;
-  TextEditingController get comicCoverDateController;
-  TextEditingController get comicReleaseDateController;
+  PartialDate? get comicCoverDateParts;
+  set comicCoverDateParts(PartialDate? value);
+  PartialDate? get comicReleaseDateParts;
+  set comicReleaseDateParts(PartialDate? value);
   TextEditingController get comicLocalizedTitleController;
   TextEditingController get comicSearchAliasesController;
   TextEditingController get comicSortKeyController;

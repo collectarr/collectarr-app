@@ -1,7 +1,7 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_summary_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
@@ -42,20 +42,23 @@ class ComicEditController {
         physicalFormatLabelController = TextEditingController(
             text: item.physicalFormat ?? item.variant ?? ''),
         physicalFormatId = item.physicalFormat,
-        coverDateController = TextEditingController(
-            text: item.coverDate == null ? '' : formatDate(item.coverDate!)),
+        coverDateParts = item.coverDateParts ??
+            (item.coverDate == null
+                ? null
+                : PartialDate.fromDateTime(item.coverDate!)),
         languageController = TextEditingController(text: item.language),
         countryController = TextEditingController(text: item.country),
         seriesTitleController =
             TextEditingController(text: item.seriesTitle ?? item.title),
         seriesId = item.seriesId,
-        releaseDateController = TextEditingController(
-            text:
-                item.releaseDate == null ? '' : formatDate(item.releaseDate!)),
-        releaseYearController = TextEditingController(
-            text: item.releaseDate?.year.toString() ?? '');
+        releaseDateParts = item.releaseDateParts ??
+            (item.releaseDate == null
+                ? null
+                : PartialDate.fromDateTime(item.releaseDate!));
 
   final ComicCatalogItem item;
+  PartialDate? coverDateParts;
+  PartialDate? releaseDateParts;
   final List<ItemImage> itemImages;
 
   final TextEditingController crossoverController;
@@ -75,9 +78,6 @@ class ComicEditController {
   final TextEditingController variantController;
   final TextEditingController physicalFormatLabelController;
   String? physicalFormatId;
-  final TextEditingController coverDateController;
-  final TextEditingController releaseDateController;
-  final TextEditingController releaseYearController;
   final TextEditingController languageController;
   final TextEditingController countryController;
   final TextEditingController seriesTitleController;
@@ -130,9 +130,6 @@ class ComicEditController {
     barcodeController.dispose();
     variantController.dispose();
     physicalFormatLabelController.dispose();
-    coverDateController.dispose();
-    releaseDateController.dispose();
-    releaseYearController.dispose();
     languageController.dispose();
     countryController.dispose();
     seriesTitleController.dispose();
@@ -174,8 +171,8 @@ class ComicEditController {
       barcode: emptyToNull(barcodeController.text),
       variant: emptyToNull(variantController.text),
       physicalFormat: physicalFormatId,
-      coverDate: parseDate(coverDateController.text),
-      releaseDate: parseDate(releaseDateController.text),
+      coverDate: coverDateParts?.asDateTime,
+      releaseDate: releaseDateParts?.asDateTime,
       language: emptyToNull(languageController.text) ?? currentMeta.language,
       country: emptyToNull(countryController.text) ?? currentMeta.country,
       seriesTitle: emptyToNull(seriesTitleController.text),
@@ -185,6 +182,9 @@ class ComicEditController {
 
     return ComicCatalogItem.fromJson({
       ...updatedMeta.toJson(),
+      'cover_date': coverDateParts?.toJson(),
+      'release_date_parts': releaseDateParts?.toJson(),
+      'release_date': releaseDateParts?.asDateTime?.toIso8601String(),
       'subtitle': emptyToNull(subtitleController.text),
       'variant_description': emptyToNull(variantDescriptionController.text),
     });
