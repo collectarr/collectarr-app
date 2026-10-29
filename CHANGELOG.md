@@ -9,6 +9,9 @@
 - Keep the intended relative widths of fields when an Add form selects a subset of its catalog fields.
 - Keep manually added pick-list values available when opening a selector, even before an item uses them.
 
+### Refactors
+- Remove the disabled Export for CovrPrice selection action; Collectarr does not use the paid CovrPrice service.
+
 ### CI & Build
 - Update build tooling with consistent generated database code.
 - Release notes list every merged pull request, direct commit and closed issue, and record new release summaries in the repository.

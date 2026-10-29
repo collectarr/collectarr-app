@@ -38,7 +38,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `rawOrSlabbed`, `gradingCompany`, `grade` | Personal Data | Slab and condition metrics |
 | `signedBy`, `labelType`, `customLabel` | Personal Data | Autographs and grading labels |
 | `pricePaid`, `location`, `lastBagBoardDate`| Personal Data | Storage and acquisition records |
-| `valuations` (`ValuationSnapshot`) | Personal Data | Valuation snapshots (e.g. CovrPrice, manual) |
+| `valuations` (`ValuationSnapshot`) | Personal Data | Valuation snapshots (e.g. PriceCharting, manual) |
 
 ### 2. Book
 | Field | Scope | Description |

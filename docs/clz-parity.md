@@ -48,6 +48,7 @@ Keep these when matching the reference visually.
 | Views | List, Vertical/Horizontal Cards, Covers, Shelves | Adds Flow Carousel |
 | Schema changes | Opaque | Versioned contracts and explicit, ordered migrations |
 | Game valuation | Core Region (US/EU) chooses which PriceCharting prices CLZ fetches | No price fetching (PriceCharting's terms), so no Core Region; the PriceCharting ID already names the NTSC or PAL release and opens its page |
+| Comic valuation | CovrPrice values and CovrPrice export | No CovrPrice: it is paid and has no public API, so value stays the user's own My Value |
 | Fonts | Proprietary Gilroy | Bundled OFL Plus Jakarta Sans; a user-supplied local font can be loaded |
 | Sort titles | Filled in by CLZ Core | Core derives them for new Music items and corrected titles; the app applies the same rule to local Add, Edit and imports |
 | Header account | Always signed in to CLZ | Shows "account's music" only while signed in; personal sync uses a separate endpoint and key, and its header action stays hidden until these are configured |

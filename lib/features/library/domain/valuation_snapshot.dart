@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 enum ValuationSource {
-  covrPrice,
   priceCharting,
   manual,
   other,
