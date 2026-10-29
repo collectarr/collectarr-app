@@ -359,7 +359,8 @@ class ComicCatalogItem implements JsonEncodable {
       issueNumber: json['issue_number'] as String?,
       publisher: json['publisher'] as String?,
       imprint: json['imprint'] as String?,
-      releaseDate: _comicDate(json['release_date']),
+      releaseDate: _comicDate(json['release_date']) ??
+          PartialDate.tryParse(json['release_date_parts'])?.asDateTime,
       releaseDateParts: PartialDate.tryParse(json['release_date_parts']),
       coverDate: PartialDate.tryParse(json['cover_date'])?.asDateTime,
       coverDateParts: PartialDate.tryParse(json['cover_date']),
