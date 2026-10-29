@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### CI & Build
+- Keep the Drift runtime and generated database code aligned when updating dependencies.
+
 ### Docs
 - Present releases with Collectarr artwork, editorial summaries, contributor credits and automatic change lists.
 
