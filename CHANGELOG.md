@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Docs
+- Present releases with Collectarr artwork, editorial summaries, contributor credits and automatic change lists.
+
 ## 1.4.0 - 2026-10-26
 
 ### ✨ Features
