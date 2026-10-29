@@ -3,7 +3,11 @@
 ## Unreleased
 
 ### CI & Build
-- Regenerate database code with compatible build tooling and Drift dependencies.
+- Update build tooling with consistent generated database code.
+- Keep the Drift runtime and generated database code aligned when updating dependencies.
+
+### Docs
+- Present releases with Collectarr artwork, editorial summaries, contributor credits and automatic change lists.
 
 ## 1.4.0 - 2026-10-26
 
