@@ -100,7 +100,7 @@ storage. The following is an observed inventory, not a parity signoff.
 | Personal | Read No/Yes, Read Date, Notes, Owner, My Rating, Tags, Bag/Board Date |
 | Images | Separate Front/Back Cover controls; My Images supports descriptions and types. Preserve Collectarr's independently implemented image system |
 | Credits and characters | CLZ shows read-only Core lists beside per-copy Custom lists. Collectarr keeps one editable Creators list and one Characters list (see Deliberate improvements); Core and App dropped the duplicate `contributors` and `character_details` fields and the person/character IDs. The unreachable Creator, Character and Story Arc pages were removed; character and story arc folders are counted locally |
-| Add modes | Series, Issue, Barcode, NCBD and Add Manually. Series/Issue/Barcode shells inspected; search results, variants, confirmation and NCBD remain open |
+| Add modes | Series, Issue, Barcode, NCBD and Add Manually. Series: a title search with suggestions (cover, publisher, year span, issue count), a series list with issue counts, then a cover grid of the chosen series with a checkbox per issue, All (n), issue/variant badges, cover month and variant description, owned/sort toggles and grid/list views. Barcode: one field with Search. Collectarr has one Core search with Series and Issue filters plus Barcode and Add Manually. Open: series browsing with multi-issue selection, NCBD (needs a Core release-week query), variants and confirmation |
 
 Manual Add now follows the same eleven-tab order, with Main publication fields,
 Details issue title/subtitle, Value grading/purchase/sale controls, Personal
