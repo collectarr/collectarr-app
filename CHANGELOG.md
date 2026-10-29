@@ -6,6 +6,7 @@
 - Add the Comics library, CSV import, calendar and barcode support with a preserving database upgrade; use typed Add/Edit forms with the eleven CLZ tabs, personal reading and grading, cover controls, partial publication dates and separate publication Age.
 
 ### Fixes
+- Keep the intended relative widths of fields when an Add form selects a subset of its catalog fields.
 - Keep manually added pick-list values available when opening a selector, even before an item uses them.
 
 ### CI & Build
