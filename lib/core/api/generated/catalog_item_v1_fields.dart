@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
 // Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: 29cf4251409f2b6bd661f79e5f082b35d7b5e088bbe9d11b0a2edf55b0947bd1
+// Contract SHA-256: 21dc3d9577294f3cf10d83da666d0b81addbb6e118c90c2800fef4d614aa57d8
 const catalogItemV1SchemaVersion = 1;
 const catalogItemV1ContractVersion = '1.0.0';
 
@@ -15,6 +15,62 @@ class CatalogItemV1Field {
 }
 
 const Map<String, List<CatalogItemV1Field>> catalogItemV1FieldsByKind = {
+  'comic': [
+    CatalogItemV1Field('age_rating', title: 'Age rating'),
+    CatalogItemV1Field('audience_rating', title: 'Audience rating'),
+    CatalogItemV1Field('barcode', title: 'Barcode'),
+    CatalogItemV1Field('catalog_number', title: 'Catalog number'),
+    CatalogItemV1Field('character_details', title: 'Character Details'),
+    CatalogItemV1Field('characters', title: 'Characters'),
+    CatalogItemV1Field('contributors', title: 'Contributors'),
+    CatalogItemV1Field('country', title: 'Country'),
+    CatalogItemV1Field('cover_date'),
+    CatalogItemV1Field('cover_image_url', title: 'Cover URL'),
+    CatalogItemV1Field('cover_price_cents'),
+    CatalogItemV1Field('creators', title: 'Creators'),
+    CatalogItemV1Field('crossover', title: 'Crossover'),
+    CatalogItemV1Field('currency'),
+    CatalogItemV1Field('description'),
+    CatalogItemV1Field('edition_title', title: 'Edition title'),
+    CatalogItemV1Field('external_links', title: 'External links'),
+    CatalogItemV1Field('genres', title: 'Genres'),
+    CatalogItemV1Field('identifiers', title: 'Identifiers'),
+    CatalogItemV1Field('imprint', title: 'Imprint'),
+    CatalogItemV1Field('issue_number'),
+    CatalogItemV1Field('item_number', title: 'Item number'),
+    CatalogItemV1Field('key_comic'),
+    CatalogItemV1Field('key_events', title: 'Key Events'),
+    CatalogItemV1Field('key_reason'),
+    CatalogItemV1Field('language', title: 'Language'),
+    CatalogItemV1Field('localized_title', title: 'Localized title'),
+    CatalogItemV1Field('original_title', title: 'Original title'),
+    CatalogItemV1Field('page_count', title: 'Page count'),
+    CatalogItemV1Field('physical_format', title: 'Physical format'),
+    CatalogItemV1Field('plot_description', title: 'Plot description'),
+    CatalogItemV1Field('plot_summary', title: 'Plot summary'),
+    CatalogItemV1Field('publication_age', title: 'Age'),
+    CatalogItemV1Field('publisher', title: 'Publisher'),
+    CatalogItemV1Field('release_date', title: 'Release date'),
+    CatalogItemV1Field('release_date_parts'),
+    CatalogItemV1Field('release_status', title: 'Release status'),
+    CatalogItemV1Field('search_aliases', title: 'Search aliases'),
+    CatalogItemV1Field('series_group', title: 'Series group'),
+    CatalogItemV1Field('series_tags', title: 'Series tags'),
+    CatalogItemV1Field('series_title', title: 'Series title'),
+    CatalogItemV1Field('sort_key', title: 'Sort key'),
+    CatalogItemV1Field('story_arcs', title: 'Story Arcs'),
+    CatalogItemV1Field('subtitle', title: 'Subtitle'),
+    CatalogItemV1Field('synopsis', title: 'Synopsis'),
+    CatalogItemV1Field('thumbnail_image_url', title: 'Thumbnail URL'),
+    CatalogItemV1Field('title', title: 'Title'),
+    CatalogItemV1Field('title_extension', title: 'Title extension'),
+    CatalogItemV1Field('variant'),
+    CatalogItemV1Field('variant_description'),
+    CatalogItemV1Field('variant_name', title: 'Primary variant'),
+    CatalogItemV1Field('volume_name'),
+    CatalogItemV1Field('volume_number'),
+    CatalogItemV1Field('volume_start_year'),
+  ],
   'game': [
     CatalogItemV1Field('age_rating', title: 'Age rating'),
     CatalogItemV1Field('audience_rating', title: 'Audience rating'),

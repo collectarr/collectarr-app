@@ -39,7 +39,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   // Dormant kind models remain available to their isolated source modules.
   // The release database exposes and creates only shared and released-kind
@@ -68,6 +68,9 @@ class LocalDatabase extends _$LocalDatabase {
         musicTrackingRows,
         musicListenEventsRows,
         gameTrackingRows,
+        comicReadingRows,
+        comicTrackingUnitRows,
+        comicTrackingRows,
       ];
 
   @override
@@ -76,7 +79,7 @@ class LocalDatabase extends _$LocalDatabase {
         // Explicit, ordered upgrade steps; each runs once, from the released
         // schema it follows.
         onUpgrade: (migrator, from, to) async {
-          if (from < 1 || to > 4) {
+          if (from < 1 || to > 5) {
             throw StateError(
                 'No released migration exists from schema $from to $to.');
           }
@@ -110,6 +113,12 @@ class LocalDatabase extends _$LocalDatabase {
             // the regional release.
             await _updatePersonalData(
                 (personal) => personal.remove('game_core_region') != null);
+          }
+          if (from < 5) {
+            // 5: Comics reading and tracking; retain Music/Games and sync data.
+            await migrator.createTable(comicReadingRows);
+            await migrator.createTable(comicTrackingUnitRows);
+            await migrator.createTable(comicTrackingRows);
           }
         },
       );

@@ -11,7 +11,7 @@ void main() {
 
     expect(
       Set<String>.from(body['kinds'] as List<dynamic>),
-      equals({'game', 'music'}),
+      equals({'comic', 'game', 'music'}),
     );
   });
 }

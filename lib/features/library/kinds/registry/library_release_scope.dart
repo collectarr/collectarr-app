@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 /// registered, rendered, queried or persisted through the active registries.
 const releasedLibraryKinds = <CatalogMediaKind>{
   CatalogMediaKind.music,
+  CatalogMediaKind.comic,
   CatalogMediaKind.game,
   CatalogMediaKind.gameHardware,
   CatalogMediaKind.gameToy,

@@ -2,13 +2,1170 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "8101b2c61477da67afcff3e01f15c66668c28436",
+  "coreCommit": "b1477002960260a5df2733d6eb629fadee2f8066",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form"
   },
-  "generatedAt": "2026-10-25T15:14:46.330904Z",
+  "generatedAt": "2026-10-29T10:58:44.145932Z",
   "kinds": {
+    "comic": {
+      "additionalProperties": false,
+      "properties": {
+        "age_rating": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Age rating"
+        },
+        "audience_rating": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Audience rating"
+        },
+        "barcode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Barcode"
+        },
+        "catalog_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Catalog number"
+        },
+        "character_details": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "aliases": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "character_id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "real_name": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "role": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Character Details"
+        },
+        "characters": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "aliases": {
+                        "anyOf": [
+                          {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "character_id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "image_url": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "real_name": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "role": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Characters"
+        },
+        "contributors": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "image_url": {
+                        "type": "string"
+                      },
+                      "join_phrase": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "person_id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "role": {
+                        "type": "string"
+                      },
+                      "role_id": {
+                        "type": "string"
+                      },
+                      "sequence": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "sort_name": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Contributors"
+        },
+        "country": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Country"
+        },
+        "cover_date": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "day": {
+                      "maximum": 31,
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "month": {
+                      "maximum": 12,
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cover_image_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cover URL"
+        },
+        "cover_price_cents": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "creators": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "credited_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "image_url": {
+                        "type": "string"
+                      },
+                      "join_phrase": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "person_id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "role": {
+                        "type": "string"
+                      },
+                      "role_id": {
+                        "type": "string"
+                      },
+                      "sequence": {
+                        "anyOf": [
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "sort_name": {
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Creators"
+        },
+        "crossover": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Crossover"
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "edition_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Edition title"
+        },
+        "external_links": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "link_type": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "position": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "site": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "External links"
+        },
+        "genres": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Genres"
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "identifier_type": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "is_primary": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "normalized_value": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "value": {
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "identifier_type",
+                      "value"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Identifiers"
+        },
+        "imprint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Imprint"
+        },
+        "issue_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "item_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Item number"
+        },
+        "key_comic": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "key_events": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "character_or_subject": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "description": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "type": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "character_or_subject",
+                  "type"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Key Events"
+        },
+        "key_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Language"
+        },
+        "localized_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Localized title"
+        },
+        "original_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Original title"
+        },
+        "page_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Page count"
+        },
+        "physical_format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Physical format"
+        },
+        "plot_description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Plot description"
+        },
+        "plot_summary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Plot summary"
+        },
+        "publication_age": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Age"
+        },
+        "publisher": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Publisher"
+        },
+        "release_date": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "day": {
+                      "maximum": 31,
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "month": {
+                      "maximum": 12,
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Release date"
+        },
+        "release_date_parts": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "release_status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Release status"
+        },
+        "search_aliases": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Search aliases"
+        },
+        "series_group": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Series group"
+        },
+        "series_tags": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Series tags"
+        },
+        "series_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Series title"
+        },
+        "sort_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort key"
+        },
+        "story_arcs": {
+          "anyOf": [
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "description": {
+                        "type": "string"
+                      },
+                      "end_date": {
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "day": {
+                                    "maximum": 31,
+                                    "minimum": 1,
+                                    "type": "integer"
+                                  },
+                                  "month": {
+                                    "maximum": 12,
+                                    "minimum": 1,
+                                    "type": "integer"
+                                  },
+                                  "year": {
+                                    "maximum": 9999,
+                                    "minimum": 1,
+                                    "type": "integer"
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "publisher": {
+                        "type": "string"
+                      },
+                      "start_date": {
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "day": {
+                                    "maximum": 31,
+                                    "minimum": 1,
+                                    "type": "integer"
+                                  },
+                                  "month": {
+                                    "maximum": 12,
+                                    "minimum": 1,
+                                    "type": "integer"
+                                  },
+                                  "year": {
+                                    "maximum": 9999,
+                                    "minimum": 1,
+                                    "type": "integer"
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "story_arc_id": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Story Arcs"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Subtitle"
+        },
+        "synopsis": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Synopsis"
+        },
+        "thumbnail_image_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Thumbnail URL"
+        },
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "title_extension": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Title extension"
+        },
+        "variant": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "variant_description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "variant_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Primary variant"
+        },
+        "volume_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "volume_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "volume_start_year": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
     "game": {
       "additionalProperties": false,
       "properties": {

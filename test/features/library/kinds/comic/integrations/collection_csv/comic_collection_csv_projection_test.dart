@@ -63,7 +63,7 @@ void main() {
         barcode: '071486024576',
         payload: const {
           'issue_number': '1',
-          'variant_name': 'Newsstand',
+          'variant': 'Newsstand',
         },
       ).asShelfCatalogItem),
       libraryEntry: testLibraryEntry(

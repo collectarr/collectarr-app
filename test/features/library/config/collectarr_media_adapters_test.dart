@@ -7,7 +7,9 @@ void main() {
   test('registry resolves runtime for normalized kind values', () {
     final runtime = libraryKindRegistration(CatalogMediaKind.music);
     expect(runtime.identity.kind, equals(CatalogMediaKind.music));
-    expect(() => libraryKindRegistration(CatalogMediaKind.comic),
+    expect(libraryKindRegistration(CatalogMediaKind.comic).identity.kind,
+        CatalogMediaKind.comic);
+    expect(() => libraryKindRegistration(CatalogMediaKind.book),
         throwsArgumentError);
   });
 

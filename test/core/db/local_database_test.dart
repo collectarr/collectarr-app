@@ -4,13 +4,64 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 void main() {
+  test('schema 4 upgrade preserves Music, Games and pending sync data',
+      () async {
+    final raw = sqlite3.openInMemory();
+    final initial = LocalDatabase(
+        NativeDatabase.opened(raw, closeUnderlyingOnClose: false));
+    await initial.customSelect('SELECT 1').get();
+    for (final kind in ['music', 'game']) {
+      raw.execute('INSERT INTO library_entries VALUES (?, ?, ?, ?, NULL)',
+          ['kept-$kind', kind, '{"title":"Keep $kind"}', 1]);
+    }
+    raw.execute('INSERT INTO sync_queue VALUES (?, ?, ?, ?, ?, ?)', [
+      'pending',
+      'library_entry',
+      'kept-game',
+      'upsert',
+      '{"kept":true}',
+      1
+    ]);
+    // All other tables match released schema 4; only these tables are new in 5.
+    for (final table in [
+      'comic_reading_rows',
+      'comic_tracking_rows',
+      'comic_tracking_unit_rows'
+    ]) {
+      raw.execute('DROP TABLE $table');
+    }
+    raw.execute('PRAGMA user_version = 4');
+    await initial.close();
+    final upgraded = LocalDatabase(NativeDatabase.opened(raw));
+    addTearDown(upgraded.close);
+    final entries = await upgraded.select(upgraded.libraryEntries).get();
+    expect(entries.map((entry) => entry.payloadJson).toSet(),
+        {'{"title":"Keep music"}', '{"title":"Keep game"}'});
+    expect(
+        (await upgraded
+                .customSelect('SELECT payload_json FROM sync_queue')
+                .getSingle())
+            .data['payload_json'],
+        '{"kept":true}');
+    expect(await upgraded.select(upgraded.comicTrackingRows).get(), isEmpty);
+    expect(
+        await upgraded.select(upgraded.comicTrackingUnitRows).get(), isEmpty);
+    expect(await upgraded.select(upgraded.comicReadingRows).get(), isEmpty);
+    expect(
+        (await upgraded.customSelect('PRAGMA user_version').getSingle())
+            .data
+            .values
+            .single,
+        5);
+  });
+
   test('creates the fresh schema at current version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 4);
+    expect(db.schemaVersion, 5);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 4);
+    expect(version.data.values.single, 5);
 
     final tables = await db
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
@@ -21,7 +72,7 @@ void main() {
     expect(names, contains('library_collections'));
     expect(names, contains('library_collection_memberships'));
     expect(names, contains('catalog_items_cache'));
-    expect(names, isNot(contains('comic_tracking_rows')));
+    expect(names, contains('comic_tracking_rows'));
     expect(names, contains('music_tracking_rows'));
     expect(names, contains('music_listen_events_rows'));
     expect(names, contains('game_tracking_rows'));
@@ -47,11 +98,14 @@ void main() {
           .get();
       final names = tables.map((row) => row.data['name'] as String).toSet();
       expect(names, db.allTables.map((table) => table.actualTableName).toSet());
-      expect(names, hasLength(22));
+      expect(names, hasLength(25));
       expect(names.where((name) => name.endsWith('_rows')).toSet(), {
         'music_tracking_rows',
         'music_listen_events_rows',
         'game_tracking_rows',
+        'comic_reading_rows',
+        'comic_tracking_unit_rows',
+        'comic_tracking_rows',
       });
       final columns = await db
           .customSelect('PRAGMA table_info(pick_list_values_cache)')
@@ -88,7 +142,7 @@ void main() {
     expect(row.email, isNull);
     expect(row.address, isNull);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 4);
+    expect(version.data.values.single, 5);
   });
 
   test('upgrades a schema 2 database by creating the Game tables', () async {
@@ -107,7 +161,7 @@ void main() {
     expect(kept, ['e1']);
     expect(await db.select(db.gameTrackingRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 4);
+    expect(version.data.values.single, 5);
   });
 
   test('upgrades a schema 2 database by dropping the TV and Manga tables',
@@ -173,7 +227,7 @@ void main() {
       '{"personal_data":{"tags":"kept"}}',
     ]);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 4);
+    expect(version.data.values.single, 5);
   });
 
   test('upgrades released schema 3 Games by dropping Core Region', () async {
@@ -200,7 +254,7 @@ void main() {
     ]);
     expect(await payloads('sync_queue'), ['{"personal_data":{}}']);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 4);
+    expect(version.data.values.single, 5);
   });
 }
 

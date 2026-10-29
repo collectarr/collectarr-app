@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- Prepare Comics editing with the eleven CLZ tabs, grading and key significance in Value, distinct issue subtitle and variant-description fields, partial publication dates, and Age separate from audience ratings; Comics remains in development.
+- Add the Comics library, CSV import, calendar and barcode support with a preserving database upgrade; prepare the eleven CLZ editor tabs, grading and key significance, partial publication dates and separate publication Age.
 
 ### Fixes
 - Keep manually added pick-list values available when opening a selector, even before an item uses them.
