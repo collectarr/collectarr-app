@@ -714,7 +714,7 @@ class ComicCatalogItem implements JsonEncodable {
             ComicKeyEvent.fromJson(Map<String, dynamic>.from(value as Map)),
         allowStrings: false,
       ),
-      isKeyComic: json['is_key_comic'] as bool? ?? false,
+      isKeyComic: json['key_comic'] as bool? ?? false,
       keyReason: json['key_reason'] as String?,
       variant: json['variant'] as String?,
       variantDescription: json['variant_description'] as String?,

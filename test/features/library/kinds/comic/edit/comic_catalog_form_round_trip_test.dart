@@ -48,4 +48,29 @@ void main() {
     expect(undated.coverDateParts, isNull);
     expect(undated.releaseDateParts, isNull);
   });
+
+  test('key comic, credits and appearances survive a JSON round-trip', () {
+    const item = ComicCatalogItem(
+      title: 'Issue',
+      isKeyComic: true,
+      creators: [
+        ComicCreator(name: 'Core Writer', role: 'Writer', personId: 'p-1'),
+        ComicCreator(name: 'Typed Inker', role: 'Inker'),
+      ],
+      characters: [
+        ComicCharacter(name: 'Core Hero', characterId: 'c-1'),
+        ComicCharacter(name: 'Typed Sidekick'),
+      ],
+    );
+    final reloaded = ComicCatalogItem.fromJson(item.toJson());
+    expect(reloaded.isKeyComic, isTrue);
+    expect([for (final c in reloaded.creators) (c.name, c.personId)], [
+      ('Core Writer', 'p-1'),
+      ('Typed Inker', null),
+    ]);
+    expect([for (final c in reloaded.characters) (c.name, c.characterId)], [
+      ('Core Hero', 'c-1'),
+      ('Typed Sidekick', null),
+    ]);
+  });
 }
