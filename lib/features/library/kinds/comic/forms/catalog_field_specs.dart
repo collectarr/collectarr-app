@@ -150,7 +150,7 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
       ),
       _vocabulary<T>(
         id: 'series_group',
-        label: 'Series group',
+        label: 'Series Group',
         value: (draft) => values(draft).seriesGroup,
         setValue: (draft, value) => values(draft).seriesGroup = value ?? '',
         options: seriesGroupOptions ?? ComicVocabularies.seriesGroup.builtIns,

@@ -64,9 +64,22 @@ final comicKindPersonalFieldContributor = LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.comic,
   fields: [
     for (final field in commonPersonalLibraryFields)
-      field.key == 'location_id'
-          ? relabelPersonalLibraryField(field, 'Storage Box')
-          : field,
+      switch (field.key) {
+        'location_id' => relabelPersonalLibraryField(field, 'Storage Box'),
+        'collection_status' =>
+          relabelPersonalLibraryField(field, 'Collection Status'),
+        _ => field,
+      },
+    const PersonalLibraryFieldSpec(
+        key: 'quantity',
+        label: 'Quantity',
+        group: 'Collection state',
+        syncable: true,
+        inputKind: PersonalLibraryFieldEditor.integer,
+        area: PersonalLibraryFieldArea.statusStrip,
+        editOrder: 2,
+        minimum: 0,
+        defaultInteger: 1),
     const PersonalLibraryFieldSpec(
       key: 'last_bag_board_date',
       label: 'Last bag/board date',
