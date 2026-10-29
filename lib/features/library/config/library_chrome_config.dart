@@ -40,6 +40,7 @@ class LibraryAddChromeConfig {
     this.kindFilterOptions = const [],
     this.defaultKindFilters = const {},
     this.confirmSheetSize,
+    this.menuAddsManually = false,
   });
 
   final bool canScanCover;
@@ -50,6 +51,10 @@ class LibraryAddChromeConfig {
   /// A fixed "Confirm your selection" sheet, centred at the bottom, for kinds
   /// whose preview is short; null spans the dialog at 65 % of its height.
   final Size? confirmSheetSize;
+
+  /// The main menu offers "Add ... Manually" beside "Add ... from Core", as
+  /// the reference Comics menu does.
+  final bool menuAddsManually;
 }
 
 class LibraryAddKindFilterOption {

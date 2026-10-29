@@ -203,7 +203,11 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                 _action(context, destination,
                     label: 'Add ${type.identity.pluralLabel} from Core',
                     onTap: () => widget.onAddFromCore(context, type))
-            else
+            else if (destination.action == DrawerAction.addManually) ...[
+              if (libraryAddChromeForKind(widget.type.kind).menuAddsManually)
+                _action(context, destination,
+                    label: 'Add ${widget.type.identity.pluralLabel} Manually'),
+            ] else
               _action(context, destination),
       ];
 

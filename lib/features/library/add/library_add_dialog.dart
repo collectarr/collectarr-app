@@ -74,6 +74,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.initialQuery,
     this.initialIdentifier,
     this.autoLookupInitialIdentifier = true,
+    this.startManually = false,
     this.coverScanService = const LocalLibraryCoverScanService(),
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
@@ -85,6 +86,10 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   final String? initialQuery;
   final String? initialIdentifier;
   final bool autoLookupInitialIdentifier;
+
+  /// Opens Add Manually at once, as the menu's Add Manually entry does, and
+  /// closes the dialog with it.
+  final bool startManually;
   final LibraryCoverScanService coverScanService;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
@@ -148,6 +153,17 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   @override
   void initState() {
     super.initState();
+    if (widget.startManually) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        await _openManualDialog(
+            widget.accent ??
+                LibraryAccentScope.accentOf(context,
+                    fallback: widget.type.identity.accent),
+            libraryAddForKind(widget.type.kind));
+        _closeDialog();
+      });
+    }
     _manualCustomFieldDefinitions =
         List<CustomFieldDefinition>.of(widget.customFieldDefinitions);
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
@@ -760,6 +776,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.startManually) return const SizedBox.shrink();
     final accent = widget.accent ??
         LibraryAccentScope.accentOf(context,
             fallback: widget.type.identity.accent);

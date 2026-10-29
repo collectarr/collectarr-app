@@ -89,6 +89,9 @@ class AppShellActions {
       case DrawerAction.addFromCore:
         unawaited(_openCoreAdd(type, accent));
         return;
+      case DrawerAction.addManually:
+        unawaited(_openCoreAdd(type, accent, startManually: true));
+        return;
       case DrawerAction.managePickLists:
         await showPickListManagerDialog(
           context: context,
@@ -243,7 +246,8 @@ class AppShellActions {
     }
   }
 
-  Future<void> _openCoreAdd(LibraryKindRegistration type, Color accent) async {
+  Future<void> _openCoreAdd(LibraryKindRegistration type, Color accent,
+      {bool startManually = false}) async {
     context.go(Uri(
         path: AppRoutes.libraries,
         queryParameters: {'kind': type.kind.apiValue}).toString());
@@ -252,7 +256,10 @@ class AppShellActions {
     final pageContext = _pageContext;
     if (!pageContext.mounted) return;
     await showLibraryAddDialog(
-        context: pageContext, type: type, accent: accent);
+        context: pageContext,
+        type: type,
+        accent: accent,
+        startManually: startManually);
   }
 
   void _openLibraryTool(DrawerAction action, LibraryKindRegistration type) {
