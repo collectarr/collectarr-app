@@ -5,6 +5,7 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import '../config/comic_kind_configuration.dart';
 import 'manual_candidate.dart';
+import 'series.dart';
 
 final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   kind: CatalogMediaKind.comic,
@@ -118,6 +119,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
       queryBuilder: comicCoverScanQuery,
       filterValuesBuilder: comicCoverScanFilterValues,
     ),
+    browse: comicAddSeries,
   ),
   resultPolicy: comicAddResultPolicy,
 );
@@ -260,7 +262,7 @@ List<LibraryAddAdvancedFilterField<String>> buildComicAddAdvancedFilterFields(
     [
       LibraryAddAdvancedFilterField<String>(
         id: comicSeriesFilterId,
-        key: const ValueKey('library-add-series-field'),
+        key: const ValueKey('library-add-browse-field'),
         label: 'Series',
         value: req.advancedFilterText(comicSeriesFilterId),
         parse: (text) => text.trim(),

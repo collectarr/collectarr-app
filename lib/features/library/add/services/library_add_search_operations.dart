@@ -7,6 +7,8 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_summary_registry.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:dio/dio.dart';
 
 class LibraryAddCoreSearchResult {
@@ -107,4 +109,24 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
     items: foundItems,
     rawItemCount: foundItems.length,
   );
+}
+
+/// Loads and caches every item of [group] as Add results.
+Future<List<CatalogSearchCandidate>> loadLibraryAddBrowseGroupItems({
+  required ApiClient api,
+  required CatalogTransportRepository catalog,
+  required LibraryAddBrowseCapability capability,
+  required LibraryAddBrowseGroup group,
+  required Duration timeout,
+}) async {
+  final rows = await capability.loadItemRows(api, group).timeout(timeout);
+  final items = [
+    for (final row in rows)
+      CatalogSearchCandidate.fromApiJson(
+        json: row,
+        summaryBuilder: summarizeCatalogTransportPayload,
+      ),
+  ];
+  await catalog.upsertTransports(items.map((item) => item.toImportTransport()));
+  return items;
 }

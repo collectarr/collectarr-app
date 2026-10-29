@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_state.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_browse_state.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_state.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
@@ -34,9 +35,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'library_add_search_flow.dart';
+part 'library_add_browse_flow.dart';
 
 class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
-    with _LibraryAddSearchFlow {
+    with _LibraryAddSearchFlow, _LibraryAddBrowseFlow {
   LibraryAddSessionController({
     required this.kind,
     LibraryKindRegistration? type,
@@ -155,7 +157,11 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   }
 
   void setMode(LibraryAddDialogMode mode) {
+    final crossesBrowse = (state.mode == LibraryAddDialogMode.browse) !=
+        (mode == LibraryAddDialogMode.browse);
     state = state.copyWith(mode: mode);
+    // Series issues and search results share one results list.
+    if (crossesBrowse) closeBrowseGroup();
   }
 
   void setTarget(LibraryAddTarget target) {

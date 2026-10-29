@@ -41,6 +41,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.d
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_grouped_results.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_browse_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
@@ -101,6 +102,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final TextEditingController _queryController;
   late final TextEditingController _identifierController;
   late final TextEditingController _codeQueryController;
+  late final TextEditingController _browseQueryController;
 
   List<StorageLocation> _availableLocations = const [];
   List<String> _conditionOptions = const [];
@@ -152,6 +154,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _identifierController =
         TextEditingController(text: widget.initialIdentifier ?? '');
     _codeQueryController = TextEditingController();
+    _browseQueryController = TextEditingController();
 
     _manualDraft = LibraryAddManualDraft(
       customFieldValues: widget.customFieldValues,
@@ -314,6 +317,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _queryController.dispose();
     _identifierController.dispose();
     _codeQueryController.dispose();
+    _browseQueryController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -832,6 +836,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
     final palette = appPalette(context);
     final dialogTheme = buildLibraryAddDialogTheme(accent, palette);
+    final browse = addCapability.search.browse;
+    final browseMode = state.mode == LibraryAddDialogMode.browse;
+    final openedGroup = browseMode ? state.browse.opened : null;
     final kindControls = state.mode == LibraryAddDialogMode.search ||
             state.mode == LibraryAddDialogMode.code
         ? addCapability.search.presentation.controlsBuilder
@@ -928,8 +935,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               identifierController: _identifierController,
               codeSearchTab: addCapability.search.input.codeSearchTab,
               codeQueryController: _codeQueryController,
+              browseTab: browse,
+              browseQueryController: _browseQueryController,
+              onSearchBrowse: () =>
+                  _controller.searchBrowseGroups(_browseQueryController.text),
               queryTrailing: queryTrailing,
-              isSearching: state.search.isBusy,
+              isSearching: state.search.isBusy || state.browse.isBusy,
               onModeChanged: _selectAddMode,
               onSearch: () {
                 _controller.dismissSuggestions();
@@ -972,41 +983,64 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       group: selectedGroup, grouping: grouping),
             ),
           ),
+          if (openedGroup != null)
+            LibraryAddOpenedGroupBar(
+              label: browse!.label,
+              group: openedGroup,
+              onBack: _controller.closeBrowseGroup,
+            ),
         ],
       ),
-      body: LibraryAddSearchPane(
-        type: widget.type,
-        isBusy: state.search.isBusy,
-        isLoadingMoreResults: state.search.isLoadingMoreResults,
-        hasMoreResults: state.search.hasMoreResults,
-        loadMoreError: state.search.loadMoreError,
-        onLoadMoreResults: _controller.loadMoreResults,
-        error: state.search.error,
-        accent: accent,
-        selectionColor: (state.target == LibraryAddTarget.wishlist
-                ? LibraryCollectionStatusScope.wishList
-                : state.target == LibraryAddTarget.track
-                    ? LibraryCollectionStatusScope.notInCollection
-                    : libraryCollectionStatusFromValue(
-                        state.commonDraft.collectionStatus))
-            .color,
-        results: visibleCore,
-        selectedResultId: state.selection.selectedResultId,
-        checkedResultIds: state.selection.checkedResultIds,
-        entryCatalogRefs: entryByCatalogRef.keys.toSet(),
-        coreMatchSummary: (item) => addCapability.search.presentation
-            .coreMatchSummary(item, searchContext),
-        resultPolicy: resultPolicy,
-        resultPolicyState: state.selection.resultPolicyState,
-        onResultPolicyOptionChanged: _controller.setResultPolicyOption,
-        onSelectResult: _controller.selectResult,
-        onToggleResultCheck: _controller.toggleCheckedResult,
-        searched: state.search.coreSearchGeneration > 0,
-        selectedGroupKey: _selectedGroupKey,
-        onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
-        headerTrailing: kindControls,
-        onAddManually: () => _openManualDialog(accent, addCapability),
-      ),
+      body: browseMode && openedGroup == null
+          ? LibraryAddBrowseGroupList(
+              capability: browse!,
+              state: state.browse,
+              onOpen: _controller.openBrowseGroup,
+            )
+          : LibraryAddSearchPane(
+              type: widget.type,
+              isBusy: state.search.isBusy || state.browse.isLoadingItems,
+              isLoadingMoreResults: state.search.isLoadingMoreResults,
+              hasMoreResults: state.search.hasMoreResults,
+              loadMoreError: state.search.loadMoreError,
+              onLoadMoreResults: _controller.loadMoreResults,
+              error: browseMode ? state.browse.error : state.search.error,
+              accent: accent,
+              selectionColor: (state.target == LibraryAddTarget.wishlist
+                      ? LibraryCollectionStatusScope.wishList
+                      : state.target == LibraryAddTarget.track
+                          ? LibraryCollectionStatusScope.notInCollection
+                          : libraryCollectionStatusFromValue(
+                              state.commonDraft.collectionStatus))
+                  .color,
+              results: visibleCore,
+              selectedResultId: state.selection.selectedResultId,
+              checkedResultIds: state.selection.checkedResultIds,
+              entryCatalogRefs: entryByCatalogRef.keys.toSet(),
+              coreMatchSummary: (item) => addCapability.search.presentation
+                  .coreMatchSummary(item, searchContext),
+              resultPolicy: resultPolicy,
+              resultPolicyState: state.selection.resultPolicyState,
+              onResultPolicyOptionChanged: _controller.setResultPolicyOption,
+              onSelectResult: _controller.selectResult,
+              onToggleResultCheck: _controller.toggleCheckedResult,
+              searched: state.search.coreSearchGeneration > 0,
+              selectedGroupKey: _selectedGroupKey,
+              onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
+              headerTrailing: browseMode
+                  ? LibraryAddCheckAllToggle(
+                      count: visibleCore.length,
+                      checked: visibleCore.isNotEmpty &&
+                          visibleCore.every((item) => state
+                              .selection.checkedResultIds
+                              .contains(item.reference.id)),
+                      onChanged: (checked) => _controller.setAllResultsChecked(
+                          visibleCore.map((item) => item.reference.id),
+                          checked),
+                    )
+                  : kindControls,
+              onAddManually: () => _openManualDialog(accent, addCapability),
+            ),
       overlay: selectedItem == null
           ? null
           : LibraryAddConfirmSheet(
