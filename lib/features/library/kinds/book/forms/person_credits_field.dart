@@ -79,7 +79,6 @@ class _BookPersonCreditsFieldState extends State<BookPersonCreditsField> {
         name: value.name,
         id: previous?.id ?? (previous == null ? value.id : null),
         artistId: previous?.artistId,
-        personId: previous?.personId,
         creditedName: previous?.creditedName,
         imageUrl: previous?.imageUrl,
         instrument: previous?.instrument,

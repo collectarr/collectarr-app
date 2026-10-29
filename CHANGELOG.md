@@ -11,6 +11,7 @@
 
 ### Refactors
 - Remove the disabled Export for CovrPrice selection action; Collectarr does not use the paid CovrPrice service.
+- Keep credits, characters and story arcs as names for every kind, and remove the Book author page that relied on Core's retired creator records.
 
 ### CI & Build
 - Update build tooling with consistent generated database code.

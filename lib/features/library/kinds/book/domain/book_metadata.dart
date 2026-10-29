@@ -58,7 +58,6 @@ final class BookCatalogCredit implements JsonEncodable {
     required this.name,
     this.id,
     this.artistId,
-    this.personId,
     this.creditedName,
     this.imageUrl,
     this.instrument,
@@ -72,7 +71,6 @@ final class BookCatalogCredit implements JsonEncodable {
   final String name;
   final String? id;
   final String? artistId;
-  final String? personId;
   final String? creditedName;
   final String? imageUrl;
   final String? instrument;
@@ -96,7 +94,6 @@ final class BookCatalogCredit implements JsonEncodable {
       name: name,
       id: json['id'] as String?,
       artistId: json['artist_id'] as String?,
-      personId: json['person_id'] as String?,
       creditedName: json['credited_name'] as String?,
       imageUrl: json['image_url'] as String?,
       instrument: json['instrument'] as String?,
@@ -113,7 +110,6 @@ final class BookCatalogCredit implements JsonEncodable {
         'name': name,
         if (id != null) 'id': id,
         if (artistId != null) 'artist_id': artistId,
-        if (personId != null) 'person_id': personId,
         if (creditedName != null) 'credited_name': creditedName,
         if (imageUrl != null) 'image_url': imageUrl,
         if (instrument != null) 'instrument': instrument,
@@ -130,7 +126,6 @@ final class BookCatalogCharacter implements JsonEncodable {
   const BookCatalogCharacter({
     required this.name,
     this.id,
-    this.characterId,
     this.aliases = const [],
     this.role,
     this.description,
@@ -139,7 +134,6 @@ final class BookCatalogCharacter implements JsonEncodable {
 
   final String name;
   final String? id;
-  final String? characterId;
   final List<String> aliases;
   final String? role;
   final String? description;
@@ -159,7 +153,6 @@ final class BookCatalogCharacter implements JsonEncodable {
     return BookCatalogCharacter(
       name: name,
       id: json['id'] as String?,
-      characterId: json['character_id'] as String?,
       aliases: _stringList(json['aliases']),
       role: json['role'] as String?,
       description: json['description'] as String?,
@@ -171,7 +164,6 @@ final class BookCatalogCharacter implements JsonEncodable {
   Map<String, dynamic> toJson() => {
         'name': name,
         if (id != null) 'id': id,
-        if (characterId != null) 'character_id': characterId,
         if (aliases.isNotEmpty) 'aliases': aliases,
         if (role != null) 'role': role,
         if (description != null) 'description': description,
@@ -179,7 +171,6 @@ final class BookCatalogCharacter implements JsonEncodable {
       };
 
   Object toJsonValue() => id == null &&
-          characterId == null &&
           aliases.isEmpty &&
           role == null &&
           description == null &&

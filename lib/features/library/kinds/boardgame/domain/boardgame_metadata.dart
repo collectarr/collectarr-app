@@ -336,7 +336,6 @@ final class BoardGamePersonCredit implements JsonEncodable {
   const BoardGamePersonCredit({
     required this.name,
     this.id,
-    this.personId,
     this.artistId,
     this.role,
     this.roleId,
@@ -349,7 +348,6 @@ final class BoardGamePersonCredit implements JsonEncodable {
   });
 
   final String? id;
-  final String? personId;
   final String? artistId;
   final String name;
   final String? role;
@@ -364,7 +362,6 @@ final class BoardGamePersonCredit implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
-        if (personId != null) 'person_id': personId,
         if (artistId != null) 'artist_id': artistId,
         'name': name,
         if (role != null) 'role': role,
@@ -382,7 +379,6 @@ final class BoardGamePersonCredit implements JsonEncodable {
     final json = _map(value);
     return BoardGamePersonCredit(
       id: _string(json['id']),
-      personId: _string(json['person_id']),
       artistId: _string(json['artist_id']),
       name: _string(json['name']) ?? '',
       role: _string(json['role']),
@@ -402,7 +398,6 @@ final class BoardGameCharacter implements JsonEncodable {
   const BoardGameCharacter({
     required this.name,
     this.id,
-    this.characterId,
     this.aliases = const [],
     this.role,
     this.description,
@@ -410,7 +405,6 @@ final class BoardGameCharacter implements JsonEncodable {
   });
 
   final String? id;
-  final String? characterId;
   final String name;
   final List<String> aliases;
   final String? role;
@@ -420,7 +414,6 @@ final class BoardGameCharacter implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
-        if (characterId != null) 'character_id': characterId,
         'name': name,
         if (aliases.isNotEmpty) 'aliases': aliases,
         if (role != null) 'role': role,
@@ -433,7 +426,6 @@ final class BoardGameCharacter implements JsonEncodable {
     final json = _map(value);
     return BoardGameCharacter(
       id: _string(json['id']),
-      characterId: _string(json['character_id']),
       name: _string(json['name']) ?? '',
       aliases: _stringList(json['aliases']),
       role: _string(json['role']),

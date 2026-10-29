@@ -280,7 +280,6 @@ class _MovieCharactersEditorState extends State<MovieCharactersEditor> {
   }) =>
       MovieCharacter(
         id: id ?? character.id,
-        characterId: character.characterId,
         name: name ?? character.name,
         aliases: aliases ?? character.aliases,
         role: clearRole ? null : role ?? character.role,

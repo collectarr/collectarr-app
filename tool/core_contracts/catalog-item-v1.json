@@ -2,12 +2,12 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "5a368d07080e2a98cc3801664b062ee6177b11eb",
+  "coreCommit": "9f318105c496b2e84ba5de547229bcb47689c13c",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form"
   },
-  "generatedAt": "2026-10-29T20:45:30.440119Z",
+  "generatedAt": "2026-10-29T20:59:24.656899Z",
   "kinds": {
     "comic": {
       "additionalProperties": false,
@@ -852,16 +852,6 @@
                             "type": "null"
                           }
                         ]
-                      },
-                      "story_arc_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
                       }
                     },
                     "type": "object"
@@ -1083,16 +1073,6 @@
                       "name": {
                         "type": "string"
                       },
-                      "person_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "role": {
                         "type": "string"
                       },
@@ -1176,16 +1156,6 @@
                       },
                       "name": {
                         "type": "string"
-                      },
-                      "person_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
                       },
                       "role": {
                         "type": "string"

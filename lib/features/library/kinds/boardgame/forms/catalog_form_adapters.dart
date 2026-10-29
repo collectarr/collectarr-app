@@ -275,7 +275,6 @@ BoardGamePersonCredit _creditForName(
   }
   return BoardGamePersonCredit(
     id: credit.id,
-    personId: credit.personId,
     artistId: credit.artistId,
     name: credit.name,
     role: credit.role,
