@@ -2,12 +2,12 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "b1477002960260a5df2733d6eb629fadee2f8066",
+  "coreCommit": "cdfff6a26b9a8dfd0c9951d3b2f76e8b7ff9433d",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form"
   },
-  "generatedAt": "2026-10-29T10:58:44.145932Z",
+  "generatedAt": "2026-10-29T20:21:14.906114Z",
   "kinds": {
     "comic": {
       "additionalProperties": false,
@@ -55,78 +55,6 @@
             }
           ],
           "title": "Catalog number"
-        },
-        "character_details": {
-          "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "aliases": {
-                    "anyOf": [
-                      {
-                        "items": {
-                          "type": "string"
-                        },
-                        "type": "array"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "character_id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "image_url": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "real_name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "role": {
-                    "type": "string"
-                  }
-                },
-                "type": "object"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Character Details"
         },
         "characters": {
           "anyOf": [
@@ -206,88 +134,6 @@
             }
           ],
           "title": "Characters"
-        },
-        "contributors": {
-          "anyOf": [
-            {
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "additionalProperties": false,
-                    "properties": {
-                      "credited_name": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "image_url": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "person_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "role_id": {
-                        "type": "string"
-                      },
-                      "sequence": {
-                        "anyOf": [
-                          {
-                            "type": "integer"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "sort_name": {
-                        "type": "string"
-                      }
-                    },
-                    "type": "object"
-                  }
-                ]
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Contributors"
         },
         "country": {
           "anyOf": [

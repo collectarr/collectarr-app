@@ -167,10 +167,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     if (meta == null) {
       return const <String>[];
     }
-    return [
-      ...meta.contributors.map((credit) => credit.name ?? ''),
-      ...meta.creators.map((credit) => credit.name ?? ''),
-    ];
+    return [for (final credit in meta.creators) credit.name ?? ''];
   }
 
   static Map<String, int> _countMany(

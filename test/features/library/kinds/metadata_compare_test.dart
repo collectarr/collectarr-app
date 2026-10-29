@@ -30,7 +30,7 @@ void main() {
       'creators': [
         {'role': 'Writer', 'name': 'Stan Lee'},
       ],
-      'character_details': [
+      'characters': [
         {'name': 'Peter Parker', 'real_name': 'Spider-Man'},
       ],
     };
@@ -42,8 +42,9 @@ void main() {
       'creators': [
         {'role': 'Writer', 'name': 'Stan Lee'},
         {'role': 'Artist', 'name': 'Steve Ditko'},
+        'Uncredited Inker',
       ],
-      'character_details': [
+      'characters': [
         {'name': 'Peter Parker', 'real_name': 'Spider-Man'},
       ],
     };

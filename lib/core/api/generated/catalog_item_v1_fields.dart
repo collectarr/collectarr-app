@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
 // Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: 21dc3d9577294f3cf10d83da666d0b81addbb6e118c90c2800fef4d614aa57d8
+// Contract SHA-256: 5f137a6d4f4355f91e64d323d63aa8a1500357ee69e323d9b09ecb950c479efe
 const catalogItemV1SchemaVersion = 1;
 const catalogItemV1ContractVersion = '1.0.0';
 
@@ -20,9 +20,7 @@ const Map<String, List<CatalogItemV1Field>> catalogItemV1FieldsByKind = {
     CatalogItemV1Field('audience_rating', title: 'Audience rating'),
     CatalogItemV1Field('barcode', title: 'Barcode'),
     CatalogItemV1Field('catalog_number', title: 'Catalog number'),
-    CatalogItemV1Field('character_details', title: 'Character Details'),
     CatalogItemV1Field('characters', title: 'Characters'),
-    CatalogItemV1Field('contributors', title: 'Contributors'),
     CatalogItemV1Field('country', title: 'Country'),
     CatalogItemV1Field('cover_date'),
     CatalogItemV1Field('cover_image_url', title: 'Cover URL'),

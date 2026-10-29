@@ -261,7 +261,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
           creators: _creators,
           accent: widget.request.accent,
           onAdd: () => setState(
-            () => _creators.add(EditableComicCreator.custom()),
+            () => _creators.add(EditableComicCreator.blank()),
           ),
           onRemove: (index) =>
               setState(() => _creators.removeAt(index).dispose()),
@@ -278,7 +278,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
           characters: _characters,
           accent: widget.request.accent,
           onAdd: () => setState(
-            () => _characters.add(EditableComicCharacter.custom('')),
+            () => _characters.add(EditableComicCharacter.blank()),
           ),
           onRemove: (index) =>
               setState(() => _characters.removeAt(index).dispose()),

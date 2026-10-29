@@ -47,16 +47,13 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
   String? get format => referenceFormatLabel;
   int? get pageCount => comic.pageCount;
 
-  String? _creatorNameForRole(String expectedRole) => [
-        ...comic.contributors,
-        ...comic.creators,
-      ]
-          .where((creator) {
-            final role = (creator.roleId ?? creator.role ?? '')
-                .toLowerCase()
-                .replaceAll(RegExp('[^a-z]'), '');
-            return role == expectedRole;
-          })
-          .map((creator) => creator.name)
-          .firstOrNull;
+  String? _creatorNameForRole(String expectedRole) => comic.creators
+      .where((creator) {
+        final role = (creator.roleId ?? creator.role ?? '')
+            .toLowerCase()
+            .replaceAll(RegExp('[^a-z]'), '');
+        return role == expectedRole;
+      })
+      .map((creator) => creator.name)
+      .firstOrNull;
 }

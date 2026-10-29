@@ -77,7 +77,6 @@ Iterable<String?> comicLinkedMetadataValues(ComicCatalogItem metadata) => [
       metadata.imprint,
       metadata.country,
       metadata.language,
-      ...metadata.contributors.map((credit) => credit.name),
       ...metadata.creators.map((credit) => credit.name),
       ...metadata.genres,
     ];
