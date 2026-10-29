@@ -1,4 +1,6 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:convert';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
@@ -114,6 +116,13 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
       LibraryEditSchemaDialog<ComicCatalogItem, ComicCatalogItemFormValues>(
         schema: comicCatalogItemEditSchema,
         model: _media,
+        maxDialogWidth: 1200,
+        insetPadding: EdgeInsets.fromLTRB(
+          MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
+          kAppEditorTopInset,
+          MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
+          24,
+        ),
         draft: _draft,
         title: comicCatalogItemEditSchema.title?.call(_media) ?? 'Edit comic',
         icon: widget.request.type.identity.icon,
@@ -133,7 +142,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
           EditSchemaExtraTab(
               id: 'custom_fields',
               label: 'Custom Fields',
-              icon: Icons.edit_note,
+              icon: AppIcons.tabCustomFields,
               content: CustomFieldsEditSection(
                 definitions: widget.request.customFieldDefinitions,
                 values: _customFieldEdits,
@@ -145,7 +154,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
           EditSchemaExtraTab(
               id: 'covers',
               label: 'Covers',
-              icon: Icons.camera_alt_outlined,
+              icon: AppIcons.tabCovers,
               content: ComicCoversTab(
                 images: [
                   for (final image in widget.request.itemImages)
@@ -160,7 +169,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
           EditSchemaExtraTab(
               id: 'my_images',
               label: 'My Images',
-              icon: Icons.photo_library_outlined,
+              icon: AppIcons.tabImages,
               content: ItemImagesEditSection(
                 images: [
                   for (final image in widget.request.itemImages)
@@ -174,15 +183,13 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
           EditSchemaExtraTab(
               id: 'plot',
               label: 'Plot',
-              icon: Icons.subject,
-              content: LibraryFormField(
-                  label: 'Plot',
-                  child: LibraryTextFormControl(
-                    initialValue: _draft.description,
-                    minLines: 18,
-                    maxLines: 18,
-                    onChanged: (value) => _draft.description = value,
-                  ))),
+              icon: AppIcons.tabDescription,
+              content: LibraryTextFormControl(
+                initialValue: _draft.description,
+                minLines: 18,
+                maxLines: 18,
+                onChanged: (value) => _draft.description = value,
+              )),
           _linksTab(),
         ],
         coreCorrectionSourceBuilder: () =>
@@ -218,7 +225,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
       EditSchemaExtraTab(
         id: valueTab ? 'value' : 'personal',
         label: valueTab ? 'Value' : 'Personal',
-        icon: valueTab ? Icons.payments_outlined : Icons.person_outline,
+        icon: valueTab ? AppIcons.tabValue : AppIcons.tabPersonal,
         content: AnimatedBuilder(
           animation: draft,
           builder: (context, _) => LibraryEntryPersonalSection(
@@ -249,7 +256,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
   EditSchemaExtraTab _creatorsTab() => EditSchemaExtraTab(
         id: 'creators',
         label: 'Creators',
-        icon: Icons.people_outline,
+        icon: AppIcons.tabCredits,
         content: ComicCreatorListEditor(
           creators: _creators,
           accent: widget.request.accent,
@@ -266,7 +273,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
   EditSchemaExtraTab _charactersTab() => EditSchemaExtraTab(
         id: 'characters',
         label: 'Characters',
-        icon: Icons.face_outlined,
+        icon: AppIcons.tabPersonal,
         content: ComicCharacterListEditor(
           characters: _characters,
           accent: widget.request.accent,
@@ -283,7 +290,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
   EditSchemaExtraTab _linksTab() => EditSchemaExtraTab(
         id: 'links',
         label: 'Links',
-        icon: Icons.public,
+        icon: AppIcons.tabLinks,
         content: LibraryExternalLinksDraftEditor(
           links: _externalLinks,
           accent: widget.request.accent,

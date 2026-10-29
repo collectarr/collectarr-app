@@ -4,22 +4,25 @@ import 'entry_draft.dart';
 import 'entry_schema.dart';
 import 'package:flutter/material.dart';
 
-Widget buildComicEntryFields(
-    {required ComicEntryEditDraft draft, required VoidCallback onChanged}) {
-  return LibraryFieldSpecRenderer<ComicEntryEditDraft>.embedded(
-    schema: LibraryFormSchema(sections: [
-      for (final section in comicEntryEditSchema.tabs.single.sections)
+Widget buildComicEntryField(
+        {required String id,
+        required ComicEntryEditDraft draft,
+        required VoidCallback onChanged}) =>
+    LibraryFieldSpecRenderer<ComicEntryEditDraft>.embedded(
+      key: ValueKey('comic-entry-$id'),
+      schema: LibraryFormSchema(sections: [
         LibraryFormSectionSpec(
-          id: section.id,
-          label: section.label,
+          id: id,
+          label: '',
+          maxColumns: 1,
           fields: [
-            for (final field in section.fields)
-              if (field.id != 'last_bag_board_date') field
+            for (final section in comicEntryEditSchema.tabs.single.sections)
+              for (final field in section.fields)
+                if (field.id == id) field
           ],
-        ),
-    ]),
-    draft: draft,
-    mediaKind: 'comic',
-    onChanged: onChanged,
-  );
-}
+        )
+      ]),
+      draft: draft,
+      mediaKind: 'comic',
+      onChanged: onChanged,
+    );

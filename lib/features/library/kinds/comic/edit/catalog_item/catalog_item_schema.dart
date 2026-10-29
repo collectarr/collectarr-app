@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/serial/library_series_selector_field.dart';
@@ -6,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_i
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_values.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:flutter/material.dart';
+import '../../forms/catalog_form_layout.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 List<LibraryFieldSpec<ComicCatalogItemFormValues>>
@@ -59,11 +60,12 @@ final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
     EditTabSpec<ComicCatalogItemFormValues>(
       id: 'main',
       label: 'Main',
-      icon: Icons.article,
+      icon: AppIcons.book,
       sections: [
         LibraryFormSectionSpec(
           id: 'issue',
           label: '',
+          columns: comicMainColumns,
           fields: _fields(const [
             'comic.series',
             'barcode',
@@ -83,11 +85,12 @@ final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
     EditTabSpec<ComicCatalogItemFormValues>(
       id: 'details',
       label: 'Details',
-      icon: Icons.info_outline,
+      icon: AppIcons.tabDetails,
       sections: [
         LibraryFormSectionSpec(
           id: 'publication',
           label: '',
+          columns: comicDetailsColumns('title'),
           fields: _fields(const [
             'crossover',
             'story_arcs',

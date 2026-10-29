@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
@@ -10,6 +11,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_status_str
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import '../edit/entry/entry_draft.dart';
 import '../edit/covers_tab.dart';
 import 'draft.dart';
@@ -207,7 +209,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       schemaTab(
         id: 'main',
         label: 'Main',
-        icon: Icons.article_outlined,
+        icon: AppIcons.book,
         fieldIds: const {
           ComicFieldIdentities.seriesId,
           ComicFieldIdentities.issueNumberId,
@@ -221,13 +223,13 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           'publisher',
           ComicFieldIdentities.imprintId,
         },
-        sectionLabel: 'Main',
+        sectionLabel: '',
         validateSchema: true,
       ),
       schemaTab(
         id: 'details',
         label: 'Details',
-        icon: Icons.info_outline,
+        icon: AppIcons.tabDetails,
         fieldIds: const {
           'catalog_title',
           'edition_title',
@@ -243,12 +245,12 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           'crossover',
           'story_arcs',
         },
-        sectionLabel: 'Publication details',
+        sectionLabel: '',
       ),
       LibraryAddManualPaneTab(
         id: 'creators',
         label: 'Creators',
-        icon: Icons.people_outline,
+        icon: AppIcons.tabCredits,
         content: ComicCreatorListEditor(
           creators: comicDraft.creators,
           accent: request.accent,
@@ -268,7 +270,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       LibraryAddManualPaneTab(
         id: 'characters',
         label: 'Characters',
-        icon: Icons.face_outlined,
+        icon: AppIcons.tabPersonal,
         content: ComicCharacterListEditor(
           characters: comicDraft.characters,
           accent: request.accent,
@@ -288,7 +290,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       LibraryAddManualPaneTab(
         id: 'covers',
         label: 'Covers',
-        icon: Icons.camera_alt_outlined,
+        icon: AppIcons.tabCovers,
         content: ComicCoversTab(
           searchTitle: () => comicDraft.values.seriesTitle,
           images: [
@@ -315,7 +317,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       LibraryAddManualPaneTab(
         id: 'links',
         label: 'Links',
-        icon: Icons.public,
+        icon: AppIcons.tabLinks,
         content: ComicAddLinksTab(
           draft: comicDraft,
           accent: request.accent,
@@ -325,21 +327,21 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       LibraryAddManualPaneTab(
         id: 'value',
         label: 'Value',
-        icon: Icons.payments_outlined,
+        icon: AppIcons.tabValue,
         content: ComicAddPersonalTab(
             request: request, entry: _entry, valueTab: true),
       ),
       LibraryAddManualPaneTab(
         id: 'personal',
         label: 'Personal',
-        icon: Icons.person_outline,
+        icon: AppIcons.tabPersonal,
         content: ComicAddPersonalTab(
             request: request, entry: _entry, valueTab: false),
       ),
       LibraryAddManualPaneTab(
         id: 'custom_fields',
         label: 'Custom Fields',
-        icon: Icons.edit_note_outlined,
+        icon: AppIcons.tabCustomFields,
         content: CustomFieldsEditSection(
           definitions: request.customFieldDefinitions,
           values: request.customFieldValues,
@@ -357,7 +359,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       LibraryAddManualPaneTab(
         id: 'my_images',
         label: 'My Images',
-        icon: Icons.photo_library_outlined,
+        icon: AppIcons.tabImages,
         content: ItemImagesEditSection(
           images: [
             for (final image in request.itemImages)
@@ -372,29 +374,19 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           ]),
         ),
       ),
-      LibraryAddManualPaneTab.fromSchema<ComicAddManualDraft>(
+      LibraryAddManualPaneTab(
         id: 'plot',
         label: 'Plot',
-        icon: Icons.subject,
-        schema: LibraryFormSchema(sections: [
-          LibraryFormSectionSpec(
-            id: 'plot',
-            label: '',
-            maxColumns: 1,
-            fields: [
-              LibraryTextFieldSpec<ComicAddManualDraft>(
-                id: 'description',
-                label: 'Plot',
-                maxLines: 18,
-                value: (draft) => draft.values.description,
-                setValue: (draft, value) => draft.values.description = value,
-              )
-            ],
-          )
-        ]),
-        draft: comicDraft,
-        mediaKind: request.kind.apiValue,
-        onChanged: request.onManualDraftChanged,
+        icon: AppIcons.tabDescription,
+        content: LibraryTextFormControl(
+          initialValue: comicDraft.values.description,
+          minLines: 18,
+          maxLines: 18,
+          onChanged: (value) {
+            comicDraft.values.description = value;
+            request.onManualDraftChanged?.call();
+          },
+        ),
       ),
     ];
     final byId = {for (final tab in tabs) tab.id: tab};

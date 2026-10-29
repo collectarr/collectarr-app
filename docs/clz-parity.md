@@ -107,7 +107,17 @@ are separate from My Images. Its common footer preserves Index and Quantity;
 the typed create payload now retains reading, quantity, index, value and sale
 data. A widget regression traverses Personal and Plot and verifies the resulting
 copy snapshot. Empty private issue titles are allowed, matching Music/Games.
-Layout density and complete browser save/reload checks remain open.
+Main/Details use the kind-owned column composition over the existing form
+renderer; Value/Personal reuse common responsive rows, inputs and pick lists.
+Tab icons come from `AppIcons`, and collection editor dimensions/insets match
+Music/Games. Repeated Main/Details section headings and the redundant Plot label
+were removed. The reference tab strip measures 32 px high with 14 px text,
+weight 400 and 5/10 px padding: the shared strip already supplies those values,
+so Comics does not introduce another tab primitive. Grading Company, Label Type
+and Custom Label now use managed lists without invented built-in choices.
+Browser keyboard input and a widget regression confirm that switching Main and
+Details preserves Series/Issue/Variant without putting them into Title.
+Complete browser save/reload and the remaining tab comparisons stay open.
 
 The branch now registers Comics in Core, Sync and App. Core's ordered schema
 upgrade preserves existing Music/Game records; App schema 5 adds the three

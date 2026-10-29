@@ -51,7 +51,11 @@ class LibraryAddStatusStrip extends StatelessWidget {
               onChanged: (value) =>
                   onQuantityChanged(int.tryParse(value) ?? 0))),
       LibraryDropdownPickField<String>(
-          label: 'Location',
+          label: request.personalFields
+                  .where((field) => field.key == 'location_id')
+                  .firstOrNull
+                  ?.label ??
+              'Location',
           value: request.commonDraft?.clearLocation == true
               ? null
               : request.commonDraft?.locationId ?? request.defaultLocationId,

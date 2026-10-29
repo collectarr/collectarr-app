@@ -9,6 +9,9 @@ import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 
 abstract final class ComicVocabularyIds {
+  static const gradingCompany = VocabularyId<String>('comic.grading_company');
+  static const labelType = VocabularyId<String>('comic.label_type');
+  static const customLabel = VocabularyId<String>('comic.custom_label');
   static const publicationAge = VocabularyId<String>('comic.publication_age');
   static const publisher = VocabularyId<String>('comic.publisher');
   static const imprint = ComicFieldIdentities.imprintVocabulary;
@@ -339,7 +342,17 @@ abstract final class ComicVocabularies {
         TypedVocabularyProjector<ComicCatalogItem>(_publicationAgeValues),
   );
 
+  static const gradingCompany = VocabularyDefinition<String>(
+      id: ComicVocabularyIds.gradingCompany, label: 'Grading Company');
+  static const labelType = VocabularyDefinition<String>(
+      id: ComicVocabularyIds.labelType, label: 'Label Type');
+  static const customLabel = VocabularyDefinition<String>(
+      id: ComicVocabularyIds.customLabel, label: 'Custom Label');
+
   static const all = <VocabularyDefinition<dynamic>>[
+    gradingCompany,
+    labelType,
+    customLabel,
     publicationAge,
     publisher,
     imprint,
