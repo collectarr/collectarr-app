@@ -11,6 +11,7 @@ export 'data/comic_catalog_transport_codec.dart';
 export 'integrations/catalog/comic_catalog_lookup.dart';
 export 'integrations/collection_csv/comic_collection_csv_projection.dart';
 export 'integrations/comic_info/comic_info_export.dart';
+export 'reports/comic_export_capability.dart';
 export 'entries/comic_entry_contributor.dart';
 export 'detail/route_contributor.dart';
 export 'page.dart';

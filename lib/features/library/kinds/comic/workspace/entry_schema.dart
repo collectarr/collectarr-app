@@ -1,4 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/catalog_schema.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/collection_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/columns/columns.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/facets.dart';
@@ -216,148 +219,36 @@ final comicLibraryEntryWorkspaceGroupDefinitions = [
   ),
 ];
 
-final comicLibraryEntryWorkspaceSortDefinitions = [
-  LibrarySortDefinition<ComicKind, ComicWorkspaceDto>(
-    id: ComicSortIds.status,
-    compare: (left, right) {
-      int rank(LibraryProjectionContext<ComicWorkspaceDto> ctx) {
-        if ((ctx.item.entrySummary != null)) return 0;
-        if (ctx.personal.isWishlisted) return 1;
-        return 2;
-      }
-
-      final res = rank(left).compareTo(rank(right));
-      return res != 0 ? res : left.dto.title.compareTo(right.dto.title);
-    },
-    label: 'Status',
-  ),
-  sortFromField<ComicKind, ComicWorkspaceDto, String>(
-      ComicLibraryEntryWorkspaceFields.condition),
-  sortFromField<ComicKind, ComicWorkspaceDto, int>(
-      ComicLibraryEntryWorkspaceFields.rating,
-      defaultAscending: false),
-  sortFromField<ComicKind, ComicWorkspaceDto, int>(
-      ComicLibraryEntryWorkspaceFields.pricePaid,
-      defaultAscending: false),
-  sortFromField<ComicKind, ComicWorkspaceDto, DateTime>(
-      ComicLibraryEntryWorkspaceFields.updatedAt,
-      defaultAscending: false),
-];
-
-final comicLibraryEntryWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
-  ComicFieldIds.status,
-  ComicFieldIds.grade,
-  ComicFieldIds.keyComic,
-  ComicFieldIds.condition,
-  ComicFieldIds.pricePaid,
-  ComicFieldIds.location,
-  ComicFieldIds.wishlist,
-  ComicFieldIds.updatedAt,
-};
-
-final comicLibraryEntryWorkspaceColumnDefinitions = [
-  LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, String?>(
-    id: ComicFieldIds.status,
-    metadata: ComicWorkspaceFieldMetadata.status,
-    getValue: ComicLibraryEntryWorkspaceFields.status.getValue,
-    cellValue: (context) => Text(context.personal.isWishlisted
-        ? 'Wishlist'
-        : ((context.item.entrySummary != null) ? 'Entry' : '')),
-    allowSortInteraction: false,
-    allowGroupInteraction: false,
-    defaultWidth: 52,
-    minWidth: 44,
-  ),
-  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
-    ComicLibraryEntryWorkspaceFields.grade,
-    group: 'Grading',
-    defaultWidth: 80,
-  ),
-  columnFromField<ComicKind, ComicWorkspaceDto, bool>(
-    ComicLibraryEntryWorkspaceFields.keyComic,
-    group: 'Key Info',
-    defaultWidth: 90,
-  ),
-  LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, bool>(
-    id: ComicFieldIds.wishlist,
-    metadata: ComicWorkspaceFieldMetadata.wishlist,
-    getValue: ComicLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) =>
-        Text(context.personal.isWishlisted ? 'Wishlist' : ''),
-    group: 'Personal',
-    defaultWidth: 82,
-    minWidth: 70,
-  ),
-  LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, DateTime>(
-    id: ComicFieldIds.updatedAt,
-    metadata: ComicWorkspaceFieldMetadata.updatedAt,
-    getValue: ComicLibraryEntryWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.updatedAt)),
-    group: 'Personal',
-    defaultWidth: 112,
-  ),
-  LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, DateTime?>(
-    id: ComicFieldIds.addedAt,
-    metadata: ComicWorkspaceFieldMetadata.addedAt,
-    getValue: ComicLibraryEntryWorkspaceFields.addedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.addedAt)),
-    group: 'Personal',
-    defaultWidth: 112,
-  ),
-  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
-    ComicLibraryEntryWorkspaceFields.location,
-    group: 'Personal',
-    defaultWidth: 118,
-  ),
-  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
-    ComicLibraryEntryWorkspaceFields.condition,
-    group: 'Value',
-    defaultWidth: 124,
-  ),
-  columnFromField<ComicKind, ComicWorkspaceDto, int?>(
-    ComicLibraryEntryWorkspaceFields.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        _entry(context)?.personal.pricePaidCents, context.dto.currency)),
-    group: 'Value',
-    isNumeric: true,
-    defaultWidth: 92,
-    minWidth: 78,
-  ),
-  LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, int?>(
-    id: ComicFieldIds.rating,
-    metadata: ComicWorkspaceFieldMetadata.rating,
-    getValue: ComicLibraryEntryWorkspaceFields.rating.getValue,
-    cellValue: (context) =>
-        Text(_entry(context)?.personal.reading.rating?.toString() ?? ''),
-    defaultWidth: 80,
-  ),
-];
-
+/// Reference defaults: the list shows Series, Issue, Variant Description,
+/// Publisher, Release Date, Storage Box, Format and Added Date, sorted by
+/// Series then Issue, with Series folders.
 final comicLibraryEntryWorkspaceSchema =
     LibraryWorkspaceSchema<ComicKind, ComicWorkspaceDto>(
   kindNamespace: 'comic',
+  // Collection comics carry their catalog fields, as in Music and Games: the
+  // table resolves columns from this registry alone.
   fields: [
-    ...comicLibraryEntryWorkspaceFieldDefinitions,
+    ...comicCollectionWorkspaceFieldDefinitions,
     ...comicSmartListFacetFields,
   ],
-  columns: comicLibraryEntryWorkspaceColumnDefinitions,
-  sorts: comicLibraryEntryWorkspaceSortDefinitions,
-  groups: comicLibraryEntryWorkspaceGroupDefinitions,
-  primaryColumn: ComicFieldIds.status,
-  defaultVisibleColumns: comicLibraryEntryWorkspaceDefaultVisibleColumns,
-  defaultSort: ComicSortIds.status,
-  defaultGroup: ComicGroupIds.condition,
+  columns: comicCollectionWorkspaceColumns,
+  sorts: comicCollectionWorkspaceSorts,
+  groups: [
+    ...comicCatalogItemWorkspaceGroupDefinitions,
+    ...comicLibraryEntryWorkspaceGroupDefinitions,
+  ],
+  primaryColumn: ComicFieldIds.series,
+  defaultVisibleColumns: {
+    ComicFieldIds.series,
+    ComicCollectionWorkspaceFields.issue.id,
+    ComicCollectionWorkspaceFields.variantDescription.id,
+    ComicFieldIds.publisher,
+    ComicCollectionWorkspaceFields.releaseDate.id,
+    ComicFieldIds.location,
+    ComicCollectionWorkspaceFields.format.id,
+    ComicFieldIds.addedAt,
+  },
+  defaultSort: ComicSortIds.series,
+  defaultThenSort: LibrarySortId(ComicCollectionWorkspaceFields.issue.id.value),
+  defaultGroup: ComicGroupIds.series,
 );
-
-String _formatDate(DateTime? value) {
-  if (value == null) return '';
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
-}
-
-String _formatCents(int? cents, String? currency) {
-  if (cents == null) return '';
-  final amount = (cents / 100).toStringAsFixed(2);
-  return currency == null ? amount : '$currency $amount';
-}
