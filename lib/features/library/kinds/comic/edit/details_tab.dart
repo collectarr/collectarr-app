@@ -53,7 +53,7 @@ extension ComicDetailsTab on ComicEditHost {
                     return Column(
                       children: [
                         LibraryEditTextField(
-                          controller: comicAgeRatingController,
+                          controller: comicPublicationAgeController,
                           label: 'Age',
                         ),
                         const SizedBox(height: 10),
@@ -80,7 +80,7 @@ extension ComicDetailsTab on ComicEditHost {
                           children: [
                             Expanded(
                               child: LibraryEditTextField(
-                                controller: comicAgeRatingController,
+                                controller: comicPublicationAgeController,
                                 label: 'Age',
                               ),
                             ),

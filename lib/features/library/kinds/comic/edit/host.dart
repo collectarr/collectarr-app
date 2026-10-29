@@ -35,7 +35,7 @@ abstract class ComicEditHost {
   TextEditingController get comicLocalizedTitleController;
   TextEditingController get comicSearchAliasesController;
   TextEditingController get comicSortKeyController;
-  TextEditingController get comicAgeRatingController;
+  TextEditingController get comicPublicationAgeController;
   TextEditingController get comicPageCountController;
   TextEditingController get comicGenresEditController;
   TextEditingController get comicLanguageController;

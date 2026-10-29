@@ -170,6 +170,14 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         value: (draft) => values(draft).subtitle,
         setValue: (draft, value) => values(draft).subtitle = value,
       ),
+      _vocabulary<T>(
+        id: 'publication_age',
+        label: 'Age',
+        value: (draft) => values(draft).publicationAge,
+        setValue: (draft, value) => values(draft).publicationAge = value ?? '',
+        options: const [],
+        pickListKey: ComicVocabularyIds.publicationAge.value,
+      ),
       _text<T>(
         id: 'age_rating',
         label: 'Age rating',

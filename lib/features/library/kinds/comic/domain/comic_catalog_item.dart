@@ -353,6 +353,7 @@ class ComicCatalogItem implements JsonEncodable {
     this.country = 'US',
     this.language = 'en',
     this.ageRating,
+    this.publicationAge,
     this.audienceRating,
     this.crossover,
     this.genres = const [],
@@ -414,6 +415,7 @@ class ComicCatalogItem implements JsonEncodable {
   final String country;
   final String language;
   final String? ageRating;
+  final String? publicationAge;
   final String? audienceRating;
   final String? crossover;
   final List<String> genres;
@@ -499,6 +501,7 @@ class ComicCatalogItem implements JsonEncodable {
       'country': country,
       'language': language,
       if (ageRating != null) 'age_rating': ageRating,
+      if (publicationAge != null) 'publication_age': publicationAge,
       if (audienceRating != null) 'audience_rating': audienceRating,
       if (crossover != null) 'crossover': crossover,
       if (genres.isNotEmpty) 'genres': genres,
@@ -574,6 +577,7 @@ class ComicCatalogItem implements JsonEncodable {
     String? country,
     String? language,
     String? ageRating,
+    String? publicationAge,
     String? audienceRating,
     String? crossover,
     List<String>? genres,
@@ -631,6 +635,7 @@ class ComicCatalogItem implements JsonEncodable {
       country: country ?? this.country,
       language: language ?? this.language,
       ageRating: ageRating ?? this.ageRating,
+      publicationAge: publicationAge ?? this.publicationAge,
       audienceRating: audienceRating ?? this.audienceRating,
       crossover: crossover ?? this.crossover,
       genres: genres ?? this.genres,
@@ -696,6 +701,7 @@ class ComicCatalogItem implements JsonEncodable {
       country: (json['country'] as String?) ?? 'US',
       language: (json['language'] as String?) ?? 'en',
       ageRating: json['age_rating'] as String?,
+      publicationAge: json['publication_age'] as String?,
       audienceRating: json['audience_rating'] as String?,
       crossover: json['crossover'] as String?,
       genres: _comicStringList(json['genres'], 'genres'),

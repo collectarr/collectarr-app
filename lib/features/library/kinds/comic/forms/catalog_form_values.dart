@@ -24,6 +24,7 @@ final class ComicCatalogItemFormValues {
     this.seriesGroup = '',
     this.pageCount,
     this.ageRating = '',
+    this.publicationAge = '',
     this.genres = const [],
     this.language = '',
     this.country = '',
@@ -53,6 +54,7 @@ final class ComicCatalogItemFormValues {
   String seriesGroup;
   int? pageCount;
   String ageRating;
+  String publicationAge;
   List<String> genres;
   String language;
   String country;

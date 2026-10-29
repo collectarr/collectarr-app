@@ -281,6 +281,8 @@ class ComicLibraryCatalogItemPresentationBuilder
           LibraryDetailField(label: 'Subtitle', value: metadata.subtitle!),
         LibraryDetailField(label: 'Country', value: metadata.country),
         LibraryDetailField(label: 'Language', value: metadata.language),
+        if (metadata.publicationAge != null)
+          LibraryDetailField(label: 'Age', value: metadata.publicationAge!),
         if (metadata.ageRating != null)
           LibraryDetailField(label: 'Age Rating', value: metadata.ageRating!),
         if (referenceFormat?.trim().isNotEmpty == true)

@@ -189,8 +189,8 @@ class ComicEditHostAdapter implements ComicEditHost {
       draft.formFields.controller(ComicCanonicalEditField.sortTitle);
 
   @override
-  TextEditingController get comicAgeRatingController =>
-      _comicDraft.comicEdit.ageRatingController;
+  TextEditingController get comicPublicationAgeController =>
+      _comicDraft.comicEdit.publicationAgeController;
 
   @override
   TextEditingController get comicPageCountController =>

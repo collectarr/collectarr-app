@@ -26,6 +26,8 @@ class ComicEditController {
         pageCountController =
             TextEditingController(text: item.pageCount?.toString() ?? ''),
         ageRatingController = TextEditingController(text: item.ageRating ?? ''),
+        publicationAgeController =
+            TextEditingController(text: item.publicationAge ?? ''),
         genresEditController =
             TextEditingController(text: item.genres.join(', ')),
         seriesGroupController =
@@ -66,6 +68,7 @@ class ComicEditController {
   final TextEditingController imprintController;
   final TextEditingController pageCountController;
   final TextEditingController ageRatingController;
+  final TextEditingController publicationAgeController;
   final TextEditingController genresEditController;
   final TextEditingController seriesGroupController;
 
@@ -120,6 +123,7 @@ class ComicEditController {
     imprintController.dispose();
     pageCountController.dispose();
     ageRatingController.dispose();
+    publicationAgeController.dispose();
     genresEditController.dispose();
     seriesGroupController.dispose();
     numberController.dispose();
@@ -185,6 +189,7 @@ class ComicEditController {
       'cover_date': coverDateParts?.toJson(),
       'release_date_parts': releaseDateParts?.toJson(),
       'release_date': releaseDateParts?.asDateTime?.toIso8601String(),
+      'publication_age': emptyToNull(publicationAgeController.text),
       'subtitle': emptyToNull(subtitleController.text),
       'variant_description': emptyToNull(variantDescriptionController.text),
     });
