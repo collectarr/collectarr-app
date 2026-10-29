@@ -28,7 +28,9 @@ void main() {
       expect(ComicVocabularies.keyCategory.builtIns, contains('Origin'));
       expect(ComicVocabularies.publisher.builtIns, contains('Marvel Comics'));
       expect(ComicVocabularies.publisher.builtIns, contains('DC Comics'));
-      expect(ComicVocabularies.all.length, 10);
+      expect(ComicVocabularies.all.length, 11);
+      expect(ComicVocabularies.publicationAge.builtIns, isEmpty);
+      expect(ComicVocabularies.publicationAge.label, 'Age');
     });
 
     test('Game vocabularies cover the reference Main, Value and Personal lists',

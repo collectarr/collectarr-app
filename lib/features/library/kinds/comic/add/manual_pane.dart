@@ -211,6 +211,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           fieldIds: const {
             ComicFieldIdentities.variantId,
             'edition_title',
+            'variant_description',
             'barcode',
             'isbn',
             'upc',
@@ -230,6 +231,8 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
             'series_group',
             ComicFieldIdentities.pageCountId,
             'age_rating',
+            'publication_age',
+            'subtitle',
             'genres',
             'language',
             'country',

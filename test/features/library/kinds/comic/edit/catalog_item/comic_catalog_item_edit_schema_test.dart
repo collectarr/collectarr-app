@@ -166,6 +166,29 @@ void main() {
     expect(cleared.releaseDateParts, isNull);
   });
 
+  test('publication Age is independent from audience age rating', () {
+    const original = ComicCatalogItem(
+      title: 'Example',
+      publicationAge: 'Modern',
+      ageRating: 'Teen',
+    );
+    final values = comicCatalogItemFormValuesFrom(original);
+    final age = _field('publication_age')
+        as LibraryVocabularyFieldSpec<ComicCatalogItemFormValues, String>;
+    expect(age.value(values), 'Modern');
+    age.setValue(values, 'Golden');
+    final updated =
+        comicCatalogItemFromFormValues(original: original, values: values);
+    final restored = ComicCatalogItem.fromJson(updated.toJson());
+    expect(restored.publicationAge, 'Golden');
+    expect(restored.ageRating, 'Teen');
+    age.setValue(values, null);
+    expect(
+        comicCatalogItemFromFormValues(original: updated, values: values)
+            .publicationAge,
+        isNull);
+  });
+
   test('reports invalid media values through schema validation', () {
     final original = const ComicCatalogItem(title: 'X');
     final draft = comicCatalogItemFormValuesFrom(original);

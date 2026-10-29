@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 
 abstract final class ComicVocabularyIds {
+  static const publicationAge = VocabularyId<String>('comic.publication_age');
   static const publisher = VocabularyId<String>('comic.publisher');
   static const imprint = ComicFieldIdentities.imprintVocabulary;
   static const seriesGroup = VocabularyId<String>('comic.series_group');
@@ -331,7 +332,15 @@ abstract final class ComicVocabularies {
         TypedVocabularyProjector<ComicCatalogItem>(_crossoverCatalogValues),
   );
 
+  static const publicationAge = VocabularyDefinition<String>(
+    id: ComicVocabularyIds.publicationAge,
+    label: 'Age',
+    valuesFrom:
+        TypedVocabularyProjector<ComicCatalogItem>(_publicationAgeValues),
+  );
+
   static const all = <VocabularyDefinition<dynamic>>[
+    publicationAge,
     publisher,
     imprint,
     seriesGroup,
@@ -374,3 +383,6 @@ Iterable<String?> _storyArcCatalogValues(ComicCatalogItem metadata) {
 Iterable<String?> _crossoverCatalogValues(ComicCatalogItem metadata) {
   return vocabularyValues([metadata.crossover]);
 }
+
+Iterable<String?> _publicationAgeValues(ComicCatalogItem metadata) =>
+    vocabularyValues([metadata.publicationAge]);
