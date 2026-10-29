@@ -54,7 +54,7 @@ ComicCatalogItem comicCatalogItemFromFormValues({
 
   return ComicCatalogItem(
     id: original.id,
-    title: _nullable(values.title) ?? original.title,
+    title: values.title.trim(),
     sortTitle: original.sortTitle,
     seriesTitle: seriesTitle,
     seriesId: _nullable(values.seriesId ?? ''),
@@ -71,8 +71,8 @@ ComicCatalogItem comicCatalogItemFromFormValues({
     coverDateParts: values.coverDateParts,
     releaseDateParts: values.releaseDateParts,
     pageCount: values.pageCount,
-    country: _nullable(values.country) ?? original.country,
-    language: _nullable(values.language) ?? original.language,
+    country: values.country.trim(),
+    language: values.language.trim(),
     ageRating: _nullable(values.ageRating),
     publicationAge: _nullable(values.publicationAge),
     audienceRating: original.audienceRating,

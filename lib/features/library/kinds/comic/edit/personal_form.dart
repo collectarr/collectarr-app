@@ -92,8 +92,9 @@ class ComicPersonalForm extends StatelessWidget {
                         initialValue: personal.reading.rating?.toString() ?? '',
                         keyboardType: TextInputType.number,
                         validator: (value) {
-                          if (value == null || value.trim().isEmpty)
+                          if (value == null || value.trim().isEmpty) {
                             return null;
+                          }
                           final rating = int.tryParse(value);
                           return rating == null || rating < 0 || rating > 10
                               ? 'Use a rating from 0 to 10'

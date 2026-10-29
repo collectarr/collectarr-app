@@ -119,17 +119,17 @@ date precision, personal grading, reading and quantity. The actual CLZ Web XML
 export was inspected read-only in temporary storage; XML and image import remain
 open. End-to-end saves and the remaining parity checks are still release gates.
 
-Editor implementation now lives under `comic/edit/`, with separate Main,
-Details, Value, Personal, credits, images and links files, matching the
-kind-owned organization used for Music/Games. The old root dialog,
-presentation and image-section paths and the monolithic tab file were removed.
-The generic editor lifecycle still needs conversion to a dedicated typed
-dialog before the Comics implementation matches Games in architecture.
-Catalog and collection edit targets now select their respective dialogs;
-the previous registry mapping was inverted. Bag/Board Date in Personal now
-updates the typed entry draft that is serialized on save instead of a duplicate
-draft property. Pixel layout, all pick lists and the remaining schema gaps are
-still open; tab ordering alone is not a parity signoff.
+Editor implementation now lives under `comic/edit/`, using the typed catalog
+form, personal form, entry draft and cover controls owned by Comics. Catalog
+and collection targets share the dedicated typed dialog and the common shell
+mechanics used by Games. The generic host, controller, duplicate text state and
+superseded tab renderers were removed. Main and Details follow reference field
+ownership; personal values stay outside catalog corrections. Cover and image
+edits, custom values and unsaved-change detection are included in the commit
+result. A dialog regression verifies Save/reload of reading, explicit grading
+clears and preservation of unrelated personal fields and catalog identity.
+Pixel layout, all pick lists and the remaining schema gaps are still open;
+tab ordering alone is not a parity signoff.
 Cover Date and Release Date now use Music's shared partial-date input in the
 collection editor and typed Add/Edit field schemas. Missing year, month or day
 remain missing through the typed model; clearing a date removes its stored
