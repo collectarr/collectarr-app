@@ -181,6 +181,9 @@ final comicKindInspector = LibraryInspectorCapability(
     ),
   ),
   showsDefaultPersonalSection: false,
+  showsActionBar: false,
+  // The reference details show no My Images section.
+  supportsLibraryEntryImages: false,
   personalDetailFieldsBuilder: buildComicPersonalDetailFields,
 );
 

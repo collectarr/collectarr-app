@@ -1,12 +1,17 @@
-import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
-import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
-import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/ui/app_formatted_text.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,921 +19,341 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 Widget buildComicCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
-) {
-  return ComicInspectorHero(request: request);
-}
+) =>
+    ComicInspectorHeader(request: request);
 
 Widget buildComicLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
-) {
-  return ComicInspectorHero(request: request);
-}
+) =>
+    ComicInspectorHeader(request: request);
 
-class ComicInspectorHero extends ConsumerStatefulWidget {
-  const ComicInspectorHero({super.key, required this.request});
+ComicCatalogItem? comicInspectorItem(LibraryInspectorRequest request) =>
+    switch (request.item.dto) {
+      final ComicWorkspaceDto dto => dto.comic,
+      _ => null,
+    };
+
+ComicLibraryEntry? comicInspectorEntry(LibraryInspectorRequest request) =>
+    ComicLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
+
+/// The reference details header: series and issue badge, story arc and
+/// title, key reason, then the cover beside variant, dates, publisher,
+/// barcode and eBay, and the Read check beside the plot.
+class ComicInspectorHeader extends StatelessWidget {
+  const ComicInspectorHeader({super.key, required this.request});
 
   final LibraryInspectorRequest request;
 
   @override
-  ConsumerState<ComicInspectorHero> createState() => _ComicInspectorHeroState();
-}
-
-class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
-  bool _showBackCover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final request = widget.request;
-    final palette = appPalette(context);
-    final item = request.item;
-    final dto = item.dto;
-    final comic = dto is ComicWorkspaceDto ? dto.comic : null;
-    final libraryEntry =
-        ComicLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
-    final surface = palette.surface;
-    final border =
-        palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);
-    final ink = palette.textPrimary;
-    final muted = palette.textMuted;
-    final libraryEntrySummary = request.libraryEntry;
-    final libraryEntryRef = resolveLibraryEntryRef(item, libraryEntrySummary);
-    final localFront = libraryEntryRef == null
-        ? null
-        : ref
-            .watch(
-              localItemImageProvider((
-                libraryEntryRef: libraryEntryRef,
-                imageType: 'front_cover',
-              )),
-            )
-            .value;
-    final localBack = libraryEntryRef == null
-        ? null
-        : ref
-            .watch(
-              localItemImageProvider((
-                libraryEntryRef: libraryEntryRef,
-                imageType: 'back_cover',
-              )),
-            )
-            .value;
-    final db =
-        libraryEntryRef == null ? null : ref.watch(localDatabaseProvider);
-    final adapter = dto is ComicWorkspaceDto ? dto : null;
-    final comicDto = dto is ComicWorkspaceDto ? dto : null;
-    final referenceLabel = (adapter?.itemNumber?.trim().isNotEmpty == true
-            ? '#${adapter!.itemNumber!.trim()}'
-            : null) ??
-        adapter?.referenceFormatLabel ??
-        libraryLibraryEntryReferenceLabel(libraryEntrySummary,
-            mediaType: item.target.kind.apiValue) ??
-        request.type.identity.singularLabel.toUpperCase();
-    final seriesLabel = comic?.seriesTitle?.trim().isNotEmpty == true
-        ? comic!.seriesTitle!.trim()
-        : null;
-    final editionLabel =
-        adapter?.referenceFormatLabel?.trim().isNotEmpty == true
-            ? adapter!.referenceFormatLabel!.trim()
-            : adapter?.variant?.trim().isNotEmpty == true
-                ? adapter!.variant!.trim()
-                : 'Regular edition';
-    final formatLabel = adapter?.referenceFormatLabel?.trim().isNotEmpty == true
-        ? adapter!.referenceFormatLabel!.trim()
-        : null;
-    final releaseLabel = formatNullableDate(adapter?.releaseDate) ??
-        adapter?.releaseDate?.year.toString() ??
-        '-';
-    final publisherLabel = [
-      if (comicDto?.publisher?.trim().isNotEmpty == true)
-        comicDto!.publisher!.trim(),
-      if (comic?.imprint?.trim().isNotEmpty == true) comic!.imprint!.trim(),
-    ].join(' / ');
-    final subtitleParts = <String>[
-      if (comic?.crossover?.trim().isNotEmpty == true) comic!.crossover!.trim(),
-      if (comic != null &&
-          comic.storyArcs.isNotEmpty &&
-          comic.storyArcs.first.name?.trim().isNotEmpty == true)
-        comic.storyArcs.first.name!.trim(),
-      if (comic?.subtitle?.trim().isNotEmpty == true) comic!.subtitle!.trim(),
-      if (adapter?.variant?.trim().isNotEmpty == true) adapter!.variant!.trim(),
-    ];
-    final subtitleLabel = subtitleParts.join(' • ');
-    final isEntry = item.source.isEntry || libraryEntry != null;
-    final statusLabel = isEntry
-        ? 'Entry'
-        : item.source.isWishlisted
-            ? 'Wishlist'
-            : 'Not entry';
-    final synopsis = comic?.synopsis?.trim();
-    final plotDescription = comic?.description?.trim();
-    final comicDetails = libraryEntry?.personal.details;
-    final slabLabel = _slabMarkerLabel(
-      comicDetails?.rawOrSlabbed,
-      comicDetails?.gradingCompany,
-    );
-    final slabGrade = libraryEntry?.personal.grade?.trim();
-    final showSlabOverlay =
-        comicDetails?.rawOrSlabbed?.trim().toLowerCase() == 'slabbed' &&
-            slabLabel != null &&
-            slabGrade != null &&
-            slabGrade.isNotEmpty;
-    final currentValue = libraryEntry?.personal.marketValueCents != null
-        ? formatMoney(libraryEntry!.personal.marketValueCents,
-            libraryEntry.personal.currency)
-        : null;
-    final gradeValueLabel = [
-      if (libraryEntry?.personal.grade?.trim().isNotEmpty == true)
-        libraryEntry!.personal.grade!.trim(),
-      if (currentValue != null) currentValue,
-    ].join('  •  ');
-    final keyReason = comicDetails?.keyReason?.trim().isNotEmpty == true
-        ? comicDetails!.keyReason!.trim()
-        : null;
-    final ebayQuery = [
-      if (comicDto?.barcode?.trim().isNotEmpty == true)
-        comicDto!.barcode!.trim(),
-      if (seriesLabel != null) seriesLabel,
-      if (referenceLabel.trim().isNotEmpty) referenceLabel,
-      if (editionLabel.trim().isNotEmpty) editionLabel,
-      if (libraryEntry?.personal.grade?.trim().isNotEmpty == true)
-        libraryEntry!.personal.grade!.trim(),
-    ].join(' ');
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final stacked = constraints.maxWidth < 680;
-        final hasBackCover = localBack?.isNotEmpty == true;
-        final showBothCovers =
-            hasBackCover && !stacked && constraints.maxWidth >= 860;
-
-        Widget buildCoverFrame({
-          required bool back,
-          required double width,
-        }) {
-          return SizedBox(
-            width: width,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5),
-                border: Border.all(color: border, width: 1.1),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).shadowColor.withValues(
-                          alpha: appPalette(context).isDark ? 0.5 : 0.16,
-                        ),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Stack(
-                  children: [
-                    LibraryInteractiveCover(
-                      title: dto.primaryLabel,
-                      itemNumber: adapter?.itemNumber,
-                      imageUrl:
-                          back ? null : (dto.imageUrl ?? comic?.coverImageUrl),
-                      localBytes: back ? localBack : localFront,
-                      libraryEntryRef: back ? null : libraryEntryRef,
-                      accentColor: request.accent,
-                      fit: BoxFit.cover,
-                      enableHoverCue: true,
-                      enableSecondaryControl: false,
-                      onMissingSecondaryPressed:
-                          back || libraryEntryRef == null || db == null
-                              ? null
-                              : () async {
-                                  final savedType =
-                                      await pickAndStoreLibraryEntryImage(
-                                    context: context,
-                                    db: db,
-                                    libraryEntryRef: libraryEntryRef,
-                                    imageType: 'back_cover',
-                                  );
-                                  if (savedType == 'back_cover') {
-                                    ref.invalidate(
-                                      localItemImageProvider((
-                                        libraryEntryRef: libraryEntryRef,
-                                        imageType: 'back_cover',
-                                      )),
-                                    );
-                                  }
-                                },
-                    ),
-                    if (!back && showSlabOverlay)
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        child: _ComicSlabCoverOverlay(
-                          label: slabLabel,
-                          grade: slabGrade,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }
-
-        final coverWidth = stacked ? 120.0 : 140.0;
-        final splitCoverWidth = stacked ? 120.0 : 116.0;
-        final showBackInSingle = hasBackCover && _showBackCover;
-
-        final cover = Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (showBothCovers)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  buildCoverFrame(back: false, width: splitCoverWidth),
-                  const SizedBox(width: 6),
-                  buildCoverFrame(back: true, width: splitCoverWidth),
-                ],
-              )
-            else
-              buildCoverFrame(
-                back: showBackInSingle,
-                width: coverWidth,
-              ),
-            if (!showBothCovers && hasBackCover) ...[
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  _ComicCoverToggleCheckbox(
-                    label: 'Front',
-                    value: !showBackInSingle,
-                    onChanged: (value) {
-                      if (!value || !mounted) {
-                        return;
-                      }
-                      setState(() => _showBackCover = false);
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  _ComicCoverToggleCheckbox(
-                    label: 'Back',
-                    value: showBackInSingle,
-                    onChanged: (value) {
-                      if (!value || !mounted) {
-                        return;
-                      }
-                      setState(() => _showBackCover = true);
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ],
-        );
-
-        final infoColumn = Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (subtitleLabel.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(
-                  subtitleLabel,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: muted,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                        height: 1.1,
-                      ),
-                ),
-              ),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                _ComicIssueBadge(referenceLabel: referenceLabel),
-                _ComicMetaBadge(label: 'Edition', value: editionLabel),
-                _ComicMetaBadge(
-                  label: 'Status',
-                  value: statusLabel,
-                  icon: _ComicCollectionStatusIcon(
-                    entry: isEntry,
-                    wishlisted: item.source.isWishlisted,
-                    accent: request.accent,
-                    muted: muted,
-                  ),
-                ),
-              ],
-            ),
-            if (keyReason != null) ...[
-              const SizedBox(height: 6),
-              _ComicKeyReasonBanner(reason: keyReason),
-            ],
-            const SizedBox(height: 6),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: border),
-                      color: palette.surfaceSubtle.withValues(
-                        alpha: palette.isDark ? 0.6 : 0.9,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                      child: Column(
-                        children: [
-                          if (seriesLabel != null)
-                            _ComicDetailLine(
-                                label: 'Series', value: seriesLabel),
-                          if (formatLabel != null)
-                            _ComicDetailLine(
-                                label: 'Format', value: formatLabel),
-                          _ComicDetailLine(
-                              label: 'Release', value: releaseLabel),
-                          if (publisherLabel.isNotEmpty)
-                            _ComicDetailLine(
-                                label: 'Publisher', value: publisherLabel),
-                          if (comicDto?.barcode?.trim().isNotEmpty == true)
-                            _ComicDetailLine(
-                                label: 'Barcode',
-                                value: comicDto!.barcode!.trim()),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 126),
-                  child: Column(
-                    children: [
-                      if (gradeValueLabel.isNotEmpty)
-                        _ComicValueRibbon(
-                          accent: request.accent,
-                          label: gradeValueLabel,
-                        ),
-                      const SizedBox(height: 6),
-                      _ComicEbayCard(
-                        query: ebayQuery,
-                        accent: request.accent,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Plot',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: muted,
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(height: 3),
-            if (synopsis?.isNotEmpty == true) ...[
-              Text(
-                synopsis!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: ink,
-                      height: 1.4,
-                      fontWeight: FontWeight.w600,
-                    ),
-                textAlign: TextAlign.start,
-              ),
-              if (plotDescription?.isNotEmpty == true)
-                const SizedBox(height: 6),
-            ],
-            if (plotDescription?.isNotEmpty == true)
-              Text(
-                plotDescription!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: ink.withValues(alpha: 0.85),
-                      height: 1.4,
-                      fontWeight: FontWeight.w500,
-                    ),
-                textAlign: TextAlign.start,
-              ),
-            if (synopsis?.isEmpty != false && plotDescription?.isEmpty != false)
-              Text(
-                'No plot available.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: muted,
-                      height: 1.4,
-                      fontWeight: FontWeight.w500,
-                    ),
-                textAlign: TextAlign.start,
-              ),
-          ],
-        );
-
-        final mainBody = _ComicHeroBlock(
-          surface: surface,
-          border: border,
-          title: dto.primaryLabel,
-          overline: seriesLabel,
-          accent: request.accent,
-          child: stacked
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    cover,
-                    const SizedBox(height: 1.5),
-                    infoColumn,
-                  ],
-                )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    cover,
-                    const SizedBox(width: 1.5),
-                    Expanded(child: infoColumn),
-                  ],
-                ),
-        );
-
-        return mainBody;
-      },
-    );
-  }
-}
-
-class _ComicHeroBlock extends StatelessWidget {
-  const _ComicHeroBlock({
-    required this.surface,
-    required this.border,
-    required this.title,
-    this.overline,
-    required this.accent,
-    required this.child,
-  });
-
-  final Color surface;
-  final Color border;
-  final String title;
-  final String? overline;
-  final Color accent;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: surface,
-        border: Border.all(color: border),
-        borderRadius: BorderRadius.circular(4),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 4,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (overline != null && overline!.trim().isNotEmpty) ...[
-              Text(
-                overline!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: accent,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-              const SizedBox(height: 4),
-            ],
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: appPalette(context).textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ComicIssueBadge extends StatelessWidget {
-  const _ComicIssueBadge({required this.referenceLabel});
-
-  final String referenceLabel;
-
-  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-      decoration: BoxDecoration(
-        border: Border.all(color: palette.divider.withValues(alpha: 0.7)),
-        color: Color.alphaBlend(
-          palette.accent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
-          palette.surface,
-        ),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Text(
-        referenceLabel,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: palette.textPrimary,
-              fontWeight: FontWeight.w900,
-              fontSize: 12,
-              letterSpacing: 0.14,
-            ),
-      ),
-    );
-  }
-}
+    final comic = comicInspectorItem(request);
+    final entry = comicInspectorEntry(request);
+    final series = comic?.seriesTitle?.trim() ?? '';
+    final title = comic?.title.trim() ?? '';
+    final heading = series.isNotEmpty
+        ? series
+        : (title.isNotEmpty ? title : request.item.dto.primaryLabel);
+    final issue =
+        '${comic?.issueNumber?.trim() ?? ''}${comic?.variant?.trim() ?? ''}';
+    final subtitle = [
+      ...?comic?.storyArcs
+          .map((arc) => arc.name?.trim() ?? '')
+          .where((name) => name.isNotEmpty),
+      if (title.isNotEmpty && title != heading) title,
+      if (comic?.subtitle?.trim() case final value? when value.isNotEmpty)
+        value,
+    ].join(' - ');
+    final keyReason = entry?.personal.details.keyReason?.trim() ?? '';
+    final onFilter = request.onFilterByValue;
 
-class _ComicMetaBadge extends StatelessWidget {
-  const _ComicMetaBadge({
-    required this.label,
-    required this.value,
-    this.icon,
-  });
-
-  final String label;
-  final String value;
-  final Widget? icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: palette.textMuted,
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
-          letterSpacing: 0.08,
-        );
-    final valueStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: palette.textPrimary,
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
-          letterSpacing: 0.08,
-        );
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      decoration: BoxDecoration(
-        border: Border.all(color: palette.divider.withValues(alpha: 0.7)),
-        color: palette.surface,
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            icon!,
-            const SizedBox(width: 4),
-          ],
-          Text(
-            '$label ',
-            style: labelStyle,
-          ),
-          Text(
-            value,
-            style: valueStyle,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ComicCoverToggleCheckbox extends StatelessWidget {
-  const _ComicCoverToggleCheckbox({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String label;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return InkWell(
-      mouseCursor: WidgetStateMouseCursor.clickable,
-      onTap: () => onChanged(!value),
-      borderRadius: BorderRadius.circular(4),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 18,
-              height: 18,
-              child: Checkbox(
-                value: value,
-                onChanged: (next) => onChanged(next == true),
-                visualDensity: VisualDensity.compact,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: palette.textMuted,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ComicSlabCoverOverlay extends StatelessWidget {
-  const _ComicSlabCoverOverlay({
-    required this.label,
-    required this.grade,
-  });
-
-  final String label;
-  final String grade;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Container(
-      key: const ValueKey('comic-inspector-slab-overlay'),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1565C0).withValues(alpha: 0.96),
-        border: Border(
-          bottom: BorderSide(
-            color: palette.surface.withValues(alpha: 0.6),
-            width: 0.6,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label.toUpperCase(),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.16,
-                height: 1,
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(2),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-              child: Text(
-                grade,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  height: 1,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ComicKeyReasonBanner extends StatelessWidget {
-  const _ComicKeyReasonBanner({required this.reason});
-
-  final String reason;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      decoration: BoxDecoration(
-        color: palette.surfaceSubtle,
-        border: Border.all(color: palette.divider),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.key_outlined, size: 13),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              reason,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: palette.textPrimary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                  ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ComicValueRibbon extends StatelessWidget {
-  const _ComicValueRibbon({required this.accent, required this.label});
-
-  final Color accent;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: Color.alphaBlend(accent.withValues(alpha: 0.1), palette.surface),
-        border: Border.all(color: accent.withValues(alpha: 0.35)),
-      ),
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: accent,
-              fontWeight: FontWeight.w900,
-              fontSize: 12,
-            ),
-      ),
-    );
-  }
-}
-
-class _ComicEbayCard extends StatelessWidget {
-  const _ComicEbayCard({
-    required this.query,
-    required this.accent,
-  });
-
-  final String query;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return InkWell(
-      mouseCursor: WidgetStateMouseCursor.clickable,
-      onTap: query.trim().isEmpty ? null : () => launchEbaySearch(query),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-        decoration: BoxDecoration(
-          border: Border.all(color: palette.divider),
-          color: palette.surface,
-          borderRadius: BorderRadius.circular(3),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.storefront_outlined, size: 13, color: accent),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                'Find sold listings on eBay',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: palette.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(
-              Icons.open_in_new,
-              size: 12,
-              color: palette.textMuted,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ComicCollectionStatusIcon extends StatelessWidget {
-  const _ComicCollectionStatusIcon({
-    required this.entry,
-    required this.wishlisted,
-    required this.accent,
-    required this.muted,
-  });
-
-  final bool entry;
-  final bool wishlisted;
-  final Color accent;
-  final Color muted;
-
-  @override
-  Widget build(BuildContext context) {
-    final icon = entry
-        ? Icons.check_circle
-        : wishlisted
-            ? Icons.favorite
-            : Icons.remove_circle_outline;
-    final color = entry
-        ? accent
-        : wishlisted
-            ? Colors.red.shade400
-            : muted;
-    return Icon(icon, size: 12, color: color);
-  }
-}
-
-class _ComicDetailLine extends StatelessWidget {
-  const _ComicDetailLine({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 60,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: palette.textMuted,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.16,
-                    height: 1,
-                  ),
-            ),
-          ),
-          const SizedBox(width: 4),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: palette.textPrimary,
-                    fontWeight: FontWeight.w700,
-                    height: 1.2,
-                  ),
+            child: _FilterText(
+              value: heading,
+              filterValue: series.isEmpty ? null : series,
+              onFilter: onFilter,
+              style: TextStyle(
+                  fontSize: 24,
+                  height: 27 / 24,
+                  fontWeight: kAppBoldFontWeight,
+                  color: palette.detailHeading),
             ),
           ),
-        ],
-      ),
+          if (issue.isNotEmpty) _IssueBadge('#$issue'),
+        ]),
+        if (subtitle.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(subtitle,
+                style: TextStyle(fontSize: 16, color: palette.textMuted)),
+          ),
+        if (keyReason.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Container(
+                width: 22,
+                height: 18,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: palette.textMuted.withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                child: const Icon(Icons.vpn_key, size: 12, color: Colors.white),
+              ),
+              Expanded(
+                child: Text(keyReason,
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: kAppBoldFontWeight,
+                        color: palette.textPrimary)),
+              ),
+            ]),
+          ),
+        const SizedBox(height: 10),
+        LayoutBuilder(builder: (context, constraints) {
+          final cover = _ComicCover(
+              title: heading, comic: comic, entry: entry, width: 140);
+          final facts = _ComicFacts(
+              comic: comic,
+              onFilter: onFilter,
+              ebayQuery: '$heading #$issue',
+              isWishlisted: request.item.source.isWishlisted);
+          final plot = _ComicReadAndPlot(comic: comic, entry: entry);
+          if (constraints.maxWidth < 560) {
+            return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    cover,
+                    const SizedBox(width: 12),
+                    Expanded(child: facts),
+                  ]),
+                  const SizedBox(height: 12),
+                  plot,
+                ]);
+          }
+          return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            cover,
+            const SizedBox(width: 12),
+            SizedBox(width: 190, child: facts),
+            const SizedBox(width: 12),
+            Expanded(child: plot),
+          ]);
+        }),
+      ]),
     );
   }
 }
 
-String? _slabMarkerLabel(String? rawOrSlabbed, String? gradingCompany) {
-  final slab = rawOrSlabbed?.trim();
-  final company = gradingCompany?.trim();
-  if ((slab == null || slab.isEmpty) && (company == null || company.isEmpty)) {
-    return null;
+class _IssueBadge extends StatelessWidget {
+  const _IssueBadge(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Container(
+      margin: const EdgeInsets.only(left: 8, top: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+      decoration: BoxDecoration(
+        border: Border.all(color: palette.textPrimary, width: 1.5),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Text(label,
+          style: TextStyle(
+              fontSize: 16,
+              fontWeight: kAppBoldFontWeight,
+              color: palette.textPrimary)),
+    );
   }
-  if (slab?.isNotEmpty == true && company?.isNotEmpty == true) {
-    return '$slab - $company';
+}
+
+class _ComicCover extends StatelessWidget {
+  const _ComicCover({
+    required this.title,
+    required this.comic,
+    required this.entry,
+    required this.width,
+  });
+
+  final String title;
+  final ComicCatalogItem? comic;
+  final ComicLibraryEntry? entry;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        width: width,
+        child: LibraryCoverImage(
+          title: title,
+          imageUrl: comic?.coverImageUrl,
+          libraryEntryRef: entry == null
+              ? null
+              : LibraryEntryRef(kind: CatalogMediaKind.comic, id: entry!.id),
+          fallbackAspectRatio: 0.66,
+          borderRadius: 0,
+        ),
+      );
+}
+
+/// Variant, Release and Cover dates, publisher, barcode and the eBay link.
+class _ComicFacts extends ConsumerWidget {
+  const _ComicFacts({
+    required this.comic,
+    required this.onFilter,
+    required this.ebayQuery,
+    required this.isWishlisted,
+  });
+
+  final ComicCatalogItem? comic;
+  final ValueChanged<String>? onFilter;
+  final String ebayQuery;
+  final bool isWishlisted;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
+    final bold = TextStyle(
+        fontSize: 15,
+        fontWeight: kAppBoldFontWeight,
+        color: palette.textPrimary);
+    final variant = comic?.variantDescription?.trim() ?? '';
+    final release = _date(comic?.releaseDateParts, comic?.releaseDate);
+    final cover = _date(comic?.coverDateParts, comic?.coverDate);
+    final publisher = comic?.publisher?.trim() ?? '';
+    final imprint = comic?.imprint?.trim() ?? '';
+    final barcode = comic?.barcode?.trim() ?? '';
+    Widget dated(String label, String value) => Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Row(children: [
+            SizedBox(width: 66, child: Text('$label:', style: bold)),
+            Expanded(child: Text(value, style: bold)),
+          ]),
+        );
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      if (variant.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(variant, style: bold),
+        ),
+      if (release.isNotEmpty) dated('Release', release),
+      if (cover.isNotEmpty) dated('Cover', cover),
+      for (final name in [publisher, imprint])
+        if (name.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: _FilterText(
+                value: name,
+                onFilter: onFilter,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: kAppBoldFontWeight,
+                    color: palette.textPrimary)),
+          ),
+      if (barcode.isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(children: [
+            Icon(AppIcons.barcode, size: 14, color: palette.textPrimary),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(barcode,
+                  style: TextStyle(fontSize: 14, color: palette.textPrimary)),
+            ),
+          ]),
+        ),
+      if (ref.watch(uiPreferencesProvider) case final preferences
+          when preferences.ebayNextToCover &&
+              preferences.allowsEbayLinks(isWishlisted))
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () =>
+                  launchEbaySearch(ebayQuery, isWishlisted: isWishlisted),
+              child: Text('Find sold listings on eBay',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: palette.link,
+                      decoration: TextDecoration.underline,
+                      decorationColor: palette.link)),
+            ),
+          ),
+        ),
+    ]);
   }
-  return slab?.isNotEmpty == true ? slab : company;
+}
+
+/// The Read check of a collection copy, then the plot.
+class _ComicReadAndPlot extends StatelessWidget {
+  const _ComicReadAndPlot({required this.comic, required this.entry});
+
+  final ComicCatalogItem? comic;
+  final ComicLibraryEntry? entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final read = entry?.personal.reading.status == 'Read';
+    final plot = [comic?.synopsis, comic?.description]
+        .map((value) => value?.trim() ?? '')
+        .where((value) => value.isNotEmpty)
+        .toSet();
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      if (entry != null)
+        Tooltip(
+          message: read ? 'Read' : 'Not read',
+          child: Icon(read ? Icons.check_box : Icons.check_box_outline_blank,
+              size: 30,
+              color: read ? palette.utilityAction : palette.textMuted),
+        ),
+      for (final text in plot)
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: AppFormattedText(text,
+              textAlign: TextAlign.justify,
+              style: TextStyle(
+                  fontSize: 14, height: 18 / 14, color: palette.textPrimary)),
+        ),
+    ]);
+  }
+}
+
+class _FilterText extends StatelessWidget {
+  const _FilterText({
+    required this.value,
+    required this.onFilter,
+    required this.style,
+    String? filterValue,
+  }) : filterValue = filterValue ?? value;
+
+  final String value;
+  final String? filterValue;
+  final ValueChanged<String>? onFilter;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    final onTap = onFilter == null || filterValue == null
+        ? null
+        : () => onFilter!(filterValue!);
+    return MouseRegion(
+      cursor:
+          onTap == null ? SystemMouseCursors.basic : SystemMouseCursors.click,
+      child: GestureDetector(onTap: onTap, child: Text(value, style: style)),
+    );
+  }
+}
+
+String _date(PartialDate? parts, DateTime? date) {
+  final value = parts ?? (date == null ? null : PartialDate.fromDateTime(date));
+  return value == null ? '' : AppFormats.current.formatPartialDate(value);
 }

@@ -1,724 +1,265 @@
-import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
-
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
-import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
-import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
-import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
+    show LibraryCollectionStatusScopeUi;
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_character.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/creator_roles.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector/hero.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
+    show libraryCollectionStatusFromValue;
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-class ComicInspectorTabsSection extends ConsumerStatefulWidget {
-  const ComicInspectorTabsSection({
-    super.key,
-    required this.request,
-  });
-
-  final LibraryInspectorRequest request;
-
-  @override
-  ConsumerState<ComicInspectorTabsSection> createState() =>
-      _ComicInspectorTabsSectionState();
-}
-
-class _ComicInspectorTabsSectionState
-    extends ConsumerState<ComicInspectorTabsSection> {
-  var _selectedTabIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    final tabs = _comicInspectorTabs(widget.request);
-    final selectedTab = tabs[_selectedTabIndex.clamp(0, tabs.length - 1)];
-    return LibraryDetailSection(
-      title: 'Comic detail',
-      children: [
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (var i = 0; i < tabs.length; i++)
-              ChoiceChip(
-                selected: i == _selectedTabIndex,
-                label: Text(tabs[i].label),
-                avatar: Icon(tabs[i].icon, size: 14),
-                onSelected: (_) => setState(() => _selectedTabIndex = i),
-              ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        selectedTab.build(context, ref),
-      ],
-    );
-  }
-}
-
-class _ComicInspectorTab {
-  const _ComicInspectorTab({
-    required this.label,
-    required this.icon,
-    required this.builder,
-  });
-
-  final String label;
-  final IconData icon;
-  final Widget Function(BuildContext context, WidgetRef ref) builder;
-
-  Widget build(BuildContext context, WidgetRef ref) => builder(context, ref);
-}
-
-List<_ComicInspectorTab> _comicInspectorTabs(
-  LibraryInspectorRequest request,
-) {
-  final item = request.item;
-  final catalogItem = item.dto is ComicWorkspaceDto
-      ? (item.dto as ComicWorkspaceDto).comic
-      : null;
-  final synopsis = catalogItem?.synopsis?.trim();
-  final genres = catalogItem?.genres ?? const <String>[];
-  final storyArcs = catalogItem?.storyArcs
-          .map((arc) => arc.name?.trim())
-          .whereType<String>()
-          .where((name) => name.isNotEmpty)
-          .toList(growable: false) ??
-      const <String>[];
-  final characters = catalogItem?.characters
-          .map((character) => character.name?.trim())
-          .whereType<String>()
-          .where((name) => name.isNotEmpty)
-          .toList(growable: false) ??
-      const <String>[];
-  final creators = catalogItem?.creators
-          .map((creator) => creator.toJson())
-          .toList(growable: false) ??
-      const <Map<String, dynamic>>[];
-  final libraryEntry =
-      ComicLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
-
-  final tabs = <_ComicInspectorTab>[
-    _ComicInspectorTab(
-      label: 'Overview',
-      icon: Icons.dashboard_outlined,
-      builder: (context, ref) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LibraryDetailSection(
-            title: 'Overview',
-            children: [
-              LibraryDetailFieldTable(fields: _detailFacts(item)),
-              if (synopsis?.isNotEmpty == true) ...[
-                const SizedBox(height: 8),
-                Text(
-                  synopsis!,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-              if (genres.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                LibraryDetailSection(
-                  title: 'Genres',
-                  children: [
-                    LibraryDetailChipGroupWidget(
-                      label: 'Genres',
-                      values: genres,
-                      onValueTap: request.onFilterByValue,
-                    ),
-                  ],
-                ),
-              ],
-              if (storyArcs.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                LibraryDetailSection(
-                  title: 'Story arcs',
-                  children: [
-                    LibraryDetailChipGroupWidget(
-                      label: 'Story arcs',
-                      values: storyArcs,
-                      onValueTap: request.onFilterByValue,
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
-    ),
-    _ComicInspectorTab(
-      label: 'Value Details',
-      icon: Icons.workspace_premium_outlined,
-      builder: (context, ref) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LibraryDetailSection(
-            title: 'Value details',
-            children: [
-              LibraryDetailFieldTable(
-                  fields: _valueFacts(item, request.libraryEntry))
-            ],
-          ),
-          if (libraryEntry != null) ...[
-            const SizedBox(height: 8),
-            LibraryDetailSection(
-              title: 'Collector',
-              children: [
-                LibraryDetailFieldTable(fields: _collectorFacts(libraryEntry))
-              ],
-            ),
-          ],
-        ],
-      ),
-    ),
-    _ComicInspectorTab(
-      label: 'Characters',
-      icon: Icons.groups_2_outlined,
-      builder: (context, ref) => LibraryDetailSection(
-        title: 'Characters',
-        headerActions: [
-          if (request.onEdit != null)
-            _editSectionAction(request.onEdit!, tooltip: 'Edit characters'),
-        ],
-        children: [
-          LibraryDetailChipGroupWidget(
-            label: 'Characters',
-            values: characters,
-            onValueTap: request.onFilterByValue,
-          ),
-        ],
-      ),
-    ),
-    _ComicInspectorTab(
-      label: 'Creators',
-      icon: Icons.group_outlined,
-      builder: (context, ref) => _ComicCreatorsGroupedSection(
-        creators: creators,
-        onValueTap: request.onFilterByValue,
-        headerActions: [
-          if (request.onEdit != null)
-            _editSectionAction(request.onEdit!, tooltip: 'Edit creators'),
-        ],
-      ),
-    ),
-    _ComicInspectorTab(
-      label: 'Series',
-      icon: Icons.auto_stories_outlined,
-      builder: (context, ref) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LibraryDetailSection(
-            title: 'Series metadata',
-            children: [
-              LibraryDetailFieldTable(fields: _seriesFacts(request.item))
-            ],
-          ),
-          const SizedBox(height: 8),
-          ComicSeriesCompletenessSection(
-            request: request,
-          ),
-        ],
-      ),
-    ),
-    _ComicInspectorTab(
-      label: 'Links',
-      icon: Icons.public,
-      builder: (context, ref) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (_noteFacts(libraryEntry).isNotEmpty)
-            LibraryDetailSection(
-              title: 'Notes',
-              children: [
-                LibraryDetailFieldTable(fields: _noteFacts(libraryEntry))
-              ],
-            ),
-          if (_linkFacts(request.item).isNotEmpty) ...[
-            const SizedBox(height: 8),
-            LibraryDetailSection(
-              title: 'Links',
-              children: [
-                LibraryDetailFieldTable(fields: _linkFacts(request.item))
-              ],
-            ),
-          ],
-          if (_comicLinks(request.item).any((link) => link.isTrailerLink)) ...[
-            const SizedBox(height: 8),
-            InspectorLinksTrailersSection(request: request),
-          ],
-        ],
-      ),
-    ),
-  ];
-  return switch (request.item.target) {
-    CatalogTargetRef() => [
-        for (final tab in tabs)
-          if (tab.label != 'Value Details') tab,
-      ],
-    EntryTargetRef() => [
-        for (final tab in tabs)
-          if (tab.label == 'Overview' ||
-              tab.label == 'Value Details' ||
-              tab.label == 'Links')
-            tab,
-      ],
-  };
-}
-
-Widget _editSectionAction(
-  VoidCallback onPressed, {
-  required String tooltip,
-}) {
-  return Tooltip(
-    message: tooltip,
-    child: SizedBox(
-      width: 30,
-      height: 30,
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          padding: EdgeInsets.zero,
-          visualDensity: VisualDensity.compact,
-        ),
-        onPressed: onPressed,
-        child: const Icon(Icons.edit_outlined, size: 16),
-      ),
-    ),
-  );
-}
 
 List<Widget> buildComicCatalogItemInspectorSections(
   BuildContext _,
   LibraryInspectorRequest request,
-) {
-  return [
-    ComicInspectorTabsSection(
-      request: request,
-    ),
-  ];
-}
+) =>
+    [ComicInspectorSections(request: request)];
 
 List<Widget> buildComicLibraryEntryInspectorSections(
   BuildContext _,
   LibraryInspectorRequest request,
-) {
-  return [
-    ComicInspectorTabsSection(
-      request: request,
-    ),
-  ];
-}
+) =>
+    [ComicInspectorSections(request: request)];
 
-class ComicSeriesCompletenessSection extends ConsumerWidget {
-  const ComicSeriesCompletenessSection({
-    super.key,
-    required this.request,
-  });
+/// The reference details below the header: Creators, Characters and Details
+/// side by side, then Personal and Value, then Links. Columns wrap onto
+/// further rows when the panel is narrow.
+class ComicInspectorSections extends StatelessWidget {
+  const ComicInspectorSections({super.key, required this.request});
 
   final LibraryInspectorRequest request;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final seriesId = _comicMetadata(request.item)?.seriesId;
-    if (seriesId == null || seriesId.trim().isEmpty) {
-      return LibraryDetailSection(
-        title: 'Series completeness',
-        children: const [
-          Text('No series id is available for this comic.'),
-        ],
-      );
-    }
-    final itemsAsync = ref.watch(_comicSeriesItemsProvider(seriesId));
-    return itemsAsync.when(
-      loading: () => LibraryDetailSection(
-        title: 'Series completeness',
-        children: const [Text('Loading series issues...')],
-      ),
-      error: (error, _) => LibraryDetailSection(
-        title: 'Series completeness',
-        children: [Text('Failed to load series issues: $error')],
-      ),
-      data: (items) {
-        final Set<String> entryIds = {
-          for (final entry in request.libraryEntries) entry.ref.id.value,
-        };
-        final missingNumbers = _computeMissingIssues(items, entryIds);
-        final entryCount = items
-            .where((item) => entryIds.contains(item['id']?.toString()))
-            .length;
-        return LibraryDetailSection(
-          title: 'Series completeness',
+  Widget build(BuildContext context) {
+    final comic = comicInspectorItem(request);
+    final entry = comicInspectorEntry(request);
+    final onFilter = request.onFilterByValue;
+    Widget section(String title, List<LibraryDetailField> fields) =>
+        LibraryDetailSection(
+          title: title,
+          collapsible: false,
           children: [
             LibraryDetailFieldTable(
-              fields: [
-                LibraryDetailField(
-                    label: 'Series',
-                    value: _comicMetadata(request.item)?.seriesTitle ??
-                        _comicMetadata(request.item)?.title ??
-                        request.item.dto.primaryLabel),
-                LibraryDetailField(
-                    label: 'Items', value: items.length.toString()),
-                LibraryDetailField(
-                    label: 'Entry', value: entryCount.toString()),
-                LibraryDetailField(
-                    label: 'Missing', value: missingNumbers.length.toString()),
-              ],
-            ),
-            if (missingNumbers.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  for (final number in missingNumbers.take(30))
-                    Chip(
-                      label: Text('#$number'),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  if (missingNumbers.length > 30)
-                    Chip(label: Text('+${missingNumbers.length - 30} more')),
-                ],
-              ),
-            ] else
-              const Text(
-                  'No missing issues detected for the collection items in this series.'),
+                fields: fields,
+                minCellWidth: 260,
+                labelWidth: 104,
+                showHeader: false),
           ],
         );
-      },
+    final creators = _creatorFields(comic, onFilter);
+    final characters = _characterFields(comic, onFilter);
+    final details = _detailFields(comic, onFilter);
+    final personal = entry == null
+        ? const <LibraryDetailField>[]
+        : _personal(entry, request.item.source.addedAt);
+    final value = entry == null ? const <LibraryDetailField>[] : _value(entry);
+    final links =
+        comic?.links.where((link) => link.isExternalLink).toList() ?? const [];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        _Columns(children: [
+          if (creators.isNotEmpty) section('Creators', creators),
+          if (characters.isNotEmpty) section('Characters', characters),
+          if (details.isNotEmpty) section('Details', details),
+        ]),
+        _Columns(children: [
+          if (personal.isNotEmpty) section('Personal', personal),
+          if (value.isNotEmpty) section('Value', value),
+        ]),
+        if (links.isNotEmpty)
+          LibraryDetailSection(title: 'Links', collapsible: false, children: [
+            for (final link in links)
+              InkWell(
+                onTap: () => launchUrl(Uri.parse(link.url)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Text(link.title ?? link.url,
+                      style: TextStyle(
+                          fontSize: 14, color: appPalette(context).link)),
+                ),
+              ),
+          ]),
+      ]),
     );
   }
 }
 
-class _ComicCreatorsGroupedSection extends StatelessWidget {
-  const _ComicCreatorsGroupedSection({
-    required this.creators,
-    required this.onValueTap,
-    this.headerActions = const [],
-  });
+/// Lays sections out in as many equal columns as fit, at least 300 px each.
+class _Columns extends StatelessWidget {
+  const _Columns({required this.children});
 
-  final List<Map<String, dynamic>> creators;
-
-  final ValueChanged<String>? onValueTap;
-  final List<Widget> headerActions;
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    if (creators.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    final grouped = <String, List<_ComicCreatorChipData>>{};
-    for (final credit in creators) {
-      final name = credit['name']?.toString().trim();
-      if (name == null || name.isEmpty) continue;
-      final role = _comicCreatorRoleLabel(credit);
-      grouped.putIfAbsent(role, () => <_ComicCreatorChipData>[]).add(
-            _ComicCreatorChipData(
-              name: name,
-              imageUrl: credit['image_url']?.toString().trim(),
-            ),
-          );
-    }
-    final entries = grouped.entries.toList(growable: false);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (var i = 0; i < entries.length; i++) ...[
-          LibraryDetailSection(
-            title: entries[i].key,
-            headerActions: headerActions,
-            children: [
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  for (final creator in entries[i].value)
-                    ActionChip(
-                      avatar: creator.imageUrl == null ||
-                              creator.imageUrl!.isEmpty
-                          ? const Icon(Icons.person, size: 12)
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(creator.imageUrl!),
-                              radius: 10,
-                            ),
-                      label: Text(creator.name),
-                      onPressed: onValueTap == null
-                          ? null
-                          : () => onValueTap!(creator.name),
-                      visualDensity: VisualDensity.compact,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                ],
-              ),
-            ],
-          ),
-          if (i != entries.length - 1) const SizedBox(height: 8),
-        ],
-      ],
+    if (children.isEmpty) return const SizedBox.shrink();
+    return LayoutBuilder(builder: (context, constraints) {
+      final perRow =
+          (constraints.maxWidth / 300).floor().clamp(1, children.length);
+      final width = constraints.maxWidth / perRow;
+      return Wrap(children: [
+        for (final child in children) SizedBox(width: width, child: child),
+      ]);
+    });
+  }
+}
+
+LibraryDetailField _field(String label, String value,
+        {ValueChanged<String>? onFilter}) =>
+    LibraryDetailField(
+      label: label,
+      value: value,
+      onTap: onFilter == null ? null : () => onFilter(value),
     );
-  }
-}
 
-class _ComicCreatorChipData {
-  const _ComicCreatorChipData({
-    required this.name,
-    required this.imageUrl,
-  });
+/// Creators by role, in the reference role order, other roles after.
+List<LibraryDetailField> _creatorFields(
+    ComicCatalogItem? comic, ValueChanged<String>? onFilter) {
+  final byRole = <String, List<String>>{};
+  for (final creator in comic?.creators ?? const <ComicCreator>[]) {
+    final name = creator.name?.trim() ?? '';
+    if (name.isEmpty) continue;
+    final role = (creator.role ?? creator.roleId ?? '').trim();
+    byRole.putIfAbsent(role.isEmpty ? 'Creator' : role, () => []).add(name);
+  }
+  final roles = byRole.keys.toList()
+    ..sort((a, b) {
+      int rank(String role) {
+        final index = kComicCreatorRoles
+            .indexWhere((known) => known.toLowerCase() == role.toLowerCase());
+        return index < 0 ? kComicCreatorRoles.length : index;
+      }
 
-  final String name;
-  final String? imageUrl;
-}
-
-String _comicCreatorRoleLabel(Map<String, dynamic> credit) {
-  final roleId = credit['role_id']?.toString().trim() ??
-      credit['roleId']?.toString().trim();
-  final role = credit['role']?.toString().trim();
-  if (roleId != null && roleId.isNotEmpty) {
-    return roleId;
-  }
-  if (role != null && role.isNotEmpty) {
-    return role;
-  }
-  return 'Creators';
-}
-
-final _comicSeriesItemsProvider =
-    FutureProvider.autoDispose.family<List<Map<String, dynamic>>, String>(
-  (ref, seriesId) async {
-    final api = ref.watch(apiClientProvider);
-    return api.getSeriesItems(seriesId);
-  },
-);
-
-List<LibraryDetailField> _detailFacts(LibraryProjectionView item) {
-  final dto = item.dto;
-  final adapter = dto is ComicWorkspaceDto ? dto : null;
-  final metadata = _comicMetadata(item);
-  final rows = <LibraryDetailField>[];
-  if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(
-        label: 'Format', value: adapter!.referenceFormatLabel!.trim()));
-  }
-  if (adapter?.country?.trim().isNotEmpty == true) {
-    rows.add(
-        LibraryDetailField(label: 'Country', value: adapter!.country!.trim()));
-  }
-  if (adapter?.language?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(
-        label: 'Language', value: adapter!.language!.trim()));
-  }
-  if (metadata?.pageCount != null) {
-    rows.add(LibraryDetailField(
-        label: 'Pages', value: metadata!.pageCount.toString()));
-  }
-  return rows;
-}
-
-List<LibraryDetailField> _seriesFacts(LibraryProjectionView item) {
-  final metadata = _comicMetadata(item);
-  final rows = <LibraryDetailField>[];
-  if (metadata?.seriesTitle?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(
-        label: 'Series', value: metadata!.seriesTitle!.trim()));
-  }
-  if (metadata?.seriesId?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(
-        label: 'Series ID', value: metadata!.seriesId!.trim()));
-  }
-  if (metadata?.volumeName?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(
-        label: 'Volume', value: metadata!.volumeName!.trim()));
-  }
-  if (metadata?.volumeNumber != null) {
-    rows.add(LibraryDetailField(
-        label: 'Volume no.', value: metadata!.volumeNumber!));
-  }
-  if (metadata?.volumeStartYear != null) {
-    rows.add(LibraryDetailField(
-        label: 'Start year', value: metadata!.volumeStartYear!.toString()));
-  }
-  return rows;
-}
-
-List<LibraryDetailField> _collectorFacts(ComicLibraryEntry? libraryEntry) {
-  if (libraryEntry == null) {
-    return const [];
-  }
-  final rows = <LibraryDetailField>[];
-  final comic = libraryEntry.personal.details;
-  if (comic.rawOrSlabbed?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(
-        label: 'Raw / Slabbed', value: comic.rawOrSlabbed!.trim()));
-  }
-  if (comic.gradingCompany?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(
-        label: 'Grading Co.', value: comic.gradingCompany!.trim()));
-  }
-  if (comic.certificationNumber?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(
-        label: 'Certification', value: comic.certificationNumber!.trim()));
-  }
-  if (comic.keyComic) {
-    rows.add(LibraryDetailField(
-        label: 'Key',
-        value: comic.keyReason?.trim().isNotEmpty == true
-            ? comic.keyReason!.trim()
-            : 'Yes'));
-  }
-  return rows;
-}
-
-List<LibraryDetailField> _valueFacts(
-  LibraryProjectionView item,
-  LibraryEntrySummary? libraryEntry,
-) {
-  if (libraryEntry == null) {
-    return const [];
-  }
-  final snapshot = LibraryValueSnapshot.fromItem(
-    item,
-    purchasePriceCents: item.source.pricePaidCents,
-    soldPriceCents: item.source.sellPriceCents,
-    manualEstimatedValueCents: item.source.marketValueCents,
-    entryCurrency: item.source.currency,
-  );
-
-  final rows = <LibraryDetailField>[];
-  final currency = snapshot.currency;
-
-  if (snapshot.purchasePriceCents != null) {
-    rows.add(LibraryDetailField(
-      label: 'Paid',
-      value: formatMoney(snapshot.purchasePriceCents, currency),
-    ));
-  }
-  if (snapshot.manualEstimatedValueCents != null) {
-    rows.add(LibraryDetailField(
-        label: 'Manual Value',
-        value: formatMoney(
-            snapshot.manualEstimatedValueCents, snapshot.currency)));
-  }
-  if (snapshot.displayPrimaryValueCents != null) {
-    rows.add(LibraryDetailField(
-        label: 'Current Value',
-        value:
-            formatMoney(snapshot.displayPrimaryValueCents, snapshot.currency)));
-  }
-  if (snapshot.insuranceValueCents != null) {
-    rows.add(LibraryDetailField(
-        label: 'Insurance Value',
-        value: formatMoney(snapshot.insuranceValueCents, snapshot.currency)));
-  }
-  if (libraryEntry.pricePaidCents != null) {
-    rows.add(LibraryDetailField(
-        label: 'Paid',
-        value:
-            formatMoney(libraryEntry.pricePaidCents, libraryEntry.currency)));
-  }
-  if (snapshot.unrealizedGainLossCents != null) {
-    rows.add(LibraryDetailField(
-        label: 'Profit / Loss',
-        value:
-            formatMoney(snapshot.unrealizedGainLossCents, snapshot.currency)));
-  }
-
-  return rows;
-}
-
-List<LibraryDetailField> _noteFacts(
-  ComicLibraryEntry? libraryEntry,
-) {
-  final rows = <LibraryDetailField>[];
-  final personalNotes = libraryEntry?.personal.personalNotes?.trim();
-  if (personalNotes != null && personalNotes.isNotEmpty) {
-    rows.add(LibraryDetailField(label: 'Personal', value: personalNotes));
-  }
-  return rows;
-}
-
-List<LibraryDetailField> _linkFacts(LibraryProjectionView item) {
-  final links = _comicLinks(item);
-  if (links.isEmpty) {
-    return const [];
-  }
-
+      final byRank = rank(a).compareTo(rank(b));
+      return byRank != 0 ? byRank : a.compareTo(b);
+    });
   return [
-    for (final trailer in links)
-      LibraryDetailField(
-          label: trailer.source?.trim().isNotEmpty == true
-              ? trailer.source!.trim()
-              : 'Link',
-          value: trailer.title?.trim().isNotEmpty == true
-              ? trailer.title!.trim()
-              : trailer.url,
-          onTap: () => _launchUrl(trailer.url)),
+    for (final role in roles)
+      _field(role, byRole[role]!.join(' | '),
+          onFilter: byRole[role]!.length == 1 ? onFilter : null),
   ];
 }
 
-ComicCatalogItem? _comicMetadata(LibraryProjectionView item) {
-  final dto = item.dto;
-  if (dto is ComicWorkspaceDto) {
-    return dto.comic;
-  }
-  return null;
+List<LibraryDetailField> _characterFields(
+        ComicCatalogItem? comic, ValueChanged<String>? onFilter) =>
+    [
+      for (final character in comic?.characters ?? const <ComicCharacter>[])
+        if (character.name?.trim().isNotEmpty == true)
+          _field(character.name!.trim(), character.realName?.trim() ?? ''),
+    ];
+
+List<LibraryDetailField> _detailFields(
+    ComicCatalogItem? comic, ValueChanged<String>? onFilter) {
+  if (comic == null) return const [];
+  final rows = <(String, String?, bool)>[
+    ('Age', comic.publicationAge, true),
+    ('Format', comic.physicalFormat, true),
+    ('Genre', comic.genres.join(' | '), comic.genres.length == 1),
+    ('No. of Pages', comic.pageCount?.toString(), false),
+    ('Country', comic.country, true),
+    ('Language', comic.language, true),
+    ('Series Group', comic.seriesGroup, true),
+    ('Crossover', comic.crossover, true),
+    ('Age Rating', comic.ageRating, true),
+  ];
+  return [
+    for (final (label, value, filterable) in rows)
+      if (value?.trim().isNotEmpty == true)
+        _field(label, value!.trim(), onFilter: filterable ? onFilter : null),
+  ];
 }
 
-List<ComicLink> _comicLinks(LibraryProjectionView item) =>
-    _comicMetadata(item)?.links ?? const <ComicLink>[];
-
-List<int> _computeMissingIssues(
-  List<dynamic> items,
-  Set<String> entryIds,
-) {
-  final entryIssueNumbers = <int>{};
-  final allIssueNumbers = <int>{};
-  for (final item in items) {
-    if (item is! Map<String, dynamic>) {
-      continue;
-    }
-    final id = item['id']?.toString();
-    final issueNumber = _comicIssueNumberToInt(
-      item['issue_number']?.toString() ??
-          item['number']?.toString() ??
-          item['item_number']?.toString(),
-    );
-    if (issueNumber != null) {
-      allIssueNumbers.add(issueNumber);
-      if (id != null && entryIds.contains(id)) {
-        entryIssueNumbers.add(issueNumber);
-      }
-    }
-  }
-  final missing =
-      allIssueNumbers.difference(entryIssueNumbers).toList(growable: false);
-  missing.sort();
-  return missing;
+List<LibraryDetailField> _personal(ComicLibraryEntry entry, DateTime? addedAt) {
+  final personal = entry.personal;
+  final formats = AppFormats.current;
+  final status = personal.collectionStatus;
+  return [
+    if (status != null)
+      _field('Status', libraryCollectionStatusFromValue(status).label),
+    if (personal.reading.rating case final rating?)
+      _field('My Rating', '$rating/10'),
+    _field('Read', personal.reading.status == 'Read' ? '✓' : '✕'),
+    if (personal.reading.finishedAt case final date?)
+      _field('Read Date', formats.formatDate(date)),
+    if (personal.indexNumber case final index?) _field('Index', '$index'),
+    if (personal.quantity != 1) _field('Quantity', '${personal.quantity}'),
+    if (personal.ownerLabel?.trim().isNotEmpty == true)
+      _field('Owner', personal.ownerLabel!.trim()),
+    if (personal.tags.isNotEmpty) _field('Tags', personal.tags.join(' | ')),
+    if (personal.details.lastBagBoardDate case final date?)
+      _field('Bag/Board Date', formats.formatDate(date)),
+    if (personal.personalNotes?.trim().isNotEmpty == true)
+      _field('Notes', personal.personalNotes!.trim()),
+    if (entry.createdAt ?? addedAt case final created?)
+      _field('Added Date', formats.formatDateTime(created)),
+    _field('Modified Date', formats.formatDateTime(entry.updatedAt)),
+  ];
 }
 
-int? _comicIssueNumberToInt(String? value) {
-  final text = value?.trim();
-  if (text == null || text.isEmpty) {
-    return null;
-  }
-  final parsed = int.tryParse(text);
-  if (parsed != null) {
-    return parsed;
-  }
-  final normalized = text.replaceAll(RegExp(r'[^0-9]'), '');
-  return normalized.isEmpty ? null : int.tryParse(normalized);
-}
-
-Future<void> _launchUrl(String value) async {
-  final uri = Uri.tryParse(value);
-  if (uri == null) {
-    return;
-  }
-  await launchUrl(uri, mode: LaunchMode.externalApplication);
+List<LibraryDetailField> _value(ComicLibraryEntry entry) {
+  final personal = entry.personal;
+  final details = personal.details;
+  final formats = AppFormats.current;
+  String money(int cents) => formats.formatMoney(
+      cents, personal.currency ?? AppFormats.current.currency);
+  String? date(DateTime? value) =>
+      value == null ? null : formats.formatDate(value);
+  final key = [
+    details.keySeverity?.trim() ?? '',
+    details.keyReason?.trim() ?? '',
+  ].where((value) => value.isNotEmpty).join(': ');
+  final rows = <(String, String?)>[
+    (
+      'Cover Price',
+      details.coverPriceCents == null ? null : money(details.coverPriceCents!)
+    ),
+    (
+      'My Value',
+      personal.marketValueCents == null
+          ? null
+          : money(personal.marketValueCents!)
+    ),
+    ('Key', key),
+    (
+      'Key Categories',
+      details.keyCategory
+          ?.split(';')
+          .map((value) => value.trim())
+          .where((value) => value.isNotEmpty)
+          .join(' | ')
+    ),
+    ('Grade', personal.grade),
+    ('Raw / Slabbed', details.rawOrSlabbed),
+    ('Grading Company', details.gradingCompany),
+    ('Slab Cert. No.', details.certificationNumber),
+    ('Label Type', details.labelType),
+    ('Custom Label', details.customLabel),
+    ('Page Quality', details.pageQuality),
+    ('Grader Notes', details.graderNotes),
+    ('Signed by', details.signedBy),
+    ('Purchase Date', date(personal.purchaseDate)),
+    (
+      'Purchase Price',
+      personal.pricePaidCents == null ? null : money(personal.pricePaidCents!)
+    ),
+    ('Purchase Store', personal.purchaseStore),
+    ('Sold Date', date(personal.soldAt)),
+    (
+      'Price Sold',
+      personal.sellPriceCents == null ? null : money(personal.sellPriceCents!)
+    ),
+  ];
+  return [
+    for (final (label, value) in rows)
+      if (value?.trim().isNotEmpty == true) _field(label, value!.trim()),
+  ];
 }
