@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/ui/primitives/library_managed_vo
 import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_segmented_choice_field.dart';
 import '../domain/comic_personal_data.dart';
-import 'entry/entry_draft.dart';
-import 'entry/fields.dart';
+import 'entry_draft.dart';
+import 'entry_fields.dart';
 import '../vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_responsive_form_row.dart';
 import 'package:flutter/material.dart';

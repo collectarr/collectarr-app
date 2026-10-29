@@ -1,13 +1,13 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/catalog_item/catalog_item_schema.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../../../../contracts/support/media_edit_contract.dart';
+import '../../../../../contracts/support/media_edit_contract.dart';
 
 void main() {
   defineMediaEditContract<

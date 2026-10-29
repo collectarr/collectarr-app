@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
-import '../edit/entry/entry_draft.dart';
+import '../edit/entry_draft.dart';
 import '../edit/covers_tab.dart';
 import 'draft.dart';
 import '../domain/comic_personal_data.dart';
