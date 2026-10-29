@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_personal_tab.dart';
-import '../edit/entry/entry_draft.dart';
+import '../edit/entry_draft.dart';
 import '../edit/personal_form.dart';
 import 'draft.dart';
 import 'package:flutter/material.dart';

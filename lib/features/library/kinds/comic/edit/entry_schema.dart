@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/entry/entry_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/entry_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:flutter/material.dart';

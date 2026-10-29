@@ -2,7 +2,7 @@ import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/kinds/comic/missing_comics_report.dart';
+import 'package:collectarr_app/features/library/kinds/comic/actions/missing_issues_report.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/material.dart';

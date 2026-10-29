@@ -61,7 +61,7 @@ void main() {
                           builder: (_) => LibraryEntryEditScope(
                                 draft: personal,
                                 onCommit: (value) async => saved = value,
-                                child: ComicLibraryEditDialog(
+                                child: ComicItemEditDialog(
                                     request: LibraryEditDialogRequest(
                                   type: const ComicRegistration(),
                                   item: candidate,

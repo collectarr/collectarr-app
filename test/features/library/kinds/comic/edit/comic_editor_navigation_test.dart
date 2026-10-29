@@ -1,8 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/catalog_item/catalog_item_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/contribution.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/dialog.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/contribution.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/typed_presentation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -40,7 +39,7 @@ void main() {
   test('catalog and collection targets use their respective editors', () {
     final registry =
         comicKindEditCapabilities.presentationCapability.editRegistry;
-    expect(registry.catalogItem, buildComicCatalogItemLibraryEditDialog);
-    expect(registry.libraryEntry, buildComicLibraryEditDialog);
+    expect(registry.catalogItem, buildComicItemEditDialog);
+    expect(registry.libraryEntry, buildComicItemEditDialog);
   });
 }
