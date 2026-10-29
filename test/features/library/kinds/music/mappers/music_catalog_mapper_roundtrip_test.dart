@@ -62,7 +62,6 @@ void main() {
           'id': 'artist-credit-1',
           'name': 'The Artist',
           'sort_name': 'Artist, The',
-          'artist_id': 'artist-1',
           'join_phrase': ' & ',
           'sequence': 1,
         },

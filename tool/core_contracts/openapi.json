@@ -4426,17 +4426,6 @@
       "CatalogMusicArtistCreditResponse": {
         "additionalProperties": false,
         "properties": {
-          "artist_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Artist Id"
-          },
           "id": {
             "minLength": 1,
             "title": "Id",
@@ -4486,18 +4475,6 @@
       "CatalogMusicCreditResponse": {
         "additionalProperties": false,
         "properties": {
-          "contributor_id": {
-            "anyOf": [
-              {
-                "format": "uuid",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Contributor Id"
-          },
           "id": {
             "minLength": 1,
             "title": "Id",

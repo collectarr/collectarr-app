@@ -94,17 +94,23 @@ void main() {
     );
   });
 
-  test('Music credits allow an absent contributor and require instruments list',
-      () {
+  test('Music credits are names and require an instruments list', () {
     final album = MusicAlbum.fromJson({
       ..._albumJson(),
       'credits': [_creditJson(id: 'credit-one')],
     });
     final credit = album.credits.single;
 
-    expect(credit.contributorId, isNull);
     expect(credit.instruments, isEmpty);
-    expect(credit.toJson(), isNot(contains('contributor_id')));
+    expect(
+      () => MusicAlbum.fromJson({
+        ..._albumJson(),
+        'credits': [
+          {..._creditJson(id: 'credit-id'), 'contributor_id': 'person-1'},
+        ],
+      }),
+      throwsFormatException,
+    );
 
     expect(
       () => MusicAlbum.fromJson({

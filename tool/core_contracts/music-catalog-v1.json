@@ -3,17 +3,6 @@
     "CatalogMusicArtistCreditResponse": {
       "additionalProperties": false,
       "properties": {
-        "artist_id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Artist Id"
-        },
         "id": {
           "minLength": 1,
           "title": "Id",
@@ -63,18 +52,6 @@
     "CatalogMusicCreditResponse": {
       "additionalProperties": false,
       "properties": {
-        "contributor_id": {
-          "anyOf": [
-            {
-              "format": "uuid",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Contributor Id"
-        },
         "id": {
           "minLength": 1,
           "title": "Id",
@@ -768,8 +745,8 @@
   "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "9f318105c496b2e84ba5de547229bcb47689c13c",
-  "generatedAt": "2026-10-29T20:59:24.656899Z",
+  "coreCommit": "fc20ab95d835235567edcc44b19f6eb4eace040d",
+  "generatedAt": "2026-10-29T21:02:39.089505Z",
   "roots": {
     "credit": {
       "$ref": "#/$defs/CatalogMusicCreditResponse"

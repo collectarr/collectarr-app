@@ -13,8 +13,8 @@ label, country, barcode, catalog number, packaging, genres, box-set state, and
 artwork remain edition-level fields.
 
 Music credits have stable IDs, a name and optional sort name, a role and
-optional role ID, `instruments[]`, a sequence, and an optional `contributor_id`
-that is present only when a real catalog contributor reference exists.
+optional role ID, `instruments[]` and a sequence. Like artist credits, they
+are names on the album and do not reference shared contributor records.
 `artist_credits` remain separate because their credited-name, join-phrase, and
 sequence semantics differ. Composition is track metadata, not a credit.
 

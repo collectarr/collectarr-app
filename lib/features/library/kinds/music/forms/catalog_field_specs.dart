@@ -296,7 +296,6 @@ MusicArtistCredit _artistCreditFromSelection(
     id: selected.id,
     creditedName: selected.name,
     sortName: selected.sortName,
-    artistId: previous?.artistId,
     joinPhrase: previous?.joinPhrase,
     sequence: sequence,
   );

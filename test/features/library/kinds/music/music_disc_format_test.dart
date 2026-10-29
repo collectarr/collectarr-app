@@ -32,7 +32,6 @@ void main() {
         credits: [
           MusicCredit(
             id: const MusicCreditId('credit-1'),
-            contributorId: null,
             name: 'Jane Doe',
             role: 'Producer',
             instruments: const ['Piano', 'Voice'],
@@ -56,7 +55,6 @@ void main() {
       expect(json['spars_code'], 'DDD');
       final credit =
           (json['credits'] as List).cast<Map<String, dynamic>>().single;
-      expect(credit['contributor_id'], isNull);
       expect(
         credit['instruments'],
         ['Piano', 'Voice'],
@@ -65,7 +63,6 @@ void main() {
       final reconstructed = MusicDisc.fromJson(json);
       expect(reconstructed.recordingDate?.isoString, '2025-02');
       expect(reconstructed.recordingLocations, ['Abbey Road', 'Wembley']);
-      expect(reconstructed.credits.single.contributorId, isNull);
       expect(reconstructed.credits.single.instruments, ['Piano', 'Voice']);
       expect(reconstructed.tracks.single.id.value, 'track-1');
     });

@@ -7,7 +7,6 @@ import 'music_ids.dart';
 final class MusicCredit implements JsonEncodable {
   MusicCredit({
     required this.id,
-    this.contributorId,
     required this.name,
     this.sortName,
     required this.role,
@@ -17,7 +16,6 @@ final class MusicCredit implements JsonEncodable {
   }) : instruments = List<String>.unmodifiable(instruments);
 
   final MusicCreditId id;
-  final String? contributorId;
   final String name;
   final String? sortName;
   final String role;
@@ -28,7 +26,6 @@ final class MusicCredit implements JsonEncodable {
   factory MusicCredit.fromJson(Map<String, dynamic> json) {
     const fields = {
       'id',
-      'contributor_id',
       'name',
       'sort_name',
       'role',
@@ -44,7 +41,6 @@ final class MusicCredit implements JsonEncodable {
     }
     return MusicCredit(
       id: MusicCreditId(_requiredText(json['id'], 'id')),
-      contributorId: _optionalText(json['contributor_id'], 'contributor_id'),
       name: _requiredText(json['name'], 'name'),
       sortName: _optionalText(json['sort_name'], 'sort_name'),
       role: _requiredText(json['role'], 'role'),
@@ -57,7 +53,6 @@ final class MusicCredit implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         'id': id.value,
-        if (contributorId != null) 'contributor_id': contributorId,
         'name': name,
         if (sortName != null) 'sort_name': sortName,
         'role': role,

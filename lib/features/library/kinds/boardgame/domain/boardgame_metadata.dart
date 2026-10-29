@@ -336,7 +336,6 @@ final class BoardGamePersonCredit implements JsonEncodable {
   const BoardGamePersonCredit({
     required this.name,
     this.id,
-    this.artistId,
     this.role,
     this.roleId,
     this.sequence,
@@ -348,7 +347,6 @@ final class BoardGamePersonCredit implements JsonEncodable {
   });
 
   final String? id;
-  final String? artistId;
   final String name;
   final String? role;
   final String? roleId;
@@ -362,7 +360,6 @@ final class BoardGamePersonCredit implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         if (id != null) 'id': id,
-        if (artistId != null) 'artist_id': artistId,
         'name': name,
         if (role != null) 'role': role,
         if (roleId != null) 'role_id': roleId,
@@ -379,7 +376,6 @@ final class BoardGamePersonCredit implements JsonEncodable {
     final json = _map(value);
     return BoardGamePersonCredit(
       id: _string(json['id']),
-      artistId: _string(json['artist_id']),
       name: _string(json['name']) ?? '',
       role: _string(json['role']),
       roleId: _string(json['role_id']),
