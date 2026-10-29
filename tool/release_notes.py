@@ -50,11 +50,14 @@ def main():
             pages = json.loads(gh('api', '--paginate', '--slurp', endpoint))
             commits = [c for page in pages for c in (page['commits'] if previous else page)]
             lines = []
-            for commit in commits:
-                title = commit['commit']['message'].splitlines()[0]
+            for commit in commits[:100]:
+                title = commit['commit']['message'].splitlines()[0][:500]
                 author = commit.get('author')
                 credit = f" by @{author['login']}" if author else ''
                 lines.append(f"* {title}{credit} in [{commit['sha'][:7]}]({commit['html_url']})")
+            if len(commits) > 100:
+                history_url = f'https://github.com/{args.repo}/compare/{previous}...{tag}' if previous else f'https://github.com/{args.repo}/commits/{tag}'
+                lines.append(f'\nShowing the first 100 commits. [Read all {len(commits)} commits]({history_url}).')
             generated = "## What's Changed\n\n" + '\n'.join(lines) + '\n\n' + generated
         url = f'https://github.com/{args.repo}'
         banner = f'https://raw.githubusercontent.com/{args.repo}/main/docs/assets/release-banner.png'
