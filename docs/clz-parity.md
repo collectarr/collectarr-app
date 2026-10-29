@@ -76,12 +76,12 @@ library for isolated validation; release readiness depends on the workflows belo
 
 | Status | Workflow | Reference and validation needed |
 | --- | --- | --- |
-| Pending inspection | Library and series browsing | Views, grouping, sorting, columns, filters, issue numbering and inspector density |
+| Inspected; gaps open | Library and series browsing | Main menu, layout menu and details panel inspected; List columns, sorts and the details panel layout remain open (see below) |
 | Partially inspected | Add Comics | Mode shells and manual entry inspected; search results, variants and confirmation remain open |
 | Inspected; gaps open | Issue editor | Eleven tabs inspected; pick-list contents, save round-trips and visual comparison remain open |
 | Inspected; gaps open | Personal collection | Reading, grading, signatures, purchase, value and storage fields inspected; collection actions and loans remain open |
 | Pending inspection | Series completeness | Missing issues, variants, collection boundaries and available actions |
-| Pending inspection | Bulk and portability | Multi-selection, bulk editing, import/export mappings and kind-specific sync snapshots |
+| Partially inspected | Bulk and portability | Import sources and Export to CSV/TXT/XML inspected; export columns, XML import and multi-selection remain open |
 | Pending inspection | Visual and accessibility checks | Default/dark appearance, narrow windows, keyboard traversal, empty states and invalid input |
 
 The signed-in reference library and all eleven issue editor tabs have now been
@@ -148,6 +148,27 @@ remain missing through the typed model; clearing a date removes its stored
 parts. Removed the Comics text-date/year controllers rather than maintaining
 two editable date representations. Core contracts and Sync snapshot validation
 are covered; end-to-end import and editor validation remain open.
+
+### Browsing, details, dialogs and import/export
+
+Compared on 2026-10-30 at 2560 × 1249 against the signed-in reference with
+five comics, and a release Web build with the same five imported from CSV.
+
+| Surface | Reference | Collectarr | State |
+| --- | --- | --- | --- |
+| Main menu | Collection: Add Comics from Core, Add Comics Manually, Manage Pick Lists, Manage Collections; Key Info: Update Key Info; Tools: Print to PDF, Statistics, Find Duplicates, Loan Manager, Missing Comics | Same sections and Maintenance/Import–Export items; no Add Comics Manually or Missing Comics entry (missing issues is a toolbar action, "Missing issues report..."); Update Key Info is only a selection action; Calendar is added; CovrPrice is left out deliberately | Open |
+| Motion | Menu slides in 200 ms linear over a 200 ms fade; controls ease over 250 ms | Shared motion constants already match (Music pass) | Matches |
+| Layout menu | Horizontal Split, Vertical Split, No Details | Same three, with a check on the active one | Matches |
+| List view | Default columns Series, Issue (number and variant, "2A"), Variant Description, Publisher, Release Date, Storage Box, Format, Added Date; sorted by Series then Issue | The collection schema registers only personal columns, so the catalog columns show as "Comic Series", "Comic Issue Nu…" with empty cells. Needs Games-style catalog, personal and loan columns, the reference chooser groups (Images, Main, Value, Edition, Creators & Characters, Personal) and sorts | Open, P1 |
+| Details panel | Series title, Story Arc/Title subtitle, `#2A` badge; key line; cover beside variant description, Release, Cover, publisher logo, barcode, eBay link; Read check and plot; then Creators, Characters, Details columns and Personal, Value rows | Generic hero with the series twice, `#2` without the variant, Edition/Status chips, Quick actions and an Overview/Value Details/Links tab strip | Open, P1 |
+| Details panel data | Release and Cover dates, plot | Release showed "–" for every stored full date and the user's Plot never appeared | Fixed: a stored release date keeps its exact date; the panel shows the Plot |
+| Edit dialog | Title "Absolute Batman #2A"; Issue No., Series Group; footer Collection Status, Index, Quantity, Storage Box | Was "Edit comic", Issue Number, Series group, Collection status, no Quantity | Fixed |
+| Import sources | Text/CSV, Comic Collector XML, CLZ Comics Web XML, CovrPrice CSV, Comic Collector Live CSV, Comic Collector user-defined fields | Text/CSV only | Open: CLZ Comics Web XML first; Comic Collector Live needs a sample export |
+| Import wording | "Import comics from CSV / TXT", "Import Comics", "Link Comics" | Said "issues" and "Link Issues" | Fixed |
+| Import review | — | Each row repeats the series and omits the issue number; the CSV importer fills an empty Title with the Series | Open |
+| Export to CSV / TXT | Which Comics, Visible Columns preset and Sort Order with Manage, CSV/TXT tabs, preview, Generate file | Same page shell, but columns fall back to Title, Creator / Series, Format, Status ("Not tracked"), Added Date with empty values (same cause as List view) | Open, P1 |
+| Export to XML | Confirmation dialog, then a download | Present; contents not compared | Open |
+| Link Comics | Your Comic / Core comics / Link table | Present; not compared with unlinked items | Open |
 
 Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
 editors and dialogs with Cancel. Record observed fields and remaining gaps
