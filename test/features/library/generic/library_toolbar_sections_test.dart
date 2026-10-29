@@ -133,7 +133,7 @@ void main() {
 
     expect(find.text('Export to CSV / TXT'), findsOneWidget);
     expect(find.text('Export to XML'), findsOneWidget);
-    expect(find.text('Export for CovrPrice'), findsOneWidget);
+    expect(find.text('Export for CovrPrice'), findsNothing);
     expect(find.text('Transfer Field Data'), findsOneWidget);
     expect(find.text('Update Key Info'), findsOneWidget);
     expect(find.text('Update from Core'), findsOneWidget);

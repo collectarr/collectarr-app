@@ -7,7 +7,6 @@ enum _BulkAction {
   printToPdf,
   exportCsvTxt,
   exportXml,
-  exportCovrPrice,
   duplicate,
   mergeAlbums,
   loan,
@@ -309,7 +308,6 @@ class LibrarySelectionControls extends StatelessWidget {
             _BulkAction.printToPdf => callbacks.onPrintToPdf,
             _BulkAction.exportCsvTxt => callbacks.onExportCsvTxt,
             _BulkAction.exportXml => callbacks.onExportXml,
-            _BulkAction.exportCovrPrice => null,
             _BulkAction.duplicate => callbacks.onBulkDuplicate,
             _BulkAction.mergeAlbums => callbacks.onMerge,
             _BulkAction.loan => callbacks.onBulkLoan,
@@ -402,18 +400,6 @@ class LibrarySelectionControls extends StatelessWidget {
                     child: ListTile(
                       leading: Icon(Icons.data_object_outlined),
                       title: Text('Export to XML'),
-                      dense: true,
-                    ),
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: _BulkAction.exportCovrPrice,
-                  enabled: false,
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: ListTile(
-                      leading: Icon(Icons.sell_outlined),
-                      title: Text('Export for CovrPrice'),
                       dense: true,
                     ),
                   ),
