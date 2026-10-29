@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/catalog_item/catalog_item_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_adapters.dart';
@@ -134,9 +135,35 @@ void main() {
     expect(genres.values(draft), {'Action', 'Mystery'});
 
     final releaseDate = _field('release_date')
-        as LibraryDateFieldSpec<ComicCatalogItemFormValues>;
-    releaseDate.setValue(draft, DateTime(2026, 4, 12));
-    expect(releaseDate.value(draft), DateTime(2026, 4, 12));
+        as LibraryPartialDateFieldSpec<ComicCatalogItemFormValues>;
+    releaseDate.setValue(
+        draft, const PartialDate(year: 2026, month: 4, day: 12));
+    expect(releaseDate.value(draft),
+        const PartialDate(year: 2026, month: 4, day: 12));
+  });
+
+  test('publication dates retain missing calendar parts and can be cleared',
+      () {
+    const original = ComicCatalogItem(title: 'A comic');
+    final draft = comicCatalogItemFormValuesFrom(original);
+    final cover = _field('cover_date')
+        as LibraryPartialDateFieldSpec<ComicCatalogItemFormValues>;
+    final release = _field('release_date')
+        as LibraryPartialDateFieldSpec<ComicCatalogItemFormValues>;
+    cover.setValue(draft, const PartialDate(year: 2024));
+    release.setValue(draft, const PartialDate(month: 5, day: 3));
+    final updated =
+        comicCatalogItemFromFormValues(original: original, values: draft);
+    expect(updated.coverDateParts, const PartialDate(year: 2024));
+    expect(updated.coverDate, isNull);
+    expect(updated.releaseDateParts, const PartialDate(month: 5, day: 3));
+    expect(updated.releaseDate, isNull);
+    cover.setValue(draft, null);
+    release.setValue(draft, null);
+    final cleared =
+        comicCatalogItemFromFormValues(original: updated, values: draft);
+    expect(cleared.coverDateParts, isNull);
+    expect(cleared.releaseDateParts, isNull);
   });
 
   test('reports invalid media values through schema validation', () {

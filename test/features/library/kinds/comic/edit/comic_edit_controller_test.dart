@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/controller.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,5 +34,17 @@ void main() {
     final cleared = controller.buildMetadata(updated);
     expect(cleared.subtitle, isNull);
     expect(cleared.variantDescription, isNull);
+    controller.coverDateParts = const PartialDate(year: 2020);
+    controller.releaseDateParts = const PartialDate(year: 2020, month: 5);
+    final dated = controller.buildMetadata(cleared);
+    expect(dated.coverDateParts, const PartialDate(year: 2020));
+    expect(dated.releaseDateParts, const PartialDate(year: 2020, month: 5));
+    expect(dated.coverDate, isNull);
+    expect(dated.releaseDate, isNull);
+    controller.coverDateParts = null;
+    controller.releaseDateParts = null;
+    final undated = controller.buildMetadata(dated);
+    expect(undated.coverDateParts, isNull);
+    expect(undated.releaseDateParts, isNull);
   });
 }

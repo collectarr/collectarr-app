@@ -115,6 +115,12 @@ the previous registry mapping was inverted. Bag/Board Date in Personal now
 updates the typed entry draft that is serialized on save instead of a duplicate
 draft property. Pixel layout, all pick lists and the remaining schema gaps are
 still open; tab ordering alone is not a parity signoff.
+Cover Date and Release Date now use Music's shared partial-date input in the
+collection editor and typed Add/Edit field schemas. Missing year, month or day
+remain missing through the typed model; clearing a date removes its stored
+parts. Removed the Comics text-date/year controllers rather than maintaining
+two editable date representations. Core contract and import/sync validation
+remain prerequisites for public activation.
 
 Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
 editors and dialogs with Cancel. Record observed fields and remaining gaps

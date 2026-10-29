@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
@@ -161,12 +162,19 @@ class ComicEditHostAdapter implements ComicEditHost {
       _comicDraft.comicEdit.physicalFormatLabelController;
 
   @override
-  TextEditingController get comicCoverDateController =>
-      _comicDraft.comicEdit.coverDateController;
+  PartialDate? get comicCoverDateParts => _comicDraft.comicEdit.coverDateParts;
 
   @override
-  TextEditingController get comicReleaseDateController =>
-      _comicDraft.comicEdit.releaseDateController;
+  set comicCoverDateParts(PartialDate? value) =>
+      _comicDraft.comicEdit.coverDateParts = value;
+
+  @override
+  PartialDate? get comicReleaseDateParts =>
+      _comicDraft.comicEdit.releaseDateParts;
+
+  @override
+  set comicReleaseDateParts(PartialDate? value) =>
+      _comicDraft.comicEdit.releaseDateParts = value;
 
   @override
   TextEditingController get comicLocalizedTitleController =>

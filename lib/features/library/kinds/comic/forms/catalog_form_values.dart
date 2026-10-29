@@ -18,6 +18,7 @@ final class ComicCatalogItemFormValues {
     this.coverDate,
     this.coverDateParts,
     this.releaseDate,
+    this.releaseDateParts,
     this.publisher = '',
     this.imprint = '',
     this.seriesGroup = '',
@@ -46,6 +47,7 @@ final class ComicCatalogItemFormValues {
   DateTime? coverDate;
   PartialDate? coverDateParts;
   DateTime? releaseDate;
+  PartialDate? releaseDateParts;
   String publisher;
   String imprint;
   String seriesGroup;

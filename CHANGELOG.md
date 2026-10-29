@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- Prepare Comics editing with the eleven CLZ tabs, grading and key significance in Value, and distinct issue subtitle and variant-description fields; Comics remains in development.
+- Prepare Comics editing with the eleven CLZ tabs, grading and key significance in Value, distinct issue subtitle and variant-description fields, and partial publication dates; Comics remains in development.
 
 ### CI & Build
 - Update build tooling with consistent generated database code.

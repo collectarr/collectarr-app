@@ -1,6 +1,7 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_summary_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/host.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -187,7 +188,8 @@ extension ComicMainTab on ComicEditHost {
   Widget _coverDatePartsField() {
     return _comicDateInput(
       label: 'Cover Date',
-      dateController: comicCoverDateController,
+      value: comicCoverDateParts,
+      onChanged: (value) => comicCoverDateParts = value,
       fieldKeyPrefix: 'comic-cover-date',
     );
   }
@@ -195,22 +197,24 @@ extension ComicMainTab on ComicEditHost {
   Widget _releaseDatePartsField() {
     return _comicDateInput(
       label: 'Release Date',
-      dateController: comicReleaseDateController,
+      value: comicReleaseDateParts,
+      onChanged: (value) => comicReleaseDateParts = value,
       fieldKeyPrefix: 'comic-release-date',
     );
   }
 
   Widget _comicDateInput({
     required String label,
-    required TextEditingController dateController,
+    required PartialDate? value,
+    required ValueChanged<PartialDate?> onChanged,
     required String fieldKeyPrefix,
   }) {
-    return LibraryDateFieldButton(
+    return LibraryFormField(
       label: label,
-      value: parseDate(dateController.text),
-      fieldKeyPrefix: fieldKeyPrefix,
-      onChanged: (value) => comicMutateState(
-        () => dateController.text = value == null ? '' : formatDate(value),
+      child: LibraryPartialDateInput(
+        key: ValueKey(fieldKeyPrefix),
+        value: value,
+        onChanged: (next) => comicMutateState(() => onChanged(next)),
       ),
     );
   }

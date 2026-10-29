@@ -92,21 +92,31 @@ List<LibraryFieldSpec<T>> comicCatalogItemIdentityFields<T>({
             ? null
             : (_) => onManagePhysicalFormat(),
       ),
-      LibraryDateFieldSpec<T>(
+      LibraryPartialDateFieldSpec<T>(
         id: 'cover_date',
-        label: 'Cover date',
-        value: (draft) => values(draft).coverDate,
+        label: 'Cover Date',
+        value: (draft) =>
+            values(draft).coverDateParts ??
+            (values(draft).coverDate == null
+                ? null
+                : PartialDate.fromDateTime(values(draft).coverDate!)),
         setValue: (draft, value) {
-          values(draft).coverDate = value;
-          values(draft).coverDateParts =
-              value == null ? null : PartialDate.fromDateTime(value);
+          values(draft).coverDateParts = value;
+          values(draft).coverDate = value?.asDateTime;
         },
       ),
-      LibraryDateFieldSpec<T>(
+      LibraryPartialDateFieldSpec<T>(
         id: 'release_date',
         label: 'Release Date',
-        value: (draft) => values(draft).releaseDate,
-        setValue: (draft, value) => values(draft).releaseDate = value,
+        value: (draft) =>
+            values(draft).releaseDateParts ??
+            (values(draft).releaseDate == null
+                ? null
+                : PartialDate.fromDateTime(values(draft).releaseDate!)),
+        setValue: (draft, value) {
+          values(draft).releaseDateParts = value;
+          values(draft).releaseDate = value?.asDateTime;
+        },
       ),
     ];
 
