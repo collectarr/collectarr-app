@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_character.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_adapters.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -64,11 +66,15 @@ void main() {
     );
     final reloaded = ComicCatalogItem.fromJson(item.toJson());
     expect(reloaded.isKeyComic, isTrue);
-    expect([for (final c in reloaded.creators) (c.name, c.personId)], [
+    expect([
+      for (final c in reloaded.creators) (c.name, c.personId)
+    ], [
       ('Core Writer', 'p-1'),
       ('Typed Inker', null),
     ]);
-    expect([for (final c in reloaded.characters) (c.name, c.characterId)], [
+    expect([
+      for (final c in reloaded.characters) (c.name, c.characterId)
+    ], [
       ('Core Hero', 'c-1'),
       ('Typed Sidekick', null),
     ]);
