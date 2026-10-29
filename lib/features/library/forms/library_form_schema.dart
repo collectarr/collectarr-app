@@ -85,7 +85,7 @@ List<LibraryFormSectionSpec<TDraft>> filterLibraryFormSections<TDraft>({
               if (column.rows.any((row) => row.any(
                     (id) => fieldIds == null || fieldIds.contains(id),
                   )))
-                LibraryFormColumnSpec(rows: [
+                LibraryFormColumnSpec(fieldFlex: column.fieldFlex, rows: [
                   for (final row in column.rows)
                     if (row
                         .any((id) => fieldIds == null || fieldIds.contains(id)))
