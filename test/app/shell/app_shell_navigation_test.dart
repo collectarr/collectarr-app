@@ -79,9 +79,9 @@ void main() {
 
       await tester.tap(find.byKey(const Key('nav.library-kind-picker')));
       await pumpUntilSettled(tester);
-      expect(find.text('Music'), findsOneWidget);
+      expect(find.text('CLR Music'), findsOneWidget);
       expect(find.text('Albums'), findsNothing);
-      await tester.tap(find.text('Music'));
+      await tester.tap(find.text('CLR Music'));
       await pumpUntilSettled(tester);
 
       await tester.tap(find.byKey(const Key('app.open-navigation')));
