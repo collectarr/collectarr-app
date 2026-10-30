@@ -4,7 +4,7 @@
 
 ### CI & Build
 - Update build tooling with consistent generated database code.
-- Keep long release change lists within GitHub limits while linking the complete history.
+- Release notes list every merged pull request, direct commit and closed issue, keep each release's original artwork, and record new release summaries in the repository.
 - Keep the Drift runtime and generated database code aligned when updating dependencies.
 
 ### Docs
