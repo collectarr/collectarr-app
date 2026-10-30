@@ -63,10 +63,10 @@ class LibraryCollectionStatusMark extends StatelessWidget {
             style != LibraryCollectionStatusMarkStyle.pill;
     final glyph = switch ((bare, style)) {
       (true, LibraryCollectionStatusMarkStyle.cover) => Icon(
-            collectionStatus.icon,
-            size: height * .8,
-            color: Colors.white,
-            shadows: _outline),
+          collectionStatus.icon,
+          size: height * .8,
+          color: Colors.white,
+          shadows: _outline),
       (true, _) => Icon(collectionStatus.icon,
           size: 16, color: onSelection ? Colors.white : collectionStatus.color),
       _ => Icon(collectionStatus.icon, size: height * .6, color: Colors.white),
