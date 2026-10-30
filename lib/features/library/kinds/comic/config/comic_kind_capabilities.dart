@@ -28,7 +28,7 @@ final comicKindIdentity = const LibraryKindIdentity(
   // A speech balloon, the medium's own sign.
   icon: Icons.mode_comment,
   coverPlaceholderIcon: AppIcons.bookOpen,
-  accent: Color(0xFF50AEE5),
+  accent: Color(0xFF00AEE6),
   preferencePrefix: 'comics',
   routeSegments: ['comics', 'comic'],
   mediaFamily: 'print',

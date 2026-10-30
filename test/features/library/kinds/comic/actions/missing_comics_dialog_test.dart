@@ -83,7 +83,7 @@ void main() {
               selectedItem: null,
               counts: const LibraryToolbarCounts(),
             ),
-            accent: const Color(0xFF50AEE5),
+            accent: const Color(0xFF00AEE6),
           ),
           child: const Text('open'),
         ),
