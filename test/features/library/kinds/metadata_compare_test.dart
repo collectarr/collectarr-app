@@ -25,8 +25,9 @@ void main() {
     final localPayload = {
       'title': 'Spider-Man #1',
       'publisher': 'Marvel',
-      'series': {'series_title': 'Spider-Man'},
-      'item_number': '1',
+      'series_title': 'Spider-Man',
+      'issue_number': '1',
+      'release_date_parts': {'year': 1963, 'month': 3},
       'creators': [
         {'role': 'Writer', 'name': 'Stan Lee'},
       ],
@@ -37,8 +38,9 @@ void main() {
     final serverPayload = {
       'title': 'Spider-Man #1',
       'publisher': 'Marvel Comics',
-      'series': {'series_title': 'Spider-Man'},
-      'item_number': '1',
+      'series_title': 'Spider-Man',
+      'issue_number': '1',
+      'release_date_parts': {'year': 1963, 'month': 3},
       'creators': [
         {'role': 'Writer', 'name': 'Stan Lee'},
         {'role': 'Artist', 'name': 'Steve Ditko'},
@@ -58,6 +60,18 @@ void main() {
 
     expect(panels.length, 3);
     expect(panels.every((p) => p is MetadataDiffPanel), isTrue);
+    final details = (panels.first as MetadataDiffPanel).entries;
+    final byLabel = {for (final entry in details) entry.label: entry};
+    expect(byLabel['Publisher']!.isDifferent, isTrue);
+    expect(byLabel['Title']!.isDifferent, isFalse);
+    expect(byLabel['Series']!.serverValue, 'Spider-Man');
+    expect(byLabel['Issue No.']!.serverValue, '1');
+    expect(byLabel['Release Date']!.serverValue, isNotEmpty);
+
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(body: SingleChildScrollView(child: panels.first))));
+    expect(find.text('Your value'), findsOneWidget);
+    expect(find.text('Core value'), findsOneWidget);
 
     expect(comicKindMetadata.supportsServerCompare, isTrue);
     expect(comicKindMetadata.compareBuilder, isNotNull);
@@ -163,7 +177,7 @@ void main() {
     expect(panels.length, 3);
     expect(panels.every((p) => p is MetadataDiffPanel), isTrue);
     final creditPanel = panels[1] as MetadataDiffPanel;
-    expect(creditPanel.title, 'Album credits (Local vs Server)');
+    expect(creditPanel.title, 'Album credits');
     expect(creditPanel.entries.single.label, 'Credit album-credit-1');
     final discPanel = panels[2] as MetadataDiffPanel;
     expect(discPanel.entries.map((entry) => entry.label), [

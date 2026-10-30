@@ -86,6 +86,10 @@ class AppThemePalette extends ThemeExtension<AppThemePalette> {
   Color get warningBackground =>
       isDark ? kAppBannerWarningBackground : const Color(0xFFFFF2C9);
   Color get warningForeground => appContrastingTextColor(warningBackground);
+
+  /// Marks a value that differs from its counterpart, as in a comparison.
+  Color get difference =>
+      isDark ? const Color(0xFFE0A526) : const Color(0xFFB7791F);
   Color get errorBackground =>
       isDark ? kAppBannerErrorBackground : const Color(0xFFFFE9EC);
   Color get errorForeground =>
