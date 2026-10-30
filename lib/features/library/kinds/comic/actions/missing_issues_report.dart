@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
+import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -8,7 +9,7 @@ class MissingComicReportOptions {
   const MissingComicReportOptions({
     this.includeVariants = false,
     this.excludeOnOrder = true,
-    this.excludeUnreleased = true,
+    this.excludeUnreleased = false,
     this.ascending = true,
     this.verbose = false,
   });
@@ -16,7 +17,11 @@ class MissingComicReportOptions {
   final bool includeVariants;
   final bool excludeOnOrder;
   final bool excludeUnreleased;
+
+  /// Issue order within a series; series stay in title order.
   final bool ascending;
+
+  /// Every issue instead of compact ranges.
   final bool verbose;
 }
 
@@ -46,14 +51,12 @@ class MissingComicSeriesReport {
   const MissingComicSeriesReport({
     required this.seriesKey,
     required this.seriesTitle,
-    required this.coverUrl,
     required this.issueGroups,
     required this.entryIssueCount,
   });
 
   final String seriesKey;
   final String seriesTitle;
-  final String? coverUrl;
   final List<MissingComicIssueGroup> issueGroups;
   final int entryIssueCount;
 
@@ -82,7 +85,6 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
         : metadata.seriesTitle?.trim().isNotEmpty == true
             ? metadata.seriesTitle!.trim()
             : metadata.title;
-    final coverUrl = metadata.coverImageUrl;
     final accumulator = bySeries.putIfAbsent(
       seriesKey,
       () => _MissingComicSeriesAccumulator(
@@ -90,15 +92,10 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
         seriesTitle: metadata.seriesTitle?.trim().isNotEmpty == true
             ? metadata.seriesTitle!.trim()
             : metadata.title,
-        coverUrl: coverUrl,
         entryIssueNumbers: <int>{},
         candidateVariants: <int, List<MissingComicIssueVariant>>{},
       ),
     );
-
-    if (accumulator.coverUrl == null && coverUrl != null) {
-      accumulator.coverUrl = coverUrl;
-    }
 
     if (dto.libraryEntry != null) {
       accumulator.entryIssueNumbers.add(issueNumber);
@@ -151,104 +148,84 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
       MissingComicSeriesReport(
         seriesKey: accumulator.seriesKey,
         seriesTitle: accumulator.seriesTitle,
-        coverUrl: accumulator.coverUrl,
         issueGroups: issueGroups,
         entryIssueCount: accumulator.entryIssueNumbers.length,
       ),
     );
   }
 
-  reports.sort((a, b) {
-    final comparison = a.seriesTitle.compareTo(b.seriesTitle);
-    return options.ascending ? comparison : -comparison;
-  });
+  reports.sort((a, b) => a.seriesTitle.compareTo(b.seriesTitle));
   return reports;
 }
 
-String formatComicIssueRanges(Iterable<int> numbers) {
-  final sorted = numbers.toList(growable: false)..sort();
-  if (sorted.isEmpty) {
-    return '';
+/// The Missing Issues cell: runs of consecutive issues as "3–26" in a
+/// compact list, else every issue, with its variants when they are shown.
+String missingComicIssuesText(
+    MissingComicSeriesReport report, MissingComicReportOptions options) {
+  final groups = report.issueGroups;
+  if (options.verbose) {
+    return [
+      for (final group in groups)
+        options.includeVariants
+            ? _verboseGroupLabel(group)
+            : '${group.issueNumber}'
+    ].join(' ');
   }
   final labels = <String>[];
-  var start = sorted.first;
-  var end = start;
-  for (var index = 1; index < sorted.length; index += 1) {
-    final current = sorted[index];
-    if (current == end + 1) {
-      end = current;
-      continue;
+  for (var index = 0; index < groups.length;) {
+    final start = groups[index].issueNumber;
+    var end = index;
+    while (end + 1 < groups.length &&
+        (groups[end + 1].issueNumber - groups[end].issueNumber).abs() == 1) {
+      end += 1;
     }
-    labels.add(start == end ? '#$start' : '#$start-#$end');
-    start = current;
-    end = current;
+    final last = groups[end].issueNumber;
+    labels.add(start == last ? '$start' : '$start–$last');
+    index = end + 1;
   }
-  labels.add(start == end ? '#$start' : '#$start-#$end');
-  return labels.join(', ');
+  return labels.join(' ');
 }
 
-String formatComicIssueLabel(int issueNumber) => '#$issueNumber';
-
-pw.Document buildMissingComicsPdfDocument({
-  required String title,
+/// The dialog's table as a printable page.
+Future<pw.Document> buildMissingComicsPdfDocument({
   required List<MissingComicSeriesReport> reports,
   required MissingComicReportOptions options,
-}) {
-  final doc = pw.Document(title: title, author: 'Collectarr');
+}) async {
+  final regular = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/PlusJakartaSans-Regular.ttf'));
+  final bold = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/PlusJakartaSans-Bold.ttf'));
+  final doc = pw.Document(
+      title: 'Missing Comics',
+      author: 'Collectarr',
+      theme: pw.ThemeData.withFont(base: regular, bold: bold));
   doc.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.all(24),
       build: (context) => [
-        pw.Header(
-          level: 0,
-          child: pw.Text(
-            title,
-            style: pw.TextStyle(
-              fontSize: 18,
-              fontWeight: pw.FontWeight.bold,
-            ),
-          ),
-        ),
-        pw.Text(
-          '${reports.fold<int>(0, (sum, report) => sum + report.missingIssueCount)} missing issues across ${reports.length} series',
-          style: const pw.TextStyle(fontSize: 11),
-        ),
+        pw.Text('Missing Comics',
+            style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 10),
-        for (final report in reports) ...[
-          pw.Text(
-            '${report.seriesTitle} (${report.missingIssueCount})',
-            style: pw.TextStyle(
-              fontSize: 13,
-              fontWeight: pw.FontWeight.bold,
-            ),
-          ),
-          pw.SizedBox(height: 4),
-          pw.Wrap(
-            spacing: 6,
-            runSpacing: 4,
-            children: [
-              for (final group in report.issueGroups)
-                pw.Container(
-                  padding: const pw.EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 3,
-                  ),
-                  decoration: pw.BoxDecoration(
-                    borderRadius: pw.BorderRadius.circular(8),
-                    border: pw.Border.all(color: PdfColors.grey400),
-                  ),
-                  child: pw.Text(
-                    options.verbose && options.includeVariants
-                        ? _verboseGroupLabel(group)
-                        : formatComicIssueLabel(group.issueNumber),
-                    style: const pw.TextStyle(fontSize: 10),
-                  ),
-                ),
-            ],
-          ),
-          pw.SizedBox(height: 10),
-        ],
+        pw.TableHelper.fromTextArray(
+          headers: ['Series', 'Owned', 'Missing', 'Missing Issues'],
+          cellAlignments: {
+            1: pw.Alignment.centerRight,
+            2: pw.Alignment.centerRight,
+          },
+          cellStyle: const pw.TextStyle(fontSize: 10),
+          headerStyle:
+              pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+          data: [
+            for (final report in reports)
+              [
+                report.seriesTitle,
+                '${report.entryIssueCount}',
+                '${report.missingIssueCount}',
+                missingComicIssuesText(report, options),
+              ]
+          ],
+        ),
       ],
     ),
   );
@@ -263,9 +240,9 @@ String _verboseGroupLabel(MissingComicIssueGroup group) {
       .toSet()
       .toList(growable: false);
   if (variants.isEmpty) {
-    return formatComicIssueLabel(group.issueNumber);
+    return '${group.issueNumber}';
   }
-  return '${formatComicIssueLabel(group.issueNumber)} (${variants.join(' / ')})';
+  return '${group.issueNumber} (${variants.join(' / ')})';
 }
 
 String _missingComicVariantLabel(ComicCatalogItem metadata) {
@@ -300,14 +277,12 @@ class _MissingComicSeriesAccumulator {
   _MissingComicSeriesAccumulator({
     required this.seriesKey,
     required this.seriesTitle,
-    required this.coverUrl,
     required this.entryIssueNumbers,
     required this.candidateVariants,
   });
 
   final String seriesKey;
   final String seriesTitle;
-  String? coverUrl;
   final Set<int> entryIssueNumbers;
   final Map<int, List<MissingComicIssueVariant>> candidateVariants;
 }
