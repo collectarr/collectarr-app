@@ -15,6 +15,7 @@ LibraryWorkspaceViewProfile standardMediaWorkspaceViewProfile(
   LibraryDetailsLayout defaultDetailsLayout = LibraryDetailsLayout.bottom,
   double? defaultDetailsWidth,
   LibraryWorkspaceCardLayout? cardLayout,
+  String? seriesGroupMode,
 }) {
   // The policy is width / height; layout needs height / width.
   final coverGridHeightFactor = 1 / uiPolicy.coverAspectRatio;
@@ -28,6 +29,7 @@ LibraryWorkspaceViewProfile standardMediaWorkspaceViewProfile(
         (uiPolicy.coverAspectRatio == 1.0
             ? LibraryWorkspaceCardLayout.coverFocused
             : LibraryWorkspaceCardLayout.standard),
+    seriesGroupMode: seriesGroupMode,
     presetConfig: (preset) => standardMediaViewPresetConfig(
       kind,
       preset,

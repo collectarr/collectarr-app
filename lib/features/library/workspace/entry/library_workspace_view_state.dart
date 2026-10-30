@@ -58,6 +58,7 @@ class LibraryWorkspaceViewProfile {
     this.defaultSortAscending = true,
     this.hideDetailsWhenSelectionEmpty = false,
     this.cardLayout = LibraryWorkspaceCardLayout.standard,
+    this.seriesGroupMode,
     this.sortAscendingForColumn,
   });
 
@@ -77,6 +78,11 @@ class LibraryWorkspaceViewProfile {
   final bool defaultSortAscending;
   final bool hideDetailsWhenSelectionEmpty;
   final LibraryWorkspaceCardLayout cardLayout;
+
+  /// The group that collects the kind's series. As in the reference, its
+  /// folders show a cover, and choosing one drops the card headline that
+  /// would repeat the series.
+  final String? seriesGroupMode;
   final LibrarySortColumnDirectionResolver? sortAscendingForColumn;
 
   double clampCoverSize(double value) =>

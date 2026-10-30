@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
 import 'dart:math' as math;
 
@@ -175,8 +176,12 @@ class LibraryWorkspace extends ConsumerWidget {
     final cardFooterHeight =
         items.any((item) => item.customFieldBadges.isNotEmpty) ? 80.0 : 62.0;
     final headlinedCards = cardLayout == LibraryWorkspaceCardLayout.headlined;
+    final showsHeadline = headlinedCards &&
+        !(groupMode == viewProfile.seriesGroupMode &&
+            selectedBucket != null &&
+            selectedBucket != libraryEmptyGroupLabel);
     final standardVerticalTileHeight = headlinedCards
-        ? kLibraryHeadlinedCardTitleHeight +
+        ? (showsHeadline ? kLibraryHeadlinedCardTitleHeight : 0) +
             (standardVerticalTileWidth - 10) *
                 viewProfile.coverGridHeightFactor +
             10 +
@@ -267,6 +272,7 @@ class LibraryWorkspace extends ConsumerWidget {
             cardLayout: headlinedCards
                 ? LibraryCardLayout.headlined
                 : LibraryCardLayout.vertical,
+            showHeadline: showsHeadline,
             selectionMode: selectionEnabled,
             onSelectionToggleTap: () => onToggleSelectionItem(item.target.id),
             onEditTap: () => onEditItem(item),

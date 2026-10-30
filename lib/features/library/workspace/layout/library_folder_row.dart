@@ -6,6 +6,10 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 const kLibraryFolderRowHeight = 27.0;
+
+/// A series folder row: the reference crops a 60 x 40 cover from its top.
+const kLibraryFolderCoverRowHeight = 40.0;
+const kLibraryFolderCoverWidth = 60.0;
 const kLibraryFolderCountMinWidth = 28.0;
 
 TextStyle libraryFolderTextStyle(BuildContext context) =>
@@ -56,6 +60,7 @@ class LibraryFolderRow extends StatefulWidget {
     required this.countWidth,
     this.onTap,
     this.leading,
+    this.cover,
     this.indentation = 0,
     this.depth = 0,
     this.rowPadding = 4,
@@ -69,6 +74,9 @@ class LibraryFolderRow extends StatefulWidget {
   final double countWidth;
   final VoidCallback? onTap;
   final Widget? leading;
+
+  /// A cover cropped beside the label, as the reference's series folders.
+  final Widget? cover;
   final double indentation;
   final int depth;
   final double rowPadding;
@@ -119,7 +127,9 @@ class _LibraryFolderRowState extends State<LibraryFolderRow> {
             ),
             child: SizedBox(
               height: math.max(
-                  kLibraryFolderRowHeight + (widget.rowPadding - 4) * 2,
+                  widget.cover != null
+                      ? kLibraryFolderCoverRowHeight
+                      : kLibraryFolderRowHeight + (widget.rowPadding - 4) * 2,
                   MediaQuery.textScalerOf(context).scale(22) + 5),
               child: LayoutBuilder(builder: (context, constraints) {
                 if (constraints.maxWidth <
@@ -127,10 +137,22 @@ class _LibraryFolderRowState extends State<LibraryFolderRow> {
                   return const SizedBox.expand();
                 }
                 return Padding(
-                  padding:
-                      EdgeInsets.only(left: 5 + widget.indentation, right: 5),
+                  padding: EdgeInsets.only(
+                      left: (widget.cover != null ? 1 : 5) + widget.indentation,
+                      right: 5),
                   child: Row(children: [
                     if (widget.leading != null) widget.leading!,
+                    if (widget.cover != null) ...[
+                      SizedBox(
+                          width: kLibraryFolderCoverWidth,
+                          height: kLibraryFolderCoverRowHeight,
+                          child: ClipRect(
+                              child: OverflowBox(
+                                  alignment: Alignment.topCenter,
+                                  maxHeight: double.infinity,
+                                  child: widget.cover))),
+                      const SizedBox(width: 4),
+                    ],
                     Expanded(
                         child: Text(widget.label,
                             maxLines: 1,

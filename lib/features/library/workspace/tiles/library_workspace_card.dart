@@ -34,6 +34,7 @@ class LibraryWorkspaceCard extends StatefulWidget {
     this.mutedTextColor = kAppTextMuted,
     this.coverWidth = 92,
     this.cardLayout = LibraryCardLayout.horizontal,
+    this.showHeadline = true,
     this.selectionMode = false,
     this.checked = false,
     this.onSelectionToggleTap,
@@ -52,6 +53,10 @@ class LibraryWorkspaceCard extends StatefulWidget {
   final Color mutedTextColor;
   final double coverWidth;
   final LibraryCardLayout cardLayout;
+
+  /// Whether a headlined card shows its headline; off when the chosen folder
+  /// already names it.
+  final bool showHeadline;
   final bool selectionMode;
   final bool checked;
   final VoidCallback? onSelectionToggleTap;
@@ -396,7 +401,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (headlined)
+                              if (headlined && widget.showHeadline)
                                 _HeadlinedCardTitle(
                                     text: presentation.headline ??
                                         item.dto.primaryLabel,

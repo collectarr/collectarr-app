@@ -17,6 +17,7 @@ final comicKindViewProfile = standardMediaWorkspaceViewProfile(
   CatalogMediaKind.comic,
   comicKindUiPolicy,
   cardLayout: LibraryWorkspaceCardLayout.headlined,
+  seriesGroupMode: ComicGroupIds.series.value,
   // The reference shows the details beside the comics, as in Music.
   defaultDetailsLayout: LibraryDetailsLayout.right,
   defaultDetailsWidth: 1060,
