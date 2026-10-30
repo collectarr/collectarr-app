@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 
@@ -31,7 +31,7 @@ class LibraryProjectionEngine {
   LibraryProjection execute({
     required ShelfState shelf,
     required LibraryKindRegistration type,
-    required LibraryWorkspaceViewState viewState,
+    required List<LibrarySortRuleRuntime> sortRules,
     required LibraryProjectionQuery query,
     List<LibraryBucket>? overrideBuckets,
     List<CustomFieldDefinition> customFieldDefinitions = const [],
@@ -105,7 +105,7 @@ class LibraryProjectionEngine {
     filteredItems.sort((a, b) => workspace.compareEntriesByRules(
           a,
           b,
-          viewState.sortRules,
+          sortRules,
           sorting: query.sorting,
         ));
 

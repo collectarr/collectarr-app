@@ -6,7 +6,7 @@ class LibraryProjectionService {
   LibraryProjection build({
     required ShelfState shelf,
     required LibraryKindRegistration type,
-    required LibraryWorkspaceViewState viewState,
+    required List<LibrarySortRuleRuntime> sortRules,
     required String query,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
     required String? selectedBucket,
@@ -49,7 +49,7 @@ class LibraryProjectionService {
     return engine.execute(
       shelf: shelf,
       type: type,
-      viewState: viewState,
+      sortRules: sortRules,
       query: projectionQuery,
       overrideBuckets: overrideBuckets,
       customFieldDefinitions: customFieldDefinitions,

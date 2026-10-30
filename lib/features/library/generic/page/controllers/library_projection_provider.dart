@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -19,7 +19,7 @@ class LibraryProjectionRequest {
   const LibraryProjectionRequest({
     required this.shelf,
     required this.type,
-    required this.viewState,
+    required this.sortRules,
     required this.query,
     required this.linkedMetadataFilter,
     required this.selectedBucket,
@@ -41,7 +41,10 @@ class LibraryProjectionRequest {
 
   final ShelfState shelf;
   final LibraryKindRegistration type;
-  final LibraryWorkspaceViewState viewState;
+
+  /// Only the sort rules of the view state shape the projection, so cover
+  /// size or pane changes keep the cached projection.
+  final List<LibrarySortRuleRuntime> sortRules;
   final String query;
   final LibraryLinkedMetadataFilter? linkedMetadataFilter;
   final String? selectedBucket;
@@ -66,7 +69,7 @@ class LibraryProjectionRequest {
         shelf == other.shelf &&
         setEquals(collectionEntryIds, other.collectionEntryIds) &&
         type == other.type &&
-        viewState == other.viewState &&
+        listEquals(sortRules, other.sortRules) &&
         query == other.query &&
         linkedMetadataFilter == other.linkedMetadataFilter &&
         selectedBucket == other.selectedBucket &&
@@ -96,7 +99,7 @@ class LibraryProjectionRequest {
         shelf,
         Object.hashAll((collectionEntryIds?.toList() ?? <String>[])..sort()),
         type,
-        viewState,
+        Object.hashAll(sortRules),
         query,
         linkedMetadataFilter,
         selectedBucket,
@@ -193,7 +196,7 @@ final libraryProjectionProvider = Provider.autoDispose
     sorting: sorting,
     shelf: request.shelf,
     type: request.type,
-    viewState: request.viewState,
+    sortRules: request.sortRules,
     query: request.query,
     linkedMetadataFilter: request.linkedMetadataFilter,
     selectedBucket: request.selectedBucket,

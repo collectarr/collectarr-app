@@ -48,7 +48,7 @@ void main() {
         .execute(
           shelf: shelf,
           type: type,
-          viewState: libraryViewProfileForKind(type.kind).defaults(),
+          sortRules: libraryViewProfileForKind(type.kind).defaults().sortRules,
           query: LibraryProjectionQuery(searchQuery: query),
           searchTarget: target,
         )
