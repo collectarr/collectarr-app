@@ -1109,14 +1109,13 @@ class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
           mouseCursor:
               canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
           onTap: widget.onTap,
-          // Only the selected letter is rounded; hover is square, as in
-          // the reference bar.
-          borderRadius: BorderRadius.circular(isSelected ? 5 : 0),
+          // Selected and hovered letters share the reference's 5 px pill.
+          borderRadius: BorderRadius.circular(5),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 1),
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: BorderRadius.circular(isSelected ? 5 : 0),
+              borderRadius: BorderRadius.circular(5),
             ),
             child: Center(
               // Labels never wrap ("0-9") when the bar is squeezed.
