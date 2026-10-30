@@ -122,6 +122,7 @@ class LibraryAddBrowseCapability {
     required this.icon,
     required this.searchGroups,
     required this.loadItemRows,
+    this.coverBlock,
   });
 
   /// Names the tab, the group list and its empty state, as "Series".
@@ -136,6 +137,26 @@ class LibraryAddBrowseCapability {
   /// Core search envelopes for every item of a group, in order.
   final Future<List<Map<String, dynamic>>> Function(
       ApiClient api, LibraryAddBrowseGroup group) loadItemRows;
+
+  /// The labels around each item's cover; set, a group's items show as a
+  /// cover grid (or a list) instead of result rows.
+  final LibraryAddCoverBlock Function(CatalogSearchCandidate item)? coverBlock;
+}
+
+/// What the cover grid writes around one item's cover: a boxed badge with
+/// its period beside, and a caption below.
+class LibraryAddCoverBlock {
+  const LibraryAddCoverBlock({
+    required this.badge,
+    this.month,
+    this.year,
+    this.caption,
+  });
+
+  final String badge;
+  final String? month;
+  final int? year;
+  final String? caption;
 }
 
 /// An Add tab that searches Core by one typed code, labelled by the kind.

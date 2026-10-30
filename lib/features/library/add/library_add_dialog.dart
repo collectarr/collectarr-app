@@ -42,6 +42,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_preview_pa
 import 'package:collectarr_app/features/library/add/panes/library_add_grouped_results.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_browse_pane.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_cover_blocks.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
@@ -118,6 +119,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   double? _dialogWidth;
   double? _dialogHeight;
+  LibraryAddBlockLayout _blockLayout = LibraryAddBlockLayout.grid;
+  bool _blocksDescending = false;
 
   /// The result group whose variants are shown, and the search it belongs to.
   String? _selectedGroupKey;
@@ -1015,6 +1018,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 capability: browse!,
                 state: state.browse,
                 onOpen: _controller.openBrowseGroup,
+                onAddManually: state.browse.searched
+                    ? () => _openManualDialog(accent, addCapability)
+                    : null,
               )
             : null,
         browseMode && openedGroup == null
@@ -1049,9 +1055,23 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 searched: state.search.coreSearchGeneration > 0,
                 selectedGroupKey: _selectedGroupKey,
                 onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
+                coverBlocks: browseMode && browse?.coverBlock != null
+                    ? LibraryAddCoverBlockView(
+                        block: browse!.coverBlock!,
+                        layout: _blockLayout,
+                        onLayoutChanged: (layout) =>
+                            setState(() => _blockLayout = layout),
+                        descending: _blocksDescending,
+                        onDescendingChanged: (descending) =>
+                            setState(() => _blocksDescending = descending),
+                      )
+                    : null,
                 headerTrailing: browseMode
                     ? LibraryAddCheckAllToggle(
                         count: visibleCore.length,
+                        partial: visibleCore.any((item) => state
+                            .selection.checkedResultIds
+                            .contains(item.reference.id)),
                         checked: visibleCore.isNotEmpty &&
                             visibleCore.every((item) => state
                                 .selection.checkedResultIds
@@ -1062,7 +1082,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 checked),
                       )
                     : kindControls,
-                onAddManually: () => _openManualDialog(accent, addCapability),
+                onAddManually: browseMode
+                    ? null
+                    : () => _openManualDialog(accent, addCapability),
               ),
       ),
       overlay: selectedItem == null

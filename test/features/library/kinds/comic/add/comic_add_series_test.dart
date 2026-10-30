@@ -123,13 +123,12 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Series'));
-    await pumpUntilSettled(tester);
+    // Add Comics opens on Series, as in the reference.
     await tester.enterText(
         find.byKey(const ValueKey('library-add-browse-field')), 'fixture');
     await tester.tap(find.byKey(const ValueKey('library-add-search-button')));
     await pumpUntilSettled(tester);
-    expect(find.text('1 Series'), findsOneWidget);
+    expect(find.text('Add it manually'), findsOneWidget);
     expect(find.text('2'), findsOneWidget);
     expect(find.text('2018 - 2019'), findsOneWidget);
 
@@ -142,9 +141,25 @@ void main() {
         findsOneWidget);
     expect(find.descendant(of: header, matching: find.text('Fixture (2018)')),
         findsOneWidget);
-    // The series list stays beside its issues.
-    expect(find.text('1 Series'), findsOneWidget);
+    // The series list stays beside its issues, shown as cover blocks.
+    expect(find.text('Add it manually'), findsOneWidget);
     expect(find.text('All (2)'), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('library-add-cover-grid')), findsOneWidget);
+    expect(find.text('#1'), findsOneWidget);
+    expect(find.text('Mar\n2018'), findsOneWidget);
+    expect(find.text('Foil'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('library-add-sort-issues')));
+    await pumpUntilSettled(tester);
+    expect(
+        tester.getTopLeft(find.text('#2')).dx <
+            tester.getTopLeft(find.text('#1')).dx,
+        isTrue);
+    await tester.tap(find.byKey(const ValueKey('library-add-layout-list')));
+    await pumpUntilSettled(tester);
+    expect(
+        find.byKey(const ValueKey('library-add-cover-list')), findsOneWidget);
+    expect(find.text('2018, Mar.'), findsOneWidget);
     await tester.tap(find.descendant(
         of: find.byKey(const ValueKey('library-add-check-all')),
         matching: find.byKey(const ValueKey('library-add-result-checkbox'))));
@@ -194,6 +209,10 @@ class _SeriesApiFake extends ApiClient {
                 'title': 'Fixture #$number',
                 'series_title': 'Fixture',
                 'issue_number': number,
+                if (number == '1') ...{
+                  'cover_date': {'year': 2018, 'month': 3},
+                  'variant_description': 'Foil',
+                },
               },
             },
         ];

@@ -238,6 +238,10 @@ abstract final class AppIcons {
       IconData(0xf15d, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData sortCount =
       IconData(0xf160, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData sortAlphaUp =
+      IconData(0xf15e, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData viewGrid =
+      IconData(0xf00a, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData viewList =
       IconData(0xf0c9, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData viewHorizontalCards =
