@@ -232,11 +232,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
         icon: AppIcons.tabDetails,
         fieldIds: const {
           'catalog_title',
-          'edition_title',
-          'isbn',
-          'upc',
           ComicFieldIdentities.pageCountId,
-          'age_rating',
           'publication_age',
           'subtitle',
           'genres',

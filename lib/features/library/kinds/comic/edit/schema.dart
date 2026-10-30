@@ -110,11 +110,7 @@ final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
             'language',
             'publication_age',
             'comic.page_count',
-            'genres',
-            'age_rating',
-            'edition_title',
-            'isbn',
-            'upc'
+            'genres'
           ]),
         )
       ],

@@ -9,12 +9,9 @@ final class ComicCatalogItemFormValues {
     this.seriesId,
     this.issueNumber = '',
     this.variant = '',
-    this.editionTitle = '',
     this.subtitle = '',
     this.variantDescription = '',
     this.barcode = '',
-    this.isbn = '',
-    this.upc = '',
     this.physicalFormatLabel = '',
     this.coverDate,
     this.coverDateParts,
@@ -24,7 +21,6 @@ final class ComicCatalogItemFormValues {
     this.imprint = '',
     this.seriesGroup = '',
     this.pageCount,
-    this.ageRating = '',
     this.publicationAge = '',
     this.genres = const [],
     this.language = '',
@@ -40,12 +36,9 @@ final class ComicCatalogItemFormValues {
   String? seriesId;
   String issueNumber;
   String variant;
-  String editionTitle;
   String subtitle;
   String variantDescription;
   String barcode;
-  String isbn;
-  String upc;
   String physicalFormatLabel;
   DateTime? coverDate;
   PartialDate? coverDateParts;
@@ -55,7 +48,6 @@ final class ComicCatalogItemFormValues {
   String imprint;
   String seriesGroup;
   int? pageCount;
-  String ageRating;
   String publicationAge;
   List<String> genres;
   String language;
