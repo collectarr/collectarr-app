@@ -10,6 +10,19 @@ import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dar
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('proposal values read as the comparison shows them', () {
+    expect(coreValueText(null), '');
+    expect(coreValueText({'year': 2024, 'month': 3}), isNotEmpty);
+    expect(coreValueText({'year': 2024, 'month': 3}), isNot(contains('{')));
+    expect(coreValueText(['Science Fiction', 'Mystery']),
+        'Science Fiction, Mystery');
+    expect(
+        coreValueText([
+          {'name': 'Ada Quill', 'role': 'Writer'}
+        ]),
+        'Writer - Ada Quill');
+  });
+
   const musicItemField = CanonicalCorrectionField(
     key: 'discs',
     label: 'Discs',
