@@ -79,7 +79,7 @@ abstract final class _LibraryProjectionControllerOps {
         LibraryProjectionRequest(
           shelf: shelf,
           type: state.widget.type,
-          viewState: viewState,
+          sortRules: viewState.sortRules,
           query: query,
           linkedMetadataFilter: linkedMetadataFilter,
           selectedBucket: selectedBucket,

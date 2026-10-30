@@ -45,7 +45,7 @@ void main() {
         LibraryProjectionEngine().execute(
           shelf: shelf,
           type: type,
-          viewState: libraryViewProfileForKind(type.kind).defaults(),
+          sortRules: libraryViewProfileForKind(type.kind).defaults().sortRules,
           query: LibraryProjectionQuery(
               collectionEntryIds: members, searchQuery: search),
         );
@@ -97,7 +97,7 @@ void main() {
         LibraryProjectionEngine().execute(
           shelf: shelf,
           type: type,
-          viewState: libraryViewProfileForKind(type.kind).defaults(),
+          sortRules: libraryViewProfileForKind(type.kind).defaults().sortRules,
           query: LibraryProjectionQuery(collectionStatusScope: scope),
         );
     List<String> shown(LibraryCollectionStatusScope scope) =>

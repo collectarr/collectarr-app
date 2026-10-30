@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -372,7 +372,7 @@ class LibraryProjection {
   factory LibraryProjection.fromShelf({
     required ShelfState shelf,
     required LibraryKindRegistration type,
-    required LibraryWorkspaceViewState viewState,
+    required List<LibrarySortRuleRuntime> sortRules,
     required String query,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
     required String? selectedBucket,
@@ -397,7 +397,7 @@ class LibraryProjection {
     return const LibraryProjectionService().build(
       shelf: shelf,
       type: type,
-      viewState: viewState,
+      sortRules: sortRules,
       query: query,
       linkedMetadataFilter: linkedMetadataFilter,
       selectedBucket: selectedBucket,
