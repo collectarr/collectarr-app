@@ -167,31 +167,35 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         setValues: (draft, next) => values(draft).genres = next.toList(),
         options: const [],
       ),
-      _text<T>(
+      _vocabulary<T>(
         id: 'language',
         label: 'Language',
         value: (draft) => values(draft).language,
-        setValue: (draft, value) => values(draft).language = value,
+        setValue: (draft, value) => values(draft).language = value ?? '',
+        options: const [],
+        pickListKey: ComicVocabularyIds.language.value,
       ),
-      _text<T>(
+      _vocabulary<T>(
         id: 'country',
         label: 'Country',
         value: (draft) => values(draft).country,
-        setValue: (draft, value) => values(draft).country = value,
+        setValue: (draft, value) => values(draft).country = value ?? '',
+        options: const [],
+        pickListKey: ComicVocabularyIds.country.value,
       ),
-      LibraryMultiVocabularyFieldSpec<T, String>(
+      _vocabulary<T>(
         id: 'crossover',
         label: 'Crossover',
-        values: (draft) => _split(values(draft).crossover).toSet(),
-        setValues: (draft, next) => values(draft).crossover = next.join(', '),
+        value: (draft) => values(draft).crossover,
+        setValue: (draft, value) => values(draft).crossover = value ?? '',
         options: const [],
         pickListKey: ComicVocabularyIds.crossover.value,
       ),
-      LibraryMultiVocabularyFieldSpec<T, String>(
+      _vocabulary<T>(
         id: 'story_arcs',
         label: 'Story Arc',
-        values: (draft) => values(draft).storyArcs.toSet(),
-        setValues: (draft, next) => values(draft).storyArcs = next.toList(),
+        value: (draft) => values(draft).storyArc,
+        setValue: (draft, value) => values(draft).storyArc = value ?? '',
         options: const [],
         pickListKey: ComicVocabularyIds.storyArc.value,
       ),
@@ -246,13 +250,6 @@ String? _nullable(String value) {
   final normalized = value.trim();
   return normalized.isEmpty ? null : normalized;
 }
-
-List<String> _split(String value) => value
-    .split(RegExp(r'[,\r\n]+'))
-    .map((entry) => entry.trim())
-    .where((entry) => entry.isNotEmpty)
-    .toSet()
-    .toList(growable: false);
 
 List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
       for (final value in values)

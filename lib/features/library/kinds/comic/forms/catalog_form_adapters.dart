@@ -32,10 +32,7 @@ ComicCatalogItemFormValues comicCatalogItemFormValuesFrom(
       language: media.language,
       country: media.country,
       crossover: media.crossover ?? '',
-      storyArcs: [
-        for (final arc in media.storyArcs)
-          if (arc.name?.trim().isNotEmpty == true) arc.name!.trim(),
-      ],
+      storyArc: _firstStoryArc(media.storyArcs) ?? '',
       coverImageUrl: media.coverImageUrl ?? '',
     );
 
@@ -88,7 +85,7 @@ ComicCatalogItem comicCatalogItemFromFormValues({
     releaseStatus: original.releaseStatus,
     characters: characters ?? original.characters,
     creators: creators ?? original.creators,
-    storyArcs: _replaceComicStoryArcs(original.storyArcs, values.storyArcs),
+    storyArcs: _replaceComicStoryArc(original.storyArcs, values.storyArc),
     keyEvents: original.keyEvents,
     isKeyComic: original.isKeyComic,
     keyReason: original.keyReason,
@@ -108,21 +105,28 @@ ComicCatalogItem comicCatalogItemFromFormValues({
   );
 }
 
-List<ComicStoryArc> _replaceComicStoryArcs(
+String? _firstStoryArc(List<ComicStoryArc> arcs) {
+  for (final arc in arcs) {
+    final name = arc.name?.trim();
+    if (name != null && name.isNotEmpty) return name;
+  }
+  return null;
+}
+
+/// CLZ edits one Story Arc; Core may list more, which an unchanged arc keeps.
+List<ComicStoryArc> _replaceComicStoryArc(
   List<ComicStoryArc> original,
-  List<String> values,
+  String value,
 ) {
-  final existing = {
-    for (final arc in original)
-      if (arc.name?.trim().isNotEmpty == true)
-        arc.name!.trim().toLowerCase(): arc,
-  };
-  return [
-    for (final value in values)
-      if (value.trim().isNotEmpty)
-        (existing[value.trim().toLowerCase()] ?? const ComicStoryArc())
-            .copyWith(name: value.trim()),
-  ];
+  final name = value.trim();
+  if (name == (_firstStoryArc(original) ?? '')) return original;
+  if (name.isEmpty) return const [];
+  for (final arc in original) {
+    if (arc.name?.trim().toLowerCase() == name.toLowerCase()) {
+      return [arc.copyWith(name: name)];
+    }
+  }
+  return [ComicStoryArc(name: name)];
 }
 
 String? _nullable(String value) {

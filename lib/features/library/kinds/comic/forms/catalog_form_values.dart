@@ -26,7 +26,7 @@ final class ComicCatalogItemFormValues {
     this.language = '',
     this.country = '',
     this.crossover = '',
-    this.storyArcs = const [],
+    this.storyArc = '',
     this.coverImageUrl = '',
   });
 
@@ -53,7 +53,7 @@ final class ComicCatalogItemFormValues {
   String language;
   String country;
   String crossover;
-  List<String> storyArcs;
+  String storyArc;
   String coverImageUrl;
 }
 
