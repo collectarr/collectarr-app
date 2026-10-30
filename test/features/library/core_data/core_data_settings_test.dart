@@ -182,4 +182,15 @@ void main() {
     expect(find.text('Core has no catalog for this kind yet.'), findsOneWidget);
     expect(find.text('Download'), findsNothing);
   });
+
+  testWidgets('Comics lists the reference fields in the editor order',
+      (tester) async {
+    await pumpDialog(tester, CatalogMediaKind.comic);
+
+    expect(find.text('Variant Description'), findsOneWidget);
+    expect(find.text('No. of Pages'), findsOneWidget);
+    expect(find.text('Cover price cents'), findsNothing);
+    expect(tester.getTopLeft(find.text('Subtitle')).dy,
+        lessThan(tester.getTopLeft(find.text('Format')).dy));
+  });
 }

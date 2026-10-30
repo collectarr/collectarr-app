@@ -48,6 +48,7 @@ class LibraryMetadataCapability {
     this.catalogSearchResultsAreDetailed = false,
     this.catalogDetailCandidateBuilder,
     this.matchScorer,
+    this.coreDataFields,
   });
 
   final CatalogKindTransportBoundary catalogTransportCodec;
@@ -57,6 +58,10 @@ class LibraryMetadataCapability {
   final LibraryMetadataCatalogSearchBuilder? catalogSearchBuilder;
   final bool catalogSearchResultsAreDetailed;
   final LibraryMetadataMatchScorer? matchScorer;
+
+  /// The fields Add/Update from Core Settings offers, in the kind's editor
+  /// order and labels; null offers every field of Core's contract.
+  final List<({String key, String label})>? coreDataFields;
   final LibraryMetadataCatalogDetailCandidateBuilder?
       catalogDetailCandidateBuilder;
 
