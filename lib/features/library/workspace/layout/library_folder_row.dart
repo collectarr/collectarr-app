@@ -60,7 +60,7 @@ class LibraryFolderRow extends StatefulWidget {
     required this.countWidth,
     this.onTap,
     this.leading,
-    this.cover,
+    this.thumbnail,
     this.indentation = 0,
     this.depth = 0,
     this.rowPadding = 4,
@@ -75,8 +75,8 @@ class LibraryFolderRow extends StatefulWidget {
   final VoidCallback? onTap;
   final Widget? leading;
 
-  /// A cover cropped beside the label, as the reference's series folders.
-  final Widget? cover;
+  /// An image cropped beside the label, as the reference's series covers.
+  final Widget? thumbnail;
   final double indentation;
   final int depth;
   final double rowPadding;
@@ -127,7 +127,7 @@ class _LibraryFolderRowState extends State<LibraryFolderRow> {
             ),
             child: SizedBox(
               height: math.max(
-                  widget.cover != null
+                  widget.thumbnail != null
                       ? kLibraryFolderCoverRowHeight
                       : kLibraryFolderRowHeight + (widget.rowPadding - 4) * 2,
                   MediaQuery.textScalerOf(context).scale(22) + 5),
@@ -138,11 +138,12 @@ class _LibraryFolderRowState extends State<LibraryFolderRow> {
                 }
                 return Padding(
                   padding: EdgeInsets.only(
-                      left: (widget.cover != null ? 1 : 5) + widget.indentation,
+                      left: (widget.thumbnail != null ? 1 : 5) +
+                          widget.indentation,
                       right: 5),
                   child: Row(children: [
                     if (widget.leading != null) widget.leading!,
-                    if (widget.cover != null) ...[
+                    if (widget.thumbnail != null) ...[
                       SizedBox(
                           width: kLibraryFolderCoverWidth,
                           height: kLibraryFolderCoverRowHeight,
@@ -150,7 +151,7 @@ class _LibraryFolderRowState extends State<LibraryFolderRow> {
                               child: OverflowBox(
                                   alignment: Alignment.topCenter,
                                   maxHeight: double.infinity,
-                                  child: widget.cover))),
+                                  child: widget.thumbnail))),
                       const SizedBox(width: 4),
                     ],
                     Expanded(
