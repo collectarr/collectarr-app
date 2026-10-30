@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
-import 'package:collectarr_app/features/library/kinds/comic/integrations/import/clz_comic_web_importer.dart';
+import 'package:collectarr_app/features/library/kinds/comic/integrations/import/collectorz_comic_xml.dart';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 
 // Shaped like a CLZ Comics Web "Export to XML" file, with fictional values.
@@ -97,6 +99,51 @@ void main() {
     expect(
         () => importer.parse('<collectorz><data><gameinfo><gamelist>'
             '<game/></gamelist></gameinfo></data></collectorz>'),
+        throwsA(isA<LibraryImportFormatException>()));
+  });
+
+  test('reads a Comic Collector desktop export', () {
+    final rows = const ComicCollectorImporter().parse(
+        File('test/fixtures/imports/comic/comic_collector/minimal.xml')
+            .readAsStringSync());
+    expect(rows.map((row) => row.title),
+        ['Fixture Series #2A', 'Fixture Series #3']);
+    final record = rows.first.fullEntryPayload!;
+    final catalog = record['catalog_data'] as Map;
+    final personal = record['personal_data'] as Map;
+    expect(catalog['series_title'], 'Fixture Series');
+    expect(catalog['publisher'], 'Fixture Comics');
+    expect(catalog['creators'], [
+      {'name': 'Alex Example', 'sort_name': 'Example, Alex', 'role': 'Writer'}
+    ]);
+    // Desktop exports write US dates and a local cover path, not a URL.
+    expect(personal['purchase_date'], startsWith('2026-01-15'));
+    expect(record['updated_at'], startsWith('2026-01-16'));
+    expect(catalog['cover_image_url'], isNull);
+    expect(personal['price_paid_cents'], 350);
+    expect(personal['cover_price_cents'], 499);
+    // Reimporting the same file updates the same entries.
+    expect(
+        const ComicCollectorImporter()
+            .parse(
+                File('test/fixtures/imports/comic/comic_collector/minimal.xml')
+                    .readAsStringSync())
+            .map((row) => row.itemId),
+        rows.map((row) => row.itemId));
+  });
+
+  test('Comic Collector and CLZ Web roots are not interchangeable', () {
+    expect(() => const ComicCollectorImporter().parse(_export),
+        throwsA(isA<LibraryImportFormatException>()));
+    expect(
+        () => importer.parse(
+            File('test/fixtures/imports/comic/comic_collector/minimal.xml')
+                .readAsStringSync()),
+        throwsA(isA<LibraryImportFormatException>()));
+    expect(
+        () => const ComicCollectorImporter().parse(
+            File('test/fixtures/imports/comic/comic_collector/truncated.xml')
+                .readAsStringSync()),
         throwsA(isA<LibraryImportFormatException>()));
   });
 }

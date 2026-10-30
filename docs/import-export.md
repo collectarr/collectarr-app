@@ -72,8 +72,17 @@ of the program itself has not yet been captured separately.
 OrangeCD OXL, CDpedia XML and Music Label's Netwalk Musica `export.xml` are not
 advertised until an actual export fixture and parser contract are verified.
 Delicious delimited TXT is also not accepted. A generic parser is not
-substituted for these formats. Unreleased Books/Comics/Movies import sources
-have not been reintroduced.
+substituted for these formats. Unreleased Books/Movies import sources have
+not been reintroduced.
+
+Comics accepts CLZ Comics Web XML (`collectorz/data/comicinfo/comiclist/comic`)
+and Comic Collector desktop XML (`comicinfo/comiclist/comic`, numeric `id`,
+US `m/d/yyyy` dates, credits and characters in `mainsection`). No Comic
+Collector comics sample is published; the desktop shape follows the Collectorz
+Book Collector sample in KDE Tellico's tests and the records of a real CLZ
+Comics Web export. Comic Collector Live CSV and Comic Collector user-defined
+fields are not advertised until a sample export is available; a Comic
+Collector Live CSV can be mapped through Import a Text or CSV file.
 
 A 2026-10-16 search found no published schema, DTD or sample file for any of
 them; their vendors document only how to export:

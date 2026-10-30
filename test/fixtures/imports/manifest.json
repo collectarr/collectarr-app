@@ -54,5 +54,19 @@
     "minimal": "game_toy/clz_web/minimal.xml",
     "optional": "game_toy/clz_web/optional.xml",
     "invalid": "game_toy/clz_web/invalid.xml"
+  },
+  "comic.comiccollector": {
+    "kind": "comic",
+    "minimal": "comic/comic_collector/minimal.xml",
+    "optional": "comic/comic_collector/optional_missing.xml",
+    "invalid": "comic/comic_collector/truncated.xml",
+    "origin": "Comic Collector desktop XML shape inferred from the Collectorz desktop sample https://github.com/KDE/tellico/blob/master/src/tests/data/collectorz_books.xml and the comicinfo records of a CLZ Comics Web export; fictional values."
+  },
+  "comic.clz_comic_web": {
+    "kind": "comic",
+    "minimal": "comic/clz_web/minimal.xml",
+    "optional": "comic/clz_web/optional.xml",
+    "invalid": "comic/clz_web/invalid.xml",
+    "origin": "Synthetic fixture based on an observed CLZ Comics Web XML export; no proprietary catalog content or assets."
   }
 }

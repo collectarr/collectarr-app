@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_import_capability.dart';
-import '../integrations/import/clz_comic_web_importer.dart';
+import 'package:flutter/material.dart';
+import '../integrations/import/collectorz_comic_xml.dart';
 import '../integrations/import/comic_mapped_csv_importer.dart';
 
 const _fields = <(String, String)>[
@@ -79,22 +80,43 @@ final comicKindImport = LibraryKindImportCapability(
   ],
   sources: const [
     LibraryImportSourceDefinition(
+      id: 'text',
+      title: 'Import a Text or CSV file',
+      fallbackIcon: Icons.description_outlined,
+      sourceType: LibraryImportSourceType.csvTxt,
+      fileExtensions: ['csv', 'txt'],
+    ),
+    LibraryImportSourceDefinition(
+        id: 'comiccollector',
+        title: 'Comic Collector',
+        importer: ComicCollectorImporter(),
+        fallbackIcon: Icons.desktop_windows,
+        fileExtensions: ['xml'],
+        description:
+            'To import your list of comics from Comic Collector, you need to export an XML file of your comics out of Comic Collector.\nHere\'s what to do:',
+        instructions: [
+          'Start Comic Collector on your computer.',
+          'Click in the top menu File > Export to > XML',
+          'Use browse to select a folder to save your collection to.',
+          'Make sure the option All Comics is ticked in the Comics to export.',
+          'Upload your XML file below:',
+        ],
+        filePrompt: 'Upload your Comic Collector XML file:'),
+    LibraryImportSourceDefinition(
         id: 'clz_comic_web',
         title: 'CLZ Comics Web',
         importer: ClzComicWebImporter(),
+        fallbackIcon: Icons.cloud_download_outlined,
         fileExtensions: ['xml'],
-        description: 'Import your comics from CLZ Comics Web.',
+        description:
+            'To import your list of comics from CLZ Comics Web, you need to export an XML file of your comics out of CLZ Comics Web.\nHere\'s what to do:',
         instructions: [
-          'Open your comics in CLZ Comics Web.',
-          'Choose Import / Export > Export to XML.',
-          'Generate and download the XML file, then upload it here.'
+          'Login to CLZ Comics Web.',
+          'Click the menu on the left and navigate to "Export to XML".',
+          'Click OK to save the exported XML file.',
+          'Download the XML file.',
+          'Upload the saved XML file below:',
         ],
-        filePrompt: 'Upload the CLZ Comics XML export:'),
-    LibraryImportSourceDefinition(
-      id: 'text',
-      title: 'Import a Text or CSV file',
-      sourceType: LibraryImportSourceType.csvTxt,
-      fileExtensions: ['csv', 'txt'],
-    )
+        filePrompt: 'Upload your CLZ Comics Web XML file:'),
   ],
 );

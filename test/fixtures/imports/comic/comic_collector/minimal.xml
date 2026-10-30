@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<comicinfo creationdate="1/15/2026 9:30:00 AM">
+  <comiclist>
+    <comic>
+      <id>9001</id>
+      <index>1</index>
+      <mainsection>
+        <title>Fixture Title</title>
+        <series>
+          <displayname>Fixture Series</displayname>
+          <sortname>Fixture Series</sortname>
+          <complete>No</complete>
+        </series>
+        <plot>A fixture plot.</plot>
+        <pagecount>32</pagecount>
+        <myrating>8</myrating>
+        <credits>
+          <credit>
+            <role id="dfWriter">Writer</role>
+            <roleid>dfWriter</roleid>
+            <person>
+              <displayname>Alex Example</displayname>
+              <sortname>Example, Alex</sortname>
+            </person>
+          </credit>
+        </credits>
+        <characters/>
+      </mainsection>
+      <issuenr>2</issuenr>
+      <issueext>A</issueext>
+      <publisher>
+        <displayname>Fixture Comics</displayname>
+        <sortname>Fixture Comics</sortname>
+      </publisher>
+      <releasedate>
+        <year><displayname>2024</displayname></year>
+        <date>2024/11/13</date>
+      </releasedate>
+      <collectionstatus listid="3">In Collection</collectionstatus>
+      <format><displayname>Comic</displayname></format>
+      <coverprice>$4.99</coverprice>
+      <coverpricefloat>4.99</coverpricefloat>
+      <purchaseprice>$3.50</purchaseprice>
+      <purchasedate>
+        <date>1/15/2026</date>
+      </purchasedate>
+      <readit boolvalue="1">Yes</readit>
+      <readingdate/>
+      <quantity>1</quantity>
+      <lastmodified>
+        <date>1/16/2026 10:22:39 AM</date>
+      </lastmodified>
+      <coverfront>Images\fixture-cover.jpg</coverfront>
+    </comic>
+    <comic>
+      <id>9002</id>
+      <mainsection>
+        <series><displayname>Fixture Series</displayname></series>
+      </mainsection>
+      <issuenr>3</issuenr>
+    </comic>
+  </comiclist>
+</comicinfo>
