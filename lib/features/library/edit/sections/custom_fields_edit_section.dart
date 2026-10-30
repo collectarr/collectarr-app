@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
-import 'package:collectarr_app/ui/anchored_calendar.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -482,34 +481,12 @@ class _DateCustomField extends StatelessWidget {
   final ValueChanged<String?> onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    return LibraryFormField(
-      label: label,
-      labelStyle: const TextStyle(fontSize: 13, height: 20 / 13),
-      action: IconButton(
-        tooltip: 'Pick date',
-        constraints: const BoxConstraints.tightFor(width: 24, height: 20),
-        padding: EdgeInsets.zero,
-        iconSize: 16,
-        onPressed: () async {
-          final date = await showAppAnchoredCalendar(
-            context: context,
-            initialDate: DateTime.tryParse(value ?? '') ?? DateTime.now(),
-            firstDate: DateTime(1),
-            lastDate: DateTime(9999),
-          );
-          if (date != null) {
-            onChanged(PartialDate.fromDateTime(date).isoString);
-          }
-        },
-        icon: const Icon(AppIcons.calendar),
-      ),
-      child: LibraryPartialDateInput(
+  Widget build(BuildContext context) => LibraryPartialDateField(
+        label: label,
+        labelStyle: const TextStyle(fontSize: 13, height: 20 / 13),
         value: PartialDate.tryParse(value),
         onChanged: (date) => onChanged(date?.isoString),
-      ),
-    );
-  }
+      );
 }
 
 class _TimeCustomField extends StatelessWidget {

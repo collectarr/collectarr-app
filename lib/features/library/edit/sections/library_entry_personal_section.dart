@@ -240,17 +240,15 @@ class _LibraryEntryPersonalSectionState
         return const SizedBox.shrink();
       case PersonalLibraryFieldEditor.partialDate:
         final partsKey = '${field.key}_parts';
-        return LibraryFormField(
+        return LibraryPartialDateField(
           label: field.label,
-          child: LibraryPartialDateInput(
-            value: PartialDate.tryParse(
-              _draft.values[partsKey] ?? _draft.values[field.key],
-            ),
-            onChanged: (date) {
-              _draft.set(partsKey, date?.toJson());
-              _draft.set(field.key, date?.asDateTime?.toIso8601String());
-            },
+          value: PartialDate.tryParse(
+            _draft.values[partsKey] ?? _draft.values[field.key],
           ),
+          onChanged: (date) {
+            _draft.set(partsKey, date?.toJson());
+            _draft.set(field.key, date?.asDateTime?.toIso8601String());
+          },
         );
       case PersonalLibraryFieldEditor.money:
         return _money(field);

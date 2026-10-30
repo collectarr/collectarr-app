@@ -295,15 +295,13 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          LibraryFormField(
+          LibraryPartialDateField(
             label: 'Recording Date',
-            child: LibraryPartialDateInput(
-              value: disc.recordingDate,
-              onChanged: (value) {
-                draft.discList.updateDiscRecordingDate(disc.id, value);
-                _notify();
-              },
-            ),
+            value: disc.recordingDate,
+            onChanged: (value) {
+              draft.discList.updateDiscRecordingDate(disc.id, value);
+              _notify();
+            },
           ),
           const SizedBox(height: 10),
           LibraryOrderedPickListField(

@@ -903,13 +903,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 label: _personalFieldLabel('purchase_store'),
                 options: _draft.purchaseStoreOptions,
               ),
-              LibraryDateFieldButton(
+              LibraryPartialDateField.fullDate(
                 label: _personalFieldLabel('purchase_date'),
-                value: _draft.personal.purchaseDateController.text.isEmpty
+                date: _draft.personal.purchaseDateController.text.isEmpty
                     ? null
                     : DateTime.tryParse(
                         _draft.personal.purchaseDateController.text),
-                onChanged: (date) {
+                onDateChanged: (date) {
                   _draft.personal.purchaseDateController.text =
                       date?.toIso8601String().split('T').first ?? '';
                   _markDirty();
@@ -944,10 +944,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 ),
               ]),
               const SizedBox(height: 10),
-              LibraryDateFieldButton(
+              LibraryPartialDateField.fullDate(
                 label: _personalFieldLabel('sold_at'),
-                value: _draft.personal.soldAt,
-                onChanged: (date) =>
+                date: _draft.personal.soldAt,
+                onDateChanged: (date) =>
                     setState(() => _draft.personal.soldAt = date),
               ),
             ],

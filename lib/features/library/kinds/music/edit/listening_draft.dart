@@ -114,11 +114,10 @@ class _MusicListeningDraftSectionState
                         child: const Text('Mark as listened')),
                     SizedBox(
                         width: 240,
-                        child: LibraryDateFieldButton(
+                        child: LibraryPartialDateField.fullDate(
                             label: 'Listen Date',
-                            showLabel: false,
-                            value: _selectedDate,
-                            onChanged: (date) {
+                            date: _selectedDate,
+                            onDateChanged: (date) {
                               if (date != null) {
                                 setState(() => _selectedDate = date);
                               }

@@ -61,24 +61,23 @@ class _MusicAddPersonalPaneState extends State<MusicAddPersonalPane> {
         layoutBuilder: (fields, _) => musicPersonalFormLayout(
             fields, MusicListeningDraftSection(draft: _listening)),
         fieldOverrides: {
-          'purchase_date': LibraryFormField(
+          'purchase_date': LibraryPartialDateField(
               label: 'Purchase Date',
-              child: LibraryPartialDateInput(
-                  value: draft.purchaseDateParts ??
-                      (request.commonDraft?.purchaseDate == null
-                          ? null
-                          : PartialDate.fromDateTime(
-                              request.commonDraft!.purchaseDate!)),
-                  onChanged: (date) {
-                    update(draft.copyWith(purchaseDateParts: date));
-                    request.purchaseDateController.text =
-                        date?.asDateTime?.toIso8601String() ?? '';
-                    final common = request.commonDraft;
-                    if (common != null) {
-                      request.onCommonDraftChanged?.call(
-                          common.copyWith(purchaseDate: date?.asDateTime));
-                    }
-                  })),
+              value: draft.purchaseDateParts ??
+                  (request.commonDraft?.purchaseDate == null
+                      ? null
+                      : PartialDate.fromDateTime(
+                          request.commonDraft!.purchaseDate!)),
+              onChanged: (date) {
+                update(draft.copyWith(purchaseDateParts: date));
+                request.purchaseDateController.text =
+                    date?.asDateTime?.toIso8601String() ?? '';
+                final common = request.commonDraft;
+                if (common != null) {
+                  request.onCommonDraftChanged
+                      ?.call(common.copyWith(purchaseDate: date?.asDateTime));
+                }
+              }),
           'market_value_cents': LibraryMoneyAmountField(
               label: 'Current Value',
               amountMinorUnits: draft.marketValueCents,
@@ -86,12 +85,11 @@ class _MusicAddPersonalPaneState extends State<MusicAddPersonalPane> {
                   request.commonDraft?.currency ?? AppFormats.current.currency,
               onChanged: (value) =>
                   update(draft.copyWith(marketValueCents: value))),
-          'last_cleaned_date': LibraryFormField(
+          'last_cleaned_date': LibraryPartialDateField(
               label: 'Last Cleaned Date',
-              child: LibraryPartialDateInput(
-                  value: draft.lastCleanedDateParts,
-                  onChanged: (value) =>
-                      update(draft.copyWith(lastCleanedDateParts: value)))),
+              value: draft.lastCleanedDateParts,
+              onChanged: (value) =>
+                  update(draft.copyWith(lastCleanedDateParts: value))),
           'rating': LibraryFormField(
               label: 'My Rating',
               child: MediaRatingField(
