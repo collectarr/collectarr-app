@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_import_capability.dart';
+import '../integrations/import/clz_comic_web_importer.dart';
 import '../integrations/import/comic_mapped_csv_importer.dart';
 
 const _fields = <(String, String)>[
@@ -77,6 +78,18 @@ final comicKindImport = LibraryKindImportCapability(
           key: key, label: label, aliases: [label], isDefault: key == 'series')
   ],
   sources: const [
+    LibraryImportSourceDefinition(
+        id: 'clz_comic_web',
+        title: 'CLZ Comics Web',
+        importer: ClzComicWebImporter(),
+        fileExtensions: ['xml'],
+        description: 'Import your comics from CLZ Comics Web.',
+        instructions: [
+          'Open your comics in CLZ Comics Web.',
+          'Choose Import / Export > Export to XML.',
+          'Generate and download the XML file, then upload it here.'
+        ],
+        filePrompt: 'Upload the CLZ Comics XML export:'),
     LibraryImportSourceDefinition(
       id: 'text',
       title: 'Import a Text or CSV file',

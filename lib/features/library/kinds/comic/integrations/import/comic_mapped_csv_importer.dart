@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_charact
 import '../../domain/comic_personal_data.dart';
 import '../../domain/comic_reading_state.dart';
 import '../../entries/comic_entry_details.dart';
+import 'comic_import_values.dart';
 
 final class ComicMappedCsvImporter implements LibraryMappedCsvImporter {
   const ComicMappedCsvImporter();
@@ -35,13 +36,6 @@ final class ComicMappedCsvImporter implements LibraryMappedCsvImporter {
       ClzCsvRecord row, String delimiter, ClzImportIdentities ids) {
     final series = row.text('series');
     final title = row.text('title') ?? '';
-    // The review row reads like the reference list: "Series #2A", then the
-    // issue title when there is one.
-    final issue = '${row.text('issue') ?? ''}${row.text('variant') ?? ''}';
-    final headline = [
-      if (series != null) series,
-      if (issue.isNotEmpty) '#$issue',
-    ].join(' ');
     final id = ids.next(
         'csv/$series/${row.text('issue')}/${row.text('variant')}/${row.text('barcode')}');
     final coverDate = row.date('cover_date', 'Cover Date');
@@ -90,7 +84,7 @@ final class ComicMappedCsvImporter implements LibraryMappedCsvImporter {
           ComicCharacter.fromValue(name)
       ],
     );
-    final severity = _key(row.text('key'));
+    final severity = comicKeySeverity(row.text('key'));
     final read = row.boolean('read', 'Read');
     final personal = ComicPersonalData(
       quantity: row.integer('quantity', 'Quantity', min: 1) ?? 1,
@@ -138,7 +132,10 @@ final class ComicMappedCsvImporter implements LibraryMappedCsvImporter {
     return clzImportRow(
         kind: CatalogMediaKind.comic,
         id: id,
-        title: series == null ? title : headline,
+        title: series == null
+            ? title
+            : comicImportHeadline(
+                series, row.text('issue'), row.text('variant')),
         subtitle: series == null || title.isEmpty ? null : title,
         barcode: metadata.barcode,
         catalog: metadata,
@@ -149,12 +146,3 @@ final class ComicMappedCsvImporter implements LibraryMappedCsvImporter {
         loan: row.loan);
   }
 }
-
-String? _key(String? value) => switch (value?.trim().toLowerCase()) {
-      null || '' || 'no' || 'false' || '0' => null,
-      'major' => 'Major',
-      'minor' => 'Minor',
-      'trivia' => 'Trivia',
-      _ => throw LibraryImportFormatException(
-          'Invalid Key "$value". Use Major, Minor, Trivia or No.'),
-    };
