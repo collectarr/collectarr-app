@@ -526,7 +526,11 @@ class LibraryBody extends StatelessWidget {
             pinnedFolderPresets: pinnedFolderPresets,
             onPinnedFolderPresetsChanged: onPinnedFolderPresetsChanged,
             folderDisplayMode: folderDisplayMode,
-            treeRoots: folderPreset == null
+            // The tree is shown only for several levels or the tree mode;
+            // a one-level drilldown never reads it.
+            treeRoots: folderPreset == null ||
+                    (folderPreset!.modes.length < 2 &&
+                        folderDisplayMode != LibraryFolderDisplayMode.tree)
                 ? const <LibraryFolderTreeNode>[]
                 : libraryFolderTreeNodesForItems(
                     projection.allItems,

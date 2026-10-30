@@ -540,7 +540,19 @@ List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
   String? selectedNodeId,
   LibrarySortingOptions sorting = const LibrarySortingOptions(),
 }) {
-  return const LibraryFolderTreeBuilder().buildTree(
+  // Page rebuilds such as a cover-size drag pass the same projection; the
+  // tree walks every item, so reuse it until an input changes.
+  final last = _lastFolderTree;
+  if (last != null &&
+      identical(last.items, items) &&
+      last.type.kind == type.kind &&
+      last.preset == preset &&
+      setEquals(last.expandedNodeIds, expandedNodeIds) &&
+      last.selectedNodeId == selectedNodeId &&
+      last.sorting == sorting) {
+    return last.nodes;
+  }
+  final nodes = const LibraryFolderTreeBuilder().buildTree(
     items: items,
     type: type,
     preset: preset,
@@ -548,7 +560,27 @@ List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
     selectedNodeId: selectedNodeId,
     sorting: sorting,
   );
+  _lastFolderTree = (
+    items: items,
+    type: type,
+    preset: preset,
+    expandedNodeIds: Set.of(expandedNodeIds),
+    selectedNodeId: selectedNodeId,
+    sorting: sorting,
+    nodes: nodes,
+  );
+  return nodes;
 }
+
+({
+  List<LibraryProjectionItem> items,
+  LibraryKindRegistration type,
+  LibraryFolderPreset preset,
+  Set<String> expandedNodeIds,
+  String? selectedNodeId,
+  LibrarySortingOptions sorting,
+  List<LibraryFolderTreeNode> nodes,
+})? _lastFolderTree;
 
 bool libraryEntryMatchesLinkedMetadataFilter(
   LibraryProjectionView item,
