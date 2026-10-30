@@ -167,7 +167,7 @@ five comics, and a release Web build with the same five imported from CSV.
 | Import wording | "Import comics from CSV / TXT", "Import Comics", "Link Comics" | Said "issues" and "Link Issues" | Fixed |
 | Import review | — | Rows repeated the series without the issue number; the CSV importer copied the Series into an empty Title | Fixed: rows read "Series #2A" over the issue title; an empty Title stays empty |
 | Export to CSV / TXT | Which Comics, Visible Columns preset and Sort Order with Manage, CSV/TXT tabs, preview, Generate file | Columns fell back to Title, Creator / Series, Format, Status with empty values | Fixed: the List view columns, defaults first |
-| Export to XML | Confirmation dialog, then a download | Present; contents not compared | Open |
+| Export to XML | "Export to XML" confirm (Cancel/Export), "XML file generated successfully." with Download; a `<collectorz>` file of `<comic>` records with CLZ ids, display names and only user-edited credits (19 KB for five comics) | Same dialogs and wording. The file is Collectarr's own `<collectarr>` layout of typed fields: every stored catalog and personal value, nulls included (20 KB for the same five) | Open: decide whether to also write the CLZ layout; Import Comics reads CLZ's file |
 | Link Comics | Your Comic / Core comics / Link table; "All comics are linked." when nothing is unlinked | Said "Core result" and "All entries are linked." | Fixed; rows for unlinked comics are not compared, since the reference account has none and unlinking there would change it |
 
 Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
