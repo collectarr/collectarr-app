@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add/manual_draft.dar
 import 'package:collectarr_app/features/library/kinds/comic/add/schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_issue_label.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_character.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_adapters.dart';
@@ -71,7 +72,18 @@ Map<String, Object?>? buildComicManualProposalData(
 }) {
   final candidate = buildComicManualCandidate(draft, title: title);
   if (candidate == null) return null;
-  return candidate.kindCapability.mapTransport(
+  final data = candidate.kindCapability.mapTransport(
     (item) => Map<String, Object?>.from(item.kindData),
   );
+  // Core needs a title; an issue without its own is named by series and
+  // issue, as the library names it.
+  if ((data['title'] as String?)?.trim().isEmpty ?? true) {
+    data['title'] = comicHeadline(
+      series: data['series_title'] as String?,
+      issueNumber: data['issue_number'] as String?,
+      variant: data['variant'] as String?,
+      title: '',
+    );
+  }
+  return data;
 }
