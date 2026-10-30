@@ -6,6 +6,7 @@
 - Add the Comics library, CLZ Comics Web XML import, CSV import that reviews each issue as "Series #Issue" and keeps an empty Title empty, calendar and barcode support with a preserving database upgrade; use typed Add/Edit forms with the eleven CLZ tabs, shared tab icons and compact field layouts, personal reading and grading, cover controls, partial publication dates, separate publication Age, one editable Creators list and Characters list per issue, a Series tab in Add that lists a series' issues to check all or some of them, and a Missing Comics report in the main menu's Tools.
 
 ### Fixes
+- Toolbar buttons highlight with slightly rounded corners on hover, as in the reference.
 - The library switcher is a square popover in a black hairline listing "CLR Comics", "CLR Music" and so on in the header's face, as in the reference.
 - The Link page names your items in its header and when everything is linked ("Core albums", "All albums are linked."), as in the reference.
 - Keep the intended relative widths of fields when an Add form selects a subset of its catalog fields.

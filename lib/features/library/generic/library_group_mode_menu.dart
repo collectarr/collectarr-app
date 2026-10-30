@@ -179,7 +179,7 @@ class _LibraryGroupModeMenuButtonState
                   _menuController.show();
                 }
               },
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: kLibraryToolbarHoverRadius,
               hoverColor: libraryToolbarControlHover(context),
               child: LibraryToolbarHoverSurface(child: child),
             ),
