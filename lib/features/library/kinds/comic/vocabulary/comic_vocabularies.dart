@@ -23,6 +23,8 @@ abstract final class ComicVocabularyIds {
   static const keyCategory = VocabularyId<String>('comic.key_category');
   static const storyArc = VocabularyId<String>('comic.story_arc');
   static const crossover = VocabularyId<String>('comic.crossover');
+  static const country = VocabularyId<String>('comic.country');
+  static const language = VocabularyId<String>('comic.language');
 }
 
 abstract final class ComicVocabularies {
@@ -322,7 +324,6 @@ abstract final class ComicVocabularies {
   static const storyArc = VocabularyDefinition<String>(
     id: ComicVocabularyIds.storyArc,
     label: 'Story Arc',
-    multiValue: true,
     valuesFrom:
         TypedVocabularyProjector<ComicCatalogItem>(_storyArcCatalogValues),
   );
@@ -330,9 +331,22 @@ abstract final class ComicVocabularies {
   static const crossover = VocabularyDefinition<String>(
     id: ComicVocabularyIds.crossover,
     label: 'Crossover',
-    multiValue: true,
     valuesFrom:
         TypedVocabularyProjector<ComicCatalogItem>(_crossoverCatalogValues),
+  );
+
+  static const country = VocabularyDefinition<String>(
+    id: ComicVocabularyIds.country,
+    label: 'Country',
+    valuesFrom:
+        TypedVocabularyProjector<ComicCatalogItem>(_countryCatalogValues),
+  );
+
+  static const language = VocabularyDefinition<String>(
+    id: ComicVocabularyIds.language,
+    label: 'Language',
+    valuesFrom:
+        TypedVocabularyProjector<ComicCatalogItem>(_languageCatalogValues),
   );
 
   static const publicationAge = VocabularyDefinition<String>(
@@ -364,6 +378,8 @@ abstract final class ComicVocabularies {
     keyCategory,
     storyArc,
     crossover,
+    country,
+    language,
   ];
 }
 
@@ -396,6 +412,12 @@ Iterable<String?> _storyArcCatalogValues(ComicCatalogItem metadata) {
 Iterable<String?> _crossoverCatalogValues(ComicCatalogItem metadata) {
   return vocabularyValues([metadata.crossover]);
 }
+
+Iterable<String?> _countryCatalogValues(ComicCatalogItem metadata) =>
+    vocabularyValues([metadata.country]);
+
+Iterable<String?> _languageCatalogValues(ComicCatalogItem metadata) =>
+    vocabularyValues([metadata.language]);
 
 Iterable<String?> _publicationAgeValues(ComicCatalogItem metadata) =>
     vocabularyValues([metadata.publicationAge]);

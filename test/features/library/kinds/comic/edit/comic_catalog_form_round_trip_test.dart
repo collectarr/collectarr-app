@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_character.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_story_arc.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_adapters.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -78,5 +79,34 @@ void main() {
       ('Hero', 'Secret'),
       ('Sidekick', null),
     ]);
+  });
+
+  test('edits one Story Arc and keeps Core arcs while it is unchanged', () {
+    const original = ComicCatalogItem(
+      id: CatalogItemRef(kind: CatalogMediaKind.comic, id: 'issue-1'),
+      title: 'Issue',
+      storyArcs: [
+        ComicStoryArc(name: 'Born Again'),
+        ComicStoryArc(name: 'Second arc'),
+      ],
+    );
+    final values = comicCatalogItemFormValuesFrom(original);
+    expect(values.storyArc, 'Born Again');
+
+    final unchanged =
+        comicCatalogItemFromFormValues(original: original, values: values);
+    expect([for (final arc in unchanged.storyArcs) arc.name],
+        ['Born Again', 'Second arc']);
+
+    values.storyArc = 'Fall From Grace';
+    final changed =
+        comicCatalogItemFromFormValues(original: original, values: values);
+    expect(
+        [for (final arc in changed.storyArcs) arc.name], ['Fall From Grace']);
+
+    values.storyArc = '';
+    final cleared =
+        comicCatalogItemFromFormValues(original: original, values: values);
+    expect(cleared.storyArcs, isEmpty);
   });
 }
