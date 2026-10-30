@@ -9,7 +9,7 @@ void main() {
     name: 'Comic',
     create: () => ComicVocabularies.all,
     vocabularies: (definitions) {
-      expect(definitions, hasLength(14));
+      expect(definitions, hasLength(16));
 
       final ids = definitions.map((definition) => definition.id.value).toList();
       expect(ids.toSet(), hasLength(ids.length));
