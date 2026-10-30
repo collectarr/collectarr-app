@@ -163,11 +163,11 @@ List<LibraryDetailField> _detailFields(
   final rows = <(String, String?, bool)>[
     ('Age', comic.publicationAge, true),
     ('Format', comic.physicalFormat, true),
+    ('Series Group', comic.seriesGroup, true),
     ('Genre', comic.genres.join(' | '), comic.genres.length == 1),
     ('No. of Pages', comic.pageCount?.toString(), false),
     ('Country', comic.country, true),
     ('Language', comic.language, true),
-    ('Series Group', comic.seriesGroup, true),
     ('Crossover', comic.crossover, true),
     ('Age Rating', comic.ageRating, true),
   ];
