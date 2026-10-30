@@ -3,9 +3,9 @@
 Your collection, your way. Collectarr helps you organize music, games, gaming
 hardware and toys, with an offline-first library and optional self-hosted sync.
 
-**License:** [GNU GPLv3 only](LICENSE) (`GPL-3.0-only`). Collectarr Core and
-Sync use AGPLv3. See [contributing](CONTRIBUTING.md) for contribution terms and
-historical MIT licensing information. Third-party assets retain their own
+**License:** [GNU AGPLv3 only](LICENSE) (`AGPL-3.0-only`), like Collectarr Core
+and Sync. See [contributing](CONTRIBUTING.md) for contribution terms and
+historical MIT and GPLv3 licensing information. Third-party assets retain their own
 licenses.
 
 Collectarr covers **Music** and **Games**, with separate **Hardware** and

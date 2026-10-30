@@ -8,6 +8,7 @@
 - Keep the Drift runtime and generated database code aligned when updating dependencies.
 
 ### Docs
+- Collectarr App is now licensed under AGPL-3.0-only, like Core and Sync.
 - Present releases with Collectarr artwork, editorial summaries, contributor credits and automatic change lists.
 
 ## 1.4.0 - 2026-10-26
