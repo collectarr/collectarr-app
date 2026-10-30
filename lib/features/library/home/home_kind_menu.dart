@@ -58,7 +58,11 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
       _menuWidth = width;
       _pointerOffset = bounds.center.dx - left;
     });
-    _controller.open(position: Offset(left - bounds.left, bounds.height + 8));
+    // The panel hangs from the header's bottom edge; its pointer rises into
+    // the header under the icon.
+    _controller.open(
+        position:
+            Offset(left - bounds.left, shellAppBarHeight - 1 - bounds.top));
   }
 
   @override
@@ -77,7 +81,7 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
         backgroundColor: const WidgetStatePropertyAll(Colors.white),
         surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
         shadowColor: WidgetStatePropertyAll(
-            Theme.of(context).shadowColor.withValues(alpha: .32)),
+            Theme.of(context).shadowColor.withValues(alpha: .2)),
         elevation: const WidgetStatePropertyAll(6),
         padding: const WidgetStatePropertyAll(EdgeInsets.zero),
         fixedSize: WidgetStatePropertyAll(Size.fromWidth(_menuWidth)),
@@ -191,11 +195,11 @@ class _KindMenuRow extends StatelessWidget {
 }
 
 /// The app switcher is a square white popover in either skin, framed by a
-/// black hairline, with an anchor pointer.
+/// translucent hairline, with an 11 px anchor pointer.
 class _LibraryMenuBorder extends OutlinedBorder {
   const _LibraryMenuBorder(
       {required this.pointerOffset,
-      super.side = const BorderSide(color: Colors.black)});
+      super.side = const BorderSide(color: Color(0x33000000))});
   final double pointerOffset;
 
   @override
@@ -215,9 +219,9 @@ class _LibraryMenuBorder extends OutlinedBorder {
       PathOperation.union,
       Path()..addRect(rect),
       Path()
-        ..moveTo(pointerX - 8, rect.top + 1)
-        ..lineTo(pointerX, rect.top - 8)
-        ..lineTo(pointerX + 8, rect.top + 1)
+        ..moveTo(pointerX - 11, rect.top + 1)
+        ..lineTo(pointerX, rect.top - 10)
+        ..lineTo(pointerX + 11, rect.top + 1)
         ..close(),
     );
   }

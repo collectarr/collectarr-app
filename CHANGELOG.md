@@ -9,7 +9,7 @@
 
 ### Fixes
 - Toolbar buttons highlight with slightly rounded corners on hover, as in the reference.
-- The library switcher is a square popover in a black hairline listing "CLR Comics", "CLR Music" and so on in the header's face, as in the reference.
+- The library switcher is a square popover hanging from the header, its pointer under the icon, in a faint hairline listing "CLR Comics", "CLR Music" and so on in the header's face, as in the reference.
 - The Link page names your items in its header and when everything is linked ("Core albums", "All albums are linked."), as in the reference.
 - Keep the intended relative widths of fields when an Add form selects a subset of its catalog fields.
 - Keep manually added pick-list values available when opening a selector, even before an item uses them.

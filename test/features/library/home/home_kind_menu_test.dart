@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_kind_menu.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/ui/app_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
@@ -37,9 +38,11 @@ void main() {
       final bounds = tester.getRect(panel);
       expect(bounds.right, closeTo(width, .01));
       expect(bounds.center.dx, closeTo(anchor.center.dx, .01));
+      // It hangs from the header's bottom edge, as in the reference.
+      expect(bounds.top, shellAppBarHeight - 1);
       final shape = tester.widget<Material>(panel).shape!;
       final outline = shape.getOuterPath(Offset.zero & bounds.size);
-      final tip = Offset(anchor.center.dx - bounds.left, -7.5);
+      final tip = Offset(anchor.center.dx - bounds.left, -9.5);
       expect(outline.contains(tip), isTrue);
       expect(outline.contains(tip + const Offset(2, 0)), isFalse);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
