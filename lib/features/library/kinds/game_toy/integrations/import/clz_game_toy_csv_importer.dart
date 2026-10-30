@@ -66,7 +66,6 @@ final class GameToyMappedCsvImporter implements LibraryMappedCsvImporter {
         kind: CatalogMediaKind.gameToy,
         id: id,
         title: title,
-        subtitle: metadata.seriesTitle,
         barcode: metadata.barcode,
         catalog: metadata,
         personal: personal,

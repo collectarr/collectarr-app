@@ -15,10 +15,6 @@ import 'package:collectarr_app/features/library/entries/library_entry_record.dar
 abstract interface class CollectionCsvKindProfile {
   CatalogMediaKind get kind;
 
-  String importDisplayTitle(List<String> catalogCells);
-
-  String importDisplaySubtitle(List<String> catalogCells);
-
   /// Returns the kind-defined value used for title/identifier matching at the
   /// import boundary. The collection host does not call this field an issue,
   /// volume, edition or version because that meaning belongs to the kind.

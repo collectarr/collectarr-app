@@ -132,7 +132,6 @@ final class ClzComicWebImporter implements LibraryGuidedImporter {
         title: series == null
             ? title
             : comicImportHeadline(series, issue, variant),
-        subtitle: series == null || title.isEmpty ? null : title,
         barcode: metadata.barcode,
         catalog: metadata,
         personal: personal,

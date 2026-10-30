@@ -20,8 +20,6 @@ class CollectionImportRow {
     this.catalogItemRef,
     this.mediaKind = CatalogMediaKind.unknown,
     this.title,
-    this.kindDisplayTitle,
-    this.kindDisplaySubtitle,
     this.kindIdentifier,
     this.personal = const CollectionImportPersonalValues(),
     this.tracking = const CollectionImportTrackingValues(),
@@ -51,8 +49,6 @@ class CollectionImportRow {
   ///
   /// Collection UI can display and search these values without importing or
   /// interpreting a kind CSV profile itself.
-  final String? kindDisplayTitle;
-  final String? kindDisplaySubtitle;
   final String? kindIdentifier;
 
   /// Values decoded from the shared personal columns at the file boundary.
@@ -87,8 +83,6 @@ class CollectionImportRow {
     CatalogItemRef? catalogItemRef,
     CatalogMediaKind? mediaKind,
     String? title,
-    String? kindDisplayTitle,
-    String? kindDisplaySubtitle,
     String? kindIdentifier,
     CollectionImportPersonalValues? personal,
     CollectionImportTrackingValues? tracking,
@@ -104,8 +98,6 @@ class CollectionImportRow {
       catalogItemRef: catalogItemRef ?? this.catalogItemRef,
       mediaKind: mediaKind ?? this.mediaKind,
       title: title ?? this.title,
-      kindDisplayTitle: kindDisplayTitle ?? this.kindDisplayTitle,
-      kindDisplaySubtitle: kindDisplaySubtitle ?? this.kindDisplaySubtitle,
       kindIdentifier: kindIdentifier ?? this.kindIdentifier,
       personal: personal ?? this.personal,
       tracking: tracking ?? this.tracking,

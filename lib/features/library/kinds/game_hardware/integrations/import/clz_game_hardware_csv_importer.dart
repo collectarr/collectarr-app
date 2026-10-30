@@ -68,7 +68,6 @@ final class GameHardwareMappedCsvImporter implements LibraryMappedCsvImporter {
         kind: CatalogMediaKind.gameHardware,
         id: id,
         title: title,
-        subtitle: metadata.seriesTitle,
         barcode: metadata.barcode,
         catalog: metadata,
         personal: personal,

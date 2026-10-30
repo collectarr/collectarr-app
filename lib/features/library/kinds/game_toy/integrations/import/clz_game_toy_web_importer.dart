@@ -61,7 +61,6 @@ final class ClzGameToyWebImporter implements LibraryGuidedImporter {
         kind: CatalogMediaKind.gameToy,
         id: id,
         title: title,
-        subtitle: metadata.seriesTitle,
         barcode: metadata.barcode,
         catalog: metadata,
         personal: personal,

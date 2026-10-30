@@ -24,7 +24,6 @@ void main() {
         final rows = source.importer!.parse(fixture(entry, 'minimal'));
         expect(rows, hasLength(2));
         expect(rows.first.title, 'After & Before');
-        expect(rows.first.kindDisplaySubtitle, 'Mira "Echo" Ionescu');
         final record =
             LibraryEntryRecord.fromJson(rows.first.fullEntryPayload!);
         expect(record.sourceCatalogRef, isNull);

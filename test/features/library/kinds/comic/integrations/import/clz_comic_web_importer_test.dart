@@ -57,9 +57,8 @@ void main() {
 
   test('reads a CLZ Comics Web export', () {
     final rows = importer.parse(_export);
-    expect(rows.map((row) => row.kindDisplayTitle),
+    expect(rows.map((row) => row.title),
         ['Fixture Series #2A', 'Fixture Series #TP-1']);
-    expect(rows.map((row) => row.kindDisplaySubtitle), ['Fixture Title', null]);
 
     final record = rows.first.fullEntryPayload!;
     final catalog = record['catalog_data'] as Map;

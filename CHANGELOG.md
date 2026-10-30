@@ -15,6 +15,7 @@
 - Keep manually added pick-list values available when opening a selector, even before an item uses them.
 
 ### Refactors
+- Drop the per-record import titles and subtitles that only the removed import review list showed.
 - Remove the disabled Export for CovrPrice selection action; Collectarr does not use the paid CovrPrice service.
 - Keep credits, characters and story arcs as names for every kind, and remove the Book author page that relied on Core's retired creator records.
 - Music artist credits and credits are names only; upgrading the local database removes their unused artist and contributor ids.

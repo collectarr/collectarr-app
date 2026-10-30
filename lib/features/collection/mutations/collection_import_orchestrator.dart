@@ -320,8 +320,6 @@ final class CollectionImportOrchestrator {
               catalogItemRef: matched.ref,
               mediaKind: matched.kind,
               title: matched.title,
-              kindDisplayTitle: matched.title,
-              kindDisplaySubtitle: matched.subtitle,
             );
           }
         }
@@ -341,8 +339,6 @@ final class CollectionImportOrchestrator {
               catalogItemRef: matched.ref,
               mediaKind: matched.kind,
               title: matched.title,
-              kindDisplayTitle: matched.title,
-              kindDisplaySubtitle: matched.subtitle,
             );
           }
         }
