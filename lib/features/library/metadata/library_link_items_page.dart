@@ -232,9 +232,9 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
                                                             fontWeight:
                                                                 FontWeight
                                                                     .w700))),
-                                                    _cell(const Text(
-                                                        'Core result',
-                                                        style: TextStyle(
+                                                    _cell(Text(
+                                                        'Core ${plural.toLowerCase()}',
+                                                        style: const TextStyle(
                                                             fontWeight:
                                                                 FontWeight
                                                                     .w700))),
@@ -247,10 +247,10 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
                                               for (final entry in entries)
                                                 _row(context, entry),
                                               if (entries.isEmpty)
-                                                const TableRow(children: [
-                                                  _EmptyCell(),
-                                                  SizedBox(),
-                                                  SizedBox()
+                                                TableRow(children: [
+                                                  _EmptyCell(plural),
+                                                  const SizedBox(),
+                                                  const SizedBox()
                                                 ]),
                                             ])));
                               }),
@@ -427,8 +427,10 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
 }
 
 class _EmptyCell extends StatelessWidget {
-  const _EmptyCell();
+  const _EmptyCell(this.plural);
+  final String plural;
   @override
-  Widget build(BuildContext context) => const Padding(
-      padding: EdgeInsets.all(16), child: Text('All entries are linked.'));
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.all(16),
+      child: Text('All ${plural.toLowerCase()} are linked.'));
 }

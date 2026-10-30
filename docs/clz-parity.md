@@ -168,7 +168,7 @@ five comics, and a release Web build with the same five imported from CSV.
 | Import review | — | Rows repeated the series without the issue number; the CSV importer copied the Series into an empty Title | Fixed: rows read "Series #2A" over the issue title; an empty Title stays empty |
 | Export to CSV / TXT | Which Comics, Visible Columns preset and Sort Order with Manage, CSV/TXT tabs, preview, Generate file | Columns fell back to Title, Creator / Series, Format, Status with empty values | Fixed: the List view columns, defaults first |
 | Export to XML | Confirmation dialog, then a download | Present; contents not compared | Open |
-| Link Comics | Your Comic / Core comics / Link table | Present; not compared with unlinked items | Open |
+| Link Comics | Your Comic / Core comics / Link table; "All comics are linked." when nothing is unlinked | Said "Core result" and "All entries are linked." | Fixed; rows for unlinked comics are not compared, since the reference account has none and unlinking there would change it |
 
 Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
 editors and dialogs with Cancel. Record observed fields and remaining gaps

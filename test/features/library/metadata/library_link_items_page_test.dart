@@ -74,4 +74,24 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('a fully linked collection says so in the kind words',
+      (tester) async {
+    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(ProviderScope(
+        child: MaterialApp(
+            theme: buildLibraryTheme(),
+            home: LibraryLinkItemsPage(
+                type:
+                    defaultLibraryKindRegistry.require(CatalogMediaKind.comic),
+                entries: const []))));
+    await tester.pumpAndSettle();
+    // As the reference Link Comics page reads.
+    expect(find.text('Your Comic'), findsOneWidget);
+    expect(find.text('Core comics'), findsOneWidget);
+    expect(find.text('All comics are linked.'), findsOneWidget);
+  });
 }
