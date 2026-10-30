@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_issue_label.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
@@ -134,12 +135,16 @@ int? _replacementValueFromPayload(CatalogItemDto item) {
 
 CatalogDisplaySummary _comicSummary(
     String catalogItemId, ComicCatalogItem item) {
-  final issue = item.issueNumber?.trim();
   return CatalogDisplaySummary.forCatalogItem(
     kind: CatalogMediaKind.comic,
     id: catalogItemId,
-    primaryLabel:
-        issue == null || issue.isEmpty ? item.title : '${item.title} #$issue',
+    primaryLabel: comicHeadline(
+          series: item.seriesTitle,
+          issueNumber: item.issueNumber,
+          variant: item.variant,
+          title: item.title,
+        ) ??
+        item.title,
     imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
   );
 }

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_issue_label.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
@@ -163,24 +164,16 @@ abstract final class ComicCollectionWorkspaceFields {
 }
 
 /// The reference Issue value: issue number followed by the variant ("2A").
-String? comicIssueLabel(ComicWorkspaceDto dto) {
-  final value =
-      '${dto.comic.issueNumber?.trim() ?? ''}${dto.comic.variant?.trim() ?? ''}';
-  return value.isEmpty ? null : value;
-}
+String? comicIssueLabel(ComicWorkspaceDto dto) =>
+    comicIssueText(dto.comic.issueNumber, dto.comic.variant);
 
 /// Series, issue and title, as the reference Full Title column shows them.
-String? comicFullTitle(ComicWorkspaceDto dto) {
-  final series = dto.comic.seriesTitle?.trim() ?? '';
-  final issue = comicIssueLabel(dto);
-  final title = dto.comic.title.trim();
-  final head = [
-    if (series.isNotEmpty) series,
-    if (issue != null) '#$issue',
-  ].join(' ');
-  if (title.isEmpty || title == series) return head.isEmpty ? null : head;
-  return head.isEmpty ? title : '$head - $title';
-}
+String? comicFullTitle(ComicWorkspaceDto dto) => comicHeadline(
+      series: dto.comic.seriesTitle,
+      issueNumber: dto.comic.issueNumber,
+      variant: dto.comic.variant,
+      title: dto.comic.title,
+    );
 
 Iterable<String> comicCreatorNames(ComicWorkspaceDto dto, String role) {
   final wanted = _slug(role);

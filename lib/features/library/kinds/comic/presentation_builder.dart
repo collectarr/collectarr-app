@@ -363,7 +363,6 @@ LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(
 ) {
   final fields = item.comicCatalogFields;
   final metadata = fields.metadata;
-  final itemNumber = fields.itemNumber?.trim();
   final subtitle = [
     if (metadata?.publisher?.trim() case final value? when value.isNotEmpty)
       value,
@@ -376,9 +375,7 @@ LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(
-    title: itemNumber == null || itemNumber.isEmpty
-        ? item.summary.primaryLabel
-        : '${item.summary.primaryLabel} #$itemNumber',
+    title: item.summary.primaryLabel,
     secondaryLine: subtitle.isEmpty ? null : subtitle,
     year: fields.releaseYear ?? fields.releaseDate?.year,
     detailLine: null,
