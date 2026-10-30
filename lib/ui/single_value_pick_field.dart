@@ -183,7 +183,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
       shape: menu.shape,
       elevation: AppDropdownMenuStyle.elevation,
       surfaceTintColor: Colors.transparent,
-      menuPadding: const EdgeInsets.only(top: 5),
+      menuPadding: AppDropdownMenuStyle.padding,
       items: popupItems,
       popUpAnimationStyle: AnimationStyle.noAnimation,
     );

@@ -212,5 +212,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(PopupMenuItem<String>), findsOneWidget);
+    // The reference's empty menu: 5 px above and below inside its border.
+    final menu = find
+        .ancestor(
+            of: find.byType(PopupMenuItem<String>),
+            matching: find.byType(Material))
+        .first;
+    expect(tester.getSize(menu).height, 12);
   });
 }
