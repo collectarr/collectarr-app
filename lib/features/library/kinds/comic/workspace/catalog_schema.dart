@@ -239,7 +239,10 @@ final comicCatalogItemWorkspaceSchema =
   groups: comicCatalogItemWorkspaceGroupDefinitions,
   primaryColumn: ComicFieldIds.title,
   defaultVisibleColumns: comicCatalogItemWorkspaceDefaultVisibleColumns,
-  defaultSort: ComicSortIds.releaseDate,
+  // The library takes its default order from this registry: Series, then
+  // Issue, as in the reference.
+  defaultSort: ComicSortIds.series,
+  defaultThenSort: ComicSortIds.issueNumber,
   defaultGroup: ComicGroupIds.series,
 );
 
