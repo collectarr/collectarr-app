@@ -217,6 +217,7 @@ LibraryKindFieldMetadata _metadata(
   String label,
   LibraryFieldValueType type, {
   LibraryFieldSource source = LibraryFieldSource.libraryEntry,
+  bool groupable = false,
 }) =>
     LibraryKindFieldMetadata(
       id: 'comic.$key',
@@ -226,6 +227,7 @@ LibraryKindFieldMetadata _metadata(
       source: source,
       sourcePath: key,
       sortable: true,
+      groupable: groupable,
     );
 
 LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?> _text(
@@ -246,7 +248,7 @@ LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, int?> _year(
     LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, int?>(
       id: LibraryFieldId('comic.$key'),
       metadata: _metadata(key, label, LibraryFieldValueType.number,
-          source: LibraryFieldSource.derived),
+          source: LibraryFieldSource.derived, groupable: true),
       getValue: (context) => getValue(context.dto),
     );
 

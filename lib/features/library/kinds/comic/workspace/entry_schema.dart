@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/collection
 import 'package:collectarr_app/features/library/kinds/comic/workspace/columns/columns.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/groups.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/facets.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
@@ -207,16 +208,11 @@ final comicLibraryEntryWorkspaceFieldDefinitions = [
 final comicLibraryEntryWorkspaceGroupDefinitions = [
   groupFromField<ComicKind, ComicWorkspaceDto, String?>(
     ComicLibraryEntryWorkspaceFields.location,
-    sidebarTitle: 'Locations',
+    sidebarTitle: 'Storage Box',
     category: 'Personal',
     icon: Icons.place_outlined,
   ),
-  groupFromField<ComicKind, ComicWorkspaceDto, String?>(
-    ComicLibraryEntryWorkspaceFields.condition,
-    sidebarTitle: 'Conditions',
-    category: 'Personal',
-    icon: Icons.verified_outlined,
-  ),
+  ...comicWorkspaceGroupDefinitions(includePersonal: true),
 ];
 
 /// Reference defaults: the list shows Series, Issue, Variant Description,
