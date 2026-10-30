@@ -13,6 +13,9 @@ final class CanonicalCorrectionProposal {
     required this.baseHash,
     required this.proposedFields,
     required this.status,
+    this.currentFields = const {},
+    this.createdAt,
+    this.stale = false,
   });
 
   final String id;
@@ -25,8 +28,16 @@ final class CanonicalCorrectionProposal {
   final Map<String, dynamic> proposedFields;
   final String status;
 
+  /// The target's Core fields when the proposal was listed.
+  final Map<String, dynamic> currentFields;
+  final DateTime? createdAt;
+
+  /// Core changed the target since the proposal, so it cannot apply.
+  final bool stale;
+
   factory CanonicalCorrectionProposal.fromJson(Map<String, dynamic> json) {
     final rawFields = json['proposed_fields'];
+    final rawCurrent = json['current_fields'];
     return CanonicalCorrectionProposal(
       id: json['id']?.toString() ?? '',
       kind: catalogMediaKindFromApiValue(json['kind']?.toString()),
@@ -42,6 +53,14 @@ final class CanonicalCorrectionProposal {
             }
           : const <String, dynamic>{},
       status: json['status']?.toString() ?? '',
+      currentFields: rawCurrent is Map
+          ? <String, dynamic>{
+              for (final entry in rawCurrent.entries)
+                entry.key.toString(): entry.value,
+            }
+          : const <String, dynamic>{},
+      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? ''),
+      stale: json['stale'] == true,
     );
   }
 }

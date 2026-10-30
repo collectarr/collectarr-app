@@ -2,38 +2,6 @@ part of 'admin_page.dart';
 
 // Metadata proposals, add dialog, shared widgets, utility functions
 
-class _ProposalPayloadPreview extends StatelessWidget {
-  const _ProposalPayloadPreview({
-    required this.kind,
-    required this.payload,
-  });
-
-  final CatalogMediaKind kind;
-  final Map<String, Object?> payload;
-
-  @override
-  Widget build(BuildContext context) {
-    final fields = libraryAdminContributorForKind(kind)?.proposalFields ??
-        const <LibraryAdminProposalField>[];
-    final values = LibraryMetadataCorrectionValues.fromSerialized(payload);
-    final badges = <String>[
-      for (final field in fields)
-        if (field.read(values).trim().isNotEmpty)
-          '${field.label}: ${field.read(values).trim()}',
-    ];
-    if (badges.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: [
-        for (final badge in badges) _MiniChip(label: badge),
-      ],
-    );
-  }
-}
-
 class _CorrectionPreviewEntry {
   const _CorrectionPreviewEntry({
     required this.label,
@@ -182,6 +150,11 @@ String _adminErrorMessage(Object error) {
     }
     if (statusCode != null && statusCode >= 500) {
       return 'Metadata server could not complete the admin request.';
+    }
+    // Core explains refusals such as a stale correction in its detail.
+    if (error.response?.data case {'detail': final String detail}
+        when detail.trim().isNotEmpty) {
+      return detail.trim();
     }
     final message = error.message?.trim();
     if (message != null && message.isNotEmpty) {

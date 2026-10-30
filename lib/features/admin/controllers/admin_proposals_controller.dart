@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/canonical_correction_proposal.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/admin/admin_page_data_loader.dart';
 import 'package:flutter/foundation.dart';
@@ -12,7 +14,8 @@ final class AdminProposalsController extends ChangeNotifier {
   final String Function(Object error) _formatError;
 
   List<AdminMetadataProposal> _proposals = const [];
-  AdminMetadataProposalSummary? _summary;
+  List<CanonicalCorrectionProposal> _corrections = const [];
+  Map<CatalogMediaKind, Map<String, String>> _correctionLabels = const {};
   String _statusFilter = 'pending';
   bool _isLoading = false;
   String? _errorMessage;
@@ -20,8 +23,10 @@ final class AdminProposalsController extends ChangeNotifier {
   int _loadGeneration = 0;
 
   List<AdminMetadataProposal> get proposals => _proposals;
+  List<CanonicalCorrectionProposal> get corrections => _corrections;
+  Map<String, String> correctionLabels(CatalogMediaKind kind) =>
+      _correctionLabels[kind] ?? const {};
 
-  AdminMetadataProposalSummary? get summary => _summary;
   String get statusFilter => _statusFilter;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -43,8 +48,9 @@ final class AdminProposalsController extends ChangeNotifier {
         status: _statusFilter,
       );
       if (generation == _loadGeneration) {
-        _summary = data.summary;
         _proposals = data.proposals;
+        _corrections = data.corrections;
+        _correctionLabels = data.correctionLabels;
       }
     } catch (error) {
       if (generation == _loadGeneration) {
@@ -66,6 +72,12 @@ final class AdminProposalsController extends ChangeNotifier {
 
   Future<void> reject(ApiClient api, {required String proposalId}) =>
       api.adminRejectMetadataProposal(proposalId: proposalId);
+
+  Future<void> approveCorrection(ApiClient api, {required String id}) =>
+      api.adminApproveCorrection(proposalId: id);
+
+  Future<void> rejectCorrection(ApiClient api, {required String id}) =>
+      api.adminRejectCorrection(proposalId: id);
 
   Future<AdminMetadataProposal> update(
     ApiClient api, {

@@ -84,6 +84,18 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
   CustomFieldsDisplaySettings _customDisplay =
       const CustomFieldsDisplaySettings();
 
+  /// Whether the edited item has a Core record to propose corrections to;
+  /// a proposal under review in Admin, for one, has none yet.
+  late final bool _hasCoreItem = () {
+    final builder = widget.coreCorrectionSourceBuilder;
+    if (builder == null) return false;
+    try {
+      return builder().coreCatalogRef.id.trim().isNotEmpty;
+    } on StateError {
+      return false;
+    }
+  }();
+
   @override
   void initState() {
     super.initState();
@@ -231,7 +243,7 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
             },
       onProposeToCore: _saving ||
               (entry != null && entry.record.sourceCatalogRef == null) ||
-              widget.coreCorrectionSourceBuilder == null
+              !_hasCoreItem
           ? null
           : () => unawaited(_proposeToCore()),
       onPrevious: _saving || widget.onPrevious == null

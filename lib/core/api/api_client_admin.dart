@@ -232,6 +232,29 @@ class _AdminApiClient {
         .toList(growable: false);
   }
 
+  /// Correction proposals by status, each beside its target's current
+  /// Core fields.
+  Future<List<CanonicalCorrectionProposal>> adminCorrectionProposals({
+    String status = 'pending',
+  }) async {
+    final response = await _client._dio.get<List<dynamic>>(
+      '/api/v1/metadata/correction-proposals',
+      queryParameters: {'status': status},
+    );
+    return (response.data ?? const [])
+        .cast<Map<String, dynamic>>()
+        .map(CanonicalCorrectionProposal.fromJson)
+        .toList(growable: false);
+  }
+
+  Future<void> adminApproveCorrection({required String proposalId}) =>
+      _client._dio.post<Object>(
+          '/api/v1/metadata/correction-proposals/$proposalId/approve');
+
+  Future<void> adminRejectCorrection({required String proposalId}) => _client
+      ._dio
+      .post<Object>('/api/v1/metadata/correction-proposals/$proposalId/reject');
+
   Future<AdminMetadataProposal> adminApproveMetadataProposal({
     required String proposalId,
   }) async {
