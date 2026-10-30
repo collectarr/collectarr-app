@@ -158,7 +158,7 @@ void main() {
       );
 
       // Action button
-      expect(find.text('Review Import'), findsOneWidget);
+      expect(find.byKey(const Key('import_csv.submit')), findsOneWidget);
 
       // Tap Back to return to menu
       await tester.tap(find.byKey(const Key('import_data.back')));
