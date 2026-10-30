@@ -20,8 +20,8 @@ final class ComicWorkspaceData implements LibraryWorkspaceKindData {
   @override
   String get displayLabel {
     final issue = comic.issueNumber?.trim();
-    return issue == null || issue.isEmpty
-        ? comic.title
-        : '${comic.title} #$issue';
+    final title =
+        comic.title.isEmpty ? comic.seriesTitle?.trim() ?? '' : comic.title;
+    return issue == null || issue.isEmpty ? title : '$title #$issue';
   }
 }
