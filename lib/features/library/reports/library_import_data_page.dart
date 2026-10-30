@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collectarr_app/features/library/metadata/library_link_items_page.dart';
 import 'package:collectarr_app/ui/app_block_button.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -7,6 +9,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/covers/provider_cover_downloads.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,6 +79,10 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
         .read(collectionImportOrchestratorProvider)
         .importRows(rows, onProgress: onProgress);
     if (!mounted) return count;
+    // Imported covers from other sites are kept with the library.
+    unawaited(ref
+        .read(providerCoverDownloadsProvider.notifier)
+        .start(widget.type.kind));
     ref.invalidate(shelfProvider);
     final shelf = await ref.read(shelfProvider.future);
     _shelfEntries = shelf.entries;
@@ -226,6 +233,14 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                           height: 1.1,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: 10),
+                  if (ref.watch(providerCoverDownloadsProvider)
+                      case final download?
+                      when download.kind == widget.type.kind &&
+                          download.running) ...[
+                    Text('Downloading covers: ${download.progress.done} of '
+                        '${download.progress.total}'),
+                    const SizedBox(height: 6),
+                  ],
                   if (unlinked.isEmpty)
                     Text('Your ${_pluralLabel.toLowerCase()} have been '
                         'added to your collection.')

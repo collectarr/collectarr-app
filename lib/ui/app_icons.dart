@@ -158,6 +158,8 @@ abstract final class AppIcons {
       IconData(0xf162, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData backupRestore =
       IconData(0xf0a0, fontFamily: _regular, fontPackage: _fontPackage);
+  static const IconData downloadCovers =
+      IconData(0xf019, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData clearDatabase =
       IconData(0xf1f8, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData transferFieldData =

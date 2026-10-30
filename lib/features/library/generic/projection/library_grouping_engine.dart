@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -85,10 +86,11 @@ class LibraryGroupingEngine {
             allBucketLabel: items.where((item) => item.source.isEntry).length,
           }
         : null;
-    final coverUrls = <String, String?>{};
     // A numbered folder shows its lowest number's cover, as the reference
-    // shows a series' first issue, whatever the item order.
-    final coverNumbers = <String, int>{};
+    // shows a series' first issue, whatever the item order. An item with a
+    // cover link wins over one without, which may still keep a local cover.
+    final covers =
+        <String, ({String? url, LibraryEntryRef? entry, int? number})>{};
     final startYears = <String, int?>{};
     final bucketNumbers = hasSequence ? <String, Set<int>>{} : null;
     final entryNumbers = hasSequence ? <String, Set<int>>{} : null;
@@ -117,17 +119,19 @@ class LibraryGroupingEngine {
             entryNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
           }
         }
-        final imageUrl = item.dto.imageUrl;
-        if (imageUrl != null && imageUrl.isNotEmpty) {
-          final coverNumber = coverNumbers[bucket];
-          if (coverUrls[bucket] == null ||
-              (number != null &&
-                  (coverNumber == null || number < coverNumber))) {
-            coverUrls[bucket] = imageUrl;
-            if (number != null) coverNumbers[bucket] = number;
-          }
-        } else {
-          coverUrls.putIfAbsent(bucket, () => null);
+        final imageUrl =
+            item.dto.imageUrl?.isNotEmpty == true ? item.dto.imageUrl : null;
+        final current = covers[bucket];
+        if (current == null ||
+            (imageUrl != null && current.url == null) ||
+            ((imageUrl != null) == (current.url != null) &&
+                number != null &&
+                (current.number == null || number < current.number!))) {
+          covers[bucket] = (
+            url: imageUrl,
+            entry: item.source.libraryEntryRef,
+            number: number,
+          );
         }
         final year = libraryCardPresentationForEntry(item).releaseDate?.year;
         if (year != null) {
@@ -160,7 +164,8 @@ class LibraryGroupingEngine {
         LibraryBucket(
           title: entry.key,
           count: entry.value,
-          coverUrl: coverUrls[entry.key],
+          coverUrl: covers[entry.key]?.url,
+          coverEntryRef: covers[entry.key]?.entry,
           startYear: startYears[entry.key],
           entryCount: entryCounts?[entry.key],
           missingNumbers: gapNumbers[entry.key] ?? const <int>[],
