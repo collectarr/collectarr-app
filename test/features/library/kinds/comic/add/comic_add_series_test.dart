@@ -22,7 +22,7 @@ import '../../../../../support/fixtures/test_constants.dart';
 import '../../../../../support/widget/library_add_test_harness.dart';
 
 void main() {
-  test('a Core series names its volume and lists publisher and years', () {
+  test('a Core series names its volume, publisher and years', () {
     final series = comicAddSeriesFromJson({
       'series_title': 'Fixture',
       'publisher': 'Marvel',
@@ -33,7 +33,9 @@ void main() {
       'cover_image_url': null,
     });
     expect(series.title, 'Fixture (2018)');
-    expect(series.details, 'Marvel, 2018–2019');
+    expect(series.countLabel, '2');
+    expect(series.details, 'Marvel');
+    expect(series.period, '2018 - 2019');
     expect(series.query, {
       'series_title': 'Fixture',
       'publisher': 'Marvel',
@@ -42,7 +44,8 @@ void main() {
     final bare = comicAddSeriesFromJson(
         {'series_title': 'Bare', 'issue_count': 1, 'first_year': 2001});
     expect(bare.title, 'Bare');
-    expect(bare.details, '2001');
+    expect(bare.details, isNull);
+    expect(bare.period, '2001');
     expect(bare.query, {'series_title': 'Bare'});
   });
 
@@ -94,7 +97,7 @@ void main() {
     expect(controller.state.search.results, isEmpty);
   });
 
-  testWidgets('Add Comics by Series checks every issue of the chosen series',
+  testWidgets('Add Comics by Series lists the issues beside the series list',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     configureLibraryAddDesktopViewport(tester);
@@ -127,11 +130,20 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('library-add-search-button')));
     await pumpUntilSettled(tester);
     expect(find.text('1 Series'), findsOneWidget);
-    expect(find.text('2 issues'), findsOneWidget);
+    expect(find.text('2'), findsOneWidget);
+    expect(find.text('2018 - 2019'), findsOneWidget);
 
     await tester.tap(find.text('Fixture (2018)'));
     await pumpUntilSettled(tester);
-    expect(find.text('Fixture (2018)  |  Marvel, 2018–2019'), findsOneWidget);
+    final header = find.byKey(const ValueKey('library-add-browse-header'));
+    expect(
+        find.descendant(
+            of: header, matching: find.text('Marvel (2018 - 2019)')),
+        findsOneWidget);
+    expect(find.descendant(of: header, matching: find.text('Fixture (2018)')),
+        findsOneWidget);
+    // The series list stays beside its issues.
+    expect(find.text('1 Series'), findsOneWidget);
     expect(find.text('All (2)'), findsOneWidget);
     await tester.tap(find.descendant(
         of: find.byKey(const ValueKey('library-add-check-all')),
@@ -139,9 +151,8 @@ void main() {
     await pumpUntilSettled(tester);
     expect(find.text('2 selected'), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('library-add-browse-back')));
+    await tester.tap(find.text('Issue'));
     await pumpUntilSettled(tester);
-    expect(find.text('1 Series'), findsOneWidget);
     expect(find.text('2 selected'), findsNothing);
 
     await tester.pumpWidget(const SizedBox.shrink());

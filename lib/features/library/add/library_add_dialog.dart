@@ -873,9 +873,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         : libraryAddResultGroups(visibleCore, grouping)
             .where((group) => group.key == _selectedGroupKey)
             .firstOrNull;
-    final defaultDialogWidth = grouping == null
-        ? LibraryAddDialogLayout.defaultDialogWidth
-        : LibraryAddResultGrouping.dialogWidth;
+    final defaultDialogWidth = browseMode
+        ? LibraryAddDialogLayout.browseDialogWidth
+        : grouping == null
+            ? LibraryAddDialogLayout.defaultDialogWidth
+            : LibraryAddResultGrouping.dialogWidth;
 
     LibraryAddBottomBar bottomBar({required bool selectedOnly}) =>
         LibraryAddBottomBar(
@@ -992,72 +994,77 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               advancedFilterDescriptors:
                   modeBarRequest.advancedFilterDescriptors,
               onCoreDataSettings: _showCoreDataSettings,
-              searchRowWidth:
-                  grouping == null ? null : LibraryAddResultGrouping.listWidth,
-              searchRowBeside: grouping == null
-                  ? null
-                  : LibraryAddGroupHeader(
-                      group: selectedGroup, grouping: grouping),
+              searchRowWidth: browseMode
+                  ? LibraryAddBrowseGroupList.width
+                  : grouping == null
+                      ? null
+                      : LibraryAddResultGrouping.listWidth,
+              searchRowBeside: browseMode
+                  ? LibraryAddBrowseGroupHeader(group: openedGroup)
+                  : grouping == null
+                      ? null
+                      : LibraryAddGroupHeader(
+                          group: selectedGroup, grouping: grouping),
             ),
           ),
-          if (openedGroup != null)
-            LibraryAddOpenedGroupBar(
-              label: browse!.label,
-              group: openedGroup,
-              onBack: _controller.closeBrowseGroup,
-            ),
         ],
       ),
-      body: browseMode && openedGroup == null
-          ? LibraryAddBrowseGroupList(
-              capability: browse!,
-              state: state.browse,
-              onOpen: _controller.openBrowseGroup,
-            )
-          : LibraryAddSearchPane(
-              type: widget.type,
-              isBusy: state.search.isBusy || state.browse.isLoadingItems,
-              isLoadingMoreResults: state.search.isLoadingMoreResults,
-              hasMoreResults: state.search.hasMoreResults,
-              loadMoreError: state.search.loadMoreError,
-              onLoadMoreResults: _controller.loadMoreResults,
-              error: browseMode ? state.browse.error : state.search.error,
-              accent: accent,
-              selectionColor: (state.target == LibraryAddTarget.wishlist
-                      ? LibraryCollectionStatusScope.wishList
-                      : state.target == LibraryAddTarget.track
-                          ? LibraryCollectionStatusScope.notInCollection
-                          : libraryCollectionStatusFromValue(
-                              state.commonDraft.collectionStatus))
-                  .color,
-              results: visibleCore,
-              selectedResultId: state.selection.selectedResultId,
-              checkedResultIds: state.selection.checkedResultIds,
-              entryCatalogRefs: entryByCatalogRef.keys.toSet(),
-              coreMatchSummary: (item) => addCapability.search.presentation
-                  .coreMatchSummary(item, searchContext),
-              resultPolicy: resultPolicy,
-              resultPolicyState: state.selection.resultPolicyState,
-              onResultPolicyOptionChanged: _controller.setResultPolicyOption,
-              onSelectResult: _controller.selectResult,
-              onToggleResultCheck: _controller.toggleCheckedResult,
-              searched: state.search.coreSearchGeneration > 0,
-              selectedGroupKey: _selectedGroupKey,
-              onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
-              headerTrailing: browseMode
-                  ? LibraryAddCheckAllToggle(
-                      count: visibleCore.length,
-                      checked: visibleCore.isNotEmpty &&
-                          visibleCore.every((item) => state
-                              .selection.checkedResultIds
-                              .contains(item.reference.id)),
-                      onChanged: (checked) => _controller.setAllResultsChecked(
-                          visibleCore.map((item) => item.reference.id),
-                          checked),
-                    )
-                  : kindControls,
-              onAddManually: () => _openManualDialog(accent, addCapability),
-            ),
+      body: _besideBrowseGroups(
+        browseMode
+            ? LibraryAddBrowseGroupList(
+                capability: browse!,
+                state: state.browse,
+                onOpen: _controller.openBrowseGroup,
+              )
+            : null,
+        browseMode && openedGroup == null
+            ? ColoredBox(color: libraryAddSearchBackground(context))
+            : LibraryAddSearchPane(
+                type: widget.type,
+                isBusy: state.search.isBusy || state.browse.isLoadingItems,
+                isLoadingMoreResults: state.search.isLoadingMoreResults,
+                hasMoreResults: state.search.hasMoreResults,
+                loadMoreError: state.search.loadMoreError,
+                onLoadMoreResults: _controller.loadMoreResults,
+                error: browseMode ? state.browse.error : state.search.error,
+                accent: accent,
+                selectionColor: (state.target == LibraryAddTarget.wishlist
+                        ? LibraryCollectionStatusScope.wishList
+                        : state.target == LibraryAddTarget.track
+                            ? LibraryCollectionStatusScope.notInCollection
+                            : libraryCollectionStatusFromValue(
+                                state.commonDraft.collectionStatus))
+                    .color,
+                results: visibleCore,
+                selectedResultId: state.selection.selectedResultId,
+                checkedResultIds: state.selection.checkedResultIds,
+                entryCatalogRefs: entryByCatalogRef.keys.toSet(),
+                coreMatchSummary: (item) => addCapability.search.presentation
+                    .coreMatchSummary(item, searchContext),
+                resultPolicy: resultPolicy,
+                resultPolicyState: state.selection.resultPolicyState,
+                onResultPolicyOptionChanged: _controller.setResultPolicyOption,
+                onSelectResult: _controller.selectResult,
+                onToggleResultCheck: _controller.toggleCheckedResult,
+                searched: state.search.coreSearchGeneration > 0,
+                selectedGroupKey: _selectedGroupKey,
+                onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
+                headerTrailing: browseMode
+                    ? LibraryAddCheckAllToggle(
+                        count: visibleCore.length,
+                        checked: visibleCore.isNotEmpty &&
+                            visibleCore.every((item) => state
+                                .selection.checkedResultIds
+                                .contains(item.reference.id)),
+                        onChanged: (checked) =>
+                            _controller.setAllResultsChecked(
+                                visibleCore.map((item) => item.reference.id),
+                                checked),
+                      )
+                    : kindControls,
+                onAddManually: () => _openManualDialog(accent, addCapability),
+              ),
+      ),
       overlay: selectedItem == null
           ? null
           : LibraryAddConfirmSheet(
@@ -1079,6 +1086,22 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       footer: hasCheckedSelection && selectedItem == null
           ? bottomBar(selectedOnly: false)
           : null,
+    );
+  }
+
+  /// The browse tab's groups at the left of what [content] shows.
+  Widget _besideBrowseGroups(Widget? groups, Widget content) {
+    if (groups == null) return content;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(width: LibraryAddBrowseGroupList.width, child: groups),
+        ColoredBox(
+          color: libraryAddPaneDivider(context),
+          child: const SizedBox(width: 6),
+        ),
+        Expanded(child: content),
+      ],
     );
   }
 }

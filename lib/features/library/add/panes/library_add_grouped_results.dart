@@ -28,7 +28,8 @@ List<LibraryAddResultGroup> libraryAddResultGroups(
   ];
 }
 
-Color _headerColor(AppThemePalette palette) =>
+/// The band naming the chosen group beside the search field.
+Color libraryAddGroupHeaderColor(AppThemePalette palette) =>
     palette.isDark ? const Color(0xff666666) : const Color(0xffd6d6d6);
 
 Color _tileColor(AppThemePalette palette) =>
@@ -52,7 +53,7 @@ class LibraryAddGroupHeader extends StatelessWidget {
     final palette = appPalette(context);
     return Container(
       key: const ValueKey('library-add-group-header'),
-      color: _headerColor(palette),
+      color: libraryAddGroupHeaderColor(palette),
       padding: const EdgeInsets.fromLTRB(7, 2, 7, 2),
       alignment: Alignment.centerLeft,
       child: DefaultTextStyle.merge(
@@ -417,7 +418,7 @@ class _GroupRow extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: isEntry
                           ? LibraryCollectionStatusScope.inCollection.color
-                          : _headerColor(palette),
+                          : libraryAddGroupHeaderColor(palette),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text('${group.variants.length}',

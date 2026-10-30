@@ -5,6 +5,10 @@ class LibraryAddDialogLayout {
   /// One column of results, as in the reference.
   static const defaultDialogWidth = 690.0;
 
+  /// The browse tab's group list beside a seven-cover grid, as in the
+  /// reference's Series tab.
+  static const browseDialogWidth = 1690.0;
+
   /// Fills the window height, as in the reference; the dialog clamps it to
   /// the space available.
   static const defaultDialogHeight = maxDialogHeight;
