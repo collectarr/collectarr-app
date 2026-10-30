@@ -174,9 +174,15 @@ class LibraryWorkspace extends ConsumerWidget {
             .toDouble();
     final cardFooterHeight =
         items.any((item) => item.customFieldBadges.isNotEmpty) ? 80.0 : 62.0;
-    final standardVerticalTileHeight = standardVerticalTileWidth *
-            libraryViewProfileForKind(type.kind).coverGridHeightFactor +
-        cardFooterHeight;
+    final headlinedCards = cardLayout == LibraryWorkspaceCardLayout.headlined;
+    final standardVerticalTileHeight = headlinedCards
+        ? kLibraryHeadlinedCardTitleHeight +
+            (standardVerticalTileWidth - 10) *
+                viewProfile.coverGridHeightFactor +
+            10 +
+            kLibraryHeadlinedCardFooterHeight
+        : standardVerticalTileWidth * viewProfile.coverGridHeightFactor +
+            cardFooterHeight;
     final coverFocusedTileWidth =
         ((viewState.coverSize + 56) * density.cardScaleFactor)
             .clamp(164.0, 248.0)
@@ -258,7 +264,9 @@ class LibraryWorkspace extends ConsumerWidget {
             mutedTextColor: palette.textMuted,
             coverWidth:
                 usesCoverFocusedCards ? viewState.coverSize : cardCoverWidth,
-            cardLayout: LibraryCardLayout.vertical,
+            cardLayout: headlinedCards
+                ? LibraryCardLayout.headlined
+                : LibraryCardLayout.vertical,
             selectionMode: selectionEnabled,
             onSelectionToggleTap: () => onToggleSelectionItem(item.target.id),
             onEditTap: () => onEditItem(item),

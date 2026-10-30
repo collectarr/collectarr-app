@@ -21,6 +21,9 @@ class LibraryCardPresentation {
     this.compactBadges = const [],
     this.detailLine,
     this.valueLabel,
+    this.headline,
+    this.numberLabel,
+    this.outlinedPill,
   });
 
   /// Kind-entry values projected for the shared card chrome. The card host
@@ -57,6 +60,15 @@ class LibraryCardPresentation {
 
   /// Value pill in the bottom-right corner, such as "CIB | \$ 17.58".
   final String? valueLabel;
+
+  /// Headlined cards: the line above the cover, such as a series title.
+  final String? headline;
+
+  /// Headlined cards: the large label under the cover, such as "#2A".
+  final String? numberLabel;
+
+  /// Headlined cards: an outlined pill under the number, such as a grade.
+  final String? outlinedPill;
 }
 
 /// A single compact pill shown inside a card.

@@ -13,7 +13,14 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_press_tap.dart';
 import 'package:flutter/material.dart';
 
-enum LibraryCardLayout { vertical, horizontal }
+enum LibraryCardLayout {
+  vertical,
+  horizontal,
+
+  /// A vertical card with the headline above the cover (see
+  /// [LibraryCardPresentation.headline]).
+  headlined,
+}
 
 class LibraryWorkspaceCard extends StatefulWidget {
   const LibraryWorkspaceCard({
@@ -81,7 +88,8 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     final kind = item.source.mediaKind;
     final registration = libraryKindRegistrationForKind(kind);
     // Resolve the kind-supplied card presentation (or fall back to default).
-    final coverFocused = cardLayout == LibraryCardLayout.vertical;
+    final headlined = cardLayout == LibraryCardLayout.headlined;
+    final coverFocused = cardLayout == LibraryCardLayout.vertical || headlined;
     final presentation =
         libraryPresentationForKind(registration.kind).buildCardPresentation(
       item,
@@ -90,7 +98,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
 
     final coverCacheWidth = _targetCacheWidth(context);
 
-    if (cardLayout == LibraryCardLayout.vertical) {
+    if (coverFocused) {
       return MouseRegion(
           onEnter: (_) => setState(() => _hovered = true),
           onExit: (_) => setState(() => _hovered = false),
@@ -100,6 +108,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
             mutedColor: resolvedMutedTextColor,
             coverCacheWidth: coverCacheWidth,
             presentation: presentation,
+            headlined: headlined,
           ));
     }
     return MouseRegion(
@@ -339,6 +348,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     required Color mutedColor,
     required int? coverCacheWidth,
     required LibraryCardPresentation presentation,
+    required bool headlined,
   }) {
     final palette = appPalette(context);
     final background = selected
@@ -386,10 +396,16 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              if (headlined)
+                                _HeadlinedCardTitle(
+                                    text: presentation.headline ??
+                                        item.dto.primaryLabel,
+                                    color: titleColor),
                               Expanded(
                                 child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(5, 5, 5, 0),
+                                  padding: headlined
+                                      ? const EdgeInsets.all(5)
+                                      : const EdgeInsets.fromLTRB(5, 5, 5, 0),
                                   child: Stack(
                                     fit: StackFit.expand,
                                     children: [
@@ -418,44 +434,57 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
-                                child: SizedBox(
-                                    height: 57,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                            child: Text(item.dto.primaryLabel,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                    color: titleColor,
-                                                    fontSize: 13,
-                                                    fontWeight: FontWeight.w700,
-                                                    height: 1.4286))),
-                                        Row(children: [
+                              if (headlined)
+                                _HeadlinedCardFooter(
+                                    presentation: presentation,
+                                    numberColor: titleColor,
+                                    dateColor: detailColor,
+                                    pillColor: selected
+                                        ? Colors.white
+                                        : palette.utilityAction)
+                              else
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(5, 0, 5, 5),
+                                  child: SizedBox(
+                                      height: 57,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
                                           Expanded(
-                                              child: Text(
-                                                  presentation.seriesTitle ??
-                                                      '',
-                                                  maxLines: 1,
+                                              child: Text(item.dto.primaryLabel,
+                                                  maxLines: 2,
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                   style: TextStyle(
+                                                      color: titleColor,
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      height: 1.4286))),
+                                          Row(children: [
+                                            Expanded(
+                                                child: Text(
+                                                    presentation.seriesTitle ??
+                                                        '',
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: detailColor))),
+                                            if (presentation.releaseDate !=
+                                                null)
+                                              Text(
+                                                  '${presentation.releaseDate!.year}',
+                                                  style: TextStyle(
                                                       fontSize: 12,
-                                                      color: detailColor))),
-                                          if (presentation.releaseDate != null)
-                                            Text(
-                                                '${presentation.releaseDate!.year}',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: detailColor)),
-                                        ]),
-                                      ],
-                                    )),
-                              ),
+                                                      color: detailColor)),
+                                          ]),
+                                        ],
+                                      )),
+                                ),
                             ],
                           ),
                         ),
@@ -590,5 +619,86 @@ class _CardStatusBadge extends StatelessWidget {
         child: Icon(icon, size: 15, color: Colors.white),
       ),
     );
+  }
+}
+
+/// The reference's comic-card headline: two centred 13 px bold lines.
+class _HeadlinedCardTitle extends StatelessWidget {
+  const _HeadlinedCardTitle({required this.text, required this.color});
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+      height: kLibraryHeadlinedCardTitleHeight,
+      width: double.infinity,
+      child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 3, 22, 0),
+          child: Text(text,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  color: color,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  height: 18.5714 / 13))));
+}
+
+/// A large number with the date at the right, then an outlined pill row.
+class _HeadlinedCardFooter extends StatelessWidget {
+  const _HeadlinedCardFooter(
+      {required this.presentation,
+      required this.numberColor,
+      required this.dateColor,
+      required this.pillColor});
+  final LibraryCardPresentation presentation;
+  final Color numberColor;
+  final Color dateColor;
+  final Color pillColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final pill = presentation.outlinedPill;
+    return SizedBox(
+        height: kLibraryHeadlinedCardFooterHeight,
+        child: Padding(
+            padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              SizedBox(
+                  height: 24,
+                  child: Row(children: [
+                    Expanded(
+                        child: Text(presentation.numberLabel ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                color: numberColor,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                height: 24 / 18))),
+                    if (presentation.detailLine case final date?)
+                      Text(date,
+                          style: TextStyle(
+                              color: dateColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400)),
+                  ])),
+              if (pill != null)
+                Container(
+                    height: 22,
+                    margin: const EdgeInsets.only(top: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 1),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: pillColor),
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Text(pill,
+                        style: TextStyle(
+                            color: pillColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            height: 20 / 14))),
+            ])));
   }
 }

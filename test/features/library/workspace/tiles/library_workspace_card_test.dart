@@ -120,6 +120,37 @@ Widget _host(
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  testWidgets('headlined cards put the headline above the cover',
+      (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        localItemImageProvider
+            .overrideWith((ref, request) => Stream.value(null))
+      ],
+      child: MaterialApp(
+        theme: buildAppShellTheme(palette: kDefaultAppThemePalette),
+        home: Scaffold(
+            body: SizedBox(
+          width: 158,
+          height: 320,
+          child: LibraryWorkspaceCard(
+              item: _item(),
+              selected: false,
+              onTap: () {},
+              cardLayout: LibraryCardLayout.headlined),
+        )),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    final headline = find.text('Album');
+    expect(headline, findsOneWidget);
+    expect(tester.widget<Text>(headline).textAlign, TextAlign.center);
+    expect(tester.getTopLeft(headline).dy, lessThan(10));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
   testWidgets('light vertical cards keep readable titles before selection',
       (tester) async {
     await tester.pumpWidget(ProviderScope(

@@ -3,6 +3,7 @@ import '../comic_module_dependencies.dart';
 import 'comic_kind_configuration.dart';
 import '../data/comic_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final comicKindPresentation = comicLibraryCatalogItemPresentation;
@@ -14,9 +15,11 @@ final comicKindTrackingProfile = comicTrackingProfile;
 final comicKindViewProfile = standardMediaWorkspaceViewProfile(
   CatalogMediaKind.comic,
   comicKindUiPolicy,
+  cardLayout: LibraryWorkspaceCardLayout.headlined,
 );
 
-final comicKindUiPolicy = const LibraryUiPolicy();
+// The reference's comic covers are 148 x 207.
+final comicKindUiPolicy = const LibraryUiPolicy(coverAspectRatio: 148 / 207);
 
 final comicKindSearchTargetOptions = const <LibrarySearchTarget>[];
 
