@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_summary_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +18,8 @@ class MetadataDiffEntry {
   bool get isDifferent => localValue.trim() != serverValue.trim();
 }
 
+/// One section of the Core comparison as a table: each field on one row
+/// with your value beside Core's, differing rows marked.
 class MetadataDiffPanel extends StatelessWidget {
   const MetadataDiffPanel({
     super.key,
@@ -37,51 +38,120 @@ class MetadataDiffPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
     final visible = showOnlyDifferences
         ? entries.where((entry) => entry.isDifferent).toList()
         : entries;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: kEditPanelRaised,
-        border: Border.all(color: kEditDivider),
-      ),
+    final differences = entries.where((entry) => entry.isDifferent).length;
+    final canAccept = visible.any((entry) => entry.onAccept != null);
+    final header = TextStyle(
+        color: palette.textMuted, fontSize: 13, fontWeight: FontWeight.w700);
+    TableRow row(int index, MetadataDiffEntry entry) {
+      final different = entry.isDifferent;
+      final value = TextStyle(
+        color: palette.textPrimary,
+        fontSize: 14,
+        fontWeight: different ? FontWeight.w700 : FontWeight.w400,
+      );
+      Widget cell(Widget child) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+            child: child,
+          );
+      return TableRow(
+        key: ValueKey('metadata-diff-${entry.label}'),
+        decoration: BoxDecoration(
+          color: index.isEven ? palette.tableEvenRow : palette.tableOddRow,
+          border: Border(
+            left: BorderSide(
+              width: 3,
+              color: different ? palette.difference : Colors.transparent,
+            ),
+          ),
+        ),
+        children: [
+          cell(Text(entry.label,
+              style: TextStyle(
+                  color: palette.textPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700))),
+          cell(SelectableText(_shown(entry.localValue), style: value)),
+          cell(SelectableText(_shown(entry.serverValue),
+              style: different ? value.copyWith(color: palette.link) : value)),
+          if (canAccept)
+            entry.onAccept == null || !different
+                ? const SizedBox.shrink()
+                : IconButton(
+                    tooltip: 'Use the Core value',
+                    visualDensity: VisualDensity.compact,
+                    icon: Icon(Icons.arrow_back, size: 16, color: palette.link),
+                    onPressed: entry.onAccept,
+                  ),
+        ],
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
               Expanded(
                 child: Text(
                   title,
-                  style: Theme.of(context).textTheme.titleSmall,
+                  style: TextStyle(
+                      color: palette.link,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700),
                 ),
               ),
-              if (onAcceptAll != null &&
-                  visible.any((entry) => entry.isDifferent))
+              Text(
+                differences == 0
+                    ? 'Same as Core'
+                    : '$differences ${differences == 1 ? 'difference' : 'differences'}',
+                style: TextStyle(
+                    color: differences == 0
+                        ? palette.textMuted
+                        : palette.difference,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700),
+              ),
+              if (onAcceptAll != null && differences > 0)
                 TextButton.icon(
                   onPressed: onAcceptAll,
                   icon: const Icon(Icons.done_all, size: 16),
-                  label: const Text('Apply all'),
+                  label: const Text('Use all Core values'),
                 ),
             ],
           ),
+          const SizedBox(height: 6),
           if (visible.isEmpty)
-            Text(
-              emptyText,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: kEditTextMuted),
-            )
+            Text(emptyText, style: TextStyle(color: palette.textMuted))
           else
-            Column(
+            Table(
+              columnWidths: {
+                0: const FixedColumnWidth(170),
+                1: const FlexColumnWidth(),
+                2: const FlexColumnWidth(),
+                if (canAccept) 3: const FixedColumnWidth(40),
+              },
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               children: [
-                for (final entry in visible) ...[
-                  const SizedBox(height: 6),
-                  _MetadataDiffRow(entry: entry),
-                ],
+                TableRow(
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: palette.divider)),
+                  ),
+                  children: [
+                    for (final label in ['Field', 'Your value', 'Core value'])
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(11, 4, 8, 4),
+                        child: Text(label, style: header),
+                      ),
+                    if (canAccept) const SizedBox.shrink(),
+                  ],
+                ),
+                for (var i = 0; i < visible.length; i++) row(i, visible[i]),
               ],
             ),
         ],
@@ -90,89 +160,7 @@ class MetadataDiffPanel extends StatelessWidget {
   }
 }
 
-class _MetadataDiffRow extends StatelessWidget {
-  const _MetadataDiffRow({required this.entry});
-
-  final MetadataDiffEntry entry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: kAppField,
-        border: Border.all(color: kEditDivider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            entry.label,
-            style: Theme.of(context)
-                .textTheme
-                .labelLarge
-                ?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 6),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _DiffValue(
-                  label: 'Local',
-                  value: entry.localValue,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _DiffValue(
-                  label: 'Server',
-                  value: entry.serverValue,
-                ),
-              ),
-              if (entry.onAccept != null) ...[
-                const SizedBox(width: 8),
-                IconButton(
-                  tooltip: 'Apply server value',
-                  icon: const Icon(Icons.arrow_back, size: 16),
-                  onPressed: entry.onAccept,
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DiffValue extends StatelessWidget {
-  const _DiffValue({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context)
-              .textTheme
-              .labelSmall
-              ?.copyWith(color: kEditTextMuted),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value.isEmpty ? '—' : value,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ],
-    );
-  }
-}
+String _shown(String value) => value.trim().isEmpty ? '—' : value;
 
 String formatDiffText(String? value) {
   final normalized = value?.trim() ?? '';

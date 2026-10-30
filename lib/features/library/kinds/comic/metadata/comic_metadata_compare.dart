@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:flutter/material.dart';
@@ -12,19 +14,19 @@ List<Widget> buildComicMetadataComparePanels(
 }) {
   return [
     MetadataDiffPanel(
-      title: 'Metadata fields (Local vs Server)',
+      title: 'Details',
       entries: _comicMetadataEntries(localPayload, serverPayload),
       showOnlyDifferences: false,
       emptyText: 'No metadata fields available.',
     ),
     MetadataDiffPanel(
-      title: 'Creators (Local vs Server)',
+      title: 'Creators',
       entries: _creatorsEntries(localPayload, serverPayload),
       showOnlyDifferences: false,
       emptyText: 'No creators available.',
     ),
     MetadataDiffPanel(
-      title: 'Characters (Local vs Server)',
+      title: 'Characters',
       entries: _charactersEntries(localPayload, serverPayload),
       showOnlyDifferences: false,
       emptyText: 'No characters available.',
@@ -32,111 +34,57 @@ List<Widget> buildComicMetadataComparePanels(
   ];
 }
 
+/// Core-owned issue fields under the editor's labels, Main then Details.
 List<MetadataDiffEntry> _comicMetadataEntries(
   Map<String, dynamic> localP,
   Map<String, dynamic> serverP,
 ) {
-  final localSeries = (localP['series'] as Map?) ?? localP;
-  final serverSeries = (serverP['series'] as Map?) ?? serverP;
-  final localPub = (localP['publishing'] as Map?) ?? localP;
-  final serverPub = (serverP['publishing'] as Map?) ?? serverP;
+  final local = ComicCatalogItem.fromJson(localP);
+  final server = ComicCatalogItem.fromJson(serverP);
+  final formats = AppFormats.current;
+  String date(PartialDate? parts, DateTime? value) {
+    final shown =
+        parts ?? (value == null ? null : PartialDate.fromDateTime(value));
+    return shown == null ? '' : formats.formatPartialDate(shown);
+  }
+
+  MetadataDiffEntry entry(
+          String label, String? Function(ComicCatalogItem item) read) =>
+      MetadataDiffEntry(
+        label: label,
+        localValue: read(local)?.trim() ?? '',
+        serverValue: read(server)?.trim() ?? '',
+      );
 
   return [
-    MetadataDiffEntry(
-      label: 'Title',
-      localValue: formatDiffText(localP['title']?.toString()),
-      serverValue: formatDiffText(serverP['title']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Sort key',
-      localValue: formatDiffText(localP['sort_key']?.toString()),
-      serverValue: formatDiffText(serverP['sort_key']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Publisher',
-      localValue: formatDiffText(localP['publisher']?.toString()),
-      serverValue: formatDiffText(serverP['publisher']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Release Date',
-      localValue: formatDiffDate(_parseDate(localP['release_date'])),
-      serverValue: formatDiffDate(_parseDate(serverP['release_date'])),
-    ),
-    MetadataDiffEntry(
-      label: 'Variant',
-      localValue: formatDiffText(localP['variant']?.toString()),
-      serverValue: formatDiffText(serverP['variant']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Edition title',
-      localValue: formatDiffText(localP['edition_title']?.toString()),
-      serverValue: formatDiffText(serverP['edition_title']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Barcode',
-      localValue: formatDiffText(localP['barcode']?.toString()),
-      serverValue: formatDiffText(serverP['barcode']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Country',
-      localValue: formatDiffText(localP['country']?.toString()),
-      serverValue: formatDiffText(serverP['country']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Language',
-      localValue: formatDiffText(localP['language']?.toString()),
-      serverValue: formatDiffText(serverP['language']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Genres',
-      localValue:
-          formatDiffList((localP['genres'] as List?)?.map((e) => e.toString())),
-      serverValue: formatDiffList(
-          (serverP['genres'] as List?)?.map((e) => e.toString())),
-    ),
-    MetadataDiffEntry(
-      label: 'Story arcs',
-      localValue: formatDiffList(
-          (localP['story_arcs'] as List?)?.map((e) => e.toString())),
-      serverValue: formatDiffList(
-          (serverP['story_arcs'] as List?)?.map((e) => e.toString())),
-    ),
-    MetadataDiffEntry(
-      label: 'Series',
-      localValue: formatDiffText(
-          (localSeries['series_title'] ?? localSeries['seriesTitle'])
-              ?.toString()),
-      serverValue: formatDiffText(
-          (serverSeries['series_title'] ?? serverSeries['seriesTitle'])
-              ?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Issue number',
-      localValue: formatDiffText(
-          (localP['item_number'] ?? localP['itemNumber'])?.toString()),
-      serverValue: formatDiffText(
-          (serverP['item_number'] ?? serverP['itemNumber'])?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Cover date',
-      localValue: formatDiffDate(_parseDate(localP['cover_date'])),
-      serverValue: formatDiffDate(_parseDate(serverP['cover_date'])),
-    ),
-    MetadataDiffEntry(
-      label: 'Imprint',
-      localValue: formatDiffText(localPub['imprint']?.toString()),
-      serverValue: formatDiffText(serverPub['imprint']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Page count',
-      localValue: formatDiffText(localPub['page_count']?.toString()),
-      serverValue: formatDiffText(serverPub['page_count']?.toString()),
-    ),
-    MetadataDiffEntry(
-      label: 'Plot summary',
-      localValue: formatDiffText(localP['plot_summary']?.toString()),
-      serverValue: formatDiffText(serverP['plot_summary']?.toString()),
-    ),
+    entry('Series', (item) => item.seriesTitle),
+    entry('Issue No.', (item) => item.issueNumber),
+    entry('Variant', (item) => item.variant),
+    entry('Variant Description', (item) => item.variantDescription),
+    entry('Barcode', (item) => item.barcode),
+    entry('Format', (item) => item.physicalFormat),
+    entry('Series Group', (item) => item.seriesGroup),
+    entry('Publisher', (item) => item.publisher),
+    entry('Imprint', (item) => item.imprint),
+    entry('Cover Date', (item) => date(item.coverDateParts, item.coverDate)),
+    entry('Release Date',
+        (item) => date(item.releaseDateParts, item.releaseDate)),
+    entry(
+        'Cover Price',
+        (item) => item.coverPriceCents == null
+            ? null
+            : formats.formatMoney(item.coverPriceCents, item.currency)),
+    entry('Crossover', (item) => item.crossover),
+    entry('Story Arc',
+        (item) => item.storyArcs.map((arc) => arc.name).nonNulls.join(', ')),
+    entry('Title', (item) => item.title),
+    entry('Subtitle', (item) => item.subtitle),
+    entry('Country', (item) => item.country),
+    entry('Language', (item) => item.language),
+    entry('Age', (item) => item.publicationAge),
+    entry('No. of Pages', (item) => item.pageCount?.toString()),
+    entry('Genre', (item) => item.genres.join(', ')),
+    entry('Plot', (item) => item.plotDescription ?? item.plotSummary),
   ];
 }
 
@@ -217,10 +165,4 @@ String _characterText(Map<String, dynamic>? value) {
     return name;
   }
   return '$name ($realName)';
-}
-
-DateTime? _parseDate(dynamic value) {
-  if (value == null) return null;
-  if (value is DateTime) return value;
-  return DateTime.tryParse(value.toString());
 }

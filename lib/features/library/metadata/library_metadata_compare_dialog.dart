@@ -130,7 +130,7 @@ class _LibraryMetadataCompareDialogState
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Metadata Compare — ${widget.itemTitle}',
+              'Compare with Core — ${widget.itemTitle}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

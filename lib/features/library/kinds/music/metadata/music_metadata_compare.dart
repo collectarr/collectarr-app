@@ -11,13 +11,13 @@ List<Widget> buildMusicMetadataComparePanels(
 }) {
   return [
     MetadataDiffPanel(
-      title: 'Music metadata (Local vs Server)',
+      title: 'Details',
       entries: _musicMetadataEntries(localPayload, serverPayload),
       showOnlyDifferences: false,
       emptyText: 'No metadata fields available.',
     ),
     MetadataDiffPanel(
-      title: 'Album credits (Local vs Server)',
+      title: 'Album credits',
       entries: _creditEntries(
         _musicItem(localPayload)['credits'],
         _musicItem(serverPayload)['credits'],
@@ -26,7 +26,7 @@ List<Widget> buildMusicMetadataComparePanels(
       emptyText: 'No album credits available.',
     ),
     MetadataDiffPanel(
-      title: 'Discs (Local vs Server)',
+      title: 'Discs',
       entries: _discEntries(localPayload, serverPayload),
       showOnlyDifferences: false,
       emptyText: 'No discs available.',
