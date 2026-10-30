@@ -31,6 +31,12 @@ opera-browser-cli new_page http://127.0.0.1:7358/#/libraries
   Collectarr from screenshots plus source values.
 - Bring a tab to the front (`select_page <n> --bringToFront`) before taking a
   screenshot of it.
+- Read colours from computed styles, not screenshot pixels: Chrome
+  colour-manages the page, so CLZ's CSS #00AEE6 paints as #50AEE5, and a
+  colour copied from a pixel paints lighter again.
+- Compare text with local Gilroy loaded (Settings > Appearance >
+  Typography > Import local fonts) and CLZ's computed styles; its CSS 400 is
+  Gilroy Medium.
 
 ## Deliberate improvements
 
