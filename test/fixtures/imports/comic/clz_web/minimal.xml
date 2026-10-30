@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<collectorz><meta><scope>export</scope></meta><data><comicinfo><comiclist>
+<comic><hash>fixture-1</hash><mainsection><title>Fixture Title</title><series><displayname>Fixture Series</displayname></series></mainsection><issuenr>2</issuenr><issueext>A</issueext><collectionstatus listid="3">In Collection</collectionstatus><addeddate><timestamp>1780188904</timestamp></addeddate></comic>
+</comiclist></comicinfo></data></collectorz>

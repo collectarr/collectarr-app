@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- Add the Comics library, CLZ Comics Web XML import, CSV import that keeps an empty Title empty, calendar and barcode support with a preserving database upgrade; use typed Add/Edit forms with the eleven CLZ tabs, shared tab icons and compact field layouts, personal reading and grading, cover controls, partial publication dates, separate publication Age, one editable Creators list and Characters list per issue, a Series tab in Add that lists a series' issues beside the series list to check all or some of them, and a Missing Comics table in the main menu's Tools with series filter, variant, on-order and unreleased options, compact issue runs, Hide and Download PDF.
+- Add the Comics library, CLZ Comics Web and Comic Collector XML import, CSV import that keeps an empty Title empty, calendar and barcode support with a preserving database upgrade; use typed Add/Edit forms with the eleven CLZ tabs, shared tab icons and compact field layouts, personal reading and grading, cover controls, partial publication dates, separate publication Age, one editable Creators list and Characters list per issue, a Series tab in Add that lists a series' issues beside the series list to check all or some of them, and a Missing Comics table in the main menu's Tools with series filter, variant, on-order and unreleased options, compact issue runs, Hide and Download PDF.
 
 - Imports run as soon as you press Import after choosing a file, without a list of parsed records to review first, as in CLZ.
 

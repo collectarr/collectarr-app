@@ -3,8 +3,14 @@ import 'package:collectarr_app/features/imports/framework/library_guided_importe
 import 'package:xml/xml.dart';
 
 /// XML mechanics only: each inventory owns its external type and field mapping.
+///
+/// A CLZ Web export wraps [section] in `collectorz/data`; a Collectorz desktop
+/// export ([desktop]) has [section] as its root.
 List<ClzXmlRecord> readClzWebRecords(String source,
-    {required String section, required String list, required String record}) {
+    {required String section,
+    required String list,
+    required String record,
+    bool desktop = false}) {
   final XmlDocument document;
   try {
     document = XmlDocument.parse(source);
@@ -12,16 +18,17 @@ List<ClzXmlRecord> readClzWebRecords(String source,
     throw LibraryImportFormatException('Malformed XML: ${error.message}');
   }
   final root = document.rootElement;
-  if (root.name.local != 'collectorz') {
-    throw const LibraryImportFormatException('Expected a CLZ Web XML export.');
+  if (root.name.local != (desktop ? section : 'collectorz')) {
+    throw LibraryImportFormatException(desktop
+        ? 'Expected a <$section> XML export, not <${root.name.local}>.'
+        : 'Expected a CLZ Web XML export.');
   }
-  final records = root
-          .getElement('data')
-          ?.getElement(section)
-          ?.getElement(list)
-          ?.findElements(record)
-          .toList() ??
-      <XmlElement>[];
+  final records =
+      (desktop ? root : root.getElement('data')?.getElement(section))
+              ?.getElement(list)
+              ?.findElements(record)
+              .toList() ??
+          <XmlElement>[];
   if (records.isEmpty) {
     throw const LibraryImportFormatException(
         'No records found in this CLZ export.');
@@ -113,6 +120,11 @@ final class ClzXmlRecord {
       final raw = parts.text('date') ??
           parts.text('displayname') ??
           value.innerText.trim();
+      // Collectorz desktop programs write US dates: "1/15/2026".
+      if (_usDate.firstMatch(raw) case final us?) {
+        return _checked(
+            path, int.parse(us[3]!), int.parse(us[1]!), int.parse(us[2]!));
+      }
       final match = RegExp(r'^(\d{4})?(?:[/-](\d{1,2})?)?(?:[/-](\d{1,2})?)?$')
           .firstMatch(raw);
       if (match == null) {
@@ -127,6 +139,10 @@ final class ClzXmlRecord {
       month = component(2);
       day = component(3);
     }
+    return _checked(path, year, month, day);
+  }
+
+  PartialDate? _checked(String path, int? year, int? month, int? day) {
     if ((year != null && (year < 1 || year > 9999)) ||
         (month != null && (month < 1 || month > 12)) ||
         (day != null &&
@@ -141,11 +157,20 @@ final class ClzXmlRecord {
     return result.isEmpty ? null : result;
   }
 
+  /// A CLZ Web timestamp, or the day of a desktop "4/29/2017 10:22:39 AM".
   DateTime? instant(String path) {
     final timestamp = integer('$path/timestamp');
-    return timestamp == null
-        ? null
-        : DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: true);
+    if (timestamp != null) {
+      return DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: true);
+    }
+    final day = text('$path/date')?.split(' ').first;
+    if (day == null) return null;
+    if (_usDate.firstMatch(day) case final us?) {
+      return _checked(
+              path, int.parse(us[3]!), int.parse(us[1]!), int.parse(us[2]!))
+          ?.asDateTime;
+    }
+    throw LibraryImportFormatException('Invalid $path: "$day".');
   }
 
   void requireItemType(int expected, {required String field}) {
@@ -168,3 +193,5 @@ final class ClzXmlRecord {
             'Unsupported collection status "$value".'),
       };
 }
+
+final _usDate = RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})(?: .*)?$');
