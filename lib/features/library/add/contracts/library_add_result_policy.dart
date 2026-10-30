@@ -11,11 +11,17 @@ class LibraryAddResultOption {
   const LibraryAddResultOption({
     required this.id,
     required this.label,
+    required this.icon,
     this.initialValue = true,
   });
 
   final String id;
+
+  /// The toggle's tooltip.
   final String label;
+
+  /// The glyph the toggle strikes through.
+  final IconData icon;
   final bool initialValue;
 }
 

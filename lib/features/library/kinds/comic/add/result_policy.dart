@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -9,12 +10,14 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
   options: const [
     LibraryAddResultOption(
       id: comicAddHideEntryOptionId,
-      label: 'Hide entry',
+      label: 'Hide owned',
+      icon: Icons.check_box_outlined,
       initialValue: false,
     ),
     LibraryAddResultOption(
       id: comicAddHideVariantsOptionId,
       label: 'Hide variants',
+      icon: Icons.layers_outlined,
       initialValue: false,
     ),
   ],

@@ -174,6 +174,7 @@ five comics, and a release Web build with the same five imported from CSV.
 | Toolbar hover | View, sort, layout and Edit/Share buttons highlight #464950 with a 4 px radius | Square highlight | Fixed: every toolbar hover is rounded 4 px |
 | Kind accent and icon | Header and accents #50AEE5; a speech-balloon app icon | Cyan #44BFE7 and a generic stacked-books icon | Fixed: #50AEE5 and an original speech-balloon icon |
 | Add Comics tabs | Series (magnifier), Issue (#, "Enter series title and issue number..."), Barcode, NCBD, settings | Series (stacked layers), Title ("Search comics by series, issue, or exact title..."), Barcode, settings, cover scan | Fixed: Series and Issue named, iconed and hinted as in the reference; cover scan kept. Open: NCBD (new releases) needs a Core release calendar |
+| Add Comics result toggles | Hide owned and Hide variants as 32 px struck-through icons, right-aligned over the results on #383838; #737373 when on; then Sort and grid/list | "Hide entry" and "Hide variants" chips, shown even before a search | Fixed: struck-through icon toggles with those tooltips, shown with results. Open: the Sort and grid/list toggles |
 
 Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
 editors and dialogs with Cancel. Record observed fields and remaining gaps
