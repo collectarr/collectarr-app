@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/generated/catalog_item_v1_fields.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/core_data/core_data_settings.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_metadata_contributors.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_page_tabs.dart';
@@ -71,7 +72,11 @@ class _CoreDataSettingsDialogState extends State<CoreDataSettingsDialog> {
   /// The kind's fields in Core's Catalog Item contract, each list of objects
   /// followed by the lists its elements contain. Settings act on one nesting
   /// level, so lists deeper than that are not offered.
-  static List<_Field> _fieldsFor(CatalogMediaKind kind) => [
+  static List<_Field> _fieldsFor(CatalogMediaKind kind) =>
+      libraryCoreDataFieldsForKind(kind)
+          ?.map((field) => (key: field.key, label: field.label, nested: false))
+          .toList() ??
+      [
         for (final field in catalogItemV1FieldsByKind[kind.apiValue] ??
             const <CatalogItemV1Field>[])
           if (!kCoreDataLockedFields.contains(field.key)) ...[

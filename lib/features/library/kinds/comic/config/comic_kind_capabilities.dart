@@ -52,7 +52,35 @@ final comicKindMetadata = LibraryMetadataCapability(
   searchQueryBuilder: comicMetadataSearchQuery,
   supportsServerCompare: true,
   compareBuilder: buildComicMetadataComparePanels,
+  coreDataFields: comicCoreDataFields,
 );
+
+/// The reference's Add/Update from Core fields, in its order, then the lists
+/// and key facts Collectarr also downloads.
+const comicCoreDataFields = [
+  (key: 'title', label: 'Title'),
+  (key: 'subtitle', label: 'Subtitle'),
+  (key: 'physical_format', label: 'Format'),
+  (key: 'series_group', label: 'Series Group'),
+  (key: 'variant_description', label: 'Variant Description'),
+  (key: 'cover_date', label: 'Cover Date'),
+  (key: 'release_date_parts', label: 'Release Date'),
+  (key: 'publisher', label: 'Publisher'),
+  (key: 'imprint', label: 'Imprint'),
+  (key: 'crossover', label: 'Crossover'),
+  (key: 'story_arcs', label: 'Story Arc'),
+  (key: 'country', label: 'Country'),
+  (key: 'language', label: 'Language'),
+  (key: 'publication_age', label: 'Age'),
+  (key: 'page_count', label: 'No. of Pages'),
+  (key: 'genres', label: 'Genre'),
+  (key: 'cover_price_cents', label: 'Cover Price'),
+  (key: 'creators', label: 'Creators'),
+  (key: 'characters', label: 'Characters'),
+  (key: 'plot_description', label: 'Plot'),
+  (key: 'key_reason', label: 'Key Reason'),
+  (key: 'cover_image_url', label: 'Cover'),
+];
 
 // A Comic Catalog Item already represents one concrete issue or edition.
 // There is no Work -> issue -> variant child tree to fetch.

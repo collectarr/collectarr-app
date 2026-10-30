@@ -14,3 +14,10 @@ LibraryMediaPresentation libraryPresentationForKind(CatalogMediaKind kind) =>
 
 LibraryMetadataCapability libraryMetadataForKind(CatalogMediaKind kind) =>
     collectarrKindMetadata[kind]!;
+
+/// The kind's Add/Update from Core fields, or null for Core's contract
+/// (also for a kind not registered in this build).
+List<({String key, String label})>? libraryCoreDataFieldsForKind(
+  CatalogMediaKind kind,
+) =>
+    collectarrKindMetadata[kind]?.coreDataFields;
