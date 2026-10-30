@@ -222,7 +222,7 @@ abstract final class ComicWorkspaceFieldMetadata {
 
   static const location = LibraryKindFieldMetadata(
     id: 'comic.location',
-    label: 'Location',
+    label: 'Storage Box',
     valueType: LibraryFieldValueType.text,
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.libraryEntry,
@@ -437,6 +437,7 @@ abstract final class ComicWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'genres[]',
     filterable: true,
+    groupable: true,
   );
 
   static const storyArc = LibraryKindFieldMetadata(
@@ -447,6 +448,7 @@ abstract final class ComicWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'story_arcs[].name',
     filterable: true,
+    groupable: true,
   );
 
   static const country = LibraryKindFieldMetadata(
@@ -457,6 +459,7 @@ abstract final class ComicWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'country',
     filterable: true,
+    groupable: true,
   );
 
   static const language = LibraryKindFieldMetadata(
@@ -467,6 +470,7 @@ abstract final class ComicWorkspaceFieldMetadata {
     source: LibraryFieldSource.catalog,
     sourcePath: 'language',
     filterable: true,
+    groupable: true,
   );
 
   static const releaseYear = LibraryKindFieldMetadata(
@@ -477,5 +481,6 @@ abstract final class ComicWorkspaceFieldMetadata {
     source: LibraryFieldSource.derived,
     sourcePath: 'release_date.year',
     filterable: true,
+    groupable: true,
   );
 }

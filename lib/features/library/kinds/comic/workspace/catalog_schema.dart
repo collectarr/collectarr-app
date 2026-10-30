@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspa
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/facets.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/groups.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
@@ -128,6 +129,11 @@ final comicCatalogItemWorkspaceGroupDefinitions = [
   ),
 ];
 
+final _comicCatalogOnlyGroupDefinitions = [
+  ...comicCatalogItemWorkspaceGroupDefinitions,
+  ...comicWorkspaceGroupDefinitions(includePersonal: false),
+];
+
 final comicCatalogItemWorkspaceSortDefinitions = [
   if (ComicFieldIdentities.series.sortable)
     sortFromField<ComicKind, ComicWorkspaceDto, String>(
@@ -236,7 +242,7 @@ final comicCatalogItemWorkspaceSchema =
   ],
   columns: comicCatalogItemWorkspaceColumnDefinitions,
   sorts: comicCatalogItemWorkspaceSortDefinitions,
-  groups: comicCatalogItemWorkspaceGroupDefinitions,
+  groups: _comicCatalogOnlyGroupDefinitions,
   primaryColumn: ComicFieldIds.title,
   defaultVisibleColumns: comicCatalogItemWorkspaceDefaultVisibleColumns,
   // The library takes its default order from this registry: Series, then

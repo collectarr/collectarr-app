@@ -55,6 +55,7 @@ abstract final class ComicFieldIdentities {
     source: LibraryFieldSource.catalog,
     sourcePath: 'imprint',
     editable: true,
+    groupable: true,
     vocabulary: imprintVocabulary,
   );
   static const pageCount = LibraryKindFieldMetadata(
