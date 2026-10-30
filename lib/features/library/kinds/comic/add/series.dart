@@ -14,7 +14,16 @@ const comicAddSeries = LibraryAddBrowseCapability(
   searchGroups: searchComicSeries,
   loadItemRows: loadComicSeriesIssueRows,
   coverBlock: comicAddCoverBlock,
+  ownedGroupKey: comicSeriesKey,
 );
+
+/// One series as Core groups it: title, publisher and volume start year.
+String? comicSeriesKey(Map<String, dynamic> data) {
+  final title = (data['series_title'] as String?)?.trim().toLowerCase();
+  if (title == null || title.isEmpty) return null;
+  final publisher = (data['publisher'] as String?)?.trim().toLowerCase() ?? '';
+  return '$title|$publisher|${data['volume_start_year'] ?? ''}';
+}
 
 const _months = [
   'Jan',
@@ -83,6 +92,7 @@ LibraryAddBrowseGroup comicAddSeriesFromJson(Map<String, dynamic> json) {
     coverImageUrl: json['cover_image_url'] as String?,
     details: publisher,
     period: years,
+    ownedKey: comicSeriesKey(json),
     query: {
       'series_title': title,
       if (publisher != null) 'publisher': publisher,

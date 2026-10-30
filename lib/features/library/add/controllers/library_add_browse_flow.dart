@@ -71,6 +71,32 @@ mixin _LibraryAddBrowseFlow on ValueNotifier<LibraryAddSessionState> {
     }
   }
 
+  /// Up to five groups for the typed text, shown under the field while
+  /// typing; Core failures leave the field without suggestions.
+  Future<List<LibraryAddBrowseGroup>> suggestBrowseGroups(String query) async {
+    final capability = _browseCapability;
+    final text = query.trim();
+    if (api == null || capability == null || text.length < 2) return const [];
+    try {
+      final found = await capability
+          .searchGroups(api!, text)
+          .timeout(_LibraryAddBrowseFlow._browseTimeout);
+      return found.take(5).toList(growable: false);
+    } on Exception {
+      return const [];
+    }
+  }
+
+  /// Opens a suggested group as the only one found, as the reference does.
+  Future<void> pickBrowseGroup(LibraryAddBrowseGroup group, String query) {
+    ++_browseGeneration;
+    state = state.copyWith(
+      browse:
+          LibraryAddBrowseState(query: query, found: [group], searched: true),
+    );
+    return openBrowseGroup(group);
+  }
+
   Future<void> openBrowseGroup(LibraryAddBrowseGroup group) async {
     final capability = _browseCapability;
     if (api == null || catalog == null || capability == null) return;

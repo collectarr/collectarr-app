@@ -20,6 +20,7 @@ class LibraryAddCoverBlocks extends StatelessWidget {
     required this.checkedResultIds,
     required this.onSelectResult,
     required this.onToggleResultCheck,
+    this.onAddManually,
   });
 
   static const blockWidth = 163.0;
@@ -36,6 +37,9 @@ class LibraryAddCoverBlocks extends StatelessWidget {
   final Set<String> checkedResultIds;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onToggleResultCheck;
+
+  /// The grid ends with a "Not found?" block opening Add Manually.
+  final VoidCallback? onAddManually;
 
   @override
   Widget build(BuildContext context) {
@@ -80,10 +84,12 @@ class LibraryAddCoverBlocks extends StatelessWidget {
           crossAxisCount: columns,
           mainAxisExtent: blockHeight + 2 * blockMargin,
         ),
-        itemCount: results.length,
+        itemCount: results.length + (onAddManually == null ? 0 : 1),
         itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.all(blockMargin),
-          child: tile(index),
+          child: index == results.length
+              ? _NotFoundBlock(onTap: onAddManually!)
+              : tile(index),
         ),
       );
     });
@@ -254,6 +260,47 @@ class _ListBlock extends StatelessWidget {
   }
 }
 
+/// The last grid block: a large plus over "Not found? Add it manually".
+class _NotFoundBlock extends StatelessWidget {
+  const _NotFoundBlock({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return AppClickTarget(
+      key: const ValueKey('library-add-cover-not-found'),
+      onClick: onTap,
+      builder: (context, hovered) => Container(
+        padding: const EdgeInsets.all(5),
+        color: hovered
+            ? libraryAddResultsDivider(context)
+            : palette.isDark
+                ? const Color(0xff383838)
+                : palette.panelRaised,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Center(
+                child: Icon(Icons.add, size: 90, color: palette.textPrimary),
+              ),
+            ),
+            Text('Not found?',
+                style: TextStyle(
+                    color: palette.textPrimary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700)),
+            Text('Add it manually',
+                style: TextStyle(color: palette.textPrimary, fontSize: 12)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// The reference's outlined issue box, as "#1A".
 class _BadgeBox extends StatelessWidget {
   const _BadgeBox(this.label);
@@ -286,9 +333,11 @@ class LibraryAddCoverBlockView {
     required this.onLayoutChanged,
     required this.descending,
     required this.onDescendingChanged,
+    this.onAddManually,
   });
 
   final LibraryAddCoverBlock Function(CatalogSearchCandidate item) block;
+  final VoidCallback? onAddManually;
   final LibraryAddBlockLayout layout;
   final ValueChanged<LibraryAddBlockLayout> onLayoutChanged;
   final bool descending;

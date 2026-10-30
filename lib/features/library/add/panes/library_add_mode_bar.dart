@@ -60,6 +60,7 @@ class LibraryAddModeBar extends StatefulWidget {
     this.codeQueryController,
     this.browseTab,
     this.browseQueryController,
+    this.onBrowseChanged,
     this.onSearchBrowse,
     this.queryTrailing,
     required this.isSearching,
@@ -102,6 +103,9 @@ class LibraryAddModeBar extends StatefulWidget {
   /// adds a browse tab.
   final LibraryAddBrowseCapability? browseTab;
   final TextEditingController? browseQueryController;
+
+  /// Each edit of the browse field, for suggestions while typing.
+  final ValueChanged<String>? onBrowseChanged;
   final VoidCallback? onSearchBrowse;
   final bool isSearching;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
@@ -529,6 +533,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                             controller: widget.browseQueryController!,
                             label: widget.browseTab!.label,
                             hintText: widget.browseTab!.hintText,
+                            onChanged: widget.onBrowseChanged,
                             onSubmitted: widget.onSearchBrowse!,
                           ),
                         LibraryAddDialogMode.search => OverlayPortal(

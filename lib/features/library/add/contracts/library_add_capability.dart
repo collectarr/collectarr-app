@@ -97,6 +97,7 @@ class LibraryAddBrowseGroup {
     this.details,
     this.period,
     this.coverImageUrl,
+    this.ownedKey,
   });
 
   final String title;
@@ -113,6 +114,10 @@ class LibraryAddBrowseGroup {
   /// The years the group spans, right-aligned under the count.
   final String? period;
   final String? coverImageUrl;
+
+  /// Matches [LibraryAddBrowseCapability.ownedGroupKey] of a library entry
+  /// in this group, so the group can show as already collected.
+  final String? ownedKey;
 }
 
 class LibraryAddBrowseCapability {
@@ -123,6 +128,7 @@ class LibraryAddBrowseCapability {
     required this.searchGroups,
     required this.loadItemRows,
     this.coverBlock,
+    this.ownedGroupKey,
   });
 
   /// Names the tab, the group list and its empty state, as "Series".
@@ -141,6 +147,10 @@ class LibraryAddBrowseCapability {
   /// The labels around each item's cover; set, a group's items show as a
   /// cover grid (or a list) instead of result rows.
   final LibraryAddCoverBlock Function(CatalogSearchCandidate item)? coverBlock;
+
+  /// The group a library entry's catalog data belongs to, as a group's
+  /// [LibraryAddBrowseGroup.ownedKey].
+  final String? Function(Map<String, dynamic> catalogData)? ownedGroupKey;
 }
 
 /// What the cover grid writes around one item's cover: a boxed badge with
