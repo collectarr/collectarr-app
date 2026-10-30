@@ -104,7 +104,9 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final bool hasPartialCheck;
   final ValueChanged<bool>? onToggleAllChecked;
   final bool showStatus;
-  final Widget Function(T entry)? statusBuilder;
+
+  /// Builds the status mark; [selected] is true on the blue selected row.
+  final Widget Function(T entry, bool selected)? statusBuilder;
   final bool showEdit;
   final ValueChanged<T>? onEditEntry;
   final double headerHeight;
@@ -732,7 +734,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
   final bool Function(T entry)? isEntryChecked;
   final ValueChanged<T>? onToggleEntryCheck;
   final bool showStatus;
-  final Widget Function(T entry)? statusBuilder;
+  final Widget Function(T entry, bool selected)? statusBuilder;
   final bool showEdit;
   final ValueChanged<T>? onEditEntry;
   final double rowHeight;
@@ -809,7 +811,8 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                 height: rowHeight,
                 child: _FirstLine(
                   height: lineRowHeight,
-                  child: statusBuilder?.call(entry) ?? const SizedBox.shrink(),
+                  child: statusBuilder?.call(entry, selected) ??
+                      const SizedBox.shrink(),
                 ),
               ),
             ],

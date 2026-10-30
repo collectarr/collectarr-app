@@ -340,8 +340,8 @@ void main() {
 
     expect(
         tester
-            .widget<LibraryCollectionStatusIcon>(
-                find.byType(LibraryCollectionStatusIcon))
+            .widget<LibraryCollectionStatusMark>(
+                find.byType(LibraryCollectionStatusMark))
             .collectionStatus,
         LibraryCollectionStatusScope.forSale);
     expect(find.byTooltip('For Sale'), findsOneWidget);

@@ -1,6 +1,4 @@
 import 'library_card_footer.dart';
-import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -11,6 +9,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_press_tap.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_item_status_badge.dart';
 import 'package:flutter/material.dart';
 
 enum LibraryCardLayout {
@@ -313,8 +312,11 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                       presentation.releaseDate?.year.toString()
                                     ].whereType<String>().join(' \u2013 '),
                                     value: presentation.valueLabel,
-                                    status: _CardStatusBadge(
-                                        item: item, selected: selected),
+                                    status: LibraryItemStatusBadge(
+                                        item: item,
+                                        selected: selected,
+                                        style: LibraryCollectionStatusMarkStyle
+                                            .pill),
                                     selected: selected)),
                           ])),
                         ])),
@@ -421,11 +423,19 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                         fit: BoxFit.contain,
                                         borderRadius: 0,
                                       ),
+                                      // Bottom left over the cover, as in
+                                      // the reference's Vertical Cards.
                                       Positioned(
-                                          right: 5,
+                                          left: 5,
                                           bottom: 5,
-                                          child: _CardStatusBadge(
-                                              item: item, selected: selected)),
+                                          child: LibraryItemStatusBadge(
+                                              item: item,
+                                              selected: selected,
+                                              style:
+                                                  LibraryCollectionStatusMarkStyle
+                                                      .cover,
+                                              width: 29,
+                                              height: 27)),
                                       if (customFieldBadges.isNotEmpty)
                                         Text(customFieldBadges.join(' | '),
                                             maxLines: 1,
@@ -579,51 +589,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     if (pixelRatio <= 0) return null;
     final rawWidth = coverWidth * pixelRatio;
     return ((rawWidth / 64).ceil() * 64).toInt();
-  }
-}
-
-class _CardStatusBadge extends StatelessWidget {
-  const _CardStatusBadge({required this.item, required this.selected});
-
-  final LibraryProjectionView item;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final source = item.source;
-    final entry = source.libraryEntrySummary;
-    if (source.loans.isEmpty && entry != null) {
-      // The entry's own Collection Status, in its fixed colour.
-      final scope = libraryCollectionStatusFromValue(entry.collectionStatus);
-      return Tooltip(
-        message: scope.label,
-        child: Opacity(
-          opacity: selected ? 0.85 : 1,
-          child: LibraryCollectionStatusIcon(collectionStatus: scope, size: 21),
-        ),
-      );
-    }
-    final (IconData, Color, String)? status = source.loans.isNotEmpty
-        ? (Icons.schedule_rounded, Colors.amber.shade700, 'On Loan')
-        : source.isWishlisted
-            ? (Icons.bookmark_outline_rounded, Colors.orange, 'Wishlist')
-            : null;
-    if (status == null) return const SizedBox.shrink();
-    final (icon, color, label) = status;
-    return Tooltip(
-      message: label,
-      child: Container(
-        width: 21,
-        height: 21,
-        decoration: BoxDecoration(
-          color: selected
-              ? Color.alphaBlend(Colors.black.withValues(alpha: 0.35), color)
-              : color,
-          borderRadius: BorderRadius.circular(3),
-        ),
-        child: Icon(icon, size: 15, color: Colors.white),
-      ),
-    );
   }
 }
 

@@ -1,3 +1,7 @@
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
+    show libraryCollectionStatusFromValue;
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
 import 'dart:math' as math;
@@ -535,7 +539,7 @@ class LibraryWorkspace extends ConsumerWidget {
                       }
                     },
                     showStatus: preferences.showCollectionIndicators,
-                    statusBuilder: (item) => _buildCollectionStatusIcon(item),
+                    statusBuilder: _buildCollectionStatusIcon,
                     showEdit: preferences.showEditIcons,
                     onEditEntry: onEditItem,
                     headerHeight: density.tableHeaderHeight,
@@ -645,7 +649,7 @@ class LibraryWorkspace extends ConsumerWidget {
     );
   }
 
-  Widget _buildCollectionStatusIcon(LibraryProjectionItem item) {
+  Widget _buildCollectionStatusIcon(LibraryProjectionItem item, bool selected) {
     if (item.source.loans.isNotEmpty) {
       return const Tooltip(
         message: 'On Loan',
@@ -656,24 +660,19 @@ class LibraryWorkspace extends ConsumerWidget {
         ),
       );
     }
-    if (item.source.isWishlisted) {
-      return const Tooltip(
-        message: 'Wishlist',
-        child: Icon(
-          Icons.bookmark_outline_rounded,
-          size: 15,
-          color: Colors.orangeAccent,
-        ),
+    // The copy's own Collection Status, so a changed status shows at once.
+    final entry = item.source.libraryEntrySummary;
+    if (entry != null) {
+      return LibraryCollectionStatusMark(
+        collectionStatus:
+            libraryCollectionStatusFromValue(entry.collectionStatus),
+        onSelection: selected,
       );
     }
-    if (item.source.isEntry) {
-      return const Tooltip(
-        message: 'In Collection',
-        child: Icon(
-          Icons.check,
-          size: 15,
-          color: Color(0xFF2A9FD6),
-        ),
+    if (item.source.isWishlisted) {
+      return LibraryCollectionStatusMark(
+        collectionStatus: LibraryCollectionStatusScope.wishList,
+        onSelection: selected,
       );
     }
     return const SizedBox.shrink();
