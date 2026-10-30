@@ -9,6 +9,8 @@ import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:collectarr_app/ui/app_press_tap.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_item_status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -77,7 +79,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final showEditButton = _hovered && widget.onEditTap != null;
     const selectedBorderWidth = 5.0;
     final targetCacheWidth = _targetCacheWidth(context);
-    final badgeBottom = switch (density) {
+    final badgeInset = switch (density) {
       LibraryDensity.comfortable => 5.0,
       LibraryDensity.compact => 4.0,
       LibraryDensity.dense => 3.0,
@@ -148,10 +150,21 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                               onTap: widget.onEditTap!,
                             ),
                           ),
+                        // The status sits bottom left on the cover and the
+                        // selection check top left, as on Vertical Cards.
+                        Positioned(
+                          left: 5,
+                          bottom: badgeInset,
+                          child: LibraryItemStatusBadge(
+                            item: item,
+                            selected: selected,
+                            style: LibraryCollectionStatusMarkStyle.cover,
+                          ),
+                        ),
                         if (showSelectionToggle)
                           Positioned(
                             left: 5,
-                            bottom: badgeBottom,
+                            top: badgeInset,
                             child: LibraryTileSelectionToggleButton(
                               onTap: widget.onSelectionToggleTap,
                               child: LibraryTileSelectionToggle(

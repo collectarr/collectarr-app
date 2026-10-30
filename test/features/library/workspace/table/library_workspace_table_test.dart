@@ -533,7 +533,7 @@ void main() {
                     allCheckedVal = selectAll;
                   },
                   showStatus: true,
-                  statusBuilder: (entry) => Icon(
+                  statusBuilder: (entry, _) => Icon(
                     entry == 'Spider-Man' ? Icons.check_circle : Icons.bookmark,
                     key: ValueKey('status-$entry'),
                     size: 16,
