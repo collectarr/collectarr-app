@@ -17,6 +17,8 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_story_a
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
 import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
@@ -31,6 +33,7 @@ final _entry = ComicLibraryEntry(
   updatedAt: DateTime.utc(2026, 10, 10),
   personal: const ComicPersonalData(
     indexNumber: 5,
+    collectionStatus: 'wishlist',
     reading: ComicReadingState(status: 'Read'),
     details: ComicEntryDetails(
       keySeverity: 'Trivia',
@@ -142,6 +145,12 @@ void main() {
         find.text('Trivia: First appearance of Example Hero'), findsOneWidget);
     expect(find.text('1st full appearance | Debut of item/vehicle/location'),
         findsOneWidget);
+    // Beside the plot sits the Collection Status, not the Read state.
+    final status = find.byType(LibraryCollectionStatusIcon);
+    expect(status, findsOneWidget);
+    expect(tester.widget<LibraryCollectionStatusIcon>(status).collectionStatus,
+        LibraryCollectionStatusScope.wishList);
+    expect(find.byTooltip('Not read'), findsNothing);
     expect(find.text('Quick actions'), findsNothing);
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 1));

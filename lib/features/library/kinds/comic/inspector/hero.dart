@@ -8,6 +8,10 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_e
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
+    show LibraryCollectionStatusScopeUi;
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/app_formatted_text.dart';
@@ -39,7 +43,7 @@ ComicLibraryEntry? comicInspectorEntry(LibraryInspectorRequest request) =>
 
 /// The reference details header: series and issue badge, story arc and
 /// title, key reason, then the cover beside variant, dates, publisher,
-/// barcode and eBay, and the Read check beside the plot.
+/// barcode and eBay, and the Collection Status beside the plot.
 class ComicInspectorHeader extends StatelessWidget {
   const ComicInspectorHeader({super.key, required this.request});
 
@@ -124,7 +128,7 @@ class ComicInspectorHeader extends StatelessWidget {
               onFilter: onFilter,
               ebayQuery: '$heading #$issue',
               isWishlisted: request.item.source.isWishlisted);
-          final plot = _ComicReadAndPlot(comic: comic, entry: entry);
+          final plot = _ComicStatusAndPlot(comic: comic, entry: entry);
           if (constraints.maxWidth < 560) {
             return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,9 +296,9 @@ class _ComicFacts extends ConsumerWidget {
   }
 }
 
-/// The Read check of a collection copy, then the plot.
-class _ComicReadAndPlot extends StatelessWidget {
-  const _ComicReadAndPlot({required this.comic, required this.entry});
+/// The collection copy's Collection Status, then the plot.
+class _ComicStatusAndPlot extends StatelessWidget {
+  const _ComicStatusAndPlot({required this.comic, required this.entry});
 
   final ComicCatalogItem? comic;
   final ComicLibraryEntry? entry;
@@ -302,18 +306,19 @@ class _ComicReadAndPlot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final read = entry?.personal.reading.status == 'Read';
     final plot = [comic?.synopsis, comic?.description]
         .map((value) => value?.trim() ?? '')
         .where((value) => value.isNotEmpty)
         .toSet();
+    final status = entry == null
+        ? null
+        : libraryCollectionStatusFromValue(entry!.personal.collectionStatus);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      if (entry != null)
+      if (status != null)
         Tooltip(
-          message: read ? 'Read' : 'Not read',
-          child: Icon(read ? Icons.check_box : Icons.check_box_outline_blank,
-              size: 30,
-              color: read ? palette.utilityAction : palette.textMuted),
+          message: status.label,
+          child:
+              LibraryCollectionStatusIcon(collectionStatus: status, size: 30),
         ),
       for (final text in plot)
         Padding(
