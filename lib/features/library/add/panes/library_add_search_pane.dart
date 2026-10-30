@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:collectarr_app/ui/app_spinner.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 
 import 'library_add_grouped_results.dart';
@@ -137,11 +139,10 @@ class LibraryAddSearchPane extends StatelessWidget {
               hasMore: hasMoreResults,
               trailing: headerTrailing,
             ),
-          if (resultPolicy.options.isNotEmpty)
+          if (resultPolicy.options.isNotEmpty && results.isNotEmpty)
             _LibraryAddResultOptionsBar(
               options: resultPolicy.options,
               state: resultPolicyState,
-              accent: accent,
               onChanged: onResultPolicyOptionChanged,
             ),
           Expanded(
@@ -270,86 +271,125 @@ class _LibraryAddResultsCaption extends StatelessWidget {
   }
 }
 
+/// The reference's icon toggles over the results, right-aligned.
 class _LibraryAddResultOptionsBar extends StatelessWidget {
   const _LibraryAddResultOptionsBar({
     required this.options,
     required this.state,
-    required this.accent,
     required this.onChanged,
   });
 
   final List<LibraryAddResultOption> options;
   final LibraryAddResultPolicyState state;
-  final Color accent;
   final void Function(String id, bool value) onChanged;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border(bottom: BorderSide(color: palette.divider)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 4,
-          children: [
-            for (final option in options)
-              _LibraryAddResultOptionChip(
+    return Container(
+      height: 34,
+      color: palette.isDark ? const Color(0xff383838) : palette.panelRaised,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          for (final option in options)
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: _LibraryAddResultOptionToggle(
                 option: option,
                 selected: state.valueFor(
                   option.id,
                   fallback: option.initialValue,
                 ),
-                accent: accent,
                 onSelected: (value) => onChanged(option.id, value),
               ),
-          ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LibraryAddResultOptionToggle extends StatelessWidget {
+  const _LibraryAddResultOptionToggle({
+    required this.option,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final LibraryAddResultOption option;
+  final bool selected;
+  final ValueChanged<bool> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Tooltip(
+      message: option.label,
+      excludeFromSemantics: true,
+      child: Semantics(
+        label: option.label,
+        button: true,
+        toggled: selected,
+        excludeSemantics: true,
+        child: AppClickTarget(
+          key: ValueKey('library-add-result-option-${option.id}'),
+          onClick: () => onSelected(!selected),
+          builder: (context, hovered) => Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: selected
+                  ? (palette.isDark ? const Color(0xff737373) : palette.divider)
+                  : hovered
+                      ? libraryToolbarControlHover(context)
+                      : null,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: _SlashedIcon(icon: option.icon, color: palette.textPrimary),
+          ),
         ),
       ),
     );
   }
 }
 
-class _LibraryAddResultOptionChip extends StatelessWidget {
-  const _LibraryAddResultOptionChip({
-    required this.option,
-    required this.selected,
-    required this.accent,
-    required this.onSelected,
-  });
+/// An icon struck through, as the reference's "hide" toggles.
+class _SlashedIcon extends StatelessWidget {
+  const _SlashedIcon({required this.icon, required this.color});
 
-  final LibraryAddResultOption option;
-  final bool selected;
-  final Color accent;
-  final ValueChanged<bool> onSelected;
+  final IconData icon;
+  final Color color;
 
   @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final selectedColor = Color.alphaBlend(
-      accent.withValues(alpha: 0.2),
-      palette.panel,
-    );
-    return FilterChip(
-      label: Text(option.label),
-      selected: selected,
-      onSelected: onSelected,
-      selectedColor: selectedColor,
-      checkmarkColor: appContrastingTextColor(selectedColor),
-      labelStyle: TextStyle(
-        color: selected
-            ? appContrastingTextColor(selectedColor)
-            : palette.textPrimary,
-        fontWeight: FontWeight.w700,
-      ),
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
+  Widget build(BuildContext context) => CustomPaint(
+        foregroundPainter: _SlashPainter(color),
+        child: Icon(icon, size: 20, color: color),
+      );
+}
+
+class _SlashPainter extends CustomPainter {
+  const _SlashPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final line = Paint()
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+    final from = Offset(size.width * .1, size.height * .95);
+    final to = Offset(size.width * .9, size.height * .05);
+    // A gap in the background colour keeps the strike legible on the glyph.
+    canvas.drawLine(from + const Offset(1.5, 1.5), to + const Offset(1.5, 1.5),
+        line..color = const Color(0x99000000));
+    canvas.drawLine(from, to, line..color = color);
   }
+
+  @override
+  bool shouldRepaint(_SlashPainter oldDelegate) => oldDelegate.color != color;
 }
 
 class LibraryAddSearchResultsFooter extends StatelessWidget {
