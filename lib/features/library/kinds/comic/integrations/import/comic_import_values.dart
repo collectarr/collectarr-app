@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
 
-/// The review headline, as the reference list names an issue: "Series #2A".
+/// The import title, as the reference list names an issue: "Series #2A".
 String comicImportHeadline(String? series, String? issue, String? variant) {
   final number = '${issue ?? ''}${variant ?? ''}';
   return [

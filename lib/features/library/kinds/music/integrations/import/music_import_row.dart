@@ -42,8 +42,6 @@ CollectionImportRow musicImportRow({
       status: 'entry',
       mediaKind: CatalogMediaKind.music,
       title: album.title,
-      kindDisplayTitle: album.title,
-      kindDisplaySubtitle: album.artist,
       kindIdentifier: album.barcode,
       fullEntryPayload: record.toJson());
 }

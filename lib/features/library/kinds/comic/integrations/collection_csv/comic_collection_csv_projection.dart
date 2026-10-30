@@ -23,26 +23,6 @@ final class ComicCollectionCsvProjection
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  String importDisplayTitle(List<String> cells) {
-    final title = cells.elementAtOrNull(2) ?? '';
-    final issue = cells.elementAtOrNull(3) ?? '';
-    if (title.trim().isEmpty) return 'Unknown title';
-    return issue.trim().isEmpty ? title : '$title #$issue';
-  }
-
-  @override
-  String importDisplaySubtitle(List<String> cells) => [
-        if ((cells.elementAtOrNull(4) ?? '').trim().isNotEmpty)
-          cells.elementAtOrNull(4),
-        if ((cells.elementAtOrNull(8) ?? '').trim().isNotEmpty)
-          cells.elementAtOrNull(8),
-        if ((cells.elementAtOrNull(9) ?? '').trim().isNotEmpty)
-          cells.elementAtOrNull(9),
-        if ((cells.elementAtOrNull(10) ?? '').trim().isNotEmpty)
-          cells.elementAtOrNull(10),
-      ].join(' | ');
-
-  @override
   String? importPrimaryLookupValue(List<String> cells) {
     final value = cells.elementAtOrNull(3)?.trim();
     return value == null || value.isEmpty ? null : value;

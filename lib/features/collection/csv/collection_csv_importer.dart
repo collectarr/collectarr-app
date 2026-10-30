@@ -118,8 +118,6 @@ final class CollectionCsvImporter {
       catalogItemRef: catalogItemRef,
       mediaKind: mediaKind,
       title: _optionalCell(catalogCells[2]),
-      kindDisplayTitle: profile?.importDisplayTitle(catalogCells),
-      kindDisplaySubtitle: profile?.importDisplaySubtitle(catalogCells),
       kindIdentifier: profile?.importBarcode(catalogCells),
       personal: CollectionImportPersonalValues(
         condition: _optionalValue(index, values, 'condition'),

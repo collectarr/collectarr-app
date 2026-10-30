@@ -69,9 +69,8 @@ void main() {
     expect(personal['key_severity'], 'Major');
     expect(personal['certification_number'], '12345');
     expect((personal['reading'] as Map)['status'], 'Read');
-    // The review row names the issue as the reference list does.
-    expect(records.single.kindDisplayTitle, 'Example Series #1/2B');
-    expect(records.single.kindDisplaySubtitle, 'Issue Title');
+    // The row names the issue as the reference list does.
+    expect(records.single.title, 'Example Series #1/2B');
   });
 
   test('series-only CSV is deterministic and cannot drop additional copies',
@@ -91,7 +90,6 @@ void main() {
     expect(rows.map((row) => row.itemId), repeat.map((row) => row.itemId));
     expect(rows.map((row) => row.itemId).toSet(), hasLength(2));
     expect(rows.first.title, 'Example Series');
-    expect(rows.first.kindDisplaySubtitle, isNull);
     // An empty Title stays empty instead of copying the Series.
     final catalog = rows.first.fullEntryPayload!['catalog_data'] as Map;
     expect(catalog['title'], '');

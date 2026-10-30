@@ -136,7 +136,6 @@ final class ComicMappedCsvImporter implements LibraryMappedCsvImporter {
             ? title
             : comicImportHeadline(
                 series, row.text('issue'), row.text('variant')),
-        subtitle: series == null || title.isEmpty ? null : title,
         barcode: metadata.barcode,
         catalog: metadata,
         personal: personal,
