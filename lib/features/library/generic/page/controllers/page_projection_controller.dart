@@ -49,6 +49,7 @@ abstract final class _LibraryProjectionControllerOps {
                               .where(members.contains)
                               .length,
                   coverUrl: bucket.coverUrl,
+                  coverEntryRef: bucket.coverEntryRef,
                   startYear: bucket.startYear,
                   missingNumbers: bucket.missingNumbers,
                 ),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -14,6 +15,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:uuid/uuid.dart';
@@ -325,6 +327,46 @@ final class LibraryEntryMutations {
         );
       },
       eventsToEmit: [LibraryEntryUpdated(ref)],
+    );
+  }
+
+  /// Keeps provider covers with their entries instead of links to them: each
+  /// cover becomes the entry's front cover and the provider URLs in
+  /// [droppedCatalogKeys] leave its catalog data. One transaction, refresh
+  /// and sync run per batch.
+  Future<void> storeProviderCovers(
+    Map<LibraryEntryRef, Uint8List> covers, {
+    required Map<LibraryEntryRef, Set<String>> droppedCatalogKeys,
+  }) async {
+    if (covers.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    final store = LibraryEntryStore(libraryEntries.database);
+    final images = ItemImageRepository(libraryEntries.database);
+    await mutationRunner.run(
+      action: () async {
+        for (final MapEntry(key: ref, value: cover) in covers.entries) {
+          final record = await store.find(ref.kind, ref.id.value);
+          if (record == null || record.deletedAt != null) continue;
+          await libraryEntries.updateCatalogData(
+            ref: ref,
+            catalogData: JsonMap.from(record.catalogData)
+              ..removeWhere(
+                  (key, _) => droppedCatalogKeys[ref]?.contains(key) == true),
+            updatedAt: now,
+          );
+          await images.add(ItemImage(
+            id: idGenerator(),
+            libraryEntryRef: ref,
+            imageType: 'front_cover',
+            imageData: cover,
+            createdAt: now,
+          ));
+          await syncQueue.enqueue(
+              await libraryEntries.syncChangeForCurrentEntry(ref,
+                  action: 'upsert', changedAt: now));
+        }
+      },
+      eventsToEmit: [for (final ref in covers.keys) LibraryEntryUpdated(ref)],
     );
   }
 

@@ -55,6 +55,7 @@ Keep these when matching the reference visually.
 | Schema changes | Opaque | Versioned contracts and explicit, ordered migrations |
 | Game valuation | Core Region (US/EU) chooses which PriceCharting prices CLZ fetches | No price fetching (PriceCharting's terms), so no Core Region; the PriceCharting ID already names the NTSC or PAL release and opens its page |
 | Comic valuation | CovrPrice values and CovrPrice export | No CovrPrice: it is paid and has no public API, so value stays the user's own My Value |
+| Cover images | Covers are links to CLZ's own image servers | Covers from other sites are downloaded once and kept with the entry (scaled to 600 px wide at most) and travel with Sync; only Core covers stay links, cached locally. The web app cannot read other sites' images (no CORS), so it keeps their links until a native client syncs the covers |
 | Fonts | Proprietary Gilroy | Bundled OFL Plus Jakarta Sans; a user-supplied local font can be loaded |
 | Sort titles | Filled in by CLZ Core | Core derives them for new Music items and corrected titles; the app applies the same rule to local Add, Edit and imports |
 | Header account | Always signed in to CLZ | Shows "account's music" only while signed in; personal sync uses a separate endpoint and key, and its header action stays hidden until these are configured |

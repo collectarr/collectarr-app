@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
@@ -21,6 +22,7 @@ class LibraryBucket {
     required this.title,
     required this.count,
     this.coverUrl,
+    this.coverEntryRef,
     this.startYear,
     this.entryCount,
     this.missingNumbers = const <int>[],
@@ -34,6 +36,10 @@ class LibraryBucket {
   final String? sortKey;
   final int count;
   final String? coverUrl;
+
+  /// The entry whose cover the folder shows; its local cover wins over
+  /// [coverUrl].
+  final LibraryEntryRef? coverEntryRef;
   final int? startYear;
   final int? entryCount;
   final List<int> missingNumbers;
@@ -958,6 +964,7 @@ class _LibrarySeriesRow extends StatelessWidget {
                   child: LibraryCoverImage(
                     title: bucket.title,
                     imageUrl: bucket.coverUrl,
+                    libraryEntryRef: bucket.coverEntryRef,
                     targetCacheWidth: kLibraryFolderCoverWidth.round(),
                     fallbackAspectRatio: coverAspectRatio!,
                     fit: BoxFit.cover,

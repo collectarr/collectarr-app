@@ -22,6 +22,7 @@ enum DrawerAction {
   backupRestore,
   clearDatabase,
   transferFieldData,
+  downloadCovers,
   exportCsv,
   exportXml,
   importData,
@@ -207,6 +208,12 @@ const appDrawerDestinations = <AppDrawerDestination>[
       icon: AppIcons.transferFieldData,
       section: AppDrawerSection.maintenance,
       behavior: DrawerActionBehavior.libraryTool),
+  AppDrawerDestination(
+      action: DrawerAction.downloadCovers,
+      label: 'Download Covers',
+      icon: AppIcons.downloadCovers,
+      section: AppDrawerSection.maintenance,
+      behavior: DrawerActionBehavior.modal),
   AppDrawerDestination(
       action: DrawerAction.exportCsv,
       label: 'Export to CSV / TXT',
