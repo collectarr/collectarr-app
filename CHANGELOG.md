@@ -13,6 +13,7 @@
 - Every date field (Read, Bag/Board, Purchase, Sold, Listen, custom dates) looks like Cover Date: the calendar sits beside the label above the YYYY, MM and DD boxes, as in CLZ.
 - The folder panel's group selector ("Series", "Age / Country") uses regular text, as in the reference.
 - Toolbar buttons highlight with slightly rounded corners on hover, as in the reference.
+- Hovered alphabet letters highlight as a rounded pill, like the chosen letter, as in the reference.
 - The library switcher is a square popover hanging from the header, its pointer under the icon, in a faint hairline listing "CLR Comics", "CLR Music" and so on in the header's face, as in the reference.
 - The Link page names your items in its header and when everything is linked ("Core albums", "All albums are linked."), as in the reference.
 - Keep the intended relative widths of fields when an Add form selects a subset of its catalog fields.
