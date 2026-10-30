@@ -34,6 +34,10 @@ typedef LibrarySortColumnDirectionResolver = bool Function(
 enum LibraryWorkspaceCardLayout {
   standard,
   coverFocused,
+
+  /// A headline above the cover, a large number and a date under it, and an
+  /// outlined pill row, as the reference's comic cards.
+  headlined,
 }
 
 class LibraryWorkspaceViewProfile {

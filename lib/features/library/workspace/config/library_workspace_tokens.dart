@@ -41,6 +41,11 @@ const kLibraryCardTitleColor = Colors.white;
 const kLibraryCardTitleIdle = Color(0xFFEBEBEB);
 const kLibraryCardDetailIdle = Color(0xFF9E9E9E);
 
+/// Headlined cards, as the reference's comic cards: a 43 px headline over a
+/// cover inset by 5 px, then a 24 px number row and a 31 px pill row.
+const kLibraryHeadlinedCardTitleHeight = 43.0;
+const kLibraryHeadlinedCardFooterHeight = 60.0;
+
 class LibraryWorkspaceDensityScope extends InheritedWidget {
   const LibraryWorkspaceDensityScope({
     super.key,
