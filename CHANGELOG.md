@@ -11,6 +11,7 @@
 - Imports run as soon as you press Import after choosing a file, without a list of parsed records to review first, as in CLZ.
 
 ### Fixes
+- A refused Core proposal from Add says why, in Core's words, instead of a raw HTTP error.
 - Compare metadata with server opens the item's Core record instead of reporting that it no longer exists.
 - Dragging the cover-size slider in a large library stays smooth: the folder list and the sorted items are no longer rebuilt for every step.
 - Every date field (Read, Bag/Board, Purchase, Sold, Listen, custom dates) looks like Cover Date: the calendar sits beside the label above the YYYY, MM and DD boxes, as in CLZ.
