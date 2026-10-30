@@ -207,6 +207,11 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
               if (libraryAddChromeForKind(widget.type.kind).menuAddsManually)
                 _action(context, destination,
                     label: 'Add ${widget.type.identity.pluralLabel} Manually'),
+            ] else if (destination.action == DrawerAction.missingItems) ...[
+              if (libraryToolbarForKind(widget.type.kind)?.missingReport !=
+                  null)
+                _action(context, destination,
+                    label: 'Missing ${widget.type.identity.pluralLabel}'),
             ] else
               _action(context, destination),
       ];

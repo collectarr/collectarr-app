@@ -1,7 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../comic_module_dependencies.dart';
 import 'comic_kind_configuration.dart';
-import '../actions/comic_missing_issues_action.dart';
 import '../data/comic_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
@@ -159,14 +158,6 @@ final comicKindPersonalFieldContributor = LibraryPersonalFieldContributor(
 final comicKindActions = const LibraryTargetActionCapability(
   catalogItem: LibraryTargetActionSet.catalogItem,
   libraryEntry: LibraryTargetActionSet.libraryEntry,
-  catalogItemSemanticActions: [
-    LibraryTargetSemanticActionDefinition(
-      id: 'comic.missing_issues',
-      label: 'Missing issues',
-      icon: Icons.find_in_page_outlined,
-      invoke: runComicMissingIssuesAction,
-    ),
-  ],
 );
 
 final comicKindInspector = LibraryInspectorCapability(

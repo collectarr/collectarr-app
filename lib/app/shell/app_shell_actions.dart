@@ -170,6 +170,7 @@ class AppShellActions {
       case DrawerAction.admin:
         context.go(AppRoutes.forKind(AppRoutes.admin, type.kind.apiValue));
         return;
+      case DrawerAction.missingItems:
       case DrawerAction.reassignIndex:
       case DrawerAction.transferFieldData:
         _openLibraryTool(action, type);

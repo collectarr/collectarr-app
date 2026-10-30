@@ -106,6 +106,8 @@ abstract final class AppIcons {
       IconData(0xe0e3, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData duplicates =
       IconData(0xf24d, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData missing =
+      IconData(0xf010, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData loans =
       IconData(0xf017, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData calendar =

@@ -9,14 +9,12 @@ class LibraryToolbarActionContext {
     required this.type,
     required this.projection,
     required this.onJumpToNumberSubmitted,
-    required this.onMissingSequenceReport,
   });
 
   final BuildContext buildContext;
   final LibraryKindRegistration type;
   final LibraryProjection? projection;
   final ValueChanged<String>? onJumpToNumberSubmitted;
-  final ValueChanged<LibraryProjection?>? onMissingSequenceReport;
 }
 
 enum LibraryToolbarActionId {

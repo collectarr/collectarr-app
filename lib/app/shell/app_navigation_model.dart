@@ -11,6 +11,7 @@ enum DrawerAction {
   statistics,
   findDuplicates,
   loanManager,
+  missingItems,
   calendar,
   admin,
   manageCustomFields,
@@ -135,6 +136,12 @@ const appDrawerDestinations = <AppDrawerDestination>[
       behavior: DrawerActionBehavior.routedPage,
       routePath: AppRoutes.loans,
       widgetKey: 'nav.more'),
+  AppDrawerDestination(
+      action: DrawerAction.missingItems,
+      label: 'Missing Items',
+      icon: AppIcons.missing,
+      section: AppDrawerSection.tools,
+      behavior: DrawerActionBehavior.libraryTool),
   AppDrawerDestination(
       action: DrawerAction.calendar,
       label: 'Calendar',

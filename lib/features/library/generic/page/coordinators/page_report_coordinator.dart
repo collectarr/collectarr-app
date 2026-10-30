@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/generic/page/coordinators/page_c
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
 
-/// Handles print / PDF report and missing-sequence flows.
+/// Handles the print / PDF report flow.
 class LibraryPageReportCoordinator {
   const LibraryPageReportCoordinator(this._page);
 
@@ -19,8 +19,4 @@ class LibraryPageReportCoordinator {
       selectedItemIds: _page.selection.itemIds,
     );
   }
-
-  Future<void> showMissingSequenceReportFlow(
-    LibraryProjection projection,
-  ) async {}
 }

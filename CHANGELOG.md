@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Features
-- Add the Comics library, CSV import, calendar and barcode support with a preserving database upgrade; use typed Add/Edit forms with the eleven CLZ tabs, shared tab icons and compact field layouts, personal reading and grading, cover controls, partial publication dates, separate publication Age, one editable Creators list and Characters list per issue, and a Series tab in Add that lists a series' issues to check all or some of them.
+- Add the Comics library, CSV import, calendar and barcode support with a preserving database upgrade; use typed Add/Edit forms with the eleven CLZ tabs, shared tab icons and compact field layouts, personal reading and grading, cover controls, partial publication dates, separate publication Age, one editable Creators list and Characters list per issue, a Series tab in Add that lists a series' issues to check all or some of them, and a Missing Comics report in the main menu's Tools.
 
 ### Fixes
 - Keep the intended relative widths of fields when an Add form selects a subset of its catalog fields.
