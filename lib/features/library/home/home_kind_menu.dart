@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -169,13 +170,16 @@ class _KindMenuRow extends StatelessWidget {
           ),
           const SizedBox(width: 7),
           Expanded(
+            // Named as in the header brand, in its face.
             child: Text(
-              libraryNavLabel(type),
+              'CLR ${libraryNavLabel(type)}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: const Color(0xFF333333),
-                fontSize: 14,
+                fontFamily: appFontFamily,
+                fontFamilyFallback: kAppFontFamilyFallback,
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -186,11 +190,12 @@ class _KindMenuRow extends StatelessWidget {
   }
 }
 
-/// The app switcher is a white popover in either skin, with an anchor pointer.
+/// The app switcher is a square white popover in either skin, framed by a
+/// black hairline, with an anchor pointer.
 class _LibraryMenuBorder extends OutlinedBorder {
   const _LibraryMenuBorder(
       {required this.pointerOffset,
-      super.side = const BorderSide(color: Color(0x33000000))});
+      super.side = const BorderSide(color: Colors.black)});
   final double pointerOffset;
 
   @override
@@ -208,7 +213,7 @@ class _LibraryMenuBorder extends OutlinedBorder {
     final pointerX = rect.left + pointerOffset.clamp(14.0, rect.width - 14.0);
     return Path.combine(
       PathOperation.union,
-      Path()..addRRect(RRect.fromRectAndRadius(rect, const Radius.circular(6))),
+      Path()..addRect(rect),
       Path()
         ..moveTo(pointerX - 8, rect.top + 1)
         ..lineTo(pointerX, rect.top - 8)

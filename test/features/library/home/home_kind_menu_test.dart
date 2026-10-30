@@ -44,12 +44,12 @@ void main() {
       expect(outline.contains(tip + const Offset(2, 0)), isFalse);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
-      expect(find.text('Games'), findsNothing);
+      expect(find.text('CLR Games'), findsNothing);
       await tester.tap(find.byTooltip('Switch library'));
       await tester.pumpAndSettle();
       await tester.tapAt(const Offset(5, 300));
       await tester.pumpAndSettle();
-      expect(find.text('Games'), findsNothing);
+      expect(find.text('CLR Games'), findsNothing);
     });
   }
 
@@ -80,10 +80,10 @@ void main() {
         findsNothing);
     expect(find.byKey(const ValueKey('library-kind-picker-item-game_toy')),
         findsNothing);
-    expect(find.text('Games'), findsOneWidget);
-    expect(find.text('Music'), findsOneWidget);
+    expect(find.text('CLR Games'), findsOneWidget);
+    expect(find.text('CLR Music'), findsOneWidget);
 
-    await tester.tap(find.text('Games'));
+    await tester.tap(find.text('CLR Games'));
     await tester.pumpAndSettle();
     expect(selected?.kind, 'game');
   });
