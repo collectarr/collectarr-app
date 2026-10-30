@@ -492,6 +492,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
       children: [
         _LibraryAddModeTabStrip(
           searchLabel: searchLabels.addSearchTabLabel,
+          searchIcon: searchLabels.addSearchTabIcon ?? AppIcons.search,
           mode: widget.mode,
           onModeChanged: widget.onModeChanged,
           browseTab: widget.browseTab,
@@ -628,6 +629,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
 class _LibraryAddModeTabStrip extends StatelessWidget {
   const _LibraryAddModeTabStrip({
     required this.searchLabel,
+    required this.searchIcon,
     required this.mode,
     required this.onModeChanged,
     required this.browseTab,
@@ -638,6 +640,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
   });
 
   final String searchLabel;
+  final IconData searchIcon;
   final LibraryAddDialogMode mode;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final LibraryAddBrowseCapability? browseTab;
@@ -670,7 +673,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                       onTap: () => onModeChanged(LibraryAddDialogMode.browse),
                     ),
                   LibraryAddModeTab(
-                    icon: const Icon(AppIcons.search),
+                    icon: Icon(searchIcon),
                     label: searchLabel,
                     selected: mode == LibraryAddDialogMode.search,
                     onTap: () => onModeChanged(LibraryAddDialogMode.search),
