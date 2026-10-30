@@ -30,6 +30,11 @@ final class AppDropdownMenuStyle {
   /// Rows are 32 px with 7 px side padding.
   static const double rowHeight = 32;
 
+  /// The reference's 5 px above and below the rows (its padding and its
+  /// `::after`), inside a 1 px border Flutter paints over the edge: an empty
+  /// list opens 12 px tall, as there.
+  static const EdgeInsets padding = EdgeInsets.symmetric(vertical: 6);
+
   /// The reference's 6 px 12 px shadow.
   static const double elevation = 6;
 
