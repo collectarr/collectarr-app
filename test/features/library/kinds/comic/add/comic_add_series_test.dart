@@ -141,8 +141,10 @@ void main() {
         findsOneWidget);
     expect(find.descendant(of: header, matching: find.text('Fixture (2018)')),
         findsOneWidget);
-    // The series list stays beside its issues, shown as cover blocks.
-    expect(find.text('Add it manually'), findsOneWidget);
+    // The series list stays beside its issues, shown as cover blocks that
+    // end with a "Not found?" block, as the series list does.
+    expect(find.byKey(const ValueKey('library-add-cover-not-found')),
+        findsOneWidget);
     expect(find.text('All (2)'), findsOneWidget);
     expect(
         find.byKey(const ValueKey('library-add-cover-grid')), findsOneWidget);
@@ -165,6 +167,22 @@ void main() {
         matching: find.byKey(const ValueKey('library-add-result-checkbox'))));
     await pumpUntilSettled(tester);
     expect(find.text('2 selected'), findsOneWidget);
+
+    // Typing a series lists suggestions; picking one opens it alone.
+    await tester.enterText(
+        find.byKey(const ValueKey('library-add-browse-field')), 'fixt');
+    await tester.pump(const Duration(milliseconds: 400));
+    await pumpUntilSettled(tester);
+    expect(find.byKey(const ValueKey('library-add-browse-suggestions')),
+        findsOneWidget);
+    expect(find.text('Search for "fixt"'), findsOneWidget);
+    await tester.tap(
+        find.byKey(const ValueKey('library-add-suggested-Fixture (2018)')));
+    await pumpUntilSettled(tester);
+    expect(find.byKey(const ValueKey('library-add-browse-suggestions')),
+        findsNothing);
+    expect(find.text('All (2)'), findsOneWidget);
+    expect(find.text('2 selected'), findsNothing);
 
     await tester.tap(find.text('Issue'));
     await pumpUntilSettled(tester);

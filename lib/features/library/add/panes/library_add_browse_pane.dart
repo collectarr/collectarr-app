@@ -1,5 +1,8 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_browse_state.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
+    show LibraryCollectionStatusScope, LibraryCollectionStatusScopeUi;
 import 'library_add_grouped_results.dart';
 import 'library_add_pane_dependencies.dart';
 import 'library_add_search_pane.dart';
@@ -12,6 +15,7 @@ class LibraryAddBrowseGroupList extends StatelessWidget {
     required this.state,
     required this.onOpen,
     this.onAddManually,
+    this.ownedKeys = const {},
   });
 
   final LibraryAddBrowseCapability capability;
@@ -20,6 +24,9 @@ class LibraryAddBrowseGroupList extends StatelessWidget {
 
   /// "Not found? Add it manually" under the groups, as in the reference.
   final VoidCallback? onAddManually;
+
+  /// Groups with an entry in the library, whose count turns blue.
+  final Set<String> ownedKeys;
 
   /// The list's width beside the opened group, as in the reference.
   static const width = 460.0;
@@ -68,6 +75,7 @@ class LibraryAddBrowseGroupList extends StatelessWidget {
                   : _BrowseGroupRow(
                       group: state.found[index],
                       selected: identical(state.found[index], state.opened),
+                      owned: ownedKeys.contains(state.found[index].ownedKey),
                       onTap: () => onOpen(state.found[index]),
                     ),
             ),
@@ -83,10 +91,12 @@ class _BrowseGroupRow extends StatelessWidget {
     required this.group,
     required this.selected,
     required this.onTap,
+    this.owned = false,
   });
 
   final LibraryAddBrowseGroup group;
   final bool selected;
+  final bool owned;
   final VoidCallback onTap;
 
   @override
@@ -154,7 +164,8 @@ class _BrowseGroupRow extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            _BrowseCountPill(label: group.countLabel),
+                            _BrowseCountPill(
+                                label: group.countLabel, owned: owned),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -181,9 +192,13 @@ class _BrowseGroupRow extends StatelessWidget {
 }
 
 class _BrowseCountPill extends StatelessWidget {
-  const _BrowseCountPill({required this.label});
+  const _BrowseCountPill({required this.label, this.owned = false});
 
   final String label;
+
+  /// In the collection's status blue, as the reference marks a series the
+  /// user already has issues of.
+  final bool owned;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -191,7 +206,9 @@ class _BrowseCountPill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 7),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: const Color(0xff605c5c),
+          color: owned
+              ? LibraryCollectionStatusScope.inCollection.color
+              : const Color(0xff605c5c),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(label,
@@ -279,6 +296,120 @@ class LibraryAddCheckAllToggle extends StatelessWidget {
           style: TextStyle(color: palette.textPrimary, fontSize: 14),
         ),
       ],
+    );
+  }
+}
+
+/// The reference's suggestions under the browse field while typing: a blue
+/// "Search for" row, then up to five groups to open directly.
+class LibraryAddBrowseSuggestions extends StatelessWidget {
+  const LibraryAddBrowseSuggestions({
+    super.key,
+    required this.query,
+    required this.groups,
+    required this.onSearch,
+    required this.onPick,
+  });
+
+  final String query;
+  final List<LibraryAddBrowseGroup> groups;
+  final VoidCallback onSearch;
+  final ValueChanged<LibraryAddBrowseGroup> onPick;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    const small = TextStyle(fontSize: 13, height: 18 / 13);
+    String issues(String count) =>
+        '$count ${count == '1' ? 'issue' : 'issues'}';
+    return Material(
+      key: const ValueKey('library-add-browse-suggestions'),
+      color: palette.isDark ? const Color(0xff383838) : palette.panel,
+      elevation: 8,
+      child: DefaultTextStyle.merge(
+        style: TextStyle(color: palette.textPrimary, fontSize: 14),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            InkWell(
+              key: const ValueKey('library-add-suggested-search'),
+              onTap: onSearch,
+              child: Container(
+                height: 34,
+                color: palette.utilityAction,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(children: [
+                  const Icon(AppIcons.search, size: 16, color: Colors.white),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Text('Search for "${query.toLowerCase()}"',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: Colors.white)),
+                  ),
+                  const Icon(AppIcons.chevronRight,
+                      size: 14, color: Colors.white),
+                ]),
+              ),
+            ),
+            if (groups.isNotEmpty)
+              const Padding(
+                padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
+                child: Text('Or pick from these suggestions:',
+                    style:
+                        TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+              ),
+            for (final group in groups)
+              InkWell(
+                key: ValueKey('library-add-suggested-${group.title}'),
+                hoverColor: palette.isDark ? const Color(0xff2d2d2d) : null,
+                onTap: () => onPick(group),
+                child: Container(
+                  height: 63,
+                  decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: palette.divider))),
+                  child: Row(children: [
+                    SizedBox(
+                      width: 40,
+                      height: 62,
+                      child: LibraryCoverImage(
+                        title: group.title,
+                        imageUrl: group.coverImageUrl,
+                        borderRadius: 0,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(group.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w700)),
+                          Text(
+                              [
+                                if (group.details case final details?) details,
+                                if (group.period case final period?)
+                                  '($period)',
+                              ].join(' '),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: small),
+                          Text(issues(group.countLabel), style: small),
+                        ],
+                      ),
+                    ),
+                  ]),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

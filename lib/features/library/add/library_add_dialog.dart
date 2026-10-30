@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
@@ -122,6 +123,16 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   double? _dialogHeight;
   LibraryAddBlockLayout _blockLayout = LibraryAddBlockLayout.grid;
   bool _blocksDescending = false;
+
+  /// Browse groups the library already holds entries of, and the entry
+  /// count they were read for.
+  Set<String> _ownedGroupKeys = const {};
+  int? _ownedGroupsEntryCount;
+
+  /// Groups suggested while typing in the browse field, for [_browseTyped].
+  List<LibraryAddBrowseGroup> _browseSuggestions = const [];
+  String _browseTyped = '';
+  Timer? _browseDebounce;
 
   /// The result group whose variants are shown, and the search it belongs to.
   String? _selectedGroupKey;
@@ -337,6 +348,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _queryController.dispose();
     _identifierController.dispose();
     _codeQueryController.dispose();
+    _browseDebounce?.cancel();
     _browseQueryController.dispose();
     _controller.dispose();
     super.dispose();
@@ -786,6 +798,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             fallback: widget.type.identity.accent);
     final state = _controller.state;
     final entryByCatalogRef = ref.watch(collectionBySourceCatalogRefProvider);
+    if (_ownedGroupsEntryCount != entryByCatalogRef.length) {
+      _ownedGroupsEntryCount = entryByCatalogRef.length;
+      unawaited(_loadOwnedGroups());
+    }
     final isWideLayout = libraryUiPolicyForKind(widget.type.kind).wideDialog;
     final resultPolicy = libraryAddForKind(widget.type.kind).resultPolicy;
     final visibleCore = state.visibleCoreResults(
@@ -960,8 +976,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               codeQueryController: _codeQueryController,
               browseTab: browse,
               browseQueryController: _browseQueryController,
-              onSearchBrowse: () =>
-                  _controller.searchBrowseGroups(_browseQueryController.text),
+              onSearchBrowse: _searchBrowseGroups,
+              onBrowseChanged: _suggestBrowseGroups,
               queryTrailing: queryTrailing,
               isSearching: state.search.isBusy || state.browse.isBusy,
               onModeChanged: _selectAddMode,
@@ -1019,6 +1035,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 capability: browse!,
                 state: state.browse,
                 onOpen: _controller.openBrowseGroup,
+                ownedKeys: _ownedGroupKeys,
                 onAddManually: state.browse.searched
                     ? () => _openManualDialog(accent, addCapability)
                     : null,
@@ -1065,6 +1082,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         descending: _blocksDescending,
                         onDescendingChanged: (descending) =>
                             setState(() => _blocksDescending = descending),
+                        onAddManually: () =>
+                            _openManualDialog(accent, addCapability),
                       )
                     : null,
                 headerTrailing: browseMode
@@ -1112,13 +1131,77 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
   }
 
+  /// Asks Core for suggestions once typing pauses, as the reference does.
+  void _suggestBrowseGroups(String value) {
+    _browseDebounce?.cancel();
+    if (value.trim().isEmpty) {
+      setState(() => _browseTyped = '');
+      return;
+    }
+    _browseDebounce = Timer(const Duration(milliseconds: 300), () async {
+      final found = await _controller.suggestBrowseGroups(value);
+      if (!mounted || _browseQueryController.text != value) return;
+      setState(() {
+        _browseTyped = value.trim();
+        _browseSuggestions = found;
+      });
+    });
+  }
+
+  void _closeBrowseSuggestions() {
+    _browseDebounce?.cancel();
+    if (_browseTyped.isNotEmpty) setState(() => _browseTyped = '');
+  }
+
+  void _searchBrowseGroups() {
+    _closeBrowseSuggestions();
+    _controller.searchBrowseGroups(_browseQueryController.text);
+  }
+
+  Future<void> _loadOwnedGroups() async {
+    final keyOf =
+        libraryAddForKind(widget.type.kind).search.browse?.ownedGroupKey;
+    if (keyOf == null) return;
+    final entries = await LibraryEntryStore(ref.read(localDatabaseProvider))
+        .list(kind: widget.type.kind);
+    if (!mounted) return;
+    setState(() => _ownedGroupKeys = {
+          for (final entry in entries)
+            if (keyOf(entry.catalogData) case final key?) key,
+        });
+  }
+
   /// The browse tab's groups at the left of what [content] shows.
   Widget _besideBrowseGroups(Widget? groups, Widget content) {
     if (groups == null) return content;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(width: LibraryAddBrowseGroupList.width, child: groups),
+        SizedBox(
+          width: LibraryAddBrowseGroupList.width,
+          child: Stack(children: [
+            Positioned.fill(child: groups),
+            if (_browseTyped.isNotEmpty)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: TapRegion(
+                  onTapOutside: (_) => _closeBrowseSuggestions(),
+                  child: LibraryAddBrowseSuggestions(
+                    query: _browseTyped,
+                    groups: _browseSuggestions,
+                    onSearch: _searchBrowseGroups,
+                    onPick: (group) {
+                      _closeBrowseSuggestions();
+                      _controller.pickBrowseGroup(
+                          group, _browseQueryController.text);
+                    },
+                  ),
+                ),
+              ),
+          ]),
+        ),
         ColoredBox(
           color: libraryAddPaneDivider(context),
           child: const SizedBox(width: 6),
