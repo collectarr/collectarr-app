@@ -942,7 +942,7 @@ class _LibrarySeriesRow extends StatelessWidget {
       countWidth: countWidth,
       indentation: leadingInset,
       rowPadding: extraVerticalPadding,
-      cover: coverAspectRatio == null
+      thumbnail: coverAspectRatio == null
           ? null
           : isAllBucket
               ? SizedBox(
