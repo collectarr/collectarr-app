@@ -34,7 +34,14 @@ final class ComicMappedCsvImporter implements LibraryMappedCsvImporter {
   CollectionImportRow _row(
       ClzCsvRecord row, String delimiter, ClzImportIdentities ids) {
     final series = row.text('series');
-    final title = row.text('title') ?? series ?? '';
+    final title = row.text('title') ?? '';
+    // The review row reads like the reference list: "Series #2A", then the
+    // issue title when there is one.
+    final issue = '${row.text('issue') ?? ''}${row.text('variant') ?? ''}';
+    final headline = [
+      if (series != null) series,
+      if (issue.isNotEmpty) '#$issue',
+    ].join(' ');
     final id = ids.next(
         'csv/$series/${row.text('issue')}/${row.text('variant')}/${row.text('barcode')}');
     final coverDate = row.date('cover_date', 'Cover Date');
@@ -131,8 +138,8 @@ final class ComicMappedCsvImporter implements LibraryMappedCsvImporter {
     return clzImportRow(
         kind: CatalogMediaKind.comic,
         id: id,
-        title: title,
-        subtitle: series,
+        title: series == null ? title : headline,
+        subtitle: series == null || title.isEmpty ? null : title,
         barcode: metadata.barcode,
         catalog: metadata,
         personal: personal,
