@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/ui/anchored_calendar.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -178,6 +180,84 @@ class LibraryFormGroup extends StatelessWidget {
                           height: 24 / titleSize))),
             )),
       ]);
+}
+
+/// The one labelled date field: the calendar sits in the label row and the
+/// YYYY, MM and DD boxes follow the entry order chosen in Settings.
+class LibraryPartialDateField extends StatelessWidget {
+  const LibraryPartialDateField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    this.focusNode,
+    this.labelStyle,
+  });
+
+  /// Binds a full [DateTime]: only a complete date or a cleared field is
+  /// reported, so typing a year alone keeps the stored date.
+  LibraryPartialDateField.fullDate({
+    super.key,
+    required this.label,
+    required DateTime? date,
+    required ValueChanged<DateTime?> onDateChanged,
+    this.focusNode,
+    this.labelStyle,
+  })  : value = date == null ? null : PartialDate.fromDateTime(date.toLocal()),
+        onChanged = ((parts) {
+          if (parts == null || parts.isEmpty) {
+            onDateChanged(null);
+          } else if (parts.asDateTime != null) {
+            onDateChanged(DateTime(parts.year!, parts.month!, parts.day!));
+          }
+        });
+
+  final String label;
+  final PartialDate? value;
+  final ValueChanged<PartialDate?> onChanged;
+  final FocusNode? focusNode;
+  final TextStyle? labelStyle;
+
+  @override
+  Widget build(BuildContext context) => LibraryFormField(
+        label: label,
+        labelStyle: labelStyle,
+        action: Builder(
+          builder: (context) => Tooltip(
+            message: 'Choose $label',
+            child: InkWell(
+              mouseCursor: SystemMouseCursors.click,
+              onTap: () async {
+                final now = DateTime.now();
+                final picked = await showAppAnchoredCalendar(
+                  context: context,
+                  initialDate: value?.asDateTime ??
+                      DateTime(value?.year ?? now.year, value?.month ?? 1),
+                  firstDate: DateTime(1),
+                  lastDate: DateTime(9999, 12, 31),
+                );
+                if (picked != null) onChanged(PartialDate.fromDateTime(picked));
+              },
+              child: SizedBox(
+                width: 22,
+                height: 16,
+                child: Center(
+                  child: Icon(
+                    AppIcons.calendar,
+                    size: 14,
+                    color: appPalette(context).textMuted,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        child: LibraryPartialDateInput(
+          value: value,
+          focusNode: focusNode,
+          onChanged: onChanged,
+        ),
+      );
 }
 
 class LibraryPartialDateInput extends StatefulWidget {

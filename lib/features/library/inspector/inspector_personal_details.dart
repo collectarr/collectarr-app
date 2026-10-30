@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/actions/async_action_host.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
@@ -190,10 +191,10 @@ class _InspectorPersonalDetailsEditorState
         ),
         _InspectorEditorRow(
           label: 'Purchased',
-          child: LibraryDateFieldButton(
+          child: LibraryPartialDateField.fullDate(
             label: 'Purchase date',
-            value: _purchaseDate,
-            onChanged: (value) => setState(() => _purchaseDate = value),
+            date: _purchaseDate,
+            onDateChanged: (value) => setState(() => _purchaseDate = value),
           ),
         ),
         _InspectorEditorRow(
@@ -638,10 +639,10 @@ class _InspectorTrackingDetailsEditorState
     required DateTime? value,
     required ValueChanged<DateTime?> onChanged,
   }) {
-    return LibraryDateFieldButton(
+    return LibraryPartialDateField.fullDate(
       label: label,
-      value: value,
-      onChanged: (value) {
+      date: value,
+      onDateChanged: (value) {
         if (mounted) onChanged(value);
       },
     );

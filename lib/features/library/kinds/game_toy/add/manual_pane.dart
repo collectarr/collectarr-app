@@ -231,25 +231,22 @@ class _GameToyAddManualPaneState extends State<GameToyAddManualPane> {
     );
   }
 
-  Widget _purchaseDate(GameToyAddDraft personal) => LibraryFormField(
+  Widget _purchaseDate(GameToyAddDraft personal) => LibraryPartialDateField(
         label: 'Purchase Date',
-        child: LibraryPartialDateInput(
-          value: personal.purchaseDateParts ??
-              (request.commonDraft?.purchaseDate == null
-                  ? null
-                  : PartialDate.fromDateTime(
-                      request.commonDraft!.purchaseDate!)),
-          onChanged: (date) {
-            _update(personal.copyWith(purchaseDateParts: date));
-            request.purchaseDateController.text =
-                date?.asDateTime?.toIso8601String() ?? '';
-            final common = request.commonDraft;
-            if (common != null) {
-              request.onCommonDraftChanged
-                  ?.call(common.copyWith(purchaseDate: date?.asDateTime));
-            }
-          },
-        ),
+        value: personal.purchaseDateParts ??
+            (request.commonDraft?.purchaseDate == null
+                ? null
+                : PartialDate.fromDateTime(request.commonDraft!.purchaseDate!)),
+        onChanged: (date) {
+          _update(personal.copyWith(purchaseDateParts: date));
+          request.purchaseDateController.text =
+              date?.asDateTime?.toIso8601String() ?? '';
+          final common = request.commonDraft;
+          if (common != null) {
+            request.onCommonDraftChanged
+                ?.call(common.copyWith(purchaseDate: date?.asDateTime));
+          }
+        },
       );
 }
 

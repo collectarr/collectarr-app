@@ -1,12 +1,9 @@
-import 'package:collectarr_app/ui/anchored_calendar.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_vocabulary_options_loader.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_edit_contributors.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
@@ -21,7 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 
@@ -67,8 +63,6 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     final external = field is LibraryTextFieldSpec<TDraft> ||
         field is LibraryNumberFieldSpec<TDraft> ||
         field is LibraryMoneyFieldSpec<TDraft> ||
-        field is LibraryPartialDateFieldSpec<TDraft> ||
-        field is LibraryDateFieldSpec<TDraft> ||
         field is LibrarySelectFieldSpec<TDraft, Object?> ||
         field is LibraryImageFieldSpec<TDraft, Object?> ||
         field is LibraryReadOnlyFieldSpec<TDraft, Object?> ||
@@ -119,44 +113,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
                         ),
                       ),
                   ])
-                : field is LibraryPartialDateFieldSpec<TDraft>
-                    ? Builder(
-                        builder: (context) => Tooltip(
-                              message: 'Choose ${field.label}',
-                              child: InkWell(
-                                mouseCursor: SystemMouseCursors.click,
-                                onTap: () async {
-                                  final value = field.value(draft);
-                                  final now = DateTime.now();
-                                  final picked = await showAppAnchoredCalendar(
-                                    context: context,
-                                    initialDate: value?.asDateTime ??
-                                        DateTime(value?.year ?? now.year,
-                                            value?.month ?? 1),
-                                    firstDate: DateTime(1),
-                                    lastDate: DateTime(9999, 12, 31),
-                                  );
-                                  if (!context.mounted || picked == null) {
-                                    return;
-                                  }
-                                  field.updateValue(
-                                      draft, PartialDate.fromDateTime(picked));
-                                  onChanged?.call();
-                                },
-                                child: SizedBox(
-                                  width: 22,
-                                  height: 16,
-                                  child: Center(
-                                    child: Icon(
-                                      AppIcons.calendar,
-                                      size: 14,
-                                      color: appPalette(context).textMuted,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ))
-                    : null,
+                : null,
             child: child,
           )
         : child;
@@ -254,13 +211,11 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   @override
   Widget visitDate(LibraryDateFieldSpec<TDraft> field) {
     final value = field.value(draft);
-    return LibraryDateFieldButton(
+    return LibraryPartialDateField.fullDate(
       label: field.label,
-      showLabel: false,
-      value: value,
+      date: value,
       focusNode: _focusNode(field.id),
-      errorText: field.validate(draft),
-      onChanged: (picked) {
+      onDateChanged: (picked) {
         var selected = picked;
         if (picked != null && field.includeTime && value != null) {
           selected = DateTime(
@@ -279,7 +234,8 @@ final class LibraryFieldSpecControlBuilder<TDraft>
 
   @override
   Widget visitPartialDate(LibraryPartialDateFieldSpec<TDraft> field) {
-    return LibraryPartialDateInput(
+    return LibraryPartialDateField(
+      label: field.label,
       value: field.value(draft),
       focusNode: _focusNode(field.id),
       onChanged: (value) {

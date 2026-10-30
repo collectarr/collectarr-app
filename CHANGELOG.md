@@ -8,6 +8,7 @@
 - Imports run as soon as you press Import after choosing a file, without a list of parsed records to review first, as in CLZ.
 
 ### Fixes
+- Every date field (Read, Bag/Board, Purchase, Sold, Listen, custom dates) looks like Cover Date: the calendar sits beside the label above the YYYY, MM and DD boxes, as in CLZ.
 - The folder panel's group selector ("Series", "Age / Country") uses regular text, as in the reference.
 - Toolbar buttons highlight with slightly rounded corners on hover, as in the reference.
 - The library switcher is a square popover hanging from the header, its pointer under the icon, in a faint hairline listing "CLR Comics", "CLR Music" and so on in the header's face, as in the reference.

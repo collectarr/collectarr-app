@@ -44,13 +44,11 @@ Map<String, Widget> gamePersonalFields(GamePersonalBindings bindings) => {
         value: bindings.completed,
         onChanged: bindings.setCompleted,
       ),
-      'game_completed_date_parts': LibraryFormField(
+      'game_completed_date_parts': LibraryPartialDateField(
         label: 'Completed Date',
-        child: LibraryPartialDateInput(
-          value: bindings.completedDate,
-          onChanged: (date) => bindings.setCompletedDate(
-              date == null || date.toJson().isEmpty ? null : date),
-        ),
+        value: bindings.completedDate,
+        onChanged: (date) => bindings.setCompletedDate(
+            date == null || date.toJson().isEmpty ? null : date),
       ),
     };
 

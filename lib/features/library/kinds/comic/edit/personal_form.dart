@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
@@ -118,10 +117,11 @@ class ComicPersonalForm extends StatelessWidget {
               currency: currency,
               onChanged: (value) =>
                   update(personal.copyWith(sellPriceCents: value))),
-          LibraryDateFieldButton(
+          LibraryPartialDateField.fullDate(
               label: 'Sold Date',
-              value: personal.soldAt,
-              onChanged: (value) => update(personal.copyWith(soldAt: value))),
+              date: personal.soldAt,
+              onDateChanged: (value) =>
+                  update(personal.copyWith(soldAt: value))),
           const SizedBox.shrink(),
           const SizedBox.shrink(),
         ]),
@@ -137,10 +137,10 @@ class ComicPersonalForm extends StatelessWidget {
                 onChanged: (value) => update(personal.copyWith(
                     reading: personal.reading
                         .copyWith(status: value ? 'Read' : 'Unread')))),
-            LibraryDateFieldButton(
+            LibraryPartialDateField.fullDate(
                 label: 'Read Date',
-                value: personal.reading.finishedAt,
-                onChanged: (value) => update(personal.copyWith(
+                date: personal.reading.finishedAt,
+                onDateChanged: (value) => update(personal.copyWith(
                     reading: personal.reading.copyWith(finishedAt: value)))),
           ]),
           _common('personal_notes'),
@@ -167,10 +167,10 @@ class ComicPersonalForm extends StatelessWidget {
                             .copyWith(rating: int.tryParse(value)))))),
           ]),
           _common('tags'),
-          LibraryDateFieldButton(
+          LibraryPartialDateField.fullDate(
               label: 'Bag/Board Date',
-              value: entry.lastBagBoardDate,
-              onChanged: (value) {
+              date: entry.lastBagBoardDate,
+              onDateChanged: (value) {
                 entry.lastBagBoardDate = value;
                 _collectorChanged();
               }),
