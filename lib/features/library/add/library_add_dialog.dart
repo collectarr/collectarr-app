@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
@@ -513,7 +514,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (!mounted) return;
       showAppToast(
         context,
-        'Could not send the proposal. $error',
+        'Could not send the proposal. ${_coreRefusal(error)}',
         tone: AppToastTone.error,
       );
     } finally {
@@ -1127,3 +1128,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
   }
 }
+
+/// Core's own explanation of a refused request, else the error itself.
+String _coreRefusal(Object error) => switch (error) {
+      DioException(response: Response(data: {'detail': final String detail}))
+          when detail.trim().isNotEmpty =>
+        detail.trim(),
+      DioException(:final message?) when message.trim().isNotEmpty =>
+        message.trim(),
+      _ => '$error',
+    };
