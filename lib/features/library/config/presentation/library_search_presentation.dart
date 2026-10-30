@@ -1,15 +1,21 @@
+import 'package:flutter/widgets.dart';
+
 class LibraryMediaSearchFieldLabels {
   const LibraryMediaSearchFieldLabels({
     required this.queryHint,
     required this.emptySearchMessage,
     this.libraryHint,
     this.addSearchTabLabel = 'Title',
+    this.addSearchTabIcon,
   });
 
   final String queryHint;
 
   /// The Add dialog's text-search tab, such as "Artist & Title".
   final String addSearchTabLabel;
+
+  /// The text-search tab's icon; a magnifier when null.
+  final IconData? addSearchTabIcon;
   final String emptySearchMessage;
 
   /// Placeholder of the library toolbar search; the generic "Search items..."

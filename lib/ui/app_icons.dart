@@ -280,6 +280,8 @@ abstract final class AppIcons {
   // --- Search ---
   static const IconData search =
       IconData(0xf002, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData hashtag =
+      IconData(0xf292, fontFamily: _solid, fontPackage: _fontPackage);
 
   // --- Search Scope Targets ---
   static const IconData searchAll =

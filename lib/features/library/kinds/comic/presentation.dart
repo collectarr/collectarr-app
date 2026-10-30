@@ -219,8 +219,10 @@ final comicLibraryCatalogItemPresentation = LibraryMediaPresentation(
         ]),
   ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
-    queryHint: 'Search comics by series, issue, or exact title...',
+    queryHint: 'Enter series title and issue number...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    addSearchTabLabel: 'Issue',
+    addSearchTabIcon: AppIcons.hashtag,
   ),
   filterLabels: const LibraryPresentationLabels(
     values: {
