@@ -11,11 +11,15 @@ class LibraryAddBrowseGroupList extends StatelessWidget {
     required this.capability,
     required this.state,
     required this.onOpen,
+    this.onAddManually,
   });
 
   final LibraryAddBrowseCapability capability;
   final LibraryAddBrowseState state;
   final ValueChanged<LibraryAddBrowseGroup> onOpen;
+
+  /// "Not found? Add it manually" under the groups, as in the reference.
+  final VoidCallback? onAddManually;
 
   /// The list's width beside the opened group, as in the reference.
   static const width = 460.0;
@@ -50,30 +54,22 @@ class LibraryAddBrowseGroupList extends StatelessWidget {
       );
     }
     final count = state.found.length;
+    // The rows end where they end; the dialog's grey shows below them.
     return ColoredBox(
-      color: libraryAddResultsBackground(context),
+      color: libraryAddSearchBackground(context),
       child: Column(
         children: [
-          Container(
-            constraints: const BoxConstraints(minHeight: 31),
-            alignment: Alignment.center,
-            child: Text(
-              '$count ${capability.label}',
-              style: TextStyle(
-                color: palette.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
           Expanded(
             child: ListView.builder(
-              itemCount: count,
-              itemBuilder: (context, index) => _BrowseGroupRow(
-                group: state.found[index],
-                selected: identical(state.found[index], state.opened),
-                onTap: () => onOpen(state.found[index]),
-              ),
+              itemCount: count + (onAddManually == null ? 0 : 1),
+              itemBuilder: (context, index) => index == count
+                  ? LibraryAddNotFoundRow(
+                      message: 'Add it manually', onTap: onAddManually!)
+                  : _BrowseGroupRow(
+                      group: state.found[index],
+                      selected: identical(state.found[index], state.opened),
+                      onTap: () => onOpen(state.found[index]),
+                    ),
             ),
           ),
         ],
@@ -98,12 +94,18 @@ class _BrowseGroupRow extends StatelessWidget {
     final palette = appPalette(context);
     final muted = selected ? Colors.white : const Color(0xff888888);
     return Material(
-      color: selected ? palette.utilityAction : Colors.transparent,
+      color: selected
+          ? palette.utilityAction
+          : libraryAddResultsBackground(context),
       child: InkWell(
         key: ValueKey('library-add-browse-${group.title}-${group.details}'),
         mouseCursor: WidgetStateMouseCursor.clickable,
-        // The reference darkens a hovered row.
-        hoverColor: palette.isDark ? const Color(0xff2d2d2d) : null,
+        // The reference darkens a hovered row, but keeps the opened one blue.
+        hoverColor: selected
+            ? Colors.transparent
+            : palette.isDark
+                ? const Color(0xff2d2d2d)
+                : null,
         onTap: onTap,
         child: Container(
           height: 61,
@@ -243,17 +245,20 @@ class LibraryAddBrowseGroupHeader extends StatelessWidget {
   }
 }
 
-/// "All (n)": checks or unchecks every listed item.
+/// "All (n)": checks or unchecks every listed item; a dash while only some
+/// are checked.
 class LibraryAddCheckAllToggle extends StatelessWidget {
   const LibraryAddCheckAllToggle({
     super.key,
     required this.count,
     required this.checked,
     required this.onChanged,
+    this.partial = false,
   });
 
   final int count;
   final bool checked;
+  final bool partial;
   final ValueChanged<bool> onChanged;
 
   @override
@@ -263,18 +268,15 @@ class LibraryAddCheckAllToggle extends StatelessWidget {
       key: const ValueKey('library-add-check-all'),
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          'All ($count)',
-          style: TextStyle(
-            color: palette.textPrimary,
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(width: 8),
         LibraryAddResultCheckbox(
           checked: checked,
+          partial: partial,
           onPressed: () => onChanged(!checked),
+        ),
+        const SizedBox(width: 7),
+        Text(
+          'All ($count)',
+          style: TextStyle(color: palette.textPrimary, fontSize: 14),
         ),
       ],
     );

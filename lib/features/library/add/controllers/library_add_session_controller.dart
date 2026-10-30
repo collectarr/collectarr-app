@@ -60,7 +60,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         super(
           initialState ??
               LibraryAddSessionState(
-                mode: LibraryAddDialogMode.search,
+                mode: _initialMode(kind),
                 target: LibraryAddTarget.entry,
                 search: LibraryAddSearchState.initial(
                   advancedFilters: libraryAddForKind(kind)
@@ -604,7 +604,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
   void reset() {
     cancelSearch();
     state = LibraryAddSessionState(
-      mode: LibraryAddDialogMode.search,
+      mode: _initialMode(kind),
       target: LibraryAddTarget.entry,
       search: LibraryAddSearchState.initial(
         advancedFilters: _searchCapability.input.initialAdvancedFilters,
@@ -628,3 +628,9 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     super.dispose();
   }
 }
+
+/// The reference opens Add on its browse tab (Series) when the kind has one.
+LibraryAddDialogMode _initialMode(CatalogMediaKind kind) =>
+    libraryAddForKind(kind).search.browse == null
+        ? LibraryAddDialogMode.search
+        : LibraryAddDialogMode.browse;

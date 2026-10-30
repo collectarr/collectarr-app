@@ -5,6 +5,7 @@ import 'package:collectarr_app/ui/app_spinner.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 
+import 'library_add_cover_blocks.dart';
 import 'library_add_grouped_results.dart';
 import 'library_add_pane_dependencies.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
@@ -36,6 +37,7 @@ class LibraryAddSearchPane extends StatelessWidget {
     this.selectedGroupKey,
     this.onSelectGroup,
     this.onAddManually,
+    this.coverBlocks,
   });
 
   final LibraryKindRegistration type;
@@ -61,6 +63,10 @@ class LibraryAddSearchPane extends StatelessWidget {
   /// Opens Add Manually from the "Not found?" row under the results.
   final VoidCallback? onAddManually;
 
+  /// Shows the results as cover blocks under one toolbar row, as the
+  /// reference shows a series' issues.
+  final LibraryAddCoverBlockView? coverBlocks;
+
   /// Whether a search has run, so the caption stays while a filter empties
   /// the results.
   final bool searched;
@@ -79,8 +85,48 @@ class LibraryAddSearchPane extends StatelessWidget {
         results.isNotEmpty || (searched && !isBusy && error == null);
     final notFound = onAddManually != null && results.isNotEmpty
         ? LibraryAddNotFoundRow(
-            singularLabel: type.identity.singularLabel, onTap: onAddManually!)
+            message:
+                'Add ${type.identity.singularLabel.toLowerCase()} manually.',
+            onTap: onAddManually!)
         : null;
+    if (coverBlocks case final view?) {
+      final ordered = view.descending ? results.reversed.toList() : results;
+      return ColoredBox(
+        color: libraryAddResultsBackground(context),
+        child: Column(
+          children: [
+            _LibraryAddBlockToolbar(
+              leading: headerTrailing,
+              options: resultPolicy.options,
+              optionState: resultPolicyState,
+              onOptionChanged: onResultPolicyOptionChanged,
+              view: view,
+            ),
+            Expanded(
+              // Grid blocks sit on the dialog's grey, as in the reference.
+              child: ColoredBox(
+                color: view.layout == LibraryAddBlockLayout.grid
+                    ? libraryAddSearchBackground(context)
+                    : libraryAddResultsBackground(context),
+                child: isBusy && results.isEmpty
+                    ? const LibraryAddSearchingPlaceholder()
+                    : results.isEmpty
+                        ? _SearchPaneNoticeStack(error: error)
+                        : LibraryAddCoverBlocks(
+                            layout: view.layout,
+                            results: ordered,
+                            block: view.block,
+                            selectedResultId: selectedResultId,
+                            checkedResultIds: checkedResultIds,
+                            onSelectResult: onSelectResult,
+                            onToggleResultCheck: onToggleResultCheck,
+                          ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     final grouping = resultPolicy.grouping;
     if (grouping != null) {
       final groups = libraryAddResultGroups(results, grouping);
@@ -178,9 +224,10 @@ class LibraryAddSearchPane extends StatelessWidget {
 /// The reference's "Not found?" row after the results, opening Add Manually.
 class LibraryAddNotFoundRow extends StatelessWidget {
   const LibraryAddNotFoundRow(
-      {super.key, required this.singularLabel, required this.onTap});
+      {super.key, required this.message, required this.onTap});
 
-  final String singularLabel;
+  /// The line under "Not found?", as "Add comic manually.".
+  final String message;
   final VoidCallback onTap;
 
   @override
@@ -215,7 +262,7 @@ class LibraryAddNotFoundRow extends StatelessWidget {
                               fontSize: 15,
                               height: 20 / 15,
                               fontWeight: FontWeight.w700)),
-                      Text('Add ${singularLabel.toLowerCase()} manually.',
+                      Text(message,
                           style:
                               const TextStyle(fontSize: 14, height: 20 / 14)),
                     ],
@@ -323,20 +370,46 @@ class _LibraryAddResultOptionToggle extends StatelessWidget {
   final ValueChanged<bool> onSelected;
 
   @override
+  Widget build(BuildContext context) => _LibraryAddIconToggle(
+        key: ValueKey('library-add-result-option-${option.id}'),
+        label: option.label,
+        selected: selected,
+        onPressed: () => onSelected(!selected),
+        child: _SlashedIcon(
+            icon: option.icon, color: appPalette(context).textPrimary),
+      );
+}
+
+/// A 32 px icon button over the results, #737373 while on.
+class _LibraryAddIconToggle extends StatelessWidget {
+  const _LibraryAddIconToggle({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.onPressed,
+    required this.child,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onPressed;
+  final Widget child;
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return Tooltip(
-      message: option.label,
+      message: label,
       excludeFromSemantics: true,
       child: Semantics(
-        label: option.label,
+        label: label,
         button: true,
         toggled: selected,
         excludeSemantics: true,
         child: AppClickTarget(
-          key: ValueKey('library-add-result-option-${option.id}'),
-          onClick: () => onSelected(!selected),
-          builder: (context, hovered) => Container(
+          onClick: onPressed,
+          builder: (context, hovered) => AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
             width: 32,
             height: 32,
             alignment: Alignment.center,
@@ -346,11 +419,79 @@ class _LibraryAddResultOptionToggle extends StatelessWidget {
                   : hovered
                       ? libraryToolbarControlHover(context)
                       : null,
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(5),
             ),
-            child: _SlashedIcon(icon: option.icon, color: palette.textPrimary),
+            child: child,
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// "All (n)" at the left; the hide toggles, Sort Issues and the grid and
+/// list views at the right, in one row as in the reference.
+class _LibraryAddBlockToolbar extends StatelessWidget {
+  const _LibraryAddBlockToolbar({
+    required this.leading,
+    required this.options,
+    required this.optionState,
+    required this.onOptionChanged,
+    required this.view,
+  });
+
+  final Widget? leading;
+  final List<LibraryAddResultOption> options;
+  final LibraryAddResultPolicyState optionState;
+  final void Function(String id, bool value) onOptionChanged;
+  final LibraryAddCoverBlockView view;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = appPalette(context).textPrimary;
+    Widget layoutToggle(
+            LibraryAddBlockLayout layout, String label, IconData icon) =>
+        _LibraryAddIconToggle(
+          key: ValueKey('library-add-layout-${layout.name}'),
+          label: label,
+          selected: view.layout == layout,
+          onPressed: () => view.onLayoutChanged(layout),
+          child: Icon(icon, size: 19, color: color),
+        );
+    return Container(
+      key: const ValueKey('library-add-block-toolbar'),
+      height: 38,
+      padding: const EdgeInsets.fromLTRB(10, 0, 4, 0),
+      child: Row(
+        children: [
+          if (leading case final leading?) leading,
+          const Spacer(),
+          for (final option in options) ...[
+            _LibraryAddResultOptionToggle(
+              option: option,
+              selected: optionState.valueFor(option.id,
+                  fallback: option.initialValue),
+              onSelected: (value) => onOptionChanged(option.id, value),
+            ),
+            const SizedBox(width: 8),
+          ],
+          _LibraryAddIconToggle(
+            key: const ValueKey('library-add-sort-issues'),
+            label: 'Sort Issues',
+            selected: view.descending,
+            onPressed: () => view.onDescendingChanged(!view.descending),
+            child: Icon(
+                view.descending ? AppIcons.sortAlphaUp : AppIcons.sortAlpha,
+                size: 18,
+                color: color),
+          ),
+          const SizedBox(width: 20),
+          layoutToggle(
+              LibraryAddBlockLayout.grid, 'Grid View', AppIcons.viewGrid),
+          const SizedBox(width: 8),
+          layoutToggle(LibraryAddBlockLayout.list, 'List View',
+              AppIcons.viewHorizontalCards),
+        ],
       ),
     );
   }
@@ -914,11 +1055,20 @@ class SearchResultTile extends StatelessWidget {
 }
 
 class LibraryAddResultCheckbox extends StatelessWidget {
-  const LibraryAddResultCheckbox(
-      {super.key, required this.checked, required this.onPressed});
+  const LibraryAddResultCheckbox({
+    super.key,
+    required this.checked,
+    required this.onPressed,
+    this.partial = false,
+    this.size = 30,
+  });
 
   final bool checked;
   final VoidCallback onPressed;
+
+  /// Some, not all, of a set are checked: drawn as a dash.
+  final bool partial;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -934,11 +1084,12 @@ class LibraryAddResultCheckbox extends StatelessWidget {
         onTap: onPressed,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
-          child: Container(
-            width: 30,
-            height: 30,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            width: size,
+            height: size,
             decoration: BoxDecoration(
-              color: checked
+              color: checked || partial
                   ? blue
                   : palette.isDark
                       ? const Color(0xff444444)
@@ -946,8 +1097,9 @@ class LibraryAddResultCheckbox extends StatelessWidget {
               border: Border.all(color: blue, width: 2),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: checked
-                ? const Icon(AppIcons.check, size: 16, color: Colors.white)
+            child: checked || partial
+                ? Icon(checked ? AppIcons.check : AppIcons.minus,
+                    size: size * 16 / 30, color: Colors.white)
                 : null,
           ),
         ),
