@@ -12,13 +12,22 @@ import 'package:collectarr_app/features/admin/admin_page_data_loader.dart';
 import 'package:collectarr_app/features/admin/admin_dashboard_widgets.dart';
 import 'package:collectarr_app/features/admin/admin_primitives.dart';
 import 'package:collectarr_app/features/admin/admin_kind_labels.dart';
-import 'package:collectarr_app/features/admin/admin_proposal_metadata_edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_catalog_search_controller.dart';
 import 'package:collectarr_app/features/admin/controllers/admin_proposals_controller.dart';
 import 'package:collectarr_app/features/admin/widgets/admin_catalog_search_panel.dart';
 import 'package:collectarr_app/features/admin/widgets/admin_catalog_item_list.dart';
 import 'package:collectarr_app/features/admin/widgets/admin_proposals_panel.dart';
 import 'package:collectarr_app/features/admin/widgets/admin_proposal_tile.dart';
+import 'package:collectarr_app/features/admin/widgets/admin_correction_tile.dart';
+import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
+import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
+import 'package:collectarr_app/core/api/dto/canonical_correction_proposal.dart';
 import 'package:collectarr_app/features/admin/admin_diagnostics_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
@@ -653,6 +662,39 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return result ?? false;
   }
 
+  /// Approves or rejects one correction, then reloads both proposal lists.
+  Future<void> _decideCorrection(
+    CanonicalCorrectionProposal correction, {
+    required bool approve,
+  }) async {
+    setState(() {
+      _proposalActionId = correction.id;
+      _proposalErrorMessage = null;
+      _proposalStatusMessage = null;
+    });
+    final api = ref.read(apiClientProvider);
+    try {
+      if (approve) {
+        await _proposalsController.approveCorrection(api, id: correction.id);
+      } else {
+        await _proposalsController.rejectCorrection(api, id: correction.id);
+      }
+      if (!mounted) return;
+      setState(() {
+        _proposalActionId = null;
+        _proposalStatusMessage =
+            approve ? 'Correction applied to Core.' : 'Correction rejected.';
+      });
+      await _loadProposalData();
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _proposalActionId = null;
+        _proposalErrorMessage = _adminErrorMessage(error);
+      });
+    }
+  }
+
   Future<void> _rejectProposal(AdminMetadataProposal proposal) async {
     setState(() {
       _proposalActionId = proposal.id;
@@ -690,13 +732,32 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   Future<void> _editProposalMetadataAsync(
       AdminMetadataProposal proposal) async {
-    final result = await showAppDialog<AdminProposalMetadataEditResult>(
-      context: context,
-      builder: (context) => AdminProposalMetadataEditDialog(proposal: proposal),
+    // The proposal opens in the kind's own editor, the same tabs users fill
+    // in Add and Edit, rather than as raw catalog data.
+    final kind = catalogMediaKindFromApiValue(proposal.kind);
+    final transport = CatalogItemDto.raw(
+      id: '',
+      mediaKind: kind,
+      kindData: proposal.catalogItem,
+      origin: CatalogItemOrigin.privateLocal,
     );
-    if (result == null || !mounted) {
+    final selection = await showLibraryEditDialog(
+      context: context,
+      request: LibraryEditDialogRequest(
+        type: libraryKindRegistrationForKind(kind),
+        item: CatalogSearchCandidate.fromSummary(
+          summary: summarizeCatalogTransportPayload(transport),
+          transport: transport,
+        ),
+        libraryEntry: null,
+        accent: libraryAccentForKind(kind),
+      ),
+    );
+    if (selection == null || !mounted) {
       return;
     }
+    final catalogItem =
+        selection.kindItem.kindCapability.mapTransport((item) => item.kindData);
     setState(() {
       _proposalActionId = proposal.id;
       _proposalErrorMessage = null;
@@ -706,8 +767,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final updated = await _proposalsController.update(
         ref.read(apiClientProvider),
         proposalId: proposal.id,
-        catalogItem: result.catalogItem,
-        reviewNote: result.reviewNote,
+        catalogItem: JsonMap.from(catalogItem),
+        reviewNote: proposal.reviewNote,
       );
       if (!mounted) {
         return;

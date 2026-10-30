@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/dto/canonical_correction_proposal.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 
@@ -35,14 +37,39 @@ class AdminPageDataLoader {
     required String status,
   }) async {
     final results = await Future.wait<Object>([
-      api.adminMetadataProposalSummary(),
       api.adminMetadataProposals(status: status),
+      api.adminCorrectionProposals(status: status),
     ]);
+    final corrections = results[1] as List<CanonicalCorrectionProposal>;
     return AdminProposalData(
-      summary: results[0] as AdminMetadataProposalSummary,
-      proposals: results[1] as List<AdminMetadataProposal>,
+      proposals: results[0] as List<AdminMetadataProposal>,
+      corrections: corrections,
+      correctionLabels: await _correctionLabels(api, corrections),
     );
   }
+}
+
+/// Core's field labels per kind, read from one correction target of each
+/// kind; a target that is gone leaves its fields under their keys.
+Future<Map<CatalogMediaKind, Map<String, String>>> _correctionLabels(
+    ApiClient api, List<CanonicalCorrectionProposal> corrections) async {
+  final labels = <CatalogMediaKind, Map<String, String>>{};
+  for (final correction in corrections) {
+    if (labels.containsKey(correction.kind)) continue;
+    try {
+      final target = await api.getCanonicalCorrectionTarget(
+        kind: correction.kind,
+        entityId: correction.entityId,
+        scope: correction.scope,
+      );
+      labels[correction.kind] = {
+        for (final field in target.fieldSchema) field.key: field.label,
+      };
+    } on Exception {
+      continue;
+    }
+  }
+  return labels;
 }
 
 class AdminDashboardData {
@@ -69,10 +96,14 @@ class AdminDashboardData {
 
 class AdminProposalData {
   const AdminProposalData({
-    required this.summary,
     required this.proposals,
+    required this.corrections,
+    required this.correctionLabels,
   });
 
-  final AdminMetadataProposalSummary summary;
   final List<AdminMetadataProposal> proposals;
+
+  /// Field corrections to existing Core items.
+  final List<CanonicalCorrectionProposal> corrections;
+  final Map<CatalogMediaKind, Map<String, String>> correctionLabels;
 }

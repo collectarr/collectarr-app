@@ -386,6 +386,17 @@ class ApiClient {
     return _adminApi.adminMetadataProposals(status: status);
   }
 
+  Future<List<CanonicalCorrectionProposal>> adminCorrectionProposals({
+    String status = 'pending',
+  }) =>
+      _adminApi.adminCorrectionProposals(status: status);
+
+  Future<void> adminApproveCorrection({required String proposalId}) =>
+      _adminApi.adminApproveCorrection(proposalId: proposalId);
+
+  Future<void> adminRejectCorrection({required String proposalId}) =>
+      _adminApi.adminRejectCorrection(proposalId: proposalId);
+
   Future<AdminMetadataProposal> adminApproveMetadataProposal({
     required String proposalId,
   }) async {

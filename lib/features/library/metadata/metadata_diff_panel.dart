@@ -28,6 +28,9 @@ class MetadataDiffPanel extends StatelessWidget {
     this.onAcceptAll,
     this.emptyText = 'No differences found.',
     this.showOnlyDifferences = true,
+    this.localHeader = 'Your value',
+    this.serverHeader = 'Core value',
+    this.countNoun = 'difference',
   });
 
   final String title;
@@ -35,6 +38,13 @@ class MetadataDiffPanel extends StatelessWidget {
   final VoidCallback? onAcceptAll;
   final String emptyText;
   final bool showOnlyDifferences;
+
+  /// Column headings over the two values, as "Proposed" and "Current".
+  final String localHeader;
+  final String serverHeader;
+
+  /// What the count beside the title counts, as "3 differences".
+  final String countNoun;
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +119,7 @@ class MetadataDiffPanel extends StatelessWidget {
               Text(
                 differences == 0
                     ? 'Same as Core'
-                    : '$differences ${differences == 1 ? 'difference' : 'differences'}',
+                    : '$differences ${differences == 1 ? countNoun : '${countNoun}s'}',
                 style: TextStyle(
                     color: differences == 0
                         ? palette.textMuted
@@ -143,7 +153,7 @@ class MetadataDiffPanel extends StatelessWidget {
                     border: Border(bottom: BorderSide(color: palette.divider)),
                   ),
                   children: [
-                    for (final label in ['Field', 'Your value', 'Core value'])
+                    for (final label in ['Field', localHeader, serverHeader])
                       Padding(
                         padding: const EdgeInsets.fromLTRB(11, 4, 8, 4),
                         child: Text(label, style: header),
