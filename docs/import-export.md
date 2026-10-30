@@ -14,9 +14,9 @@ external product ID.
 | Delicious Library 2 | XML property list with Music dictionaries |
 | Text / CSV | User-mapped columns, with an explicit Title mapping |
 
-Choose a file, inspect the parsed-record preview, then confirm Import. Changing
-a file or CSV mapping clears its prepared review. Invalid, empty or truncated
-exports report a diagnostic and save nothing. There is no generic XML title
+Choose a file, then press Import: the file is read and imported in one step,
+as in CLZ, with no parsed-record preview. Invalid, empty or truncated exports
+report a diagnostic and save nothing. There is no generic XML title
 scanner and no invented fallback album.
 
 CSV supports configurable delimiters, quoting and multiple-value delimiters.

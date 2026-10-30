@@ -6,7 +6,6 @@ import 'package:collectarr_app/ui/app_progress_dialog.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 import 'import_file_picker.dart';
-import 'import_rows_review.dart';
 
 class GuidedImportPanel extends StatefulWidget {
   const GuidedImportPanel(
@@ -30,46 +29,38 @@ class GuidedImportPanel extends StatefulWidget {
 
 class _GuidedImportPanelState extends State<GuidedImportPanel> {
   String? _filename;
+  String? _content;
   String? _error;
-  List<CollectionImportRow> _rows = const [];
   bool _importing = false;
   Future<void> _pick() async {
+    final file = await widget.filePicker(
+        label: widget.source.title, extensions: widget.source.fileExtensions);
+    if (file == null || !mounted) return;
+    setState(() {
+      _filename = file.name;
+      _content = file.content;
+      _error = null;
+    });
+  }
+
+  Future<void> _import() async {
+    final content = _content;
+    if (content == null || _importing) return;
+    final List<CollectionImportRow> rows;
     try {
-      final file = await widget.filePicker(
-          label: widget.source.title, extensions: widget.source.fileExtensions);
-      if (file == null || !mounted) return;
-      setState(() {
-        _filename = file.name;
-        _rows = const [];
-        _error = null;
-      });
       final importer = widget.source.importer;
       if (importer == null) {
         throw const FormatException('No importer registered for this source.');
       }
-      final rows = await runWithProgressDialog(
-          context: context,
-          title: 'Reading file',
-          message: 'Parsing the records in ${file.name}...',
-          task: () async => importer.parse(file.content));
-      if (!mounted) return;
+      rows = importer.parse(content);
       if (rows.isEmpty) {
         throw const FormatException(
             '0 records parsed. This export has no supported records.');
       }
-      setState(() => _rows = rows);
     } catch (error) {
-      if (mounted) {
-        setState(() {
-          _rows = const [];
-          _error = error.toString();
-        });
-      }
+      setState(() => _error = error.toString());
+      return;
     }
-  }
-
-  Future<void> _import() async {
-    if (_rows.isEmpty || _importing) return;
     setState(() {
       _importing = true;
       _error = null;
@@ -80,13 +71,14 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
           title: 'Import',
           message: 'Importing your ${widget.pluralLabel.toLowerCase()}...',
           task: (report) => widget.onImport(
-              _rows,
+              rows,
               (fraction) =>
                   report(fraction, fraction >= 1 ? 'Finishing...' : null)));
       if (!mounted) return;
       setState(() {
         _importing = false;
-        _rows = const [];
+        _filename = null;
+        _content = null;
       });
       widget.onComplete(count);
     } catch (error) {
@@ -145,13 +137,6 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
             ]),
             const SizedBox(height: 14)
           ],
-          if (_rows.isNotEmpty) ...[
-            ImportRowsReview(
-                rows: _rows,
-                onClear:
-                    _importing ? null : () => setState(() => _rows = const [])),
-            const SizedBox(height: 14)
-          ],
           Align(
               alignment: Alignment.centerRight,
               child: SizedBox(
@@ -161,16 +146,14 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
                       key: const Key('import_guided.submit'),
                       style: dialogActionButtonStyle(context,
                           primary: true, width: 240),
-                      onPressed: _rows.isEmpty || _importing ? null : _import,
+                      onPressed:
+                          _content == null || _importing ? null : _import,
                       child: _importing
                           ? const SizedBox.square(
                               dimension: 18,
                               child: CircularProgressIndicator(strokeWidth: 2))
-                          : Text(
-                              _rows.isEmpty
-                                  ? 'Import'
-                                  : 'Import ${_rows.length} ${widget.pluralLabel}',
-                              style: const TextStyle(
+                          : const Text('Import',
+                              style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400))))),
         ]));

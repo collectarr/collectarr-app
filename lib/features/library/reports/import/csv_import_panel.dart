@@ -6,7 +6,6 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'import_file_picker.dart';
 import 'import_format_settings.dart';
-import 'import_rows_review.dart';
 
 class CsvImportPanel extends StatefulWidget {
   const CsvImportPanel(
@@ -41,7 +40,6 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
       ImportMultiFieldDelimiter.semicolon;
   bool _isImporting = false;
   String? _statusMessage;
-  List<CollectionImportRow>? _reviewRows;
   LibraryKindImportCapability get _importCapability => widget.capability;
   String get _pluralLabel => widget.pluralLabel;
   @override
@@ -113,10 +111,8 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
                         _enclosure = value;
                         _reparseCsv();
                       }),
-                  onMultiDelimiterChanged: (value) => setState(() {
-                        _multiDelimiter = value;
-                        _reviewRows = null;
-                      })),
+                  onMultiDelimiterChanged: (value) =>
+                      setState(() => _multiDelimiter = value)),
               const SizedBox(height: 16),
 
               // 3. Field mapping
@@ -168,14 +164,6 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
                 const SizedBox(height: 14),
               ],
 
-              if (_reviewRows != null) ...[
-                ImportRowsReview(
-                    rows: _reviewRows!,
-                    onClear: _isImporting
-                        ? null
-                        : () => setState(() => _reviewRows = null)),
-                const SizedBox(height: 12),
-              ],
               // Bottom Button
               LayoutBuilder(
                 builder: (context, constraints) {
@@ -206,9 +194,7 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
                                 );
                                 return;
                               }
-                              _reviewRows == null
-                                  ? _prepareReview()
-                                  : _executeCsvImport();
+                              _executeCsvImport();
                             },
                       child: _isImporting
                           ? const SizedBox.square(
@@ -219,11 +205,9 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : Text(
-                              _reviewRows == null
-                                  ? 'Review Import'
-                                  : 'Import ${_reviewRows!.length} $_pluralLabel',
-                              style: const TextStyle(
+                          : const Text(
+                              'Import',
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                               ),
@@ -357,10 +341,7 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
                                   ),
                               ],
                               onChanged: (val) {
-                                setState(() {
-                                  _columnMappings[col] = val;
-                                  _reviewRows = null;
-                                });
+                                setState(() => _columnMappings[col] = val);
                               },
                             ),
                           ),
@@ -408,16 +389,12 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
       if (mounted) setState(() {});
     } catch (error) {
       if (mounted) {
-        setState(() {
-          _reviewRows = null;
-          _statusMessage = 'Error reading file: $error';
-        });
+        setState(() => _statusMessage = 'Error reading file: $error');
       }
     }
   }
 
   void _reparseCsv() {
-    _reviewRows = null;
     _statusMessage = null;
     final raw = _csvRawContent;
     if (raw == null || raw.trim().isEmpty) {
@@ -476,40 +453,26 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
     }
   }
 
-  Future<void> _prepareReview() async {
+  Future<void> _executeCsvImport() async {
+    if (_isImporting) return;
+    final importer = widget.capability.mappedCsvImporter;
+    final List<CollectionImportRow> rows;
     try {
-      final importer = widget.capability.mappedCsvImporter;
       if (importer == null) {
         throw const FormatException(
             'This kind does not support mapped CSV import.');
       }
-      final rows = await runWithProgressDialog(
-          context: context,
-          title: 'Reading file',
-          message: 'Preparing ${_parsedRows.length} ${widget.pluralLabel}...',
-          task: () async => importer.parse(_parsedRows,
-              mappings: {
-                for (final entry in _columnMappings.entries)
-                  if (entry.value != null) entry.key: entry.value!,
-              },
-              multiValueDelimiter: _multiDelimiter.char,
-              headers: _csvHeaders));
-      if (!mounted) return;
-      setState(() {
-        _reviewRows = rows;
-        _statusMessage = null;
-      });
+      rows = importer.parse(_parsedRows,
+          mappings: {
+            for (final entry in _columnMappings.entries)
+              if (entry.value != null) entry.key: entry.value!,
+          },
+          multiValueDelimiter: _multiDelimiter.char,
+          headers: _csvHeaders);
     } on FormatException catch (error) {
-      setState(() {
-        _reviewRows = null;
-        _statusMessage = 'Error: $error';
-      });
+      setState(() => _statusMessage = 'Error: $error');
+      return;
     }
-  }
-
-  Future<void> _executeCsvImport() async {
-    final rows = _reviewRows;
-    if (rows == null || rows.isEmpty || _isImporting) return;
     setState(() {
       _isImporting = true;
       _statusMessage = null;
@@ -524,10 +487,7 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
               (fraction) =>
                   report(fraction, fraction >= 1 ? 'Finishing...' : null)));
       if (!mounted) return;
-      setState(() {
-        _isImporting = false;
-        _reviewRows = null;
-      });
+      setState(() => _isImporting = false);
       widget.onComplete(count);
     } catch (error) {
       if (mounted) {
