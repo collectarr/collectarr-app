@@ -30,6 +30,9 @@ const kLibraryToolbarCompactDropdownSize = 28.0;
 const kLibraryToolbarCompactDropdownWidth = 38.0;
 const kLibraryToolbarBandHeight = 38.0;
 const kLibraryToolbarControlHeight = 28.0;
+
+/// The reference rounds every toolbar hover slightly.
+const kLibraryToolbarHoverRadius = BorderRadius.all(Radius.circular(4));
 const kLibraryToolbarTextDropdownHeight = 30.0;
 const kLibraryToolbarPopupItemHeight = 32.0;
 const kLibraryToolbarPopupSectionHeaderHeight = 20.0;

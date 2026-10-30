@@ -171,6 +171,7 @@ five comics, and a release Web build with the same five imported from CSV.
 | Export to XML | "Export to XML" confirm (Cancel/Export), "XML file generated successfully." with Download; a `<collectorz>` file of `<comic>` records with CLZ ids, display names and only user-edited credits (19 KB for five comics) | Same dialogs and wording. The file is Collectarr's own `<collectarr>` layout of typed fields: every stored catalog and personal value, nulls included (20 KB for the same five) | Open: decide whether to also write the CLZ layout; Import Comics reads CLZ's file |
 | Link Comics | Your Comic / Core comics / Link table; "All comics are linked." when nothing is unlinked | Said "Core result" and "All entries are linked." | Fixed; rows for unlinked comics are not compared, since the reference account has none and unlinking there would change it |
 | App switcher | Square white popover in a black hairline, 145 px, 36 px rows: 26 px app icon and "CLZ Comics" in 16/700 | Rounded, grey-edged, "Comics" in 14/700 without the product prefix | Fixed: square with a black hairline, "CLR Comics" in the app face at 16/700 |
+| Toolbar hover | View, sort, layout and Edit/Share buttons highlight #464950 with a 4 px radius | Square highlight | Fixed: every toolbar hover is rounded 4 px |
 
 Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
 editors and dialogs with Cancel. Record observed fields and remaining gaps

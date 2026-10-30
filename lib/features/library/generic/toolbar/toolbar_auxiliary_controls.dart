@@ -139,7 +139,9 @@ class _LibraryCollectionStatusScopeDropdownState
                     : filtered
                         ? const Color(0xFF464950)
                         : Colors.transparent,
-                borderRadius: filtered ? BorderRadius.circular(5) : null,
+                borderRadius: filtered
+                    ? BorderRadius.circular(5)
+                    : kLibraryToolbarHoverRadius,
                 border: filtered
                     ? Border.all(color: palette.utilityAction, width: 2)
                     : null),
@@ -261,9 +263,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
                 mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: onPressed,
                 hoverColor: libraryToolbarControlHover(context),
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(4),
-                ),
+                borderRadius: kLibraryToolbarHoverRadius,
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                       horizontal: iconOnly ? 7 : 10, vertical: 7),

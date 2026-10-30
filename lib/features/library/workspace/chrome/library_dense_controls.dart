@@ -352,6 +352,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
                   mouseCursor: WidgetStateMouseCursor.clickable,
                   onTap: onPressed,
                   hoverColor: libraryToolbarControlHover(context),
+                  borderRadius: kLibraryToolbarHoverRadius,
                   child: Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: iconOnly ? 7 : 10,

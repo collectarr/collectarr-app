@@ -37,12 +37,13 @@ class _LibraryToolbarHoverSurfaceState
           duration: MediaQuery.disableAnimationsOf(context)
               ? Duration.zero
               : appControlHoverDuration,
-          // Square, as the reference's toolbar hover.
+          // Slightly rounded, as the reference's toolbar hover.
           decoration: BoxDecoration(
             color: _hovered && widget.enabled
                 ? libraryToolbarControlHover(context)
                 : widget.backgroundColor ??
                     libraryToolbarControlSurface(context),
+            borderRadius: kLibraryToolbarHoverRadius,
           ),
           child: widget.child,
         ),
@@ -91,30 +92,32 @@ class _LibraryToolbarCompactDropdownTriggerState
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: DecoratedBox(
-        decoration: libraryToolbarDropdownDecoration(
-          context,
-          backgroundColor:
-              _hovered ? libraryToolbarControlHover(context) : null,
-        ),
-        child: SizedBox(
-          width: kLibraryToolbarCompactDropdownWidth,
-          height: kLibraryToolbarCompactDropdownSize,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                widget.icon,
-                size: 16,
-                color: widget.iconColor ?? libraryToolbarControlText(context),
-              ),
-              const SizedBox(width: 1),
-              Icon(
-                AppIcons.chevronDown,
-                size: 14,
-                color: widget.arrowColor ??
-                    libraryToolbarControlMutedText(context),
-              ),
-            ],
+        decoration: libraryToolbarDropdownDecoration(context),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: _hovered ? libraryToolbarControlHover(context) : null,
+            borderRadius: kLibraryToolbarHoverRadius,
+          ),
+          child: SizedBox(
+            width: kLibraryToolbarCompactDropdownWidth,
+            height: kLibraryToolbarCompactDropdownSize,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  widget.icon,
+                  size: 16,
+                  color: widget.iconColor ?? libraryToolbarControlText(context),
+                ),
+                const SizedBox(width: 1),
+                Icon(
+                  AppIcons.chevronDown,
+                  size: 14,
+                  color: widget.arrowColor ??
+                      libraryToolbarControlMutedText(context),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -177,6 +180,8 @@ class LibraryWorkspaceIconButton extends StatelessWidget {
             disabledBackgroundColor: Colors.transparent,
             hoverColor: libraryToolbarControlHover(context),
             highlightColor: Colors.transparent,
+            shape: const RoundedRectangleBorder(
+                borderRadius: kLibraryToolbarHoverRadius),
           ),
           onPressed: onPressed,
           icon: Icon(
