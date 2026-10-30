@@ -43,7 +43,6 @@ void main() {
           body: LibraryWorkspaceMenuTreeHeader(
             label: 'Main',
             expanded: false,
-            highlighted: true,
             onTap: () {},
           ),
         ),

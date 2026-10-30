@@ -228,6 +228,11 @@ Color libraryToolbarMenuHover(BuildContext context) =>
     _toolbarMenuPalette(context).isDark
         ? const Color(0xff464950)
         : _toolbarMenuPalette(context).badgeBackground;
+/// A folder menu category that is open, and the bar beside its rows.
+Color libraryToolbarMenuOpenGroup(BuildContext context) =>
+    _toolbarMenuPalette(context).isDark
+        ? const Color(0xff787878)
+        : const Color(0xffcccccc);
 Color libraryToolbarControlSurface(BuildContext context) =>
     libraryWorkspaceToolbarColor(context);
 Color libraryToolbarControlBorder(BuildContext context) =>

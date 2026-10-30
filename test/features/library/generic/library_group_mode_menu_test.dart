@@ -115,7 +115,7 @@ void main() {
       ),
     );
 
-    expect(find.text('No folders'), findsOneWidget);
+    expect(find.text('No Folders'), findsOneWidget);
     expect(find.text('Show folders'), findsNothing);
     expect(find.byKey(const ValueKey('manageGroupFavoritesButton')),
         findsOneWidget);
@@ -132,7 +132,9 @@ void main() {
     final selectedRow = tester.widget<LibraryWorkspaceMenuRow>(
       find.byKey(const ValueKey('groupModeItemRow_music.artist')),
     );
-    expect(selectedRow.backgroundColor, isNot(Colors.transparent));
+    // As in the reference, the current folder is marked by its check alone.
+    expect(selectedRow.backgroundColor, isNull);
+    expect(selectedRow.leading, isNotNull);
 
     final mainHeader = find.widgetWithText(InkWell, 'Main');
     await tester.ensureVisible(mainHeader);
@@ -161,7 +163,7 @@ void main() {
       ),
     );
 
-    expect(find.text('No folders'), findsNothing);
+    expect(find.text('No Folders'), findsNothing);
     expect(find.text('Show folders'), findsNothing);
     expect(find.text('Credits'), findsOneWidget);
     expect(find.byIcon(Icons.check), findsNothing);
@@ -239,7 +241,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Group By'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('No folders'));
+    await tester.tap(find.text('No Folders'));
     await tester.pumpAndSettle();
 
     expect(clearedBucket, isTrue);

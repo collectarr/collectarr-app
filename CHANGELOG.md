@@ -14,6 +14,7 @@
 - The folder panel's group selector ("Series", "Age / Country") uses regular text, as in the reference.
 - Toolbar buttons highlight with slightly rounded corners on hover, as in the reference.
 - Hovered alphabet letters highlight as a rounded pill, like the chosen letter, as in the reference.
+- The folder menu matches the reference: a narrower panel with 30 px regular-weight rows, "No Folders", grey Favorites and Folders rules, an open category lit with the bar beside its fields, and the current folder marked by its check alone.
 - The library switcher is a square popover hanging from the header, its pointer under the icon, in a faint hairline listing "CLR Comics", "CLR Music" and so on in the header's face, as in the reference.
 - The Link page names your items in its header and when everything is linked ("Core albums", "All albums are linked."), as in the reference.
 - Keep the intended relative widths of fields when an Add form selects a subset of its catalog fields.

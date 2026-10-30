@@ -53,7 +53,7 @@ class LibraryWorkspaceMenuSectionDivider extends StatelessWidget {
   const LibraryWorkspaceMenuSectionDivider({
     super.key,
     required this.label,
-    this.padding = const EdgeInsets.fromLTRB(12, 8, 12, 6),
+    this.padding = const EdgeInsets.fromLTRB(5, 2, 5, 2),
     this.leadingInset = 0,
     this.leadingLineWidth = 0,
   });
@@ -77,13 +77,15 @@ class LibraryWorkspaceMenuSectionDivider extends StatelessWidget {
                   Divider(height: 1, color: libraryToolbarMenuBorder(context)),
             ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            // The reference heading is the rule's own #666, 14/400.
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: libraryToolbarMenuMutedText(context),
-                    fontWeight: FontWeight.w700,
+                    color: libraryToolbarMenuBorder(context),
+                    fontWeight: FontWeight.w400,
                     fontSize: 14,
+                    height: 20 / 14,
                     letterSpacing: 0,
                   ),
             ),
@@ -109,6 +111,7 @@ class LibraryWorkspaceMenuRow extends StatelessWidget {
     this.backgroundColor,
     this.textStyle,
     this.leadingSpacing = 8,
+    this.hoverColor,
   });
 
   final String label;
@@ -120,6 +123,9 @@ class LibraryWorkspaceMenuRow extends StatelessWidget {
   final Color? backgroundColor;
   final TextStyle? textStyle;
   final double leadingSpacing;
+
+  /// A solid hover shade in place of the default tint.
+  final Color? hoverColor;
 
   @override
   Widget build(BuildContext context) {
@@ -166,18 +172,19 @@ class LibraryWorkspaceMenuRow extends StatelessWidget {
     if (onTap == null) {
       return content;
     }
-    final hover = libraryToolbarMenuHover(context);
+    final solidHover = hoverColor;
+    final hover = solidHover ?? libraryToolbarMenuHover(context);
     return InkWell(
       mouseCursor: WidgetStateMouseCursor.clickable,
       borderRadius: BorderRadius.zero,
       onTap: onTap,
       overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
         if (states.contains(WidgetState.pressed)) {
-          return hover.withValues(alpha: 0.92);
+          return solidHover ?? hover.withValues(alpha: 0.92);
         }
         if (states.contains(WidgetState.hovered) ||
             states.contains(WidgetState.focused)) {
-          return hover.withValues(alpha: 0.80);
+          return solidHover ?? hover.withValues(alpha: 0.80);
         }
         return null;
       }),
@@ -191,14 +198,12 @@ class LibraryWorkspaceMenuTreeHeader extends StatelessWidget {
     super.key,
     required this.label,
     required this.expanded,
-    required this.highlighted,
     required this.onTap,
     this.leading,
   });
 
   final String label;
   final bool expanded;
-  final bool highlighted;
   final VoidCallback onTap;
   final Widget? leading;
 
@@ -208,19 +213,23 @@ class LibraryWorkspaceMenuTreeHeader extends StatelessWidget {
       label: label,
       onTap: onTap,
       leading: leading,
-      padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
+      padding: const EdgeInsets.fromLTRB(7, 6, 7, 6),
+      leadingWidth: 16,
+      leadingSpacing: 6,
       trailing: Icon(
         expanded ? Icons.expand_less : Icons.expand_more,
         size: 18,
-        color: libraryToolbarMenuMutedText(context),
+        color: libraryToolbarMenuText(context),
       ),
-      backgroundColor: highlighted
-          ? libraryToolbarMenuHover(context).withValues(alpha: 0.55)
-          : Colors.transparent,
-      textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-            color: libraryToolbarMenuText(context),
-            fontWeight: FontWeight.w700,
-          ),
+      // An open category is lit, as is the bar beside its rows.
+      backgroundColor:
+          expanded ? libraryToolbarMenuOpenGroup(context) : Colors.transparent,
+      hoverColor: libraryToolbarMenuBorder(context),
+      textStyle: TextStyle(
+        fontSize: 14,
+        color: libraryToolbarMenuText(context),
+        fontWeight: FontWeight.w400,
+      ),
     );
   }
 }
