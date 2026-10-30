@@ -4,6 +4,7 @@ import 'comic_kind_configuration.dart';
 import '../data/comic_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final comicKindPresentation = comicLibraryCatalogItemPresentation;
@@ -16,6 +17,9 @@ final comicKindViewProfile = standardMediaWorkspaceViewProfile(
   CatalogMediaKind.comic,
   comicKindUiPolicy,
   cardLayout: LibraryWorkspaceCardLayout.headlined,
+  // The reference shows the details beside the comics, as in Music.
+  defaultDetailsLayout: LibraryDetailsLayout.right,
+  defaultDetailsWidth: 1060,
 );
 
 // The reference's comic covers are 148 x 207.
