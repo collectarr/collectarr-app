@@ -128,10 +128,23 @@ void main() {
 
     expect(find.text('All'), findsOneWidget);
 
+    Color? triggerColor() => (tester
+            .widget<DecoratedBox>(find
+                .descendant(
+                    of: find
+                        .byKey(const Key('collection-status-scope-dropdown')),
+                    matching: find.byType(DecoratedBox))
+                .first)
+            .decoration as BoxDecoration)
+        .color;
+    expect(triggerColor(), Colors.transparent);
+
     await tester.tap(find.byKey(const Key('collection-status-scope-dropdown')));
     await tester.pumpAndSettle();
 
     expect(find.text('On Wish List'), findsOneWidget);
+    // The trigger stays lit while its menu is open, as in the reference.
+    expect(triggerColor(), isNot(Colors.transparent));
 
     await tester.tap(find.text('On Wish List').last);
     await tester.pumpAndSettle();
