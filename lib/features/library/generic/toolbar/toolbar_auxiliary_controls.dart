@@ -59,6 +59,11 @@ class LibraryCollectionStatusScopeDropdown extends StatefulWidget {
 class _LibraryCollectionStatusScopeDropdownState
     extends State<LibraryCollectionStatusScopeDropdown> {
   bool _hovered = false;
+  bool _open = false;
+
+  void _setOpen(bool value) {
+    if (mounted && _open != value) setState(() => _open = value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +106,12 @@ class _LibraryCollectionStatusScopeDropdownState
         popUpAnimationStyle: AnimationStyle.noAnimation,
         key: const Key('collection-status-scope-dropdown'),
         tooltip: 'Collection status scope',
-        onSelected: widget.onCollectionStatusScopeChanged,
+        onOpened: () => _setOpen(true),
+        onCanceled: () => _setOpen(false),
+        onSelected: (scope) {
+          _setOpen(false);
+          widget.onCollectionStatusScopeChanged(scope);
+        },
         padding: EdgeInsets.zero,
         menuPadding: EdgeInsets.zero,
         position: PopupMenuPosition.under,
@@ -132,14 +142,15 @@ class _LibraryCollectionStatusScopeDropdownState
           onExit: (_) => setState(() => _hovered = false),
           child: DecoratedBox(
             // An active status filter is outlined in the shared blue, as in
-            // the reference, so a narrowed list is visible at a glance.
+            // the reference, so a narrowed list is visible at a glance; the
+            // trigger stays lit while its menu is open.
             decoration: BoxDecoration(
-                color: _hovered
+                color: _open || _hovered
                     ? libraryToolbarControlHover(context)
                     : filtered
                         ? const Color(0xFF464950)
                         : Colors.transparent,
-                borderRadius: filtered
+                borderRadius: filtered || _open
                     ? BorderRadius.circular(5)
                     : kLibraryToolbarHoverRadius,
                 border: filtered
