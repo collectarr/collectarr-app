@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_issue_label.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
 
 final class ComicWorkspaceData implements LibraryWorkspaceKindData {
@@ -18,10 +19,12 @@ final class ComicWorkspaceData implements LibraryWorkspaceKindData {
   @override
   CatalogMediaKind get kind => CatalogMediaKind.comic;
   @override
-  String get displayLabel {
-    final issue = comic.issueNumber?.trim();
-    final title =
-        comic.title.isEmpty ? comic.seriesTitle?.trim() ?? '' : comic.title;
-    return issue == null || issue.isEmpty ? title : '$title #$issue';
-  }
+  String get displayLabel =>
+      comicHeadline(
+        series: comic.seriesTitle,
+        issueNumber: comic.issueNumber,
+        variant: comic.variant,
+        title: comic.title,
+      ) ??
+      '';
 }
