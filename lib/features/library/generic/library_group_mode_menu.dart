@@ -148,10 +148,11 @@ class _LibraryGroupModeMenuButtonState
                         label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: triggerColor,
-                            ),
+                        // The reference's folder trigger is 14 px regular.
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: triggerColor),
                       ),
                     ),
                     const SizedBox(width: 2),

@@ -8,6 +8,7 @@
 - Imports run as soon as you press Import after choosing a file, without a list of parsed records to review first, as in CLZ.
 
 ### Fixes
+- The folder panel's group selector ("Series", "Age / Country") uses regular text, as in the reference.
 - Toolbar buttons highlight with slightly rounded corners on hover, as in the reference.
 - The library switcher is a square popover hanging from the header, its pointer under the icon, in a faint hairline listing "CLR Comics", "CLR Music" and so on in the header's face, as in the reference.
 - The Link page names your items in its header and when everything is linked ("Core albums", "All albums are linked."), as in the reference.
