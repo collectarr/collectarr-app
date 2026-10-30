@@ -2,6 +2,8 @@ import 'package:collectarr_app/features/library/workspace/layout/library_bucket_
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,6 +46,46 @@ void main() {
     await tester.tap(find.text('Action Comics'));
 
     expect(selected, 'Action Comics');
+  });
+
+  testWidgets('series folders show a cropped cover in taller rows',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 300,
+              height: 240,
+              child: LibraryBucketSidebar(
+                bucketCoverAspectRatio: 2 / 3,
+                allBucketLabel: '[All Comics]',
+                buckets: const [
+                  LibraryBucket(title: '[All Comics]', count: 16),
+                  LibraryBucket(title: 'Action Comics', count: 12),
+                  LibraryBucket(title: 'Superman', count: 4),
+                ],
+                selectedBucket: 'Superman',
+                onSelectBucket: (_) {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(LibraryCoverImage), findsNWidgets(2));
+    expect(find.byIcon(Icons.folder_outlined), findsOneWidget);
+    final row = find.ancestor(
+        of: find.text('Action Comics'),
+        matching: find.byType(LibraryFolderRow));
+    expect(tester.getSize(row).height,
+        greaterThanOrEqualTo(kLibraryFolderCoverRowHeight));
+    expect(
+        tester.getTopLeft(find.text('Action Comics')).dx -
+            tester.getTopLeft(row).dx,
+        kLibraryFolderCoverWidth + 5);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('tree mode renders nested nodes and handles selection',

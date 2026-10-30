@@ -86,6 +86,9 @@ class LibraryGroupingEngine {
           }
         : null;
     final coverUrls = <String, String?>{};
+    // A numbered folder shows its lowest number's cover, as the reference
+    // shows a series' first issue, whatever the item order.
+    final coverNumbers = <String, int>{};
     final startYears = <String, int?>{};
     final bucketNumbers = hasSequence ? <String, Set<int>>{} : null;
     final entryNumbers = hasSequence ? <String, Set<int>>{} : null;
@@ -114,8 +117,17 @@ class LibraryGroupingEngine {
             entryNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
           }
         }
-        if (!coverUrls.containsKey(bucket)) {
-          coverUrls[bucket] = item.dto.imageUrl;
+        final imageUrl = item.dto.imageUrl;
+        if (imageUrl != null && imageUrl.isNotEmpty) {
+          final coverNumber = coverNumbers[bucket];
+          if (coverUrls[bucket] == null ||
+              (number != null &&
+                  (coverNumber == null || number < coverNumber))) {
+            coverUrls[bucket] = imageUrl;
+            if (number != null) coverNumbers[bucket] = number;
+          }
+        } else {
+          coverUrls.putIfAbsent(bucket, () => null);
         }
         final year = libraryCardPresentationForEntry(item).releaseDate?.year;
         if (year != null) {

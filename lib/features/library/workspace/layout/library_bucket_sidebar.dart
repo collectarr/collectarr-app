@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
 import 'dart:async';
@@ -80,6 +81,7 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
     this.onBucketCompletionScopeChanged,
     this.ancestorScopeLabels = const <String>[],
     this.onNavigateToAncestorScope,
+    this.bucketCoverAspectRatio,
     this.folderDisplayMode = LibraryFolderDisplayMode.drilldown,
     this.treeRoots = const <LibraryFolderTreeNode>[],
     this.selectedTreeNodeId,
@@ -90,6 +92,10 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
   });
 
   final List<LibraryBucket> buckets;
+
+  /// The width / height of the first cover each flat folder shows, as series
+  /// folders do; null shows none.
+  final double? bucketCoverAspectRatio;
   final String? selectedBucket;
   final ValueChanged<String> onSelectBucket;
   final String title;
@@ -450,6 +456,8 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
                       );
                       return _LibrarySeriesRow(
                         bucket: bucket,
+                        coverAspectRatio: widget.bucketCoverAspectRatio,
+                        isAllBucket: bucket.title == widget.allBucketLabel,
                         separateAfter: separateAfter,
                         countWidth: countWidth,
                         selected: selected,
@@ -907,11 +915,15 @@ class _LibrarySeriesRow extends StatelessWidget {
     required this.onTap,
     required this.selectionColor,
     required this.countWidth,
+    this.coverAspectRatio,
+    this.isAllBucket = false,
     this.separateAfter = false,
     this.leadingInset = 0,
     this.extraVerticalPadding = 4,
   });
   final LibraryBucket bucket;
+  final double? coverAspectRatio;
+  final bool isAllBucket;
   final bool separateAfter;
   final bool selected;
   final VoidCallback onTap;
@@ -930,6 +942,28 @@ class _LibrarySeriesRow extends StatelessWidget {
       countWidth: countWidth,
       indentation: leadingInset,
       rowPadding: extraVerticalPadding,
+      cover: coverAspectRatio == null
+          ? null
+          : isAllBucket
+              ? SizedBox(
+                  height: kLibraryFolderCoverRowHeight,
+                  child: Icon(Icons.folder_outlined,
+                      size: 22,
+                      color: selected
+                          ? Colors.white
+                          : appPalette(context).textMuted))
+              : SizedBox(
+                  width: kLibraryFolderCoverWidth,
+                  height: kLibraryFolderCoverWidth / coverAspectRatio!,
+                  child: LibraryCoverImage(
+                    title: bucket.title,
+                    imageUrl: bucket.coverUrl,
+                    targetCacheWidth: kLibraryFolderCoverWidth.round(),
+                    fallbackAspectRatio: coverAspectRatio!,
+                    fit: BoxFit.cover,
+                    borderRadius: 0,
+                    showPlaceholder: false,
+                  )),
     );
     return bucket.missingNumbers.isEmpty
         ? row

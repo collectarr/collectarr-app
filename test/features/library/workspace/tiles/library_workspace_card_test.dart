@@ -151,6 +151,35 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1));
   });
 
+  testWidgets('headlined cards drop the headline inside its folder',
+      (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        localItemImageProvider
+            .overrideWith((ref, request) => Stream.value(null))
+      ],
+      child: MaterialApp(
+        theme: buildAppShellTheme(palette: kDefaultAppThemePalette),
+        home: Scaffold(
+            body: SizedBox(
+          width: 158,
+          height: 280,
+          child: LibraryWorkspaceCard(
+              item: _item(),
+              selected: false,
+              onTap: () {},
+              cardLayout: LibraryCardLayout.headlined,
+              showHeadline: false),
+        )),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('Album'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
   testWidgets('light vertical cards keep readable titles before selection',
       (tester) async {
     await tester.pumpWidget(ProviderScope(
