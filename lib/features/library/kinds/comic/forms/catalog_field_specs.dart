@@ -55,28 +55,10 @@ List<LibraryFieldSpec<T>> comicCatalogItemIdentityFields<T>({
         setValue: (draft, value) => values(draft).variantDescription = value,
       ),
       _text<T>(
-        id: 'edition_title',
-        label: 'Edition title',
-        value: (draft) => values(draft).editionTitle,
-        setValue: (draft, value) => values(draft).editionTitle = value,
-      ),
-      _text<T>(
         id: 'barcode',
         label: 'Barcode',
         value: (draft) => values(draft).barcode,
         setValue: (draft, value) => values(draft).barcode = value,
-      ),
-      _text<T>(
-        id: 'isbn',
-        label: 'ISBN',
-        value: (draft) => values(draft).isbn,
-        setValue: (draft, value) => values(draft).isbn = value,
-      ),
-      _text<T>(
-        id: 'upc',
-        label: 'UPC',
-        value: (draft) => values(draft).upc,
-        setValue: (draft, value) => values(draft).upc = value,
       ),
       LibraryVocabularyFieldSpec<T, String>(
         id: 'physical_format',
@@ -159,7 +141,7 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
       ),
       LibraryNumberFieldSpec<T>(
         id: ComicFieldIdentities.pageCountId,
-        label: ComicFieldIdentities.pageCountLabel,
+        label: 'No. of Pages',
         value: (draft) => values(draft).pageCount,
         setValue: (draft, value) => values(draft).pageCount = value?.round(),
         minimum: 0,
@@ -178,15 +160,9 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         options: const [],
         pickListKey: ComicVocabularyIds.publicationAge.value,
       ),
-      _text<T>(
-        id: 'age_rating',
-        label: 'Age rating',
-        value: (draft) => values(draft).ageRating,
-        setValue: (draft, value) => values(draft).ageRating = value,
-      ),
       LibraryMultiVocabularyFieldSpec<T, String>(
         id: 'genres',
-        label: 'Genres',
+        label: 'Genre',
         values: (draft) => values(draft).genres.toSet(),
         setValues: (draft, next) => values(draft).genres = next.toList(),
         options: const [],
@@ -213,7 +189,7 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
       ),
       LibraryMultiVocabularyFieldSpec<T, String>(
         id: 'story_arcs',
-        label: 'Story arcs',
+        label: 'Story Arc',
         values: (draft) => values(draft).storyArcs.toSet(),
         setValues: (draft, next) => values(draft).storyArcs = next.toList(),
         options: const [],

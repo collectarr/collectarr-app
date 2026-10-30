@@ -20,15 +20,14 @@ const comicMainColumns = [
 List<LibraryFormColumnSpec> comicDetailsColumns(String titleField) => [
       LibraryFormColumnSpec(rows: [
         ['crossover'],
-        ['story_arcs'],
         [titleField],
-        ['subtitle'],
-        ['edition_title', 'isbn', 'upc'],
+        ['country'],
+        ['publication_age', 'comic.page_count'],
       ]),
       const LibraryFormColumnSpec(rows: [
-        ['country', 'language'],
-        ['publication_age', 'comic.page_count'],
+        ['story_arcs'],
+        ['subtitle'],
+        ['language'],
         ['genres'],
-        ['age_rating'],
       ]),
     ];

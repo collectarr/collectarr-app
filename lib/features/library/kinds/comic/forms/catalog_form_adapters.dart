@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_identifier.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_story_arc.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_character.dart';
@@ -16,12 +15,9 @@ ComicCatalogItemFormValues comicCatalogItemFormValuesFrom(
       seriesId: media.seriesId,
       issueNumber: media.issueNumber ?? '',
       variant: media.variant ?? '',
-      editionTitle: media.editionTitle ?? '',
       subtitle: media.subtitle ?? '',
       variantDescription: media.variantDescription ?? '',
       barcode: media.barcode ?? '',
-      isbn: media.isbn ?? '',
-      upc: media.upc ?? '',
       physicalFormatLabel: media.physicalFormat ?? '',
       coverDate: media.coverDate,
       coverDateParts: media.coverDateParts,
@@ -31,7 +27,6 @@ ComicCatalogItemFormValues comicCatalogItemFormValuesFrom(
       imprint: media.imprint ?? '',
       seriesGroup: media.seriesGroup ?? '',
       pageCount: media.pageCount,
-      ageRating: media.ageRating ?? '',
       publicationAge: media.publicationAge ?? '',
       genres: List<String>.of(media.genres),
       language: media.language,
@@ -77,7 +72,7 @@ ComicCatalogItem comicCatalogItemFromFormValues({
     pageCount: values.pageCount,
     country: values.country.trim(),
     language: values.language.trim(),
-    ageRating: _nullable(values.ageRating),
+    ageRating: original.ageRating,
     publicationAge: _nullable(values.publicationAge),
     audienceRating: original.audienceRating,
     crossover: _nullable(values.crossover),
@@ -105,30 +100,13 @@ ComicCatalogItem comicCatalogItemFromFormValues({
     currency: original.currency,
     coverImageUrl: _nullable(values.coverImageUrl),
     thumbnailImageUrl: original.thumbnailImageUrl,
-    editionTitle: _nullable(values.editionTitle),
+    editionTitle: original.editionTitle,
     titleExtension: original.titleExtension,
     physicalFormat: _nullable(values.physicalFormatLabel),
-    identifiers: _replaceComicIdentifiers(
-      original.identifiers,
-      isbn: _nullable(values.isbn),
-      upc: _nullable(values.upc),
-    ),
+    identifiers: original.identifiers,
     links: externalLinks ?? original.links,
   );
 }
-
-List<ComicIdentifier> _replaceComicIdentifiers(
-  List<ComicIdentifier> original, {
-  required String? isbn,
-  required String? upc,
-}) =>
-    [
-      for (final identifier in original)
-        if (!{'isbn', 'upc'}.contains(identifier.identifierType.toLowerCase()))
-          identifier,
-      if (isbn != null) ComicIdentifier(identifierType: 'isbn', value: isbn),
-      if (upc != null) ComicIdentifier(identifierType: 'upc', value: upc),
-    ];
 
 List<ComicStoryArc> _replaceComicStoryArcs(
   List<ComicStoryArc> original,
