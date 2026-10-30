@@ -205,10 +205,6 @@ class LibraryPageToolbarController {
               if (value == null) return;
               _s._dialogCoordinator.reassignIndexFlow(value);
             },
-            onMissingSequenceReport: (value) {
-              if (value == null) return;
-              _s._reportCoordinator.showMissingSequenceReportFlow(value);
-            },
             onShareCollection: (value) {
               if (value == null) return;
               _s._sharingCoordinator.shareCollectionFlow(value);

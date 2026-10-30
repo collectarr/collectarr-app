@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_form_contr
 import '../config/comic_kind_configuration.dart';
 import 'manual_candidate.dart';
 import 'series.dart';
+import '../actions/missing_issues_dialog.dart';
 
 final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   kind: CatalogMediaKind.comic,
@@ -128,8 +129,8 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
 final comicKindToolbar = LibraryKindToolbarModule(
   actions: [
     ComicJumpToIssueAction(),
-    ComicMissingIssuesAction(),
   ],
+  missingReport: showComicMissingComicsDialog,
 );
 
 final class ComicJumpToIssueAction
@@ -164,38 +165,6 @@ final class ComicJumpToIssueAction
       context.buildContext,
       onSubmitted: onSubmitted,
     );
-  }
-}
-
-final class ComicMissingIssuesAction
-    implements UiAction<LibraryToolbarActionContext> {
-  const ComicMissingIssuesAction();
-
-  @override
-  String get id => 'comic.missing_issues';
-
-  @override
-  String get label => 'Missing issues report...';
-
-  @override
-  IconData get icon => Icons.find_in_page_outlined;
-
-  @override
-  UiActionPlacement get placement => UiActionPlacement.secondary;
-
-  @override
-  bool isVisible(LibraryToolbarActionContext context) =>
-      context.projection != null;
-
-  @override
-  bool isEnabled(LibraryToolbarActionContext context) =>
-      context.projection != null && context.onMissingSequenceReport != null;
-
-  @override
-  Future<void> run(LibraryToolbarActionContext context) async {
-    final projection = context.projection;
-    if (projection == null) return;
-    context.onMissingSequenceReport?.call(projection);
   }
 }
 

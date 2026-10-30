@@ -30,7 +30,9 @@ abstract final class LibraryPageShellPresenter {
       final tool = uri.queryParameters['tool'];
       if (request != null &&
           request != state._handledToolRequest &&
-          (tool == 'reassignIndex' || tool == 'transferFieldData')) {
+          (tool == 'reassignIndex' ||
+              tool == 'transferFieldData' ||
+              tool == 'missingItems')) {
         state._handledToolRequest = request;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!state.mounted || state.widget.routeUri != uri) return;
@@ -41,9 +43,13 @@ abstract final class LibraryPageShellPresenter {
             state.context
                 .replace(uri.replace(queryParameters: parameters).toString());
           }
-          unawaited(tool == 'reassignIndex'
-              ? state._dialogCoordinator.reassignIndexFlow(projection)
-              : state._dialogCoordinator.showTransferFieldDataFlow(projection));
+          unawaited(switch (tool) {
+            'reassignIndex' =>
+              state._dialogCoordinator.reassignIndexFlow(projection),
+            'transferFieldData' =>
+              state._dialogCoordinator.showTransferFieldDataFlow(projection),
+            _ => _showMissingReport(state, projection),
+          });
         });
       }
     }
@@ -506,4 +512,18 @@ abstract final class LibraryPageShellPresenter {
           : null,
     );
   }
+}
+
+Future<void> _showMissingReport(
+  GenericLibraryPageState state,
+  LibraryProjection projection,
+) async {
+  final report = libraryToolbarForKind(state.widget.type.kind)?.missingReport;
+  if (report == null) return;
+  await report(
+    context: state.context,
+    type: state.widget.type,
+    projection: projection,
+    accent: state.widget.accent,
+  );
 }

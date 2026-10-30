@@ -236,4 +236,42 @@ void main() {
       expect(selected, [DrawerAction.addManually]);
     });
   }
+
+  for (final (kind, label) in [
+    (CatalogMediaKind.comic, 'Missing Comics'),
+    (CatalogMediaKind.music, null),
+  ]) {
+    testWidgets('${kind.apiValue} menu Missing entry', (tester) async {
+      tester.view.physicalSize = const Size(1280, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final selected = <DrawerAction>[];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: AppNavigationDrawer(
+              type: defaultLibraryKindRegistry.require(kind),
+              selectedAction: null,
+              isAdmin: false,
+              accent: const Color(0xFF2A9FD6),
+              onAddFromCore: (_, __) {},
+              onSelected: (_, action) => selected.add(action),
+            ),
+          ),
+        ),
+      );
+
+      if (label == null) {
+        expect(find.textContaining('Missing'), findsNothing);
+        return;
+      }
+      // The reference lists it last in Tools, after Loan Manager.
+      expect(tester.getTopLeft(find.text(label)).dy,
+          greaterThan(tester.getTopLeft(find.text('Loan Manager')).dy));
+      await tester.tap(find.text(label));
+      expect(selected, [DrawerAction.missingItems]);
+    });
+  }
 }

@@ -671,29 +671,4 @@ void main() {
       );
     }
   });
-
-  test('comic kind exposes a contributor-entry missing issues toolbar action',
-      () {
-    final action = comicKindToolbar.actions
-        .firstWhere((a) => a.id == 'comic.missing_issues');
-    expect(action.id, 'comic.missing_issues');
-    expect(action.label, 'Missing issues report...');
-    expect(action.icon, Icons.find_in_page_outlined);
-
-    final context = LibraryToolbarActionContext(
-      buildContext: _FakeBuildContext(),
-      type: const MusicRegistration(),
-      projection: null,
-      onJumpToNumberSubmitted: (_) {},
-      onMissingSequenceReport: (_) {},
-    );
-
-    expect(action.isVisible(context), isFalse);
-    expect(action.isEnabled(context), isFalse);
-  });
-}
-
-class _FakeBuildContext implements BuildContext {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

@@ -118,7 +118,6 @@ class LibraryToolbarCollectionActionsContext {
     required this.onReassignIndex,
     required this.onShareCollection,
     required this.onCompareMetadataWithServer,
-    required this.onMissingSequenceReport,
   });
 
   final ValueChanged<LibraryProjection?> onTransferFieldData;
@@ -128,7 +127,6 @@ class LibraryToolbarCollectionActionsContext {
     LibraryProjection projection, {
     LibraryProjectionItem? item,
   }) onCompareMetadataWithServer;
-  final ValueChanged<LibraryProjection?> onMissingSequenceReport;
 }
 
 class LibraryToolbarAdminActionsContext {
@@ -190,8 +188,6 @@ class LibraryToolbarActionRegistry {
                 projection,
                 value,
               ),
-      onMissingSequenceReport:
-          actionContext.collectionActions.onMissingSequenceReport,
     );
     final extraUtilityActions = <LibraryUtilityMenuAction>[];
     for (final action in kindToolbarActions) {
