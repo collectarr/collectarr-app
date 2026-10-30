@@ -123,55 +123,59 @@ class _LibraryMetadataCompareDialogState
   @override
   Widget build(BuildContext context) {
     final serverPayload = _serverPayload;
-    return LibraryDialogScaffold(
-      title: Row(
-        children: [
-          const Icon(AppIcons.transferFieldData),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'Compare with Core — ${widget.itemTitle}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    // Focus inside the route lets Escape dismiss it like other dialogs.
+    return Focus(
+      autofocus: true,
+      child: LibraryDialogScaffold(
+        title: Row(
+          children: [
+            const Icon(AppIcons.transferFieldData),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Compare with Core — ${widget.itemTitle}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-        ],
-      ),
-      onClose: () => Navigator.of(context).pop(),
-      maxWidth: 1200,
-      maxHeight: 820,
-      padding: EdgeInsets.zero,
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      _error!,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: Colors.redAccent),
+          ],
+        ),
+        onClose: () => Navigator.of(context).pop(),
+        maxWidth: 1200,
+        maxHeight: 820,
+        padding: EdgeInsets.zero,
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        _error!,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: Colors.redAccent),
+                      ),
                     ),
-                  ),
-                )
-              : serverPayload == null
-                  ? const SizedBox.shrink()
-                  : Scrollbar(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: widget.compareBuilder(
-                            context,
-                            localPayload: widget.localPayload,
-                            serverPayload: serverPayload,
-                            accent: widget.accent,
+                  )
+                : serverPayload == null
+                    ? const SizedBox.shrink()
+                    : Scrollbar(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: widget.compareBuilder(
+                              context,
+                              localPayload: widget.localPayload,
+                              serverPayload: serverPayload,
+                              accent: widget.accent,
+                            ),
                           ),
                         ),
                       ),
-                    ),
+      ),
     );
   }
 }
