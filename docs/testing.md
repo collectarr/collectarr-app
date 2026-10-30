@@ -41,6 +41,19 @@ that file. Normal correctness execution never discovers the benchmark and
 never carries a permanent benchmark skip. Facts/group membership invariants
 remain covered by the Music correctness tests.
 
+The rendered grid is measured on a real device in profile mode:
+
+```sh
+flutter drive --profile -d windows --driver test_driver/perf_driver.dart --target integration_test/perf/library_grid_perf_test.dart
+```
+
+It seeds 1500 fictional comics into an in-memory database, serves 420 x 630
+JPEG covers from a local server, and reports the cover load time and the frame
+build times of fast scrolling and of dragging the cover-size slider to
+`build/integration_response_data.json`. `tool/ci_check.dart --integration`
+runs only the top-level flows, so the measurement never gates CI. Compare a
+change with the same command on the previous commit.
+
 Coverage is an informational artifact, without a global percentage threshold.
 The full release gate still includes generators, analyze, architecture checks,
 correctness tests, native integration flows and platform builds.
