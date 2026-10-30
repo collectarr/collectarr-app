@@ -172,6 +172,8 @@ abstract final class AppIcons {
       IconData(0xf56f, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData link =
       IconData(0xf0c1, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData key =
+      IconData(0xf084, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData keyboard =
       IconData(0xf11c, fontFamily: _regular, fontPackage: _fontPackage);
 
