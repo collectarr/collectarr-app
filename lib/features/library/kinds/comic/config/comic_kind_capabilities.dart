@@ -25,9 +25,10 @@ final comicKindIdentity = const LibraryKindIdentity(
   singularLabel: 'Comic',
   pluralLabel: 'Comics',
   title: 'Comics',
-  icon: Icons.collections_bookmark_outlined,
+  // A speech balloon, the medium's own sign.
+  icon: Icons.mode_comment,
   coverPlaceholderIcon: AppIcons.bookOpen,
-  accent: Color(0xFF44BFE7),
+  accent: Color(0xFF50AEE5),
   preferencePrefix: 'comics',
   routeSegments: ['comics', 'comic'],
   mediaFamily: 'print',

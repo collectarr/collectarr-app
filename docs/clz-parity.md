@@ -172,6 +172,7 @@ five comics, and a release Web build with the same five imported from CSV.
 | Link Comics | Your Comic / Core comics / Link table; "All comics are linked." when nothing is unlinked | Said "Core result" and "All entries are linked." | Fixed; rows for unlinked comics are not compared, since the reference account has none and unlinking there would change it |
 | App switcher | Square white popover in a black hairline, 145 px, 36 px rows: 26 px app icon and "CLZ Comics" in 16/700 | Rounded, grey-edged, "Comics" in 14/700 without the product prefix | Fixed: square with a black hairline, "CLR Comics" in the app face at 16/700 |
 | Toolbar hover | View, sort, layout and Edit/Share buttons highlight #464950 with a 4 px radius | Square highlight | Fixed: every toolbar hover is rounded 4 px |
+| Kind accent and icon | Header and accents #50AEE5; a speech-balloon app icon | Cyan #44BFE7 and a generic stacked-books icon | Fixed: #50AEE5 and an original speech-balloon icon |
 
 Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
 editors and dialogs with Cancel. Record observed fields and remaining gaps
