@@ -1,12 +1,23 @@
 name: Release notes
+# Runs after the release workflow finishes. Releases created with the
+# repository token do not emit release events, so this listens for the
+# workflow by name instead.
 on:
-  release:
-    types: [published]
   workflow_run:
     workflows: [Release]
     types: [completed]
     branches: [main]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to format (newest published release when empty)
+        required: false
+        type: string
+      all:
+        description: Backfill every published release
+        required: false
+        default: false
+        type: boolean
 permissions:
   contents: write
   pull-requests: read
@@ -21,6 +32,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: main
+          # Tags and history pin each release to the banner it shipped with.
+          fetch-depth: 0
+          # Pushing recorded summaries to the protected main branch needs RELEASE_TOKEN.
+          token: ${{ secrets.RELEASE_TOKEN || github.token }}
       - uses: actions/setup-python@v7
         with:
           python-version: '3.14'
@@ -28,4 +43,20 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_REPOSITORY: ${{ github.repository }}
-        run: python tool/release_notes.py --repo "$RELEASE_REPOSITORY" --all --write
+          TAG: ${{ inputs.tag }}
+          ALL: ${{ inputs.all }}
+        run: |
+          selection=()
+          if [ "$ALL" = "true" ]; then selection=(--all); elif [ -n "$TAG" ]; then selection=(--tag "$TAG"); fi
+          python tool/release_notes.py --repo "$RELEASE_REPOSITORY" "${selection[@]}" --write
+      - name: Record new editorial summaries
+        run: |
+          if git diff --quiet -- docs/release-summaries.json; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(release): record release summaries" -- docs/release-summaries.json
+          git pull --rebase origin main
+          git push origin HEAD:main || {
+            echo "::error title=Summaries not recorded::Add a token that may push to main as the RELEASE_TOKEN secret, or commit docs/release-summaries.json by hand."
+            exit 1
+          }
