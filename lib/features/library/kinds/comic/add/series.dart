@@ -6,7 +6,7 @@ import 'package:collectarr_app/ui/app_icons.dart';
 const comicAddSeries = LibraryAddBrowseCapability(
   label: 'Series',
   hintText: 'Enter series title...',
-  icon: AppIcons.series,
+  icon: AppIcons.search,
   searchGroups: searchComicSeries,
   loadItemRows: loadComicSeriesIssueRows,
 );
@@ -38,16 +38,13 @@ LibraryAddBrowseGroup comicAddSeriesFromJson(Map<String, dynamic> json) {
   final count = json['issue_count'] as int;
   final years = first == null
       ? null
-      : (last == null || last == first ? '$first' : '$first–$last');
-  final details = [
-    if (publisher != null) publisher,
-    if (years != null) years,
-  ].join(', ');
+      : (last == null || last == first ? '$first' : '$first - $last');
   return LibraryAddBrowseGroup(
     title: volume == null ? title : '$title ($volume)',
-    countLabel: '$count ${count == 1 ? 'issue' : 'issues'}',
+    countLabel: '$count',
     coverImageUrl: json['cover_image_url'] as String?,
-    details: details.isEmpty ? null : details,
+    details: publisher,
+    period: years,
     query: {
       'series_title': title,
       if (publisher != null) 'publisher': publisher,

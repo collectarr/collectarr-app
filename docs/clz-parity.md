@@ -77,7 +77,7 @@ library for isolated validation; release readiness depends on the workflows belo
 | Status | Workflow | Reference and validation needed |
 | --- | --- | --- |
 | Inspected; gaps open | Library and series browsing | Main menu, layout menu and details panel inspected; List columns, sorts and the details panel layout remain open (see below) |
-| Partially inspected | Add Comics | Mode shells and manual entry inspected; search results, variants and confirmation remain open |
+| Partially inspected | Add Comics | Mode shells, manual entry, tabs and the Series panes inspected; issue grid, variants and confirmation remain open |
 | Inspected; gaps open | Issue editor | Eleven tabs inspected; pick-list contents, save round-trips and visual comparison remain open |
 | Inspected; gaps open | Personal collection | Reading, grading, signatures, purchase, value and storage fields inspected; collection actions and loans remain open |
 | Pending inspection | Series completeness | Missing issues, variants, collection boundaries and available actions |
@@ -175,6 +175,7 @@ five comics, and a release Web build with the same five imported from CSV.
 | Kind accent and icon | Header and accents #50AEE5; a speech-balloon app icon | Cyan #44BFE7 and a generic stacked-books icon | Fixed: #50AEE5 and an original speech-balloon icon |
 | Add Comics tabs | Series (magnifier), Issue (#, "Enter series title and issue number..."), Barcode, NCBD, settings | Series (stacked layers), Title ("Search comics by series, issue, or exact title..."), Barcode, settings, cover scan | Fixed: Series and Issue named, iconed and hinted as in the reference; cover scan kept. Open: NCBD (new releases) needs a Core release calendar |
 | Add Comics result toggles | Hide owned and Hide variants as 32 px struck-through icons, right-aligned over the results on #383838; #737373 when on; then Sort and grid/list | "Hide entry" and "Hide variants" chips, shown even before a search | Fixed: struck-through icon toggles with those tooltips, shown with results. Open: the Sort and grid/list toggles |
+| Add Comics Series tab | 1690 px dialog: 460 px series list (95 × 60 cover, 15/700 title, grey count pill, publisher left and years right in #888, selected row blue) beside the chosen series' issues under a "DC Comics (2016 - 2026)" / title band | 690 px column; a series replaced the list, behind a Back bar | Fixed: the same two panes and band. Open: the count pill turns blue for series already in the collection; issues show as a list, not the reference's cover grid |
 
 Inspect the signed-in `https://app.clz.com/comics` reference read-only. Close
 editors and dialogs with Cancel. Record observed fields and remaining gaps

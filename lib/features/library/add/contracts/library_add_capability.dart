@@ -95,12 +95,13 @@ class LibraryAddBrowseGroup {
     required this.countLabel,
     required this.query,
     this.details,
+    this.period,
     this.coverImageUrl,
   });
 
   final String title;
 
-  /// How many items the group holds, as "12 issues".
+  /// How many items the group holds, as "12".
   final String countLabel;
 
   /// The Core query parameters that select exactly this group's items.
@@ -108,6 +109,9 @@ class LibraryAddBrowseGroup {
 
   /// The kind's facts about the group, as one line.
   final String? details;
+
+  /// The years the group spans, right-aligned under the count.
+  final String? period;
   final String? coverImageUrl;
 }
 

@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_browse_state.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
+import 'library_add_grouped_results.dart';
 import 'library_add_pane_dependencies.dart';
 import 'library_add_search_pane.dart';
 
-/// The groups found in the browse tab; choosing one lists its items.
+/// The groups found in the browse tab; choosing one lists its items beside.
 class LibraryAddBrowseGroupList extends StatelessWidget {
   const LibraryAddBrowseGroupList({
     super.key,
@@ -16,6 +16,9 @@ class LibraryAddBrowseGroupList extends StatelessWidget {
   final LibraryAddBrowseCapability capability;
   final LibraryAddBrowseState state;
   final ValueChanged<LibraryAddBrowseGroup> onOpen;
+
+  /// The list's width beside the opened group, as in the reference.
+  static const width = 460.0;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +71,7 @@ class LibraryAddBrowseGroupList extends StatelessWidget {
               itemCount: count,
               itemBuilder: (context, index) => _BrowseGroupRow(
                 group: state.found[index],
+                selected: identical(state.found[index], state.opened),
                 onTap: () => onOpen(state.found[index]),
               ),
             ),
@@ -79,22 +83,30 @@ class LibraryAddBrowseGroupList extends StatelessWidget {
 }
 
 class _BrowseGroupRow extends StatelessWidget {
-  const _BrowseGroupRow({required this.group, required this.onTap});
+  const _BrowseGroupRow({
+    required this.group,
+    required this.selected,
+    required this.onTap,
+  });
 
   final LibraryAddBrowseGroup group;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final muted = selected ? Colors.white : const Color(0xff888888);
     return Material(
-      color: Colors.transparent,
+      color: selected ? palette.utilityAction : Colors.transparent,
       child: InkWell(
         key: ValueKey('library-add-browse-${group.title}-${group.details}'),
         mouseCursor: WidgetStateMouseCursor.clickable,
+        // The reference darkens a hovered row.
+        hoverColor: palette.isDark ? const Color(0xff2d2d2d) : null,
         onTap: onTap,
         child: Container(
-          height: 71,
+          height: 61,
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(color: libraryAddResultsDivider(context)),
@@ -102,48 +114,60 @@ class _BrowseGroupRow extends StatelessWidget {
           ),
           child: DefaultTextStyle.merge(
             style: TextStyle(
-                fontSize: 14, height: 20 / 14, color: palette.textPrimary),
+                fontSize: 14,
+                height: 20 / 14,
+                color: selected ? Colors.white : palette.textPrimary),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 65,
-                  height: 70,
+                  width: 95,
+                  height: 60,
                   child: LibraryCoverImage(
                     title: group.title,
                     imageUrl: group.coverImageUrl,
-                    fallbackAspectRatio: 65 / 70,
+                    fallbackAspectRatio: 95 / 60,
                     borderRadius: 0,
                     fit: BoxFit.cover,
                   ),
                 ),
                 const SizedBox(width: 7),
                 Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        group.title,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          height: 21.4 / 15,
-                          fontWeight: FontWeight.w700,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 4, 7, 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                group.title,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  height: 24 / 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            _BrowseCountPill(label: group.countLabel),
+                          ],
                         ),
-                      ),
-                      if (group.details case final details?) Text(details),
-                    ],
+                        const SizedBox(height: 8),
+                        DefaultTextStyle.merge(
+                          style: TextStyle(color: muted),
+                          child: Row(
+                            children: [
+                              Expanded(child: Text(group.details ?? '')),
+                              if (group.period case final period?) Text(period),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 13),
-                  child: Text(group.countLabel),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 13),
-                  child: Icon(AppIcons.chevronRight,
-                      size: 14, color: palette.textMuted),
                 ),
               ],
             ),
@@ -154,51 +178,66 @@ class _BrowseGroupRow extends StatelessWidget {
   }
 }
 
-/// Above the items of the opened group: back to the group list, and the
-/// group it lists.
-class LibraryAddOpenedGroupBar extends StatelessWidget {
-  const LibraryAddOpenedGroupBar({
-    super.key,
-    required this.label,
-    required this.group,
-    required this.onBack,
-  });
+class _BrowseCountPill extends StatelessWidget {
+  const _BrowseCountPill({required this.label});
 
   final String label;
-  final LibraryAddBrowseGroup group;
-  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        height: 24,
+        padding: const EdgeInsets.symmetric(horizontal: 7),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: const Color(0xff605c5c),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(label,
+            style: const TextStyle(
+                color: Colors.white, fontSize: 13, height: 18 / 13)),
+      );
+}
+
+/// The opened group's facts over its title, beside the search field.
+class LibraryAddBrowseGroupHeader extends StatelessWidget {
+  const LibraryAddBrowseGroupHeader({super.key, required this.group});
+
+  final LibraryAddBrowseGroup? group;
 
   @override
   Widget build(BuildContext context) {
+    final group = this.group;
     final palette = appPalette(context);
+    if (group == null) {
+      return ColoredBox(color: libraryAddGroupHeaderColor(palette));
+    }
+    final facts = [
+      if (group.details != null) group.details,
+      if (group.period != null) '(${group.period})',
+    ].join(' ');
     return Container(
-      color: libraryAddResultsBackground(context),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      child: Row(
-        children: [
-          IconButton(
-            key: const ValueKey('library-add-browse-back'),
-            tooltip: 'Back to $label',
-            iconSize: 14,
-            visualDensity: VisualDensity.compact,
-            onPressed: onBack,
-            icon: Icon(AppIcons.chevronLeft, color: palette.textPrimary),
-          ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Text(
-              [group.title, if (group.details != null) group.details]
-                  .join('  |  '),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: palette.textPrimary,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
+      key: const ValueKey('library-add-browse-header'),
+      color: libraryAddGroupHeaderColor(palette),
+      padding: const EdgeInsets.fromLTRB(7, 2, 7, 2),
+      alignment: Alignment.centerLeft,
+      child: DefaultTextStyle.merge(
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(color: palette.textPrimary),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (facts.isNotEmpty)
+              Text(facts,
+                  style: const TextStyle(fontSize: 13, height: 18 / 13)),
+            Text(group.title,
+                style: const TextStyle(
+                    fontSize: 15,
+                    height: 20 / 15,
+                    fontWeight: FontWeight.w700)),
+          ],
+        ),
       ),
     );
   }
