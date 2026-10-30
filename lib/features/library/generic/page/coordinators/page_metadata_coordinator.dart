@@ -139,7 +139,7 @@ class LibraryPageMetadataCoordinator {
     }
     await showLibraryMetadataCompareDialog(
       context: _page.context,
-      itemId: targetItem.target.id,
+      itemId: catalogRef.id,
       itemTitle: targetItem.source.catalogSummary?.primaryLabel ?? 'Untitled',
       kind: _page.type.kind,
       localPayload: localItem.payload,
