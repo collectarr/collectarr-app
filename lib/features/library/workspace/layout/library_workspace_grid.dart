@@ -183,15 +183,15 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>>
         final boundedGrid = nestedGridHeight == null
             ? grid
             : SizedBox(height: nestedGridHeight, child: grid);
-        if (!widget.selectionEnabled ||
-            widget.itemIdOf == null ||
-            widget.onSelectionChanged == null) {
-          return ColoredBox(color: backgroundColor, child: boundedGrid);
-        }
+        // The grid keeps one parent whether or not box selection is on:
+        // reparenting it would recreate every tile and reload every cover.
+        final boxSelection = widget.selectionEnabled &&
+            widget.itemIdOf != null &&
+            widget.onSelectionChanged != null;
         final selectionLayer = Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (event) {
-            if (event.kind != PointerDeviceKind.mouse) {
+            if (!boxSelection || event.kind != PointerDeviceKind.mouse) {
               return;
             }
             if ((event.buttons & kPrimaryMouseButton) == 0) {
@@ -208,7 +208,8 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>>
           },
           onPointerMove: (event) {
             final start = _dragStart;
-            if (start == null) {
+            final onSelectionChanged = widget.onSelectionChanged;
+            if (start == null || onSelectionChanged == null) {
               return;
             }
             final rect = Rect.fromPoints(start, event.localPosition);
@@ -221,7 +222,7 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>>
               crossAxisSpacing: crossAxisSpacing,
             );
             _selectionRectNotifier.value = rect;
-            widget.onSelectionChanged!(
+            onSelectionChanged(
               _selectionIsAdditive
                   ? {..._dragBaseSelection, ...rectSelection}
                   : rectSelection,
