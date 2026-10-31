@@ -18,7 +18,6 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class MediaLibraryNav extends ConsumerWidget {
   const MediaLibraryNav({
@@ -259,7 +258,7 @@ class LibraryOverdueLoansAction extends ConsumerWidget {
             foregroundColor: Colors.white,
             backgroundColor: Colors.transparent,
             side: BorderSide.none),
-        onPressed: () => context.go(
+        onPressed: () => context.openPage(
             AppRoutes.loansForKind(catalogMediaKindFromApiValue(selectedKind))),
         icon: Badge(
             label: Text('${overdue.length}'),
@@ -291,7 +290,7 @@ class _MediaLibraryOverdueActions extends StatelessWidget {
               overdueLoanCount: overdueLoanCount,
               selectedOverdueLoanCount: selectedOverdueLoanCount,
               selectedLabel: selectedLabel,
-              onPressed: () => context.go(AppRoutes.loansForKind(
+              onPressed: () => context.openPage(AppRoutes.loansForKind(
                   catalogMediaKindFromApiValue(
                       LibraryAccentScope.of(context).kind))),
             ),

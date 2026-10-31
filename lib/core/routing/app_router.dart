@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/app/app_shell.dart';
+import 'package:collectarr_app/core/routing/app_route_page.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,6 +43,21 @@ abstract final class AppRoutes {
   static const detail = '/detail';
 }
 
+extension AppPageNavigation on BuildContext {
+  /// Opens a page over the current one, so its Back pops it with the page
+  /// transition; going to a route replaces the stack without one. A page
+  /// already on top is replaced in place instead of stacked again.
+  void openPage(String location) {
+    final router = GoRouter.of(this);
+    final current = router.routerDelegate.currentConfiguration.uri.path;
+    if (Uri.parse(location).path == current) {
+      router.replace<void>(location);
+    } else {
+      router.push<void>(location);
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Router provider
 // ---------------------------------------------------------------------------
@@ -51,6 +67,8 @@ final appPageNavigatorKey = GlobalKey<NavigatorState>();
 final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = _AuthChangeNotifier(ref);
   ref.onDispose(notifier.dispose);
+  // Pages opened with openPage show their own address in the browser.
+  GoRouter.optionURLReflectsImperativeAPIs = true;
 
   return GoRouter(
     initialLocation: AppRoutes.libraries,
@@ -77,11 +95,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Auth & restoring (outside shell).
       GoRoute(
         path: AppRoutes.auth,
-        builder: (context, state) => const AuthPage(),
+        pageBuilder: (context, state) => appRoutePage(state, const AuthPage()),
       ),
       GoRoute(
         path: AppRoutes.restoring,
-        builder: (context, state) => const CollectarrRestoreScreen(),
+        pageBuilder: (context, state) =>
+            appRoutePage(state, const CollectarrRestoreScreen()),
       ),
 
       ShellRoute(
@@ -93,43 +112,50 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
               path: AppRoutes.account,
-              builder: (context, state) =>
-                  MyAccountPage(kind: state.uri.queryParameters['kind'])),
+              pageBuilder: (context, state) => appRoutePage(state,
+                  MyAccountPage(kind: state.uri.queryParameters['kind']))),
           GoRoute(
             path: AppRoutes.libraries,
-            builder: (context, state) => LibraryHomePage(routeUri: state.uri),
+            pageBuilder: (context, state) =>
+                appRoutePage(state, LibraryHomePage(routeUri: state.uri)),
           ),
           GoRoute(
             path: AppRoutes.loans,
-            builder: (context, state) => LoanManagerPage(
-              kind: state.uri.queryParameters['kind'] == null
-                  ? null
-                  : catalogMediaKindFromApiValue(
-                      state.uri.queryParameters['kind']!),
-            ),
+            pageBuilder: (context, state) => appRoutePage(
+                state,
+                LoanManagerPage(
+                  kind: state.uri.queryParameters['kind'] == null
+                      ? null
+                      : catalogMediaKindFromApiValue(
+                          state.uri.queryParameters['kind']!),
+                )),
           ),
           GoRoute(
             path: AppRoutes.loanAdd,
             redirect: (context, state) =>
                 state.extra is LoanAddRequest ? null : AppRoutes.libraries,
-            builder: (context, state) =>
-                LoanAddPage(request: state.extra! as LoanAddRequest),
+            pageBuilder: (context, state) => appRoutePage(
+                state, LoanAddPage(request: state.extra! as LoanAddRequest)),
           ),
           GoRoute(
             path: AppRoutes.calendar,
-            builder: (context, state) => const CalendarPage(),
+            pageBuilder: (context, state) =>
+                appRoutePage(state, const CalendarPage()),
           ),
           GoRoute(
             path: AppRoutes.admin,
-            builder: (context, state) => const AdminPage(),
+            pageBuilder: (context, state) =>
+                appRoutePage(state, const AdminPage()),
           ),
           GoRoute(
             path: AppRoutes.settings,
-            builder: (context, state) => SettingsPage(
-              initialSection: settingsSectionFromRouteValue(
-                state.uri.queryParameters['section'],
-              ),
-            ),
+            pageBuilder: (context, state) => appRoutePage(
+                state,
+                SettingsPage(
+                  initialSection: settingsSectionFromRouteValue(
+                    state.uri.queryParameters['section'],
+                  ),
+                )),
           ),
           // Full-page item details retain the shared application chrome.
           GoRoute(
@@ -176,7 +202,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: AppRoutes.activity,
-            builder: (context, state) => const GlobalActivityPage(),
+            pageBuilder: (context, state) =>
+                appRoutePage(state, const GlobalActivityPage()),
           ),
           ...collectarrKindRoutes,
         ],

@@ -260,10 +260,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget _buildBackButton(BuildContext context) {
     return AppPageBackButton(
         key: const Key('settings.back'),
-        onPressed: () => context.go(AppRoutes.forKind(
-            AppRoutes.libraries,
-            LibraryAccentScope.maybeOf(context)?.kind ??
-                ref.read(selectedLibraryKindProvider))));
+        onPressed: () {
+          final navigator = Navigator.of(context);
+          if (navigator.canPop()) {
+            navigator.pop();
+          } else {
+            context.go(AppRoutes.forKind(
+                AppRoutes.libraries,
+                LibraryAccentScope.maybeOf(context)?.kind ??
+                    ref.read(selectedLibraryKindProvider)));
+          }
+        });
   }
 
   Widget _buildSectionContent({

@@ -97,7 +97,7 @@ class AppAccountButton extends ConsumerWidget {
                                   title: const Text('My Account'),
                                   onTap: () {
                                     close();
-                                    context.go(AppRoutes.forKind(
+                                    context.openPage(AppRoutes.forKind(
                                         AppRoutes.account, kind));
                                   }),
                               if (auth.isAuthenticated || auth.token != null)

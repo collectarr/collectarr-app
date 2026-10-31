@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/routing/app_route_page.dart';
 import 'package:collectarr_app/features/library/config/library_route_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/detail/routes.dart';
 import 'package:collectarr_app/features/library/kinds/comic/detail/series_page.dart';
@@ -11,10 +12,12 @@ final class ComicRouteContributor implements LibraryRouteContributor {
     return [
       GoRoute(
         path: comicSeriesRoutePath,
-        builder: (context, state) => ComicSeriesDetailPage(
-          seriesId: state.pathParameters['seriesId']!,
-          seriesTitle: state.uri.queryParameters['title'] ?? '',
-        ),
+        pageBuilder: (context, state) => appRoutePage(
+            state,
+            ComicSeriesDetailPage(
+              seriesId: state.pathParameters['seriesId']!,
+              seriesTitle: state.uri.queryParameters['title'] ?? '',
+            )),
       ),
     ];
   }

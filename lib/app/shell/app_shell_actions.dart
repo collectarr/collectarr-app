@@ -141,7 +141,7 @@ class AppShellActions {
         });
         return;
       case DrawerAction.loanManager:
-        context.go(AppRoutes.loansForKind(type.kind));
+        context.openPage(AppRoutes.loansForKind(type.kind));
         return;
       case DrawerAction.manageCustomFields:
         await showCustomFieldsManagementPage(
@@ -166,10 +166,12 @@ class AppShellActions {
         _goToSettingsSection(SettingsSection.appearance, type.kind);
         return;
       case DrawerAction.calendar:
-        context.go(AppRoutes.forKind(AppRoutes.calendar, type.kind.apiValue));
+        context.openPage(
+            AppRoutes.forKind(AppRoutes.calendar, type.kind.apiValue));
         return;
       case DrawerAction.admin:
-        context.go(AppRoutes.forKind(AppRoutes.admin, type.kind.apiValue));
+        context
+            .openPage(AppRoutes.forKind(AppRoutes.admin, type.kind.apiValue));
         return;
       case DrawerAction.missingItems:
       case DrawerAction.reassignIndex:
@@ -278,7 +280,7 @@ class AppShellActions {
   }
 
   void _goToSettingsSection(SettingsSection section, CatalogMediaKind kind) {
-    context.go(AppRoutes.forKind(AppRoutes.settings, kind.apiValue,
+    context.openPage(AppRoutes.forKind(AppRoutes.settings, kind.apiValue,
         parameters: {'section': section.name}));
   }
 
