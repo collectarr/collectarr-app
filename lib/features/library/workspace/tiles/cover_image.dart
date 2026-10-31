@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/features/library/ui/image_load_gate.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
@@ -55,15 +56,30 @@ class LibraryCoverImage extends ConsumerWidget {
 
     // An entry's chosen local cover takes precedence over catalog artwork.
     var local = localBytes;
+    var localLoading = false;
     if (local == null && libraryEntryRef != null) {
-      local = ref
-          .watch(
-            localItemImageProvider((
-              libraryEntryRef: libraryEntryRef!,
-              imageType: localImageType,
-            )),
-          )
-          .value;
+      final localAsync = ref.watch(
+        localItemImageProvider((
+          libraryEntryRef: libraryEntryRef!,
+          imageType: localImageType,
+        )),
+      );
+      local = localAsync.value;
+      localLoading = !localAsync.hasValue && !localAsync.hasError;
+    }
+
+    // A panel waiting for its cover hears when this one is in.
+    final loads = LibraryImageLoadGate.maybeOf(context);
+    final loadKey = (libraryEntryRef, url, localImageType);
+    if (loads != null) {
+      if (localLoading || _looksLikeSupportedImage(local) || url != null) {
+        loads.expect(loadKey);
+      }
+    }
+    void loaded() => loads?.done(loadKey);
+    Widget onFrame(BuildContext _, Widget child, int? frame, bool sync) {
+      if (frame != null || sync) loaded();
+      return child;
     }
 
     final fallbackCover = showPlaceholder
@@ -93,11 +109,16 @@ class LibraryCoverImage extends ConsumerWidget {
               cacheWidth: cacheWidth,
               gaplessPlayback: true,
               filterQuality: FilterQuality.high,
-              errorBuilder: (_, __, ___) => fallbackCover,
+              frameBuilder: onFrame,
+              errorBuilder: (_, __, ___) {
+                loaded();
+                return fallbackCover;
+              },
             ),
           );
         }
         if (url == null) {
+          if (!localLoading) loaded();
           return fallbackCover;
         }
         if (kIsWeb) {
@@ -115,6 +136,7 @@ class LibraryCoverImage extends ConsumerWidget {
               webHtmlElementStrategy: allowWebImageElement
                   ? WebHtmlElementStrategy.fallback
                   : WebHtmlElementStrategy.never,
+              frameBuilder: onFrame,
               loadingBuilder: (_, child, progress) {
                 if (progress == null) {
                   return child;
@@ -123,7 +145,10 @@ class LibraryCoverImage extends ConsumerWidget {
                   borderRadius: borderRadius,
                 );
               },
-              errorBuilder: (_, __, ___) => fallbackCover,
+              errorBuilder: (_, __, ___) {
+                loaded();
+                return fallbackCover;
+              },
             ),
           );
         }
@@ -139,14 +164,20 @@ class LibraryCoverImage extends ConsumerWidget {
             placeholder: (_, __) => _CoverLoadingShell(
               borderRadius: borderRadius,
             ),
-            errorWidget: (_, __, ___) => fallbackCover,
-            imageBuilder: (_, imageProvider) => Image(
-              image: imageProvider,
-              fit: fit,
-              gaplessPlayback: true,
-              filterQuality: FilterQuality.high,
-              errorBuilder: (_, __, ___) => fallbackCover,
-            ),
+            errorWidget: (_, __, ___) {
+              loaded();
+              return fallbackCover;
+            },
+            imageBuilder: (_, imageProvider) {
+              loaded();
+              return Image(
+                image: imageProvider,
+                fit: fit,
+                gaplessPlayback: true,
+                filterQuality: FilterQuality.high,
+                errorBuilder: (_, __, ___) => fallbackCover,
+              );
+            },
           ),
         );
       },
