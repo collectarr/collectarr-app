@@ -6,7 +6,6 @@ enum PersonalLibraryFieldEditor {
   money,
   singleVocabulary,
   multiVocabulary,
-  currency,
   rating,
   notes,
   collectionStatus,

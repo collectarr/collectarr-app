@@ -173,9 +173,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                                   if (fields['price_paid_cents']
                                       case final field?)
                                     field,
-                                  if (_showAdditionalFields)
-                                    if (fields['currency'] case final field?)
-                                      field,
                                 ],
                               )),
                     ],
@@ -280,8 +277,6 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                                       ? null
                                       : quantity);
                             })),
-                    if (_showAdditionalFields)
-                      if (fields['currency'] case final field?) field,
                   ],
                 )),
         const SizedBox(height: 15),

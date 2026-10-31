@@ -235,9 +235,6 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
               personal: ComicPersonalData.fromJson(draft.values),
               entry: _entry!,
               valueTab: valueTab,
-              currency: draft.text('currency').isEmpty
-                  ? 'USD'
-                  : draft.text('currency'),
               commonFields: fields,
               update: (value) {
                 final previous =

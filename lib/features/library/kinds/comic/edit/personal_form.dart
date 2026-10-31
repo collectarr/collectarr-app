@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/fixed_select_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/money_amount_field.dart';
@@ -15,13 +16,13 @@ class ComicPersonalForm extends StatelessWidget {
       required this.personal,
       required this.entry,
       required this.valueTab,
-      required this.currency,
       required this.update,
       required this.commonFields});
   final ComicPersonalData personal;
   final ComicEntryEditDraft entry;
   final bool valueTab;
-  final String currency;
+  /// Prices are in the currency chosen in Settings and store it with them.
+  String get currency => AppFormats.current.currency;
   final ValueChanged<ComicPersonalData> update;
   final Map<String, Widget> commonFields;
 
@@ -58,9 +59,8 @@ class ComicPersonalForm extends StatelessWidget {
                   label: 'My Value',
                   amountMinorUnits: personal.marketValueCents,
                   currency: currency,
-                  onChanged: (value) =>
-                      update(personal.copyWith(marketValueCents: value))),
-              _common('currency'),
+                  onChanged: (value) => update(personal.copyWith(
+                      marketValueCents: value, currency: currency))),
             ]),
             _collector('signed_by'),
           ]),
@@ -119,7 +119,8 @@ class ComicPersonalForm extends StatelessWidget {
               currency: currency,
               onChanged: (value) {
                 entry.coverPriceCents = value;
-                _collectorChanged();
+                update(personal.copyWith(
+                    details: entry.toDetails(), currency: currency));
               }),
         ]),
         _row([
@@ -127,8 +128,8 @@ class ComicPersonalForm extends StatelessWidget {
               label: 'Price Sold',
               amountMinorUnits: personal.sellPriceCents,
               currency: currency,
-              onChanged: (value) =>
-                  update(personal.copyWith(sellPriceCents: value))),
+              onChanged: (value) => update(personal.copyWith(
+                  sellPriceCents: value, currency: currency))),
           LibraryPartialDateField.fullDate(
               label: 'Sold Date',
               date: personal.soldAt,
