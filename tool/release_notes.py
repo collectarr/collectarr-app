@@ -49,33 +49,38 @@ def pull_requests(repo, shas):
 
 
 def change_lines(repo, previous, tag):
-    """List every change once: each merged pull request, each commit pushed directly, and the issues they close."""
+    """List every change once: each merged pull request with the commits it brought, each commit pushed directly, and the issues they close."""
     commits = [c for c in range_commits(repo, previous, tag) if len(c['parents']) < 2]
     pulls = pull_requests(repo, [c['sha'] for c in commits])
     url = f'https://github.com/{repo}'
-    lines, listed, closed = [], set(), {}
+    changes = {}
     for commit in commits:
         message = commit['commit']['message']
         pull = pulls.get(commit['sha'])
-        key = pull['number'] if pull else commit['sha']
-        issues = closed.setdefault(key, [])
-        issues += [int(n) for n in CLOSING.findall(message) if int(n) not in issues]
+        change = changes.setdefault(pull['number'] if pull else commit['sha'], {'pull': pull, 'commits': [], 'closes': []})
+        change['commits'].append(commit)
+        closes = change['closes']
+        closes += [int(n) for n in CLOSING.findall(message) if int(n) not in closes]
         if pull:
-            issues += [n['number'] for n in pull['closingIssuesReferences']['nodes'] if n['number'] not in issues]
-        if key in listed:
+            closes += [n['number'] for n in pull['closingIssuesReferences']['nodes'] if n['number'] not in closes]
+
+    def commit_line(commit):
+        author = (commit.get('author') or {}).get('login')
+        title = commit['commit']['message'].splitlines()[0][:500]
+        return f"{title}{f' by @{author}' if author else ''} in [{commit['sha'][:7]}]({commit['html_url']})"
+
+    for change in changes.values():
+        pull, own = change['pull'], change['commits']
+        closes = ' (closes ' + ', '.join(f'{url}/issues/{n}' for n in sorted(change['closes'])) + ')' if change['closes'] else ''
+        if not pull:
+            yield f'* {commit_line(own[0])}{closes}'
             continue
-        listed.add(key)
-        if pull:
-            author = (pull.get('author') or {}).get('login')
-            lines.append((key, f"* {pull['title'][:500]}{f' by @{author}' if author else ''} in {pull['url']}"))
-        else:
-            author = (commit.get('author') or {}).get('login')
-            lines.append((key, f"* {message.splitlines()[0][:500]}{f' by @{author}' if author else ''} in [{commit['sha'][:7]}]({commit['html_url']})"))
-    for key, line in lines:
-        if closed[key]:
-            yield line + ' (closes ' + ', '.join(f'{url}/issues/{n}' for n in sorted(closed[key])) + ')'
-        else:
-            yield line
+        author = (pull.get('author') or {}).get('login')
+        line = f"* {pull['title'][:500]}{f' by @{author}' if author else ''} in {pull['url']}{closes}"
+        # A pull request of several commits lists them, so rebase-merged work stays visible.
+        if len(own) > 1:
+            line += ''.join(f'\n  * {commit_line(commit)}' for commit in own)
+        yield line
 
 
 def summary_text(entry):
