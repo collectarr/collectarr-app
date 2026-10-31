@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgam
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_physical_media_formats.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 LibraryEntryFormatHint resolveBoardGameEntryFormatHint(

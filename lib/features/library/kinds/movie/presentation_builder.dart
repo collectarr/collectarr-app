@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/data.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 
 class MovieLibraryMediaPresentationBuilder

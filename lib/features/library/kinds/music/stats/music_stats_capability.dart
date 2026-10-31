@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'music_stats_page.dart';
+import 'page.dart';
 
 /// Music-specific collection aggregates: tracks, formats, artists, and labels.
 final class MusicStatsCapability implements LibraryStatsCapability {

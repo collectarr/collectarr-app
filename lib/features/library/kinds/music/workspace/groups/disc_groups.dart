@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/groups/grouping_field.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/groups/group_helpers.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/groups/helpers.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/field_labels.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';

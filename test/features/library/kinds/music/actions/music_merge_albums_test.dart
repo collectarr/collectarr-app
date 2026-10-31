@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/actions/music_merge_albums.dart';
+import 'package:collectarr_app/features/library/kinds/music/actions/merge_albums.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';

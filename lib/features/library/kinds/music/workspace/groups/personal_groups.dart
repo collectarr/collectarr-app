@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/workspace/groups/grouping_field.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/groups/group_helpers.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/groups/helpers.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/personal_fields.dart';

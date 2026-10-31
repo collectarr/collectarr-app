@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/forms/library_field_spec_rendere
 import 'package:collectarr_app/features/library/kinds/boardgame/add/schema.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/entry/entry_schema.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit/entry_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/catalog_form_field_ids.dart';
