@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_library_e
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/game/stats/game_collection_stats.dart';
+import 'package:collectarr_app/features/library/kinds/game/stats/collection_stats.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/data/game_toy_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_metadata.dart';

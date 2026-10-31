@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/data.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 

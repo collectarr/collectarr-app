@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/data.d
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/dto.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/inspector_sections.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/inspector/sections.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/sections/personal_status_section.dart';

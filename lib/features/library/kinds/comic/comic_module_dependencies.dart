@@ -33,7 +33,7 @@ export 'package:collectarr_app/features/library/kinds/comic/edit/dialog.dart';
 export 'package:collectarr_app/features/library/kinds/comic/edit/typed_presentation.dart';
 export 'package:collectarr_app/features/library/kinds/comic/inspector/hero.dart';
 export 'package:collectarr_app/features/library/kinds/comic/inspector/sections.dart';
-export 'package:collectarr_app/features/library/kinds/comic/metadata/comic_metadata_compare.dart';
+export 'package:collectarr_app/features/library/kinds/comic/metadata/compare.dart';
 export 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_semantics.dart';
 export 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';

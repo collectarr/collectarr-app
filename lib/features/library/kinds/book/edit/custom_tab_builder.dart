@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer
 import 'package:collectarr_app/features/library/forms/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/draft.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit/entry/entry_schema.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/entry_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/person_credits_field.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/catalog_form_field_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/external_links_editor.dart';
