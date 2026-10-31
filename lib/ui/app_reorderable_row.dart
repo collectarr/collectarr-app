@@ -203,6 +203,10 @@ class _AppReorderableRowState extends State<AppReorderableRow>
       }
       left += width;
     }
+    // Past either end the pointer is over no neighbour; it takes the end slot
+    // it is heading for.
+    if (pointerX >= left && deltaX > 0) return order.length - 1;
+    if (pointerX < 0 && deltaX < 0) return 0;
     return _insertIndex;
   }
 
