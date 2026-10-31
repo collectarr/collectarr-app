@@ -1,5 +1,7 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/features/library/edit/session/library_edit_commit_scope.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/app_progress_dialog.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -30,4 +32,34 @@ Future<bool> confirmLeaveLibraryEdit(
         ),
       ) ==
       true;
+}
+
+/// Next and Previous: saves an item with changes and shows the neighbouring
+/// one in the same dialog, as the reference does, with its busy window up
+/// until that item is shown. Validation errors keep the item open.
+Future<void> saveAndShowLibraryEditNeighbour(
+  BuildContext context, {
+  required bool hasUnsavedChanges,
+  required Future<void> Function() save,
+  required Future<void> Function() show,
+}) async {
+  final commits = LibraryEditCommitScope.maybeOf(context);
+  if (commits == null) {
+    if (await confirmLeaveLibraryEdit(context,
+            hasUnsavedChanges: hasUnsavedChanges) &&
+        context.mounted) {
+      await show();
+    }
+    return;
+  }
+  await runWithBusyDialog<void>(
+    context: context,
+    title: '${hasUnsavedChanges ? 'Saving' : 'Loading'} ${commits.itemLabel}',
+    task: () async {
+      if (hasUnsavedChanges && !await commits.saveKeepingOpen(save)) return;
+      commits.pendingSwitch = null;
+      await show();
+      await commits.pendingSwitch;
+    },
+  );
 }

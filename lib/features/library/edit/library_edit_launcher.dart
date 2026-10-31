@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/edit/session/library_edit_commit_scope.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -61,12 +62,21 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   }
 
   final windowClass = AppWindowClass.of(context);
+  // A save that keeps the dialog open leaves the cached drafts stale.
+  final commits = LibraryEditCommitHandle(
+    itemLabel: request.type.identity.singularLabel.toLowerCase(),
+    onKeptOpen: sessions.clear,
+  );
   Widget widgetBuilder(BuildContext ctx) {
     if (requestListenable != null) {
-      return _SwitchingLibraryEditDialog(
-        requestListenable: requestListenable,
-        loadDraft: loadDraft,
-        builderForRequest: builderForRequest,
+      return LibraryEditCommitScope(
+        handle: commits,
+        child: _SwitchingLibraryEditDialog(
+          requestListenable: requestListenable,
+          loadDraft: loadDraft,
+          builderForRequest: builderForRequest,
+          commits: commits,
+        ),
       );
     }
     if (requestLoader == null) return builderForRequest(request)(ctx, request);
@@ -168,9 +178,11 @@ class _SwitchingLibraryEditDialog extends StatefulWidget {
     required this.requestListenable,
     required this.loadDraft,
     required this.builderForRequest,
+    required this.commits,
   });
 
   final ValueListenable<LibraryEditDialogRequest> requestListenable;
+  final LibraryEditCommitHandle commits;
   final Future<LibraryEntryEditDraft?> Function(
       LibraryEditDialogRequest request) loadDraft;
   final LibraryEditDialogBuilder Function(
@@ -196,6 +208,9 @@ class _SwitchingLibraryEditDialogState
     widget.requestListenable.addListener(_onRequestChanged);
   }
 
+  void _onRequestChanged() =>
+      widget.commits.pendingSwitch = _switchToRequested();
+
   @override
   void didUpdateWidget(covariant _SwitchingLibraryEditDialog oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -207,7 +222,7 @@ class _SwitchingLibraryEditDialogState
 
   /// Loads the next item's draft before swapping, so the open dialog is never
   /// replaced by a spinner that lets the page behind show through.
-  Future<void> _onRequestChanged() async {
+  Future<void> _switchToRequested() async {
     final next = widget.requestListenable.value;
     final switchId = ++_switches;
     final draft = await widget.loadDraft(next);

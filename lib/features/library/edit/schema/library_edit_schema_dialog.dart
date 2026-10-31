@@ -58,8 +58,8 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final FutureOr<void> Function(TDraft draft) onSave;
   final VoidCallback onCancel;
   final LibraryCoreCorrectionSource Function()? coreCorrectionSourceBuilder;
-  final VoidCallback? onPrevious;
-  final VoidCallback? onNext;
+  final Future<void> Function()? onPrevious;
+  final Future<void> Function()? onNext;
   final bool Function()? hasUnsavedChanges;
   final LibraryEditChromeVariant chromeVariant;
   final double? maxDialogWidth;
@@ -229,17 +229,7 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
       isBusy: _saving,
       onClose: _cancelIfIdle,
       onCancel: _cancelIfIdle,
-      onSave: _saving
-          ? null
-          : () async {
-              if (!_formKey.currentState!.validate()) return;
-              setState(() => _saving = true);
-              try {
-                await _rendererKey.currentState?.save();
-              } finally {
-                if (mounted) setState(() => _saving = false);
-              }
-            },
+      onSave: _saving ? null : _save,
       onProposeToCore: _saving ||
               (entry != null && entry.record.sourceCatalogRef == null) ||
               !_hasCoreItem
@@ -247,10 +237,10 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
           : () => unawaited(_proposeToCore()),
       onPrevious: _saving || widget.onPrevious == null
           ? null
-          : () => unawaited(_leave(widget.onPrevious!)),
+          : () => unawaited(_showNeighbour(widget.onPrevious!)),
       onNext: _saving || widget.onNext == null
           ? null
-          : () => unawaited(_leave(widget.onNext!)),
+          : () => unawaited(_showNeighbour(widget.onNext!)),
       chromeVariant: widget.chromeVariant,
       maxDialogWidth: widget.maxDialogWidth,
       insetPadding: widget.insetPadding,
@@ -290,16 +280,38 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
     unawaited(_leave(widget.onCancel));
   }
 
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _saving = true);
+    try {
+      await _rendererKey.currentState?.save();
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  bool get _dirty =>
+      (widget.hasUnsavedChanges?.call() ??
+          widget.schema.isDirty?.call(widget.model, widget.draft) ??
+          false) ||
+      (LibraryEntryEditScope.maybeOf(context)?.changes.isNotEmpty ?? false);
+
   Future<void> _leave(VoidCallback action) async {
     if (_saving) return;
-    final dirty = (widget.hasUnsavedChanges?.call() ??
-            widget.schema.isDirty?.call(widget.model, widget.draft) ??
-            false) ||
-        (LibraryEntryEditScope.maybeOf(context)?.changes.isNotEmpty ?? false);
-    if (await confirmLeaveLibraryEdit(context, hasUnsavedChanges: dirty) &&
+    if (await confirmLeaveLibraryEdit(context, hasUnsavedChanges: _dirty) &&
         mounted) {
       action();
     }
+  }
+
+  Future<void> _showNeighbour(Future<void> Function() show) async {
+    if (_saving) return;
+    await saveAndShowLibraryEditNeighbour(
+      context,
+      hasUnsavedChanges: _dirty,
+      save: _save,
+      show: show,
+    );
   }
 
   Future<void> _proposeToCore() async {
