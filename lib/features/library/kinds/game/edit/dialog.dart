@@ -79,7 +79,6 @@ final class _GameItemEditDialogState extends State<_GameItemEditDialog> {
         24,
       ),
       title: gameEditHeaderTitle(_metadata),
-      icon: widget.request.type.identity.icon,
       mediaKind: widget.request.type.kind.apiValue,
       vocabularyAccumulator: vocabularyEdits,
       accent: accent,

@@ -65,7 +65,7 @@ Keep these when matching the reference visually.
 | My Account | Blue account sidebar and an external account portal | Neutral sidebar matching the main navigation; a local overview across libraries, sync status, activity and account settings. Logout clears the session while keeping local collections |
 | Links | The eBay link beside the cover is white | Every link uses the shared link blue |
 | List header | No sort indicator | Shared-blue caret and priority number on sorted columns |
-| Chrome icons | Dialog and editor titles only | Kind icons in the top bar and dialog headers, kept at the owner's request |
+| Chrome icons | Dialog and editor titles only | Kind icons in the top bar and dialog headers, kept at the owner's request; edit dialogs show the shared edit pen |
 | Narrow windows | Folder panel and details keep their widths; the list collapses to nothing and details run off-screen | Folder panel keeps its width, details shrink to their minimum, the list keeps at least 320 px |
 | Settings | One page | The reference page is Appearance > Customization; Connection, Proposals, Data, Account, Updates and Logs are added tabs; pick lists and keyboard shortcuts stay in the main menu and Tools, so there is no Libraries tab |
 | Played History | Mark as listened records today | A date beside the button records listens on other days |

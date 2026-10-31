@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/edit/session/library_edit_navigation_guard.dart';
@@ -30,7 +31,6 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     required this.model,
     required this.draft,
     required this.title,
-    required this.icon,
     required this.accent,
     required this.onSave,
     required this.onCancel,
@@ -53,7 +53,6 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final TModel model;
   final TDraft draft;
   final String title;
-  final IconData icon;
   final Color accent;
   final List<Widget> badges;
   final FutureOr<void> Function(TDraft draft) onSave;
@@ -222,7 +221,7 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: widget.accent,
-      icon: widget.icon,
+      icon: AppIcons.edit,
       title: widget.title,
       badges: widget.badges,
       footerContent:
