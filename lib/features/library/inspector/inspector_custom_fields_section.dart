@@ -8,15 +8,12 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/inspector/inspector_entry_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-typedef _InspectorCustomFieldsRequest = ({
-  LocalDatabase db,
-  LibraryEntryRef libraryEntryRef,
-});
-
-final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
-    .family<_CustomFieldData, _InspectorCustomFieldsRequest>(
+/// Loaded before the inspector shows an entry; see [LibraryInspector].
+final inspectorCustomFieldsProvider = FutureProvider.autoDispose
+    .family<_CustomFieldData, InspectorEntryDataRequest>(
   (ref, request) async {
     final repo = CustomFieldRepository(request.db);
     final definitions = await repo.listDefinitions(
@@ -46,7 +43,7 @@ final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
 
 /// Refresh labels and presentation after definition or tab settings are saved.
 void invalidateInspectorCustomFields(ProviderContainer container) {
-  container.invalidate(_inspectorCustomFieldsProvider);
+  container.invalidate(inspectorCustomFieldsProvider);
 }
 
 class InspectorCustomFieldsSection extends ConsumerWidget {
@@ -65,7 +62,7 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final data = ref
-        .watch(_inspectorCustomFieldsProvider(
+        .watch(inspectorCustomFieldsProvider(
           (db: db, libraryEntryRef: libraryEntryRef),
         ))
         .value;
