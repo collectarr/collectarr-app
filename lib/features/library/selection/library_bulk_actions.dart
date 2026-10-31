@@ -171,7 +171,11 @@ class LibraryBulkActions {
     return entryEntries.length;
   }
 
-  Future<void> removeSelected(List<LibraryWorkspaceContext> entries) async {
+  /// Removes [entries], reporting the removed share (0 to 1) after each one.
+  Future<void> removeSelected(
+    List<LibraryWorkspaceContext> entries, {
+    void Function(double fraction)? onProgress,
+  }) async {
     final entryEntries = [
       for (final entry in entries)
         if (entry.libraryEntrySummary != null) entry,
@@ -185,20 +189,24 @@ class LibraryBulkActions {
         if (entry.trackingSummary != null && entry.libraryEntrySummary == null)
           entry,
     ];
-    for (var index = 0; index < entryEntries.length; index++) {
-      await entryMutations
-          .removeItem(entryEntries[index].libraryEntrySummary!.ref);
+    final total =
+        entryEntries.length + wishlistedEntries.length + trackedEntries.length;
+    var removed = 0;
+    void reportRemoved() => onProgress?.call(++removed / total);
+    for (final entry in entryEntries) {
+      await entryMutations.removeItem(entry.libraryEntrySummary!.ref);
+      reportRemoved();
     }
-    for (var index = 0; index < wishlistedEntries.length; index++) {
+    for (final entry in wishlistedEntries) {
       await wishlistMutations.removeFromWishlist(
-        wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
-        catalogRef: wishlistedEntries[index].wishlistItem?.catalogRef,
+        wishlistItemId: entry.wishlistItem?.id,
+        catalogRef: entry.wishlistItem?.catalogRef,
       );
+      reportRemoved();
     }
-    for (var index = 0; index < trackedEntries.length; index++) {
-      await trackingMutations.removeTrackingByRef(
-        trackedEntries[index].trackingSummary!.ref,
-      );
+    for (final entry in trackedEntries) {
+      await trackingMutations.removeTrackingByRef(entry.trackingSummary!.ref);
+      reportRemoved();
     }
   }
 }

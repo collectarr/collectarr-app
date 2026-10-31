@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_item_context_menu.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
+import 'package:collectarr_app/ui/app_progress_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -334,13 +335,20 @@ class LibraryPageCollectionActionCoordinator {
       projection.filteredItems,
       _page.selection.itemIds,
     );
+    final itemLabel = _page.type.identity.pluralLabel.toLowerCase();
     final confirmed = await _page.confirmBulkRemove(
       _page.context,
       count: entries.length,
-      itemLabel: _page.type.identity.pluralLabel.toLowerCase(),
+      itemLabel: itemLabel,
     );
     if (!confirmed || !_page.mounted) return;
-    await _page.bulkActions().removeSelected(entries);
+    await runWithReportedProgressDialog(
+      context: _page.context,
+      title: 'Remove',
+      message: 'Removing your $itemLabel...',
+      task: (report) =>
+          _page.bulkActions().removeSelected(entries, onProgress: report),
+    );
     _page.rebuild(_page.clearSelection);
     _page.invalidateShelf();
   }
