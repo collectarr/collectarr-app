@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_formatted_text.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -140,7 +141,7 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          Text(description),
+          AppFormattedText(description),
         ],
         if (tags.isNotEmpty) ...[
           const SizedBox(height: 16),
