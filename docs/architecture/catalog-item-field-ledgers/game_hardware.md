@@ -17,7 +17,7 @@ refresh is deferred. Native CSV carries the complete typed entry JSON; a
 guided CLZ Web XML mapping is available. Human-readable CLZ CSV mapping,
 image attachments, loans and custom-field import remain open.
 
-See [the living CLZ comparison](../../clz-parity.md) for verified UI workflows
-and outstanding differences. Core migration 2 creates independent catalog
+See [the living CLZ comparison](../../clz-parity.md) for outstanding UI
+differences. Core migration 2 creates independent catalog
 tables; local entries use the existing kind-scoped storage without a schema
 change or reset.

@@ -113,8 +113,8 @@ Collectarr implements this editor and Manual Add as dedicated Game screens
 (`kinds/game/edit/`, `kinds/game/add/`), including the Covers tab. Open:
 PriceCharting refresh (no PriceCharting integration exists).
 
-The renewed live comparison and remaining workflow gaps are maintained in
-[CLZ parity](../../clz-parity.md#games-comparison). Games completeness now
+Remaining workflow gaps are maintained in
+[CLZ parity](../../clz-parity.md#games). Games completeness now
 updates its packaging and recorded value together in both Add and Edit;
 locked values and manually entered values without a recorded replacement
 are preserved.
