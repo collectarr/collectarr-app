@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### CI & Build
+- Release notes list the commits of each merged pull request under it instead of only its title.
 - Release banners count the issues open when the release was published instead of showing none.
 
 ## 1.5.0 - 2026-10-31
