@@ -310,7 +310,7 @@ class _AdminLoginClient extends ApiClient {
         'id': '00000000-0000-0000-0000-000000000001',
         'email': email,
         'display_name': null,
-        'is_admin': true,
+        'role': 'admin',
       },
     });
   }
@@ -345,7 +345,7 @@ class _DevBootstrapClient extends ApiClient {
         'id': '00000000-0000-0000-0000-000000000111',
         'email': email,
         'display_name': null,
-        'is_admin': false,
+        'role': 'viewer',
       },
     });
   }
@@ -366,7 +366,7 @@ class _DevBootstrapClient extends ApiClient {
         'id': '00000000-0000-0000-0000-000000000111',
         'email': email,
         'display_name': null,
-        'is_admin': false,
+        'role': 'viewer',
       },
     });
   }
@@ -402,7 +402,7 @@ class _DevConflictBootstrapClient extends ApiClient {
         'id': '00000000-0000-0000-0000-000000000222',
         'email': email,
         'display_name': null,
-        'is_admin': false,
+        'role': 'viewer',
       },
     });
   }

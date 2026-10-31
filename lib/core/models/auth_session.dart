@@ -23,7 +23,8 @@ class AuthUser {
       id: _string(json['id']),
       email: _string(json['email']),
       displayName: _string(json['display_name']),
-      isAdmin: _bool(json['is_admin']),
+      // Core names the account's role; only administrators get admin tools.
+      isAdmin: _string(json['role']) == 'admin',
     );
   }
 
@@ -33,19 +34,6 @@ class AuthUser {
       return null;
     }
     return text;
-  }
-
-  static bool _bool(Object? value) {
-    if (value is bool) {
-      return value;
-    }
-    if (value is num) {
-      return value != 0;
-    }
-    if (value is String) {
-      return {'1', 'true', 'yes', 'admin'}.contains(value.trim().toLowerCase());
-    }
-    return false;
   }
 }
 
