@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
+import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/fixed_select_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/money_amount_field.dart';
@@ -21,6 +22,7 @@ class ComicPersonalForm extends StatelessWidget {
   final ComicPersonalData personal;
   final ComicEntryEditDraft entry;
   final bool valueTab;
+
   /// Prices are in the currency chosen in Settings and store it with them.
   String get currency => AppFormats.current.currency;
   final ValueChanged<ComicPersonalData> update;
@@ -35,6 +37,8 @@ class ComicPersonalForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) => valueTab ? _value() : _personal();
 
+  // The reference's Value tab, 1170 px wide: two 578 px halves, then rows
+  // whose widths follow its 282 / 381 / 479 px columns.
   Widget _value() => _stack([
         _row([
           _stack([
@@ -53,14 +57,22 @@ class ComicPersonalForm extends StatelessWidget {
                     entry.rawOrSlabbed = value;
                     _collectorChanged();
                   }),
+            ], flexes: const [
+              331,
+              233
             ]),
+            // The reference shows its CovrPrice value before My Value.
             _row([
+              const SizedBox.shrink(),
               LibraryMoneyAmountField(
                   label: 'My Value',
                   amountMinorUnits: personal.marketValueCents,
                   currency: currency,
                   onChanged: (value) => update(personal.copyWith(
                       marketValueCents: value, currency: currency))),
+            ], flexes: const [
+              381,
+              183
             ]),
             _collector('signed_by'),
           ]),
@@ -90,6 +102,10 @@ class ComicPersonalForm extends StatelessWidget {
                 entry.pageQuality = value;
                 _collectorChanged();
               })
+        ], flexes: const [
+          381,
+          479,
+          282
         ]),
         _row([
           LibrarySegmentedChoiceField<String>(
@@ -108,6 +124,10 @@ class ComicPersonalForm extends StatelessWidget {
               }),
           _collector('key_reason'),
           _collector('key_category'),
+        ], flexes: const [
+          282,
+          479,
+          381
         ]),
         _row([
           _common('price_paid_cents'),
@@ -140,6 +160,9 @@ class ComicPersonalForm extends StatelessWidget {
         ]),
       ]);
 
+  // The reference's Personal tab: Read, Read Date and Notes on the left;
+  // Owner, My Rating and Tags across the right half, Bag/Board Date in its
+  // first 282 px.
   Widget _personal() => _row([
         _stack([
           _row([
@@ -159,36 +182,65 @@ class ComicPersonalForm extends StatelessWidget {
           _common('personal_notes'),
         ]),
         _stack([
-          _row([
-            _common('owner_label'),
-            LibraryFormField(
-                label: 'My Rating',
-                child: LibraryTextFormControl(
-                    initialValue: personal.reading.rating?.toString() ?? '',
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return null;
-                      }
-                      final rating = int.tryParse(value);
-                      return rating == null || rating < 0 || rating > 10
-                          ? 'Use a rating from 0 to 10'
-                          : null;
-                    },
-                    onChanged: (value) => update(personal.copyWith(
-                        reading: personal.reading
-                            .copyWith(rating: int.tryParse(value)))))),
-          ]),
+          _common('owner_label'),
+          _ComicRatingField(
+              rating: personal.reading.rating,
+              onChanged: (value) => update(personal.copyWith(
+                  reading: personal.reading.copyWith(rating: value)))),
           _common('tags'),
-          LibraryPartialDateField.fullDate(
-              label: 'Bag/Board Date',
-              date: entry.lastBagBoardDate,
-              onDateChanged: (value) {
-                entry.lastBagBoardDate = value;
-                _collectorChanged();
-              }),
+          _row([
+            LibraryPartialDateField.fullDate(
+                label: 'Bag/Board Date',
+                date: entry.lastBagBoardDate,
+                onDateChanged: (value) {
+                  entry.lastBagBoardDate = value;
+                  _collectorChanged();
+                }),
+            const SizedBox.shrink(),
+          ]),
         ]),
       ], breakpoint: 720);
+}
+
+/// My Rating as the reference's ten-step row, kept in the reading state.
+class _ComicRatingField extends StatefulWidget {
+  const _ComicRatingField({required this.rating, required this.onChanged});
+
+  final int? rating;
+  final ValueChanged<int?> onChanged;
+
+  @override
+  State<_ComicRatingField> createState() => _ComicRatingFieldState();
+}
+
+class _ComicRatingFieldState extends State<_ComicRatingField> {
+  late final _controller = TextEditingController(text: '${widget.rating ?? 0}')
+    ..addListener(_changed);
+
+  void _changed() {
+    final value = int.tryParse(_controller.text) ?? 0;
+    final rating = value == 0 ? null : value;
+    if (rating != widget.rating) widget.onChanged(rating);
+  }
+
+  @override
+  void didUpdateWidget(_ComicRatingField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final text = '${widget.rating ?? 0}';
+    if (_controller.text != text) _controller.text = text;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => LibraryFormField(
+      label: 'My Rating',
+      child: MediaRatingField(
+          controller: _controller, showLabel: false, compact: true));
 }
 
 Widget _stack(List<Widget> children) =>
@@ -198,7 +250,8 @@ Widget _stack(List<Widget> children) =>
         children[index],
       ]
     ]);
-Widget _row(List<Widget> children, {double breakpoint = 300}) =>
+Widget _row(List<Widget> children,
+        {double breakpoint = 300, List<int>? flexes}) =>
     LibraryResponsiveFormRow(
       breakpoint: children.length >= 4
           ? 800
@@ -208,6 +261,8 @@ Widget _row(List<Widget> children, {double breakpoint = 300}) =>
       horizontalGap: 14,
       verticalGap: 12,
       children: [
-        for (final child in children) LibraryResponsiveFormItem(child: child)
+        for (var index = 0; index < children.length; index++)
+          LibraryResponsiveFormItem(
+              child: children[index], flex: flexes?[index] ?? 1)
       ],
     );
