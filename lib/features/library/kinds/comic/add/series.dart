@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_issue_label.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
 /// The Add Comics Series tab: Core series, then every issue of one.
@@ -14,8 +15,12 @@ const comicAddSeries = LibraryAddBrowseCapability(
   searchGroups: searchComicSeries,
   loadItemRows: loadComicSeriesIssueRows,
   coverBlock: comicAddCoverBlock,
-  ownedGroupKey: comicSeriesKey,
+  ownedGroupKey: comicOwnedSeriesKey,
 );
+
+/// The series a library entry belongs to, as [comicSeriesKey] names it.
+String? comicOwnedSeriesKey(LibraryEntryRecord entry) =>
+    comicSeriesKey(entry.catalogData);
 
 /// One series as Core groups it: title, publisher and volume start year.
 String? comicSeriesKey(Map<String, dynamic> data) {

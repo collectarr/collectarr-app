@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_unsupported_pane.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 import 'package:flutter/widgets.dart';
@@ -148,9 +149,9 @@ class LibraryAddBrowseCapability {
   /// cover grid (or a list) instead of result rows.
   final LibraryAddCoverBlock Function(CatalogSearchCandidate item)? coverBlock;
 
-  /// The group a library entry's catalog data belongs to, as a group's
+  /// The group a library entry belongs to, as a group's
   /// [LibraryAddBrowseGroup.ownedKey].
-  final String? Function(Map<String, dynamic> catalogData)? ownedGroupKey;
+  final String? Function(LibraryEntryRecord entry)? ownedGroupKey;
 }
 
 /// What the cover grid writes around one item's cover: a boxed badge with
