@@ -431,55 +431,25 @@ abstract final class MusicVocabularies {
   static const condition = VocabularyDefinition<String>(
     id: MusicVocabularyIds.condition,
     label: 'Package/Sleeve Condition',
-    builtIns: [
-      'Mint',
-      'Near Mint',
-      'Excellent',
-      'Very Good',
-      'Good',
-      'Fair',
-      'Poor',
-    ],
   );
 
   static const mediaCondition = VocabularyDefinition<String>(
     id: MusicVocabularyIds.mediaCondition,
     label: 'Media Condition',
-    builtIns: [
-      'Mint',
-      'Near Mint',
-      'Excellent',
-      'Very Good',
-      'Good',
-      'Fair',
-      'Poor'
-    ],
   );
   static const storageDevice = VocabularyDefinition<String>(
     id: MusicVocabularyIds.storageDevice,
     label: 'Storage Device',
-    builtIns: [],
   );
   static const grade = VocabularyDefinition<String>(
     id: MusicVocabularyIds.grade,
     label: 'Grade',
-    builtIns: ['Ungraded'],
   );
 
   static const format = VocabularyDefinition<String>(
     id: MusicVocabularyIds.format,
     label: 'Format',
     valuesFrom: TypedVocabularyProjector<MusicAlbum>(_formatCatalogValues),
-    builtIns: [
-      'Vinyl (12" LP)',
-      'Vinyl (7" Single)',
-      'Vinyl (10" EP)',
-      'CD',
-      'Cassette',
-      'SACD',
-      'FLAC / Hi-Res Digital',
-      'Digital Download',
-    ],
   );
 
   static const packaging = VocabularyDefinition<String>(
@@ -488,14 +458,6 @@ abstract final class MusicVocabularies {
     valuesFrom: TypedVocabularyProjector<MusicAlbum>(
       _packagingCatalogValues,
     ),
-    builtIns: [
-      'Standard Jewel Case',
-      'Digipak',
-      'Gatefold Sleeve',
-      'Box Set',
-      'Deluxe Cardboard Sleeve',
-      'Cardboard Slipcase',
-    ],
   );
 
   static const recordLabel = VocabularyDefinition<String>(
@@ -504,18 +466,6 @@ abstract final class MusicVocabularies {
     valuesFrom: TypedVocabularyProjector<MusicAlbum>(
       _recordLabelCatalogValues,
     ),
-    builtIns: [
-      'Columbia Records',
-      'Atlantic Records',
-      'Warner Records',
-      'Interscope Records',
-      'Def Jam Recordings',
-      'Epic Records',
-      'Sub Pop',
-      '4AD',
-      'Blue Note Records',
-      'Deutsche Grammophon',
-    ],
   );
 
   static const genre = VocabularyDefinition<String>(
@@ -523,38 +473,12 @@ abstract final class MusicVocabularies {
     label: 'Genre',
     multiValue: true,
     valuesFrom: TypedVocabularyProjector<MusicAlbum>(_genreValues),
-    builtIns: [
-      'Rock',
-      'Pop',
-      'Jazz',
-      'Classical',
-      'Electronic',
-      'Hip-Hop',
-      'Metal',
-      'Blues',
-      'Folk',
-      'Soundtrack',
-    ],
   );
 
   static const creditRole = VocabularyDefinition<String>(
     id: MusicVocabularyIds.creditRole,
     label: 'Credit Role',
     valuesFrom: TypedVocabularyProjector<MusicAlbum>(_creditRoleValues),
-    builtIns: [
-      'Artist',
-      'Performer',
-      'Musician',
-      'Composer',
-      'Conductor',
-      'Producer',
-      'Engineer',
-      'Remixer',
-      'Arranger',
-      'Orchestra',
-      'Chorus',
-      'Band',
-    ],
   );
 
   static const contributorName = VocabularyDefinition<String>(
@@ -576,7 +500,6 @@ abstract final class MusicVocabularies {
     label: 'Country',
     optionLabel: _countryLabel,
     valuesFrom: TypedVocabularyProjector<MusicAlbum>(_countryValues),
-    builtIns: musicCountryCodes,
   );
 
   static const vinylColor = VocabularyDefinition<String>(
@@ -599,7 +522,6 @@ abstract final class MusicVocabularies {
     label: 'Sound',
     multiValue: true,
     valuesFrom: TypedVocabularyProjector<MusicAlbum>(_soundTypeValues),
-    builtIns: ['Mono', 'Stereo', 'Quadraphonic', 'Dolby Atmos'],
   );
 
   static const orderedNames = <VocabularyDefinition<String>>[
@@ -630,13 +552,12 @@ abstract final class MusicVocabularies {
   static const spars = VocabularyDefinition<String>(
       id: MusicVocabularyIds.spars,
       label: 'SPARS',
-      builtIns: ['AAD', 'ADD', 'DAD', 'DDD'],
       valuesFrom: TypedVocabularyProjector<MusicAlbum>(_sparsValues));
   static const imageType = VocabularyDefinition<String>(
-      id: MusicVocabularyIds.imageType,
-      label: 'Image Type',
-      optionLabel: _imageTypeLabel,
-      builtIns: ['booklet', 'signature', 'label', 'disc', 'other']);
+    id: MusicVocabularyIds.imageType,
+    label: 'Image Type',
+    optionLabel: _imageTypeLabel,
+  );
 
   static const all = <VocabularyDefinition<dynamic>>[
     ...orderedNames,
