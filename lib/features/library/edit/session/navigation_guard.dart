@@ -35,8 +35,9 @@ Future<bool> confirmLeaveLibraryEdit(
 }
 
 /// Next and Previous: saves an item with changes and shows the neighbouring
-/// one in the same dialog, as the reference does, with its busy window up
-/// until that item is shown. Validation errors keep the item open.
+/// one in the same dialog. As in the reference, the item disappears behind
+/// its "Saving" window, which stays up until the next item is shown.
+/// Validation errors bring the item back.
 Future<void> saveAndShowLibraryEditNeighbour(
   BuildContext context, {
   required bool hasUnsavedChanges,
@@ -52,14 +53,23 @@ Future<void> saveAndShowLibraryEditNeighbour(
     }
     return;
   }
-  await runWithBusyDialog<void>(
-    context: context,
-    title: '${hasUnsavedChanges ? 'Saving' : 'Loading'} ${commits.itemLabel}',
-    task: () async {
-      if (hasUnsavedChanges && !await commits.saveKeepingOpen(save)) return;
-      commits.pendingSwitch = null;
-      await show();
-      await commits.pendingSwitch;
-    },
-  );
+  commits.hidden.value = true;
+  try {
+    await runWithBusyDialog<void>(
+      context: context,
+      title: 'Saving ${commits.itemLabel}',
+      // The hidden dialog's barrier already dims the page.
+      barrierColor: Colors.transparent,
+      task: () async {
+        if (hasUnsavedChanges && !await commits.saveKeepingOpen(save)) {
+          return;
+        }
+        commits.pendingSwitch = null;
+        await show();
+        await commits.pendingSwitch;
+      },
+    );
+  } finally {
+    commits.hidden.value = false;
+  }
 }

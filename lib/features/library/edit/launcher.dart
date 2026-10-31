@@ -240,10 +240,15 @@ class _SwitchingLibraryEditDialogState
   }
 
   @override
-  Widget build(BuildContext context) => KeyedSubtree(
-        key: ObjectKey(_request),
-        child: widget.builderForRequest(_request, preloaded: _preloaded)(
-            context, _request),
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+        valueListenable: widget.commits.hidden,
+        builder: (context, hidden, child) =>
+            Offstage(offstage: hidden, child: child),
+        child: KeyedSubtree(
+          key: ObjectKey(_request),
+          child: widget.builderForRequest(_request, preloaded: _preloaded)(
+              context, _request),
+        ),
       );
 }
 

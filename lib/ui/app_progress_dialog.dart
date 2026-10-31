@@ -49,13 +49,20 @@ Future<T> runWithReportedProgressDialog<T>({
 
 /// Shows the reference's compact busy window, its spinning glyph over
 /// [title], while [task] runs, then closes it and returns the result.
+///
+/// [barrierColor] dims what is behind it; pass a transparent one when a
+/// dialog under it already does.
 Future<T> runWithBusyDialog<T>({
   required BuildContext context,
   required String title,
   required Future<T> Function() task,
+  Color? barrierColor = kAppDialogBarrierColor,
 }) =>
     _runWithModal(
-        context: context, dialog: AppBusyDialog(title: title), task: task);
+        context: context,
+        dialog: AppBusyDialog(title: title),
+        task: task,
+        barrierColor: barrierColor);
 
 /// Keeps [dialog] up while [task] runs, for at least
 /// [kAppProgressMinimumDuration], then closes it.
@@ -63,11 +70,13 @@ Future<T> _runWithModal<T>({
   required BuildContext context,
   required Widget dialog,
   required Future<T> Function() task,
+  Color? barrierColor = kAppDialogBarrierColor,
 }) async {
   final navigator = Navigator.of(context, rootNavigator: true);
   ModalRoute<void>? dialogRoute;
   final shown = showAppDialog<void>(
     context: context,
+    barrierColor: barrierColor,
     builder: (dialogContext) {
       dialogRoute = ModalRoute.of<void>(dialogContext);
       return dialog;

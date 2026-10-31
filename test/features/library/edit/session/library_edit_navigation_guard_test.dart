@@ -127,12 +127,16 @@ void main() {
       await tester.tap(find.text('Next'));
       await tester.pump();
       await tester.pump();
-      final title = dirty ? 'Saving comic' : 'Loading comic';
+      // As in the reference, the window always says Saving and the item
+      // is hidden behind it.
+      const title = 'Saving comic';
       expect(find.text(title), findsOneWidget);
+      expect(commits.hidden.value, isTrue);
       await tester.pump(const Duration(milliseconds: 800));
       if (valid) expect(find.text(title), findsOneWidget);
       await tester.pumpAndSettle(const Duration(milliseconds: 100));
       expect(find.text(title), findsNothing);
+      expect(commits.hidden.value, isFalse);
       return events;
     }
 

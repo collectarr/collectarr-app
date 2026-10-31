@@ -18,6 +18,10 @@ final class LibraryEditCommitHandle {
   /// The swap to the next item started by a navigation, if any.
   Future<void>? pendingSwitch;
 
+  /// Hides the open item while Next or Previous saves it and loads the next,
+  /// as the reference closes its dialog before opening the next one.
+  final hidden = ValueNotifier<bool>(false);
+
   /// Runs [save] so a commit inside it keeps the dialog open; returns whether
   /// it committed, which is false when validation stopped it.
   Future<bool> saveKeepingOpen(Future<void> Function() save) async {
