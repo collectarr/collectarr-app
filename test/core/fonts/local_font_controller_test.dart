@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/fonts/font_weight.dart';
 import 'package:collectarr_app/core/fonts/local_font_controller.dart';
 import 'package:collectarr_app/core/fonts/local_font_face.dart';
+import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -267,6 +268,22 @@ void main() {
       expect(outlines, isNot(regular));
     }
     c.dispose();
+  });
+
+  test('titles use ExtraBold with local Gilroy, as the reference paints them',
+      () async {
+    final controller = LocalFontController(registerFont: (_, __) async {});
+    await controller.initialize(discover: false);
+    // The bundled family keeps its own Bold.
+    expect(appTitleBoldFontWeightFor(controller), FontWeight.w700);
+
+    await controller.importFaces([face(400), face(700), face(900)]);
+    // Without ExtraBold the 800 slot would fall back to another family.
+    expect(appTitleBoldFontWeightFor(controller), FontWeight.w700);
+
+    await controller.importFaces([face(800)]);
+    expect(appTitleBoldFontWeightFor(controller), FontWeight.w800);
+    controller.dispose();
   });
 }
 

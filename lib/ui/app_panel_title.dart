@@ -6,7 +6,7 @@ TextStyle get appPanelTitleStyle => TextStyle(
       fontFamily: appFontFamily,
       color: Colors.white,
       fontSize: 18,
-      fontWeight: FontWeight.w700,
+      fontWeight: appTitleBoldFontWeight,
       height: 1,
       letterSpacing: 0,
     );
