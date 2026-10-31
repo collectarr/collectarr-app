@@ -152,15 +152,13 @@ const List<PersonalLibraryFieldSpec> commonPersonalLibraryFields = [
     currencyFieldKey: 'currency',
     manualAddOrder: 3,
   ),
+  // Prices use the currency chosen in Settings, as in the reference, which
+  // has no currency per item; it is stored with the amounts.
   PersonalLibraryFieldSpec(
     key: 'currency',
     label: 'Currency',
     group: 'Acquisition',
     syncable: true,
-    inputKind: PersonalLibraryFieldEditor.currency,
-    area: PersonalLibraryFieldArea.personalFields,
-    editOrder: 5,
-    manualAddOrder: 4,
   ),
   PersonalLibraryFieldSpec(
     key: 'personal_notes',

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/manual_personal_tab.dart';
 import '../edit/entry_draft.dart';
@@ -27,7 +26,6 @@ class ComicAddPersonalTab extends StatelessWidget {
         personal: draft.personal,
         entry: entry,
         valueTab: valueTab,
-        currency: request.commonDraft?.currency ?? AppFormats.current.currency,
         commonFields: fields,
         update: (value) =>
             request.onKindDraftChanged?.call(draft.copyWith(personal: value)),

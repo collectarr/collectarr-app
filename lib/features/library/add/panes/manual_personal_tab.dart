@@ -96,26 +96,15 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
           key: ValueKey('manual-${field.key}'),
           label: field.label,
           amountMinorUnits: current.pricePaidCents,
-          currency: current.currency ?? AppFormats.current.currency,
+          currency: AppFormats.current.currency,
           controller: request.priceController,
-          onChanged: (amount) => _updateCommon(pricePaidCents: amount),
+          onChanged: (amount) => _updateCommon(
+              pricePaidCents: amount, currency: AppFormats.current.currency),
         );
       case PersonalLibraryFieldEditor.singleVocabulary:
         return _singleVocabularyField(field, current);
       case PersonalLibraryFieldEditor.multiVocabulary:
         return _multiVocabularyField(context, field, current);
-      case PersonalLibraryFieldEditor.currency:
-        _expectFieldKey(field, 'currency');
-        return LibraryDropdownPickField<String>(
-          label: field.label,
-          value:
-              (current.currency ?? AppFormats.current.currency).toUpperCase(),
-          options: [
-            for (final code in kCurrencyCodes)
-              LibraryFieldOption(value: code, label: code),
-          ],
-          onChanged: (value) => _updateCommon(currency: value),
-        );
       case PersonalLibraryFieldEditor.notes:
         _expectFieldKey(field, 'personal_notes');
         return LibraryNotesField(

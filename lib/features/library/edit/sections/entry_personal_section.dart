@@ -285,18 +285,6 @@ class _LibraryEntryPersonalSectionState
           onChanged: (values) =>
               _setMultiVocabulary(field, values.toList(growable: false)),
         );
-      case PersonalLibraryFieldEditor.currency:
-        return LibraryDropdownPickField<String>(
-          label: field.label,
-          value: _draft.text(field.key).trim().isEmpty
-              ? AppFormats.current.currency
-              : _draft.text(field.key).trim().toUpperCase(),
-          options: [
-            for (final code in kCurrencyCodes)
-              LibraryFieldOption(value: code, label: code),
-          ],
-          onChanged: (value) => _draft.set(field.key, value),
-        );
       case PersonalLibraryFieldEditor.rating:
       case PersonalLibraryFieldEditor.notes:
       case PersonalLibraryFieldEditor.collectionStatus:
@@ -320,10 +308,13 @@ class _LibraryEntryPersonalSectionState
         fieldKey: ValueKey('library-entry-${field.key}'),
         label: field.label,
         amountMinorUnits: _draft.number(field.key),
-        currency: field.currencyFieldKey == null
-            ? AppFormats.current.currency
-            : _draft.text(field.currencyFieldKey!).trim(),
-        onChanged: (amount) => _draft.set(field.key, amount),
+        currency: AppFormats.current.currency,
+        onChanged: (amount) {
+          _draft.set(field.key, amount);
+          if (field.currencyFieldKey case final key?) {
+            _draft.set(key, AppFormats.current.currency);
+          }
+        },
       );
 
   Widget _singleVocabulary(PersonalLibraryFieldSpec field) {
@@ -509,7 +500,6 @@ class _LibraryEntryStatusStripState
       case PersonalLibraryFieldEditor.money:
       case PersonalLibraryFieldEditor.singleVocabulary:
       case PersonalLibraryFieldEditor.multiVocabulary:
-      case PersonalLibraryFieldEditor.currency:
       case PersonalLibraryFieldEditor.rating:
       case PersonalLibraryFieldEditor.notes:
       case null:
