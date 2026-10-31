@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/edit/session/library_edit_commit_scope.dart';
 import 'package:collectarr_app/features/library/edit/session/library_edit_navigation_guard.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -86,5 +87,67 @@ void main() {
     await tester.pumpAndSettle();
     expect(navigations, 2);
     expect(find.text('Unsaved changes'), findsNothing);
+  });
+
+  group('Next and Previous', () {
+    Future<List<String>> run(
+      WidgetTester tester, {
+      required bool dirty,
+      required bool valid,
+    }) async {
+      final events = <String>[];
+      final commits =
+          LibraryEditCommitHandle(itemLabel: 'comic', onKeptOpen: () {});
+      await tester.pumpWidget(MaterialApp(
+        home: LibraryEditCommitScope(
+          handle: commits,
+          child: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () => saveAndShowLibraryEditNeighbour(
+                  context,
+                  hasUnsavedChanges: dirty,
+                  save: () async {
+                    events.add('save');
+                    if (valid && commits.takeCommit()) events.add('kept');
+                  },
+                  show: () async {
+                    events.add('show');
+                    commits.pendingSwitch = Future<void>.delayed(
+                        const Duration(milliseconds: 900),
+                        () => events.add('shown'));
+                  },
+                ),
+                child: const Text('Next'),
+              ),
+            ),
+          ),
+        ),
+      ));
+      await tester.tap(find.text('Next'));
+      await tester.pump();
+      await tester.pump();
+      final title = dirty ? 'Saving comic' : 'Loading comic';
+      expect(find.text(title), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 800));
+      if (valid) expect(find.text(title), findsOneWidget);
+      await tester.pumpAndSettle(const Duration(milliseconds: 100));
+      expect(find.text(title), findsNothing);
+      return events;
+    }
+
+    testWidgets('save a changed item and stay up until the next one shows',
+        (tester) async {
+      expect(await run(tester, dirty: true, valid: true),
+          ['save', 'kept', 'show', 'shown']);
+    });
+
+    testWidgets('only load an unchanged item', (tester) async {
+      expect(await run(tester, dirty: false, valid: true), ['show', 'shown']);
+    });
+
+    testWidgets('keep an item that does not validate', (tester) async {
+      expect(await run(tester, dirty: true, valid: false), ['save']);
+    });
   });
 }

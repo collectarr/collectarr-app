@@ -158,7 +158,7 @@ void main() {
       item: CatalogSearchCandidate.fromItem(item),
       libraryEntry: null,
       accent: Colors.deepPurple,
-      onNext: () => nextRequests++,
+      onNext: () async => nextRequests++,
     );
 
     await tester.pumpWidget(

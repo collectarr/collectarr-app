@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/features/library/edit/session/library_edit_commit_scope.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -66,7 +67,7 @@ Future<void> commitLibraryEdit(
       : result;
   if (draft == null) {
     await scope?.onCommit?.call(prepared);
-    if (context.mounted) Navigator.of(context).pop(prepared);
+    if (context.mounted) _closeAfterCommit(context, prepared);
     return;
   }
   final vocabularyValues = [
@@ -85,5 +86,12 @@ Future<void> commitLibraryEdit(
     ],
   );
   await scope?.onCommit?.call(complete);
-  if (context.mounted) Navigator.of(context).pop(complete);
+  if (context.mounted) _closeAfterCommit(context, complete);
+}
+
+/// Closes the dialog with the saved result, unless Next or Previous saved it
+/// to show the neighbouring item in the same dialog.
+void _closeAfterCommit(BuildContext context, LibraryEditSelection result) {
+  if (LibraryEditCommitScope.maybeOf(context)?.takeCommit() ?? false) return;
+  Navigator.of(context).pop(result);
 }

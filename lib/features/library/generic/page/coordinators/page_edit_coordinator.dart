@@ -184,10 +184,9 @@ class LibraryPageEditCoordinator {
           catalog,
           _s.widget.type.kind,
         ),
-        onPrevious: previousItem == null
-            ? null
-            : () => unawaited(navigateTo(previousItem)),
-        onNext: nextItem == null ? null : () => unawaited(navigateTo(nextItem)),
+        onPrevious:
+            previousItem == null ? null : () => navigateTo(previousItem),
+        onNext: nextItem == null ? null : () => navigateTo(nextItem),
         openMetadataCompareOnOpen: compareOnOpen,
       );
 
@@ -285,28 +284,29 @@ class LibraryPageEditCoordinator {
         context: _s.context,
         request: initialTarget.request,
         requestListenable: requestListenable,
-        onCommit: (result) => _persistEditResult(
-          result,
-          target: activeTarget.item.target,
-          entry: activeTarget.entry,
-          wishlist: activeTarget.wishlist,
-          activeTrackingSummary: activeTarget.activeTrackingSummary,
-          catalogItem: activeTarget.catalogItem,
-          customFieldRepo: customFieldRepo,
-          itemImageRepo: itemImageRepo,
-        ),
+        onCommit: (result) async {
+          await _persistEditResult(
+            result,
+            target: activeTarget.item.target,
+            entry: activeTarget.entry,
+            wishlist: activeTarget.wishlist,
+            activeTrackingSummary: activeTarget.activeTrackingSummary,
+            catalogItem: activeTarget.catalogItem,
+            customFieldRepo: customFieldRepo,
+            itemImageRepo: itemImageRepo,
+          );
+          // Next and Previous save without closing, so refresh here.
+          if (!_s.mounted) return;
+          _s.ref.invalidate(shelfProvider);
+          _s.ref.invalidate(
+            libraryCustomFieldCacheProvider(_s.widget.type.kind.apiValue),
+          );
+        },
       );
       dialogClosed = true;
       if (result == null || !_s.mounted) {
         return;
       }
-      if (!_s.mounted) {
-        return;
-      }
-      _s.ref.invalidate(shelfProvider);
-      _s.ref.invalidate(
-        libraryCustomFieldCacheProvider(_s.widget.type.kind.apiValue),
-      );
       if (result.submitAction == LibraryEditSubmitAction.saveAndNext &&
           activeTarget.nextItem != null) {
         _s._isEditDialogInFlight = false;

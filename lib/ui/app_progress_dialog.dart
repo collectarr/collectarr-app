@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/app_spinner.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -32,41 +33,111 @@ Future<T> runWithReportedProgressDialog<T>({
   required String message,
   required Future<T> Function(AppProgressReporter report) task,
 }) async {
-  final navigator = Navigator.of(context, rootNavigator: true);
   final progress = ValueNotifier<AppProgress?>(null);
+  try {
+    return await _runWithModal(
+      context: context,
+      dialog:
+          AppProgressDialog(title: title, message: message, progress: progress),
+      task: () => task((fraction, [caption]) =>
+          progress.value = (fraction: fraction, caption: caption)),
+    );
+  } finally {
+    progress.dispose();
+  }
+}
+
+/// Shows the reference's compact busy window, its spinning glyph over
+/// [title], while [task] runs, then closes it and returns the result.
+Future<T> runWithBusyDialog<T>({
+  required BuildContext context,
+  required String title,
+  required Future<T> Function() task,
+}) =>
+    _runWithModal(
+        context: context, dialog: AppBusyDialog(title: title), task: task);
+
+/// Keeps [dialog] up while [task] runs, for at least
+/// [kAppProgressMinimumDuration], then closes it.
+Future<T> _runWithModal<T>({
+  required BuildContext context,
+  required Widget dialog,
+  required Future<T> Function() task,
+}) async {
+  final navigator = Navigator.of(context, rootNavigator: true);
   ModalRoute<void>? dialogRoute;
   final shown = showAppDialog<void>(
     context: context,
     builder: (dialogContext) {
       dialogRoute = ModalRoute.of<void>(dialogContext);
-      return AppProgressDialog(
-          title: title, message: message, progress: progress);
+      return dialog;
     },
   );
   try {
     // Let the dialog paint before synchronous work can block the frame.
     await WidgetsBinding.instance.endOfFrame;
     final results = await Future.wait<Object?>([
-      task((fraction, [caption]) =>
-          progress.value = (fraction: fraction, caption: caption)),
+      task(),
       Future<void>.delayed(kAppProgressMinimumDuration),
     ]);
     return results.first as T;
   } finally {
-    try {
-      final route = dialogRoute;
-      if (navigator.mounted && route != null && route.isActive) {
-        if (route.isCurrent) {
-          navigator.pop();
-        } else {
-          navigator.removeRoute(route);
-        }
-        await shown;
+    final route = dialogRoute;
+    if (navigator.mounted && route != null && route.isActive) {
+      if (route.isCurrent) {
+        navigator.pop();
+      } else {
+        navigator.removeRoute(route);
       }
-    } finally {
-      progress.dispose();
+      await shown;
     }
   }
+}
+
+/// Centred 600 px window on #383838 with the spinning glyph over a bold
+/// title, as the reference shows while it saves an item.
+class AppBusyDialog extends StatelessWidget {
+  const AppBusyDialog({super.key, required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => PopScope(
+        canPop: false,
+        child: Dialog(
+          alignment: Alignment.center,
+          backgroundColor: const Color(0xff383838),
+          surfaceTintColor: Colors.transparent,
+          shape: appDialogShape,
+          elevation: 0,
+          insetPadding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 580),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(15, 15, 15, 5),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(
+                      height: 28,
+                      child: Center(
+                          child: AppSpinner(size: 28, color: Colors.white))),
+                  // The title's 10 px margins below the 10 px message gap.
+                  const SizedBox(height: 20),
+                  Text(title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          height: 1.1)),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
 }
 
 /// Centred 600 px modal on #262626 with a bold title, the message and an

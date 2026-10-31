@@ -7,6 +7,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Next and Previous in the edit dialog save the item's changes and show the neighbouring item, as in CLZ, with a "Saving comic" window and spinner until it is shown, instead of asking to discard the changes.
 - Edit dialogs show the edit pen in their header, as the edit buttons do, instead of the library's icon.
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 

@@ -108,8 +108,8 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
   final List<ItemImage> itemImages;
-  final VoidCallback? onPrevious;
-  final VoidCallback? onNext;
+  final Future<void> Function()? onPrevious;
+  final Future<void> Function()? onNext;
   final LibraryTargetRef? target;
   final bool isEntryTarget;
   final LibraryEditDialogRequest? request;
@@ -422,10 +422,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           : () => unawaited(_proposeToCore()),
       onPrevious: _isSaving || widget.onPrevious == null
           ? null
-          : () => unawaited(_leave(widget.onPrevious!)),
+          : () => unawaited(_showNeighbour(widget.onPrevious!)),
       onNext: _isSaving || widget.onNext == null
           ? null
-          : () => unawaited(_leave(widget.onNext!)),
+          : () => unawaited(_showNeighbour(widget.onNext!)),
       tabOrderKey:
           'library_edit_tabs_${widget.type.kind.apiValue}_${widget.isEntryTarget ? 'entry' : 'catalog'}',
     );
@@ -433,6 +433,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   static String? _requiredValidator(String? v) =>
       (v == null || v.trim().isEmpty) ? 'Required' : null;
+
+  Future<void> _showNeighbour(Future<void> Function() show) async {
+    if (_isSaving) return;
+    await saveAndShowLibraryEditNeighbour(
+      context,
+      hasUnsavedChanges: _draft.isDirty ||
+          (LibraryEntryEditScope.maybeOf(context)?.changes.isNotEmpty ?? false),
+      save: () => _submit(LibraryEditSubmitAction.save),
+      show: show,
+    );
+  }
 
   Future<void> _leave(VoidCallback action) async {
     if (_isSaving) return;

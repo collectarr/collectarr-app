@@ -163,8 +163,8 @@ class LibraryEditDialogRequest {
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
   final List<ItemImage> itemImages;
-  final VoidCallback? onPrevious;
-  final VoidCallback? onNext;
+  final Future<void> Function()? onPrevious;
+  final Future<void> Function()? onNext;
   final bool openMetadataCompareOnOpen;
 
   LibraryEditDialogRequest copyWith({
@@ -181,8 +181,8 @@ class LibraryEditDialogRequest {
     List<CustomFieldDefinition>? customFieldDefinitions,
     List<CustomFieldValue>? customFieldValues,
     List<ItemImage>? itemImages,
-    VoidCallback? onPrevious,
-    VoidCallback? onNext,
+    Future<void> Function()? onPrevious,
+    Future<void> Function()? onNext,
     bool? openMetadataCompareOnOpen,
   }) {
     return LibraryEditDialogRequest(
