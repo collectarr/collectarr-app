@@ -10,7 +10,6 @@ typedef _PreparedPageEditTarget = ({
   WishlistItem? wishlist,
   TrackingSummary? activeTrackingSummary,
   CatalogSearchCandidate catalogItem,
-  LibraryProjectionItem? nextItem,
   LibraryEditDialogRequest request,
 });
 
@@ -224,7 +223,6 @@ class LibraryPageEditCoordinator {
         wishlist: wishlist,
         activeTrackingSummary: activeTrackingSummary,
         catalogItem: catalogItem,
-        nextItem: nextItem,
         request: request,
       );
     }
@@ -305,17 +303,6 @@ class LibraryPageEditCoordinator {
       );
       dialogClosed = true;
       if (result == null || !_s.mounted) {
-        return;
-      }
-      if (result.submitAction == LibraryEditSubmitAction.saveAndNext &&
-          activeTarget.nextItem != null) {
-        _s._isEditDialogInFlight = false;
-        unawaited(
-          showEditDialog(
-            activeTarget.nextItem!,
-            null,
-          ),
-        );
         return;
       }
       ScaffoldMessenger.of(_s.context).showSnackBar(

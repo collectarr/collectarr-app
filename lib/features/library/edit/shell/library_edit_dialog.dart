@@ -32,7 +32,6 @@ import 'package:collectarr_app/features/library/edit/fields/library_external_lin
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
@@ -288,7 +287,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     if (mounted) setState(() {});
   }
 
-  Future<void> _submit(LibraryEditSubmitAction action) async {
+  Future<void> _submit() async {
     if (_isSaving) return;
     if (_formKey.currentState?.validate() == false) return;
     setState(() => _isSaving = true);
@@ -308,10 +307,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         ];
         _draft.session.setExternalLinks(updatedLinks);
       }
-      final selection = _draft.session.save(
-        _draft,
-        submitAction: action,
-      );
+      final selection = _draft.session.save(_draft);
       final prepared = selection.copyWith(
         localChanges: [
           ...selection.localChanges,
@@ -409,9 +405,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       views: _tabViews(),
       onClose: () => unawaited(_leave(() => Navigator.of(context).pop())),
       onCancel: () => unawaited(_leave(() => Navigator.of(context).pop())),
-      onSave: _isSaving
-          ? null
-          : () => unawaited(_submit(LibraryEditSubmitAction.save)),
+      onSave: _isSaving ? null : () => unawaited(_submit()),
       onProposeToCore: _isSaving ||
               (LibraryEntryEditScope.maybeOf(context)
                           ?.record
@@ -440,7 +434,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       context,
       hasUnsavedChanges: _draft.isDirty ||
           (LibraryEntryEditScope.maybeOf(context)?.changes.isNotEmpty ?? false),
-      save: () => _submit(LibraryEditSubmitAction.save),
+      save: _submit,
       show: show,
     );
   }

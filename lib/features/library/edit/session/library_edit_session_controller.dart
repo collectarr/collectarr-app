@@ -32,10 +32,7 @@ final class LibraryEditSessionController {
     catalogItemSession.setExternalLinks(links);
   }
 
-  LibraryEditSelection save(
-    LibraryEditShellState state, {
-    LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
-  }) {
+  LibraryEditSelection save(LibraryEditShellState state) {
     final existingLibraryEntry = state.libraryEntry;
     final entryRef =
         existingLibraryEntry?.ref ?? state.libraryEntryDispatch?.ref;
@@ -91,7 +88,6 @@ final class LibraryEditSessionController {
       localChanges: [
         if (externalLinksChange != null) externalLinksChange,
       ],
-      submitAction: submitAction,
     );
     final canonical = buildCanonicalSelection(
       state,
