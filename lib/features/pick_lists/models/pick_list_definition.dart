@@ -19,6 +19,7 @@ class PickListDefinition {
     this.allowColumn = true,
     this.allowSort = true,
     this.isSystem = false,
+    this.hasSortName = true,
   });
 
   factory PickListDefinition.fromVocabulary({
@@ -42,6 +43,7 @@ class PickListDefinition {
           .map((value) => value.toString())
           .toList(growable: false),
       allowUserValues: vocabulary.allowCustomValues,
+      hasSortName: vocabulary.hasSortName,
     );
   }
 
@@ -61,4 +63,5 @@ class PickListDefinition {
   final bool allowColumn;
   final bool allowSort;
   final bool isSystem;
+  final bool hasSortName;
 }

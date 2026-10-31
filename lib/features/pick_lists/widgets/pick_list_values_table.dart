@@ -19,7 +19,8 @@ class PickListValuesTable extends StatefulWidget {
       this.onSelect,
       this.onEdit,
       this.onDelete,
-      this.enabled = true});
+      this.enabled = true,
+      this.showSortName = true});
   final List<PickListValue> values;
   final Map<String, int> usageCounts;
   final PickListTableMode mode;
@@ -28,6 +29,7 @@ class PickListValuesTable extends StatefulWidget {
   final ValueChanged<PickListValue>? onEdit;
   final ValueChanged<PickListValue>? onDelete;
   final bool enabled;
+  final bool showSortName;
   @override
   State<PickListValuesTable> createState() => _PickListValuesTableState();
 }
@@ -100,8 +102,10 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               _heading('Name', PickListTableSort.name),
-                              _heading('Sort Name', PickListTableSort.sortName,
-                                  secondary: true)
+                              if (widget.showSortName)
+                                _heading(
+                                    'Sort Name', PickListTableSort.sortName,
+                                    secondary: true)
                             ]))),
                 SizedBox(
                     width: 84,
@@ -192,14 +196,17 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                                                             fontWeight:
                                                                 FontWeight
                                                                     .w500)),
-                                                    Text(
-                                                        value.effectiveSortName,
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color: palette
-                                                                .textMuted)),
+                                                    if (widget.showSortName)
+                                                      Text(
+                                                          value
+                                                              .effectiveSortName,
+                                                          style: TextStyle(
+                                                              fontSize: 12,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color: palette
+                                                                  .textMuted)),
                                                   ]))),
                                       SizedBox(
                                           width: 84,

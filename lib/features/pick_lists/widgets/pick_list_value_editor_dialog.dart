@@ -14,6 +14,7 @@ Future<PickListValue?> showPickListValueEditorDialog({
   PickListValue? existing,
   String? title,
   String valueFieldLabel = 'Name',
+  bool showSortName = true,
 }) {
   return showAppDialog<PickListValue>(
     context: context,
@@ -25,6 +26,7 @@ Future<PickListValue?> showPickListValueEditorDialog({
       existing: existing,
       title: title,
       valueFieldLabel: valueFieldLabel,
+      showSortName: showSortName,
     ),
   );
 }
@@ -37,6 +39,7 @@ class _PickListValueEditorDialog extends StatefulWidget {
     this.existing,
     this.title,
     required this.valueFieldLabel,
+    required this.showSortName,
   });
 
   final String listName;
@@ -45,6 +48,7 @@ class _PickListValueEditorDialog extends StatefulWidget {
   final PickListValue? existing;
   final String? title;
   final String valueFieldLabel;
+  final bool showSortName;
 
   @override
   State<_PickListValueEditorDialog> createState() =>
@@ -107,7 +111,9 @@ class _PickListValueEditorDialogState
         listName: widget.listName,
         mediaKind: widget.mediaKind,
         value: value,
-        sortName: sortName.isEmpty || sortName == value ? null : sortName,
+        sortName: !widget.showSortName || sortName.isEmpty || sortName == value
+            ? null
+            : sortName,
         displayLabel: widget.existing?.displayLabel,
         aliases: widget.existing?.aliases ?? const [],
         isSystem: widget.existing?.isSystem ?? false,
@@ -161,20 +167,22 @@ class _PickListValueEditorDialogState
                                                   .copyWith(
                                                       errorText: _nameError),
                                         ))),
-                                const SizedBox(width: 30),
-                                Expanded(
-                                    child: _LabeledField(
-                                        label: 'Sort Name',
-                                        child: TextField(
-                                            controller: _sortName,
-                                            textInputAction:
-                                                TextInputAction.done,
-                                            onSubmitted: (_) => _submit(),
-                                            decoration: settingsSelectDecoration(
-                                                    context)
-                                                .copyWith(
-                                                    hintText:
-                                                        'Defaults to Name')))),
+                                if (widget.showSortName) ...[
+                                  const SizedBox(width: 30),
+                                  Expanded(
+                                      child: _LabeledField(
+                                          label: 'Sort Name',
+                                          child: TextField(
+                                              controller: _sortName,
+                                              textInputAction:
+                                                  TextInputAction.done,
+                                              onSubmitted: (_) => _submit(),
+                                              decoration: settingsSelectDecoration(
+                                                      context)
+                                                  .copyWith(
+                                                      hintText:
+                                                          'Defaults to Name')))),
+                                ],
                               ]),
                           if (_isBorrower) ...[
                             _LabeledField(

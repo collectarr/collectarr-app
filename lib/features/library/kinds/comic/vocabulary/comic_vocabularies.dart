@@ -177,6 +177,8 @@ abstract final class ComicVocabularies {
     label: 'Publisher',
     valuesFrom:
         TypedVocabularyProjector<ComicCatalogItem>(_publisherCatalogValues),
+    // Publishers are filed by their name.
+    hasSortName: false,
   );
 
   static const imprint = VocabularyDefinition<String>(

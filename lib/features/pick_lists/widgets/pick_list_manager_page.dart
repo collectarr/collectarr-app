@@ -282,7 +282,8 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
         listName: definition.listName,
         label: definition.label,
         existing: value,
-        mediaKind: _scopeKind);
+        mediaKind: _scopeKind,
+        showSortName: definition.hasSortName);
     if (edited == null || !mounted) return;
     final result = PickListValue(
         id: value.mediaKind == _scopeKind && !value.id.startsWith('option:')
@@ -490,6 +491,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                                           key: ValueKey(_selectedListName),
                                           values: visible,
                                           usageCounts: _counts,
+                                          showSortName: definition.hasSortName,
                                           mode: _mergeMode
                                               ? PickListTableMode.merge
                                               : PickListTableMode.manage,

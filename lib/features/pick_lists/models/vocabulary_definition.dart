@@ -30,6 +30,7 @@ final class VocabularyDefinition<T> {
     this.multiValue = false,
     this.valuesFrom,
     this.optionLabel,
+    this.hasSortName = true,
   });
 
   final VocabularyId<T> id;
@@ -39,6 +40,9 @@ final class VocabularyDefinition<T> {
   final bool multiValue;
   final VocabularyCatalogValueProjector? valuesFrom;
   final String Function(String value)? optionLabel;
+
+  /// Whether the list's values carry a Sort Name that orders their folders.
+  final bool hasSortName;
 
   String get key => id.value;
 
