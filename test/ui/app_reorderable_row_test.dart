@@ -26,6 +26,27 @@ void main() {
     });
   }
 
+  testWidgets('a child moves only after the pointer travels 5 px',
+      (tester) async {
+    await tester.pumpWidget(const _Harness(zoom: 1));
+
+    final start = tester.getCenter(find.text('Alpha'));
+    final gesture = await tester.startGesture(start);
+    await gesture.moveTo(start + const Offset(4, 0));
+    await tester.pump();
+    expect(tester.getCenter(find.text('Alpha')).dx, start.dx);
+
+    await gesture.moveTo(start + const Offset(60, 0));
+    await tester.pump();
+    expect(tester.getCenter(find.text('Alpha')).dx,
+        moreOrLessEquals(start.dx + 60, epsilon: 1));
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    final state = tester.state<_HarnessState>(find.byType(_Harness));
+    expect(state.labels, ['Beta', 'Alpha', 'Gamma']);
+  });
+
   testWidgets('a tap selects without reordering', (tester) async {
     await tester.pumpWidget(const _Harness(zoom: 1));
 
