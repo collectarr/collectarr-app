@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### CI & Build
+- Release banners count the issues open when the release was published instead of showing none.
+
 ## 1.5.0 - 2026-10-31
 
 ### Features
