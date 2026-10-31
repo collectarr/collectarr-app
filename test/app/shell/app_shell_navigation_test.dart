@@ -10,6 +10,7 @@ import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/app/app_shell.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
+import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,47 @@ void main() {
   tearDown(() async => database.close());
 
   group('App Mandatory Destination Smoke Tests', () {
+    testWidgets('shell pages open and close with the page transition',
+        (tester) async {
+      tester.view.physicalSize = kDesktopTestSize;
+      tester.view.devicePixelRatio = kDesktopTestDPR;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(testApp(
+          overrides: testAppOverrides(
+              database: database, stubEmptyCollections: true)));
+      await pumpUntilSettled(tester);
+      final container =
+          ProviderScope.containerOf(tester.element(find.byType(AppShell)));
+      final router = container.read(appRouterProvider);
+      router.go('/libraries?kind=music');
+      await pumpUntilSettled(tester);
+
+      tester
+          .element(find.byType(LibraryHomePage))
+          .openPage(AppRoutes.forKind(AppRoutes.settings, 'music'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      final opening = ModalRoute.of(tester.element(find.byType(SettingsPage)))!;
+      expect(opening.animation!.value, inExclusiveRange(0, 1));
+      await pumpUntilSettled(tester);
+
+      // Back pops the page, which leaves with the reverse transition.
+      await tester.tap(find.byKey(const Key('settings.back')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(SettingsPage), findsOneWidget);
+      expect(opening.animation!.value, inExclusiveRange(0, 1));
+      await pumpUntilSettled(tester);
+      expect(find.byType(SettingsPage), findsNothing);
+      expect(
+          router.routeInformationProvider.value.uri.path, AppRoutes.libraries);
+      await disposeTestApp(tester);
+    },
+        // Android zooms; desktop and the web fade forwards.
+        variant: const TargetPlatformVariant(
+            {TargetPlatform.android, TargetPlatform.windows}));
+
     testWidgets(
         'direct Music settings route retains kind when returning to library',
         (tester) async {

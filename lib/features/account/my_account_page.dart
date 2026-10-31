@@ -56,7 +56,7 @@ class MyAccountPage extends ConsumerWidget {
                                 ? (auth.isAdmin ? 'Administrator' : 'Signed in')
                                 : 'Your collection is available without signing in.'),
                             TextButton(
-                                onPressed: () => context.go(_route(
+                                onPressed: () => context.openPage(_route(
                                     AppRoutes.settings,
                                     section: 'account')),
                                 child: const Text('Account settings')),
@@ -212,12 +212,12 @@ class MyAccountPage extends ConsumerWidget {
                             const SizedBox(height: 10),
                             Wrap(spacing: 8, runSpacing: 8, children: [
                               TextButton.icon(
-                                  onPressed: () =>
-                                      context.go(_route(AppRoutes.activity)),
+                                  onPressed: () => context
+                                      .openPage(_route(AppRoutes.activity)),
                                   icon: const Icon(AppIcons.history, size: 14),
                                   label: const Text('Activity')),
                               TextButton.icon(
-                                  onPressed: () => context.go(_route(
+                                  onPressed: () => context.openPage(_route(
                                       AppRoutes.settings,
                                       section: 'connection')),
                                   icon: const Icon(AppIcons.plug, size: 14),

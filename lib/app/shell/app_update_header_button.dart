@@ -6,7 +6,6 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 /// Header button, right of Sync, shown once a newer release is found (the
 /// startup check runs when the header first builds). It opens
@@ -36,7 +35,7 @@ class AppUpdateHeaderButton extends ConsumerWidget {
       tooltip: tooltip,
       style: style,
       visualDensity: VisualDensity.compact,
-      onPressed: () => context.go(AppRoutes.forKind(
+      onPressed: () => context.openPage(AppRoutes.forKind(
           AppRoutes.settings, kind.apiValue,
           parameters: {'section': SettingsSection.updates.name})),
       icon: const Icon(AppIcons.appUpdate),
