@@ -11,6 +11,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- With local Gilroy, dialog and editor titles are no heavier than CLZ's: they use Gilroy ExtraBold instead of Black.
 - Settings, Loan Manager, Calendar, Admin, My Account, Activity and the Comics series page open with the page transition and Back returns with the reverse one, like the other pages, instead of switching at once.
 - Comics publishers and imprints have no Sort Name any more and are listed and filed by their name.
 - Music and Comics pick lists start empty and keep a value only while an entry uses it, as Games already did and as CLZ does, instead of listing built-in values nobody uses.

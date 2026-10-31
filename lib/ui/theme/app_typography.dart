@@ -13,6 +13,18 @@ const kAppSemiBoldFontWeight = FontWeight.w600;
 const kAppBoldFontWeight = FontWeight.w700;
 const kAppExtraBoldFontWeight = FontWeight.w800;
 
+/// Bold for titles of 18 px and more. Local Gilroy's 700 slot carries Black
+/// outlines so 14 px bold matches the reference, which Flutter paints
+/// lighter; at title sizes that gap closes, and ExtraBold matches the
+/// reference's Gilroy Bold (measured on the 18 px editor title).
+FontWeight get appTitleBoldFontWeight =>
+    appTitleBoldFontWeightFor(LocalFontController.instance);
+
+FontWeight appTitleBoldFontWeightFor(LocalFontController fonts) =>
+    fonts.isGilroyActive && fonts.faces.containsKey(800)
+        ? kAppExtraBoldFontWeight
+        : kAppBoldFontWeight;
+
 TextTheme buildAppTextTheme(TextTheme base, Color foreground) {
   final themed = base.apply(
     fontFamily: appFontFamily,
