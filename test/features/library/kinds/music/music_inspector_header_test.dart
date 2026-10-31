@@ -25,6 +25,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 MusicLibraryEntry _createFixture(
         {String? front, String? back, String status = 'In Collection'}) =>
@@ -65,6 +66,7 @@ MusicLibraryEntry _createFixture(
     );
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   for (final status in [
     'In Collection',
     'For Sale',

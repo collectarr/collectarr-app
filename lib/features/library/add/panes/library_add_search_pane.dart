@@ -1115,26 +1115,6 @@ class LibraryAddSearchingPlaceholder extends StatelessWidget {
   const LibraryAddSearchingPlaceholder({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    const color = Color(0xff2e3035);
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-                height: 80,
-                child: Center(child: AppSpinner(size: 56, color: color))),
-            Text('Searching...',
-                style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    height: 40 / 28,
-                    color: color)),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => const AppLoadingPlaceholder(
+      label: 'Searching...', color: Color(0xff2e3035));
 }

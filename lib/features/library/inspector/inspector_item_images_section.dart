@@ -11,15 +11,12 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/features/library/inspector/inspector_entry_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-typedef _InspectorItemImagesRequest = ({
-  LocalDatabase db,
-  LibraryEntryRef libraryEntryRef,
-});
-
-final _inspectorItemImagesProvider = FutureProvider.autoDispose
-    .family<List<ItemImage>, _InspectorItemImagesRequest>(
+/// Loaded before the inspector shows an entry; see [LibraryInspector].
+final inspectorItemImagesProvider = FutureProvider.autoDispose
+    .family<List<ItemImage>, InspectorEntryDataRequest>(
   (ref, request) async {
     return ItemImageRepository(request.db)
         .listForLibraryEntryRef(request.libraryEntryRef);
@@ -41,7 +38,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final request = (db: db, libraryEntryRef: libraryEntryRef);
-    final imagesAsync = ref.watch(_inspectorItemImagesProvider(request));
+    final imagesAsync = ref.watch(inspectorItemImagesProvider(request));
     final images = imagesAsync.value ?? const <ItemImage>[];
     final visibleImages = images
         .where(
@@ -119,7 +116,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
       libraryEntryRef: libraryEntryRef,
     );
     if (savedType != null && context.mounted) {
-      ref.invalidate(_inspectorItemImagesProvider(
+      ref.invalidate(inspectorItemImagesProvider(
           (db: db, libraryEntryRef: libraryEntryRef)));
     }
   }
@@ -151,7 +148,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
 
     final repo = ItemImagesCacheRepository(db);
     await repo.deleteById(imageId);
-    ref.invalidate(_inspectorItemImagesProvider(
+    ref.invalidate(inspectorItemImagesProvider(
         (db: db, libraryEntryRef: libraryEntryRef)));
   }
 }

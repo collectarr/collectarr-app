@@ -20,7 +20,6 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_hero
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/metadata/library_link_items_page.dart';
-import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
@@ -38,6 +37,8 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/features/loans/loan_add_page.dart';
+import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
+import 'package:collectarr_app/ui/app_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
@@ -310,6 +311,17 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             )
           : null),
     ];
+    // As the reference, the panel shows its loading spinner until the entry's
+    // custom fields and images are in, instead of filling in piece by piece.
+    final entryData = activeLibraryEntry == null || widget.db == null
+        ? null
+        : (db: widget.db!, libraryEntryRef: activeLibraryEntry.ref);
+    bool pending(AsyncValue<Object?> value) =>
+        !value.hasValue && !value.hasError;
+    final loading = entryData != null &&
+        (pending(ref.watch(inspectorCustomFieldsProvider(entryData))) ||
+            (inspectorCapability.supportsLibraryEntryImages &&
+                pending(ref.watch(inspectorItemImagesProvider(entryData)))));
     final preferences = ref.watch(uiPreferencesProvider);
     final template =
         detailsPanelPalette(context, preferences.detailsPanelTemplate)
@@ -324,119 +336,145 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                             DetailsPanelTemplate.blue
                         ? template.panel
                         : libraryWorkspaceBackgroundColor(context),
-                child: Column(children: [
-                  InspectorUnifiedToolbar(
-                    item: selected,
-                    contentMaxWidth: widget.fullscreen ? 960 : null,
-                    includeLayoutControl: !widget.fullscreen ||
-                        widget.onDetailsLayoutChanged != null,
-                    accent: widget.accent,
-                    onEdit: entityActions.onEdit,
-                    onShare: entityActions.onShare,
-                    onMoveToCollection:
-                        activeLibraryEntry == null || widget.db == null
-                            ? null
-                            : () => _moveToCollection(activeLibraryEntry),
-                    onUnlinkFromCore: entityActions.onUnlinkFromCore,
-                    onLinkToCore: activeLibraryEntry != null &&
-                            activeLibraryEntry.sourceCatalogRef == null
-                        ? () =>
-                            Navigator.of(context).push(MaterialPageRoute<void>(
-                              builder: (context) => LibraryLinkItemsPage(
-                                type: widget.type,
-                                entries: [selected.source],
-                              ),
-                            ))
-                        : null,
-                    onSubmitToCore: activeLibraryEntry != null &&
-                            activeLibraryEntry.sourceCatalogRef == null &&
-                            widget.db != null
-                        ? () => unawaited(_submitToCore(activeLibraryEntry))
-                        : null,
-                    onDuplicate: entityActions.onDuplicate,
-                    onToggleEntry: entityActions.onToggleEntry,
-                    onLoan: entityActions.onLoan,
-                    onRefreshMetadata: entityActions.onRefreshMetadata,
-                    onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
-                    detailsLayout: widget.detailsLayout,
-                  ),
-                  Expanded(
-                      child: Align(
-                          alignment: Alignment.topCenter,
-                          child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                  maxWidth: widget.fullscreen
-                                      ? 960
-                                      : double.infinity),
-                              child: ColoredBox(
-                                  color:
-                                      libraryWorkspaceBackgroundColor(context),
-                                  child: Stack(fit: StackFit.expand, children: [
-                                    if (preferences.showInspectorBackdrop)
-                                      ExcludeSemantics(
-                                          child: IgnorePointer(
-                                              child: InspectorBackdrop(
-                                                  item: selected,
-                                                  libraryEntry:
-                                                      activeLibraryEntry,
-                                                  backgroundColor: preferences
-                                                              .detailsPanelTemplate ==
-                                                          DetailsPanelTemplate
-                                                              .blue
-                                                      ? template.panel
-                                                      : null))),
-                                    ListView(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          8, 0, 8, 12),
-                                      children: [
-                                        SizedBox(
-                                            height: density.inspectorOuterGap),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 4),
-                                          child: Column(
-                                            children: [
-                                              hero,
-                                              SizedBox(
-                                                  height: density
-                                                      .inspectorOuterGap),
-                                              if (!usesCustomInspectorPanel &&
-                                                  inspectorCapability
-                                                      .showsActionBar)
-                                                InspectorActionBar(
-                                                  type: widget.type,
-                                                  item: selected,
-                                                  onToggleEntry: entityActions
-                                                      .onToggleEntry,
-                                                  onToggleWishlist:
-                                                      entityActions
-                                                          .onToggleWishlist,
-                                                  onEdit: entityActions.onEdit,
-                                                  onOpenDetails: entityActions
-                                                          .onOpenDetails ??
-                                                      () {},
-                                                  semanticActions: entityActions
-                                                      .semanticActions,
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                        if (activeBundleReleaseId != null) ...[
-                                          SizedBox(
-                                              height:
-                                                  density.inspectorOuterGap),
-                                          bundleSection!,
-                                        ],
-                                        SizedBox(
-                                            height: density.inspectorOuterGap),
-                                        ...effectivePrimarySections,
-                                        InspectorEbayLinksSection(
-                                            item: selected),
-                                        ...trailingSections,
-                                      ],
+                child: loading
+                    ? AppLoadingPlaceholder(
+                        label: 'Loading...',
+                        // #ddd on the reference's dark panel, 400 weight on
+                        // its 20 px line.
+                        color: appPalette(context).isDark
+                            ? const Color(0xffdddddd)
+                            : appPalette(context).textSecondary,
+                        fontWeight: FontWeight.w400,
+                        spinnerHeight: 60,
+                        labelHeight: 20,
+                      )
+                    : Column(children: [
+                        InspectorUnifiedToolbar(
+                          item: selected,
+                          contentMaxWidth: widget.fullscreen ? 960 : null,
+                          includeLayoutControl: !widget.fullscreen ||
+                              widget.onDetailsLayoutChanged != null,
+                          accent: widget.accent,
+                          onEdit: entityActions.onEdit,
+                          onShare: entityActions.onShare,
+                          onMoveToCollection:
+                              activeLibraryEntry == null || widget.db == null
+                                  ? null
+                                  : () => _moveToCollection(activeLibraryEntry),
+                          onUnlinkFromCore: entityActions.onUnlinkFromCore,
+                          onLinkToCore: activeLibraryEntry != null &&
+                                  activeLibraryEntry.sourceCatalogRef == null
+                              ? () => Navigator.of(context)
+                                      .push(MaterialPageRoute<void>(
+                                    builder: (context) => LibraryLinkItemsPage(
+                                      type: widget.type,
+                                      entries: [selected.source],
                                     ),
-                                  ]))))),
-                ]),
+                                  ))
+                              : null,
+                          onSubmitToCore: activeLibraryEntry != null &&
+                                  activeLibraryEntry.sourceCatalogRef == null &&
+                                  widget.db != null
+                              ? () =>
+                                  unawaited(_submitToCore(activeLibraryEntry))
+                              : null,
+                          onDuplicate: entityActions.onDuplicate,
+                          onToggleEntry: entityActions.onToggleEntry,
+                          onLoan: entityActions.onLoan,
+                          onRefreshMetadata: entityActions.onRefreshMetadata,
+                          onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
+                          detailsLayout: widget.detailsLayout,
+                        ),
+                        Expanded(
+                            child: Align(
+                                alignment: Alignment.topCenter,
+                                child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                        maxWidth: widget.fullscreen
+                                            ? 960
+                                            : double.infinity),
+                                    child: ColoredBox(
+                                        color: libraryWorkspaceBackgroundColor(
+                                            context),
+                                        child: Stack(
+                                            fit: StackFit.expand,
+                                            children: [
+                                              if (preferences
+                                                  .showInspectorBackdrop)
+                                                ExcludeSemantics(
+                                                    child: IgnorePointer(
+                                                        child: InspectorBackdrop(
+                                                            item: selected,
+                                                            libraryEntry:
+                                                                activeLibraryEntry,
+                                                            backgroundColor: preferences
+                                                                        .detailsPanelTemplate ==
+                                                                    DetailsPanelTemplate
+                                                                        .blue
+                                                                ? template.panel
+                                                                : null))),
+                                              ListView(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        8, 0, 8, 12),
+                                                children: [
+                                                  SizedBox(
+                                                      height: density
+                                                          .inspectorOuterGap),
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 4),
+                                                    child: Column(
+                                                      children: [
+                                                        hero,
+                                                        SizedBox(
+                                                            height: density
+                                                                .inspectorOuterGap),
+                                                        if (!usesCustomInspectorPanel &&
+                                                            inspectorCapability
+                                                                .showsActionBar)
+                                                          InspectorActionBar(
+                                                            type: widget.type,
+                                                            item: selected,
+                                                            onToggleEntry:
+                                                                entityActions
+                                                                    .onToggleEntry,
+                                                            onToggleWishlist:
+                                                                entityActions
+                                                                    .onToggleWishlist,
+                                                            onEdit:
+                                                                entityActions
+                                                                    .onEdit,
+                                                            onOpenDetails:
+                                                                entityActions
+                                                                        .onOpenDetails ??
+                                                                    () {},
+                                                            semanticActions:
+                                                                entityActions
+                                                                    .semanticActions,
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  if (activeBundleReleaseId !=
+                                                      null) ...[
+                                                    SizedBox(
+                                                        height: density
+                                                            .inspectorOuterGap),
+                                                    bundleSection!,
+                                                  ],
+                                                  SizedBox(
+                                                      height: density
+                                                          .inspectorOuterGap),
+                                                  ...effectivePrimarySections,
+                                                  InspectorEbayLinksSection(
+                                                      item: selected),
+                                                  ...trailingSections,
+                                                ],
+                                              ),
+                                            ]))))),
+                      ]),
               )),
     );
   }

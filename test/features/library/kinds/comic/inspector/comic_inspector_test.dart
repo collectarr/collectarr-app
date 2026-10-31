@@ -27,6 +27,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final _entry = ComicLibraryEntry(
   id: const LibraryEntryId('comic-entry-1'),
@@ -65,6 +66,7 @@ final _entry = ComicLibraryEntry(
 );
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   testWidgets('comic details follow the reference layout', (tester) async {
     tester.view.physicalSize = const Size(1100, 1400);
     tester.view.devicePixelRatio = 1;
@@ -118,9 +120,13 @@ void main() {
         ),
       ),
     ));
+    // The reference's spinner covers the panel until the entry has loaded.
+    expect(find.text('Loading...'), findsOneWidget);
+    expect(find.text('Example Series'), findsNothing);
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
+    expect(find.text('Loading...'), findsNothing);
     expect(find.text('Example Series'), findsOneWidget);
     expect(find.text('#2A'), findsOneWidget);
     expect(find.text('The Zoo - Part 2'), findsOneWidget);
