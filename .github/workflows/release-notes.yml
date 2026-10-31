@@ -21,6 +21,8 @@ on:
 permissions:
   contents: write
   pull-requests: read
+  # The banner counts the issues open when the release was published.
+  issues: read
 concurrency:
   group: release-notes
   cancel-in-progress: false
