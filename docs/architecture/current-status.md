@@ -101,3 +101,14 @@ Kind modules retain the operations and their domain rules.
   provisional.
 - Native pointer-driven comparison with the reference is done on Web; Windows
   rendering is checked separately.
+- The app still imports Material from `package:flutter/material.dart`, while
+  Flutter is moving it to the separate `material_ui` package (with
+  `cupertino_ui`), which go_router and cached_network_image already use. The
+  two packages' `MaterialApp`, `Theme` and `ThemeData` are distinct types, so
+  go_router does not see this app as a Material app and would build pages
+  without a transition; `appRoutePage` in `lib/core/routing/app_route_page.dart`
+  builds them explicitly. Migrating to `material_ui` (`dart fix` ships its
+  data) removes that helper, but waits until the packages that still use
+  `flutter/material` (flutter_riverpod, printing, mobile_scanner, qr_flutter,
+  image_picker_for_web, url_launcher_web, google_mlkit_text_recognition) move
+  too, or their widgets lose the app theme.
