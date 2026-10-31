@@ -128,7 +128,7 @@ def main():
         url = f'https://github.com/{args.repo}'
         banner = f'{url}/releases/download/{tag}/release-banner.png'
         if args.banner or 'release-banner.png' not in (a['name'] for a in release['assets']):
-            # Uploaded once per release, so its stats and artwork stay as they were at release time.
+            # Rendered once per release; stats are counted as of publication, so --banner can redo older releases.
             # GitHub names the asset after the file.
             path = Path(tempfile.mkdtemp()) / 'release-banner.png'
             release_banner.render(release_banner.release_data(args.repo, tag, summaries[tag]), path)
