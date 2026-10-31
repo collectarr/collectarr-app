@@ -204,6 +204,8 @@ abstract final class ComicVocabularies {
     valuesFrom: TypedVocabularyProjector<ComicCatalogItem>(
       _physicalFormatCatalogValues,
     ),
+    // Formats are filed by their name.
+    hasSortName: false,
   );
 
   static const condition = VocabularyDefinition<String>(
