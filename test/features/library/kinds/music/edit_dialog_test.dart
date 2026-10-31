@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:io';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dart';
@@ -122,6 +123,9 @@ void main() {
     expect(
         find.byType(LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>),
         findsOneWidget);
+    // Edit dialogs show the shared edit pen, not the kind icon.
+    expect(find.byIcon(AppIcons.edit), findsOneWidget);
+    expect(find.byIcon(const MusicRegistration().identity.icon), findsNothing);
 
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();

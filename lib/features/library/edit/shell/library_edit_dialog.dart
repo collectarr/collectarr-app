@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
@@ -394,7 +395,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               draft: LibraryEntryEditScope.maybeOf(context)!),
       accent: widget.accent,
       isBusy: _isSaving,
-      icon: widget.type.identity.icon,
+      icon: AppIcons.edit,
       title: title,
       badges: const <Widget>[],
       tabController: _tabController,

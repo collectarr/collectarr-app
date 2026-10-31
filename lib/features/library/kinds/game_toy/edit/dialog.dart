@@ -80,7 +80,6 @@ final class _GameToyItemEditDialogState extends State<_GameToyItemEditDialog> {
         24,
       ),
       title: gameToyEditHeaderTitle(_metadata),
-      icon: widget.request.type.identity.icon,
       mediaKind: widget.request.type.kind.apiValue,
       vocabularyAccumulator: vocabularyEdits,
       accent: accent,

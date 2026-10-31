@@ -82,7 +82,6 @@ final class _GameHardwareItemEditDialogState
         24,
       ),
       title: gameHardwareEditHeaderTitle(_metadata),
-      icon: widget.request.type.identity.icon,
       mediaKind: widget.request.type.kind.apiValue,
       vocabularyAccumulator: vocabularyEdits,
       accent: accent,

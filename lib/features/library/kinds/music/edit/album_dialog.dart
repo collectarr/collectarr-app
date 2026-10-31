@@ -129,7 +129,6 @@ final class _MusicAlbumEditDialogState
         title: _album.title,
         artist: _album.artist,
       ),
-      icon: widget.request.type.identity.icon,
       mediaKind: widget.request.type.kind.apiValue,
       vocabularyAccumulator: vocabularyEdits,
       accent: widget.request.accent,
