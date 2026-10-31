@@ -44,6 +44,7 @@ import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
 
 class LibraryInspector extends ConsumerStatefulWidget {
   const LibraryInspector({
@@ -350,8 +351,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     onSubmitToCore: activeLibraryEntry != null &&
                             activeLibraryEntry.sourceCatalogRef == null &&
                             widget.db != null
-                        ? () => unawaited(_submitToCore(
-                            activeLibraryEntry, selected.dto.primaryLabel))
+                        ? () => unawaited(_submitToCore(activeLibraryEntry))
                         : null,
                     onDuplicate: entityActions.onDuplicate,
                     onToggleEntry: entityActions.onToggleEntry,
@@ -559,7 +559,14 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     await ref.read(libraryEntryMutationsProvider).unlinkFromCore(entry.ref);
   }
 
-  Future<void> _submitToCore(LibraryEntrySummary entry, String title) async {
+  Future<void> _submitToCore(LibraryEntrySummary entry) async {
+    final record = await LibraryEntryStore(widget.db!)
+        .find(entry.ref.kind, entry.ref.id.value);
+    if (record == null || !mounted) return;
+    // Named as the library names it: a comic without a title of its own is
+    // its series and issue.
+    final title = workspaceKindDataFromKindData(record.kind, record.catalogData)
+        .displayLabel;
     final singular = widget.type.identity.singularLabel;
     final confirmed = await showAppDialog<bool>(
         context: context,
@@ -581,9 +588,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               ],
             )));
     if (confirmed != true || !mounted) return;
-    final record = await LibraryEntryStore(widget.db!)
-        .find(entry.ref.kind, entry.ref.id.value);
-    if (record == null || !mounted) return;
     try {
       await submitLibraryEntryToCore(
         api: ref.read(apiClientProvider),
