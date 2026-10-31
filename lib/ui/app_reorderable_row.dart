@@ -63,6 +63,9 @@ class _AppReorderableRowState extends State<AppReorderableRow>
     duration: appReorderReturnDuration,
   )..addListener(() => setState(() {}));
 
+  /// Where a press began; the drag starts once the pointer moves
+  /// [_dragDistance] from it.
+  Offset? _pressPosition;
   int? _dragIndex;
   int _insertIndex = 0;
   List<double> _widths = const [];
@@ -74,6 +77,9 @@ class _AppReorderableRowState extends State<AppReorderableRow>
       widget.controller ?? (_ownScroll ??= ScrollController());
 
   bool get _dragging => _dragIndex != null;
+
+  /// How far a press moves before it drags, as the reference's tab strips.
+  static const _dragDistance = 5.0;
 
   @override
   void dispose() {
@@ -91,15 +97,18 @@ class _AppReorderableRowState extends State<AppReorderableRow>
     return box.globalToLocal(globalPosition).dx;
   }
 
-  void _startDrag(DragStartDetails details) {
-    if (_dragging) return;
+  void _press(DragStartDetails details) {
+    if (!_dragging) _pressPosition = details.globalPosition;
+  }
+
+  void _startDrag(Offset globalPosition) {
     final row = _contentKey.currentContext?.findRenderObject();
     if (row is! RenderFlex) return;
     final widths = <double>[];
     row.visitChildren(
         (RenderObject child) => widths.add((child as RenderBox).size.width));
     if (widths.isEmpty || widths.length != widget.children.length) return;
-    final x = _contentX(details.globalPosition);
+    final x = _contentX(globalPosition);
     var index = 0;
     var left = 0.0;
     while (index < widths.length - 1 && x >= left + widths[index]) {
@@ -118,16 +127,22 @@ class _AppReorderableRowState extends State<AppReorderableRow>
   }
 
   void _updateDrag(DragUpdateDetails details) {
+    final press = _pressPosition;
+    if (!_dragging && press != null) {
+      if ((details.globalPosition - press).distance < _dragDistance) return;
+      _pressPosition = null;
+      _startDrag(press);
+    }
     if (!_dragging || _settle.isAnimating) return;
     _autoScroll(details.globalPosition);
     final total = _widths.fold<double>(0, (sum, width) => sum + width);
     final width = _widths[_dragIndex!];
-    final left = (_contentX(details.globalPosition) - _grabDx)
-        .clamp(0.0, math.max(0.0, total - width))
-        .toDouble();
+    final x = _contentX(details.globalPosition);
+    final left =
+        (x - _grabDx).clamp(0.0, math.max(0.0, total - width)).toDouble();
     setState(() {
       _dragLeft = left;
-      _insertIndex = _insertIndexFor(left);
+      _insertIndex = _insertIndexFor(x, details.delta.dx);
     });
   }
 
@@ -148,6 +163,7 @@ class _AppReorderableRowState extends State<AppReorderableRow>
   }
 
   void _endDrag() {
+    _pressPosition = null;
     if (!_dragging || _settle.isAnimating) return;
     _settleFrom = _dragLeft;
     _lift.duration = _motion(appReorderReturnDuration);
@@ -167,23 +183,27 @@ class _AppReorderableRowState extends State<AppReorderableRow>
     if (from != to) widget.onReorderItem?.call(from, to);
   }
 
-  /// The final index for the dragged child: its leading edge passing the
-  /// middle of a neighbour in the original layout moves it past that one.
-  int _insertIndexFor(double dragLeft) {
+  /// The final index for the dragged child: the pointer entering a neighbour
+  /// while moving towards it takes that neighbour's slot, as the reference's
+  /// sortable tab strips do.
+  int _insertIndexFor(double pointerX, double deltaX) {
     final dragIndex = _dragIndex!;
-    final dragRight = dragLeft + _widths[dragIndex];
-    var insert = dragIndex;
+    final order = [
+      for (var index = 0; index < _widths.length; index++)
+        if (index != dragIndex) index,
+    ]..insert(_insertIndex, dragIndex);
     var left = 0.0;
-    for (var index = 0; index < _widths.length; index++) {
-      final middle = left + _widths[index] / 2;
-      if (index < dragIndex && dragLeft < middle) {
-        insert = math.min(insert, index);
-      } else if (index > dragIndex && dragRight > middle) {
-        insert = math.max(insert, index);
+    for (var slot = 0; slot < order.length; slot++) {
+      final width = _widths[order[slot]];
+      if (order[slot] != dragIndex &&
+          pointerX >= left &&
+          pointerX < left + width) {
+        final towards = slot > _insertIndex ? deltaX > 0 : deltaX < 0;
+        return towards ? slot : _insertIndex;
       }
-      left += _widths[index];
+      left += width;
     }
-    return insert;
+    return _insertIndex;
   }
 
   /// The key of the slot holding a child, distinct from the child's own key.
@@ -226,7 +246,7 @@ class _AppReorderableRowState extends State<AppReorderableRow>
       child: canReorder
           ? GestureDetector(
               dragStartBehavior: DragStartBehavior.down,
-              onHorizontalDragStart: _startDrag,
+              onHorizontalDragStart: _press,
               onHorizontalDragUpdate: _updateDrag,
               onHorizontalDragEnd: (_) => _endDrag(),
               onHorizontalDragCancel: _endDrag,
