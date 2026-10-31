@@ -9,7 +9,8 @@ void main() {
     name: 'Comic',
     create: () => ComicVocabularies.all,
     vocabularies: (definitions) {
-      expect(definitions, hasLength(16));
+      // Grade, Label Type and Page Quality are fixed lists, not pick lists.
+      expect(definitions, hasLength(13));
 
       final ids = definitions.map((definition) => definition.id.value).toList();
       expect(ids.toSet(), hasLength(ids.length));
