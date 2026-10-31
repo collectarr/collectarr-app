@@ -13,11 +13,14 @@ void main() {
     final png =
         Uint8List.fromList(img.encodePng(img.Image(width: 2, height: 2)));
     List<ItemImageEdit>? edits;
+    tester.view.physicalSize = const Size(2400, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(ProviderScope(
         child: MaterialApp(
       home: Scaffold(
         body: SizedBox(
-          width: 1000,
+          width: 2000,
           child: GameCoversTab(
             images: [
               ItemImageDraft(
@@ -40,6 +43,22 @@ void main() {
     expect(find.text('Front Cover'), findsOneWidget);
     expect(find.text('Back Cover'), findsOneWidget);
     expect(find.text('Find Online'), findsNWidgets(2));
+    // The reference's 38 px bar centres its 30 px buttons.
+    final bar = tester.getRect(find
+        .ancestor(
+            of: find.text('Find Online').first,
+            matching: find.byWidgetPredicate((widget) =>
+                widget is Container && widget.constraints?.minHeight == 38))
+        .first);
+    expect(bar.height, 38);
+    for (final label in ['Find Online', 'Upload', 'Remove', 'Crop / Rotate']) {
+      final button = tester.getRect(find
+          .ancestor(
+              of: find.text(label).first, matching: find.byType(TextButton))
+          .first);
+      expect(button.height, 30, reason: label);
+      expect(button.center.dy, bar.center.dy, reason: label);
+    }
 
     await tester.tap(find.text('Remove'));
     await tester.pump();
