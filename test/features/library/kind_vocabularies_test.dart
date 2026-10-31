@@ -26,10 +26,11 @@ void main() {
     });
 
     test(
-        'Comics publishers and imprints are filed by name, without a Sort Name',
+        'Comics publishers, imprints and formats are filed by name, without a Sort Name',
         () {
       expect(ComicVocabularies.publisher.hasSortName, isFalse);
       expect(ComicVocabularies.imprint.hasSortName, isFalse);
+      expect(ComicVocabularies.physicalFormat.hasSortName, isFalse);
       expect(ComicVocabularies.seriesGroup.hasSortName, isTrue);
     });
 
