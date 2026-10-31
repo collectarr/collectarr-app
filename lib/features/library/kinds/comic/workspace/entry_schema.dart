@@ -208,7 +208,7 @@ final comicLibraryEntryWorkspaceFieldDefinitions = [
 final comicLibraryEntryWorkspaceGroupDefinitions = [
   groupFromField<ComicKind, ComicWorkspaceDto, String?>(
     ComicLibraryEntryWorkspaceFields.location,
-    sidebarTitle: 'Storage Box',
+    sidebarTitle: 'Location',
     category: 'Personal',
     icon: Icons.place_outlined,
   ),
@@ -216,7 +216,8 @@ final comicLibraryEntryWorkspaceGroupDefinitions = [
 ];
 
 /// Reference defaults: the list shows Series, Issue, Variant Description,
-/// Publisher, Release Date, Storage Box, Format and Added Date, sorted by
+/// Publisher, Release Date, Location (the reference's Storage Box), Format
+/// and Added Date, sorted by
 /// Series then Issue, with Series folders.
 final comicLibraryEntryWorkspaceSchema =
     LibraryWorkspaceSchema<ComicKind, ComicWorkspaceDto>(

@@ -54,7 +54,7 @@ void main() {
       'Variant Description',
       'Publisher',
       'Release Date',
-      'Storage Box',
+      'Location',
       'Format',
       'Added Date',
     ]);
@@ -119,7 +119,7 @@ void main() {
       'Variant Description',
       'Publisher',
       'Release Date',
-      'Storage Box',
+      'Location',
       'Format',
       'Added Date',
     ]);

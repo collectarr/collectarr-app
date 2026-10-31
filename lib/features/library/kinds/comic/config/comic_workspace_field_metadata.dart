@@ -222,7 +222,7 @@ abstract final class ComicWorkspaceFieldMetadata {
 
   static const location = LibraryKindFieldMetadata(
     id: 'comic.location',
-    label: 'Storage Box',
+    label: 'Location',
     valueType: LibraryFieldValueType.text,
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.libraryEntry,
