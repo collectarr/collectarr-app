@@ -28,6 +28,7 @@
 - The Link page names your items in its header and when everything is linked ("Core albums", "All albums are linked."), as in the reference.
 - Keep the intended relative widths of fields when an Add form selects a subset of its catalog fields.
 - Keep manually added pick-list values available when opening a selector, even before an item uses them.
+- Core administrators are recognized again after signing in, so the Admin tools and Proposals review appear for them.
 
 ### Refactors
 - Drop the per-record import titles and subtitles that only the removed import review list showed.

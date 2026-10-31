@@ -71,7 +71,6 @@ class AdminUser {
     required this.id,
     required this.email,
     required this.isActive,
-    required this.isAdmin,
     required this.role,
     required this.createdAt,
     required this.updatedAt,
@@ -82,10 +81,11 @@ class AdminUser {
   final String email;
   final String? displayName;
   final bool isActive;
-  final bool isAdmin;
   final String role;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  bool get isAdmin => role == 'admin';
 
   String get label {
     final value = displayName?.trim();
@@ -98,7 +98,6 @@ class AdminUser {
       email: json['email']?.toString() ?? '',
       displayName: json['display_name'] as String?,
       isActive: json['is_active'] as bool? ?? true,
-      isAdmin: json['is_admin'] as bool? ?? false,
       role: json['role']?.toString() ?? 'viewer',
       createdAt: _adminDateTimeFromJson(json['created_at']),
       updatedAt: _adminDateTimeFromJson(json['updated_at']),
