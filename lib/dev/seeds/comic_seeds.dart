@@ -776,11 +776,11 @@ List<ComicLibraryEntry> comicSeedLibraryEntries(DateTime now) {
         personal: ComicPersonalData(
           isDigital: false,
           condition: 'Near Mint',
-          grade: '9.8',
+          grade: '9.8 Near Mint/Mint',
           details: ComicEntryDetails(
             rawOrSlabbed: 'raw',
             gradingCompany: 'CGC',
-            pageQuality: 'White Pages',
+            pageQuality: 'White',
             keyComic: true,
             keyCategory: 'First appearance',
             lastBagBoardDate: DateTime.utc(2024, 6, 1),

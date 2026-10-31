@@ -1,11 +1,11 @@
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
-import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/fixed_select_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/money_amount_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
 import '../domain/comic_personal_data.dart';
 import 'entry_draft.dart';
 import 'entry_fields.dart';
-import '../vocabulary/comic_vocabularies.dart';
+import 'grading_options.dart';
 import 'package:collectarr_app/features/library/ui/primitives/responsive_form_row.dart';
 import 'package:flutter/material.dart';
 
@@ -38,12 +38,10 @@ class ComicPersonalForm extends StatelessWidget {
         _row([
           _stack([
             _row([
-              LibraryManagedVocabularyField(
+              LibraryFixedSelectField(
                   label: 'Grade',
-                  listName: ComicVocabularyIds.grade.value,
-                  mediaKind: 'comic',
-                  value: personal.grade ?? 'Ungraded',
-                  builtIns: ComicVocabularies.grade.builtIns,
+                  value: personal.grade,
+                  options: comicGradeOptions,
                   onChanged: (value) =>
                       update(personal.copyWith(grade: value))),
               LibrarySegmentedChoiceField<String>(
@@ -75,9 +73,23 @@ class ComicPersonalForm extends StatelessWidget {
           ]),
         ], breakpoint: 720),
         _row([
-          _collector('label_type'),
+          LibraryFixedSelectField(
+              label: 'Label Type',
+              value: entry.labelType,
+              options: comicLabelTypeOptions,
+              onChanged: (value) {
+                entry.labelType = value;
+                _collectorChanged();
+              }),
           _collector('custom_label'),
-          _collector('page_quality')
+          LibraryFixedSelectField(
+              label: 'Page Quality',
+              value: entry.pageQuality,
+              options: comicPageQualityOptions,
+              onChanged: (value) {
+                entry.pageQuality = value;
+                _collectorChanged();
+              })
         ]),
         _row([
           LibrarySegmentedChoiceField<String>(

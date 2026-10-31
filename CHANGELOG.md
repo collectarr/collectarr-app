@@ -13,6 +13,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Comics Grade, Label Type and Page Quality are fixed dropdowns with CLZ's values, Label Types in their slab label colours, instead of editable pick lists.
 - The Comics series page shows a formatted description, with bold, italics, line breaks and lists, as the details pane and Games do, instead of its raw tags.
 - Find Online, Upload, Remove and Crop / Rotate sit centred on the cover toolbar at CLZ's 30 px height, with the bar back at 38 px.
 - Dragging a tab starts after the pointer moves 5 px and moves it past a neighbour once the pointer reaches that tab, as in CLZ, instead of reordering at the slightest drag.

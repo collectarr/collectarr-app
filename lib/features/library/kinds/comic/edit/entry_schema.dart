@@ -48,28 +48,12 @@ final EditSchema<ComicEntryDetails, ComicEntryEditDraft> comicEntryEditSchema =
               setValue: (draft, value) => draft.certificationNumber = value,
             ),
             LibraryVocabularyFieldSpec<ComicEntryEditDraft, String>(
-              id: 'label_type',
-              options: const [],
-              pickListKey: ComicVocabularyIds.labelType.value,
-              label: 'Label type',
-              value: (draft) => draft.labelType,
-              setValue: (draft, value) => draft.labelType = value,
-            ),
-            LibraryVocabularyFieldSpec<ComicEntryEditDraft, String>(
               id: 'custom_label',
               options: const [],
               pickListKey: ComicVocabularyIds.customLabel.value,
               label: 'Custom label',
               value: (draft) => draft.customLabel,
               setValue: (draft, value) => draft.customLabel = value,
-            ),
-            LibraryVocabularyFieldSpec<ComicEntryEditDraft, String>(
-              id: 'page_quality',
-              label: 'Page quality',
-              value: (draft) => draft.pageQuality,
-              setValue: (draft, value) => draft.pageQuality = value,
-              options: _options(ComicVocabularies.pageQuality.builtIns),
-              pickListKey: ComicVocabularyIds.pageQuality.value,
             ),
             LibraryTextFieldSpec<ComicEntryEditDraft>(
               id: 'grader_notes',

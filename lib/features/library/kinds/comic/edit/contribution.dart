@@ -8,7 +8,6 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
   vocabularies: StandardKindVocabularyCapability(ComicVocabularies.all),
   presentation: comicsLibraryEditPresentation,
   conditions: ComicVocabularies.condition.builtIns,
-  collectionValueOptions: ComicVocabularies.grade.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
     ComicLibraryEntry item => item.personal.grade,
     _ => null,
