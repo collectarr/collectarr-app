@@ -186,6 +186,8 @@ abstract final class ComicVocabularies {
     label: 'Imprint',
     valuesFrom:
         TypedVocabularyProjector<ComicCatalogItem>(_imprintCatalogValues),
+    // Imprints are filed by their name.
+    hasSortName: false,
   );
 
   static const seriesGroup = VocabularyDefinition<String>(
