@@ -6,8 +6,8 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_summary_reader.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/workspace/entry/kind_data.dart';
+import 'package:collectarr_app/features/library/entries/store.dart';
 
 /// Non-generic transport operations that the mixed catalog composition root
 /// may invoke after dispatching by [kind].

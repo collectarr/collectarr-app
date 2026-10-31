@@ -1,12 +1,12 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
-import 'package:collectarr_app/features/library/detail/library_workspace_detail_navigation.dart';
+import 'package:collectarr_app/features/library/detail/workspace_detail_navigation.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
-import 'package:collectarr_app/features/library/stats/library_stats_charts.dart';
+import 'package:collectarr_app/features/library/workspace/entry/context.dart';
+import 'package:collectarr_app/features/library/stats/charts.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 

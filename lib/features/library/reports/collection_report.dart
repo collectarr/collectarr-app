@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
-import 'package:collectarr_app/features/library/reports/library_print_pdf_page.dart';
+import 'package:collectarr_app/features/library/reports/print_pdf_page.dart';
 import 'package:flutter/material.dart';
 
-export 'package:collectarr_app/features/library/reports/library_print_pdf_page.dart';
+export 'package:collectarr_app/features/library/reports/print_pdf_page.dart';
 
 /// Navigates to the full Print to PDF view matching CLZ Web.
 Future<void> printCollectionReport({

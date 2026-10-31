@@ -2,9 +2,9 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_resizable_pane.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/chrome.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/layout/resizable_pane.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

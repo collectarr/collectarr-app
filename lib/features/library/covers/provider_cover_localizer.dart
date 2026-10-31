@@ -6,8 +6,8 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/mutations/library_entry_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/library/covers/provider_cover_fetch.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
+import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 

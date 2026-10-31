@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_grouped_results.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/contracts/result_policy.dart';
+import 'package:collectarr_app/features/library/add/panes/grouped_results.dart';
+import 'package:collectarr_app/features/library/add/panes/search_pane.dart';
+import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/preview.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/result_grouping.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';

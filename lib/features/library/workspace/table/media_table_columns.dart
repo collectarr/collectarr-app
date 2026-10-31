@@ -1,9 +1,9 @@
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
+import 'package:collectarr_app/features/library/workspace/schema/field_registry.dart';
+import 'package:collectarr_app/features/library/workspace/table/layout.dart';
+import 'package:collectarr_app/features/library/workspace/table/cell.dart';
 import 'package:flutter/material.dart';
 
 const double kStandardMediaMinCoverSize = 96;

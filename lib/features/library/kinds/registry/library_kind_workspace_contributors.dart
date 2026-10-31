@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
+import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_workspace_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/entry/view_state.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 
 LibraryHierarchyCapability libraryHierarchyForKind(CatalogMediaKind kind) =>

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/contribution.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/typed_presentation.dart';

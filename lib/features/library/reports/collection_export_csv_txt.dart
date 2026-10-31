@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
-import 'package:collectarr_app/features/library/reports/library_export_csv_txt_page.dart';
+import 'package:collectarr_app/features/library/reports/export_csv_txt_page.dart';
 import 'package:flutter/material.dart';
 
-export 'package:collectarr_app/features/library/reports/library_export_csv_txt_page.dart';
+export 'package:collectarr_app/features/library/reports/export_csv_txt_page.dart';
 
 /// Navigates to the full Export to CSV / TXT view matching CLZ Web.
 Future<void> exportCollectionCsvTxt({

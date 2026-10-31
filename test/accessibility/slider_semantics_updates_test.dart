@@ -1,6 +1,6 @@
 import 'dart:ui' as ui;
 
-import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/view_controls.dart';
 import 'package:collectarr_app/ui/app_slider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

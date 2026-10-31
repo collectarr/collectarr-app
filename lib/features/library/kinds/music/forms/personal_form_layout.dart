@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:flutter/material.dart';
 
 /// Personal composition shared by Music Add/Edit; currency and grade are App extras.

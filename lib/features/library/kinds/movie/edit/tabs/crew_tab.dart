@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/movie/edit/controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/credits_editor.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/layout_widgets.dart';
 import 'package:flutter/material.dart';
 
 class MovieEditCrewTab extends StatelessWidget {

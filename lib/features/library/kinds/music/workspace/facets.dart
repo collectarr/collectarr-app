@@ -1,9 +1,9 @@
-import 'package:collectarr_app/features/library/config/library_facet_module.dart';
-import 'package:collectarr_app/features/library/config/library_facet_types.dart';
+import 'package:collectarr_app/features/library/config/facet_module.dart';
+import 'package:collectarr_app/features/library/config/facet_types.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
 
 final musicLibraryFacetDefinitions =
     <LibraryFacetDefinition<MusicKind, MusicWorkspaceProjection, String>>[

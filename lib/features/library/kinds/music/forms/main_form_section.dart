@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 
 /// CLZ Main composition shared by Music Manual Add and Edit.

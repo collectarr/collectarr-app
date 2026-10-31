@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/layout/library_add_dialog_layout.dart';
+import 'package:collectarr_app/features/library/add/layout/dialog_layout.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

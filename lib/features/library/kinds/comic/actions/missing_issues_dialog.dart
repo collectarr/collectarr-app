@@ -7,7 +7,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/kinds/comic/actions/missing_issues_report.dart';
-import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
+import 'package:collectarr_app/features/library/ui/dialog_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 

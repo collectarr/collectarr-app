@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/catalog_fie
 import 'package:collectarr_app/features/library/kinds/game/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/personal_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 
 typedef _GameSortValue = Comparable<Object?>? Function(

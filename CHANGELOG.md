@@ -27,6 +27,7 @@
 - The web app leaves zoom to the browser, so its zoom shortcuts and Ctrl + wheel change the browser's zoom instead of adding an app zoom that read 100 % on an already zoomed page.
 
 ### Refactors
+- Shared library files are named by their job inside their folders, without repeating "library" or the folder name.
 - Board Game, Book, Movie, Music, Comics and Games editor, inspector, stats and action files are named by their job inside their kind's folders, as the other kind files already were.
 
 ### CI & Build

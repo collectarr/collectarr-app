@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/catalog_field_specs.dart';
 
 /// Reference Main composition shared by Game Manual Add and Edit.

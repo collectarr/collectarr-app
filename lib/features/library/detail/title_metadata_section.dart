@@ -1,0 +1,122 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
+import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/details/chip.dart';
+import 'package:collectarr_app/features/library/details/field_table.dart';
+import 'package:collectarr_app/features/library/details/models.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:flutter/material.dart';
+
+class LibraryTitleMetadataSection extends StatelessWidget {
+  const LibraryTitleMetadataSection({
+    super.key,
+    required this.type,
+    required this.item,
+    required this.entryReleaseCount,
+    this.onFilterByValue,
+  });
+
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
+  final int entryReleaseCount;
+  final ValueChanged<String>? onFilterByValue;
+
+  @override
+  Widget build(BuildContext context) {
+    final dto = item.dto;
+    final metadataPresentation = _metadataPresentationForEntry(type, item);
+    final creatorCredits = <LibraryMetadataCredit>[
+      for (final section in metadataPresentation.sections.values)
+        if (section.renderer == LibraryMetadataSectionRenderer.credits)
+          ...libraryMetadataCredits(section),
+    ];
+    final creatorNames = <String>[
+      for (final credit in creatorCredits)
+        if (credit.name.trim().isNotEmpty) credit.name.trim(),
+    ];
+    final creatorsByRole = <String, List<String>>{};
+    for (final credit in creatorCredits) {
+      final name = credit.name.trim();
+      if (name.isEmpty) continue;
+      final role = credit.role?.trim();
+      final key = (role != null && role.isNotEmpty) ? role : 'Creator';
+      creatorsByRole.putIfAbsent(key, () => <String>[]).add(name);
+    }
+    final hasRoles = creatorsByRole.keys.any((r) => r != 'Creator') ||
+        creatorsByRole.length > 1;
+    final contextFacts = metadataPresentation.contextFacts
+        .where((fact) {
+          final value = fact.value.trim();
+          return value.isNotEmpty && value != '-';
+        })
+        .take(3)
+        .toList(growable: false);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LibraryDetailFieldTable(
+          fields: [
+            LibraryDetailField(label: 'Display Title', value: dto.primaryLabel),
+            ...contextFacts,
+            if (entryReleaseCount > 0)
+              LibraryDetailField(
+                label: 'Editions',
+                value: '$entryReleaseCount in collection',
+              ),
+          ],
+        ),
+        if (creatorNames.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text(
+            'Cast & Crew',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(height: 6),
+          if (hasRoles)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final entry in creatorsByRole.entries) ...[
+                  Text(
+                    entry.key,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.outline,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  LibraryDetailChipGroupWidget(
+                    values: entry.value,
+                    onValueTap: onFilterByValue,
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ],
+            )
+          else
+            LibraryDetailChipGroupWidget(
+              values: creatorNames,
+              onValueTap: onFilterByValue,
+            ),
+        ],
+      ],
+    );
+  }
+}
+
+LibraryMetadataPresentation _metadataPresentationForEntry(
+  LibraryKindRegistration type,
+  LibraryProjectionView item,
+) {
+  return libraryPresentationForKind(type.kind)
+      .builder
+      .buildMetadataPresentation(
+        singularLabel: type.identity.singularLabel,
+        item: item,
+        includeIdentityFacts: true,
+        tapFor: (_) => null,
+      );
+}

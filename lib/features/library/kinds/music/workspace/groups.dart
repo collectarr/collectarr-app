@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/groups/gro
 import 'package:collectarr_app/features/library/kinds/music/workspace/groups/personal_groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/sorts/sorts.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/kinds/music/workspace/groups/grouping_field.dart'

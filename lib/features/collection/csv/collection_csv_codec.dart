@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_importer.d
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 
 /// Stable schema-v1 facade for collection CSV callers.
 ///

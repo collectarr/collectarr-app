@@ -1,14 +1,14 @@
-import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
+import 'package:collectarr_app/features/library/edit/fields/value_fields.dart';
+import 'package:collectarr_app/features/library/edit/draft/form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
-import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_summary_widgets.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
+import 'package:collectarr_app/features/library/edit/fields/summary_widgets.dart';
+import 'package:collectarr_app/features/library/edit/draft/models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/credit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/catalog_form_values.dart';
@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_entry_dis
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
+import 'package:collectarr_app/features/library/edit/draft/entry_personal_bindings.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 

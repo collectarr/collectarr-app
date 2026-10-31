@@ -8,7 +8,7 @@ import '../reports/music_export_capability.dart';
 import '../data/music_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
 
 final musicKindPersonalFieldContributor = LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.music,

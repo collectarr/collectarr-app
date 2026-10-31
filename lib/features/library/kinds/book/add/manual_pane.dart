@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/panes/manual_pane_shell.dart';
+import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/manual_draft.dart';

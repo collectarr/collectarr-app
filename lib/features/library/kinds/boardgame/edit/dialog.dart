@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/config/item_actions.dart';
+import 'package:collectarr_app/features/library/edit/shell/dialog.dart';
 import 'package:flutter/material.dart';
 
 class BoardGameLibraryEditDialog extends StatelessWidget {

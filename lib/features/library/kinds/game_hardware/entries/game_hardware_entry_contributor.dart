@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/game_hardware/data/game_ha
 import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/entries/entry_kind_contributor.dart';
+import 'package:collectarr_app/features/library/entries/kind_contributor.dart';
 
 final gameHardwareEntryContributor =
     TypedEntryKindContributor<GameHardwareLibraryEntry>(

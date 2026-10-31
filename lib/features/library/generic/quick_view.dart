@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/library/config/library_value_capability.dart';
+import 'package:collectarr_app/features/library/config/value_capability.dart';
 
 class LibraryToolbarCounts {
   const LibraryToolbarCounts({

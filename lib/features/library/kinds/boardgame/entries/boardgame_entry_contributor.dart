@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_e
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/entries/entry_kind_contributor.dart';
+import 'package:collectarr_app/features/library/entries/kind_contributor.dart';
 
 final boardGameEntryContributor =
     TypedEntryKindContributor<BoardGameLibraryEntry>(

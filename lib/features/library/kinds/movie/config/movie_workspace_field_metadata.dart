@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
 
 /// Additional kind-owned semantics for workspace fields.
 abstract final class MovieWorkspaceFieldMetadata {

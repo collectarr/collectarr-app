@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/forms/catalog_form_a
 import 'package:collectarr_app/features/library/kinds/music/forms/album_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/track_list_editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/disc_list_editor.dart';
-import 'package:collectarr_app/features/library/edit/session/library_vocabulary_edit_accumulator.dart';
+import 'package:collectarr_app/features/library/edit/session/vocabulary_edit_accumulator.dart';
 
 final class MusicAlbumEditDraft {
   MusicAlbumEditDraft.fromAlbum(

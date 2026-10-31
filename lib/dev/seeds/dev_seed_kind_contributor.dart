@@ -4,8 +4,8 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
+import 'package:collectarr_app/features/library/entries/store.dart';
+import 'package:collectarr_app/features/library/tracking/storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 

@@ -1,12 +1,12 @@
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'inspector/sections.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
 import 'workspace/dto.dart';
 
 final class GameHardwarePresentationBuilder

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
+import 'package:collectarr_app/features/library/edit/schema/schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';

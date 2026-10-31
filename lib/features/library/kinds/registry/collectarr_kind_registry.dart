@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_release_s
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
+import 'package:collectarr_app/features/library/workspace/layout/snapshot.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -29,8 +29,8 @@ export 'package:collectarr_app/features/calendar/library_calendar_registry.dart'
 export 'package:collectarr_app/features/catalog/library_catalog_registry.dart';
 export 'package:collectarr_app/features/collection/collection_kind_contributors.dart';
 export 'package:collectarr_app/features/collection/csv/collection_csv_registry.dart';
-export 'package:collectarr_app/features/library/tracking/library_tracking_registry.dart';
-export 'package:collectarr_app/features/library/entries/entry_kind_contributor_registry.dart';
+export 'package:collectarr_app/features/library/tracking/registry.dart';
+export 'package:collectarr_app/features/library/entries/kind_contributor_registry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';

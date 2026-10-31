@@ -1,5 +1,5 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
+import 'package:collectarr_app/features/library/inspector/custom_fields_section.dart';
 import 'package:collectarr_app/features/settings/custom_field_editor_dialog.dart';
 import 'package:collectarr_app/features/settings/custom_fields_tab_settings_dialog.dart';
 import 'dart:async';
@@ -11,8 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/features/settings/custom_field_dialog.dart';
-import 'package:collectarr_app/features/library/ui/library_management_page.dart';
-import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
+import 'package:collectarr_app/features/library/ui/management_page.dart';
+import 'package:collectarr_app/features/library/generic/custom_field_cache.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/settings/custom_field_type_picker.dart';
 import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';

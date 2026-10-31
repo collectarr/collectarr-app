@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/workspace/config/library_target_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/config/target_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
-import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/workspace/entry/item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/projections.dart';
 import '../data/game_toy_library_entry_projection.dart';
 import 'data.dart';
 import 'dto.dart';

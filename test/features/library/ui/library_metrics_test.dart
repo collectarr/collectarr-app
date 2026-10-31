@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/ui/library_metrics.dart';
+import 'package:collectarr_app/features/library/ui/metrics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

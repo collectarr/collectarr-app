@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
+import 'package:collectarr_app/features/library/edit/fields/external_links_table.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/catalog_external_link_draft.dart';
 import 'package:flutter/material.dart';
 

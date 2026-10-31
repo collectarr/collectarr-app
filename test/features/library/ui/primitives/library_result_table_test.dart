@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/ui/primitives/library_result_table.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_result_row.dart';
+import 'package:collectarr_app/features/library/ui/primitives/result_table.dart';
+import 'package:collectarr_app/features/library/ui/primitives/result_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

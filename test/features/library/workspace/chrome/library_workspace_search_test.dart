@@ -1,6 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
+import 'package:collectarr_app/features/library/config/search_target.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

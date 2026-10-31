@@ -1,6 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'pick_list_chrome.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:collectarr_app/ui/app_select.dart';

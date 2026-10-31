@@ -1,7 +1,7 @@
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_view_table_controls.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_control_models.dart';
+import 'package:collectarr_app/features/library/workspace/table/view_table_controls.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/config/control_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
-import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
+import 'package:collectarr_app/features/library/config/presentation/media_presentation.dart';
+import 'package:collectarr_app/features/library/config/metadata_capability.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';

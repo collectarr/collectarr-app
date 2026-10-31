@@ -34,7 +34,7 @@ void main() {
     );
     final wishlistItem = _read('lib/core/models/wishlist_item.dart');
     final trackingRecord = _read(
-      'lib/features/library/tracking/tracking_storage_record.dart',
+      'lib/features/library/tracking/storage_record.dart',
     );
 
     expect(libraryEntry, isNot(contains('String? itemId,')));

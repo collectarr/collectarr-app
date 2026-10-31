@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/actions/async_action_host.dart';
-import 'package:collectarr_app/features/library/generic/projection/library_search_index.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
+import 'package:collectarr_app/features/library/generic/projection/search_index.dart';
+import 'package:collectarr_app/features/library/edit/fields/value_fields.dart';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/core/localization/app_formats.dart';
@@ -10,20 +10,20 @@ import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
-import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
+import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart'
     show libraryCollectionStatusFromValue;
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section.dart';
+import 'package:collectarr_app/features/library/config/entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/search_target.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
+import 'package:collectarr_app/features/library/config/item_actions.dart';
+import 'package:collectarr_app/features/library/details/field_table.dart';
+import 'package:collectarr_app/features/library/details/models.dart';
+import 'package:collectarr_app/features/library/details/section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
@@ -38,7 +38,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';

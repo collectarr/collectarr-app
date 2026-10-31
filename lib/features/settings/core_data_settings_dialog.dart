@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/generated/catalog_item_v1_fields.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/core_data/core_data_settings.dart';
+import 'package:collectarr_app/features/library/core_data/settings.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_metadata_contributors.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';

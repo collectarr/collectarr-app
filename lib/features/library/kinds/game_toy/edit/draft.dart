@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
-import 'package:collectarr_app/features/library/edit/session/library_vocabulary_edit_accumulator.dart';
+import 'package:collectarr_app/features/library/edit/fields/external_links_draft_editor.dart';
+import 'package:collectarr_app/features/library/edit/session/vocabulary_edit_accumulator.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_metadata.dart';
 
 import 'package:collectarr_app/features/library/kinds/game_toy/forms/catalog_form_values.dart';

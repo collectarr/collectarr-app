@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
+import 'package:collectarr_app/features/library/add/models/tracking_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

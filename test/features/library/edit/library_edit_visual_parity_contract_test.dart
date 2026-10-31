@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_edit_tab_order.dart';
+import 'package:collectarr_app/features/library/config/edit_tab_order.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
-import 'package:collectarr_app/features/library/ui/library_metrics.dart';
-import 'package:collectarr_app/features/library/ui/library_section_panel.dart';
+import 'package:collectarr_app/features/library/ui/density_scope.dart';
+import 'package:collectarr_app/features/library/ui/metrics.dart';
+import 'package:collectarr_app/features/library/ui/section_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:flutter_test/flutter_test.dart';

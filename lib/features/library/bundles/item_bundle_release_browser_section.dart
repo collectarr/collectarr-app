@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
+import 'package:collectarr_app/features/library/bundles/release_contents_section.dart';
+import 'package:collectarr_app/features/library/bundles/models/detail.dart';
+import 'package:collectarr_app/features/library/bundles/models/summary.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

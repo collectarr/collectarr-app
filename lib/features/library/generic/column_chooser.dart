@@ -1,10 +1,10 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/table/column_chooser.dart';
+import 'package:collectarr_app/features/library/workspace/config/column_preset_store.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/view_state.dart';
 import 'package:flutter/material.dart';
 
 Future<Set<String>?> showGenericLibraryColumnChooser({

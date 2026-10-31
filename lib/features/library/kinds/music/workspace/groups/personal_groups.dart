@@ -4,9 +4,9 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_library_e
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/personal_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
+import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart'
     show libraryCollectionStatusFromValue;
 
 const musicPersonalGroupingFields = <MusicGroupingField>{

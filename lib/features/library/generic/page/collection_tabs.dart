@@ -1,19 +1,19 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/collections/library_collection_family.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/collections/family.dart';
+import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/ui/app_reorderable_row.dart';
 import 'dart:async';
-import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
-import 'package:collectarr_app/features/library/collections/library_collections_dialog.dart';
+import 'package:collectarr_app/features/library/collections/repository.dart';
+import 'package:collectarr_app/features/library/collections/dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'library_collection_menu.dart';
+import 'collection_menu.dart';
 
 class LibraryCollectionTabBar extends ConsumerStatefulWidget {
   const LibraryCollectionTabBar(

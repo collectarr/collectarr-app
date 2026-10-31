@@ -1,10 +1,10 @@
-import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_value_fields.dart';
+import 'package:collectarr_app/features/library/edit/fields/layout_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/value_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/person_draft.dart';
-import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_named_detail_list.dart';
+import 'package:collectarr_app/features/library/forms/field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/named_detail_list.dart';
 import 'package:flutter/material.dart';
 
 final class ComicCreatorListEditor extends StatelessWidget {

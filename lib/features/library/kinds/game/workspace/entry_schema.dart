@@ -7,8 +7,8 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/facets.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/groups.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/sorts/sorts.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/schema.dart';
 
 final gameLibraryEntryWorkspaceSchema =
     LibraryWorkspaceSchema<GameKind, GameWorkspaceDto>(

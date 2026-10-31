@@ -2,13 +2,13 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
-import 'package:collectarr_app/features/library/config/library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/config/entry_create_payload.dart';
+import 'package:collectarr_app/features/library/config/entry_update_payload.dart';
 import 'package:flutter/foundation.dart';
 
 export 'package:collectarr_app/core/models/json_encodable.dart';
-export 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
-export 'package:collectarr_app/features/library/config/library_entry_update_payload.dart';
+export 'package:collectarr_app/features/library/config/entry_create_payload.dart';
+export 'package:collectarr_app/features/library/config/entry_update_payload.dart';
 
 /// Represents a tri-state patch operation: unchanged, set new value, or clear value.
 @immutable

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/features/library/home/home_nav_models.dart';
+import 'package:collectarr_app/features/library/home/nav_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
 
 /// Reference card: title, release date, platform at the bottom and the
 /// completeness and value pill.

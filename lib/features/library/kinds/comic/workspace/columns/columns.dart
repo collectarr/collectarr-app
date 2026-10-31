@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/collection
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/entry_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/facets.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:flutter/material.dart';
 

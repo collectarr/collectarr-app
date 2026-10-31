@@ -1,0 +1,76 @@
+import 'package:collectarr_app/features/library/config/search_target.dart';
+import 'package:collectarr_app/features/library/generic/page_search_state.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/search.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class LibraryPageSearchController {
+  LibraryPageSearchController({
+    required this.ref,
+    required this.searchStateKey,
+    required this.searchController,
+    required this.searchTargetOptions,
+    required this.clearActiveSmartLists,
+    required this.syncRouteState,
+    required this.onDraftChanged,
+  });
+
+  final WidgetRef ref;
+  final String searchStateKey;
+  final TextEditingController searchController;
+  final List<LibrarySearchTarget> searchTargetOptions;
+  final VoidCallback clearActiveSmartLists;
+  final VoidCallback syncRouteState;
+  final VoidCallback onDraftChanged;
+
+  LibraryPageSearchState get state => ref.read(
+        libraryPageSearchStateProvider(searchStateKey),
+      );
+
+  void onSearchChanged(String value) {
+    final trimmed = value.trim();
+    final searchState = ref.read(
+      libraryPageSearchStateProvider(searchStateKey),
+    );
+    if (searchState.query == trimmed && searchState.pinnedItemId == null) {
+      return;
+    }
+    state.setQuery(trimmed);
+    clearActiveSmartLists();
+    syncRouteState();
+  }
+
+  void onSearchInputChanged(String value) {
+    if (state.draftQuery == value) return;
+    state.draftQuery = value;
+    onDraftChanged();
+  }
+
+  void clearSearch() {
+    searchController.clear();
+    state.clearSearch();
+    clearActiveSmartLists();
+    syncRouteState();
+  }
+
+  void applySearchSuggestion(LibraryToolbarSearchSuggestion suggestion) {
+    searchController.value = searchController.value.copyWith(
+      text: suggestion.title,
+      selection: TextSelection.collapsed(offset: suggestion.title.length),
+      composing: TextRange.empty,
+    );
+    state.applySuggestion(title: suggestion.title, id: suggestion.id);
+    clearActiveSmartLists();
+    syncRouteState();
+  }
+
+  void onSearchTargetChanged(LibrarySearchTarget target) {
+    final searchState = state;
+    if (!searchTargetOptions.contains(target) || searchState.target == target) {
+      return;
+    }
+    searchState.setTarget(target);
+    clearActiveSmartLists();
+    syncRouteState();
+  }
+}

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dar
 import 'package:collectarr_app/features/library/kinds/music/edit/album_structure_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/details_form_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/disc_details_view.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/theme/library_theme.dart';
 import 'package:flutter/material.dart';

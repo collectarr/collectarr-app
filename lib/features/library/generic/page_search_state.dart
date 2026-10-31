@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryPageSearchState {

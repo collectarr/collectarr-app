@@ -2,12 +2,12 @@ import 'package:collectarr_app/features/library/generic/projection.dart'
     show LibraryFolderPreset;
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:flutter/material.dart';
 
-export 'package:collectarr_app/features/library/config/library_media_presentation_models.dart'
+export 'package:collectarr_app/features/library/config/media_presentation_models.dart'
     show LibrarySortFavorite;
 
 /// The status filter a library opens with: albums in the collection, as in

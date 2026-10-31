@@ -1,6 +1,6 @@
 import '../../../support/fakes/music_catalog_api_fake.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
+import 'package:collectarr_app/features/library/metadata/query.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/library_relation_node.dart';
-import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
+import 'package:collectarr_app/features/library/config/relation_capability.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/detail/routes.dart';

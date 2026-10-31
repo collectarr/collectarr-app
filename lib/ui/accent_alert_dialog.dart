@@ -1,7 +1,7 @@
 import 'package:collectarr_app/ui/app_panel_title.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
+import 'package:collectarr_app/features/library/config/kind_style.dart';
+import 'package:collectarr_app/features/library/ui/panel_header.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';

@@ -2,11 +2,11 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/collection_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
+import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart'
     show libraryCollectionStatusFromValue;
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:flutter/material.dart';
 
 /// Folder fields of the reference Comics folder menu, by category and in

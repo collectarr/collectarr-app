@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
+import 'package:collectarr_app/features/library/hierarchy/domain/node.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';

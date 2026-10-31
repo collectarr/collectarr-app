@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/game/data/game_entry_repos
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/entries/entry_kind_contributor.dart';
+import 'package:collectarr_app/features/library/entries/kind_contributor.dart';
 
 final gameEntryContributor = TypedEntryKindContributor<GameLibraryEntry>(
   kind: CatalogMediaKind.game,

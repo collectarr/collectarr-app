@@ -1,0 +1,305 @@
+import 'package:collectarr_app/core/models/catalog_target_option.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/edit/draft/form_fields.dart';
+import 'package:collectarr_app/features/library/edit/draft/entry_personal_bindings.dart';
+import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
+import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/user_external_links_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/edit/draft/shell_state_factory.dart';
+import 'package:collectarr_app/features/library/edit/session/controller.dart';
+import 'package:collectarr_app/features/library/edit/session/vocabulary_edit_accumulator.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
+import 'package:collectarr_app/features/library/config/item_actions.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
+
+export 'package:collectarr_app/features/library/edit/draft/form_fields.dart';
+export 'package:collectarr_app/features/library/edit/contracts/kind_draft.dart';
+export 'package:collectarr_app/features/library/edit/draft/entry_personal_bindings.dart';
+export 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
+
+class LibraryEditShellState {
+  /// Low-level state constructor used by [createLibraryEditShellState].
+  ///
+  /// Callers should normally use [fromRequest], [fromItem], or [fromFields].
+  LibraryEditShellState.create({
+    required TextControllerGroup textControllers,
+    required this.type,
+    required this.target,
+    required this.kindItem,
+    required this.libraryEntry,
+    required this.libraryEntryDispatch,
+    required this.wishlistItem,
+    required this.trackingSummary,
+    required this.accent,
+    required this.wishlistTargetOptions,
+    required this.physicalFormats,
+    required this.customFieldDefinitions,
+    required this.customFieldValues,
+    required this.itemImages,
+    required this.isDigitalFormat,
+    required this.formFields,
+    required this.canonicalFormSchema,
+    required this.personal,
+    required this.tracking,
+    required this.session,
+    required this.customFieldEdits,
+    required this.itemImageEdits,
+  }) : _textControllers = textControllers;
+
+  final TextControllerGroup _textControllers;
+
+  final LibraryKindRegistration type;
+  final LibraryTargetRef? target;
+
+  /// The selected transport candidate is retained only for the kind-entry
+  /// draft and final catalog mutation boundary. The shared shell keeps this
+  /// candidate opaque and routes semantic work through the kind session.
+  final CatalogSearchCandidate kindItem;
+  final LibraryEntrySummary? libraryEntry;
+  final LibraryEntryDispatch? libraryEntryDispatch;
+  final WishlistItem? wishlistItem;
+  final TrackingSummary? trackingSummary;
+  final Color accent;
+  final List<CatalogTargetOption> wishlistTargetOptions;
+  final List<PhysicalMediaFormat> physicalFormats;
+  final List<CustomFieldDefinition> customFieldDefinitions;
+  final List<CustomFieldValue> customFieldValues;
+  final List<ItemImage> itemImages;
+  final bool isDigitalFormat;
+
+  /// Modular Sub-Drafts
+  final LibraryEditFormFields formFields;
+  final LibraryEditFormSchema canonicalFormSchema;
+  final LibraryEntryPersonalBindings personal;
+  final TrackingDraft tracking;
+  final LibraryUserExternalLinksDraft userExternalLinks =
+      LibraryUserExternalLinksDraft();
+
+  /// Semantic mutations are kept outside the shell form state.
+  ///
+  /// The renderer uses this collaborator for save/copy mutations while this
+  /// object only exposes the controllers and transient values needed by the
+  /// UI.
+  final LibraryEditSessionController session;
+
+  Map<String, String?> customFieldEdits;
+  List<ItemImageEdit> itemImageEdits;
+  List<String> locationOptions = const [];
+  List<String> ownerOptions = const [];
+  List<String> purchaseStoreOptions = const [];
+  List<String> tagOptions = const [];
+  Map<String, List<String>> kindVocabularies = const {};
+  final pendingVocabularyValues = LibraryVocabularyEditAccumulator();
+  bool _isDirty = false;
+
+  bool get isDirty => _isDirty;
+
+  void markDirty() => _isDirty = true;
+
+  void recordPendingVocabularyValue({
+    required String fieldId,
+    required String? listName,
+    required String? value,
+    required Iterable<String> options,
+    required bool allowCustomValues,
+    String? mediaKind,
+  }) {
+    pendingVocabularyValues.removeField(fieldId);
+    final normalized = value?.trim();
+    final isKnownValue = normalized != null &&
+        options.any(
+          (option) => option.trim().toLowerCase() == normalized.toLowerCase(),
+        );
+    if (!allowCustomValues ||
+        listName == null ||
+        normalized == null ||
+        normalized.isEmpty ||
+        isKnownValue) {
+      return;
+    }
+    pendingVocabularyValues.replaceValue(
+      fieldId: fieldId,
+      listName: listName,
+      value: normalized,
+      mediaKind: mediaKind,
+    );
+  }
+
+  void recordPendingVocabularyValues({
+    required String fieldId,
+    required String? listName,
+    required Iterable<String> values,
+    required Iterable<String> options,
+    required bool allowCustomValues,
+    String? mediaKind,
+  }) {
+    pendingVocabularyValues.removeField(fieldId);
+    if (!allowCustomValues || listName == null) return;
+
+    final knownValues =
+        options.map((value) => value.trim().toLowerCase()).toSet();
+    final pendingValues = <String>[];
+    for (final value in values) {
+      final normalized = value.trim();
+      if (normalized.isEmpty ||
+          knownValues.contains(normalized.toLowerCase())) {
+        continue;
+      }
+      pendingValues.add(normalized);
+    }
+    pendingVocabularyValues.replaceValues(
+      fieldId: fieldId,
+      listName: listName,
+      values: pendingValues,
+      mediaKind: mediaKind,
+    );
+  }
+
+  void markClean() => _isDirty = false;
+
+  // ---------------------------------------------------------------------------
+  // Factory Constructors
+  // ---------------------------------------------------------------------------
+
+  factory LibraryEditShellState.fromRequest(LibraryEditDialogRequest request) {
+    return LibraryEditShellState.fromFields(
+      type: request.type,
+      target: request.target,
+      item: request.kindItem,
+      libraryEntry: request.libraryEntry,
+      libraryEntryDispatch: request.libraryEntryDispatch,
+      wishlistItem: request.wishlistItem,
+      trackingSummary: request.trackingSummary,
+      accent: request.accent,
+      wishlistTargetOptions: request.wishlistTargetOptions,
+      physicalFormats: request.physicalFormats,
+      customFieldDefinitions: request.customFieldDefinitions,
+      customFieldValues: request.customFieldValues,
+      itemImages: request.itemImages,
+    );
+  }
+
+  factory LibraryEditShellState.fromItem({
+    required LibraryKindRegistration type,
+    LibraryTargetRef? target,
+    required CatalogSearchCandidate item,
+    LibraryEntrySummary? libraryEntry,
+    LibraryEntryDispatch? libraryEntryDispatch,
+    WishlistItem? wishlistItem,
+    TrackingSummary? trackingSummary,
+    required Color accent,
+    List<CatalogTargetOption> wishlistTargetOptions = const [],
+    List<PhysicalMediaFormat> physicalFormats = const [],
+    List<CustomFieldDefinition> customFieldDefinitions = const [],
+    List<CustomFieldValue> customFieldValues = const [],
+    List<ItemImage> itemImages = const [],
+  }) {
+    return LibraryEditShellState.fromFields(
+      type: type,
+      target: target,
+      item: item,
+      libraryEntry: libraryEntry,
+      libraryEntryDispatch: libraryEntryDispatch,
+      wishlistItem: wishlistItem,
+      trackingSummary: trackingSummary,
+      accent: accent,
+      wishlistTargetOptions: wishlistTargetOptions,
+      physicalFormats: physicalFormats,
+      customFieldDefinitions: customFieldDefinitions,
+      customFieldValues: customFieldValues,
+      itemImages: itemImages,
+    );
+  }
+
+  factory LibraryEditShellState.fromFields({
+    required LibraryKindRegistration type,
+    LibraryTargetRef? target,
+    required CatalogSearchCandidate item,
+    required LibraryEntrySummary? libraryEntry,
+    LibraryEntryDispatch? libraryEntryDispatch,
+    required WishlistItem? wishlistItem,
+    required TrackingSummary? trackingSummary,
+    required Color accent,
+    List<CatalogTargetOption> wishlistTargetOptions = const [],
+    List<PhysicalMediaFormat> physicalFormats = const [],
+    List<CustomFieldDefinition> customFieldDefinitions = const [],
+    List<CustomFieldValue> customFieldValues = const [],
+    List<ItemImage> itemImages = const [],
+  }) =>
+      createLibraryEditShellState(
+        type: type,
+        target: target,
+        item: item,
+        libraryEntry: libraryEntry,
+        libraryEntryDispatch: libraryEntryDispatch,
+        wishlistItem: wishlistItem,
+        trackingSummary: trackingSummary,
+        accent: accent,
+        wishlistTargetOptions: wishlistTargetOptions,
+        physicalFormats: physicalFormats,
+        customFieldDefinitions: customFieldDefinitions,
+        customFieldValues: customFieldValues,
+        itemImages: itemImages,
+      );
+
+  // ---------------------------------------------------------------------------
+  // Domain Helpers & Actions
+  // ---------------------------------------------------------------------------
+
+  bool get isEntry => target is EntryTargetRef || libraryEntry != null;
+  bool get hasTrackingContext => isEntry || trackingSummary != null;
+  bool get isTrackingOnly => !isEntry && trackingSummary != null;
+  bool get hasWishlistContext => wishlistItem != null;
+  bool get showPhysicalEntryFields => isEntry && !isDigitalFormat;
+
+  ({
+    String? selectedLocationId,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    DateTime? soldAt,
+    Map<String, String?> customFieldEdits,
+    List<ItemImageEdit> itemImageEdits,
+  }) cloneDialogState() {
+    return (
+      selectedLocationId: personal.selectedLocationId,
+      startedAt: tracking.startedAt,
+      finishedAt: tracking.finishedAt,
+      soldAt: personal.soldAt,
+      customFieldEdits: Map<String, String?>.from(customFieldEdits),
+      itemImageEdits: List<ItemImageEdit>.from(itemImageEdits),
+    );
+  }
+
+  void updateCustomFieldsAndImages({
+    required Map<String, String?> customFieldEdits,
+    required List<ItemImageEdit> itemImageEdits,
+  }) {
+    this.customFieldEdits = Map<String, String?>.from(customFieldEdits);
+    this.itemImageEdits = List<ItemImageEdit>.from(itemImageEdits);
+  }
+
+  void replaceMediaEdits({
+    required Map<String, String?> customFieldEdits,
+    required List<ItemImageEdit> itemImageEdits,
+  }) =>
+      updateCustomFieldsAndImages(
+        customFieldEdits: customFieldEdits,
+        itemImageEdits: itemImageEdits,
+      );
+
+  void dispose() {
+    userExternalLinks.dispose();
+    session.dispose();
+    _textControllers.dispose();
+    personal.tags.dispose();
+  }
+}

@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/reports/library_export_csv_txt_page.dart';
-import 'package:collectarr_app/features/library/reports/library_print_pdf_page.dart';
-import 'package:collectarr_app/features/library/reports/library_report_generator.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/reports/export_csv_txt_page.dart';
+import 'package:collectarr_app/features/library/reports/print_pdf_page.dart';
+import 'package:collectarr_app/features/library/reports/generator.dart';
 import 'package:collectarr_app/ui/app_block_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

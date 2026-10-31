@@ -1,0 +1,139 @@
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/search_context.dart';
+
+typedef LibraryAddMetadataSearchScore = int Function(
+  CatalogSearchCandidate item,
+  LibraryAddSearchContext context,
+);
+
+class LibraryAddSearchRankField {
+  const LibraryAddSearchRankField({
+    required this.id,
+    required this.exactWeight,
+    required this.containsWeight,
+    required this.metadataValues,
+  });
+
+  final LibraryAddFilterId id;
+  final int exactWeight;
+  final int containsWeight;
+  final Iterable<Object?> Function(CatalogSearchCandidate item) metadataValues;
+}
+
+class LibraryAddSearchRanking {
+  const LibraryAddSearchRanking({required this.scoreMetadata});
+
+  final LibraryAddMetadataSearchScore scoreMetadata;
+
+  List<CatalogSearchCandidate> rankMetadata(
+    List<CatalogSearchCandidate> items,
+    LibraryAddSearchContext context,
+  ) {
+    if (items.length < 2 || !context.hasAnyInput) return items;
+    return _stableRank(items, (item) => scoreMetadata(item, context));
+  }
+}
+
+LibraryAddSearchRanking buildLibraryAddSearchRanking({
+  required List<LibraryAddSearchRankField> fields,
+}) {
+  int scoreMetadata(
+    CatalogSearchCandidate item,
+    LibraryAddSearchContext context,
+  ) {
+    var score = _scoreText(
+      item.summary.primaryLabel,
+      context.query,
+      exactWeight: 100,
+      containsWeight: 36,
+    );
+    for (final field in fields) {
+      score += _scoreField(
+        context.textValueFor(field.id),
+        field.metadataValues(item),
+        exactWeight: field.exactWeight,
+        containsWeight: field.containsWeight,
+      );
+    }
+    return score;
+  }
+
+  return LibraryAddSearchRanking(scoreMetadata: scoreMetadata);
+}
+
+List<T> _stableRank<T>(List<T> items, int Function(T item) score) {
+  final indexed = items.indexed.toList(growable: false);
+  indexed.sort((left, right) {
+    final leftScore = score(left.$2);
+    final rightScore = score(right.$2);
+    if (leftScore != rightScore) return rightScore.compareTo(leftScore);
+    return left.$1.compareTo(right.$1);
+  });
+  return indexed.map((entry) => entry.$2).toList(growable: false);
+}
+
+int _scoreField(
+  Object? hint,
+  Iterable<Object?> values, {
+  required int exactWeight,
+  required int containsWeight,
+}) {
+  var best = 0;
+  for (final value in values) {
+    final score = _scoreText(
+      value?.toString(),
+      hint?.toString(),
+      exactWeight: exactWeight,
+      containsWeight: containsWeight,
+    );
+    if (score > best) best = score;
+  }
+  return best;
+}
+
+int _scoreText(
+  String? candidate,
+  String? hint, {
+  required int exactWeight,
+  required int containsWeight,
+}) {
+  final normalizedCandidate = _normalize(candidate);
+  final normalizedHint = _normalize(hint);
+  if (normalizedCandidate.isEmpty || normalizedHint.isEmpty) return 0;
+  if (normalizedCandidate == normalizedHint) return exactWeight;
+  if (normalizedCandidate.contains(normalizedHint) ||
+      normalizedHint.contains(normalizedCandidate)) {
+    return containsWeight;
+  }
+  final candidateTokens = normalizedCandidate.split(' ');
+  final hintTokens = normalizedHint.split(' ');
+  if (candidateTokens.any(hintTokens.contains)) {
+    return (containsWeight / 2).round().clamp(1, containsWeight);
+  }
+  return 0;
+}
+
+String _normalize(Object? value) =>
+    value
+        ?.toString()
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim() ??
+    '';
+
+List<CatalogSearchCandidate> filterAndRankCatalogItems(
+  List<CatalogSearchCandidate> items,
+  LibraryAddSearchRanking ranking,
+  LibraryAddSearchContext context, {
+  int minimumScore = 1,
+}) {
+  if (items.isEmpty || !context.hasAnyInput) return items;
+  final ranked = ranking.rankMetadata(items, context);
+  return [
+    for (final item in ranked)
+      if (ranking.scoreMetadata(item, context) >= minimumScore) item,
+  ];
+}

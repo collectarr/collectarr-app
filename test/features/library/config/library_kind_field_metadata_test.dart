@@ -1,9 +1,9 @@
-import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
-import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
-import 'package:collectarr_app/features/library/config/library_facet_types.dart';
+import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/facet_types.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/config/presentation/filter_presentation.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';

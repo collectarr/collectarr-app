@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/entries/store.dart';
 
 /// Projects a complete local entry into its kind's typed form state.
 /// There is one persisted record, not a catalog row plus physical-copy rows.

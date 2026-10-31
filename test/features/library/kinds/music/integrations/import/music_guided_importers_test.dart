@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album.d
 import 'package:collectarr_app/features/library/kinds/music/integrations/import/catraxx_importer.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/import/discogs_importer.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/import/music_mapped_csv_importer.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
 import 'package:flutter_test/flutter_test.dart';
 

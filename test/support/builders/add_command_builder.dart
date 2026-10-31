@@ -4,10 +4,10 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/add/models/common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/kind_draft.dart';
+import 'package:collectarr_app/features/library/add/models/tracking_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/draft.dart';

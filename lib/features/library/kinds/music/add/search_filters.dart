@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/search_context.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/catalog_candidate_projection.dart';
 
 const musicAddDiscFilterId = LibraryAddFilterId('music.search.disc');

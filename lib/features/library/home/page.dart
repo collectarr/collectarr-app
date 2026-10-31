@@ -1,0 +1,449 @@
+import 'dart:async';
+import 'dart:developer' as developer;
+
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/utils/image_url.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/home/nav_models.dart';
+import 'package:collectarr_app/features/library/home/switch_transition.dart';
+import 'package:collectarr_app/features/library/home/catalog.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/providers/nav_preferences.dart';
+import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
+import 'package:collectarr_app/features/library/workspace/layout/snapshot.dart';
+import 'package:collectarr_app/features/library/workspace/layout/snapshot_provider.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
+
+class LibraryHomePage extends ConsumerStatefulWidget {
+  const LibraryHomePage({super.key, required this.routeUri});
+
+  final Uri routeUri;
+
+  @override
+  ConsumerState<LibraryHomePage> createState() => _LibraryHomePageState();
+}
+
+class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
+  final Map<String, Widget> _cachedKindPages = <String, Widget>{};
+  final List<String> _cachedKindOrder = <String>[];
+  String? _lastPrewarmedKind;
+  LibraryLayoutSnapshot? _switchLayoutSnapshot;
+  Timer? _switchLayoutSnapshotReset;
+  Timer? _coverPrewarmTimer;
+  int _coverPrewarmToken = 0;
+  developer.TimelineTask? _switchTimelineTask;
+  Stopwatch? _switchStopwatch;
+
+  String? _routeKind() {
+    return canonicalLibraryNavKind(widget.routeUri.queryParameters['kind']);
+  }
+
+  void _replaceLibraryKind(String kind) {
+    final normalized = canonicalLibraryNavKind(kind) ?? 'music';
+    final previousKind = ref.read(selectedLibraryKindProvider);
+    final uiPreferences = ref.read(uiPreferencesProvider);
+    final switchAnimationDuration = uiPreferences.animationsEnabled &&
+            !uiPreferences.disableLibrarySwitchAnimation
+        ? const Duration(milliseconds: 140)
+        : Duration.zero;
+    if (previousKind != normalized) {
+      _switchLayoutSnapshotReset?.cancel();
+      _switchLayoutSnapshot = ref.read(libraryLayoutSnapshotProvider);
+      _coverPrewarmTimer?.cancel();
+      _coverPrewarmToken++;
+      _switchStopwatch?.stop();
+      _switchStopwatch = Stopwatch()..start();
+      if (kDebugMode) {
+        _switchTimelineTask?.finish();
+        _switchTimelineTask = developer.TimelineTask()
+          ..start(
+            'library kind switch',
+            arguments: <String, Object?>{
+              'from': previousKind,
+              'to': normalized,
+            },
+          );
+      }
+      _recordSwitchMetrics(previousKind: previousKind, nextKind: normalized);
+    }
+    ref.read(selectedLibraryKindProvider.notifier).select(normalized);
+    final nextUri = widget.routeUri.replace(
+      queryParameters: {'kind': normalized},
+    );
+    if (nextUri.toString() != widget.routeUri.toString() &&
+        GoRouter.maybeOf(context) != null) {
+      context.replace(nextUri.toString());
+    }
+    final shelfState = ref.read(shelfProvider).maybeWhen(
+          data: (value) => value,
+          orElse: () => null,
+        );
+    if (switchAnimationDuration == Duration.zero) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _switchLayoutSnapshot = null;
+        });
+      });
+      return;
+    }
+    _scheduleDelayedCoverPrewarm(
+      context: context,
+      shelfState: shelfState,
+      kind: normalized,
+      delay: switchAnimationDuration + const Duration(milliseconds: 120),
+    );
+    _switchLayoutSnapshotReset = Timer(
+      switchAnimationDuration + const Duration(milliseconds: 120),
+      () {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _switchLayoutSnapshot = null;
+        });
+        if (kDebugMode) {
+          _switchStopwatch?.stop();
+          developer.log(
+            'library switch $previousKind -> $normalized in ${_switchStopwatch?.elapsedMilliseconds ?? 0}ms',
+            name: 'collectarr.library',
+          );
+          _switchTimelineTask?.finish();
+          _switchTimelineTask = null;
+        }
+      },
+    );
+  }
+
+  void _scheduleDelayedCoverPrewarm({
+    required BuildContext context,
+    required ShelfState? shelfState,
+    required String kind,
+    required Duration delay,
+  }) {
+    if (!mounted ||
+        shelfState == null ||
+        ref.read(uiPreferencesProvider).disableLibraryCoverPrewarm) {
+      return;
+    }
+    final requestToken = ++_coverPrewarmToken;
+    _coverPrewarmTimer?.cancel();
+    _coverPrewarmTimer = Timer(delay, () {
+      if (!mounted) {
+        return;
+      }
+      if (requestToken != _coverPrewarmToken) {
+        return;
+      }
+      _prewarmCoverUrls(
+        context,
+        shelfState,
+        kind,
+        maxUrls: 12,
+        skip: 12,
+      );
+    });
+  }
+
+  void _recordSwitchMetrics({
+    required String previousKind,
+    required String nextKind,
+  }) {}
+
+  @override
+  void dispose() {
+    _switchLayoutSnapshotReset?.cancel();
+    _coverPrewarmTimer?.cancel();
+    _switchTimelineTask?.finish();
+    super.dispose();
+  }
+
+  void _requestCoverPrewarm(
+    BuildContext context,
+    ShelfState shelfState,
+    String kind, {
+    int maxUrls = 12,
+  }) {
+    if (!mounted ||
+        ref.read(uiPreferencesProvider).disableLibraryCoverPrewarm ||
+        _lastPrewarmedKind == kind) {
+      return;
+    }
+    _lastPrewarmedKind = kind;
+    _prewarmCoverUrls(
+      context,
+      shelfState,
+      kind,
+      maxUrls: maxUrls,
+    );
+  }
+
+  void _prewarmCoverUrls(
+    BuildContext context,
+    ShelfState shelfState,
+    String kind, {
+    required int maxUrls,
+    int skip = 0,
+  }) {
+    final urls = _firstCoverUrlsForKind(
+      shelfState,
+      kind,
+      maxUrls: maxUrls + skip,
+    );
+    if (urls.isEmpty || skip >= urls.length) {
+      return;
+    }
+    for (final url in urls.skip(skip).take(maxUrls)) {
+      unawaited(
+        precacheImage(
+          CachedNetworkImageProvider(url),
+          context,
+          onError: (_, __) {},
+        ),
+      );
+    }
+  }
+
+  List<String> _firstCoverUrlsForKind(
+    ShelfState shelfState,
+    String kind, {
+    int maxUrls = 24,
+  }) {
+    final urls = <String>[];
+    final seen = <String>{};
+    for (final entry in shelfState.entries) {
+      final catalogSummary = entry.catalogSummary;
+      if (catalogSummary == null || catalogSummary.kind.apiValue != kind) {
+        continue;
+      }
+      final candidates = [
+        normalizeNetworkImageUrl(catalogSummary.imageUrl),
+      ];
+      for (final url in candidates.whereType<String>()) {
+        if (url.isEmpty || !seen.add(url)) {
+          continue;
+        }
+        urls.add(url);
+        if (urls.length >= maxUrls) {
+          return urls;
+        }
+      }
+    }
+    return urls;
+  }
+
+  Widget _buildCachedKindBody({
+    required CatalogMediaType selected,
+    required Color accent,
+    required Uri routeUri,
+    required List<CatalogMediaType> visibleTypes,
+    required Duration animationDuration,
+    required LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    _cachedKindPages[selected.kind] = KeyedSubtree(
+      key: ValueKey('library-kind-${selected.kind}'),
+      child: buildLibraryKindPage(
+        registration: libraryKindRegistrationForKind(
+          catalogMediaKindFromApiValue(selected.kind),
+        ),
+        topBar: const SizedBox.shrink(),
+        accent: accent,
+        routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
+      ),
+    );
+
+    _cachedKindOrder.remove(selected.kind);
+    _cachedKindOrder.add(selected.kind);
+
+    final visibleKindOrder = <String>{
+      for (final type in visibleTypes) type.kind,
+    };
+    _cachedKindPages.removeWhere((kind, _) => !visibleKindOrder.contains(kind));
+
+    _cachedKindOrder.removeWhere((kind) => !visibleKindOrder.contains(kind));
+
+    const maxCachedKinds = 4;
+    while (_cachedKindOrder.length > maxCachedKinds) {
+      final removeIndex = _cachedKindOrder.indexWhere(
+        (kind) => kind != selected.kind,
+      );
+      if (removeIndex < 0) {
+        break;
+      }
+      final evictedKind = _cachedKindOrder.removeAt(removeIndex);
+      _cachedKindPages.remove(evictedKind);
+    }
+
+    final cachedKinds = [
+      for (final kind in _cachedKindOrder)
+        if (_cachedKindPages.containsKey(kind)) kind,
+    ];
+    final selectedIndex = cachedKinds.indexOf(selected.kind);
+    if (selectedIndex < 0) {
+      return const SizedBox.shrink();
+    }
+
+    final stack = IndexedStack(
+      index: selectedIndex,
+      children: [
+        for (final kind in cachedKinds)
+          TickerMode(
+            enabled: kind == selected.kind,
+            child: RepaintBoundary(child: _cachedKindPages[kind]!),
+          ),
+      ],
+    );
+
+    if (animationDuration == Duration.zero) {
+      return stack;
+    }
+
+    return LibrarySwitchTransition(
+      duration: animationDuration,
+      child: KeyedSubtree(
+        key: ValueKey('library-kind-stack-${selected.kind}'),
+        child: stack,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final catalogState = ref.watch(mediaCatalogProvider);
+    final catalog = catalogState.maybeWhen(
+      data: (value) => value,
+      orElse: () => fallbackMediaCatalog,
+    );
+    final isCatalogOffline = catalogState.hasError;
+    final navPreferences = ref.watch(libraryNavPreferencesProvider);
+    final selectedKind = ref.watch(selectedLibraryKindProvider);
+    final uiPreferences = ref.watch(uiPreferencesProvider);
+    final switchAnimationDuration = uiPreferences.animationsEnabled &&
+            !uiPreferences.disableLibrarySwitchAnimation
+        ? const Duration(milliseconds: 140)
+        : Duration.zero;
+    final visibleTypes = selectableLibraryHomeTypes(catalog, navPreferences);
+    final rawRouteKind =
+        widget.routeUri.queryParameters['kind']?.trim().toLowerCase();
+    final routeKind = _routeKind();
+    final routeSelected = routeKind == null
+        ? null
+        : visibleTypes.where((type) => type.kind == routeKind).firstOrNull;
+    final selected =
+        routeSelected ?? selectedLibraryHomeType(visibleTypes, selectedKind);
+    if (routeKind != null && rawRouteKind != routeKind) {
+      final normalizedRouteKind = routeKind;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        _replaceLibraryKind(normalizedRouteKind);
+      });
+    }
+    if (selected.kind != selectedKind) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        final currentKind = ref.read(selectedLibraryKindProvider);
+        if (currentKind != selected.kind) {
+          ref.read(selectedLibraryKindProvider.notifier).select(selected.kind);
+        }
+      });
+    }
+    final shelfState = ref.watch(shelfProvider);
+    final loadedShelf = shelfState.maybeWhen(
+      data: (value) => value,
+      orElse: () => null,
+    );
+    final offlineBanner = isCatalogOffline
+        ? Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            color: kAppSurfaceSubtle,
+            child: Row(
+              children: [
+                Icon(Icons.cloud_off,
+                    size: 14, color: appPalette(context).textSecondary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Using offline catalog — server unreachable',
+                    style: TextStyle(
+                        fontSize: 12, color: appPalette(context).textSecondary),
+                  ),
+                ),
+              ],
+            ),
+          )
+        : null;
+    final accent = LibraryAccentScope.of(context).accent;
+    final content = Column(
+      children: [
+        if (offlineBanner != null) offlineBanner,
+        Expanded(
+          child: _CoverPrewarmTrigger(
+              onIntent: loadedShelf == null
+                  ? null
+                  : () =>
+                      _requestCoverPrewarm(context, loadedShelf, selected.kind),
+              child: _buildCachedKindBody(
+                selected: selected,
+                accent: accent,
+                routeUri: widget.routeUri,
+                visibleTypes: visibleTypes,
+                animationDuration: switchAnimationDuration,
+                switchLayoutSnapshot: _switchLayoutSnapshot,
+              )),
+        ),
+      ],
+    );
+
+    return content;
+  }
+}
+
+class _CoverPrewarmTrigger extends StatelessWidget {
+  const _CoverPrewarmTrigger({
+    required this.child,
+    this.onIntent,
+  });
+
+  final Widget child;
+  final VoidCallback? onIntent;
+
+  @override
+  Widget build(BuildContext context) {
+    if (onIntent == null) {
+      return child;
+    }
+    return Focus(
+      onFocusChange: (hasFocus) {
+        if (hasFocus) {
+          onIntent!();
+        }
+      },
+      child: MouseRegion(
+        onEnter: (_) => onIntent!(),
+        child: Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (_) => onIntent!(),
+          child: child,
+        ),
+      ),
+    );
+  }
+}

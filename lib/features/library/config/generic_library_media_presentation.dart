@@ -1,8 +1,8 @@
-import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
-import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/workspace/schema/group_values.dart';
+import 'package:collectarr_app/features/library/config/entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation_builder.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
 
 const genericLibraryMediaBuilder = GenericLibraryMediaPresentationBuilder();
 

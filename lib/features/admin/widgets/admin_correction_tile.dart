@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/canonical_correction_proposal.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
-import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
-import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
+import 'package:collectarr_app/features/library/edit/core_correction/core_correction.dart';
+import 'package:collectarr_app/features/library/metadata/diff_panel.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 

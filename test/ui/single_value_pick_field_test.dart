@@ -1,8 +1,8 @@
-import 'package:collectarr_app/features/library/ui/library_metrics.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/metrics.dart';
+import 'package:collectarr_app/features/library/edit/fields/dialog_widgets.dart';
+import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

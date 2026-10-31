@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/utils/sort_title.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_alphabet_field.dart';
+import 'package:collectarr_app/features/library/config/presentation/alphabet_field.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart';
 

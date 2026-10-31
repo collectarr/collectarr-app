@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_ordered_pick_list_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/ordered_names_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/ordered_pick_list_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:flutter/material.dart';
 

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
+import 'package:collectarr_app/features/library/workspace/table/cell.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/ordered_names_field.dart';
 import 'package:flutter/material.dart';
 
 /// Ordered Book names with optional sort names, shared by Add and Edit.

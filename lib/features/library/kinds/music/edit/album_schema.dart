@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/forms/main_form_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/album_details_pane.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
+import 'package:collectarr_app/features/library/edit/schema/schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/header_title.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dart';

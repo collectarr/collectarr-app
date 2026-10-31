@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
-import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/config/edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/item_actions.dart';
+import 'package:collectarr_app/features/library/config/presentation/edit_presentation_builder_base.dart';
+import 'package:collectarr_app/features/library/edit/shell/dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 

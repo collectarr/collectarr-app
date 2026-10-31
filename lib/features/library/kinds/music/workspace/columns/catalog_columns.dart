@@ -9,7 +9,7 @@ import '../catalog_fields.dart';
 import '../fields.dart';
 import '../dto.dart';
 import 'columns.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 
 final musicCatalogWorkspaceColumns =

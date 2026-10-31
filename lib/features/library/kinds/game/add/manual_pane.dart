@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_manual_personal_tab.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_status_strip.dart';
-import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
+import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/panes/manual_pane_shell.dart';
+import 'package:collectarr_app/features/library/add/panes/manual_personal_tab.dart';
+import 'package:collectarr_app/features/library/add/panes/status_strip.dart';
+import 'package:collectarr_app/features/library/edit/fields/external_links_draft_editor.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/schema.dart';
@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/kinds/game/edit/personal_form_la
 import 'package:collectarr_app/features/library/kinds/game/edit/value_tab.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
 

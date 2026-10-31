@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/add/manual_draft.dart';
-import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
+import 'package:collectarr_app/features/library/edit/fields/external_links_draft_editor.dart';
 import 'package:flutter/material.dart';
 
 final class BoardgameAddLinksTab extends StatefulWidget {

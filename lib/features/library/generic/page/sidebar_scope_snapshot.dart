@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/generic/library_filters.dart';
+import 'package:collectarr_app/features/library/generic/filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 

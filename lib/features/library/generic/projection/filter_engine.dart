@@ -1,0 +1,306 @@
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/generic/filters.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
+import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart'
+    show libraryCollectionStatusFromValue;
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/config/search_target.dart';
+
+class LibraryFilterEngine {
+  const LibraryFilterEngine({
+    this.groupingEngine = const LibraryGroupingEngine(),
+  });
+
+  final LibraryGroupingEngine groupingEngine;
+
+  bool matches({
+    required LibraryProjectionItem item,
+    required LibraryProjectionQuery query,
+    required LibrarySearchDocument searchDoc,
+    required LibraryKindRegistration type,
+    LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
+    LibraryProjectionIndex? index,
+    Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
+    Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
+        const {},
+  }) {
+    if (!searchDoc.matches(query.searchQuery, searchTarget: searchTarget)) {
+      return false;
+    }
+    if (query.constrainedItemIds != null &&
+        !query.constrainedItemIds!.contains(item.target.id)) {
+      return false;
+    }
+    if (!_matchesBucketScopeFilters(
+        item, type, query.bucketScopeFilters, index)) {
+      return false;
+    }
+    if (query.selectedBucket != null &&
+        !_matchesBucket(item, type, _defaultGroupId(type, query),
+            query.selectedBucket, index)) {
+      return false;
+    }
+    if (!matchesCollectionStatusScope(item, query.collectionStatusScope)) {
+      return false;
+    }
+    if (!_matchesQuickView(item, type, query.quickView)) {
+      return false;
+    }
+    if (!_matchesFilter(
+      item,
+      type,
+      query.filterSelection,
+      activeLoanLibraryEntryIds,
+      customFieldValuesByDefinitionByItem,
+    )) {
+      return false;
+    }
+    if (!_matchesLinkedMetadata(item, query.linkedMetadataFilter, type)) {
+      return false;
+    }
+    return true;
+  }
+
+  bool _matchesBucket(
+    LibraryProjectionItem item,
+    LibraryKindRegistration type,
+    LibraryGroupIdRuntime groupId,
+    String? selectedBucket,
+    LibraryProjectionIndex? index,
+  ) {
+    if (selectedBucket == null) return true;
+    return groupingEngine
+        .bucketsForItem(item, type, groupId, index: index)
+        .contains(selectedBucket);
+  }
+
+  bool _matchesBucketScopeFilters(
+    LibraryProjectionItem item,
+    LibraryKindRegistration type,
+    List<LibraryBucketScopeFilter> filters,
+    LibraryProjectionIndex? index,
+  ) {
+    for (final filter in filters) {
+      if (!groupingEngine
+          .bucketsForItem(item, type, filter.groupId, index: index)
+          .contains(filter.bucket)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  LibraryGroupIdRuntime _defaultGroupId(
+    LibraryKindRegistration type,
+    LibraryProjectionQuery query,
+  ) {
+    final fields = libraryKindWorkspaceForKind(type.kind).fields;
+    return query.groupId ?? fields.defaultGroup ?? fields.groups.first.id;
+  }
+
+  /// Whether [item] belongs to the Collection Status [scope], read from the
+  /// entry's own status as in the reference. In Collection also covers For
+  /// Sale copies, which are still owned.
+  bool matchesCollectionStatusScope(
+    LibraryProjectionItem item,
+    LibraryCollectionStatusScope scope,
+  ) {
+    if (scope == LibraryCollectionStatusScope.all) return true;
+    final status = _collectionStatus(item);
+    return scope == LibraryCollectionStatusScope.inCollection
+        ? status == LibraryCollectionStatusScope.inCollection ||
+            status == LibraryCollectionStatusScope.forSale
+        : status == scope;
+  }
+
+  LibraryCollectionStatusScope _collectionStatus(LibraryProjectionItem item) {
+    final source = item.source;
+    final entry = source.libraryEntrySummary;
+    if (source.isEntry && entry != null) {
+      final status = libraryCollectionStatusFromValue(entry.collectionStatus);
+      return status == LibraryCollectionStatusScope.inCollection &&
+              entry.soldAt != null
+          ? LibraryCollectionStatusScope.sold
+          : status;
+    }
+    return source.isWishlisted
+        ? LibraryCollectionStatusScope.wishList
+        : LibraryCollectionStatusScope.notInCollection;
+  }
+
+  bool _matchesQuickView(
+    LibraryProjectionItem item,
+    LibraryKindRegistration type,
+    LibraryQuickView? quickView,
+  ) {
+    if (quickView == null) return true;
+    final kindResult = libraryPresentationForKind(type.kind)
+        .quickViewMatcher
+        ?.call(item, quickView);
+    if (kindResult != null) return kindResult;
+    return switch (quickView) {
+      LibraryQuickView.entry => item.source.isEntry,
+      LibraryQuickView.wishlist => item.source.isWishlisted,
+      LibraryQuickView.missingCovers =>
+        item.dto.imageUrl == null || item.dto.imageUrl!.isEmpty,
+      LibraryQuickView.missingMetadata => false,
+      LibraryQuickView.missingGrade => false,
+    };
+  }
+
+  bool _matchesFilter(
+    LibraryProjectionItem item,
+    LibraryKindRegistration type,
+    LibraryFilterSelection filters,
+    Set<LibraryEntryRef> activeLoanLibraryEntryIds,
+    Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
+  ) {
+    if (!filters.hasActiveFilters) {
+      return true;
+    }
+    if (!libraryFilterMatches(
+      item,
+      filters,
+      filterDefinitions:
+          libraryPresentationForKind(type.kind).filterDefinitions,
+      fieldRegistry:
+          libraryKindWorkspaceForKind(type.kind).fieldsForTarget(item.target),
+    )) {
+      return false;
+    }
+    if (!libraryTrackingStatusMatchesFilter(
+      item.source.trackingStatus,
+      filters.trackingStatusFilter,
+    )) {
+      return false;
+    }
+    if (!_matchesLoanFilter(
+        item, filters.loanStatusFilter, activeLoanLibraryEntryIds)) {
+      return false;
+    }
+    if (!_matchesDateRange(item, filters)) {
+      return false;
+    }
+    if (!_matchesCustomField(
+      item,
+      filters,
+      customFieldValuesByDefinitionByItem,
+    )) {
+      return false;
+    }
+    return true;
+  }
+
+  bool _matchesCustomField(
+    LibraryProjectionItem item,
+    LibraryFilterSelection filters,
+    Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
+  ) {
+    final definitionId = filters.customFieldDefinitionId;
+    if (definitionId == null || definitionId.isEmpty) {
+      return true;
+    }
+    final libraryEntryRefKey = item.source.libraryEntryRef?.key;
+    if (libraryEntryRefKey == null) {
+      return false;
+    }
+    final values = customFieldValuesByDefinitionByItem[libraryEntryRefKey];
+    final actualValue = values?[definitionId]?.trim();
+    if (actualValue == null || actualValue.isEmpty) {
+      return false;
+    }
+    final expectedValue = filters.customFieldValue?.trim();
+    if (expectedValue == null || expectedValue.isEmpty) {
+      return true;
+    }
+    final parsedValues = parseCustomFieldMultiValues(actualValue);
+    if (parsedValues.isNotEmpty) {
+      return parsedValues.contains(expectedValue);
+    }
+    return actualValue == expectedValue;
+  }
+
+  bool _matchesLoanFilter(
+    LibraryProjectionItem item,
+    LibraryLoanStatusFilter filter,
+    Set<LibraryEntryRef> activeLoanLibraryEntryIds,
+  ) {
+    if (filter == LibraryLoanStatusFilter.all) {
+      return true;
+    }
+    final libraryEntryRef = item.source.libraryEntryRef;
+    if (libraryEntryRef == null) {
+      return false;
+    }
+    final hasActiveLoan = activeLoanLibraryEntryIds.contains(libraryEntryRef);
+    return switch (filter) {
+      LibraryLoanStatusFilter.all => true,
+      LibraryLoanStatusFilter.onLoan => hasActiveLoan,
+      LibraryLoanStatusFilter.available => !hasActiveLoan,
+    };
+  }
+
+  bool _matchesDateRange(
+    LibraryProjectionItem item,
+    LibraryFilterSelection filters,
+  ) {
+    if (!filters.hasActiveDateRange) {
+      return true;
+    }
+    final value = _filterDateForItem(item, filters.dateRangeField);
+    if (value == null) {
+      return false;
+    }
+    final candidate = DateUtils.dateOnly(value.toLocal());
+    final from = filters.dateFrom == null
+        ? null
+        : DateUtils.dateOnly(filters.dateFrom!.toLocal());
+    final to = filters.dateTo == null
+        ? null
+        : DateUtils.dateOnly(filters.dateTo!.toLocal());
+    if (from != null && candidate.isBefore(from)) {
+      return false;
+    }
+    if (to != null && candidate.isAfter(to)) {
+      return false;
+    }
+    return true;
+  }
+
+  DateTime? _filterDateForItem(
+    LibraryProjectionItem item,
+    LibraryDateRangeField field,
+  ) {
+    return switch (field) {
+      LibraryDateRangeField.updated => item.source.updatedAt,
+      LibraryDateRangeField.purchased => item.source.purchaseDate,
+      LibraryDateRangeField.started => item.source.trackingStartedAt,
+      LibraryDateRangeField.finished => item.source.trackingCompletedAt,
+    };
+  }
+
+  bool _matchesLinkedMetadata(
+    LibraryProjectionItem item,
+    LibraryLinkedMetadataFilter? linkedMetadataFilter,
+    LibraryKindRegistration type,
+  ) {
+    if (linkedMetadataFilter == null) {
+      return true;
+    }
+    final normalized = linkedMetadataFilter.value.trim().toLowerCase();
+    if (normalized.isEmpty) {
+      return true;
+    }
+    for (final candidate in libraryLinkedMetadataForKind(type.kind)
+        .candidatesForEntry(item.source)) {
+      if (candidate.trim().toLowerCase() == normalized) {
+        return true;
+      }
+    }
+    return false;
+  }
+}

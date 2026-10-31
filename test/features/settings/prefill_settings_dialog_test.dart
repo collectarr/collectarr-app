@@ -1,18 +1,18 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
+import 'package:collectarr_app/features/library/add/models/prefill_defaults.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 
 import '../../support/fixtures/test_constants.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/dropdown_pick_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/common_draft.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 
 void main() {

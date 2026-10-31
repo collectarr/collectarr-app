@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/dto.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
 import 'package:flutter/material.dart';
 
 /// Builds the [LibraryCardPresentation] for a movie workspace item.

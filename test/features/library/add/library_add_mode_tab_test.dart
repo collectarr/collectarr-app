@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/library_add_mode_tab.dart';
+import 'package:collectarr_app/features/library/add/mode_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

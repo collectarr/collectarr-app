@@ -1,0 +1,240 @@
+import 'dart:async';
+import 'package:collectarr_app/features/library/actions/async_action_host.dart';
+import 'menus.dart';
+import 'controls.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
+
+class LibraryUtilityQuickView<T> {
+  const LibraryUtilityQuickView({
+    required this.value,
+    required this.label,
+    required this.icon,
+  });
+
+  final T value;
+  final String label;
+  final IconData icon;
+}
+
+class LibraryUtilityMenuAction {
+  const LibraryUtilityMenuAction({
+    required this.label,
+    required this.icon,
+    this.onSelected,
+    this.enabled = true,
+    this.trailing,
+    this.section,
+    this.description,
+  });
+
+  final String label;
+  final IconData icon;
+  final FutureOr<void> Function()? onSelected;
+  final bool enabled;
+  final Widget? trailing;
+  final String? section;
+  final String? description;
+}
+
+class LibraryUtilityMenu<T> extends StatelessWidget {
+  const LibraryUtilityMenu({
+    super.key,
+    required this.quickViews,
+    required this.selectedQuickView,
+    required this.onQuickViewSelected,
+    required this.actions,
+    required this.badgeCount,
+    this.tooltip = 'Library tools',
+    this.defaultIcon = AppIcons.toolbarTools,
+    this.buttonLabel = 'Tools',
+    this.quickViewsLabel = 'Quick Views',
+  });
+
+  final List<LibraryUtilityQuickView<T>> quickViews;
+  final T? selectedQuickView;
+  final ValueChanged<T> onQuickViewSelected;
+  final List<LibraryUtilityMenuAction> actions;
+  final int badgeCount;
+  final String tooltip;
+  final IconData defaultIcon;
+  final String buttonLabel;
+  final String quickViewsLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = _selectedQuickView();
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final trigger = LibraryToolbarHoverSurface(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(selected?.icon ?? defaultIcon, size: 15),
+            const SizedBox(width: 5),
+            Text(
+              buttonLabel,
+              style: theme.textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(width: 1),
+            Icon(
+              AppIcons.chevronDown,
+              size: 12,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ],
+        ),
+      ),
+    );
+    return AsyncActionHost(
+        builder: (context, busy, run) => Badge(
+              isLabelVisible: badgeCount > 0,
+              largeSize: 14,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              label: Text(
+                badgeCount.toString(),
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              ),
+              child: PopupMenuButton<Object>(
+                enabled: !busy,
+                popUpAnimationStyle: AnimationStyle.noAnimation,
+                tooltip: tooltip,
+                padding: EdgeInsets.zero,
+                color: libraryToolbarMenuSurface(context),
+                shape: libraryToolbarDropdownMenuShape(context),
+                menuPadding: EdgeInsets.zero,
+                surfaceTintColor: Colors.transparent,
+                position: PopupMenuPosition.under,
+                onSelected: (selection) => _handleSelected(selection, run),
+                itemBuilder: (context) => _buildMenuItems(context),
+                child: trigger,
+              ),
+            ));
+  }
+
+  List<PopupMenuEntry<Object>> _buildMenuItems(BuildContext context) {
+    final items = <PopupMenuEntry<Object>>[];
+    final accent = LibraryAccentScope.accentOf(context);
+
+    if (quickViews.isNotEmpty) {
+      items.add(_buildSectionHeader(quickViewsLabel));
+      for (final view in quickViews) {
+        items.add(
+          PopupMenuItem<Object>(
+            value: _LibraryUtilityQuickViewSelection<T>(view.value),
+            height: kLibraryToolbarPopupItemHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 7),
+            child: LibraryWorkspaceMenuRow(
+              padding: EdgeInsets.zero,
+              label: view.label,
+              leading: Icon(view.icon, size: 16),
+              trailing: selectedQuickView == view.value
+                  ? Icon(Icons.check, size: 16, color: accent)
+                  : null,
+              textStyle:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ),
+        );
+      }
+    }
+
+    String? currentSection;
+    var addedAction = false;
+    for (final action in actions) {
+      final section = action.section;
+      if (section != currentSection) {
+        if (items.isNotEmpty) {
+          items.add(const PopupMenuDivider(height: 8));
+        }
+        if (section != null && section.isNotEmpty) {
+          items.add(_buildSectionHeader(section));
+        }
+        currentSection = section;
+      }
+      items.add(
+        PopupMenuItem<Object>(
+          value: action,
+          enabled: action.enabled && action.onSelected != null,
+          height:
+              action.description == null ? kLibraryToolbarPopupItemHeight : 42,
+          padding: const EdgeInsets.symmetric(horizontal: 7),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LibraryWorkspaceMenuRow(
+                padding: EdgeInsets.zero,
+                label: action.label,
+                leading: Icon(action.icon, size: 16),
+                trailing: action.trailing,
+                textStyle:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              if (action.description != null)
+                Padding(
+                    padding: const EdgeInsets.only(left: 24),
+                    child: Text(action.description!,
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: libraryToolbarMenuMutedText(context)))),
+            ],
+          ),
+        ),
+      );
+      addedAction = true;
+    }
+
+    if (!addedAction && items.isNotEmpty && items.last is PopupMenuDivider) {
+      items.removeLast();
+    }
+    return items;
+  }
+
+  PopupMenuEntry<Object> _buildSectionHeader(String label) {
+    return PopupMenuItem<Object>(
+      enabled: false,
+      height: kLibraryToolbarPopupSectionHeaderHeight,
+      child: Text(
+        label.toUpperCase(),
+        style: const TextStyle(
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.24,
+        ),
+      ),
+    );
+  }
+
+  LibraryUtilityQuickView<T>? _selectedQuickView() {
+    for (final view in quickViews) {
+      if (view.value == selectedQuickView) {
+        return view;
+      }
+    }
+    return null;
+  }
+
+  void _handleSelected(Object selection, AsyncActionRun run) {
+    if (selection is _LibraryUtilityQuickViewSelection<T>) {
+      onQuickViewSelected(selection.value);
+      return;
+    }
+    if (selection is LibraryUtilityMenuAction) {
+      final action = selection.onSelected;
+      if (selection.enabled && action != null) run(selection.label, action);
+    }
+  }
+}
+
+class _LibraryUtilityQuickViewSelection<T> {
+  const _LibraryUtilityQuickViewSelection(this.value);
+
+  final T value;
+}

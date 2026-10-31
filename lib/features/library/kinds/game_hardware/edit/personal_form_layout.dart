@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'package:flutter/material.dart';
 
 Map<String, Widget> gameHardwarePersonalAdditionalFields(

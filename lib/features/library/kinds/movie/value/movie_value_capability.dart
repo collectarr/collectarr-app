@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_value_capability.dart';
+import 'package:collectarr_app/features/library/config/value_capability.dart';
 
 class MovieValueCapability implements LibraryValueCapability {
   const MovieValueCapability();

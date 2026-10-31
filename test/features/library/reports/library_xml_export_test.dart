@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
-import 'package:collectarr_app/features/library/reports/library_xml_export.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
+import 'package:collectarr_app/features/library/reports/xml_export.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:xml/xml.dart';
 

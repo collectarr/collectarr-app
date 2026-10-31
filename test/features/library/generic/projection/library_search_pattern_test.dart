@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/generic/projection/library_search_index.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/generic/projection/search_index.dart';
+import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

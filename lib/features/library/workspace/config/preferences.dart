@@ -1,0 +1,449 @@
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/field_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/layout/pane_widths.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class LibraryWorkspacePreferenceSnapshot {
+  const LibraryWorkspacePreferenceSnapshot({
+    required this.viewMode,
+    required this.detailsLayout,
+    required this.isSidebarVisible,
+    required this.sortColumn,
+    required this.sortAscending,
+    this.sortRules,
+    required this.coverSize,
+    this.densityPreset = LibraryWorkspaceDensityPreset.compact,
+    required this.sidebarWidth,
+    required this.detailsWidth,
+    required this.detailsHeight,
+    required this.visibleColumns,
+    required this.columnWidths,
+  });
+
+  final LibraryViewMode viewMode;
+  final LibraryDetailsLayout detailsLayout;
+  final bool isSidebarVisible;
+  final String sortColumn;
+  final bool sortAscending;
+  final List<LibrarySortRule>? sortRules;
+  final double coverSize;
+  final LibraryWorkspaceDensityPreset densityPreset;
+  final double sidebarWidth;
+  final double detailsWidth;
+  final double detailsHeight;
+  final Set<String> visibleColumns;
+  final Map<String, double> columnWidths;
+
+  LibraryWorkspaceChromePreferenceSnapshot get chrome =>
+      LibraryWorkspaceChromePreferenceSnapshot(
+        detailsLayout: detailsLayout,
+        isSidebarVisible: isSidebarVisible,
+        sidebarWidth: sidebarWidth,
+        detailsWidth: detailsWidth,
+        detailsHeight: detailsHeight,
+      );
+}
+
+class LibraryWorkspaceChromePreferenceSnapshot {
+  const LibraryWorkspaceChromePreferenceSnapshot({
+    required this.detailsLayout,
+    required this.isSidebarVisible,
+    required this.sidebarWidth,
+    required this.detailsWidth,
+    required this.detailsHeight,
+  });
+
+  final LibraryDetailsLayout detailsLayout;
+  final bool isSidebarVisible;
+  final double sidebarWidth;
+  final double detailsWidth;
+  final double detailsHeight;
+}
+
+class LibraryWorkspacePreferences {
+  const LibraryWorkspacePreferences(this.registration);
+
+  static final _cachedChromeByConfig =
+      <String, LibraryWorkspaceChromePreferenceSnapshot>{};
+  static final _cachedSnapshots =
+      <String, LibraryWorkspacePreferenceSnapshot>{};
+
+  final LibraryKindRegistration registration;
+
+  static LibraryWorkspaceChromePreferenceSnapshot? cachedChromeFor(
+    LibraryKindRegistration registration,
+  ) =>
+      _cachedChromeByConfig[registration.identity.preferenceKey('')];
+
+  /// Returns the last loaded/written snapshot for [config], or `null` if the
+  /// preferences have not been loaded yet for this media type.
+  static LibraryWorkspacePreferenceSnapshot? cachedSnapshot(
+    LibraryKindRegistration registration,
+  ) =>
+      _cachedSnapshots[registration.identity.preferenceKey('')];
+
+  static void resetCachedChromeForTesting() {
+    _cachedChromeByConfig.clear();
+    _cachedSnapshots.clear();
+  }
+
+  Future<LibraryWorkspacePreferenceSnapshot> read({
+    required double defaultCoverSize,
+    LibraryWorkspaceDensityPreset defaultDensityPreset =
+        LibraryWorkspaceDensityPreset.compact,
+    double? minCoverSize,
+    double? maxCoverSize,
+    LibraryViewMode defaultViewMode = LibraryViewMode.grid,
+    LibraryDetailsLayout defaultDetailsLayout = LibraryDetailsLayout.bottom,
+    bool defaultSidebarVisible = true,
+    bool defaultSortAscending = true,
+    bool Function(LibrarySortIdRuntime column)? defaultSortAscendingForColumn,
+    double defaultSidebarWidth = kLibrarySidebarDefaultWidth,
+    double defaultDetailsWidth = kLibraryDetailsDefaultWidth,
+    double defaultDetailsHeight = kLibraryDetailsDefaultHeight,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final coverSize = prefs.getDouble(_key('cover_size')) ?? defaultCoverSize;
+    final sidebarWidth =
+        prefs.getDouble(_key('sidebar_width')) ?? defaultSidebarWidth;
+    final detailsWidth =
+        prefs.getDouble(_key('details_width')) ?? defaultDetailsWidth;
+    final detailsHeight =
+        prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
+    final fields =
+        libraryKindWorkspaceForKind(registration.kind).workspaceFields;
+    final savedSortColumn = prefs.getString(_key('sort_column'));
+    final defaultAscending =
+        defaultSortAscendingForColumn?.call(fields.defaultSort) ??
+            defaultSortAscending;
+    final sortRules = _decodeSortRules(
+          prefs.getStringList(_key('sort_rules')),
+          fields,
+        ) ??
+        // Until a sort is chosen, the default sort and its tiebreak.
+        switch ((savedSortColumn, fields.defaultThenSort)) {
+          (null, final then?) => [
+              LibrarySortRule(
+                  column: fields.defaultSort.value,
+                  ascending: defaultAscending),
+              LibrarySortRule(column: then.value, ascending: true),
+            ],
+          _ => null,
+        };
+    var sortColumn = fields.defaultSort.value;
+    if (savedSortColumn != null) {
+      final directDef = fields.findSortDefinition(
+        fields.decodeSortId(savedSortColumn),
+      );
+      if (directDef != null) {
+        sortColumn = directDef.id.value;
+      }
+    } else if (sortRules != null && sortRules.isNotEmpty) {
+      sortColumn = sortRules.first.column;
+    }
+    final visibleColumns = _decodeVisibleColumns(
+      prefs.getStringList(_key('visible_columns')),
+      fields,
+    );
+    final columnWidths = _decodeColumnWidths(
+      prefs.getStringList(_key('column_widths')),
+      fields,
+    );
+    final snapshot = LibraryWorkspacePreferenceSnapshot(
+      viewMode: _enumByName(
+            LibraryViewMode.values,
+            prefs.getString(_key('view_mode')),
+          ) ??
+          defaultViewMode,
+      densityPreset: defaultDensityPreset,
+      detailsLayout: _enumByName(
+            LibraryDetailsLayout.values,
+            prefs.getString(_key('details_layout')),
+          ) ??
+          defaultDetailsLayout,
+      isSidebarVisible:
+          prefs.getBool(_key('sidebar_visible')) ?? defaultSidebarVisible,
+      sortColumn: sortColumn,
+      sortAscending: prefs.getBool(_key('sort_ascending')) ?? defaultAscending,
+      sortRules: sortRules,
+      coverSize: _clamp(coverSize, minCoverSize, maxCoverSize),
+      sidebarWidth: clampLibraryPaneWidth(
+        sidebarWidth,
+        minWidth: kLibrarySidebarMinWidth,
+        maxWidth: kLibraryPaneStoredMaxWidth,
+      ),
+      detailsWidth: clampLibraryPaneWidth(
+        detailsWidth,
+        minWidth: kLibraryDetailsMinWidth,
+        maxWidth: kLibraryPaneStoredMaxWidth,
+      ),
+      detailsHeight: clampLibraryPaneHeight(
+        detailsHeight,
+        minHeight: kLibraryDetailsMinHeight,
+        maxHeight: kLibraryPaneStoredMaxWidth,
+      ),
+      visibleColumns: visibleColumns,
+      columnWidths: columnWidths,
+    );
+    _cachedChromeByConfig[registration.identity.preferenceKey('')] =
+        snapshot.chrome;
+    _cachedSnapshots[registration.identity.preferenceKey('')] = snapshot;
+    return snapshot;
+  }
+
+  Future<void> writeDetailsLayout(LibraryDetailsLayout layout) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_key('details_layout'), layout.name);
+    _cachedChromeByConfig.remove(registration.identity.preferenceKey(''));
+    _cachedSnapshots.remove(registration.identity.preferenceKey(''));
+  }
+
+  Future<void> write(LibraryWorkspacePreferenceSnapshot snapshot) async {
+    final fields =
+        libraryKindWorkspaceForKind(registration.kind).workspaceFields;
+    final normalizedVisibleColumns = _normalizeVisibleColumns(
+      snapshot.visibleColumns,
+      fields,
+    );
+    final normalizedColumnWidths = _normalizeColumnWidths(
+      snapshot.columnWidths,
+      fields,
+    );
+    final normalizedSortRules = _normalizeSortRules(snapshot.sortRules, fields);
+    final sortDef = fields.findSortDefinition(
+      fields.decodeSortId(snapshot.sortColumn),
+    );
+    final normalizedSortColumn = sortDef?.id.value ?? fields.defaultSort.value;
+    final normalizedSnapshot = LibraryWorkspacePreferenceSnapshot(
+      viewMode: snapshot.viewMode,
+      detailsLayout: snapshot.detailsLayout,
+      isSidebarVisible: snapshot.isSidebarVisible,
+      sortColumn: normalizedSortColumn,
+      sortAscending: snapshot.sortAscending,
+      sortRules: normalizedSortRules,
+      coverSize: snapshot.coverSize,
+      densityPreset: registration.identity.availableDensityPresets
+              .contains(snapshot.densityPreset)
+          ? snapshot.densityPreset
+          : registration.identity.defaultDensityPreset,
+      sidebarWidth: snapshot.sidebarWidth,
+      detailsWidth: snapshot.detailsWidth,
+      detailsHeight: snapshot.detailsHeight,
+      visibleColumns: normalizedVisibleColumns,
+      columnWidths: normalizedColumnWidths,
+    );
+    _cachedChromeByConfig[registration.identity.preferenceKey('')] =
+        normalizedSnapshot.chrome;
+    _cachedSnapshots[registration.identity.preferenceKey('')] =
+        normalizedSnapshot;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_key('view_mode'), normalizedSnapshot.viewMode.name);
+    await prefs.setString(
+        _key('details_layout'), normalizedSnapshot.detailsLayout.name);
+    await prefs.setBool(
+        _key('sidebar_visible'), normalizedSnapshot.isSidebarVisible);
+    await prefs.setString(
+      _key('sort_column'),
+      normalizedSnapshot.sortColumn.toString(),
+    );
+    await prefs.setBool(
+        _key('sort_ascending'), normalizedSnapshot.sortAscending);
+    await prefs.setStringList(
+      _key('sort_rules'),
+      _encodeSortRules(normalizedSnapshot.sortRules),
+    );
+    await prefs.setDouble(_key('cover_size'), normalizedSnapshot.coverSize);
+    await prefs.setDouble(
+        _key('sidebar_width'), normalizedSnapshot.sidebarWidth);
+    await prefs.setDouble(
+        _key('details_width'), normalizedSnapshot.detailsWidth);
+    await prefs.setDouble(
+        _key('details_height'), normalizedSnapshot.detailsHeight);
+    await prefs.setStringList(
+      _key('visible_columns'),
+      normalizedSnapshot.visibleColumns
+          .map((column) => column.toString())
+          .toList(growable: false),
+    );
+    await prefs.setStringList(
+      _key('column_widths'),
+      _encodeColumnWidths(normalizedSnapshot.columnWidths),
+    );
+  }
+
+  // The v1 baseline reads and writes only its own preference keys. It does not
+  // decode earlier layout or scope formats.
+  String _key(String suffix) =>
+      'library.workspace.v1.${registration.identity.preferenceKey(suffix)}';
+
+  Set<String> _decodeVisibleColumns(
+    List<String>? values,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
+  ) {
+    final defaultCols = fields.defaultVisibleColumns;
+    if (values == null || values.isEmpty) {
+      return defaultCols.map((column) => column.value).toSet();
+    }
+    final columns = <String>{};
+    for (final value in values) {
+      final colDef = fields.findColumnDefinition(
+        fields.decodeColumnId(value),
+      );
+      if (colDef != null) {
+        columns.add(colDef.id.value);
+      }
+    }
+    return columns.isEmpty
+        ? defaultCols.map((column) => column.value).toSet()
+        : columns;
+  }
+
+  List<String> _encodeColumnWidths(Map<String, double> widths) {
+    return [
+      for (final entry in widths.entries) '${entry.key}:${entry.value.round()}',
+    ];
+  }
+
+  List<String> _encodeSortRules(List<LibrarySortRule>? rules) {
+    if (rules == null || rules.isEmpty) {
+      return const <String>[];
+    }
+    return [
+      for (final rule in rules)
+        '${rule.column}:${rule.ascending ? 'asc' : 'desc'}',
+    ];
+  }
+
+  List<LibrarySortRule>? _decodeSortRules(
+    List<String>? values,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
+  ) {
+    if (values == null || values.isEmpty) {
+      return null;
+    }
+    final rules = <LibrarySortRule>[];
+    for (final value in values) {
+      final parts = value.split(':');
+      if (parts.length != 2) {
+        continue;
+      }
+      final rawId = parts.first;
+      final sortDef = fields.findSortDefinition(
+        fields.decodeSortId(rawId),
+      );
+      if (sortDef == null) {
+        continue;
+      }
+      rules.add(
+        LibrarySortRule(
+          column: sortDef.id.value,
+          ascending: parts[1] != 'desc',
+        ),
+      );
+    }
+    return rules.isEmpty ? null : rules;
+  }
+
+  Map<String, double> _decodeColumnWidths(
+    List<String>? values,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
+  ) {
+    if (values == null || values.isEmpty) {
+      return const {};
+    }
+    final widths = <String, double>{};
+    for (final value in values) {
+      final parts = value.split(':');
+      if (parts.length != 2) {
+        continue;
+      }
+      final columnId = parts[0];
+      final colDef = fields.findColumnDefinition(
+        fields.decodeColumnId(columnId),
+      );
+      final column = colDef?.id.value;
+      final width = double.tryParse(parts[1]);
+      if (column != null && width != null) {
+        widths[column] = width;
+      }
+    }
+    return widths;
+  }
+
+  Set<String> _normalizeVisibleColumns(
+    Set<String> columns,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
+  ) {
+    final defaultCols = fields.defaultVisibleColumns;
+    final normalized = <String>{};
+    for (final column in columns) {
+      final colDef = fields.findColumnDefinition(
+        fields.decodeColumnId(column),
+      );
+      if (colDef != null) {
+        normalized.add(colDef.id.value);
+      }
+    }
+    return normalized.isEmpty
+        ? defaultCols.map((column) => column.value).toSet()
+        : normalized;
+  }
+
+  Map<String, double> _normalizeColumnWidths(
+    Map<String, double> widths,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
+  ) {
+    final normalized = <String, double>{};
+    for (final entry in widths.entries) {
+      final colDef = fields.findColumnDefinition(
+        fields.decodeColumnId(entry.key),
+      );
+      if (colDef != null) {
+        normalized[colDef.id.value] = entry.value;
+      }
+    }
+    return normalized;
+  }
+
+  List<LibrarySortRule>? _normalizeSortRules(
+    List<LibrarySortRule>? rules,
+    LibraryFieldRegistry<LibraryWorkspaceDto> fields,
+  ) {
+    if (rules == null || rules.isEmpty) {
+      return null;
+    }
+    final normalized = <LibrarySortRule>[];
+    final seen = <String>{};
+    for (final rule in rules) {
+      final sortDef = fields.findSortDefinition(
+        fields.decodeSortId(rule.column),
+      );
+      if (sortDef == null || !seen.add(sortDef.id.value)) {
+        continue;
+      }
+      normalized.add(rule.copyWith(column: sortDef.id.value));
+    }
+    return normalized.isEmpty ? null : normalized;
+  }
+
+  double _clamp(double value, double? min, double? max) {
+    if (min == null || max == null) {
+      return value;
+    }
+    return value.clamp(min, max).toDouble();
+  }
+}
+
+T? _enumByName<T extends Enum>(List<T> values, Object? rawValue) {
+  if (rawValue is! String || rawValue.isEmpty) {
+    return null;
+  }
+  for (final value in values) {
+    if (value.name == rawValue) {
+      return value;
+    }
+  }
+  return null;
+}

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/generic/library_folder_reorder_list.dart';
+import 'package:collectarr_app/features/library/generic/folder_reorder_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

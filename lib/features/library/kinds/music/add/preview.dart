@@ -1,9 +1,9 @@
-import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/catalog_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/sections.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 

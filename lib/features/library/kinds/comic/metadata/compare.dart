@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
+import 'package:collectarr_app/features/library/metadata/diff_panel.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildComicMetadataComparePanels(

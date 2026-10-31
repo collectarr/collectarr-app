@@ -1,0 +1,142 @@
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/layout/bucket_sidebar.dart';
+import 'package:collectarr_app/features/library/config/search_target.dart';
+
+class LibraryProjectionEngine {
+  LibraryProjectionEngine({
+    LibraryProjectionIndex? index,
+    LibraryFilterEngine? filterEngine,
+    LibraryGroupingEngine? groupingEngine,
+    LibraryFolderTreeBuilder? folderTreeBuilder,
+    LibraryToolbarStatsCalculator? statsCalculator,
+  })  : index = index ?? LibraryProjectionIndex(),
+        filterEngine = filterEngine ?? const LibraryFilterEngine(),
+        groupingEngine = groupingEngine ?? const LibraryGroupingEngine(),
+        folderTreeBuilder =
+            folderTreeBuilder ?? const LibraryFolderTreeBuilder(),
+        statsCalculator =
+            statsCalculator ?? const LibraryToolbarStatsCalculator();
+
+  final LibraryProjectionIndex index;
+  final LibraryFilterEngine filterEngine;
+  final LibraryGroupingEngine groupingEngine;
+  final LibraryFolderTreeBuilder folderTreeBuilder;
+  final LibraryToolbarStatsCalculator statsCalculator;
+
+  LibraryProjection execute({
+    required ShelfState shelf,
+    required LibraryKindRegistration type,
+    required List<LibrarySortRuleRuntime> sortRules,
+    required LibraryProjectionQuery query,
+    List<LibraryBucket>? overrideBuckets,
+    List<CustomFieldDefinition> customFieldDefinitions = const [],
+    Map<String, List<String>> customFieldValuesByItem = const {},
+    Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
+        const {},
+    Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
+    LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
+  }) {
+    final workspace = libraryKindWorkspaceForKind(type.kind);
+    final fields = workspace.fields;
+    final allItems = libraryItemsForShelf(
+      shelf,
+      type,
+      customFieldDefinitions: customFieldDefinitions,
+      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
+      customFieldValuesByItem: customFieldValuesByItem,
+    );
+
+    if (query.collectionEntryIds case final members?) {
+      allItems.removeWhere(
+          (item) => !members.contains(item.source.libraryEntryRef?.id.value));
+    }
+    final scopedBucketItems = <LibraryProjectionItem>[];
+    for (final item in allItems) {
+      if (query.constrainedItemIds != null &&
+          !query.constrainedItemIds!.contains(item.target.id)) {
+        continue;
+      }
+      // Folder counts follow the Collection Status scope, as in the
+      // reference.
+      var matchesScope = filterEngine.matchesCollectionStatusScope(
+          item, query.collectionStatusScope);
+      for (final filter in query.bucketScopeFilters) {
+        if (!matchesScope) break;
+        if (!groupingEngine
+            .bucketsForItem(item, type, filter.groupId, index: index)
+            .contains(filter.bucket)) {
+          matchesScope = false;
+          break;
+        }
+      }
+      if (matchesScope) {
+        scopedBucketItems.add(item);
+      }
+    }
+
+    final filteredItems = <LibraryProjectionItem>[];
+    for (final item in scopedBucketItems) {
+      final searchDoc = index.getSearchDocument(
+        item,
+        customFieldValuesByItem,
+        fields.searchValuesFor(item),
+        fields.containedSearchValuesFor(item),
+      );
+      if (filterEngine.matches(
+        item: item,
+        query: query,
+        searchDoc: searchDoc,
+        type: type,
+        searchTarget: searchTarget,
+        index: index,
+        activeLoanLibraryEntryIds: activeLoanLibraryEntryIds,
+        customFieldValuesByDefinitionByItem:
+            customFieldValuesByDefinitionByItem,
+      )) {
+        filteredItems.add(item);
+      }
+    }
+
+    filteredItems.sort((a, b) => workspace.compareEntriesByRules(
+          a,
+          b,
+          sortRules,
+          sorting: query.sorting,
+        ));
+
+    final counts = statsCalculator.calculate(
+      allItems: allItems,
+      shownCount: filteredItems.length,
+      type: type,
+    );
+
+    final groupId = query.groupId ?? fields.defaultGroup;
+    if (groupId == null) {
+      throw StateError(
+        'Workspace ${fields.kindNamespace} has no default group.',
+      );
+    }
+    final buckets = overrideBuckets ??
+        groupingEngine.buildBuckets(
+          scopedBucketItems,
+          type,
+          groupId,
+          index: index,
+          sorting: query.sorting,
+        );
+
+    return LibraryProjection(
+      allItems: allItems,
+      filteredItems: filteredItems,
+      buckets: buckets,
+      selectedItem: librarySelectedItem(filteredItems, query.selectedItemId),
+      counts: counts,
+      sorting: query.sorting,
+    );
+  }
+}

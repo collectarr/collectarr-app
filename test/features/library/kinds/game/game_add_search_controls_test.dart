@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/search_context.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/contribution.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/search_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';

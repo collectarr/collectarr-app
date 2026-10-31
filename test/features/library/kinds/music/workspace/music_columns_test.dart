@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

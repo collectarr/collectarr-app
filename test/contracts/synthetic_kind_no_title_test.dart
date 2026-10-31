@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_search_hit.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
+import 'package:collectarr_app/features/library/edit/schema/schema.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/layout/alpha_jump_bar.dart';
+import 'package:collectarr_app/features/library/workspace/table/column_chooser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

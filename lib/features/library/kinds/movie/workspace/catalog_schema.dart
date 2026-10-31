@@ -2,8 +2,8 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/catalog_identity_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/catalog_edition_fields.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/schema.dart';
 
 /// One field set for a concrete Movie catalog item.
 ///

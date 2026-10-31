@@ -8,8 +8,8 @@ import 'package:collectarr_app/app/shell/app_navigation_model.dart';
 
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/app/app_shell.dart';
-import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/home/home_page.dart';
+import 'package:collectarr_app/features/library/add/dialog.dart';
+import 'package:collectarr_app/features/library/home/page.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:flutter/material.dart';

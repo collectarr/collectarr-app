@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 
 import '../../tool/check_library_kind_boundaries.dart';
 
@@ -220,7 +220,7 @@ String? providerValue(Map<String, dynamic> raw) => raw['cover_artist'] as String
           entity.path.contains(
               '${Platform.pathSeparator}domain${Platform.pathSeparator}')) {
         final content = entity.readAsStringSync();
-        if (content.contains('library_edit_dialog.dart') ||
+        if (content.contains('edit/shell/dialog.dart') ||
             content.contains('package:flutter/material.dart')) {
           domainViolations.add(entity.path);
         }

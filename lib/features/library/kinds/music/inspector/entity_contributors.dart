@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector/sections.dart';
 import 'package:flutter/material.dart';
 

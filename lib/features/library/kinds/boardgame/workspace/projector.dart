@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_target_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/config/target_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
-import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/workspace/entry/item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/projections.dart';
 
 /// Projects a concrete Board Game Catalog Item and its App-collection item state.
 final class BoardGameWorkspaceProjector

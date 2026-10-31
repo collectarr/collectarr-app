@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
-import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/add/schema/catalog_title_field.dart';
+import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/main_form_section.dart';

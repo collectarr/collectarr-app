@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/config/library_value_capability.dart';
+import 'package:collectarr_app/features/library/config/value_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 
 class ComicValueCapability implements LibraryValueCapability {

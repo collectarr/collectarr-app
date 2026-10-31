@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
 import 'package:collectarr_app/features/settings/settings_proposal_history.dart';
-import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
+import 'package:collectarr_app/features/library/metadata/proposal_store.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';

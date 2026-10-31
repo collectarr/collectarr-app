@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/generic/toolbar/library_alphabet_options.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_alphabet_field.dart';
-import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/alphabet_options.dart';
+import 'package:collectarr_app/features/library/config/presentation/alphabet_field.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
+import 'package:collectarr_app/features/library/workspace/layout/alpha_jump_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

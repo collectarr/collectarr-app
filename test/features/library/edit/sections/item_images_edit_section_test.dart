@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_image_intake.dart';
+import 'package:collectarr_app/features/library/ui/primitives/image_intake.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;

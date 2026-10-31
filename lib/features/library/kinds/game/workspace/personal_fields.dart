@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_library_e
 import 'package:collectarr_app/features/library/kinds/game/workspace/catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 
 abstract final class GamePersonalWorkspaceFields {

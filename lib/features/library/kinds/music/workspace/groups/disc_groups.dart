@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/groups/hel
 import 'package:collectarr_app/features/library/kinds/music/workspace/catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/field_labels.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 
 const musicDiscGroupingFields = <MusicGroupingField>{
   MusicGroupingField.discFormat,

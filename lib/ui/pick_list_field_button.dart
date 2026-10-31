@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/ui/library_metrics.dart';
-import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
+import 'package:collectarr_app/features/library/ui/metrics.dart';
+import 'package:collectarr_app/features/library/ui/density_scope.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

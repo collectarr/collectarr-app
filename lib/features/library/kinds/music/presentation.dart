@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/music/workspace/ids.dart';
 import 'workspace/alphabet_fields.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/entry_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/catalog_fi
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 
 const musicMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Album identity',

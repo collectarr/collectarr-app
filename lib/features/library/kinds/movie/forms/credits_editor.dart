@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/movie/forms/credit_draft.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_named_detail_list.dart';
+import 'package:collectarr_app/features/library/ui/primitives/named_detail_list.dart';
 import 'package:flutter/material.dart';
 
 /// Shared editable credit rows for Movie Manual Add and Edit.

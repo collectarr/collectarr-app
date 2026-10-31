@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
+import 'package:collectarr_app/features/library/add/models/kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_artist_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/album_form_values.dart';

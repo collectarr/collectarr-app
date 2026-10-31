@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_kind_identity.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
+import 'package:collectarr_app/features/library/config/kind_identity.dart';
+import 'package:collectarr_app/features/library/workspace/layout/snapshot.dart';
 import 'package:flutter/material.dart';
 
 /// The intentionally small composition boundary for one concrete kind.

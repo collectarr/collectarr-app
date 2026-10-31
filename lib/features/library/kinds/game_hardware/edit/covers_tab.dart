@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/features/library/edit/covers/library_cover_images_tab.dart';
+import 'package:collectarr_app/features/library/edit/covers/images_tab.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';

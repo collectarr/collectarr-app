@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 
 abstract final class MusicFieldIds {

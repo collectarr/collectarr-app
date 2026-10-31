@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/detail/library_workspace_detail_navigation.dart';
+import 'package:collectarr_app/features/library/detail/workspace_detail_navigation.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/data/game_toy_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_completeness.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/stats/library_family_stats_page.dart';
-import 'package:collectarr_app/features/library/stats/library_stats_charts.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/stats/family_stats_page.dart';
+import 'package:collectarr_app/features/library/stats/charts.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 

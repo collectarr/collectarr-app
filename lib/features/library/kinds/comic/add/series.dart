@@ -3,8 +3,8 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_issue_label.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/library/add/contracts/capability.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
 /// The Add Comics Series tab: Core series, then every issue of one.

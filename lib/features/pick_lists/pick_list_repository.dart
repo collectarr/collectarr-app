@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'pick_list_references.dart';
 import 'package:collectarr_app/core/db/local_database.dart';

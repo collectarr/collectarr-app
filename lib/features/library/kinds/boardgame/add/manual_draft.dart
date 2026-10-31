@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
-import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
+import 'package:collectarr_app/features/library/add/models/kind_add_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/external_links_table.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/catalog_form_values.dart';
 

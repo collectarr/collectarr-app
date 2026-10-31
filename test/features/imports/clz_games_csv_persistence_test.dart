@@ -9,8 +9,8 @@ import 'package:collectarr_app/features/collection/providers/collection_mutation
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/config/library_import_capability.dart';
-import 'package:collectarr_app/features/library/entries/entry_kind_contributor_registry.dart';
+import 'package:collectarr_app/features/library/config/import_capability.dart';
+import 'package:collectarr_app/features/library/entries/kind_contributor_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_import_contributors.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';

@@ -2,8 +2,8 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_workspace_table.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/table/table.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

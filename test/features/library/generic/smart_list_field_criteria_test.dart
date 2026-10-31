@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/smart_list_criteria.dart';
-import 'package:collectarr_app/features/library/generic/library_filters.dart';
+import 'package:collectarr_app/features/library/generic/filters.dart';
 import 'package:collectarr_app/features/library/generic/smart_list_resolver.dart';
 import 'package:collectarr_app/features/library/generic/smart_list_field_rules_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';

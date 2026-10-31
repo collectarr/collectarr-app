@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
+import 'package:collectarr_app/features/library/tracking/storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
 /// Book-entry tracking lifecycle entry.

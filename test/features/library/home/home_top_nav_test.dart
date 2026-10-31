@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
-import 'package:collectarr_app/features/library/home/home_top_nav.dart';
+import 'package:collectarr_app/features/library/home/top_nav.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/features/library/home/home_nav_button.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/home/nav_button.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/sync/presentation/sync_action_button.dart';
 

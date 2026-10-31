@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/workspace/groups/grouping_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 
 const musicCreditGroupingFields = <MusicGroupingField>{
   MusicGroupingField.creditContributor,
