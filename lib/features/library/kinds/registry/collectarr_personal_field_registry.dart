@@ -25,8 +25,8 @@ final Map<CatalogMediaKind, LibraryPersonalFieldContributor>
 });
 
 /// Every kind's personal fields once, for kind-agnostic screens such as Sync
-/// settings. Kinds may relabel shared fields for themselves (Comics calls the
-/// location a Storage Box); these keep their shared label here.
+/// settings. Kinds may relabel shared fields for themselves; these keep their
+/// shared label here.
 final List<PersonalLibraryFieldSpec> libraryPersonalFields =
     List.unmodifiable(_deduplicateFields([
   for (final contributor in collectarrKindPersonalFieldContributors.values)

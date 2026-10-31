@@ -101,7 +101,7 @@ final List<LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, Object?>>
   _number(_Collection.quantity, 'Personal'),
   _text(_Collection.read, 'Personal', 60),
   _partialDate(_Collection.readDate, 'Personal'),
-  _text(_Entry.location, 'Personal', 120, label: 'Storage Box'),
+  _text(_Entry.location, 'Personal', 120, label: 'Location'),
   _text(_Collection.tags, 'Personal', 150),
   // Loan
   _text(_Collection.loanedTo, 'Loan', 130),

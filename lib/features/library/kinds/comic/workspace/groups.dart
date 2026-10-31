@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/workspace/config/typed_field_def
 import 'package:flutter/material.dart';
 
 /// Folder fields of the reference Comics folder menu, by category and in
-/// its order. Series, Publisher and Storage Box keep their own definitions
+/// its order. Series, Publisher and Location keep their own definitions
 /// in the schemas (series folders, publisher renames, the location tree).
 enum ComicGroupingField {
   hasBack('has_back', 'Has Back', 'Images'),
@@ -92,7 +92,7 @@ enum ComicGroupingField {
   readDate('read_date', 'Read Date', 'Personal'),
   readMonth('read_month', 'Read Month', 'Personal'),
   readYear('read_year', 'Read Year', 'Personal'),
-  storageBox('location', 'Storage Box', 'Personal'),
+  location('location', 'Location', 'Personal'),
   tags('tags', 'Tags', 'Personal');
 
   const ComicGroupingField(this._key, this.label, this.category);
@@ -108,7 +108,7 @@ enum ComicGroupingField {
 
   /// Folders the schemas define themselves.
   bool get ownDefinition =>
-      this == series || this == publisher || this == storageBox;
+      this == series || this == publisher || this == location;
 }
 
 const comicGroupingCategories = [

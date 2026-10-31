@@ -101,7 +101,6 @@ final comicKindPersonalFieldContributor = LibraryPersonalFieldContributor(
   fields: [
     for (final field in commonPersonalLibraryFields)
       switch (field.key) {
-        'location_id' => relabelPersonalLibraryField(field, 'Storage Box'),
         'collection_status' =>
           relabelPersonalLibraryField(field, 'Collection Status'),
         _ => field,
