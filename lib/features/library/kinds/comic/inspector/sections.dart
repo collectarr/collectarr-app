@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section.dart';
+import 'package:collectarr_app/features/library/config/item_actions.dart';
+import 'package:collectarr_app/features/library/details/field_table.dart';
+import 'package:collectarr_app/features/library/details/models.dart';
+import 'package:collectarr_app/features/library/details/section.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector/hero.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
+import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart'
     show libraryCollectionStatusFromValue;
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

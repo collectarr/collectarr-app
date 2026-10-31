@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/projections.dart';
 
 final class ComicWorkspaceDto implements LibraryWorkspaceDto {
   ComicWorkspaceDto({

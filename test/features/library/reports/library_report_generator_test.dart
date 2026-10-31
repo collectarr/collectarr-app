@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/features/library/reports/library_report_generator.dart';
+import 'package:collectarr_app/features/library/reports/generator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

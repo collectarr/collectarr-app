@@ -3,9 +3,9 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/kind_data.dart';
 
 /// Loads kind-owned workspace data without converting a local entry identity
 /// into a Core Catalog Item reference.

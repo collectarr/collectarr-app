@@ -2,13 +2,13 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/kind_data.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
-import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/item.dart';
 
 import 'catalog_item_builder.dart';
 import 'library_entry_builder.dart';

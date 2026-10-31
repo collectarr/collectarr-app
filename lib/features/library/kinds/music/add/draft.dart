@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_listeni
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
+import 'package:collectarr_app/features/library/add/models/kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
 import 'package:flutter/foundation.dart';

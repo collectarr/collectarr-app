@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 

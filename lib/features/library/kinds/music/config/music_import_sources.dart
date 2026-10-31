@@ -4,7 +4,7 @@ import '../integrations/import/delicious_library_importer.dart';
 import '../integrations/import/music_collector_importer.dart';
 import '../integrations/import/clz_music_web_importer.dart';
 import '../integrations/import/music_mapped_csv_importer.dart';
-import 'package:collectarr_app/features/library/config/library_import_capability.dart';
+import 'package:collectarr_app/features/library/config/import_capability.dart';
 import 'package:flutter/material.dart';
 
 const List<KindMappableField> musicMappableFields = [

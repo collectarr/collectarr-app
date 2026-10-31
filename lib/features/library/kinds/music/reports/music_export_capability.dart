@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_export_capability.dart';
+import 'package:collectarr_app/features/library/config/entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/export_capability.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';

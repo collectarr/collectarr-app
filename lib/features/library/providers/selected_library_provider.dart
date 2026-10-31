@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/home/home_nav_models.dart';
+import 'package:collectarr_app/features/library/home/nav_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final selectedLibraryKindProvider =

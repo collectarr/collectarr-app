@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/domain/library_entity_id.dart';
+import 'package:collectarr_app/features/library/domain/entity_id.dart';
 import 'package:flutter/foundation.dart';
 
 /// A disc contained by a concrete [MusicAlbum].

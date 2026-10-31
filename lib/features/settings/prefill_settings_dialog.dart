@@ -1,9 +1,9 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_responsive_field_layout.dart';
+import 'package:collectarr_app/features/library/edit/fields/dialog_widgets.dart';
+import 'package:collectarr_app/features/library/forms/field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/responsive_field_layout.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_provider.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
@@ -12,14 +12,14 @@ import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/library/add/models/prefill_defaults.dart';
+import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/sections/entry_personal_section.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
+import 'package:collectarr_app/features/library/ui/primitives/selection_fields.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 
 class PrefillSettingsDialog extends ConsumerStatefulWidget {

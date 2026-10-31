@@ -17,8 +17,8 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_rep
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/layout/grid.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

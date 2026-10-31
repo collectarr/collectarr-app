@@ -1,11 +1,11 @@
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
-import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
+import 'package:collectarr_app/features/library/details/chip.dart';
+import 'package:collectarr_app/features/library/details/field_table.dart';
+import 'package:collectarr_app/features/library/details/models.dart';
+import 'package:collectarr_app/features/library/details/section.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

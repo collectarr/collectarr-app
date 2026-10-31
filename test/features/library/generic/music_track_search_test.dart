@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../../support/builders/workspace_item_builder.dart';
 

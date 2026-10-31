@@ -279,10 +279,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
         'abstraction "${node.name}" must not return to production code.',
       );
     }
-    final isTargetReference = relativePath ==
-            'lib/core/models/catalog_item_ref.dart' ||
-        relativePath == 'lib/core/models/library_entry_ref.dart' ||
-        relativePath == 'lib/features/library/domain/library_target_ref.dart';
+    final isTargetReference =
+        relativePath == 'lib/core/models/catalog_item_ref.dart' ||
+            relativePath == 'lib/core/models/library_entry_ref.dart' ||
+            relativePath == 'lib/features/library/domain/target_ref.dart';
     if (isTargetReference &&
         _forbiddenTargetReferenceMembers.contains(node.name)) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
@@ -302,11 +302,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
       );
     }
     final isWorkspaceFieldSchema = relativePath ==
-            'lib/features/library/workspace/config/library_typed_field_definition.dart' ||
+            'lib/features/library/workspace/config/typed_field_definition.dart' ||
+        relativePath == 'lib/features/library/workspace/schema/schema.dart' ||
         relativePath ==
-            'lib/features/library/workspace/schema/library_workspace_schema.dart' ||
-        relativePath ==
-            'lib/features/library/workspace/schema/library_field_registry.dart';
+            'lib/features/library/workspace/schema/field_registry.dart';
     if (isWorkspaceFieldSchema &&
         _forbiddenFieldScopeMembers.contains(node.name)) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
@@ -346,8 +345,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitFieldDeclaration(FieldDeclaration node) {
-    if (relativePath ==
-        'lib/features/library/workspace/entry/library_workspace_context.dart') {
+    if (relativePath == 'lib/features/library/workspace/entry/context.dart') {
       for (final variable in node.fields.variables) {
         final name = variable.name.lexeme;
         if (name != 'item' && name != 'personal') {
@@ -838,7 +836,7 @@ bool _isStructuralComparisonFile(String relativePath) {
     'lib/core/models/catalog_media_kind.dart',
     'lib/features/collection/csv/collection_csv_codec.dart',
     'lib/features/collection/mutations/wishlist_mutations.dart',
-    'lib/features/library/selection/library_bulk_actions.dart',
+    'lib/features/library/selection/bulk_actions.dart',
   }.contains(relativePath);
 }
 
@@ -1061,23 +1059,23 @@ void _checkKindModuleLayout(String repoRoot, List<String> violations) {
       'library',
       'workspace',
       'schema',
-      'library_workspace_schema.dart',
+      'schema.dart',
     ),
   );
   if (workspaceSchema.existsSync() &&
       workspaceSchema.readAsStringSync().contains('.withEntityScope(')) {
     violations.add(
       'TK014 lib/features/library/workspace/schema/'
-      'library_workspace_schema.dart: Scoped field definitions must '
+      'schema.dart: Scoped field definitions must '
       'not be silently rebound to another entity scope.',
     );
   }
 
   const sharedSemanticUiFiles = {
-    'lib/features/library/workspace/tiles/library_workspace_card.dart',
+    'lib/features/library/workspace/tiles/card.dart',
     'lib/features/library/workspace/tiles/library_card_flow_tile.dart',
-    'lib/features/library/workspace/layout/library_flow_carousel.dart',
-    'lib/features/library/detail/library_title_metadata_section.dart',
+    'lib/features/library/workspace/layout/flow_carousel.dart',
+    'lib/features/library/detail/title_metadata_section.dart',
   };
   for (final relativePath in sharedSemanticUiFiles) {
     final file =
@@ -1136,9 +1134,9 @@ const _compositionRoots = {
   'lib/features/catalog/library_catalog_registry.dart',
   'lib/features/collection/collection_kind_contributors.dart',
   'lib/features/collection/csv/collection_csv_registry.dart',
-  'lib/features/library/tracking/library_tracking_registry.dart',
-  'lib/features/library/library_kind_registry.dart',
-  'lib/features/library/entries/entry_kind_contributor_registry.dart',
+  'lib/features/library/tracking/registry.dart',
+  'lib/features/library/kind_registry.dart',
+  'lib/features/library/entries/kind_contributor_registry.dart',
   'lib/features/providers/library_provider_registry.dart',
 };
 

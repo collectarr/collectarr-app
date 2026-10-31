@@ -3,8 +3,8 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/entries/entry_import_transport.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/library/entries/import_transport.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 
 /// Structural cells contributed by a kind to the collection CSV host.
 ///

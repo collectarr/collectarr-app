@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_import_capability.dart';
+import 'package:collectarr_app/features/library/config/import_capability.dart';
 import 'package:flutter/material.dart';
 import '../integrations/import/clz_game_hardware_csv_importer.dart';
 

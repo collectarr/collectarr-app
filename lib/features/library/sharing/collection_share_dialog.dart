@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/platform/save_export_file.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';

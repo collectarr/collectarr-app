@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
+import 'package:collectarr_app/features/library/add/models/kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/catalog_external_link_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/catalog_form_values.dart';

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/edit/online_cover_search.dart';
-import 'package:collectarr_app/features/library/edit/covers/library_online_cover_picker_dialog.dart';
+import 'package:collectarr_app/features/library/edit/covers/online_cover_picker_dialog.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';

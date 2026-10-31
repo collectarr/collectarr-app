@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/edit/session/library_edit_commit_scope.dart';
-import 'package:collectarr_app/features/library/edit/session/library_edit_navigation_guard.dart';
-import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/edit/session/commit_scope.dart';
+import 'package:collectarr_app/features/library/edit/session/navigation_guard.dart';
+import 'package:collectarr_app/features/library/edit/shell/scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

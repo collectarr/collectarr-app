@@ -2,12 +2,12 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
-import 'package:collectarr_app/features/library/config/library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/config/library_entry_mutation_result.dart';
+import 'package:collectarr_app/features/library/config/entry_create_payload.dart';
+import 'package:collectarr_app/features/library/config/entry_update_payload.dart';
+import 'package:collectarr_app/features/library/config/entry_mutation_result.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
-import 'package:collectarr_app/features/library/entries/entry_kind_contributor_registry.dart';
-import 'package:collectarr_app/features/library/entries/entry_kind_contributor.dart';
+import 'package:collectarr_app/features/library/entries/kind_contributor_registry.dart';
+import 'package:collectarr_app/features/library/entries/kind_contributor.dart';
 
 /// Composition-root dispatch for the typed entry repositories.
 ///

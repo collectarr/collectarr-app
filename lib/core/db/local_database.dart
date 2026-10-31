@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_d
 
 import 'universal_local_tables.dart';
 
-import 'package:collectarr_app/features/library/collections/library_collection_tables.dart';
+import 'package:collectarr_app/features/library/collections/tables.dart';
 
 part 'local_database.g.dart';
 

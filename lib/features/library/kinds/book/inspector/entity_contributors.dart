@@ -1,8 +1,8 @@
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/config/item_actions.dart';
+import 'package:collectarr_app/features/library/details/field_table.dart';
+import 'package:collectarr_app/features/library/details/models.dart';
+import 'package:collectarr_app/features/library/details/section.dart';
+import 'package:collectarr_app/features/library/detail/hero.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/detail/author_spotlight.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';

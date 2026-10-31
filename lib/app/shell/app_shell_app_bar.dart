@@ -4,8 +4,8 @@ import 'app_shell_brand.dart';
 import 'app_account_button.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 
-import 'package:collectarr_app/features/library/home/home_kind_menu.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/home/kind_menu.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/app/shell/app_update_header_button.dart';
 import 'package:collectarr_app/features/sync/presentation/sync_action_button.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';

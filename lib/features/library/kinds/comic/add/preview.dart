@@ -1,12 +1,12 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_character.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_issue_label.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

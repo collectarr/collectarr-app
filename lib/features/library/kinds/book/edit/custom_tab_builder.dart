@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/forms/library_field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/edit/draft/shell_state.dart';
+import 'package:collectarr_app/features/library/edit/fields/layout_widgets.dart';
+import 'package:collectarr_app/features/library/edit/schema/renderer.dart';
+import 'package:collectarr_app/features/library/forms/field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/entry_schema.dart';

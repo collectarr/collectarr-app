@@ -2,9 +2,9 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import '../comic_module_dependencies.dart';
 import 'comic_kind_configuration.dart';
 import '../data/comic_catalog_transport_codec.dart';
-import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
+import 'package:collectarr_app/features/library/workspace/shared/media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/workspace/entry/view_state.dart';
+import 'package:collectarr_app/features/library/workspace/config/view_enums.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final comicKindPresentation = comicLibraryCatalogItemPresentation;

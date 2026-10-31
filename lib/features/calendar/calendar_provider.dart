@@ -2,12 +2,12 @@ import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/calendar/universal_calendar_contributors.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
-import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/config/calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

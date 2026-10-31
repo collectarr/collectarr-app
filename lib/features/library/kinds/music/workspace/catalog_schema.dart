@@ -7,8 +7,8 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
 import 'columns/catalog_columns.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/sorts/sorts.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/schema.dart';
 
 final musicCatalogItemWorkspaceSchema =
     LibraryWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(

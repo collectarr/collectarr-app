@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
-import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
+import 'package:collectarr_app/features/library/bundles/release_contents_section.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

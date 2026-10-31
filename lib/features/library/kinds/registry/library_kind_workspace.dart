@@ -1,16 +1,16 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_target_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/config/target_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
-import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
+import 'package:collectarr_app/features/library/workspace/entry/item.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
+import 'package:collectarr_app/features/library/workspace/schema/field_registry.dart';
+import 'package:collectarr_app/features/library/workspace/table/layout.dart';
 import 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
-import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
+import 'package:collectarr_app/features/library/tracking/topology.dart';
 import 'package:flutter/material.dart';
 
 /// Workspace behavior entry by one concrete kind.

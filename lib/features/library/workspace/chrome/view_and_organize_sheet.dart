@@ -1,8 +1,8 @@
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'library_view_controls.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

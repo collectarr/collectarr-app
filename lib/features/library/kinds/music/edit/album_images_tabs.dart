@@ -2,12 +2,12 @@ import 'package:collectarr_app/ui/app_dialog.dart';
 
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
-import 'package:collectarr_app/features/library/edit/covers/library_cover_editor.dart';
+import 'package:collectarr_app/features/library/edit/covers/editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dart';
-import 'package:collectarr_app/features/library/edit/covers/library_online_cover_picker_dialog.dart';
+import 'package:collectarr_app/features/library/edit/covers/online_cover_picker_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/online_cover_search.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary_field.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';

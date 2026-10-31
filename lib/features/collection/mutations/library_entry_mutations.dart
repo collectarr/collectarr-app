@@ -14,8 +14,8 @@ import 'package:collectarr_app/features/collection/mutations/tracking_mutations.
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
-import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/entries/repository.dart';
+import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:uuid/uuid.dart';

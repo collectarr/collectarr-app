@@ -1,11 +1,11 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_target_vocabulary.dart';
-import 'package:collectarr_app/features/library/config/library_facet_module.dart';
-import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
-import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
-import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/target_vocabulary.dart';
+import 'package:collectarr_app/features/library/config/facet_module.dart';
+import 'package:collectarr_app/features/library/config/hierarchy_capability.dart';
+import 'package:collectarr_app/features/library/config/inspector_capability.dart';
+import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
+import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
@@ -15,8 +15,8 @@ import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.d
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/tracking/topology.dart';
+import 'package:collectarr_app/features/library/workspace/entry/view_state.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 
 final Map<CatalogMediaKind, MediaTrackingProfile>

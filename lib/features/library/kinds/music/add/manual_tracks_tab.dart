@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/draft.dart';
@@ -11,8 +11,8 @@ import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dar
 import 'package:collectarr_app/features/library/kinds/music/edit/album_structure_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary_field.dart';
 import 'package:flutter/material.dart';
 
 /// Manual Add reuses the complete Music disc/track editor, including headers and bulk actions.

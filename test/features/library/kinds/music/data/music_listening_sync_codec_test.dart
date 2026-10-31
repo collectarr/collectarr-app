@@ -9,8 +9,8 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_librar
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_sync_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
-import 'package:collectarr_app/features/library/tracking/library_tracking_registry.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/registry.dart';
+import 'package:collectarr_app/features/library/tracking/storage_repository.dart';
 import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 import 'package:collectarr_app/features/sync/data/sync_retry_mapper.dart';
 import 'package:drift/native.dart';

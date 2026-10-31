@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_rep
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/entries/entry_kind_contributor.dart';
+import 'package:collectarr_app/features/library/entries/kind_contributor.dart';
 
 final comicEntryContributor = TypedEntryKindContributor<ComicLibraryEntry>(
   kind: CatalogMediaKind.comic,

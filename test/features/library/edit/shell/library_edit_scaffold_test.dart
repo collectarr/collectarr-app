@@ -1,8 +1,8 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_typography.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_layout_widgets.dart';
-import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/edit/fields/layout_widgets.dart';
+import 'package:collectarr_app/features/library/edit/shell/scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';

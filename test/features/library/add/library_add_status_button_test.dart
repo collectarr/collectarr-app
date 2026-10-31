@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/panes/library_add_status_button.dart';
+import 'package:collectarr_app/features/library/add/panes/status_button.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -8,9 +8,9 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/groups.dar
 import 'package:collectarr_app/features/library/kinds/comic/workspace/facets.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/schema.dart';
 import 'package:flutter/material.dart';
 
 abstract final class ComicLibraryEntryWorkspaceFields {

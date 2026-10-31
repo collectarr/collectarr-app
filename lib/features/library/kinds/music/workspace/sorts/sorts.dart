@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/catalog_fi
 import 'package:collectarr_app/features/library/kinds/music/workspace/fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/facts.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 
 LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicStatusSort() {
   return LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(

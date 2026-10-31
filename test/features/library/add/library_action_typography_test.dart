@@ -1,9 +1,9 @@
-import 'package:collectarr_app/features/library/add/library_add_shared.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_status_button.dart';
-import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/add/shared.dart';
+import 'package:collectarr_app/features/library/add/panes/status_button.dart';
+import 'package:collectarr_app/features/library/add/shell/dialog_theme.dart';
+import 'package:collectarr_app/features/library/edit/fields/dialog_widgets.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_actions.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/actions.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

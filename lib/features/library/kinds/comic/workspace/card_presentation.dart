@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:flutter/material.dart';

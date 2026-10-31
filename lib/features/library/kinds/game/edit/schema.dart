@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
+import 'package:collectarr_app/features/library/edit/schema/schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/catalog_field_specs.dart';

@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

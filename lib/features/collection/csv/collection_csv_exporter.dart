@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';

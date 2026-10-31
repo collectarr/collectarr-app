@@ -1,0 +1,529 @@
+part of '../page.dart';
+
+/// Last selected item per kind, so returning from a tool page restores the
+/// details panel instead of rebuilding the library with nothing selected.
+final _lastSelectedItemByKind = <String, String>{};
+
+abstract final class LibraryPageShellPresenter {
+  static Widget build(
+    GenericLibraryPageState state,
+    BuildContext context,
+  ) {
+    final shelf = state.ref.watch(shelfProvider);
+    final wishlistValue = state.ref.watch(wishlistProvider);
+    final switchSnapshot = state.widget.switchLayoutSnapshot;
+    final baseViewState =
+        state._session.preferences.viewState ?? state._viewProfile.defaults();
+    final viewState = switchSnapshot == null
+        ? baseViewState
+        : baseViewState.withLayoutSnapshot(switchSnapshot);
+    final shelfState = shelf.asData?.value;
+    final allWishlistItems = state._activeWishlistItems(wishlistValue);
+    final projection = shelfState == null
+        ? null
+        : state._projectionForShelf(shelfState, viewState);
+    final useFab =
+        state.ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
+    if (projection != null) {
+      final uri = state.widget.routeUri;
+      final request = uri.queryParameters['toolRequest'];
+      final tool = uri.queryParameters['tool'];
+      if (request != null &&
+          request != state._handledToolRequest &&
+          (tool == 'reassignIndex' ||
+              tool == 'transferFieldData' ||
+              tool == 'missingItems')) {
+        state._handledToolRequest = request;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!state.mounted || state.widget.routeUri != uri) return;
+          final parameters = Map<String, String>.of(uri.queryParameters)
+            ..remove('tool')
+            ..remove('toolRequest');
+          if (GoRouter.maybeOf(state.context) != null) {
+            state.context
+                .replace(uri.replace(queryParameters: parameters).toString());
+          }
+          unawaited(switch (tool) {
+            'reassignIndex' =>
+              state._dialogCoordinator.reassignIndexFlow(projection),
+            'transferFieldData' =>
+              state._dialogCoordinator.showTransferFieldDataFlow(projection),
+            _ => _showMissingReport(state, projection),
+          });
+        });
+      }
+    }
+    final toolbar = state._toolbarController.buildToolbar(
+      context: context,
+      projection: projection,
+      viewState: viewState,
+      shelfState: shelfState,
+    );
+    final content = shelf.when(
+      data: (stateValue) {
+        final resolvedProjection =
+            projection ?? state._projectionForShelf(stateValue, viewState);
+        return _buildBody(
+          state,
+          resolvedProjection,
+          viewState,
+          shelfState: stateValue,
+          allLibraryEntries: [
+            for (final item in resolvedProjection.allItems)
+              if (item.source.libraryEntrySummary case final entry?) entry,
+          ],
+          allWishlistItems: allWishlistItems,
+        );
+      },
+      error: (error, _) => AppErrorCard(message: error.toString()),
+      loading: () => const SkeletonGrid(),
+    );
+    return LibraryPageShellFrame(
+      topBar: state.widget.topBar,
+      toolbar: toolbar,
+      content: content,
+      bottomBar: LibraryCollectionTabBar(
+        mediaKind: state.widget.type.kind.apiValue,
+        accent: state.widget.accent,
+        onCollectionSelected: (_) => state._onCollectionSelected(),
+      ),
+      accent: state.widget.accent,
+      showAddButton: useFab || MediaQuery.sizeOf(context).width < 900,
+      isScanningCover: state._isScanningCover,
+      onAdd: () => state._dialogCoordinator.showAddDialogFlow(),
+      onEscape: state._handleKeyboardEscape,
+      onSelectAll:
+          projection == null ? null : () => state._selectAllVisible(projection),
+      onDelete: projection == null
+          ? null
+          : () => state._removeVisibleSelection(projection),
+      onNextItem: projection == null
+          ? null
+          : () => state._navigateKeyboardSelection(projection, 1),
+      onPreviousItem: projection == null
+          ? null
+          : () => state._navigateKeyboardSelection(projection, -1),
+    );
+  }
+
+  static Widget _buildBody(
+    GenericLibraryPageState state,
+    LibraryProjection projection,
+    LibraryWorkspaceViewState viewState, {
+    required ShelfState shelfState,
+    required List<LibraryEntrySummary> allLibraryEntries,
+    required List<WishlistItem> allWishlistItems,
+  }) {
+    final registration = state.widget.type;
+    final workspace = libraryKindWorkspaceForKind(registration.kind);
+    final activeFields = projection.allItems.isNotEmpty
+        ? workspace.fieldsForTarget(projection.allItems.first.target)
+        : workspace.fields;
+    final workspaceOverride = state.buildWorkspaceOverride(
+      projection,
+      viewState,
+      allLibraryEntries: allLibraryEntries,
+      allWishlistItems: allWishlistItems,
+    );
+    if (state._session.selection.selectedId != null &&
+        projection.filteredItems.isNotEmpty &&
+        !projection.filteredItems.any(
+          (item) => item.target.id == state._session.selection.selectedId,
+        )) {
+      final firstVisibleId = projection.filteredItems.first.target.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!state.mounted ||
+            state._session.selection.selectedId == firstVisibleId) {
+          return;
+        }
+        state._activateItem(firstVisibleId);
+      });
+    }
+    final searchState = state._searchControllerOps.state;
+    final trimmedSearchQuery = searchState.query.trim();
+    final bucketStatusSummary =
+        state._bucketStatusSummaryForProjection(projection);
+    final kind = state.widget.type.kind.apiValue;
+    final selectedId = state._session.selection.selectedId;
+    if (selectedId != null) {
+      _lastSelectedItemByKind[kind] = selectedId;
+    } else if (state._session.selection.value.itemIds.isEmpty &&
+        projection.filteredItems.isNotEmpty) {
+      // Like the reference app, the details panel always shows an album:
+      // the last one selected in this session, otherwise the first visible.
+      final remembered = _lastSelectedItemByKind[kind];
+      final restoreId = remembered != null &&
+              projection.filteredItems
+                  .any((item) => item.target.id == remembered)
+          ? remembered
+          : projection.filteredItems.first.target.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!state.mounted ||
+            state._session.selection.selectedId != null ||
+            state._session.selection.value.itemIds.isNotEmpty) {
+          return;
+        }
+        state._activateItem(restoreId);
+      });
+    }
+    final activeProjectionGroupMode = state._projectionGroupMode;
+    final activeFacetId = state._facetIdForMode(activeProjectionGroupMode);
+    final activeFacetLoadKey = activeFacetId == null
+        ? null
+        : state._facetLoadKey(
+            activeFacetId,
+            state._genericShelfSignature(shelfState),
+          );
+    final canUseBucketCompletionScope = libraryGroupModeSupportsCompletion(
+      state.widget.type,
+      state._activeGroupMode,
+    );
+    final effectiveBucketCompletionScope = canUseBucketCompletionScope
+        ? state._session.facets.bucketCompletionScope
+        : LibraryBucketCompletionScope.all;
+    return LibraryRevealScope(
+      controller: state._revealController,
+      child: LibraryBody(
+        type: state.widget.type,
+        projection: projection,
+        viewState: viewState,
+        selectedId: state._session.selection.selectedId,
+        selectedAnchorId: state._session.selection.anchorId,
+        selectedBucket: state._session.facets.selectedBucket,
+        groupMode: activeProjectionGroupMode,
+        groupPresentation: state._activeGroupPresentation,
+        groupLoading: activeFacetLoadKey != null &&
+            state._isFacetLoadInFlight(activeFacetLoadKey),
+        accent: state.widget.accent,
+        hasActiveFilter: state._hasActiveFilter,
+        onAdd: () => state._dialogCoordinator.showAddDialogFlow(),
+        onClearFilters: state._clearFilters,
+        selectionEnabled: state._session.selection.value.enabled &&
+            viewState.viewMode != LibraryViewMode.cardFlow,
+        selectedItemIds: state._session.selection.value.itemIds,
+        onApplySelection: state._applySelection,
+        onActivateItem: state._activateItem,
+        onToggleSelectionItem: state._toggleSelectionItem,
+        onOpenItem: (item) {
+          state._activateItem(item.target.id);
+          if (viewState.detailsLayout == LibraryDetailsLayout.hidden) {
+            state._editCoordinator.showDetailPage(item, projection: projection);
+          }
+        },
+        onBoxSelectionChanged: (ids) => state._rebuild(() {
+          state._session.selection.value =
+              state._session.selection.value.replace(ids);
+          if (ids.isEmpty) {
+            state._session.selection.anchorId = null;
+          } else {
+            state._session.selection.anchorId ??= ids.first;
+            state._session.selection.selectedId =
+                ids.contains(state._session.selection.selectedId)
+                    ? state._session.selection.selectedId
+                    : ids.first;
+          }
+        }),
+        onBucketChanged: state._setSelectedBucket,
+        collapsedGroupBuckets: state._session.preferences.collapsedGroupBuckets,
+        onGroupBucketCollapsedToggled: state._toggleCollapsedGroupBucket,
+        onSetCollapsedGroupBuckets: state._setCollapsedGroupBuckets,
+        onGroupModeChanged: state._setFolderPreset,
+        onSortChanged: (column) => state._updateViewState(
+          (stateValue) => stateValue.withSortColumn(
+            activeFields.decodeSortId(column),
+            state._viewProfile,
+          ),
+        ),
+        onColumnWidthChanged: (column, width) => state._updateViewState(
+          (stateValue) => stateValue.withColumnWidth(
+            activeFields.decodeColumnId(column),
+            width,
+            state._viewProfile,
+          ),
+        ),
+        onCoverSizeChanged: (size) => state._updateViewState(
+          (stateValue) => stateValue.copyWith(coverSize: size),
+        ),
+        onSidebarWidthChanged: (width) => state._updateViewChrome(
+          (stateValue) => stateValue.copyWith(sidebarWidth: width),
+        ),
+        onSidebarVisibilityChanged: state._setGroupingPanelVisibility,
+        onDetailsLayoutChanged: (layout) => state._updateViewState(
+          (stateValue) => stateValue.copyWith(detailsLayout: layout),
+        ),
+        onDetailsWidthChanged: (width) => state._updateViewChrome(
+          (stateValue) => stateValue.copyWith(detailsWidth: width),
+        ),
+        onDetailsHeightChanged: (height) => state._updateViewChrome(
+          (stateValue) => stateValue.copyWith(detailsHeight: height),
+        ),
+        onLayoutSnapshotChanged: (snapshot) {
+          state.ref
+              .read(libraryLayoutSnapshotProvider.notifier)
+              .update(snapshot);
+        },
+        onAddEntry: (item) =>
+            state._collectionActionCoordinator.runCollectionAction(
+          (actions) => actions.addEntry(item),
+        ),
+        onRemoveEntry: state._collectionActionCoordinator.confirmAndRemoveEntry,
+        onAddWishlist: (item) =>
+            state._collectionActionCoordinator.runCollectionAction(
+          (actions) => actions.addWishlist(item),
+        ),
+        onRemoveWishlist: (item) =>
+            state._collectionActionCoordinator.runCollectionAction(
+          (actions) => actions.removeWishlist(item),
+        ),
+        onEditItem: (item, libraryEntry) => unawaited(
+            state._editCoordinator.showEditDialog(item, libraryEntry)),
+        workspaceOverride: workspaceOverride,
+        onItemContextMenu: (item, position) => state
+            ._collectionActionCoordinator
+            .handleItemContextMenu(projection, item, position),
+        sidebarBreadcrumbs: state._sidebarBreadcrumbs,
+        sidebarAncestorScopeLabels: state._sidebarAncestorScopeLabels,
+        onSidebarNavigateBack: state._session.preferences.scopeHistory.isEmpty
+            ? null
+            : state._navigateSidebarBack,
+        onSidebarNavigateToBreadcrumb: state._navigateSidebarToBreadcrumb,
+        onSidebarNavigateToAncestorScope: state._navigateSidebarToAncestorScope,
+        searchQuery: trimmedSearchQuery.isEmpty ? null : trimmedSearchQuery,
+        searchTarget: state._effectiveSearchTarget,
+        activeSmartListName: state._session.preferences.activeSmartListName,
+        quickView: state._session.facets.quickView,
+        collectionStatusScope: state._session.facets.collectionStatusScope,
+        bucketCompletionScope: effectiveBucketCompletionScope,
+        collectionStatusScopeLabel:
+            state._session.facets.collectionStatusScope ==
+                    kDefaultCollectionStatusScope
+                ? null
+                : state._session.facets.collectionStatusScope.label,
+        linkedMetadataFilterLabel:
+            state._session.facets.linkedMetadataFilter?.chipLabel,
+        sidebarSelectedLetter: state._session.facets.selectedLetter,
+        bucketStatusSummary: bucketStatusSummary,
+        filterSelection: state._session.selection.filterSelection,
+        preferToolbarAlphabet: true,
+        onCollectionStatusScopeChanged: state._toggleCollectionStatusScope,
+        onBucketCompletionScopeChanged: canUseBucketCompletionScope
+            ? state._setBucketCompletionScope
+            : null,
+        onFilterByValue: state._toggleLinkedMetadataFilter,
+        selectedLetter: state._session.facets.selectedLetter,
+        alphabetField: state._alphabetField,
+        availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
+          projection.filteredItems.expand(state._alphabetField.values),
+        ),
+        onLetterSelected: state._setSelectedLetter,
+        db: state.ref.read(localDatabaseProvider),
+        folderPreset: state._activeFolderPreset,
+        pinnedFolderPresets: state._session.preferences.pinnedFolderPresets,
+        onManageBuckets:
+            state.supportsBucketManagement(activeProjectionGroupMode)
+                ? () => unawaited(state._showBucketManagerFlow(projection))
+                : null,
+        onPinnedFolderPresetsChanged: state._setPinnedFolderPresets,
+        folderDisplayMode: state._session.preferences.folderDisplayMode,
+        folderTreeExpandedNodeIds:
+            state._session.preferences.folderTreeExpandedNodeIds,
+        folderTreeSelectedNodeId:
+            state._session.preferences.folderTreeSelectedNodeId,
+        onFolderDisplayModeChanged: state._setFolderDisplayMode,
+        onFolderTreeNodeSelected: state._selectFolderTreePath,
+        onFolderTreeNodeExpandedToggled: state._toggleFolderTreeNodeExpanded,
+        desktopToolbarBand: LibraryDesktopSecondaryToolbar(
+          type: state.widget.type,
+          viewState: viewState,
+          counts: projection.counts,
+          onEditColumns: state._dialogCoordinator.showColumnChooserFlow,
+          columnFavoritePresets: state._columnFavoritePresets,
+          activeColumnFavoriteLabel: state._activeColumnFavoriteLabel,
+          onColumnFavoriteSelected: state._applyColumnFavorite,
+          pinnedColumnFavoriteKeys:
+              state._session.preferences.pinnedColumnFavoriteKeys,
+          onEditSort: state._dialogCoordinator.showSortDialogFlow,
+          onSidebarVisibilityChanged: state._setGroupingPanelVisibility,
+          onViewModeChanged: (mode) => state._updateViewState(
+            (stateValue) => stateValue.copyWith(viewMode: mode),
+          ),
+          onDetailsLayoutChanged: (layout) => state._updateViewState(
+            (stateValue) => stateValue.copyWith(detailsLayout: layout),
+          ),
+          onDensityPresetChanged: (densityPreset) => state._updateViewState(
+            (stateValue) => stateValue.copyWith(densityPreset: densityPreset),
+          ),
+          onCoverSizeChanged: (size) => state._updateViewState(
+            (stateValue) => stateValue.copyWith(coverSize: size),
+          ),
+          selectedBucket: state._session.facets.selectedBucket,
+          linkedMetadataFilterLabel:
+              state._session.facets.linkedMetadataFilter?.chipLabel,
+          onClearBucket: state._clearToolbarSearchChip,
+          quickView: state._session.facets.quickView,
+          activeSortFavoriteId: state._activeSortFavorite?.id,
+          sortFavorites: state._sortFavorites,
+          onSortFavoriteSelected: state._applySortFavorite,
+          pinnedSortFavoriteIds:
+              state._session.preferences.pinnedSortFavoriteIds,
+          onTogglePinnedSortFavorite: state._togglePinnedSortFavorite,
+          onManageSortFavorites:
+              state._dialogCoordinator.showSortFavoritesManagerFlow,
+          hasActiveFilters: state._hasActiveFilter,
+          onQuickViewSelected: (view) => state._setQuickView(
+              state._session.facets.quickView == view ? null : view),
+          onClearFilters: state._clearFilters,
+          onRandomPick: projection.filteredItems.isNotEmpty
+              ? () => state._collectionActionCoordinator
+                  .pickRandomItemFlow(state._visibleItems(projection))
+              : null,
+          shelfState: shelfState,
+          onSmartLists: () =>
+              state._dialogCoordinator.showSmartListsFlow(shelfState),
+          onFolders: state._dialogCoordinator.showUserFoldersFlow,
+          onReadingQueue: state.widget.type.toolbarActionAvailability
+                  .allows(LibraryToolbarActionId.readingQueue)
+              ? state._dialogCoordinator.showReadingQueueFlow
+              : null,
+          onEditConditionPickList:
+              libraryEditPresentationForKind(state.widget.type.kind)
+                      .hasConditionPickList
+                  ? state._dialogCoordinator.showConditionPickListEditorFlow
+                  : null,
+          onEditGradePickList:
+              libraryEditPresentationForKind(state.widget.type.kind)
+                      .hasCollectionValuePickList
+                  ? state._dialogCoordinator.showGradePickListEditorFlow
+                  : null,
+          onTransferFieldData: state._hasLibraryEntriesInProjection(projection)
+              ? () =>
+                  state._dialogCoordinator.showTransferFieldDataFlow(projection)
+              : null,
+          onReassignIndex: state.widget.type.toolbarActionAvailability
+                      .allows(LibraryToolbarActionId.reassignIndex) &&
+                  state._hasLibraryEntriesInProjection(projection)
+              ? () => state._dialogCoordinator.reassignIndexFlow(projection)
+              : null,
+          onShareCollection: projection.filteredItems.isNotEmpty
+              ? () => state._sharingCoordinator.shareCollectionFlow(projection)
+              : null,
+          onCompareMetadataWithServer: (() {
+            if (!libraryMetadataForKind(state.widget.type.kind)
+                .supportsServerCompare) {
+              return null;
+            }
+            final selected = state._collectionActionCoordinator
+                .selectedProjectionItemFor(projection);
+            if (selected == null ||
+                !state._collectionActionCoordinator
+                    .canCompareMetadataWithServerItem(selected)) {
+              return null;
+            }
+            return () => unawaited(
+                  state._metadataCoordinator.compareMetadataWithServerFlow(
+                    projection,
+                    item: selected,
+                  ),
+                );
+          })(),
+          groupMode: state._activeSidebarGroupMode,
+          folderPreset: state._activeFolderPreset,
+          availableGroupModes: state._scopeAvailableGroupModes,
+          pinnedFolderPresets: state._session.preferences.pinnedFolderPresets,
+          onPinnedFolderPresetsChanged: state._setPinnedFolderPresets,
+          onGroupModeChanged: state._setFolderPreset,
+          groupPresentation: state._activeGroupPresentation,
+          onGroupPresentationChanged: state._setGroupPresentation,
+          selectionCallbacks: viewState.viewMode == LibraryViewMode.cardFlow
+              ? null
+              : selectionCallbacksForProjection(state, projection),
+          selectedCount: viewState.viewMode == LibraryViewMode.cardFlow
+              ? 0
+              : state._session.selection.value.selectedCount,
+          totalSelectableCount: projection.filteredItems.length,
+        ),
+      ),
+    );
+  }
+
+  static LibrarySelectionCallbacks selectionCallbacksForProjection(
+    GenericLibraryPageState state,
+    LibraryProjection? projection,
+  ) {
+    return (
+      onClearSelection: () => state._rebuild(() {
+            state._session.selection.value =
+                state._session.selection.value.clear();
+            state._session.selection.anchorId = null;
+          }),
+      onSelectAll: () {
+        if (projection != null) {
+          state._selectAllVisible(projection);
+        }
+      },
+      onBulkEdit: state._hasLibraryEntriesInSelection(projection)
+          ? () => state._collectionActionCoordinator.bulkEditFlow(projection)
+          : null,
+      onPrintToPdf: state._hasSelectedItemsInSelection(projection)
+          ? () => state._reportCoordinator.printSelectedReportFlow(projection)
+          : null,
+      onExportCsvTxt: state._hasSelectedItemsInSelection(projection)
+          ? () => state._sharingCoordinator.exportSelectedCsvTxtFlow(projection)
+          : null,
+      onExportXml: state._hasLibraryEntriesInSelection(projection)
+          ? () => state._sharingCoordinator.exportSelectedXmlFlow(projection)
+          : null,
+      onMerge: state._collectionActionCoordinator.canMergeSelection(projection)
+          ? () =>
+              state._collectionActionCoordinator.mergeSelectionFlow(projection)
+          : null,
+      onBulkDuplicate: state._hasLibraryEntriesInSelection(projection)
+          ? () =>
+              state._collectionActionCoordinator.bulkDuplicateFlow(projection)
+          : null,
+      onBulkLoan: state._hasLoanableLibraryEntriesInSelection(projection)
+          ? () => state._dialogCoordinator.showLoanSelectionFlow(projection)
+          : null,
+      onTransferFieldData: state._hasLibraryEntriesInSelection(projection)
+          ? () => state._dialogCoordinator
+              .showTransferFieldDataForSelectionFlow(projection)
+          : null,
+      onBulkUpdateValues: null,
+      onBulkUpdateKeyInfo: null,
+      onMoveToCollection: state._hasLibraryEntriesInSelection(projection)
+          ? () => state._collectionActionCoordinator
+              .moveSelectionToCollectionFlow(projection)
+          : null,
+      onBulkMoveToEntry: state
+              ._hasMoveToEntryEligibleItemsInSelection(projection)
+          ? () =>
+              state._collectionActionCoordinator.bulkMoveToEntryFlow(projection)
+          : null,
+      onBulkMoveToWishlist:
+          state._hasMoveToWishlistEligibleItemsInSelection(projection)
+              ? () => state._collectionActionCoordinator
+                  .bulkMoveToWishlistFlow(projection)
+              : null,
+      onBulkRemove: state._hasRemovableItemsInSelection(projection)
+          ? () => state._collectionActionCoordinator.bulkRemoveFlow(projection)
+          : null,
+      onBulkRefreshMetadata: state._hasSelectedItemsInSelection(projection)
+          ? () => state._metadataCoordinator.bulkRefreshMetadataFlow(projection)
+          : null,
+    );
+  }
+}
+
+Future<void> _showMissingReport(
+  GenericLibraryPageState state,
+  LibraryProjection projection,
+) async {
+  final report = libraryToolbarForKind(state.widget.type.kind)?.missingReport;
+  if (report == null) return;
+  await report(
+    context: state.context,
+    type: state.widget.type,
+    projection: projection,
+    accent: state.widget.accent,
+  );
+}

@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
-import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
+import 'package:collectarr_app/features/library/forms/schema.dart';
+import 'package:collectarr_app/features/library/add/schema/catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/catalog_field_specs.dart';

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:flutter/material.dart';
 
 /// Labelled, segmented popup used by custom-field definition options.

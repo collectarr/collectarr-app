@@ -2,37 +2,37 @@
     "formatVersion":  1,
     "entries":  [
                     {
-                        "path":  "lib/features/library/add/controllers/library_add_session_controller.dart",
+                        "path":  "lib/features/library/add/controllers/session_controller.dart",
                         "surface":  "member-access",
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/add/controllers/library_add_session_controller.dart",
+                        "path":  "lib/features/library/add/controllers/session_controller.dart",
                         "surface":  "member-access",
                         "symbol":  "readStatus"
                     },
                     {
-                        "path":  "lib/features/library/add/library_add_collection_workflow.dart",
+                        "path":  "lib/features/library/add/collection_workflow.dart",
                         "surface":  "member-declaration",
                         "symbol":  "readStatus"
                     },
                     {
-                        "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
+                        "path":  "lib/features/library/add/models/tracking_draft.dart",
                         "surface":  "member-access",
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
+                        "path":  "lib/features/library/add/models/tracking_draft.dart",
                         "surface":  "member-access",
                         "symbol":  "readStatus"
                     },
                     {
-                        "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
+                        "path":  "lib/features/library/add/models/tracking_draft.dart",
                         "surface":  "member-declaration",
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
+                        "path":  "lib/features/library/add/models/tracking_draft.dart",
                         "surface":  "member-declaration",
                         "symbol":  "readStatus"
                     },
@@ -42,47 +42,47 @@
                         "symbol":  "signedBy"
                     },
                     {
-                        "path":  "lib/features/library/details/library_detail_panel_scaffold.dart",
+                        "path":  "lib/features/library/details/panel_scaffold.dart",
                         "surface":  "member-declaration",
                         "symbol":  "variant"
                     },
                     {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
+                        "path":  "lib/features/library/edit/draft/models.dart",
                         "surface":  "member-access",
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
+                        "path":  "lib/features/library/edit/draft/models.dart",
                         "surface":  "member-access",
                         "symbol":  "progressCurrent"
                     },
                     {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
+                        "path":  "lib/features/library/edit/draft/models.dart",
                         "surface":  "member-access",
                         "symbol":  "progressTotal"
                     },
                     {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
+                        "path":  "lib/features/library/edit/draft/models.dart",
                         "surface":  "member-access",
                         "symbol":  "readStatus"
                     },
                     {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
+                        "path":  "lib/features/library/edit/draft/models.dart",
                         "surface":  "member-declaration",
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
+                        "path":  "lib/features/library/edit/draft/models.dart",
                         "surface":  "member-declaration",
                         "symbol":  "progressCurrent"
                     },
                     {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
+                        "path":  "lib/features/library/edit/draft/models.dart",
                         "surface":  "member-declaration",
                         "symbol":  "progressTotal"
                     },
                     {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
+                        "path":  "lib/features/library/edit/draft/models.dart",
                         "surface":  "member-declaration",
                         "symbol":  "readStatus"
                     },
@@ -92,37 +92,37 @@
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/edit/fields/edit_layout_widgets.dart",
+                        "path":  "lib/features/library/edit/fields/layout_widgets.dart",
                         "surface":  "member-declaration",
                         "symbol":  "cover"
                     },
                     {
-                        "path":  "lib/features/library/edit/session/library_edit_session_controller.dart",
+                        "path":  "lib/features/library/edit/session/controller.dart",
                         "surface":  "member-access",
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+                        "path":  "lib/features/library/generic/page/coordinators/edit_coordinator.dart",
                         "surface":  "member-access",
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+                        "path":  "lib/features/library/generic/page/coordinators/edit_coordinator.dart",
                         "surface":  "member-access",
                         "symbol":  "progressCurrent"
                     },
                     {
-                        "path":  "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+                        "path":  "lib/features/library/generic/page/coordinators/edit_coordinator.dart",
                         "surface":  "member-access",
                         "symbol":  "progressTotal"
                     },
                     {
-                        "path":  "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
+                        "path":  "lib/features/library/generic/page/coordinators/edit_coordinator.dart",
                         "surface":  "member-access",
                         "symbol":  "readStatus"
                     },
                     {
-                        "path":  "lib/features/library/generic/projection/library_grouping_engine.dart",
+                        "path":  "lib/features/library/generic/projection/grouping_engine.dart",
                         "surface":  "member-access",
                         "symbol":  "releaseDate"
                     },
@@ -132,7 +132,7 @@
                         "symbol":  "release_date"
                     },
                     {
-                        "path":  "lib/features/library/selection/library_bulk_edit_dialog.dart",
+                        "path":  "lib/features/library/selection/bulk_edit_dialog.dart",
                         "surface":  "member-declaration",
                         "symbol":  "readStatus"
                     },
@@ -147,32 +147,32 @@
                         "symbol":  "progressTotal"
                     },
                     {
-                        "path":  "lib/features/library/tracking/tracking_storage_codec.dart",
+                        "path":  "lib/features/library/tracking/storage_codec.dart",
                         "surface":  "member-declaration",
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/tracking/tracking_storage_import.dart",
+                        "path":  "lib/features/library/tracking/storage_import.dart",
                         "surface":  "member-declaration",
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/tracking/tracking_storage_record.dart",
+                        "path":  "lib/features/library/tracking/storage_record.dart",
                         "surface":  "map-key",
                         "symbol":  "finished_at"
                     },
                     {
-                        "path":  "lib/features/library/tracking/tracking_storage_record.dart",
+                        "path":  "lib/features/library/tracking/storage_record.dart",
                         "surface":  "map-key",
                         "symbol":  "started_at"
                     },
                     {
-                        "path":  "lib/features/library/tracking/tracking_storage_record.dart",
+                        "path":  "lib/features/library/tracking/storage_record.dart",
                         "surface":  "member-declaration",
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/ui/primitives/library_info_panel.dart",
+                        "path":  "lib/features/library/ui/primitives/info_panel.dart",
                         "surface":  "member-declaration",
                         "symbol":  "variant"
                     },
@@ -187,22 +187,22 @@
                         "symbol":  "discCount"
                     },
                     {
-                        "path":  "lib/features/library/workspace/schema/library_workspace_projections.dart",
+                        "path":  "lib/features/library/workspace/schema/projections.dart",
                         "surface":  "member-declaration",
                         "symbol":  "releaseDate"
                     },
                     {
-                        "path":  "lib/features/library/workspace/tiles/library_card_presentation.dart",
+                        "path":  "lib/features/library/workspace/tiles/card_presentation.dart",
                         "surface":  "member-declaration",
                         "symbol":  "releaseDate"
                     },
                     {
-                        "path":  "lib/features/library/workspace/tiles/library_card_presentation.dart",
+                        "path":  "lib/features/library/workspace/tiles/card_presentation.dart",
                         "surface":  "member-declaration",
                         "symbol":  "variant"
                     },
                     {
-                        "path":  "lib/features/library/workspace/tiles/library_cover_image.dart",
+                        "path":  "lib/features/library/workspace/tiles/cover_image.dart",
                         "surface":  "member-declaration",
                         "symbol":  "labelType"
                     }

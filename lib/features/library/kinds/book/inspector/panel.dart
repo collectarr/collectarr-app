@@ -1,9 +1,9 @@
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:collectarr_app/features/library/config/item_actions.dart';
+import 'package:collectarr_app/features/library/details/inspector_title_card.dart';
+import 'package:collectarr_app/features/library/detail/hero.dart';
+import 'package:collectarr_app/features/library/details/models.dart';
+import 'package:collectarr_app/features/library/details/panel_scaffold.dart';
+import 'package:collectarr_app/features/library/inspector/chrome.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/detail/author_spotlight.dart';

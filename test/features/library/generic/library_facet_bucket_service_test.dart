@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/features/library/config/library_facet_module.dart';
-import 'package:collectarr_app/features/library/generic/library_facet_bucket_service.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/config/facet_module.dart';
+import 'package:collectarr_app/features/library/generic/facet_bucket_service.dart';
+import 'package:collectarr_app/features/library/workspace/schema/group_values.dart';
+import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

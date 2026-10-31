@@ -1,6 +1,6 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
-import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
+import 'package:collectarr_app/features/library/metadata/field_entries.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';

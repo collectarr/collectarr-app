@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
-import 'package:collectarr_app/features/library/metadata/library_link_match.dart';
+import 'package:collectarr_app/features/library/config/metadata_capability.dart';
+import 'package:collectarr_app/features/library/metadata/link_match.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../../support/builders/workspace_item_builder.dart';
 

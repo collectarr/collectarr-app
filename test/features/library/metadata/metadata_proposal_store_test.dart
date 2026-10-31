@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
+import 'package:collectarr_app/features/library/metadata/proposal_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
-import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
+import 'package:collectarr_app/features/library/metadata/diff_panel.dart';
 import 'package:flutter/material.dart';
 
 /// Compares canonical Music v2 edition, credit, disc, and track data.

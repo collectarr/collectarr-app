@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/details/library_trailer_visibility.dart';
+import 'package:collectarr_app/features/library/details/trailer_visibility.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

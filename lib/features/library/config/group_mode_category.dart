@@ -1,0 +1,37 @@
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'group_mode_category_models.dart';
+
+export 'group_mode_category_models.dart';
+
+List<LibraryGroupModeCategory> defaultLibraryGroupModeCategories(
+  LibraryKindRegistration type,
+  List<String> modes,
+) {
+  final workspace = libraryKindWorkspaceForKind(type.kind);
+  final categoriesMap = <String, List<String>>{};
+
+  for (final mode in modes) {
+    final fields = workspace.fieldsForGroupModeAcrossTargets(mode);
+    if (fields == null) {
+      continue;
+    }
+    final groupDef = fields.findGroupDefinition(fields.decodeGroupId(mode));
+    final category = groupDef?.resolvedCategory ?? 'Personal';
+    categoriesMap.putIfAbsent(category, () => []).add(mode);
+  }
+
+  return [
+    for (final entry in categoriesMap.entries)
+      LibraryGroupModeCategory(entry.key, entry.value),
+  ];
+}
+
+List<LibraryGroupModeCategory> libraryGroupModeCategories(
+  LibraryKindRegistration type,
+  List<String> modes,
+) {
+  return libraryPresentationForKind(type.kind)
+          .builder
+          .buildGroupModeCategories(modes) ??
+      defaultLibraryGroupModeCategories(type, modes);
+}

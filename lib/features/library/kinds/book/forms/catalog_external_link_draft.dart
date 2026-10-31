@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
+import 'package:collectarr_app/features/library/edit/fields/external_links_table.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 
 /// Book-owned mapping between the shared editable row and catalog link data.

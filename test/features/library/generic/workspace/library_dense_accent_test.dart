@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/dense_controls.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

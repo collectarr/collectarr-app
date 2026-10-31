@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 
 String? adminKindLabelForType(
   CatalogMediaKind kind, {

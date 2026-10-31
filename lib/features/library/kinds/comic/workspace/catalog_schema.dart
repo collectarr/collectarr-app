@@ -4,9 +4,9 @@ import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_i
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/facets.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/groups.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:flutter/material.dart';
 

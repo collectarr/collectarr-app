@@ -1,12 +1,12 @@
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:collectarr_app/features/library/config/item_actions.dart';
+import 'package:collectarr_app/features/library/inspector/chrome.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/personal_status_section.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
-import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/detail/hero.dart';
+import 'package:collectarr_app/features/library/details/panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/data.dart';
 import 'package:flutter/material.dart';

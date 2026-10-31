@@ -1,0 +1,330 @@
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/toolbar_config.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/actions.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/search.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/utility_menu.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/view_state.dart';
+import 'package:collectarr_app/features/library/config/search_target.dart';
+import 'package:flutter/material.dart';
+
+class LibraryToolbarSearchContext {
+  const LibraryToolbarSearchContext({
+    required this.searchTargetOptions,
+    required this.onSearchChanged,
+    required this.onSearchInputChanged,
+    required this.onSearchTargetChanged,
+    required this.onClearSearch,
+    required this.onSearchSuggestionSelected,
+  });
+
+  final List<LibrarySearchTarget> searchTargetOptions;
+  final ValueChanged<String> onSearchChanged;
+  final ValueChanged<String> onSearchInputChanged;
+  final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
+  final VoidCallback onClearSearch;
+  final ValueChanged<LibraryToolbarSearchSuggestion> onSearchSuggestionSelected;
+}
+
+class LibraryToolbarViewContext {
+  const LibraryToolbarViewContext({
+    required this.type,
+    required this.onShowAddDialogFlow,
+    required this.onShowColumnChooserFlow,
+    required this.onShowColumnFavoritesFlow,
+    required this.onShowSortDialogFlow,
+    required this.onSetGroupingPanelVisibility,
+    required this.onSetGroupPresentation,
+    required this.onUpdateViewState,
+    required this.onClearToolbarSearchChip,
+    required this.onQuickViewSelected,
+    required this.onSetSelectedLetter,
+    required this.onApplyViewPreset,
+    required this.onTogglePinnedViewPreset,
+    required this.onApplySortFavorite,
+    required this.onTogglePinnedSortFavorite,
+    required this.onShowSortFavoritesManagerFlow,
+    required this.onApplyColumnFavorite,
+    required this.onTogglePinnedColumnFavorite,
+  });
+
+  final LibraryKindRegistration type;
+
+  LibraryWorkspaceViewProfile get viewProfile =>
+      libraryViewProfileForKind(type.kind);
+  final VoidCallback onShowAddDialogFlow;
+  final VoidCallback onShowColumnChooserFlow;
+  final VoidCallback onShowColumnFavoritesFlow;
+  final VoidCallback onShowSortDialogFlow;
+  final ValueChanged<bool> onSetGroupingPanelVisibility;
+  final ValueChanged<LibraryGroupPresentation> onSetGroupPresentation;
+  final void Function(
+    LibraryWorkspaceViewState Function(LibraryWorkspaceViewState),
+  ) onUpdateViewState;
+  final VoidCallback onClearToolbarSearchChip;
+  final ValueChanged<LibraryQuickView?> onQuickViewSelected;
+  final ValueChanged<String?> onSetSelectedLetter;
+  final ValueChanged<LibraryWorkspacePreset> onApplyViewPreset;
+  final ValueChanged<LibraryWorkspacePreset> onTogglePinnedViewPreset;
+  final ValueChanged<LibrarySortFavorite> onApplySortFavorite;
+  final ValueChanged<LibrarySortFavorite> onTogglePinnedSortFavorite;
+  final VoidCallback onShowSortFavoritesManagerFlow;
+  final ValueChanged<LibraryTableColumnPreset> onApplyColumnFavorite;
+  final ValueChanged<LibraryTableColumnPreset> onTogglePinnedColumnFavorite;
+}
+
+class LibraryToolbarGroupingContext {
+  const LibraryToolbarGroupingContext({
+    required this.onClearFilters,
+    required this.onRandomPick,
+    required this.onSmartLists,
+    required this.onShowUserFoldersFlow,
+    required this.onShowReadingQueueFlow,
+  });
+
+  final VoidCallback onClearFilters;
+  final ValueChanged<LibraryProjection?> onRandomPick;
+  final ValueChanged<ShelfState?> onSmartLists;
+  final VoidCallback onShowUserFoldersFlow;
+  final VoidCallback onShowReadingQueueFlow;
+}
+
+class LibraryToolbarMetadataContext {
+  const LibraryToolbarMetadataContext({
+    required this.onRefreshMetadata,
+    required this.onSetCollectionStatusScope,
+    required this.onJumpToNumberSubmitted,
+    required this.selectedProjectionItemFor,
+    required this.canCompareMetadataWithServerItem,
+  });
+
+  final ValueChanged<LibraryProjection?> onRefreshMetadata;
+  final ValueChanged<LibraryCollectionStatusScope> onSetCollectionStatusScope;
+  final void Function(LibraryProjection projection, String value)
+      onJumpToNumberSubmitted;
+  final LibraryProjectionItem? Function(LibraryProjection projection)
+      selectedProjectionItemFor;
+  final bool Function(LibraryProjectionItem item)
+      canCompareMetadataWithServerItem;
+}
+
+class LibraryToolbarCollectionActionsContext {
+  const LibraryToolbarCollectionActionsContext({
+    required this.onTransferFieldData,
+    required this.onReassignIndex,
+    required this.onShareCollection,
+    required this.onCompareMetadataWithServer,
+  });
+
+  final ValueChanged<LibraryProjection?> onTransferFieldData;
+  final ValueChanged<LibraryProjection?> onReassignIndex;
+  final ValueChanged<LibraryProjection?> onShareCollection;
+  final Future<void> Function(
+    LibraryProjection projection, {
+    LibraryProjectionItem? item,
+  }) onCompareMetadataWithServer;
+}
+
+class LibraryToolbarAdminActionsContext {
+  const LibraryToolbarAdminActionsContext({
+    required this.onScanCover,
+    required this.onShowConditionPickListEditorFlow,
+    required this.onShowGradePickListEditorFlow,
+  });
+
+  final VoidCallback onScanCover;
+  final VoidCallback? onShowConditionPickListEditorFlow;
+  final VoidCallback? onShowGradePickListEditorFlow;
+}
+
+class LibraryPageToolbarActionContext {
+  const LibraryPageToolbarActionContext({
+    required this.search,
+    required this.view,
+    required this.grouping,
+    required this.metadata,
+    required this.collectionActions,
+    required this.adminActions,
+  });
+
+  final LibraryToolbarSearchContext search;
+  final LibraryToolbarViewContext view;
+  final LibraryToolbarGroupingContext grouping;
+  final LibraryToolbarMetadataContext metadata;
+  final LibraryToolbarCollectionActionsContext collectionActions;
+  final LibraryToolbarAdminActionsContext adminActions;
+}
+
+class LibraryToolbarActionRegistry {
+  const LibraryToolbarActionRegistry();
+
+  LibraryToolbarActions build({
+    required BuildContext buildContext,
+    required LibraryPageToolbarActionContext actionContext,
+    required LibraryProjection? projection,
+    required LibraryWorkspaceViewState viewState,
+    required ShelfState? shelfState,
+  }) {
+    final availability = actionContext.view.type.toolbarActionAvailability;
+    final registration = actionContext.view.type;
+    final workspace = libraryKindWorkspaceForKind(registration.kind);
+    final activeFields = projection != null && projection.allItems.isNotEmpty
+        ? workspace.fieldsForTarget(projection.allItems.first.target)
+        : workspace.fields;
+    final kindToolbarActions =
+        libraryToolbarForKind(registration.kind)?.actions ?? const [];
+    bool enabled(LibraryToolbarActionId id) => availability.allows(id);
+    final kindActionContext = LibraryToolbarActionContext(
+      buildContext: buildContext,
+      type: actionContext.view.type,
+      projection: projection,
+      onJumpToNumberSubmitted: projection == null
+          ? null
+          : (value) => actionContext.metadata.onJumpToNumberSubmitted(
+                projection,
+                value,
+              ),
+    );
+    final extraUtilityActions = <LibraryUtilityMenuAction>[];
+    for (final action in kindToolbarActions) {
+      if (!action.isVisible(kindActionContext)) continue;
+      final enabled = action.isEnabled(kindActionContext);
+      extraUtilityActions.add(
+        LibraryUtilityMenuAction(
+          icon: action.icon,
+          label: action.label,
+          section: 'Kind actions',
+          enabled: enabled,
+          onSelected: enabled ? () => action.run(kindActionContext) : null,
+        ),
+      );
+    }
+
+    return LibraryToolbarActions(
+      onAdd: enabled(LibraryToolbarActionId.add)
+          ? actionContext.view.onShowAddDialogFlow
+          : () {},
+      onScan: enabled(LibraryToolbarActionId.scan)
+          ? actionContext.adminActions.onScanCover
+          : () {},
+      onSearchChanged: actionContext.search.onSearchChanged,
+      onSearchInputChanged: actionContext.search.onSearchInputChanged,
+      onSearchTargetChanged: actionContext.search.searchTargetOptions.isNotEmpty
+          ? actionContext.search.onSearchTargetChanged
+          : null,
+      onClearSearch: actionContext.search.onClearSearch,
+      onSearchSuggestionSelected:
+          actionContext.search.onSearchSuggestionSelected,
+      onEditColumns: enabled(LibraryToolbarActionId.editColumns)
+          ? actionContext.view.onShowColumnChooserFlow
+          : () {},
+      onManageColumnFavorites: enabled(LibraryToolbarActionId.editColumns)
+          ? actionContext.view.onShowColumnFavoritesFlow
+          : null,
+      onSortChanged: (String column) => actionContext.view.onUpdateViewState(
+        (LibraryWorkspaceViewState next) => next.withSortColumn(
+          activeFields.decodeSortId(column),
+          actionContext.view.viewProfile,
+        ),
+      ),
+      onEditSort: actionContext.view.onShowSortDialogFlow,
+      onSidebarVisibilityChanged:
+          actionContext.view.onSetGroupingPanelVisibility,
+      onViewModeChanged: (LibraryViewMode mode) =>
+          actionContext.view.onUpdateViewState(
+        (LibraryWorkspaceViewState next) => next.copyWith(viewMode: mode),
+      ),
+      onDetailsLayoutChanged: (LibraryDetailsLayout layout) =>
+          actionContext.view.onUpdateViewState(
+        (LibraryWorkspaceViewState next) =>
+            next.copyWith(detailsLayout: layout),
+      ),
+      onDensityPresetChanged: (LibraryWorkspaceDensityPreset densityPreset) =>
+          actionContext.view.onUpdateViewState(
+        (LibraryWorkspaceViewState next) =>
+            next.copyWith(densityPreset: densityPreset),
+      ),
+      onCoverSizeChanged: (double size) => actionContext.view.onUpdateViewState(
+        (LibraryWorkspaceViewState next) => next.copyWith(coverSize: size),
+      ),
+      onClearBucket: actionContext.view.onClearToolbarSearchChip,
+      onRefreshMetadata: () =>
+          actionContext.metadata.onRefreshMetadata(projection),
+      onCollectionStatusScopeChanged:
+          actionContext.metadata.onSetCollectionStatusScope,
+      onQuickViewSelected: actionContext.view.onQuickViewSelected,
+      onLetterSelected: actionContext.view.onSetSelectedLetter,
+      onViewPresetSelected: actionContext.view.onApplyViewPreset,
+      onTogglePinnedViewPreset: actionContext.view.onTogglePinnedViewPreset,
+      onSortFavoriteSelected: actionContext.view.onApplySortFavorite,
+      onTogglePinnedSortFavorite: actionContext.view.onTogglePinnedSortFavorite,
+      onManageSortFavorites: actionContext.view.onShowSortFavoritesManagerFlow,
+      onColumnFavoriteSelected: actionContext.view.onApplyColumnFavorite,
+      onTogglePinnedColumnFavorite:
+          actionContext.view.onTogglePinnedColumnFavorite,
+      onJumpToNumberSubmitted: projection == null
+          ? null
+          : (String value) =>
+              actionContext.metadata.onJumpToNumberSubmitted(projection, value),
+      onClearFilters: actionContext.grouping.onClearFilters,
+      onRandomPick: projection == null
+          ? null
+          : () => actionContext.grouping.onRandomPick(projection),
+      onScanCover: libraryAddForKind(registration.kind).chrome.canScanCover
+          ? actionContext.adminActions.onScanCover
+          : null,
+      onSmartLists: shelfState == null
+          ? null
+          : () => actionContext.grouping.onSmartLists(shelfState),
+      onFolders: actionContext.grouping.onShowUserFoldersFlow,
+      onReadingQueue: registration.toolbarActionAvailability
+              .allows(LibraryToolbarActionId.readingQueue)
+          ? actionContext.grouping.onShowReadingQueueFlow
+          : null,
+      onEditConditionPickList:
+          actionContext.adminActions.onShowConditionPickListEditorFlow,
+      onEditGradePickList:
+          actionContext.adminActions.onShowGradePickListEditorFlow,
+      onTransferFieldData: projection == null
+          ? null
+          : () =>
+              actionContext.collectionActions.onTransferFieldData(projection),
+      onReassignIndex: projection == null ||
+              !registration.toolbarActionAvailability
+                  .allows(LibraryToolbarActionId.reassignIndex)
+          ? null
+          : () => actionContext.collectionActions.onReassignIndex(projection),
+      onShareCollection: projection != null &&
+              projection.filteredItems.isNotEmpty
+          ? () => actionContext.collectionActions.onShareCollection(projection)
+          : null,
+      onCompareMetadataWithServer: (() {
+        if (projection == null ||
+            !libraryMetadataForKind(registration.kind).supportsServerCompare) {
+          return null;
+        }
+        final selected =
+            actionContext.metadata.selectedProjectionItemFor(projection);
+        if (selected == null ||
+            !actionContext.metadata
+                .canCompareMetadataWithServerItem(selected)) {
+          return null;
+        }
+        return () async {
+          await actionContext.collectionActions.onCompareMetadataWithServer(
+            projection,
+            item: selected,
+          );
+        };
+      })(),
+      onPinnedFolderPresetsChanged: (_) {},
+      onGroupModeChanged: (_) {},
+      onGroupPresentationChanged: actionContext.view.onSetGroupPresentation,
+      extraUtilityActions: extraUtilityActions,
+    );
+  }
+}

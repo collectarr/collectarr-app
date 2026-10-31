@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/edit/covers/library_cover_editor.dart';
-import 'package:collectarr_app/features/library/edit/covers/library_cover_images_tab.dart';
-import 'package:collectarr_app/features/library/edit/covers/library_online_cover_picker_dialog.dart';
+import 'package:collectarr_app/features/library/edit/covers/editor.dart';
+import 'package:collectarr_app/features/library/edit/covers/images_tab.dart';
+import 'package:collectarr_app/features/library/edit/covers/online_cover_picker_dialog.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
+import 'package:collectarr_app/features/library/metadata/query.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';

@@ -1,11 +1,11 @@
-import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
+import 'package:collectarr_app/features/library/config/toolbar_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/view_state.dart';
+import 'package:collectarr_app/features/library/workspace/layout/alpha_jump_bar.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

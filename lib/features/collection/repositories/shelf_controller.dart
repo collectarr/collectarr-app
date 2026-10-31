@@ -19,18 +19,18 @@ import 'package:collectarr_app/features/collection/repositories/user_folder_repo
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_entry_persistence.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
+import 'package:collectarr_app/features/library/workspace/entry/context.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
-import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/item.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/kind_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-export 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
+export 'package:collectarr_app/features/library/workspace/entry/context.dart';
 export 'package:collectarr_app/core/models/tracking_summary.dart';
 
 final shelfProvider = FutureProvider<ShelfState>((ref) async {

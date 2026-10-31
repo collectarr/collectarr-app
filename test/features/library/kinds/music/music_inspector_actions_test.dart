@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:collectarr_app/features/library/inspector/chrome.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -13,10 +13,10 @@ import 'package:collectarr_app/features/collection/events/collection_event_bus.d
 import 'package:collectarr_app/features/collection/mutations/library_entry_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
-import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
+import 'package:collectarr_app/features/library/entries/repository.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
+import 'package:collectarr_app/features/library/inspector/inspector.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -29,9 +29,9 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_persona
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
+import 'package:collectarr_app/features/library/workspace/entry/context.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
-import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/item.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';

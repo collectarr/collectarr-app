@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
-import 'package:collectarr_app/features/library/generic/page/generic_library_page.dart';
+import 'package:collectarr_app/features/library/collections/repository.dart';
+import 'package:collectarr_app/features/library/generic/page/page.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';

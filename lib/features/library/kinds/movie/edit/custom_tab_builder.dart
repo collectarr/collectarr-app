@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
+import 'package:collectarr_app/features/library/edit/draft/shell_state.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/draft_contract.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/catalog_form_edit_tab.dart';

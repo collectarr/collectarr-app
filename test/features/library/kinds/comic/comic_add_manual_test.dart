@@ -1,9 +1,9 @@
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/controllers/manual_draft.dart';
+import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/models/common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/manual_candidate.dart';
@@ -12,8 +12,8 @@ import 'package:collectarr_app/features/library/kinds/comic/entries/comic_librar
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_segmented_choice_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_integer_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/integer_field.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

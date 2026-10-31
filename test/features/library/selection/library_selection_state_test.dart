@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
+import 'package:collectarr_app/features/library/selection/state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

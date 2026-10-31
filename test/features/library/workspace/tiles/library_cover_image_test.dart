@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';

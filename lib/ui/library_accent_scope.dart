@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 

@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.da
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/reports/library_print_pdf_page.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/reports/print_pdf_page.dart';
+import 'package:collectarr_app/features/library/ui/primitives/field_selection.dart';
 import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

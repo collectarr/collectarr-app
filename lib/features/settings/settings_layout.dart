@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 

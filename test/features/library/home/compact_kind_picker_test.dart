@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/home/compact_kind_picker.dart';
-import 'package:collectarr_app/features/library/home/home_counts.dart';
-import 'package:collectarr_app/features/library/home/home_top_nav.dart';
+import 'package:collectarr_app/features/library/home/counts.dart';
+import 'package:collectarr_app/features/library/home/top_nav.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'dart:io';
 import 'package:collectarr_app/dev/seeds/music_inspector_reference_seed.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:collectarr_app/core/db/local_database.dart';

@@ -1,11 +1,11 @@
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:collectarr_app/features/library/collections/library_collection_family.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/collections/family.dart';
+import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'app_shell_brand.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';

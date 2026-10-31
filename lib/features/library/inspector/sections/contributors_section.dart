@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_metadata_presentation.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section.dart';
+import 'package:collectarr_app/features/library/config/item_actions.dart';
+import 'package:collectarr_app/features/library/config/presentation/metadata_presentation.dart';
+import 'package:collectarr_app/features/library/details/section.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

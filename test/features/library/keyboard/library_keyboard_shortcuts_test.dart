@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
+import 'package:collectarr_app/features/library/keyboard/shortcuts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

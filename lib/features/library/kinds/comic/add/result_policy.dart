@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
+import 'package:collectarr_app/features/library/add/contracts/result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 

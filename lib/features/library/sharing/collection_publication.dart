@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
 
 Map<String, dynamic> buildCollectionPublication({
   required LibraryKindRegistration type,

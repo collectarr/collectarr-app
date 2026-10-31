@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/generic/page/generic_library_page.dart';
+import 'package:collectarr_app/features/library/generic/page/page.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';

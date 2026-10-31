@@ -1,8 +1,8 @@
-import 'package:collectarr_app/features/library/generic/library_filters.dart';
+import 'package:collectarr_app/features/library/generic/filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/library_route_state.dart';
+import 'package:collectarr_app/features/library/generic/route_state.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';

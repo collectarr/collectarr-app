@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
-import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/sections.dart';
+import 'package:collectarr_app/features/library/selection/controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/utility_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

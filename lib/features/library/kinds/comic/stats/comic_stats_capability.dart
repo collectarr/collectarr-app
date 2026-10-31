@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart';
-import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
+import 'package:collectarr_app/features/library/stats/cards.dart';
 import 'package:flutter/material.dart';
 
 class ComicStatsCapability implements LibraryStatsCapability {

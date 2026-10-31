@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_actions.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/actions.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

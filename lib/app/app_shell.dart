@@ -3,11 +3,11 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/home/home_catalog.dart';
-import 'package:collectarr_app/features/library/home/home_nav_models.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
+import 'package:collectarr_app/features/library/config/kind_style.dart';
+import 'package:collectarr_app/features/library/home/catalog.dart';
+import 'package:collectarr_app/features/library/home/nav_models.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/providers/nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';

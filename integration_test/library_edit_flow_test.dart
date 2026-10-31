@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
-import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/edit/shell/scaffold.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

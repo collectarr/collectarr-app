@@ -1,0 +1,542 @@
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:flutter/material.dart';
+
+/// Temporary link values and controllers shared by kind Add/Edit tabs.
+final class LibraryExternalLinkDraftRow {
+  LibraryExternalLinkDraftRow({
+    String? id,
+    String title = '',
+    String url = '',
+    String description = '',
+  })  : id = id ?? UniqueKey().toString(),
+        titleController = TextEditingController(text: title),
+        urlController = TextEditingController(text: url),
+        descriptionController = TextEditingController(text: description);
+
+  final String id;
+  final TextEditingController titleController;
+  final TextEditingController urlController;
+  final TextEditingController descriptionController;
+
+  void dispose() {
+    titleController.dispose();
+    urlController.dispose();
+    descriptionController.dispose();
+  }
+}
+
+/// The kind-entry row data shown by [LibraryExternalLinksTable].
+///
+/// The owning kind keeps the controllers and domain model. This row only gives
+/// the shared editor a stable identity and the editable values it displays.
+final class LibraryExternalLinkEditRow<TIdentity extends Object> {
+  const LibraryExternalLinkEditRow({
+    required this.identity,
+    required this.urlController,
+    required this.descriptionController,
+    this.titleController,
+    this.urlFieldKey,
+    this.descriptionFieldKey,
+    this.titleFieldKey,
+  });
+
+  final TIdentity identity;
+  final TextEditingController urlController;
+  final TextEditingController descriptionController;
+  final TextEditingController? titleController;
+  final Key? urlFieldKey;
+  final Key? descriptionFieldKey;
+  final Key? titleFieldKey;
+
+  Key get key => ObjectKey(identity);
+}
+
+/// Shared editable links table used by all kind-specific Links tabs.
+final class LibraryExternalLinksTable<TIdentity extends Object>
+    extends StatefulWidget {
+  const LibraryExternalLinksTable({
+    super.key,
+    required this.rows,
+    required this.accent,
+    required this.addLabel,
+    required this.onAdd,
+    required this.onReorder,
+    required this.onRemoveSelected,
+    this.onChanged,
+    this.emptyMessage = 'No links added yet.',
+    this.showTitleColumn = false,
+  });
+
+  final List<LibraryExternalLinkEditRow<TIdentity>> rows;
+  final Color accent;
+  final String addLabel;
+  final VoidCallback onAdd;
+  final void Function(int oldIndex, int newIndex) onReorder;
+  final ValueChanged<List<LibraryExternalLinkEditRow<TIdentity>>>
+      onRemoveSelected;
+  final VoidCallback? onChanged;
+  final String emptyMessage;
+  final bool showTitleColumn;
+
+  @override
+  State<LibraryExternalLinksTable<TIdentity>> createState() =>
+      _LibraryExternalLinksTableState<TIdentity>();
+}
+
+final class _LibraryExternalLinksTableState<TIdentity extends Object>
+    extends State<LibraryExternalLinksTable<TIdentity>> {
+  final Set<Key> _selectedKeys = {};
+  TIdentity? _draggingIdentity;
+
+  @override
+  void didUpdateWidget(
+    covariant LibraryExternalLinksTable<TIdentity> oldWidget,
+  ) {
+    super.didUpdateWidget(oldWidget);
+    final rowKeys = widget.rows.map((row) => row.key).toSet();
+    _selectedKeys.removeWhere((key) => !rowKeys.contains(key));
+  }
+
+  void _toggleSelected(
+    LibraryExternalLinkEditRow<TIdentity> row,
+    bool selected,
+  ) {
+    setState(() {
+      if (selected) {
+        _selectedKeys.add(row.key);
+      } else {
+        _selectedKeys.remove(row.key);
+      }
+    });
+  }
+
+  void _toggleAllSelected() {
+    setState(() {
+      if (_selectedKeys.length == widget.rows.length) {
+        _selectedKeys.clear();
+      } else {
+        _selectedKeys
+          ..clear()
+          ..addAll(widget.rows.map((row) => row.key));
+      }
+    });
+  }
+
+  void _removeSelected() {
+    final selectedRows = [
+      for (final row in widget.rows)
+        if (_selectedKeys.contains(row.key)) row,
+    ];
+    if (selectedRows.isEmpty) return;
+    widget.onRemoveSelected(selectedRows);
+    setState(_selectedKeys.clear);
+  }
+
+  void _add() {
+    widget.onAdd();
+    setState(_selectedKeys.clear);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final selecting = _selectedKeys.isNotEmpty;
+    final allSelected =
+        widget.rows.isNotEmpty && _selectedKeys.length == widget.rows.length;
+    final hasTitleColumn = widget.showTitleColumn ||
+        widget.rows.any((row) => row.titleController != null);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final minimumWidth = hasTitleColumn ? 960.0 : 760.0;
+            final tableWidth = constraints.hasBoundedWidth &&
+                    constraints.maxWidth > minimumWidth
+                ? constraints.maxWidth
+                : minimumWidth;
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: tableWidth,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: palette.divider),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      if (selecting)
+                        _buildSelectionHeader(palette, allSelected)
+                      else
+                        _buildColumnHeader(hasTitleColumn),
+                      if (widget.rows.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              widget.emptyMessage,
+                              style: TextStyle(color: palette.textMuted),
+                            ),
+                          ),
+                        )
+                      else
+                        for (var index = 0; index < widget.rows.length; index++)
+                          _buildRow(context, index, hasTitleColumn),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: OutlinedButton.icon(
+            onPressed: _add,
+            icon: const Icon(Icons.add),
+            label: Text(widget.addLabel),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectionHeader(AppThemePalette palette, bool allSelected) {
+    return Container(
+      height: 40,
+      color: widget.accent,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        children: [
+          TextButton.icon(
+            onPressed: () => setState(_selectedKeys.clear),
+            style: TextButton.styleFrom(
+              foregroundColor: palette.textPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              minimumSize: const Size(0, 32),
+            ),
+            icon: const Icon(Icons.close, size: 16),
+            label: const Text('Cancel'),
+          ),
+          Checkbox(
+            value: allSelected,
+            onChanged: (_) => _toggleAllSelected(),
+            visualDensity: VisualDensity.compact,
+            side: BorderSide(color: palette.textPrimary),
+            checkColor: palette.panel,
+            fillColor: WidgetStateProperty.resolveWith(
+              (states) => states.contains(WidgetState.selected)
+                  ? palette.textPrimary
+                  : Colors.transparent,
+            ),
+          ),
+          Text('All', style: TextStyle(color: palette.textPrimary)),
+          const Spacer(),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: Text(
+                '${_selectedKeys.length} of ${widget.rows.length}',
+                style: TextStyle(
+                  color: palette.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          const Spacer(),
+          TextButton.icon(
+            onPressed: _removeSelected,
+            style: TextButton.styleFrom(
+              foregroundColor: palette.textPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              minimumSize: const Size(0, 32),
+            ),
+            icon: const Icon(Icons.delete_outline, size: 16),
+            label: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildColumnHeader(bool hasTitleColumn) {
+    return Container(
+      height: 32,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Row(
+        children: [
+          const SizedBox(width: _selectionColumnWidth),
+          const SizedBox(width: _handleColumnWidth),
+          if (hasTitleColumn) ...[
+            Expanded(
+              flex: 4,
+              child: Text('Name', style: _columnHeaderStyle(context)),
+            ),
+            const SizedBox(width: _columnGap),
+          ],
+          Expanded(
+            flex: 7,
+            child: Text(
+              'URL',
+              style: _columnHeaderStyle(context),
+            ),
+          ),
+          const SizedBox(width: _columnGap),
+          Expanded(
+            flex: 5,
+            child: Text(
+              'Description',
+              style: _columnHeaderStyle(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRow(BuildContext context, int index, bool hasTitleColumn) {
+    final row = widget.rows[index];
+    final palette = appPalette(context);
+    final isSelected = _selectedKeys.contains(row.key);
+    return LayoutBuilder(
+      builder: (context, constraints) => DragTarget<int>(
+        key: row.key,
+        onWillAcceptWithDetails: (details) => details.data != index,
+        onAcceptWithDetails: (details) {
+          widget.onReorder(details.data, index);
+          setState(() => _draggingIdentity = null);
+        },
+        builder: (context, candidates, rejected) {
+          final isDropTarget = candidates.isNotEmpty;
+          return AnimatedOpacity(
+            duration: const Duration(milliseconds: 100),
+            opacity: identical(_draggingIdentity, row.identity) ? 0.35 : 1,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              decoration: BoxDecoration(
+                color: isDropTarget
+                    ? widget.accent.withValues(alpha: 0.12)
+                    : index.isEven
+                        ? Theme.of(context).colorScheme.surface
+                        : Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withValues(alpha: 0.55),
+                border: Border(
+                  right: BorderSide(color: Theme.of(context).dividerColor),
+                  bottom: BorderSide(color: Theme.of(context).dividerColor),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: _selectionColumnWidth,
+                    child: Checkbox(
+                      value: isSelected,
+                      onChanged: (value) =>
+                          _toggleSelected(row, value ?? false),
+                      visualDensity: VisualDensity.compact,
+                      activeColor: widget.accent,
+                      side: BorderSide(color: palette.textMuted),
+                    ),
+                  ),
+                  SizedBox(
+                    width: _handleColumnWidth,
+                    height: 36,
+                    child: Center(
+                      child: Draggable<int>(
+                        data: index,
+                        onDragStarted: () =>
+                            setState(() => _draggingIdentity = row.identity),
+                        onDragEnd: (_) {
+                          if (mounted) {
+                            setState(() => _draggingIdentity = null);
+                          }
+                        },
+                        feedback: _buildDragFeedback(
+                          row,
+                          constraints.maxWidth,
+                          palette,
+                          hasTitleColumn,
+                        ),
+                        childWhenDragging: Icon(
+                          Icons.drag_indicator,
+                          color: palette.textMuted,
+                        ),
+                        child: const MouseRegion(
+                          cursor: SystemMouseCursors.grab,
+                          child: Tooltip(
+                            message: 'Drag to reorder',
+                            child: Icon(Icons.drag_indicator, size: 20),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (hasTitleColumn) ...[
+                    Expanded(
+                      flex: 4,
+                      child: row.titleController == null
+                          ? const SizedBox.shrink()
+                          : LibraryTextFormControl(
+                              key: row.titleFieldKey ??
+                                  ValueKey((row.key, 'title')),
+                              controller: row.titleController,
+                              minimumHeight: 0,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 9,
+                                ),
+                              ),
+                              onChanged: (_) => widget.onChanged?.call(),
+                            ),
+                    ),
+                    const SizedBox(width: _columnGap),
+                  ],
+                  Expanded(
+                    flex: 7,
+                    child: LibraryTextFormControl(
+                      key: row.urlFieldKey ?? ValueKey((row.key, 'url')),
+                      controller: row.urlController,
+                      minimumHeight: 0,
+                      decoration: const InputDecoration(
+                        hintText: 'https://example.com',
+                        isDense: true,
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+                      ),
+                      keyboardType: TextInputType.url,
+                      onChanged: (_) => widget.onChanged?.call(),
+                    ),
+                  ),
+                  const SizedBox(width: _columnGap),
+                  Expanded(
+                    flex: 5,
+                    child: LibraryTextFormControl(
+                      key: row.descriptionFieldKey ??
+                          ValueKey((row.key, 'description')),
+                      controller: row.descriptionController,
+                      minimumHeight: 0,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+                      ),
+                      onChanged: (_) => widget.onChanged?.call(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDragFeedback(
+    LibraryExternalLinkEditRow<TIdentity> row,
+    double availableWidth,
+    AppThemePalette palette,
+    bool hasTitleColumn,
+  ) {
+    final width =
+        availableWidth.isFinite && availableWidth > 0 ? availableWidth : 520.0;
+    return Material(
+      color: Colors.transparent,
+      elevation: 8,
+      child: Container(
+        width: width,
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+        decoration: BoxDecoration(
+          color: palette.panelRaised,
+          border: Border.all(color: widget.accent, width: 1.5),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: _selectionColumnWidth),
+            SizedBox(
+              width: _handleColumnWidth,
+              child: Icon(Icons.drag_indicator, color: widget.accent),
+            ),
+            if (hasTitleColumn) ...[
+              Expanded(
+                flex: 4,
+                child: _dragFeedbackCell(
+                  row.titleController?.text ?? '',
+                  palette,
+                ),
+              ),
+              const SizedBox(width: _columnGap),
+            ],
+            Expanded(
+              flex: 7,
+              child: _dragFeedbackCell(
+                row.urlController.text.isEmpty
+                    ? 'https://example.com'
+                    : row.urlController.text,
+                palette,
+              ),
+            ),
+            const SizedBox(width: _columnGap),
+            Expanded(
+              flex: 5,
+              child: _dragFeedbackCell(row.descriptionController.text, palette),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _dragFeedbackCell(String value, AppThemePalette palette) => Container(
+        height: 38,
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: palette.field,
+          border: Border.all(color: palette.divider),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(color: palette.textPrimary),
+        ),
+      );
+}
+
+const double _handleColumnWidth = 30;
+const double _selectionColumnWidth = 34;
+const double _columnGap = 8;
+
+TextStyle? _columnHeaderStyle(BuildContext context) =>
+    Theme.of(context).textTheme.labelSmall?.copyWith(
+          fontSize: 14,
+          height: 20 / 14,
+          color: Theme.of(context).hintColor,
+          fontWeight: FontWeight.w700,
+        );

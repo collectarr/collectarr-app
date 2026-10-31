@@ -1,10 +1,10 @@
-import 'package:collectarr_app/features/library/ui/library_metrics.dart';
+import 'package:collectarr_app/features/library/ui/metrics.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_ordered_pick_list_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/ordered_pick_list_field.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/ordered_names_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dart';
 import 'dart:async';
 
@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/kinds/music/forms/album_form_val
 import 'package:collectarr_app/features/library/kinds/music/domain/music_artist_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/forms/field_spec.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 
 typedef MusicAlbumValuesReader<TDraft> = MusicAlbumFormValues Function(

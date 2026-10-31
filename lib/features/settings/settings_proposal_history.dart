@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
+import 'package:collectarr_app/features/library/metadata/proposal_store.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_formatting.dart';
 import 'package:flutter/material.dart';

@@ -3,7 +3,7 @@ import '../game_module_dependencies.dart';
 import 'game_kind_configuration.dart';
 import '../data/game_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
 
 final gameKindPresentation = gamesLibraryMediaPresentation;
 

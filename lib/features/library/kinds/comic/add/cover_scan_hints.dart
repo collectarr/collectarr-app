@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/add/services/cover_scan_service.dart';
 
 final class ComicCoverScanHints {
   const ComicCoverScanHints({

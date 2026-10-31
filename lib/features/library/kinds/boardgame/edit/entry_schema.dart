@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
+import 'package:collectarr_app/features/library/edit/schema/schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
 import 'package:flutter/material.dart';

@@ -1,8 +1,8 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_fields.dart';
-import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/add/dialog.dart';
+import 'package:collectarr_app/features/library/add/result_badge.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config/movie_physical_media_formats.dart';
 import 'package:flutter/material.dart';
 

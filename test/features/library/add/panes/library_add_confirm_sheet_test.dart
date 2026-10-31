@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/panes/library_add_confirm_sheet.dart';
+import 'package:collectarr_app/features/library/add/panes/confirm_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

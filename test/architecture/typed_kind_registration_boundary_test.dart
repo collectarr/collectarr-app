@@ -16,7 +16,7 @@ void main() {
       'lib/features/library/kinds/registry/collectarr_kind_registry.dart';
   const routerPath = 'lib/core/routing/app_router.dart';
   const productionRoot = 'lib';
-  const homePath = 'lib/features/library/home/home_page.dart';
+  const homePath = 'lib/features/library/home/page.dart';
 
   test('registration boundaries stay smaller than the runtime aggregate', () {
     final source = File(registrationPath).readAsStringSync();
@@ -149,7 +149,7 @@ void main() {
     }
 
     final entrySource = File(
-      'lib/features/library/entries/entry_kind_contributor_registry.dart',
+      'lib/features/library/entries/kind_contributor_registry.dart',
     ).readAsStringSync();
     expect(entrySource, contains('collectarrEntryKindContributors'));
     for (final contributor in ['musicEntryContributor']) {

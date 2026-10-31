@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
 import 'catalog_form_values.dart';
 import '../vocabulary/game_toy_vocabularies.dart';

@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/forms/library_field_spec_renderer.dart';
-import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'entry_draft.dart';
 import 'entry_schema.dart';
 import 'package:flutter/material.dart';

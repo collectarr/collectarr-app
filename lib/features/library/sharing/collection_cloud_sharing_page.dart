@@ -1,9 +1,9 @@
 import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
-import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/collections/repository.dart';
+import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/sharing/collection_publication.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';

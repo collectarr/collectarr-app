@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_segmented_choice_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
 import 'package:flutter/material.dart';
 
 /// Personal-tab state of one Game copy, from the editor or from Manual Add.

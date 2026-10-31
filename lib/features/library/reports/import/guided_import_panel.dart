@@ -1,11 +1,11 @@
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
-import 'package:collectarr_app/features/library/config/library_import_capability.dart';
+import 'package:collectarr_app/features/library/config/import_capability.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_progress_dialog.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
-import 'import_file_picker.dart';
+import 'file_picker.dart';
 
 class GuidedImportPanel extends StatefulWidget {
   const GuidedImportPanel(

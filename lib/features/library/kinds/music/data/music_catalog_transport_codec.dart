@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalo
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/kind_data.dart';
 
 final class MusicCatalogTransportCodec
     implements

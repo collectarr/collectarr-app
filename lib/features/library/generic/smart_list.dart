@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/smart_list_criteria.dart';
-import 'package:collectarr_app/features/library/generic/library_filters.dart';
+import 'package:collectarr_app/features/library/generic/filters.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
 
 /// Resolved, UI-facing Smart List for one active kind workspace.
 ///

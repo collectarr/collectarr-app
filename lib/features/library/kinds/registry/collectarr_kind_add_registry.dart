@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/contracts/capability.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';

@@ -1,15 +1,15 @@
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_issue_label.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
+import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart'
     show libraryCollectionStatusFromValue;
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 
 /// Collection fields the reference Comics column chooser lists beside the

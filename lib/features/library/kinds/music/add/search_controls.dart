@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/search_filters.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

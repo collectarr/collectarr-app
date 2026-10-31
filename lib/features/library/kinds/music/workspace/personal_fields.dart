@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_library_e
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 
 import 'additional_fields.dart';
 

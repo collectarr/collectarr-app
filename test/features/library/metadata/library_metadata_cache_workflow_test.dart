@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/features/library/metadata/cache_workflow.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 

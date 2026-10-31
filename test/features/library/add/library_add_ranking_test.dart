@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/library/add/ranking.dart';
+import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/models/search_context.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import '../../../support/builders/catalog_item_builder.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/vocabulary_repository.dart';
-import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
+import 'package:collectarr_app/features/library/config/kind_vocabulary_capability.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 

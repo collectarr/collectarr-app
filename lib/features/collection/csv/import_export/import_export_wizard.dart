@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';

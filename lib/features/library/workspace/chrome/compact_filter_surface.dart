@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/smart_list_criteria.dart';
-import 'package:collectarr_app/features/library/generic/library_filters.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
+import 'package:collectarr_app/features/library/generic/filters.dart';
+import 'package:collectarr_app/features/library/config/presentation/filter_presentation.dart';
+import 'package:collectarr_app/features/library/config/presentation/sort_presentation.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

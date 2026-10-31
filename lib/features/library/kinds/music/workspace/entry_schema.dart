@@ -12,8 +12,8 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/columns/co
 import 'package:collectarr_app/features/library/kinds/music/workspace/presentation/formatting.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/sorts/sorts.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/schema.dart';
 import 'package:flutter/material.dart';
 
 final musicLibraryEntryWorkspaceSchema =

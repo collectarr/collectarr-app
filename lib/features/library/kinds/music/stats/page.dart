@@ -4,7 +4,7 @@ import 'package:collectarr_app/ui/app_management_content.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
+import 'package:collectarr_app/features/library/collections/repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -13,9 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'music_stats_capability.dart';
-import 'package:collectarr_app/features/library/detail/library_workspace_detail_navigation.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/stats/library_stats_charts.dart';
+import 'package:collectarr_app/features/library/detail/workspace_detail_navigation.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
+import 'package:collectarr_app/features/library/stats/charts.dart';
 
 /// Statistics use canonical disc formats and local entry activity. Collection
 /// membership scopes every chart, total and ranked list together.

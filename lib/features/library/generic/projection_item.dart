@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
 
 abstract interface class LibraryProjectionView<
     TDto extends LibraryWorkspaceDto> {

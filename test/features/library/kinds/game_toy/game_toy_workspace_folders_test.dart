@@ -1,18 +1,18 @@
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:flutter/widgets.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/workspace/contribution.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/workspace/dto.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
-import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/workspace/entry/item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/projection_context.dart';
+import 'package:collectarr_app/features/library/workspace/schema/projections.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

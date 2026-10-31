@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';

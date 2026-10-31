@@ -1,4 +1,4 @@
-import 'library_field_entries.dart';
+import 'field_entries.dart';
 
 /// Reusable personal field specifications selected by each kind.
 ///

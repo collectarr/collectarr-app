@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
 
 /// Canonical Game field facts shared by forms and workspace.
 abstract final class GameFieldIdentities {

@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/kinds/game_hardware/workspace/id
 import 'package:collectarr_app/features/library/kinds/game_hardware/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/workspace/groups.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/workspace/sorts/sorts.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/schema.dart';
 
 typedef _Catalog = GameHardwareCatalogWorkspaceFields;
 

@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/entries/repository.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 

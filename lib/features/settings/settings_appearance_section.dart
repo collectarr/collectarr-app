@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/settings/library_layout_setting.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/settings/local_font_settings_panel.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/settings/core_data_settings_dialog.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';

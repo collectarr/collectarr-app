@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:flutter/material.dart';
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>

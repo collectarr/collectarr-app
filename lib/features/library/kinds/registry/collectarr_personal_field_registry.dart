@@ -9,8 +9,8 @@ import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.d
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
-import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
-import 'package:collectarr_app/features/library/metadata/library_personal_field_contributor.dart';
+import 'package:collectarr_app/features/library/metadata/field_entries.dart';
+import 'package:collectarr_app/features/library/metadata/personal_field_contributor.dart';
 
 final Map<CatalogMediaKind, LibraryPersonalFieldContributor>
     collectarrKindPersonalFieldContributors = releasedKindContributions({

@@ -3,9 +3,9 @@ import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/facets.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:flutter/material.dart';
 

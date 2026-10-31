@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/api/dto/canonical_correction_target.dart';
-import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
+import 'package:collectarr_app/features/library/edit/core_correction/core_correction.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';

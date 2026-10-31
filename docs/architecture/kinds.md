@@ -31,9 +31,12 @@ old modules.
   `workspace/catalog_fields.dart`, `workspace/columns/columns.dart`, and
   `game/edit/draft.dart`. Keep qualifiers that distinguish responsibilities,
   such as `catalog_columns.dart`, `personal_fields.dart`, or `album_draft.dart`.
-  Shared files and module, domain, persistence, integration, and registration
-  boundaries retain explicit names. Dart symbols and persisted identifiers
-  stay explicit and are independent of file naming.
+  Shared files under `lib/features/library` follow the same rule:
+  `forms/schema.dart`, `entries/store.dart`, `edit/shell/dialog.dart`. Kind
+  module, domain, persistence, integration, and registration boundaries
+  retain explicit names; the tools find each kind by its `<kind>_module.dart`.
+  Dart symbols and persisted identifiers stay explicit and are independent of
+  file naming.
 - A kind owns every representation of its domain data.
 - After kind dispatch, never erase the type.
 - Core owns source-neutral canonical catalog data and its API contract.

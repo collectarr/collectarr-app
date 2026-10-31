@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
-import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/entries/repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';

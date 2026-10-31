@@ -1,12 +1,12 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/album_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/details_form_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/disc_details_view.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';

@@ -7,9 +7,9 @@ import 'package:collectarr_app/features/library/kinds/game_hardware/workspace/pe
 import 'package:collectarr_app/features/library/kinds/game_hardware/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/workspace/fields.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:flutter/widgets.dart';
 
 typedef _Catalog = GameHardwareCatalogWorkspaceFields;

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

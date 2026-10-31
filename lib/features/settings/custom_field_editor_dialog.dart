@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/settings/custom_field_preview.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
 import 'package:collectarr_app/features/settings/custom_field_dialog.dart';
 import 'package:collectarr_app/features/settings/custom_field_select.dart';

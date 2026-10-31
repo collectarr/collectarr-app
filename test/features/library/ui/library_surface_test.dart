@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
-import 'package:collectarr_app/features/library/ui/library_section_state_message.dart';
-import 'package:collectarr_app/features/library/ui/library_surface.dart';
+import 'package:collectarr_app/features/library/ui/panel_header.dart';
+import 'package:collectarr_app/features/library/ui/section_state_message.dart';
+import 'package:collectarr_app/features/library/ui/surface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

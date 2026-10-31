@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/utils/title_case.dart';
-import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/forms/field_spec.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_ordered_pick_list_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/ordered_names_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/ordered_pick_list_field.dart';
 import 'package:flutter/material.dart';
 
 typedef GameFormValuesReader<TDraft> = GameCatalogFormValues Function(

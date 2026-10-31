@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_creator.dart';
@@ -7,10 +7,10 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart'
 import 'package:collectarr_app/features/library/kinds/comic/workspace/entry_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/group_mode_categories.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/entry/context.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
-import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _registration = ComicRegistration();

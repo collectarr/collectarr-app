@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/utils/natural_text_compare.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
+import 'package:collectarr_app/features/library/workspace/schema/group_values.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 List<String> sorted(List<String> values) =>

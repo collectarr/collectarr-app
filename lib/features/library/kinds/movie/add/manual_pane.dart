@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/panes/manual_pane_shell.dart';
+import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/catalog_field_specs.dart';

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/ui/library_metrics.dart';
+import 'package:collectarr_app/features/library/ui/metrics.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/ui/theme/theme_primitives.dart';
 import 'package:flutter/material.dart';

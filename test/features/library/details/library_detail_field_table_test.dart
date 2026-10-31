@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/field_table.dart';
+import 'package:collectarr_app/features/library/details/field_row.dart';
+import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

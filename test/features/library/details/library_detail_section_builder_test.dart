@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
+import 'package:collectarr_app/features/library/details/models.dart';
+import 'package:collectarr_app/features/library/details/section_builder.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 

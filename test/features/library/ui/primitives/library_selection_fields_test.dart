@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
+import 'package:collectarr_app/features/library/ui/primitives/selection_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

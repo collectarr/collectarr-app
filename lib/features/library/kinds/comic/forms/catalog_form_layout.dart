@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/schema.dart';
 
 // The reference's Main tab: a 479 px column beside a 677 px one, with
 // Issue No., Variant and Variant Description at 159, 101 and 389 px.

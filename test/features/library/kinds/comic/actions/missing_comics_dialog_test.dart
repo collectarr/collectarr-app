@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/domain/target_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/actions/missing_issues_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/actions/missing_issues_report.dart';
@@ -8,11 +8,11 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/context.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
-import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/workspace/entry/item.dart';
+import 'package:collectarr_app/features/library/workspace/schema/projections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

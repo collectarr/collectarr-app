@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:flutter/material.dart';
 
 /// A consistently labelled Music disc text field used by Add and Edit.

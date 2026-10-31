@@ -1,8 +1,8 @@
-import 'package:collectarr_app/features/library/config/library_export_capability.dart';
+import 'package:collectarr_app/features/library/config/export_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/columns/columns.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/entry_schema.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 
 /// Exports offer the collection list columns, as the reference Export to
 /// CSV / TXT does, starting from the default list columns. Images are not

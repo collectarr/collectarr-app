@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/music/forms/catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
-import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
-import 'package:collectarr_app/features/library/forms/library_field_spec_renderer.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/forms/schema.dart';
+import 'package:collectarr_app/features/library/forms/field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:flutter/material.dart';
 
 /// Shared Details pane for Music; physical metadata belongs to discs.

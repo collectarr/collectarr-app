@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
+import 'package:collectarr_app/features/library/workspace/entry/context.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../builders/catalog_item_builder.dart';

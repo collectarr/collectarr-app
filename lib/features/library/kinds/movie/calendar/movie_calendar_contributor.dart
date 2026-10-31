@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/config/calendar_contributor.dart';
+import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 
 /// Movie owns the mapping from Catalog Item release dates to calendar events.

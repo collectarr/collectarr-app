@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'dto.dart';
 
 typedef _Context = LibraryProjectionContext<MusicWorkspaceProjection>;

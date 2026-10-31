@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_entry_persistence.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/storage_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';

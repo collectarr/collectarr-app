@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
+import 'package:collectarr_app/features/library/config/entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
 import '../domain/comic_reading_state.dart';

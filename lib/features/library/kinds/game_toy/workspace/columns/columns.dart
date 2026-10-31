@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/kinds/game_toy/workspace/ids.dar
 import 'package:collectarr_app/features/library/kinds/game_toy/workspace/personal_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/workspace/fields.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:flutter/widgets.dart';
 
 typedef _Catalog = GameToyCatalogWorkspaceFields;

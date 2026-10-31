@@ -14,7 +14,7 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/kind_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 CatalogItemDto testCatalogItem({

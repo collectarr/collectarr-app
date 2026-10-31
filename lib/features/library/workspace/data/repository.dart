@@ -1,0 +1,102 @@
+import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'query.dart';
+
+abstract class LibraryWorkspaceRepository {
+  Stream<List<LibraryProjectionView>> watchEntries(LibraryWorkspaceQuery query);
+}
+
+class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
+  LocalLibraryWorkspaceRepository(this.ref);
+  final Ref ref;
+
+  @override
+  Stream<List<LibraryProjectionView>> watchEntries(
+      LibraryWorkspaceQuery query) {
+    final controller = StreamController<List<LibraryProjectionView>>();
+    final listener = ref.listen<AsyncValue<ShelfState>>(
+      shelfProvider,
+      (previous, next) {
+        if (next is AsyncData<ShelfState>) {
+          controller.add(
+            _processEntries(next.value.entries, query),
+          );
+        } else if (next is AsyncError<ShelfState>) {
+          controller.addError(next.error, next.stackTrace);
+        }
+      },
+      fireImmediately: true,
+    );
+    controller.onCancel = listener.close;
+
+    return controller.stream;
+  }
+
+  List<LibraryProjectionView> _processEntries(
+    List<LibraryWorkspaceContext> shelfEntries,
+    LibraryWorkspaceQuery query,
+  ) {
+    final registration = libraryKindRegistrationForKind(query.kind);
+    final workspace = libraryKindWorkspaceForKind(query.kind);
+
+    final items = <LibraryProjectionView>[];
+    for (final source in shelfEntries) {
+      if (source.mediaKind == query.kind) {
+        items.add(workspace.project(source: source));
+      }
+    }
+
+    var filtered = items;
+
+    final queryStr = query.searchQuery.trim().toLowerCase();
+    if (queryStr.isNotEmpty) {
+      filtered = filtered.where((item) {
+        return item.dto.primaryLabel.toLowerCase().contains(queryStr);
+      }).toList();
+    }
+
+    if (query.collectionId != null) {
+      filtered = filtered.where((item) {
+        return item.source.locationPath == query.collectionId;
+      }).toList();
+    }
+
+    if (query.facetValues.isNotEmpty) {
+      filtered = filtered.where((item) {
+        for (final facetEntry in query.facetValues.entries) {
+          final facetId = facetEntry.key;
+          final selectedValues = facetEntry.value;
+          if (selectedValues.isEmpty) {
+            continue;
+          }
+          final values = libraryKindFacetModuleForKind(registration.kind)
+                  ?.getFacetValues
+                  ?.call(
+                    item,
+                    facetId,
+                  ) ??
+              const <String>[];
+          final hasMatch = values.any((val) => selectedValues.contains(val));
+          if (!hasMatch) {
+            return false;
+          }
+        }
+        return true;
+      }).toList();
+    }
+
+    filtered.sort((left, right) => left.dto.primaryLabel
+        .toLowerCase()
+        .compareTo(right.dto.primaryLabel.toLowerCase()));
+
+    return filtered;
+  }
+}
+
+final libraryWorkspaceRepositoryProvider =
+    Provider.autoDispose<LibraryWorkspaceRepository>((ref) {
+  return LocalLibraryWorkspaceRepository(ref);
+});

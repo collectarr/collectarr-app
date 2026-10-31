@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/config/calendar_contributor.dart';
+import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 
 /// BoardGame owns the mapping from publication/edition dates to the calendar.

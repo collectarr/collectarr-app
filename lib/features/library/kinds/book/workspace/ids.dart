@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 
 abstract final class BookFieldIds {

@@ -13,9 +13,9 @@ import 'package:collectarr_app/features/collection/mutations/library_entry_mutat
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/watch_session_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
+import 'package:collectarr_app/features/library/entries/repository.dart';
+import 'package:collectarr_app/features/library/tracking/storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/unit_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -25,7 +25,7 @@ import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 
 final syncQueueRepositoryProvider = Provider<SyncQueueRepository>((ref) {
   return SyncQueueRepository(ref.watch(localDatabaseProvider));

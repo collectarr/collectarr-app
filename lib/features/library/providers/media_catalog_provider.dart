@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
+import 'package:collectarr_app/features/library/config/catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/api_provider.dart';

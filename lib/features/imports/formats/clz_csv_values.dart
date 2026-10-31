@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
-import 'package:collectarr_app/features/library/config/library_import_capability.dart';
+import 'package:collectarr_app/features/library/config/import_capability.dart';
 import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
 
 const _months = {

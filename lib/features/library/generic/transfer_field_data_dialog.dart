@@ -5,14 +5,14 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
+import 'package:collectarr_app/features/library/ui/primitives/field_selection.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:uuid/uuid.dart';
 

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
-import 'package:collectarr_app/features/library/serial/library_series_selector_field.dart';
+import 'package:collectarr_app/features/library/edit/schema/schema.dart';
+import 'package:collectarr_app/features/library/serial/series_selector_field.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_field_specs.dart';

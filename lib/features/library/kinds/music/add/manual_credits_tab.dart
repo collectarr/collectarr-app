@@ -1,11 +1,11 @@
 import 'package:collectarr_app/features/library/kinds/music/add/manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
-import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/multi_value_options_dialog.dart';
+import 'package:collectarr_app/features/library/ui/primitives/multi_value_pick_field.dart';
+import 'package:collectarr_app/features/library/forms/field_spec.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
 

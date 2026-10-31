@@ -1,0 +1,181 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/config/metadata_capability.dart';
+import 'package:collectarr_app/features/library/ui/dialog_scaffold.dart';
+import 'package:collectarr_app/state/api_provider.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Future<void> showLibraryMetadataCompareDialog({
+  required BuildContext context,
+  required String itemId,
+  required String itemTitle,
+  required CatalogMediaKind kind,
+  required JsonMap localPayload,
+  required MetadataCompareBuilder compareBuilder,
+  required Color accent,
+}) async {
+  await showAppDialog<void>(
+    context: context,
+    builder: (_) => _LibraryMetadataCompareDialog(
+      itemId: itemId,
+      itemTitle: itemTitle,
+      kind: kind,
+      localPayload: localPayload,
+      compareBuilder: compareBuilder,
+      accent: accent,
+    ),
+  );
+}
+
+class _LibraryMetadataCompareDialog extends ConsumerStatefulWidget {
+  const _LibraryMetadataCompareDialog({
+    required this.itemId,
+    required this.itemTitle,
+    required this.kind,
+    required this.localPayload,
+    required this.compareBuilder,
+    required this.accent,
+  });
+
+  final String itemId;
+  final String itemTitle;
+  final CatalogMediaKind kind;
+  final JsonMap localPayload;
+  final MetadataCompareBuilder compareBuilder;
+  final Color accent;
+
+  @override
+  ConsumerState<_LibraryMetadataCompareDialog> createState() =>
+      _LibraryMetadataCompareDialogState();
+}
+
+class _LibraryMetadataCompareDialogState
+    extends ConsumerState<_LibraryMetadataCompareDialog> {
+  bool _isLoading = false;
+  String? _error;
+  JsonMap? _serverPayload;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadServerItem();
+  }
+
+  Future<void> _loadServerItem() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final api = ref.read(apiClientProvider);
+      final payload = JsonMap.from(await api.getCatalogItemJson(
+        kind: widget.kind,
+        id: widget.itemId,
+      ));
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _serverPayload = payload;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _error = _errorText(error);
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  String _errorText(Object error) {
+    if (error is DioException) {
+      final statusCode = error.response?.statusCode;
+      if (statusCode == 404) {
+        return 'This item no longer exists on server metadata.';
+      }
+      if (statusCode == 422) {
+        return 'Server rejected this compare request (422). '
+            'This item likely has an unsupported metadata id format.';
+      }
+      final responseData = error.response?.data;
+      if (responseData is Map && responseData['detail'] != null) {
+        return responseData['detail'].toString();
+      }
+      final msg = error.message;
+      if (msg != null && msg.trim().isNotEmpty) {
+        return msg;
+      }
+    }
+    return error.toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final serverPayload = _serverPayload;
+    // Focus inside the route lets Escape dismiss it like other dialogs.
+    return Focus(
+      autofocus: true,
+      child: LibraryDialogScaffold(
+        title: Row(
+          children: [
+            const Icon(AppIcons.transferFieldData),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Compare with Core — ${widget.itemTitle}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        onClose: () => Navigator.of(context).pop(),
+        maxWidth: 1200,
+        maxHeight: 820,
+        padding: EdgeInsets.zero,
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        _error!,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: Colors.redAccent),
+                      ),
+                    ),
+                  )
+                : serverPayload == null
+                    ? const SizedBox.shrink()
+                    : Scrollbar(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: widget.compareBuilder(
+                              context,
+                              localPayload: widget.localPayload,
+                              serverPayload: serverPayload,
+                              accent: widget.accent,
+                            ),
+                          ),
+                        ),
+                      ),
+      ),
+    );
+  }
+}

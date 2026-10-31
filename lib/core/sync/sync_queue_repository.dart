@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';

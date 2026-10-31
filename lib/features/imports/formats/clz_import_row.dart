@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:uuid/uuid.dart';
 
 /// Stable local entry IDs for one CLZ import: repeated copies of the same

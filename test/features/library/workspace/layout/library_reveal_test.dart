@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/workspace/layout/library_reveal.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_workspace_table.dart';
+import 'package:collectarr_app/features/library/workspace/layout/reveal.dart';
+import 'package:collectarr_app/features/library/workspace/layout/grid.dart';
+import 'package:collectarr_app/features/library/workspace/table/table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
+import 'package:collectarr_app/features/library/config/group_mode_category_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/groups.dart';
 
 /// The reference folder menu: its categories, each in the reference order.

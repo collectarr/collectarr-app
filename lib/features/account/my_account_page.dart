@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/settings/settings_layout.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';

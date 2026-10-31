@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/chrome/view_and_organize_sheet.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
