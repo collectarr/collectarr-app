@@ -4,12 +4,12 @@
 
 ### CI & Build
 - Update build tooling with consistent generated database code.
-- Release notes list every merged pull request, direct commit and closed issue, keep each release's original artwork, and record new release summaries in the repository.
+- Release notes list every merged pull request, direct commit and closed issue, and record new release summaries in the repository.
 - Keep the Drift runtime and generated database code aligned when updating dependencies.
 
 ### Docs
 - Collectarr App is now licensed under AGPL-3.0-only, like Core and Sync.
-- Present releases with Collectarr artwork, editorial summaries, contributor credits and automatic change lists.
+- Present releases with a banner showing each release's headline, highlights, feature and fix counts and project stats, plus editorial summaries, contributor credits and automatic change lists.
 
 ## 1.4.0 - 2026-10-26
 
