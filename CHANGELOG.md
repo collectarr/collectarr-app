@@ -11,6 +11,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Comics editors show CLZ's tab icons: a magnifier for Details, a group for Creators and Characters and a solid page for Plot.
 - The Comics edit dialog's Main tab gives Series, Barcode, Format and Series Group the narrower left column and Issue No., Variant and Variant Description CLZ's widths, instead of two equal halves.
 - With local Gilroy, dialog and editor titles are no heavier than CLZ's: they use Gilroy ExtraBold instead of Black.
 - Settings, Loan Manager, Calendar, Admin, My Account, Activity and the Comics series page open with the page transition and Back returns with the reverse one, like the other pages, instead of switching at once.

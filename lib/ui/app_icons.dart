@@ -324,6 +324,14 @@ abstract final class AppIcons {
   // Regular, as the reference's Description tab.
   static const IconData tabDescription =
       IconData(0xf15c, fontFamily: _regular, fontPackage: _fontPackage);
+  // Magnifier, a group and a solid page, as the reference's Comics Details,
+  // Creators/Characters and Plot tabs.
+  static const IconData tabLookup =
+      IconData(0xf002, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData tabPeople =
+      IconData(0xf0c0, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData tabPlot =
+      IconData(0xf15c, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData lock =
       IconData(0xf023, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData lockOpen =
