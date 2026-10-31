@@ -22,6 +22,7 @@ void main() {
     addTearDown(db.close);
     final repo = PickListRepository(db);
     await repo.addValue('music.genre', 'Audit Jazz', mediaKind: 'music');
+    await repo.addValue('music.genre', 'Audit Rock', mediaKind: 'music');
     await tester.pumpWidget(MaterialApp(
         home: Scaffold(
             body: PickListManagerPage(
@@ -38,15 +39,15 @@ void main() {
     await tester.tap(find.text('Save'));
     await pumpUntilSettled(tester);
     expect(await repo.getValues('music.genre', mediaKind: 'music'),
-        ['Audit Renamed']);
+        ['Audit Renamed', 'Audit Rock']);
     await tester.tap(find.byTooltip('Edit Audit Renamed'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).at(1), 'Rock');
+    await tester.enterText(find.byType(TextField).at(1), 'Audit Rock');
     await tester.tap(find.text('Save'));
     await pumpUntilSettled(tester);
     expect(find.textContaining('This name already exists'), findsOneWidget);
     expect(await repo.getValues('music.genre', mediaKind: 'music'),
-        ['Audit Renamed']);
+        ['Audit Renamed', 'Audit Rock']);
     await tester.tap(find.byTooltip('Remove Audit Renamed'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Cancel'));
@@ -56,13 +57,15 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Remove'));
     await pumpUntilSettled(tester);
-    expect(await repo.getValues('music.genre', mediaKind: 'music'), isEmpty);
+    expect(await repo.getValues('music.genre', mediaKind: 'music'),
+        ['Audit Rock']);
     expect(find.byTooltip('Edit Audit Renamed'), findsNothing);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
 
-  testWidgets('pick list manager shows lists and values', (tester) async {
+  testWidgets('pick list manager shows a list without its unused values',
+      (tester) async {
     tester.view.physicalSize = kDesktopTestSize;
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
@@ -97,7 +100,12 @@ void main() {
 
     expect(find.text('Manage Package/Sleeve Conditions'), findsOneWidget);
     expect(find.text('Package/Sleeve Condition list'), findsOneWidget);
-    expect(find.text('Near Mint'), findsWidgets);
+    // No album uses it, so it is dropped as the list opens, as in CLZ.
+    expect(find.text('Near Mint'), findsNothing);
+    expect(
+        await PickListRepository(db)
+            .getValues('music.condition', mediaKind: 'music'),
+        isEmpty);
   });
 
   testWidgets('manager starts with no list selected', (tester) async {

@@ -15,21 +15,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Kind-owned vocabularies', () {
-    test(
-        'Comic vocabularies have built-ins for grading, page quality, key categories, publisher',
-        () {
-      expect(ComicVocabularies.grade.builtIns, contains('9.8 Near Mint/Mint'));
-      expect(ComicVocabularies.grade.builtIns, contains('9.6 Near Mint+'));
-      expect(ComicVocabularies.pageQuality.builtIns, contains('White'));
-      expect(ComicVocabularies.pageQuality.builtIns,
-          contains('Off-White to White'));
+    test('Music and Comics lists start empty, as in the reference', () {
+      // As in the reference, the lists hold only the values entries use.
       expect(
-          ComicVocabularies.keyCategory.builtIns, contains('1st appearance'));
-      expect(ComicVocabularies.keyCategory.builtIns, contains('Origin'));
-      expect(ComicVocabularies.publisher.builtIns, contains('Marvel Comics'));
-      expect(ComicVocabularies.publisher.builtIns, contains('DC Comics'));
+          [...MusicVocabularies.all, ...ComicVocabularies.all]
+              .where((vocabulary) => vocabulary.builtIns.isNotEmpty),
+          isEmpty);
       expect(ComicVocabularies.all.length, 16);
-      expect(ComicVocabularies.publicationAge.builtIns, isEmpty);
       expect(ComicVocabularies.publicationAge.label, 'Age');
     });
 
@@ -66,14 +58,10 @@ void main() {
       expect(MovieVocabularies.hdr.builtIns, contains('Dolby Vision'));
     });
 
-    test('Book, Music, and BoardGame vocabularies are properly registered', () {
+    test('Book and BoardGame vocabularies are properly registered', () {
       expect(BookVocabularies.publisher.builtIns,
           contains('Penguin Random House'));
       expect(BookVocabularies.binding.builtIns, contains('First Edition'));
-
-      expect(MusicVocabularies.format.builtIns, contains('Vinyl (12" LP)'));
-      expect(MusicVocabularies.packaging.builtIns,
-          contains('Standard Jewel Case'));
 
       expect(BoardGameVocabularies.publisher.builtIns,
           contains('Fantasy Flight Games'));
