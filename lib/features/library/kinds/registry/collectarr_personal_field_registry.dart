@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/game_hardware/game_hardwar
 import 'package:collectarr_app/features/library/kinds/game_toy/game_toy_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
 import 'package:collectarr_app/features/library/metadata/library_personal_field_contributor.dart';
 
@@ -23,11 +24,18 @@ final Map<CatalogMediaKind, LibraryPersonalFieldContributor>
   CatalogMediaKind.music: musicKindPersonalFieldContributor,
 });
 
+/// Every kind's personal fields once, for kind-agnostic screens such as Sync
+/// settings. Kinds may relabel shared fields for themselves (Comics calls the
+/// location a Storage Box); these keep their shared label here.
 final List<PersonalLibraryFieldSpec> libraryPersonalFields =
     List.unmodifiable(_deduplicateFields([
   for (final contributor in collectarrKindPersonalFieldContributors.values)
-    ...contributor.fields,
+    for (final field in contributor.fields) _commonFields[field.key] ?? field,
 ]));
+
+final Map<String, PersonalLibraryFieldSpec> _commonFields = {
+  for (final field in commonPersonalLibraryFields) field.key: field,
+};
 
 final List<PersonalLibraryFieldSpec> librarySyncablePersonalFields =
     List.unmodifiable(
