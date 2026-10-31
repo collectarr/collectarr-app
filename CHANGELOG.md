@@ -8,7 +8,7 @@
 
 ### Features
 - The details panel shows CLZ's spinner over "Loading..." until the selected item's custom fields and images are loaded, instead of filling in piece by piece.
-- Next and Previous in the edit dialog save the item's changes and show the neighbouring item, as in CLZ, with a "Saving comic" window and spinner until it is shown, instead of asking to discard the changes.
+- Next and Previous in the edit dialog save the item's changes and show the neighbouring item, as in CLZ: the dialog gives way to a "Saving comic" window with a spinner until the next item opens, instead of asking to discard the changes.
 - Edit dialogs show the edit pen in their header, as the edit buttons do, instead of the library's icon.
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
