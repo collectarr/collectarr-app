@@ -13,5 +13,13 @@
   "v1.1.0": "New sorting, capitalization and localization settings give more control over library presentation. Albums also receive automatic sort titles when adding, editing and importing.",
   "v1.2.0": "Regular-expression searches highlight matching tracks and explain invalid expressions. Automatic backups and restore controls improve protection for desktop and mobile libraries.",
   "v1.3.0": "Games, Hardware and Toys gain dedicated libraries, editors and Core search. Guided CLZ import and XML and CSV/TXT workflows expand collection portability.",
-  "v1.4.0": "Adding Games gains clearer platform and edition selection, cover browsing and region filters. Online cover search, value links and rich-text descriptions improve everyday collection work, while export and asynchronous action fixes reduce interruptions."
+  "v1.4.0": "Adding Games gains clearer platform and edition selection, cover browsing and region filters. Online cover search, value links and rich-text descriptions improve everyday collection work, while export and asynchronous action fixes reduce interruptions.",
+  "v1.5.0": {
+    "headline": "Comics arrive",
+    "summary": "Collectarr App adds the Comics library, with CLZ Comics Web, Comic Collector XML and CSV import and typed Add and Edit forms. Working with Core is reworked: Compare with Core shows your values beside Core's, Propose to Core sends only the fields you changed, unlinked entries can be submitted to Core as new items, and administrators review proposals in the Admin Proposals tab. Covers linked from other sites are downloaded after an import and kept offline, and many screens now follow the reference more closely. Collectarr App is now licensed under AGPL-3.0-only.",
+    "highlights": [
+      "Comics library and CLZ import",
+      "Submit and review proposals"
+    ]
+  }
 }
