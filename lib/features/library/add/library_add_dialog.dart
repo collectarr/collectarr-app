@@ -1167,7 +1167,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (!mounted) return;
     setState(() => _ownedGroupKeys = {
           for (final entry in entries)
-            if (keyOf(entry.catalogData) case final key?) key,
+            if (keyOf(entry) case final key?) key,
         });
   }
 
