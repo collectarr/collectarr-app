@@ -335,6 +335,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
     this.onRefreshMetadata,
     this.onUnlinkFromCore,
     this.onLinkToCore,
+    this.onSubmitToCore,
     this.onDetailsLayoutChanged,
     this.framed = false,
     this.includeLayoutControl = true,
@@ -353,6 +354,9 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
   final VoidCallback? onRefreshMetadata;
   final VoidCallback? onUnlinkFromCore;
   final VoidCallback? onLinkToCore;
+
+  /// Sends an entry Core does not have to Core reviewers as a new item.
+  final VoidCallback? onSubmitToCore;
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final bool framed;
   final bool includeLayoutControl;
@@ -492,6 +496,9 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                       _inspectorMenuItem(
                           'Link to Core', AppIcons.link, onLinkToCore),
                     ],
+                    if (onSubmitToCore != null)
+                      _inspectorMenuItem(
+                          'Submit to Core', AppIcons.upload, onSubmitToCore),
                   ],
                   builder: (context, controller, child) => _InspectorBarButton(
                     tooltip: 'More inspector actions',

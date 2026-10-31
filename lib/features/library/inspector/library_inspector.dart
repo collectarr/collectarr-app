@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_item_confirmation.dart';
@@ -38,6 +40,10 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/features/loans/loan_add_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
+import 'package:collectarr_app/state/api_provider.dart';
 
 class LibraryInspector extends ConsumerStatefulWidget {
   const LibraryInspector({
@@ -341,6 +347,12 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                               ),
                             ))
                         : null,
+                    onSubmitToCore: activeLibraryEntry != null &&
+                            activeLibraryEntry.sourceCatalogRef == null &&
+                            widget.db != null
+                        ? () => unawaited(_submitToCore(
+                            activeLibraryEntry, selected.dto.primaryLabel))
+                        : null,
                     onDuplicate: entityActions.onDuplicate,
                     onToggleEntry: entityActions.onToggleEntry,
                     onLoan: entityActions.onLoan,
@@ -545,6 +557,49 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             )));
     if (confirmed != true || !mounted) return;
     await ref.read(libraryEntryMutationsProvider).unlinkFromCore(entry.ref);
+  }
+
+  Future<void> _submitToCore(LibraryEntrySummary entry, String title) async {
+    final singular = widget.type.identity.singularLabel;
+    final confirmed = await showAppDialog<bool>(
+        context: context,
+        builder: (context) => Theme(
+            data: libraryAccentTheme(context, widget.accent),
+            child: AccentAlertDialog(
+              headerIcon: AppIcons.upload,
+              title: const Text('Submit to Core'),
+              content: Text(
+                  'Send "$title" to Core reviewers as a new ${singular.toLowerCase()}? It '
+                  'stays unlinked here; link it after Core approves it.'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel')),
+                FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Submit')),
+              ],
+            )));
+    if (confirmed != true || !mounted) return;
+    final record = await LibraryEntryStore(widget.db!)
+        .find(entry.ref.kind, entry.ref.id.value);
+    if (record == null || !mounted) return;
+    try {
+      await submitLibraryEntryToCore(
+        api: ref.read(apiClientProvider),
+        kind: entry.ref.kind.apiValue,
+        catalogData: record.catalogData,
+        title: title,
+      );
+      if (!mounted) return;
+      showAppToast(context, '$singular proposal sent for review.',
+          tone: AppToastTone.success);
+    } catch (error) {
+      if (!mounted) return;
+      showAppToast(
+          context, 'Could not send the proposal. ${coreRefusalMessage(error)}',
+          tone: AppToastTone.error);
+    }
   }
 }
 

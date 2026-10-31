@@ -204,6 +204,8 @@ void main() {
       expect(find.text('Update from Core'),
           linked ? findsOneWidget : findsNothing);
       expect(find.text('Link to Core'), linked ? findsNothing : findsOneWidget);
+      expect(
+          find.text('Submit to Core'), linked ? findsNothing : findsOneWidget);
       expect(find.text('Move to other collection'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('Loan'));
