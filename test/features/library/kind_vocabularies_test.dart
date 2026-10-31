@@ -25,6 +25,11 @@ void main() {
       expect(ComicVocabularies.publicationAge.label, 'Age');
     });
 
+    test('Comics publishers are filed by name, without a Sort Name', () {
+      expect(ComicVocabularies.publisher.hasSortName, isFalse);
+      expect(ComicVocabularies.imprint.hasSortName, isTrue);
+    });
+
     test('Game vocabularies cover the reference Main, Value and Personal lists',
         () {
       // As in the reference, the lists hold only the values entries use.

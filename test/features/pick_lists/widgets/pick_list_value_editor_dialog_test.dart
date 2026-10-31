@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Future<Future<PickListValue?>> _open(WidgetTester tester,
-    {PickListValue? existing}) async {
+    {PickListValue? existing, bool showSortName = true}) async {
   late Future<PickListValue?> result;
   await tester.pumpWidget(MaterialApp(
     home: Builder(
@@ -15,6 +15,7 @@ Future<Future<PickListValue?>> _open(WidgetTester tester,
           label: 'Label',
           mediaKind: 'music',
           existing: existing,
+          showSortName: showSortName,
         ),
         child: const Text('open'),
       ),
@@ -71,5 +72,23 @@ void main() {
     expect(_text(tester, _sortName), isEmpty);
     await tester.enterText(_name, 'The End Recordings');
     expect(_text(tester, _sortName), 'End Recordings, The');
+  });
+
+  testWidgets('a list without Sort Names offers only the Name', (tester) async {
+    final result = await _open(tester,
+        showSortName: false,
+        existing: const PickListValue(
+            id: 'publisher',
+            listName: 'comic.publisher',
+            value: 'The Comics Company',
+            sortName: 'Comics Company, The'));
+
+    expect(find.text('Sort Name'), findsNothing);
+    expect(find.byType(TextField), findsOneWidget);
+
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    // Saving drops a Sort Name stored before the list stopped offering one.
+    expect((await result)!.sortName, isNull);
   });
 }

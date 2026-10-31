@@ -50,13 +50,13 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
   bool _managing = false;
   bool _managerReady = false;
   String? _error;
-  String _labelFor(String value) {
-    final definition = defaultPickListRegistry
-        .definitionsForKind(widget.mediaKind)
-        .where((definition) => definition.listName == widget.listName)
-        .firstOrNull;
-    return definition?.optionLabel?.call(value) ?? value;
-  }
+  late final _definition = defaultPickListRegistry
+      .definitionsForKind(widget.mediaKind)
+      .where((definition) => definition.listName == widget.listName)
+      .firstOrNull;
+  bool get _showSortName => _definition?.hasSortName ?? true;
+  String _labelFor(String value) =>
+      _definition?.optionLabel?.call(value) ?? value;
 
   PickListRepository? get _repository =>
       widget.db == null || widget.listName == null
@@ -163,7 +163,8 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
         listName: widget.listName ?? '',
         label: widget.label,
         mediaKind: widget.mediaKind,
-        title: 'New ${widget.label}');
+        title: 'New ${widget.label}',
+        showSortName: _showSortName);
     if (created == null || !mounted) return;
     setState(() {
       _busy = true;
@@ -327,6 +328,7 @@ class _PickListSelectionDialogState extends State<PickListSelectionDialog> {
                                   : PickListValuesTable(
                                       values: visible,
                                       usageCounts: _counts,
+                                      showSortName: _showSortName,
                                       selectedIds: _selected,
                                       mode: widget.multiple
                                           ? PickListTableMode.multiSelect

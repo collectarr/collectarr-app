@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
@@ -184,9 +185,18 @@ int _hashStringMap(Map<String, String> value) {
 
 final libraryProjectionProvider = Provider.autoDispose
     .family<LibraryProjection, LibraryProjectionRequest>((ref, request) {
-  final pickListSortNames =
-      ref.watch(pickListSortNamesProvider(request.type.kind.apiValue)).value ??
-          const <String, Map<String, String>>{};
+  final kind = request.type.kind.apiValue;
+  // A Sort Name stored before its list stopped offering one is ignored.
+  final unsortedLists = {
+    for (final definition in defaultPickListRegistry.definitionsForKind(kind))
+      if (!definition.hasSortName) definition.listName
+  };
+  final pickListSortNames = {
+    for (final entry in (ref.watch(pickListSortNamesProvider(kind)).value ??
+            const <String, Map<String, String>>{})
+        .entries)
+      if (!unsortedLists.contains(entry.key)) entry.key: entry.value
+  };
   final sorting = ref.watch(uiPreferencesProvider.select((p) =>
       LibrarySortingOptions(
           useSortTitles: !p.ignoreSortTitles,
