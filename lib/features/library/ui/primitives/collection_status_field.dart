@@ -1,8 +1,6 @@
 import 'package:collectarr_app/ui/app_dropdown_menu.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
-import 'package:collectarr_app/features/library/ui/metrics.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/fixed_select_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -68,65 +66,15 @@ class LibraryCollectionStatusField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = libraryCollectionStatusFromValue(value);
-    return LibraryFormField(
-        label: label,
-        child: LayoutBuilder(
-          builder: (context, constraints) =>
-              PopupMenuButton<LibraryCollectionStatusScope>(
-            popUpAnimationStyle: AnimationStyle.noAnimation,
-            tooltip: 'Choose collection status',
-            position: PopupMenuPosition.under,
-            color: appPalette(context).isDark
-                ? const Color(0xff444444)
-                : appPalette(context).panelRaised,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-                side: BorderSide(color: appPalette(context).divider)),
-            elevation: 6,
-            surfaceTintColor: Colors.transparent,
-            menuPadding: const EdgeInsets.only(top: 5),
-            constraints: BoxConstraints(minWidth: constraints.maxWidth),
-            itemBuilder: (context) =>
-                libraryCollectionStatusEditMenuItems(context, selected: status),
-            onSelected: (value) =>
-                onChanged(libraryCollectionStatusValue(value)),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: SizedBox(
-                height: LibraryMetrics.defaultFieldHeight,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).inputDecorationTheme.fillColor ??
-                          appPalette(context).surface,
-                      border: Border.all(color: appPalette(context).divider),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Row(children: [
-                      Expanded(
-                          child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 7),
-                        child: Text(status.label,
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w400)),
-                      )),
-                      ColoredBox(
-                          color: appPalette(context).divider,
-                          child: SizedBox(
-                              width: 34,
-                              height: 34,
-                              child: Center(
-                                  child: Icon(AppIcons.caretDown,
-                                      size: 12,
-                                      color: appPalette(context).textMuted)))),
-                    ]),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ));
+    return LibraryMenuSelectField<LibraryCollectionStatusScope>(
+      label: label,
+      tooltip: 'Choose collection status',
+      display: Text(status.label,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400)),
+      itemBuilder: (context) =>
+          libraryCollectionStatusEditMenuItems(context, selected: status),
+      onSelected: (value) => onChanged(libraryCollectionStatusValue(value)),
+    );
   }
 }
 

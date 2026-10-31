@@ -63,25 +63,17 @@ void main() {
     expect(draft.toDetails(), details);
     expect(draft.toDetailsDraft().toDetails(), details);
 
-    final pageQuality = _field('page_quality')
-        as LibraryVocabularyFieldSpec<ComicEntryEditDraft, String>;
     final keyCategory = _field('key_category')
         as LibraryVocabularyFieldSpec<ComicEntryEditDraft, String>;
-    expect(
-      pageQuality.options.map((option) => option.value),
-      ComicVocabularies.pageQuality.builtIns,
-    );
     expect(
       keyCategory.options.map((option) => option.value),
       ComicVocabularies.keyCategory.builtIns,
     );
 
-    pageQuality.setValue(draft, 'Cream');
     keyCategory.setValue(draft, 'Origin');
     final coverPrice =
         _field('cover_price') as LibraryMoneyFieldSpec<ComicEntryEditDraft>;
     coverPrice.setCents(draft, 599);
-    expect(pageQuality.value(draft), 'Cream');
     expect(keyCategory.value(draft), 'Origin');
     expect(coverPrice.cents(draft), 599);
   });

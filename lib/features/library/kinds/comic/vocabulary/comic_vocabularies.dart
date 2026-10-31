@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_i
 
 abstract final class ComicVocabularyIds {
   static const gradingCompany = VocabularyId<String>('comic.grading_company');
-  static const labelType = VocabularyId<String>('comic.label_type');
   static const customLabel = VocabularyId<String>('comic.custom_label');
   static const publicationAge = VocabularyId<String>('comic.publication_age');
   static const publisher = VocabularyId<String>('comic.publisher');
@@ -18,8 +17,6 @@ abstract final class ComicVocabularyIds {
   static const seriesGroup = VocabularyId<String>('comic.series_group');
   static const physicalFormat = VocabularyId<String>('comic.physical_format');
   static const condition = VocabularyId<String>('comic.condition');
-  static const grade = VocabularyId<String>('comic.grade');
-  static const pageQuality = VocabularyId<String>('comic.page_quality');
   static const keyCategory = VocabularyId<String>('comic.key_category');
   static const storyArc = VocabularyId<String>('comic.story_arc');
   static const crossover = VocabularyId<String>('comic.crossover');
@@ -84,9 +81,6 @@ abstract final class ComicVocabularies {
       case 'condition':
         return item.copyWith(
             personal: item.personal.copyWith(condition: targetValue));
-      case 'grade':
-        return item.copyWith(
-            personal: item.personal.copyWith(grade: targetValue));
       case 'purchase_store':
         return item.copyWith(
             personal: item.personal.copyWith(purchaseStore: targetValue));
@@ -120,9 +114,7 @@ abstract final class ComicVocabularies {
         'grading_company' => 'grading_company',
         'grader_notes' => 'grader_notes',
         'signed_by' => 'signed_by',
-        'label_type' => 'label_type',
         'custom_label' => 'custom_label',
-        'page_quality' => 'page_quality',
         'certification_number' => 'certification_number',
         'key_category' => 'key_category',
         'key_severity' => 'key_severity',
@@ -135,7 +127,6 @@ abstract final class ComicVocabularies {
   ) sync* {
     final standard = switch (semanticName) {
       'condition' => item.personal.condition,
-      'grade' => item.personal.grade,
       'purchase_store' => item.personal.purchaseStore,
       'sold_to' => item.personal.soldTo,
       'collection_status' => item.personal.collectionStatus,
@@ -154,9 +145,7 @@ abstract final class ComicVocabularies {
       'grading_company' => 'grading_company',
       'grader_notes' => 'grader_notes',
       'signed_by' => 'signed_by',
-      'label_type' => 'label_type',
       'custom_label' => 'custom_label',
-      'page_quality' => 'page_quality',
       'certification_number' => 'certification_number',
       'key_category' => 'key_category',
       'key_severity' => 'key_severity',
@@ -213,16 +202,6 @@ abstract final class ComicVocabularies {
     label: 'Condition',
   );
 
-  static const grade = VocabularyDefinition<String>(
-    id: ComicVocabularyIds.grade,
-    label: 'Grade',
-  );
-
-  static const pageQuality = VocabularyDefinition<String>(
-    id: ComicVocabularyIds.pageQuality,
-    label: 'Page Quality',
-  );
-
   static const keyCategory = VocabularyDefinition<String>(
     id: ComicVocabularyIds.keyCategory,
     label: 'Key Category',
@@ -265,14 +244,11 @@ abstract final class ComicVocabularies {
 
   static const gradingCompany = VocabularyDefinition<String>(
       id: ComicVocabularyIds.gradingCompany, label: 'Grading Company');
-  static const labelType = VocabularyDefinition<String>(
-      id: ComicVocabularyIds.labelType, label: 'Label Type');
   static const customLabel = VocabularyDefinition<String>(
       id: ComicVocabularyIds.customLabel, label: 'Custom Label');
 
   static const all = <VocabularyDefinition<dynamic>>[
     gradingCompany,
-    labelType,
     customLabel,
     publicationAge,
     publisher,
@@ -280,8 +256,6 @@ abstract final class ComicVocabularies {
     seriesGroup,
     physicalFormat,
     condition,
-    grade,
-    pageQuality,
     keyCategory,
     storyArc,
     crossover,

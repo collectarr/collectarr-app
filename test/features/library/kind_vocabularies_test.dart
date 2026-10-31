@@ -21,7 +21,8 @@ void main() {
           [...MusicVocabularies.all, ...ComicVocabularies.all]
               .where((vocabulary) => vocabulary.builtIns.isNotEmpty),
           isEmpty);
-      expect(ComicVocabularies.all.length, 16);
+      // Grade, Label Type and Page Quality are fixed lists, not pick lists.
+      expect(ComicVocabularies.all.length, 13);
       expect(ComicVocabularies.publicationAge.label, 'Age');
     });
 
