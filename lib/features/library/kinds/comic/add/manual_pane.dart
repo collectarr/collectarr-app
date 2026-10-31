@@ -229,7 +229,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       schemaTab(
         id: 'details',
         label: 'Details',
-        icon: AppIcons.tabDetails,
+        icon: AppIcons.tabLookup,
         fieldIds: const {
           'catalog_title',
           ComicFieldIdentities.pageCountId,
@@ -246,7 +246,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       LibraryAddManualPaneTab(
         id: 'creators',
         label: 'Creators',
-        icon: AppIcons.tabCredits,
+        icon: AppIcons.tabPeople,
         content: ComicCreatorListEditor(
           creators: comicDraft.creators,
           accent: request.accent,
@@ -266,7 +266,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       LibraryAddManualPaneTab(
         id: 'characters',
         label: 'Characters',
-        icon: AppIcons.tabPersonal,
+        icon: AppIcons.tabPeople,
         content: ComicCharacterListEditor(
           characters: comicDraft.characters,
           accent: request.accent,
@@ -373,7 +373,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       LibraryAddManualPaneTab(
         id: 'plot',
         label: 'Plot',
-        icon: AppIcons.tabDescription,
+        icon: AppIcons.tabPlot,
         content: LibraryTextFormControl(
           initialValue: comicDraft.values.description,
           minLines: 18,

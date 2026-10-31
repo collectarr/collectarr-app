@@ -95,7 +95,7 @@ final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
     EditTabSpec<ComicCatalogItemFormValues>(
       id: 'details',
       label: 'Details',
-      icon: AppIcons.tabDetails,
+      icon: AppIcons.tabLookup,
       sections: [
         LibraryFormSectionSpec(
           id: 'publication',

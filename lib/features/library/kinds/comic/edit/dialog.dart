@@ -184,7 +184,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
           EditSchemaExtraTab(
               id: 'plot',
               label: 'Plot',
-              icon: AppIcons.tabDescription,
+              icon: AppIcons.tabPlot,
               content: LibraryTextFormControl(
                 initialValue: _draft.description,
                 minLines: 18,
@@ -257,7 +257,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
   EditSchemaExtraTab _creatorsTab() => EditSchemaExtraTab(
         id: 'creators',
         label: 'Creators',
-        icon: AppIcons.tabCredits,
+        icon: AppIcons.tabPeople,
         content: ComicCreatorListEditor(
           creators: _creators,
           accent: widget.request.accent,
@@ -274,7 +274,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
   EditSchemaExtraTab _charactersTab() => EditSchemaExtraTab(
         id: 'characters',
         label: 'Characters',
-        icon: AppIcons.tabPersonal,
+        icon: AppIcons.tabPeople,
         content: ComicCharacterListEditor(
           characters: _characters,
           accent: widget.request.accent,
