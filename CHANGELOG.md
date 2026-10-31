@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fixes
+- The web app leaves zoom to the browser, so its zoom shortcuts and Ctrl + wheel change the browser's zoom instead of adding an app zoom that read 100 % on an already zoomed page.
+
 ### CI & Build
 - Release notes list the commits of each merged pull request under it instead of only its title.
 - Release banners count the issues open when the release was published instead of showing none.

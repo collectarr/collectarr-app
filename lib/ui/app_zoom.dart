@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-/// Wraps the application root to enable browser-like desktop & web UI zoom:
+/// Wraps the application root to enable browser-like desktop UI zoom:
 /// - `Ctrl` + `+` / `Ctrl` + `=` / `Ctrl` + `Numpad +`: Zoom in
 /// - `Ctrl` + `-` / `Ctrl` + `Numpad -`: Zoom out
 /// - `Ctrl` + `0` / `Ctrl` + `Numpad 0`: Reset zoom (100%)
@@ -78,15 +78,9 @@ class _AppZoomWrapperState extends State<AppZoomWrapper> {
     return false;
   }
 
-  void _handleCtrlScroll(PointerSignalEvent event) {
-    final zoomIn = switch (event) {
-      PointerScrollEvent(:final scrollDelta) when scrollDelta.dy != 0 =>
-        scrollDelta.dy < 0,
-      PointerScaleEvent(:final scale) when scale != 1 => scale > 1,
-      _ => null,
-    };
-    if (zoomIn == null) return;
-    _adjustScale((zoomIn ? 1 : -1) * 0.05);
+  void _handleCtrlScroll(PointerScrollEvent event) {
+    final dy = event.scrollDelta.dy;
+    if (dy != 0) _adjustScale((dy < 0 ? 1 : -1) * 0.05);
   }
 
   void _adjustScale(double delta) {
@@ -201,13 +195,10 @@ class _AppZoomWrapperState extends State<AppZoomWrapper> {
 /// Pointer signals go to the first handler registered with the resolver, and
 /// handlers register in hit-test order, so nested scrollables would otherwise
 /// take the wheel. This box enters the hit-test path ahead of its children.
-///
-/// Flutter Web reports Ctrl + wheel as a [PointerScaleEvent] and always
-/// prevents the browser's own page zoom, so the scale signal zooms here too.
 class _CtrlScrollCatcher extends SingleChildRenderObjectWidget {
   const _CtrlScrollCatcher({required this.onCtrlScroll, super.child});
 
-  final ValueChanged<PointerSignalEvent> onCtrlScroll;
+  final ValueChanged<PointerScrollEvent> onCtrlScroll;
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
@@ -222,7 +213,7 @@ class _CtrlScrollCatcher extends SingleChildRenderObjectWidget {
 class _RenderCtrlScrollCatcher extends RenderProxyBox {
   _RenderCtrlScrollCatcher(this.onCtrlScroll);
 
-  ValueChanged<PointerSignalEvent> onCtrlScroll;
+  ValueChanged<PointerScrollEvent> onCtrlScroll;
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
@@ -234,13 +225,10 @@ class _RenderCtrlScrollCatcher extends RenderProxyBox {
 
   @override
   void handleEvent(PointerEvent event, HitTestEntry entry) {
-    if (event is PointerScrollEvent) {
-      final keyboard = HardwareKeyboard.instance;
-      if (!keyboard.isControlPressed && !keyboard.isMetaPressed) return;
-    } else if (event is! PointerScaleEvent) {
-      return;
-    }
+    if (event is! PointerScrollEvent) return;
+    final keyboard = HardwareKeyboard.instance;
+    if (!keyboard.isControlPressed && !keyboard.isMetaPressed) return;
     GestureBinding.instance.pointerSignalResolver
-        .register(event as PointerSignalEvent, (event) => onCtrlScroll(event));
+        .register(event, (event) => onCtrlScroll(event as PointerScrollEvent));
   }
 }

@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:collectarr_app/ui/app_zoom.dart';
+import 'package:collectarr_app/ui/browser_zoom.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +20,7 @@ void main() {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      leaveZoomToBrowser();
       container = ProviderContainer();
 
       // Capture Flutter framework errors.
@@ -128,7 +130,8 @@ class CollectarrApp extends ConsumerWidget {
         title: 'Collectarr',
         debugShowCheckedModeBanner: false,
         theme: buildAppShellTheme(palette: palette),
-        builder: (context, child) => AppZoomWrapper(child: child!),
+        builder: (context, child) =>
+            browserOwnsZoom ? child! : AppZoomWrapper(child: child!),
         routerConfig: router,
       ),
     );
