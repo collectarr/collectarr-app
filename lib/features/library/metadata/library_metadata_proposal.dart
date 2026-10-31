@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:dio/dio.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 
@@ -30,6 +31,42 @@ Future<JsonMap> createAndRecordLibraryMetadataProposal({
   );
   return response;
 }
+
+/// Proposes a library entry that Core does not have as a new Core item.
+///
+/// Core projects the entry's catalog data onto the fields it recognizes for
+/// the kind; an entry without a title of its own is named as the library
+/// names it.
+Future<JsonMap> submitLibraryEntryToCore({
+  MetadataProposalStore store = const MetadataProposalStore(),
+  required ApiClient api,
+  required String kind,
+  required JsonMap catalogData,
+  required String title,
+}) {
+  final catalogItem = {
+    ...catalogData,
+    if ((catalogData['title'] as String?)?.trim().isEmpty ?? true)
+      'title': title,
+  };
+  return createAndRecordLibraryMetadataProposal(
+    store: store,
+    api: api,
+    kind: kind,
+    catalogItem: catalogItem,
+    source: 'Submit to Core',
+  );
+}
+
+/// Core's reason for refusing a request, or the error itself.
+String coreRefusalMessage(Object error) => switch (error) {
+      DioException(response: Response(data: {'detail': final String detail}))
+          when detail.trim().isNotEmpty =>
+        detail.trim(),
+      DioException(:final message?) when message.trim().isNotEmpty =>
+        message.trim(),
+      _ => '$error',
+    };
 
 Future<void> recordLibraryMetadataProposalResponse({
   MetadataProposalStore store = const MetadataProposalStore(),

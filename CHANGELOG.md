@@ -9,6 +9,7 @@
 - Admin's Proposals tab lists corrections to Core items in the comparison table, proposed beside Core's current value, marks those Core changed since, and applies or rejects them; a proposed new item shows its fields the same way and opens in its kind's own editor instead of raw JSON.
 - Compare with Core lists each field in one table row, your value beside Core's, with differing rows marked and a difference count per section.
 - Imports run as soon as you press Import after choosing a file, without a list of parsed records to review first, as in CLZ.
+- Unlinked entries, such as comics imported from CLZ that Core lacks, can be sent to Core reviewers as new items with Submit to Core in the details menu.
 
 ### Fixes
 - Escape closes Compare with Core, as it does other dialogs.

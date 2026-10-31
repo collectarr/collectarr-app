@@ -41,6 +41,33 @@ void main() {
     expect(records.single.title, 'Lupus Dei');
     expect(records.single.source, 'Manual Add form');
   });
+
+  test('an unlinked entry is submitted as a new item named like the library',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final api = _FakeProposalApiClient();
+
+    await submitLibraryEntryToCore(
+      api: api,
+      kind: 'comic',
+      catalogData: const {
+        'title': '',
+        'series_title': 'Northern Lights',
+        'issue_number': '3',
+      },
+      title: 'Northern Lights #3',
+    );
+
+    expect(api.kind, 'comic');
+    expect(api.catalogItem, {
+      'title': 'Northern Lights #3',
+      'series_title': 'Northern Lights',
+      'issue_number': '3',
+    });
+    final records = await const MetadataProposalStore().read();
+    expect(records.single.title, 'Northern Lights #3');
+    expect(records.single.source, 'Submit to Core');
+  });
 }
 
 class _FakeProposalApiClient extends ApiClient {
