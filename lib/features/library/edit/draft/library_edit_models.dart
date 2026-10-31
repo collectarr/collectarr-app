@@ -9,11 +9,6 @@ import 'package:collectarr_app/features/library/edit/contracts/library_local_edi
 // Selection data classes returned by the edit dialog
 // ---------------------------------------------------------------------------
 
-enum LibraryEditSubmitAction {
-  save,
-  saveAndNext,
-}
-
 class LibraryEditSelection {
   const LibraryEditSelection({
     required this.kindItem,
@@ -25,7 +20,6 @@ class LibraryEditSelection {
     this.localChanges = const [],
     this.customFieldEdits = const {},
     this.itemImageEdits = const [],
-    this.submitAction = LibraryEditSubmitAction.save,
   });
 
   /// The concrete catalog candidate returned to the owning kind and catalog
@@ -39,7 +33,6 @@ class LibraryEditSelection {
   final List<LibraryLocalEditChange> localChanges;
   final Map<String, String?> customFieldEdits;
   final List<ItemImageEdit> itemImageEdits;
-  final LibraryEditSubmitAction submitAction;
 
   LibraryEditSelection copyWith({
     CatalogSearchCandidate? kindItem,
@@ -51,7 +44,6 @@ class LibraryEditSelection {
     List<LibraryLocalEditChange>? localChanges,
     Map<String, String?>? customFieldEdits,
     List<ItemImageEdit>? itemImageEdits,
-    LibraryEditSubmitAction? submitAction,
   }) {
     final nextKindItem = kindItem ?? this.kindItem;
     return LibraryEditSelection(
@@ -64,7 +56,6 @@ class LibraryEditSelection {
       localChanges: localChanges ?? this.localChanges,
       customFieldEdits: customFieldEdits ?? this.customFieldEdits,
       itemImageEdits: itemImageEdits ?? this.itemImageEdits,
-      submitAction: submitAction ?? this.submitAction,
     );
   }
 }
