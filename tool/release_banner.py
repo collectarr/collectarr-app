@@ -1,5 +1,6 @@
 """Render a Collectarr release banner: the release desk artwork filled with a release's real data."""
 import argparse
+import functools
 import json
 import re
 import subprocess
@@ -97,7 +98,7 @@ def plural(count, word):
 
 
 def git(*args):
-    result = subprocess.run(['git', *args], cwd=ROOT, capture_output=True, text=True, encoding='utf-8')
+    result = subprocess.run(['git', *args], check=False, cwd=ROOT, capture_output=True, text=True, encoding='utf-8')
     return result.stdout.strip() if result.returncode == 0 else ''
 
 
@@ -125,16 +126,32 @@ def editorial(tag):
     return json.loads(path.read_text(encoding='utf-8')).get(tag, {}) if path.exists() else {}
 
 
+@functools.cache
+def history(repo):
+    """When each issue opened and closed, and when each current star was given."""
+    pages = json.loads(gh('api', '--paginate', '--slurp', f'repos/{repo}/issues?state=all&per_page=100'))
+    issues = [(i['created_at'], i['closed_at']) for page in pages for i in page if 'pull_request' not in i]
+    pages = json.loads(gh('api', '--paginate', '--slurp', '-H', 'Accept: application/vnd.github.star+json', f'repos/{repo}/stargazers?per_page=100'))
+    return issues, [star['starred_at'] for page in pages for star in page]
+
+
+def stats_at(repo, moment):
+    """Open issues and stars as they were at `moment`, so any release can be rendered again later."""
+    issues, stars = history(repo)
+    open_issues = sum(1 for opened, closed in issues if opened <= moment and not (closed and closed <= moment))
+    # Stars withdrawn since cannot be recovered.
+    return open_issues, sum(1 for starred in stars if starred <= moment)
+
+
 def release_data(repo, tag, entry):
-    """Slot texts: editorial headline, summary and highlights, with commit counts and GitHub stats."""
+    """Slot texts: editorial headline, summary and highlights, with commit counts and GitHub stats at publication."""
     entry = {'summary': entry} if isinstance(entry, str) else entry
     groups = changes(tag)
     features, fixes = groups.get('feat', []), groups.get('fix', [])
     component = repo.removeprefix('collectarr/collectarr-').title()
     # Commits are listed newest first; the earliest features usually carry the release.
     highlights = entry.get('highlights') or [short(line) for line in features[::-1][:2]]
-    stars = json.loads(gh('api', f'repos/{repo}'))['stargazers_count']
-    issues = json.loads(gh('api', 'search/issues', '-X', 'GET', '-f', f'q=repo:{repo} is:issue is:open'))['total_count']
+    issues, stars = stats_at(repo, json.loads(gh('api', f'repos/{repo}/releases/tags/{tag}'))['published_at'])
     return {
         'version': tag,
         'headline': entry.get('headline') or f'Collectarr {component} {tag}',

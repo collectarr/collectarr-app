@@ -9,7 +9,7 @@
 
 ### Docs
 - Collectarr App is now licensed under AGPL-3.0-only, like Core and Sync.
-- Present releases with a banner showing each release's headline, highlights, feature and fix counts and project stats, plus editorial summaries, contributor credits and automatic change lists.
+- Present releases with a banner showing each release's headline, highlights, feature and fix counts and project stats at publication, plus editorial summaries, contributor credits and automatic change lists.
 
 ## 1.4.0 - 2026-10-26
 
