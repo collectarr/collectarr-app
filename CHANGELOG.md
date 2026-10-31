@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Docs
+- The architecture status records the planned move to Flutter's separate material_ui package and what it waits for.
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
