@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -67,6 +68,25 @@ void main() {
     final records = await const MetadataProposalStore().read();
     expect(records.single.title, 'Northern Lights #3');
     expect(records.single.source, 'Submit to Core');
+  });
+
+  test('a Core validation refusal names its first failed rule', () {
+    final error = DioException(
+      requestOptions: RequestOptions(path: '/api/v1/metadata/proposals'),
+      response: Response(
+        requestOptions: RequestOptions(path: '/api/v1/metadata/proposals'),
+        statusCode: 422,
+        data: const {
+          'detail': 'Validation error',
+          'errors': [
+            {'msg': 'Value error, catalog_item must include a non-empty title'},
+          ],
+        },
+      ),
+    );
+
+    expect(coreRefusalMessage(error),
+        'catalog_item must include a non-empty title');
   });
 }
 

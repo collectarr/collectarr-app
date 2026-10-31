@@ -58,8 +58,14 @@ Future<JsonMap> submitLibraryEntryToCore({
   );
 }
 
-/// Core's reason for refusing a request, or the error itself.
+/// Core's reason for refusing a request, or the error itself. A validation
+/// refusal names its first failed rule rather than only "Validation error".
 String coreRefusalMessage(Object error) => switch (error) {
+      DioException(
+        response: Response(data: {'errors': [{'msg': final String rule}, ...]})
+      )
+          when rule.trim().isNotEmpty =>
+        rule.replaceFirst('Value error, ', '').trim(),
       DioException(response: Response(data: {'detail': final String detail}))
           when detail.trim().isNotEmpty =>
         detail.trim(),
