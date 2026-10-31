@@ -28,6 +28,7 @@ class LibraryCoverImage extends ConsumerWidget {
     this.borderRadius = 4,
     this.fit = BoxFit.contain,
     this.showPlaceholder = true,
+    this.allowWebImageElement = true,
     super.key,
   });
 
@@ -42,6 +43,11 @@ class LibraryCoverImage extends ConsumerWidget {
   final double borderRadius;
   final BoxFit fit;
   final bool showPlaceholder;
+
+  /// Whether the web app may show a cover that blocks cross-origin reads as
+  /// an `<img>` element. Such elements sit outside Flutter's canvas, so a
+  /// cover drawn under translucent layers or text must not use one.
+  final bool allowWebImageElement;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -99,11 +105,16 @@ class LibraryCoverImage extends ConsumerWidget {
             borderRadius: BorderRadius.circular(borderRadius),
             child: Image.network(
               url,
+              // An `<img>` element keeps the address it was created with, so
+              // another cover needs a new element.
+              key: ValueKey(url),
               fit: fit,
               cacheWidth: null,
               gaplessPlayback: true,
               filterQuality: FilterQuality.high,
-              webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
+              webHtmlElementStrategy: allowWebImageElement
+                  ? WebHtmlElementStrategy.fallback
+                  : WebHtmlElementStrategy.never,
               loadingBuilder: (_, child, progress) {
                 if (progress == null) {
                   return child;

@@ -55,6 +55,8 @@ class InspectorBackdrop extends StatelessWidget {
           targetCacheWidth: _backdropCacheWidth,
           fit: BoxFit.cover,
           showPlaceholder: false,
+          // The dimmed backdrop and the details text are drawn over it.
+          allowWebImageElement: false,
         ),
         ColoredBox(
           color:
