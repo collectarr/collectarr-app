@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+- Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
+
 ### Fixes
 - The web app leaves zoom to the browser, so its zoom shortcuts and Ctrl + wheel change the browser's zoom instead of adding an app zoom that read 100 % on an already zoomed page.
 
