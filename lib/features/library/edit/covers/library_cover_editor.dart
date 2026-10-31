@@ -275,7 +275,8 @@ final class _LibraryCoverEditorState extends State<LibraryCoverEditor> {
           maximumSize: const Size(double.infinity, 30),
           padding: const EdgeInsets.symmetric(horizontal: 5),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: VisualDensity.compact,
+          // Standard density keeps the 30 px height; compact would shrink it.
+          visualDensity: VisualDensity.standard,
         ),
         // The reference's fixed-width glyph sits right against its label.
         child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -288,14 +289,25 @@ final class _LibraryCoverEditorState extends State<LibraryCoverEditor> {
     );
   }
 
-  /// A dark 1 px rule in the 5 px gap before a button.
-  Widget _toolbarDivider(BuildContext context) => Container(
-        width: 1,
-        height: 32,
-        margin: const EdgeInsets.only(right: 4),
-        color: appPalette(context).isDark
-            ? const Color(0xff010101)
-            : appPalette(context).divider,
+  /// A dark 1 px rule 3 px after a button and 4 px before the next. As in
+  /// the reference it runs 2 px below the buttons without taking layout
+  /// height, so the buttons stay centred on the bar.
+  Widget _toolbarDivider(BuildContext context) => SizedBox(
+        width: 8,
+        height: 30,
+        child: Stack(clipBehavior: Clip.none, children: [
+          Positioned(
+            left: 3,
+            top: 0,
+            width: 1,
+            height: 32,
+            child: ColoredBox(
+              color: appPalette(context).isDark
+                  ? const Color(0xff010101)
+                  : appPalette(context).divider,
+            ),
+          ),
+        ]),
       );
 
   Future<void> _upload() async {
