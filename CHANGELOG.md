@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Docs
+- The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
+
 ### Features
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 

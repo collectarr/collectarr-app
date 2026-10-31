@@ -35,8 +35,9 @@
 - The goal is an improved, fully FOSS CLZ. Match its workflows and density, but
   keep the stronger model listed under "Deliberate improvements" in
   `docs/clz-parity.md`.
-- Compare UI with the workflow in `docs/clz-parity.md` and record results there:
-  move fixed items, add or close open ones. Do not add dated audit, plan or QA
+- Compare UI with the workflow in `docs/clz-parity.md` and record only open
+  differences and items not yet compared there; delete an item once it
+  matches and never list finished work. Do not add dated audit, plan or QA
   files; update the living doc for the topic and delete superseded docs.
 - Scripts and tools must never delete, reset or seed the user's real database.
 - Keep scratch files, logs and captures out of the repository; use a temporary
