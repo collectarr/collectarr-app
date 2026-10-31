@@ -47,46 +47,65 @@ class LibraryFieldSpecLayout<TDraft> extends StatelessWidget {
       if (assignedIds.length != fieldsById.length) {
         throw StateError('Every section field must belong to a form column.');
       }
-      return LibraryResponsiveFieldLayout(
-        maxColumns: columns.length,
-        spacing: 14,
-        columnBreakpoints: const {2: 680},
-        children: [
-          for (final column in columns)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (final row in column.rows)
-                  if (row.any((id) => fieldsById[id]!.isVisible(draft)))
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: row.any(column.fieldFlex.containsKey)
-                          ? _WeightedRow(
-                              flexes: [
-                                for (final id in row)
-                                  if (fieldsById[id]!.isVisible(draft))
-                                    column.fieldFlex[id] ?? 1,
-                              ],
-                              children: [
-                                for (final id in row)
-                                  if (fieldsById[id]!.isVisible(draft))
-                                    buildField(fieldsById[id]!),
-                              ],
-                            )
-                          : LibraryResponsiveFieldLayout(
-                              maxColumns: row.length,
-                              spacing: 14,
-                              columnBreakpoints: const {2: 300},
-                              children: [
-                                for (final id in row)
-                                  if (fieldsById[id]!.isVisible(draft))
-                                    buildField(fieldsById[id]!),
-                              ],
-                            ),
-                    ),
-              ],
-            ),
-        ],
+      final columnWidgets = [
+        for (final column in columns)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final row in column.rows)
+                if (row.any((id) => fieldsById[id]!.isVisible(draft)))
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: row.any(column.fieldFlex.containsKey)
+                        ? _WeightedRow(
+                            flexes: [
+                              for (final id in row)
+                                if (fieldsById[id]!.isVisible(draft))
+                                  column.fieldFlex[id] ?? 1,
+                            ],
+                            children: [
+                              for (final id in row)
+                                if (fieldsById[id]!.isVisible(draft))
+                                  buildField(fieldsById[id]!),
+                            ],
+                          )
+                        : LibraryResponsiveFieldLayout(
+                            maxColumns: row.length,
+                            spacing: 14,
+                            columnBreakpoints: const {2: 300},
+                            children: [
+                              for (final id in row)
+                                if (fieldsById[id]!.isVisible(draft))
+                                  buildField(fieldsById[id]!),
+                            ],
+                          ),
+                  ),
+            ],
+          ),
+      ];
+      if (columns.every((column) => column.flex == 1)) {
+        return LibraryResponsiveFieldLayout(
+          maxColumns: columns.length,
+          spacing: 14,
+          columnBreakpoints: const {2: 680},
+          children: columnWidgets,
+        );
+      }
+      return LayoutBuilder(
+        builder: (context, constraints) => constraints.maxWidth < 680
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: columnWidgets,
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var i = 0; i < columns.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 14),
+                    Expanded(flex: columns[i].flex, child: columnWidgets[i]),
+                  ],
+                ],
+              ),
       );
     }
     final fullWidthIndices = <int>{};

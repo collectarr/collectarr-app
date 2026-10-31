@@ -46,9 +46,16 @@ final class LibraryFormSectionSpec<TDraft> {
 }
 
 final class LibraryFormColumnSpec {
-  const LibraryFormColumnSpec({required this.rows, this.fieldFlex = const {}});
+  const LibraryFormColumnSpec({
+    required this.rows,
+    this.fieldFlex = const {},
+    this.flex = 1,
+  });
 
   final List<List<String>> rows;
+
+  /// Relative width of this column beside the others.
+  final int flex;
 
   /// Relative widths of fields that share a row; unlisted fields weigh 1.
   final Map<String, int> fieldFlex;
