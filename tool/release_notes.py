@@ -4,9 +4,11 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
-BANNER = 'docs/assets/release-banner.png'
+import release_banner
+
 # GitHub rejects release descriptions over 125,000 characters.
 BODY_LIMIT = 120_000
 CLOSING = re.compile(r'\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)', re.IGNORECASE)
@@ -14,23 +16,6 @@ CLOSING = re.compile(r'\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)', re
 
 def gh(*args):
     return subprocess.check_output(['gh', *args], text=True, encoding='utf-8')
-
-
-def git(*args):
-    result = subprocess.run(['git', *args], text=True, encoding='utf-8', capture_output=True)
-    return result.stdout.strip() if result.returncode == 0 else ''
-
-
-def banner_commit(tag):
-    """Pin the banner to the commit a release shipped with, so later artwork changes keep old releases intact."""
-    shipped = git('log', '-1', '--format=%H', f'{tag}^{{commit}}', '--', BANNER)
-    if shipped:
-        return shipped
-    # Releases tagged before the banner existed use its first version.
-    added = git('log', '--diff-filter=A', '--format=%H', 'origin/main', '--', BANNER).splitlines()
-    if not added:
-        sys.exit(f'{BANNER} has no history; fetch the full repository with tags.')
-    return added[-1]
 
 
 def range_commits(repo, previous, tag):
@@ -93,6 +78,11 @@ def change_lines(repo, previous, tag):
             yield line
 
 
+def summary_text(entry):
+    """An editorial entry is the summary text, or an object with summary, headline and highlights."""
+    return entry if isinstance(entry, str) else entry['summary']
+
+
 def main():
     sys.stdout.reconfigure(encoding='utf-8')
     parser = argparse.ArgumentParser(description=__doc__)
@@ -101,6 +91,7 @@ def main():
     selection.add_argument('--tag', help='Format this release; the newest published release by default')
     selection.add_argument('--all', action='store_true', help='Backfill every published release')
     parser.add_argument('--write', action='store_true', help='Update published release descriptions')
+    parser.add_argument('--banner', action='store_true', help='Render and upload the release banner again')
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     summaries_path = root / 'docs' / 'release-summaries.json'
@@ -135,13 +126,23 @@ def main():
         credits = re.sub(r"## What's Changed\n.*?(?=\n## |\n\*\*Full Changelog|\Z)", '', generated, flags=re.DOTALL)
         credits = re.sub(r'\n{3,}', '\n\n', credits).strip()
         url = f'https://github.com/{args.repo}'
-        banner = f'https://raw.githubusercontent.com/{args.repo}/{banner_commit(tag)}/{BANNER}'
+        banner = f'{url}/releases/download/{tag}/release-banner.png'
+        if args.banner or 'release-banner.png' not in (a['name'] for a in release['assets']):
+            # Uploaded once per release, so its stats and artwork stay as they were at release time.
+            # GitHub names the asset after the file.
+            path = Path(tempfile.mkdtemp()) / 'release-banner.png'
+            release_banner.render(release_banner.release_data(args.repo, tag, summaries[tag]), path)
+            if args.write:
+                subprocess.run(['gh', 'release', 'upload', tag, str(path), '--clobber', '--repo', args.repo], stdout=subprocess.DEVNULL, check=True)
+            else:
+                banner = path.as_uri()
+                print(f'Rendered the {tag} banner to {path}', file=sys.stderr)
         component = args.repo.removeprefix('collectarr/collectarr-').title()
         header = f'''![Collectarr — Your collections. Connected.]({banner})
 
 ## Changes since last release:
 
-{summaries[tag]}
+{summary_text(summaries[tag])}
 
 ## Known Issues
 

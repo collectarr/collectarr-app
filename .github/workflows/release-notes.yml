@@ -32,14 +32,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: main
-          # Tags and history pin each release to the banner it shipped with.
+          # Tags let the banner count each release's commits.
           fetch-depth: 0
           # Pushing recorded summaries to the protected main branch needs RELEASE_TOKEN.
           token: ${{ secrets.RELEASE_TOKEN || github.token }}
       - uses: actions/setup-python@v7
         with:
           python-version: '3.14'
-      - name: Compose editorial summary and automatic GitHub changes
+      - run: pip install pillow==12.2.0
+      - name: Compose banner, editorial summary and automatic GitHub changes
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_REPOSITORY: ${{ github.repository }}
