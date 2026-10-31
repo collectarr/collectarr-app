@@ -9,6 +9,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- On the web, the details panel shows the selected item's cover instead of the first one viewed, and its background cover stays dimmed behind the text instead of covering it.
 - Checking items in Covers and Cards no longer reloads every cover in the view, so covers stop flickering.
 - The web app leaves zoom to the browser, so its zoom shortcuts and Ctrl + wheel change the browser's zoom instead of adding an app zoom that read 100 % on an already zoomed page.
 
