@@ -69,9 +69,8 @@ class LibraryImageLoadGate extends InheritedWidget {
 
   final LibraryImageLoads loads;
 
-  static LibraryImageLoads? maybeOf(BuildContext context) => context
-      .getInheritedWidgetOfExactType<LibraryImageLoadGate>()
-      ?.loads;
+  static LibraryImageLoads? maybeOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<LibraryImageLoadGate>()?.loads;
 
   @override
   bool updateShouldNotify(LibraryImageLoadGate oldWidget) =>
