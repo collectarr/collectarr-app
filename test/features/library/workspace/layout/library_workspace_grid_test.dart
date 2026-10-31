@@ -363,4 +363,56 @@ void main() {
     expect(selected, isEmpty);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('workspace grid keeps its tiles when selection turns on',
+      (tester) async {
+    final selectionEnabled = ValueNotifier<bool>(false);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SizedBox(
+          width: 320,
+          height: 220,
+          child: ValueListenableBuilder<bool>(
+            valueListenable: selectionEnabled,
+            builder: (context, enabled, _) => LibraryWorkspaceGrid<String>(
+              items: const ['Saga', 'Paper Girls'],
+              maxCrossAxisExtent: 120,
+              mainAxisExtent: 160,
+              selectionEnabled: enabled,
+              itemIdOf: (item) => item,
+              onSelectionChanged: (_) {},
+              emptyBuilder: (_) => const Text('No items'),
+              itemBuilder: (_, item) =>
+                  _StatefulTile(item, key: ValueKey(item)),
+            ),
+          ),
+        ),
+      ),
+    );
+    final tileState = tester.state(find.byKey(const ValueKey('Saga')));
+
+    // Rebuilding the tiles would reload every cover, which flickers on the web.
+    selectionEnabled.value = true;
+    await tester.pump();
+    expect(tester.state(find.byKey(const ValueKey('Saga'))), same(tileState));
+
+    selectionEnabled.value = false;
+    await tester.pump();
+    expect(tester.state(find.byKey(const ValueKey('Saga'))), same(tileState));
+  });
+}
+
+class _StatefulTile extends StatefulWidget {
+  const _StatefulTile(this.label, {super.key});
+
+  final String label;
+
+  @override
+  State<_StatefulTile> createState() => _StatefulTileState();
+}
+
+class _StatefulTileState extends State<_StatefulTile> {
+  @override
+  Widget build(BuildContext context) => Text(widget.label);
 }
