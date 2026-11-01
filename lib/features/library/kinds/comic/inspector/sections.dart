@@ -209,25 +209,48 @@ List<LibraryDetailField> _value(ComicLibraryEntry entry) {
   final personal = entry.personal;
   final details = personal.details;
   final formats = AppFormats.current;
-  String money(int cents) => formats.formatMoney(
-      cents, personal.currency ?? AppFormats.current.currency);
-  String? date(DateTime? value) =>
-      value == null ? null : formats.formatDate(value);
+  String? money(int? cents) => cents == null
+      ? null
+      : formats.formatMoney(
+          cents, personal.currency ?? AppFormats.current.currency);
+  String? text(String? value) => switch (value?.trim()) {
+        null || '' => null,
+        final value => value,
+      };
+  // "Mar 15, 2024 for $ 800.00 at Store", leaving out what is unknown.
+  String transaction(DateTime? date, int? cents, String? party) => [
+        if (date != null) formats.formatDate(date),
+        if (money(cents) case final price?) 'for $price',
+        if (text(party) case final party?) 'at $party',
+      ].join(' ');
+  final grade = text(personal.grade);
+  final value = money(personal.marketValueCents);
+  final company = text(details.gradingCompany);
   final key = [
     details.keySeverity?.trim() ?? '',
     details.keyReason?.trim() ?? '',
   ].where((value) => value.isNotEmpty).join(': ');
+  // The reference's rows and order.
   final rows = <(String, String?)>[
+    ('Cover Price', money(details.coverPriceCents)),
     (
-      'Cover Price',
-      details.coverPriceCents == null ? null : money(details.coverPriceCents!)
+      'Grade and value',
+      grade != null && value != null ? '$grade ($value)' : grade ?? value
     ),
     (
-      'My Value',
-      personal.marketValueCents == null
-          ? null
-          : money(personal.marketValueCents!)
+      'Grade status',
+      switch ((details.isSlabbed, company)) {
+        (true, null) => 'Slabbed',
+        (true, final company?) => 'Slabbed and graded by $company',
+        (false, final company?) => 'Raw and graded by $company',
+        (false, null) => null,
+      }
     ),
+    ('Slab Certification Number', details.certificationNumber),
+    ('Label Type', details.labelType),
+    ('Custom Label', details.customLabel),
+    ('Page Quality', details.pageQuality),
+    ('Grader Notes', details.graderNotes),
     ('Key', key),
     (
       'Key Categories',
@@ -237,26 +260,13 @@ List<LibraryDetailField> _value(ComicLibraryEntry entry) {
           .where((value) => value.isNotEmpty)
           .join(' | ')
     ),
-    ('Grade', personal.grade),
-    ('Raw / Slabbed', details.rawOrSlabbed),
-    ('Grading Company', details.gradingCompany),
-    ('Slab Cert. No.', details.certificationNumber),
-    ('Label Type', details.labelType),
-    ('Custom Label', details.customLabel),
-    ('Page Quality', details.pageQuality),
-    ('Grader Notes', details.graderNotes),
     ('Signed by', details.signedBy),
-    ('Purchase Date', date(personal.purchaseDate)),
     (
-      'Purchase Price',
-      personal.pricePaidCents == null ? null : money(personal.pricePaidCents!)
+      'Purchased',
+      transaction(personal.purchaseDate, personal.pricePaidCents,
+          personal.purchaseStore)
     ),
-    ('Purchase Store', personal.purchaseStore),
-    ('Sold Date', date(personal.soldAt)),
-    (
-      'Price Sold',
-      personal.sellPriceCents == null ? null : money(personal.sellPriceCents!)
-    ),
+    ('Sold', transaction(personal.soldAt, personal.sellPriceCents, null)),
   ];
   return [
     for (final (label, value) in rows)

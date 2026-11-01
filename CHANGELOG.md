@@ -15,6 +15,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- The Comics details panel lists Value as CLZ does: Grade and value, Grade status such as "Slabbed and graded by CGC", Slab Certification Number, and Purchased and Sold each on one line with their date, price and store.
 - A slabbed comic's cover sits in a slab as in CLZ in Cards, Covers, Shelves and the details panel: the label in its Label Type's colours with the grade box, a gold 10 and narrowed text grades, the grading company and a light blue case; a raw comic that names a grading company is no longer drawn slabbed.
 - Comic cards and the details panel show CLZ's grade and value ribbon: the grade, on the slab label's colours when slabbed, then My Value, with a dash when there is no grade.
 - Covers and Shelves put the tick box bottom left and the collection status bottom right, as in CLZ, and with a mouse the cards and covers show an unticked box only on hover; a missing cover's number moves to its top left.
