@@ -226,6 +226,8 @@ abstract final class ComicVocabularies {
     label: 'Country',
     valuesFrom:
         TypedVocabularyProjector<ComicCatalogItem>(_countryCatalogValues),
+    // Countries are filed by their name.
+    hasSortName: false,
   );
 
   static const language = VocabularyDefinition<String>(
@@ -233,6 +235,8 @@ abstract final class ComicVocabularies {
     label: 'Language',
     valuesFrom:
         TypedVocabularyProjector<ComicCatalogItem>(_languageCatalogValues),
+    // Languages are filed by their name.
+    hasSortName: false,
   );
 
   static const publicationAge = VocabularyDefinition<String>(
@@ -240,6 +244,8 @@ abstract final class ComicVocabularies {
     label: 'Age',
     valuesFrom:
         TypedVocabularyProjector<ComicCatalogItem>(_publicationAgeValues),
+    // Ages are filed by their name.
+    hasSortName: false,
   );
 
   static const gradingCompany = VocabularyDefinition<String>(

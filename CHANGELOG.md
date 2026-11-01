@@ -24,7 +24,7 @@
 - The Comics edit dialog's Main tab gives Series, Barcode, Format and Series Group the narrower left column and Issue No., Variant and Variant Description CLZ's widths, instead of two equal halves.
 - With local Gilroy, dialog and editor titles are no heavier than CLZ's: they use Gilroy ExtraBold instead of Black.
 - Settings, Loan Manager, Calendar, Admin, My Account, Activity and the Comics series page open with the page transition and Back returns with the reverse one, like the other pages, instead of switching at once.
-- Comics publishers, imprints and formats have no Sort Name any more and are listed and filed by their name.
+- Comics publishers, imprints, formats, countries, languages and ages have no Sort Name any more and are listed and filed by their name.
 - Music and Comics pick lists start empty and keep a value only while an entry uses it, as Games already did and as CLZ does, instead of listing built-in values nobody uses.
 - On the web, the details panel shows the selected item's cover instead of the first one viewed, and its background cover stays dimmed behind the text instead of covering it.
 - Checking items in Covers and Cards no longer reloads every cover in the view, so covers stop flickering.
