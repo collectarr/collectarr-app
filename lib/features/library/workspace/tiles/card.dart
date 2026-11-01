@@ -323,7 +323,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                     selected: selected)),
                           ])),
                         ])),
-                    if (_hovered || selectionMode || checked)
+                    if (_hovered ||
+                        checked ||
+                        libraryShowsUntickedBoxes(selectionMode))
                       Positioned(
                           left: 0,
                           bottom: 0,
@@ -510,7 +512,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                             ],
                           ),
                         ),
-                        if (_hovered || selectionMode || checked)
+                        if (_hovered ||
+                            checked ||
+                            libraryShowsUntickedBoxes(selectionMode))
                           Positioned(
                             left: 0,
                             top: 0,
