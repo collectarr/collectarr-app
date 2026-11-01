@@ -1,3 +1,7 @@
+import 'package:collectarr_app/core/routing/app_router.dart';
+import 'package:collectarr_app/features/library/detail/item_provider.dart';
+import 'package:collectarr_app/features/library/detail/page.dart';
+import 'package:collectarr_app/features/library/detail/location.dart';
 import 'native_collection_picker.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
@@ -105,6 +109,7 @@ part 'controllers/projection_controller.dart';
 part 'controllers/lifecycle_controller.dart';
 part 'controllers/toolbar_controller.dart';
 part 'controllers/shell_presenter.dart';
+part 'controllers/detail_presenter.dart';
 
 class GenericLibraryPage extends ConsumerStatefulWidget {
   const GenericLibraryPage({
@@ -114,6 +119,8 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
     required this.accent,
     required this.routeUri,
     this.switchLayoutSnapshot,
+    this.detailTarget,
+    this.detailHint,
   });
 
   final LibraryKindRegistration type;
@@ -121,6 +128,8 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
   final Color accent;
   final Uri routeUri;
   final LibraryLayoutSnapshot? switchLayoutSnapshot;
+  final LibraryTargetRef? detailTarget;
+  final LibraryDetailPageRequest? detailHint;
 
   @override
   ConsumerState<GenericLibraryPage> createState() => GenericLibraryPageState();
@@ -170,7 +179,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void initState() {
     super.initState();
-    if (appPresentationPlatform.isNativeMobile) {
+    if (appPresentationPlatform.isNativeMobile && widget.detailTarget == null) {
       _mobileSearch = ref.read(
           mobileLibrarySearchProvider(widget.type.kind.apiValue).notifier);
     }
@@ -423,6 +432,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.detailTarget case final target?) {
+      return _LibraryDetailPresenter.build(this, context, target);
+    }
     ref.watch(librarySavedSortFavoritesProvider(widget.type));
     return LibraryPageShellPresenter.build(this, context);
   }

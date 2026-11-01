@@ -110,9 +110,18 @@ owners. Native primary destinations reuse the drawer model, with a bar below
 840 dp and a rail above; collection selection sits above library content and
 shares activation with desktop tabs.
 
-Remaining structural work includes inline narrow inspector navigation, ephemeral
-`/detail` route requests, width-driven Settings section navigation and desktop
-editor chrome on native. UI comparisons and unverified workflows
+Native item activation opens a root detail route and keeps the Library route
+mounted below it; long-press selects without opening. `/detail` identifies the
+kind, entry/catalog namespace and ID. Shelf hydration and cached catalog
+projections reconstruct the shared inspector and existing command coordinators
+without `extra`. Optional live navigation hints retain filtered neighbor order
+and parent filter callbacks. Missing targets have a safe return to Library.
+The detail host reuses the Library command session rather than duplicating Edit
+and collection mutation pipelines. Android registers `collectarr://app/detail`;
+there is no iOS runner in this repository yet.
+
+Remaining structural work includes width-driven Settings section navigation and
+desktop editor chrome on native. UI comparisons and unverified workflows
 remain in [CLZ parity](../clz-parity.md). Refactor presentation boundaries before
 mechanical kind-file renames.
 

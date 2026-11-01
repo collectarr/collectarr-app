@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -62,7 +61,6 @@ class CompactWorkspaceListView<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accentData = LibraryAccentScope.of(context);
 
     if (items.isEmpty) {
       return emptyBuilder != null
@@ -93,7 +91,7 @@ class CompactWorkspaceListView<T> extends StatelessWidget {
 
         return Material(
           color: isSelected
-              ? accentData.accent
+              ? palette.utilityAction
                   .withValues(alpha: palette.isDark ? 0.22 : 0.12)
               : Colors.transparent,
           child: InkWell(
@@ -118,7 +116,7 @@ class CompactWorkspaceListView<T> extends StatelessWidget {
                     if (selectionMode) ...[
                       Checkbox(
                         value: isSelected,
-                        activeColor: accentData.accent,
+                        activeColor: palette.utilityAction,
                         visualDensity: VisualDensity.compact,
                         onChanged: (val) =>
                             onItemSelect?.call(item, val ?? false),
@@ -147,7 +145,7 @@ class CompactWorkspaceListView<T> extends StatelessWidget {
                                   ? FontWeight.w700
                                   : FontWeight.w600,
                               color: isSelected
-                                  ? accentData.accent
+                                  ? palette.utilityAction
                                   : palette.textPrimary,
                             ),
                           ),
@@ -221,7 +219,7 @@ class CompactWorkspaceGridView<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accentData = LibraryAccentScope.of(context);
+
     final windowClass = AppWindowClass.of(context);
 
     if (items.isEmpty) {
@@ -265,12 +263,12 @@ class CompactWorkspaceGridView<T> extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
             side: BorderSide(
-              color: isSelected ? accentData.accent : palette.divider,
+              color: isSelected ? palette.utilityAction : palette.divider,
               width: isSelected ? 2 : 1,
             ),
           ),
           color: isSelected
-              ? accentData.accent
+              ? palette.utilityAction
                   .withValues(alpha: palette.isDark ? 0.22 : 0.12)
               : palette.surface,
           child: InkWell(
@@ -320,7 +318,7 @@ class CompactWorkspaceGridView<T> extends StatelessWidget {
                                   ? FontWeight.w700
                                   : FontWeight.w600,
                               color: isSelected
-                                  ? accentData.accent
+                                  ? palette.utilityAction
                                   : palette.textPrimary,
                             ),
                           ),
@@ -352,7 +350,7 @@ class CompactWorkspaceGridView<T> extends StatelessWidget {
                       ),
                       child: Checkbox(
                         value: isSelected,
-                        activeColor: accentData.accent,
+                        activeColor: palette.utilityAction,
                         visualDensity: VisualDensity.compact,
                         shape: const CircleBorder(),
                         onChanged: (val) =>

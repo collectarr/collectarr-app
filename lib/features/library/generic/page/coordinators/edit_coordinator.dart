@@ -25,8 +25,13 @@ class LibraryPageEditCoordinator {
       return;
     }
     showLibraryDetailPage(
-      context: _s.context,
-      request: LibraryDetailPageRequest(
+        context: _s.context,
+        request: detailRequest(item, projection: projection));
+  }
+
+  LibraryDetailPageRequest detailRequest(LibraryProjectionItem item,
+          {LibraryProjection? projection}) =>
+      LibraryDetailPageRequest(
         type: _s.widget.type,
         item: item,
         projection: projection,
@@ -61,9 +66,7 @@ class LibraryPageEditCoordinator {
           _s._session.facets.selectedBucket = null;
           _s._session.facets.selectedLetter = null;
         }),
-      ),
-    );
-  }
+      );
 
   Future<void> showEditDialog(
     LibraryProjectionItem item,

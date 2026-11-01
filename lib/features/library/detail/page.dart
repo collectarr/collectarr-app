@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -26,7 +27,33 @@ class LibraryDetailPage extends ConsumerWidget {
       this.onFilterByValue,
       this.onDetailsLayoutChanged,
       this.searchQuery,
+      this.popAfterNavigationActions = true,
       this.searchTarget = LibrarySearchTarget.all});
+  factory LibraryDetailPage.fromRequest(
+    LibraryDetailPageRequest request, {
+    ValueChanged<String>? onFilterByValue,
+    ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged,
+    bool popAfterNavigationActions = true,
+  }) =>
+      LibraryDetailPage(
+          type: request.type,
+          item: request.item,
+          libraryEntrySummary: request.libraryEntrySummary,
+          libraryEntryDispatch: request.libraryEntryDispatch,
+          projection: request.projection,
+          accent: request.accent,
+          onAddEntry: request.onAddEntry,
+          onRemoveEntry: request.onRemoveEntry,
+          onAddWishlist: request.onAddWishlist,
+          onRemoveWishlist: request.onRemoveWishlist,
+          onEdit: request.onEdit,
+          searchQuery: request.searchQuery,
+          searchTarget: request.searchTarget,
+          onFilterByValue: onFilterByValue ?? request.onFilterByValue,
+          onDetailsLayoutChanged:
+              onDetailsLayoutChanged ?? request.onDetailsLayoutChanged,
+          popAfterNavigationActions: popAfterNavigationActions);
+  final bool popAfterNavigationActions;
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
   final LibraryEntrySummary? libraryEntrySummary;
@@ -64,13 +91,14 @@ class LibraryDetailPage extends ConsumerWidget {
             ? null
             : (value) {
                 onFilterByValue!(value);
-                Navigator.of(context).maybePop();
+                if (popAfterNavigationActions) Navigator.of(context).maybePop();
               },
         onDetailsLayoutChanged: onDetailsLayoutChanged == null
             ? null
             : (layout) {
                 onDetailsLayoutChanged!(layout);
-                if (layout != LibraryDetailsLayout.hidden) {
+                if (popAfterNavigationActions &&
+                    layout != LibraryDetailsLayout.hidden) {
                   Navigator.of(context).maybePop();
                 }
               },

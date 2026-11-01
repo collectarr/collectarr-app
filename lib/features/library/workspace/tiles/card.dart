@@ -27,6 +27,7 @@ class LibraryWorkspaceCard extends StatefulWidget {
     required this.selected,
     required this.onTap,
     this.onDoubleTap,
+    this.onLongPress,
     this.onSecondaryTapUp,
     this.selectedColor = kAppSelection,
     this.accentColor = kAppAccent,
@@ -46,6 +47,7 @@ class LibraryWorkspaceCard extends StatefulWidget {
   final bool selected;
   final VoidCallback onTap;
   final VoidCallback? onDoubleTap;
+  final VoidCallback? onLongPress;
   final GestureTapUpCallback? onSecondaryTapUp;
   final Color selectedColor;
   final Color accentColor;
@@ -157,6 +159,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                 child: InkWell(
                   onTap: onReleaseTap,
                   onDoubleTap: onDoubleTap,
+                  onLongPress: widget.onLongPress,
                   onSecondaryTapUp: onSecondaryTapUp,
                   mouseCursor: SystemMouseCursors.click,
                   // A hover highlight keeps the alpha it appeared with, so
@@ -404,6 +407,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                     highlightColor: Colors.transparent,
                     onTap: onReleaseTap,
                     onDoubleTap: onDoubleTap,
+                    onLongPress: widget.onLongPress,
                     onSecondaryTapUp: onSecondaryTapUp,
                     child: Stack(
                       children: [

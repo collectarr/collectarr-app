@@ -149,5 +149,5 @@ void main() {
         tester.getRect(duplicate).left, greaterThanOrEqualTo(anchor.left - 6));
     expect(find.text('Move to other collection'), findsOneWidget);
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

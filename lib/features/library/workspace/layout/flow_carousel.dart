@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -386,6 +387,14 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
 
   void _handleTap(LibraryProjectionItem item, int index) {
     _focusNode.requestFocus();
+    if (appPresentationPlatform.isNativeMobile) {
+      if (index != _currentIndex) {
+        _animateToPage(index);
+      } else {
+        widget.onOpenItem(item);
+      }
+      return;
+    }
     if (!widget.selectionEnabled) {
       widget.onActivateItem(item.target.id);
       if (index != _currentIndex) {

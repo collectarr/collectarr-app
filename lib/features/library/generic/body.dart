@@ -284,16 +284,17 @@ class LibraryBody extends StatelessWidget {
             counts: projection.buckets.map((bucket) => bucket.count),
           );
           final registration = type;
-          final detailsLayout = narrow
-              ? LibraryDetailsLayout.hidden
-              : resolveEffectiveLibraryDetailsLayout(
-                  preferredLayout: viewState.detailsLayout,
-                  compact: compact,
-                  hasSelection: selected != null,
-                  hideWhenSelectionEmpty:
-                      libraryViewProfileForKind(registration.kind)
-                          .hideDetailsWhenSelectionEmpty,
-                );
+          final detailsLayout =
+              (appPresentationPlatform.isNativeMobile || narrow)
+                  ? LibraryDetailsLayout.hidden
+                  : resolveEffectiveLibraryDetailsLayout(
+                      preferredLayout: viewState.detailsLayout,
+                      compact: compact,
+                      hasSelection: selected != null,
+                      hideWhenSelectionEmpty:
+                          libraryViewProfileForKind(registration.kind)
+                              .hideDetailsWhenSelectionEmpty,
+                    );
           final requestedDetailsWidth = clampLibraryPaneWidth(
             viewState.detailsWidth,
             minWidth: kLibraryDetailsMinWidth,
@@ -346,7 +347,11 @@ class LibraryBody extends StatelessWidget {
                 onApplySelection: onApplySelection,
                 onActivateItem: (id) {
                   onActivateItem(id);
-                  if (narrow && !selectionEnabled) showInspector(true);
+                  if (!appPresentationPlatform.isNativeMobile &&
+                      narrow &&
+                      !selectionEnabled) {
+                    showInspector(true);
+                  }
                 },
                 onToggleSelectionItem: onToggleSelectionItem,
                 onOpenItem: onOpenItem,
@@ -387,7 +392,8 @@ class LibraryBody extends StatelessWidget {
             db: db,
           );
 
-          if (narrow &&
+          if (!appPresentationPlatform.isNativeMobile &&
+              narrow &&
               showingInspector &&
               selected != null &&
               !selectionEnabled) {

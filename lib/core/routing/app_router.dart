@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/features/library/detail/route_page.dart';
 import 'package:collectarr_app/features/activity/global_activity_page.dart';
 import 'package:collectarr_app/features/account/my_account_page.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
@@ -7,14 +9,12 @@ import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/features/loans/loan_add_page.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/detail/page.dart';
 import 'package:collectarr_app/features/library/home/page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_routes.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/app/app_shell.dart';
 import 'package:collectarr_app/core/routing/app_route_page.dart';
-import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -62,6 +62,8 @@ extension AppPageNavigation on BuildContext {
 // Router provider
 // ---------------------------------------------------------------------------
 
+final appRootNavigatorKey = GlobalKey<NavigatorState>();
+
 final appPageNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -70,7 +72,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   // Pages opened with openPage show their own address in the browser.
   GoRouter.optionURLReflectsImperativeAPIs = true;
 
+  final detailRoute = GoRoute(
+      path: AppRoutes.detail,
+      pageBuilder: (context, state) => appRoutePage(
+          state,
+          RestorableLibraryDetailPage(
+              uri: state.uri,
+              hint: state.extra is LibraryDetailPageRequest
+                  ? state.extra as LibraryDetailPageRequest
+                  : null)));
   return GoRouter(
+    navigatorKey: appRootNavigatorKey,
+    restorationScopeId: 'collectarr-router',
     initialLocation: AppRoutes.libraries,
     refreshListenable: notifier,
     redirect: (context, state) {
@@ -92,6 +105,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      if (appPresentationPlatform.isNativeMobile) detailRoute,
       // Auth & restoring (outside shell).
       GoRoute(
         path: AppRoutes.auth,
@@ -157,49 +171,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   ),
                 )),
           ),
-          // Full-page item details retain the shared application chrome.
-          GoRoute(
-            path: AppRoutes.detail,
-            redirect: (context, state) {
-              return state.extra is LibraryDetailPageRequest
-                  ? null
-                  : AppRoutes.libraries;
-            },
-            pageBuilder: (context, state) {
-              final request = state.extra as LibraryDetailPageRequest?;
-              final Widget child;
-              if (request == null) {
-                child = LibraryHomePage(routeUri: state.uri);
-              } else {
-                child = _buildDefaultDetailPage(context, request);
-              }
-              return CustomTransitionPage<void>(
-                key: state.pageKey,
-                child: request == null
-                    ? child
-                    : Scaffold(
-                        appBar: AppPageHeader(
-                          title: Text(request.item.source.title),
-                          icon: request.type.identity.icon,
-                        ),
-                        body: child,
-                      ),
-                transitionDuration: const Duration(milliseconds: 150),
-                reverseTransitionDuration: const Duration(milliseconds: 120),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(
-                    opacity: CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutCubic,
-                      reverseCurve: Curves.easeInCubic,
-                    ),
-                    child: child,
-                  );
-                },
-              );
-            },
-          ),
+          if (!appPresentationPlatform.isNativeMobile) detailRoute,
           GoRoute(
             path: AppRoutes.activity,
             pageBuilder: (context, state) =>
@@ -211,29 +183,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
-
-Widget _buildDefaultDetailPage(
-  BuildContext context,
-  LibraryDetailPageRequest request,
-) {
-  return LibraryDetailPage(
-    type: request.type,
-    item: request.item,
-    libraryEntrySummary: request.libraryEntrySummary,
-    libraryEntryDispatch: request.libraryEntryDispatch,
-    projection: request.projection,
-    searchQuery: request.searchQuery,
-    searchTarget: request.searchTarget,
-    onDetailsLayoutChanged: request.onDetailsLayoutChanged,
-    accent: request.accent,
-    onAddEntry: request.onAddEntry,
-    onRemoveEntry: request.onRemoveEntry,
-    onAddWishlist: request.onAddWishlist,
-    onRemoveWishlist: request.onRemoveWishlist,
-    onEdit: request.onEdit,
-    onFilterByValue: request.onFilterByValue,
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Auth-state Ã¢â€ â€™ ChangeNotifier bridge for GoRouter.refreshListenable

@@ -24,6 +24,7 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
     required this.onTap,
     this.onSelectionToggleTap,
     this.onDoubleTap,
+    this.onLongPress,
     this.onEditTap,
     this.onSecondaryTapUp,
     this.coverSize = 128,
@@ -42,6 +43,7 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
   final VoidCallback onTap;
   final VoidCallback? onSelectionToggleTap;
   final VoidCallback? onDoubleTap;
+  final VoidCallback? onLongPress;
   final VoidCallback? onEditTap;
   final GestureTapUpCallback? onSecondaryTapUp;
   final double coverSize;
@@ -124,6 +126,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                           highlightColor: Colors.transparent,
                           onTap: onReleaseTap,
                           onDoubleTap: widget.onDoubleTap,
+                          onLongPress: widget.onLongPress,
                           onSecondaryTapUp: widget.onSecondaryTapUp,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
