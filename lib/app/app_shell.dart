@@ -99,6 +99,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       animationsEnabled: uiPreferences.animationsEnabled,
       child: Scaffold(
         appBar: AppShellAppBar(
+          showLibrarySearch: widget.routeUri.path == AppRoutes.libraries,
           type: activeType,
           accent: accent,
           types: libraryTypes,

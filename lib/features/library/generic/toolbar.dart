@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/alphabet_options.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
@@ -311,7 +312,7 @@ class LibraryToolbar extends StatelessWidget {
           dividerColor: kAppDivider,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              if (constraints.maxWidth < 600) {
+              if (isMobileApp || constraints.maxWidth < 600) {
                 return LibraryCompactToolbarContent(
                   type: type,
                   searchController: searchController,

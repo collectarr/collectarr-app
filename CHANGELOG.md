@@ -10,6 +10,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- On mobile, the top-right search button opens library search inside the header instead of keeping a search bar above the collection.
 - Native mobile Add opens a full-screen page with touch-sized search tabs, full-width series and issues, and an adaptive cover grid; desktop and web keep their dialogs.
 - An optional command-line helper downloads platform logos marked public domain on Wikimedia Commons into a folder for local import; it never changes collection data.
 - Load your own platform icons from Settings > Appearance; SVG and raster images replace the built-in platform marks throughout the app and stay separate from Comics Custom Label images.

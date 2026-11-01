@@ -80,7 +80,7 @@ void main() {
 
     expect(find.text('#'), findsOneWidget);
     expect(find.text('0-9'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('alphabet row selected button uses the shared utility blue', (
     tester,
@@ -119,7 +119,7 @@ void main() {
         appPalette(tester.element(find.text(selectedLetter))).utilityAction);
     final selectedText = tester.widget<Text>(find.text(selectedLetter));
     expect(selectedText.style?.color, Colors.white);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('alphabet buttons have a slightly wider touch target', (
     tester,
@@ -144,7 +144,7 @@ void main() {
     final aButton =
         find.ancestor(of: find.text('A'), matching: find.byType(InkWell)).first;
     expect(tester.getSize(aButton).width, greaterThanOrEqualTo(22));
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   test('alpha jump bar groups symbol and numeric titles separately', () {
     expect(
@@ -189,7 +189,7 @@ void main() {
     expect(find.text('Vertical Cards'), findsOneWidget);
     expect(find.text('Layout'), findsOneWidget);
     expect(find.text('Vertical Split'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('toolbar gates scan cover action by type capability',
       (tester) async {
@@ -247,7 +247,7 @@ void main() {
         type: const MusicRegistration(),
         viewState: musicKindViewProfile.defaults(),
         expected: true);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('toolbar gates reading queue action by type capability', (
     tester,
@@ -333,7 +333,7 @@ void main() {
       find.byType(LibraryDesktopSecondaryToolbar),
     );
     expect(booksSecondary.onReadingQueue, isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('toolbar gates reassign-index action by type capability', (
     tester,
@@ -418,7 +418,7 @@ void main() {
       find.byType(LibraryDesktopSecondaryToolbar),
     );
     expect(comicsSecondary.onReassignIndex, isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('toolbar can hide desktop secondary band explicitly',
       (tester) async {
@@ -462,7 +462,7 @@ void main() {
     );
 
     expect(find.byType(LibraryDesktopSecondaryToolbar), findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
       'toolbar forwards folder rail controls to desktop secondary toolbar',
@@ -524,7 +524,7 @@ void main() {
     expect(secondary.pinnedFolderPresets, pinnedPresets);
     expect(secondary.onGroupModeChanged, isNotNull);
     expect(secondary.onPinnedFolderPresetsChanged, isNotNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
       'compact selection band drops bottom border when chrome row follows',
@@ -594,7 +594,7 @@ void main() {
       find.byType(LibrarySelectionToolbarBand),
     );
     expect(selectionBand.showBottomBorder, isFalse);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('toolbar capability gates stay consistent across all kinds',
       (tester) async {
@@ -670,5 +670,5 @@ void main() {
         reason: 'reassign-index gate mismatch for ${type.kind.apiValue}',
       );
     }
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

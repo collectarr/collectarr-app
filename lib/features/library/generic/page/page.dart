@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/mobile_search_controller.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/alphabet_options.dart';
 import 'package:collectarr_app/features/library/config/presentation/alphabet_field.dart';
@@ -146,7 +147,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   // ---------------------------------------------------------------------------
   final LibraryPageSession _session = LibraryPageSession();
   final _searchStateKey = const Uuid().v4();
-  final _searchController = TextEditingController();
+  late final TextEditingController _searchController;
+  MobileLibrarySearchController? _mobileSearch;
   final _revealController = LibraryRevealController();
   WidgetRef get _pageRef => ref;
 
@@ -163,6 +165,12 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void initState() {
     super.initState();
+    if (isMobileApp) {
+      _mobileSearch = ref.read(
+          mobileLibrarySearchProvider(widget.type.kind.apiValue).notifier);
+    }
+    _searchController =
+        _mobileSearch?.textController ?? TextEditingController();
     final coordinatorContext = _createCoordinatorContext();
     _dialogCoordinator = LibraryPageDialogCoordinator(coordinatorContext);
     _editCoordinator = LibraryPageEditCoordinator(this);
@@ -214,6 +222,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       onDraftChanged: () => _mutateState(() {}),
     );
     _LibraryPageLifecycleControllerOps.initState(this);
+    _mobileSearch?.attach(_searchStateKey,
+        onChanged: _onSearchInputChanged,
+        onSubmitted: _onSearchChanged,
+        onClear: _clearSearch);
   }
 
   @override
@@ -224,6 +236,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @override
   void dispose() {
+    _mobileSearch?.detach(_searchStateKey);
     _LibraryPageLifecycleControllerOps.dispose(this);
     _revealController.dispose();
     super.dispose();
