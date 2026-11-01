@@ -212,7 +212,8 @@ abstract final class LibraryPageShellPresenter {
         onToggleSelectionItem: state._toggleSelectionItem,
         onOpenItem: (item) {
           state._activateItem(item.target.id);
-          if (viewState.detailsLayout == LibraryDetailsLayout.hidden) {
+          if (appPresentationPlatform.isNativeMobile ||
+              viewState.detailsLayout == LibraryDetailsLayout.hidden) {
             state._editCoordinator.showDetailPage(item, projection: projection);
           }
         },

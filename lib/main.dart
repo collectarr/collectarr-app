@@ -128,6 +128,7 @@ class CollectarrApp extends ConsumerWidget {
       listenable: LocalFontController.instance,
       builder: (context, _) => MaterialApp.router(
         title: 'Collectarr',
+        restorationScopeId: 'collectarr',
         debugShowCheckedModeBanner: false,
         theme: buildAppShellTheme(palette: palette),
         builder: (context, child) =>

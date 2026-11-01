@@ -20,6 +20,7 @@ class LibraryShelfView<T> extends ConsumerStatefulWidget {
     required this.onTap,
     required this.onToggleSelectionItem,
     required this.onDoubleTap,
+    this.onLongPress,
     this.onSecondaryTapUp,
     required this.accent,
     this.shelfHeight = 200.0,
@@ -39,6 +40,7 @@ class LibraryShelfView<T> extends ConsumerStatefulWidget {
   final void Function(T item) onTap;
   final void Function(T item) onToggleSelectionItem;
   final void Function(T item) onDoubleTap;
+  final void Function(T item)? onLongPress;
   final void Function(T item, TapUpDetails details)? onSecondaryTapUp;
   final Color accent;
   final double shelfHeight;
@@ -144,6 +146,7 @@ class _LibraryShelfViewState<T> extends ConsumerState<LibraryShelfView<T>>
               onTap: widget.onTap,
               onToggleSelectionItem: widget.onToggleSelectionItem,
               onDoubleTap: widget.onDoubleTap,
+              onLongPress: widget.onLongPress,
               onSecondaryTapUp: widget.onSecondaryTapUp,
               accent: widget.accent,
               shelfHeight: effectiveShelfHeight,
@@ -175,6 +178,7 @@ class _ShelfRow<T> extends StatelessWidget {
     required this.onTap,
     required this.onToggleSelectionItem,
     required this.onDoubleTap,
+    this.onLongPress,
     this.onSecondaryTapUp,
     required this.accent,
     required this.shelfHeight,
@@ -192,6 +196,7 @@ class _ShelfRow<T> extends StatelessWidget {
   final void Function(T item) onTap;
   final void Function(T item) onToggleSelectionItem;
   final void Function(T item) onDoubleTap;
+  final void Function(T item)? onLongPress;
   final void Function(T item, TapUpDetails details)? onSecondaryTapUp;
   final Color accent;
   final double shelfHeight;
@@ -297,6 +302,7 @@ class _ShelfRow<T> extends StatelessWidget {
             onTap: () => onTap(item),
             onSelectionToggleTap: () => onToggleSelectionItem(item),
             onDoubleTap: () => onDoubleTap(item),
+            onLongPress: onLongPress == null ? null : () => onLongPress!(item),
             onSecondaryTapUp: onSecondaryTapUp != null
                 ? (d) => onSecondaryTapUp!(item, d)
                 : null,

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/routing/app_router.dart';
+import 'location.dart';
 import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
@@ -10,7 +10,8 @@ import 'package:go_router/go_router.dart';
 Future<void> openWorkspaceEntryDetails(
     BuildContext context, LibraryWorkspaceContext source) async {
   final type = libraryKindRegistrationForKind(source.mediaKind);
-  await context.push<void>(AppRoutes.detail,
+  await context.push<void>(
+      LibraryDetailLocation(source.target).toUri().toString(),
       extra: LibraryDetailPageRequest(
           type: type,
           item: LibraryProjectionItem.fromShelf(source, type),
