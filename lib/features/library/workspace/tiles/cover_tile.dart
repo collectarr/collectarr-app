@@ -12,6 +12,7 @@ import 'package:collectarr_app/ui/app_press_tap.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/item_status_badge.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryCoverTile extends ConsumerStatefulWidget {
@@ -75,7 +76,8 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final resolvedSelectionColor = widget.selectionColor == kAppHighlight
         ? palette.utilityAction
         : widget.selectionColor;
-    final showSelectionToggle = widget.selectionMode || selected || _hovered;
+    final showSelectionToggle =
+        selected || _hovered || libraryShowsUntickedBoxes(widget.selectionMode);
     final showEditButton = _hovered && widget.onEditTap != null;
     const selectedBorderWidth = 5.0;
     final targetCacheWidth = _targetCacheWidth(context);
@@ -156,10 +158,10 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                               onTap: widget.onEditTap!,
                             ),
                           ),
-                        // The status sits bottom left on the cover and the
-                        // selection check top left, as on Vertical Cards.
+                        // As in the reference, the tick box sits bottom left
+                        // and the status bottom right.
                         Positioned(
-                          left: 5,
+                          right: 5,
                           bottom: badgeInset,
                           child: LibraryItemStatusBadge(
                             item: item,
@@ -170,7 +172,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                         if (showSelectionToggle)
                           Positioned(
                             left: 5,
-                            top: badgeInset,
+                            bottom: badgeInset,
                             child: LibraryTileSelectionToggleButton(
                               onTap: widget.onSelectionToggleTap,
                               child: LibraryTileSelectionToggle(
@@ -204,6 +206,12 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     return ((rawWidth / 64).ceil() * 64).toInt();
   }
 }
+
+/// Whether unticked boxes show on every tile in selection mode. With a mouse
+/// they appear on hover only, as in the reference; touch has no hover, so
+/// they stay visible there.
+bool libraryShowsUntickedBoxes(bool selectionMode) =>
+    selectionMode && !RendererBinding.instance.mouseTracker.mouseIsConnected;
 
 class LibraryTileSelectionToggle extends StatelessWidget {
   const LibraryTileSelectionToggle({

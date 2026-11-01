@@ -1020,7 +1020,8 @@ class _CoverFrame extends StatelessWidget {
 }
 
 /// The dark tile standing in for a missing cover: the active kind's icon,
-/// plus the item number where the kind has one.
+/// plus the item number top left, clear of the tick box and status marks
+/// along the bottom.
 class LibraryGeneratedCover extends ConsumerWidget {
   const LibraryGeneratedCover({
     this.itemNumber,
@@ -1055,8 +1056,8 @@ class LibraryGeneratedCover extends ConsumerWidget {
             ),
             if (itemNumber != null)
               Positioned(
-                right: 6,
-                bottom: 6,
+                left: 6,
+                top: 6,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: palette.divider,
