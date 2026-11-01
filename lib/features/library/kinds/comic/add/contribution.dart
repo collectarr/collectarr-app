@@ -29,7 +29,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
     soldAt: draft.personal.soldAt,
     sellPriceCents: draft.personal.sellPriceCents,
     condition: common.condition,
-    grade: kindValue ?? draft.personal.grade ?? draft.grade,
+    grade: kindValue ?? draft.personal.grade,
     purchaseDate: common.purchaseDate,
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,

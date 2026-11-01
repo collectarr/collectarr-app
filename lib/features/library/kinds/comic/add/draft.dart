@@ -10,18 +10,13 @@ import 'package:flutter/foundation.dart';
 /// Comics owns the personal state collected by Value, Personal and the footer.
 @immutable
 final class ComicAddDraft extends LibraryAddKindDraft {
-  const ComicAddDraft({
-    this.grade = 'Ungraded',
-    this.personal = const ComicPersonalData(),
-  });
+  const ComicAddDraft({this.personal = const ComicPersonalData()});
 
-  final String? grade;
+  /// Grade starts empty, as in the reference.
   final ComicPersonalData personal;
 
-  ComicAddDraft copyWith({ComicPersonalData? personal}) => ComicAddDraft(
-        grade: grade,
-        personal: personal ?? this.personal,
-      );
+  ComicAddDraft copyWith({ComicPersonalData? personal}) =>
+      ComicAddDraft(personal: personal ?? this.personal);
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.comic;

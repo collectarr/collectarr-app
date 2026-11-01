@@ -13,7 +13,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
     _ => null,
   },
   defaultCondition: 'Near Mint',
-  defaultCollectionValue: 'Ungraded',
+  defaultCollectionValue: '',
   editChrome: const LibraryEditChromeConfig(
     titleUsesItemTitle: true,
     showsIssueBadge: true,

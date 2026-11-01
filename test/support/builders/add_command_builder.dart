@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/kinds/boardgame/add/draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/draft.dart';
@@ -70,7 +71,8 @@ LibraryAddKindDraft? _addDraftWithGrade(CatalogMediaKind kind, String? grade) {
   return switch (kind) {
     CatalogMediaKind.boardgame => BoardgameAddDraft(grade: grade),
     CatalogMediaKind.book => BookAddDraft(grade: grade),
-    CatalogMediaKind.comic => ComicAddDraft(grade: grade),
+    CatalogMediaKind.comic =>
+      ComicAddDraft(personal: ComicPersonalData(grade: grade)),
     CatalogMediaKind.game => GameAddDraft(grade: grade),
     CatalogMediaKind.gameHardware => GameHardwareAddDraft(grade: grade),
     CatalogMediaKind.gameToy => GameToyAddDraft(grade: grade),
