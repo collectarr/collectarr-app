@@ -81,7 +81,7 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('cancelling an untouched editor closes without a prompt',
       (tester) async {
@@ -134,7 +134,7 @@ void main() {
     expect(
         find.byType(LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>),
         findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('music links tab exposes editable external links',
       (tester) async {
@@ -234,7 +234,7 @@ void main() {
       ),
       findsOneWidget,
     );
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
       'music edit dialog handles Vinyl format and custom fields cleanly',
@@ -318,5 +318,5 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('Format'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

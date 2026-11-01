@@ -120,8 +120,13 @@ The detail host reuses the Library command session rather than duplicating Edit
 and collection mutation pipelines. Android registers `collectarr://app/detail`;
 there is no iOS runner in this repository yet.
 
-Remaining structural work includes width-driven Settings section navigation and
-desktop editor chrome on native. UI comparisons and unverified workflows
+`LibraryMobileEditorScaffold` supplies native chrome inside the same schema,
+text-controller store, form, tab navigation scope and dirty guard as desktop.
+Native Add Manually provides its validated Add action in the header. Native
+editor tabs retain their subtrees and scroll state while keyboard insets shrink
+only the content area; Save remains in the header. Desktop keeps dialog chrome.
+
+Remaining structural work includes width-driven Settings section navigation. UI comparisons and unverified workflows
 remain in [CLZ parity](../clz-parity.md). Refactor presentation boundaries before
 mechanical kind-file renames.
 

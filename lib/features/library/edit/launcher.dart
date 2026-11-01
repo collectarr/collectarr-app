@@ -94,7 +94,8 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
           .push<LibraryEditSelection>(
         MaterialPageRoute<LibraryEditSelection>(
           fullscreenDialog: true,
-          builder: (ctx) => Scaffold(body: SafeArea(child: widgetBuilder(ctx))),
+          builder: (ctx) => Scaffold(
+              resizeToAvoidBottomInset: false, body: widgetBuilder(ctx)),
         ),
       );
     } else {

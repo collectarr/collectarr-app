@@ -16,9 +16,11 @@ class LibraryAddManualActionBar extends StatelessWidget {
     required this.request,
     required this.formKey,
     this.validateAdditionalFields,
+    this.nativeHeader = false,
   });
 
   final LibraryAddManualPaneRequest request;
+  final bool nativeHeader;
   final GlobalKey<FormState> formKey;
   final String? Function(BuildContext context)? validateAdditionalFields;
 
@@ -34,6 +36,38 @@ class LibraryAddManualActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    if (nativeHeader) {
+      final wishList = libraryCollectionStatusFromValue(
+              request.commonDraft?.collectionStatus) ==
+          LibraryCollectionStatusScope.wishList;
+      return Row(mainAxisSize: MainAxisSize.min, children: [
+        TextButton(
+          key: const Key('library.mobile-manual.add'),
+          style: TextButton.styleFrom(
+              foregroundColor: Colors.white, minimumSize: const Size(64, 48)),
+          onPressed: _validatedAction(
+              context, wishList ? request.onAddWishlist : request.onAddEntry),
+          child: Text(request.isAdding ? 'Adding?' : 'Add'),
+        ),
+        PopupMenuButton<VoidCallback>(
+          tooltip: 'More Add actions',
+          enabled: !request.isAdding,
+          onSelected: (action) => _validatedAction(context, action)?.call(),
+          itemBuilder: (_) => [
+            PopupMenuItem(
+                value: request.onPropose, child: const Text('Propose to Core')),
+            if (collectarrKindAdds[request.kind]?.chrome.supportsTracking ??
+                false)
+              PopupMenuItem(
+                  value: request.onAddTrack,
+                  child: Text(LibraryAddCopy.addToTargetLabel(
+                      count: 1,
+                      type: request.type,
+                      target: LibraryAddTarget.track))),
+          ],
+        ),
+      ]);
+    }
     final actions = LayoutBuilder(
       builder: (context, constraints) {
         final buttons = [

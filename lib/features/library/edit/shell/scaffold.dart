@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'mobile_scaffold.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/app_panel_title.dart';
 import 'package:collectarr_app/ui/app_motion.dart';
@@ -38,6 +40,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     this.body,
     this.footerContent,
     this.footerOverride,
+    this.mobilePrimaryAction,
     this.isBusy = false,
     required this.onClose,
     required this.onCancel,
@@ -76,6 +79,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   /// Replaces the standard Edit actions while retaining the shared dialog
   /// footer slot and layout.
   final Widget? footerOverride;
+  final Widget? mobilePrimaryAction;
   final bool isBusy;
   final VoidCallback onClose;
   final VoidCallback onCancel;
@@ -302,93 +306,148 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
               kind: '',
               accent: widget.accent,
               animationsEnabled: true,
-              child: LibraryDialogScaffold(
-                header: _LibraryEditTitleBar(
-                  icon: widget.icon,
-                  title: widget.title,
-                  badges: widget.badges,
-                  onClose: widget.onClose,
-                  chromeVariant: widget.chromeVariant,
-                  accent: widget.accent,
-                  isBusy: widget.isBusy,
-                ),
-                footer: widget.footerOverride ??
-                    _LibraryEditFooter(
-                      onCancel: widget.onCancel,
+              child: appPresentationPlatform.isNativeMobile
+                  ? LibraryMobileEditorScaffold(
+                      title: widget.title,
+                      accent: widget.accent,
+                      isBusy: widget.isBusy,
+                      onBack: widget.onCancel,
                       onSave: widget.onSave,
-                      onProposeToCore: widget.onProposeToCore,
+                      onPropose: widget.onProposeToCore,
                       onPrevious: widget.onPrevious,
                       onNext: widget.onNext,
-                      chromeVariant: widget.chromeVariant,
-                      isBusy: widget.isBusy,
-                      // The reference draws no rule between the status row
-                      // and the buttons.
-                      ruled: widget.footerContent == null,
-                    ),
-                maxWidth: maxWidth,
-                minHeight: 0,
-                maxHeight: maxHeight,
-                alignment: widget.alignment,
-                insetPadding: widget.insetPadding,
-                density: LibraryDensity.comfortable,
-                expandBody: false,
-                body: ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: maxHeight),
-                  child: Form(
-                    key: widget.formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (hasTabStrip)
-                          LibraryEditTabStripFrame(
-                            child: Visibility.maintain(
+                      primaryAction: widget.mobilePrimaryAction,
+                      tabs: hasTabStrip
+                          ? Visibility.maintain(
                               visible: _tabOrderReady,
-                              child: LibraryEditReorderableTabStrip(
-                                tabController: widget.tabController!,
-                                tabs: orderedTabs,
-                                accent: widget.accent,
-                                allowReorder:
-                                    widget.allowTabReorder && !widget.isBusy,
-                                enabled: !widget.isBusy,
-                                onReorderItem: _onReorderItem,
-                              ),
-                            ),
+                              child: IgnorePointer(
+                                  ignoring: widget.isBusy,
+                                  child: TabBar(
+                                    controller: widget.tabController!,
+                                    isScrollable: true,
+                                    tabAlignment: TabAlignment.start,
+                                    labelColor: p.utilityAction,
+                                    indicatorColor: p.utilityAction,
+                                    tabs: [
+                                      for (final tab in orderedTabs)
+                                        Tab(height: 48, child: tab)
+                                    ],
+                                  )),
+                            )
+                          : null,
+                      footer: widget.footerContent,
+                      body: Form(
+                          key: widget.formKey,
+                          child: hasTabStrip
+                              ? AnimatedBuilder(
+                                  animation: widget.tabController!,
+                                  builder: (context, _) => IndexedStack(
+                                        index: widget.tabController!.index
+                                            .clamp(0, orderedViews.length - 1),
+                                        children: [
+                                          for (var i = 0;
+                                              i < orderedViews.length;
+                                              i++)
+                                            TickerMode(
+                                                enabled: i ==
+                                                    widget.tabController!.index,
+                                                child: KeyedSubtree(
+                                                    key: PageStorageKey(
+                                                        'mobile-editor-${tabOrder[i]}'),
+                                                    child: orderedViews[i]))
+                                        ],
+                                      ))
+                              : widget.body!),
+                    )
+                  : LibraryDialogScaffold(
+                      header: _LibraryEditTitleBar(
+                        icon: widget.icon,
+                        title: widget.title,
+                        badges: widget.badges,
+                        onClose: widget.onClose,
+                        chromeVariant: widget.chromeVariant,
+                        accent: widget.accent,
+                        isBusy: widget.isBusy,
+                      ),
+                      footer: widget.footerOverride ??
+                          _LibraryEditFooter(
+                            onCancel: widget.onCancel,
+                            onSave: widget.onSave,
+                            onProposeToCore: widget.onProposeToCore,
+                            onPrevious: widget.onPrevious,
+                            onNext: widget.onNext,
+                            chromeVariant: widget.chromeVariant,
+                            isBusy: widget.isBusy,
+                            // The reference draws no rule between the status row
+                            // and the buttons.
+                            ruled: widget.footerContent == null,
                           ),
-                        Flexible(
-                          fit: FlexFit.loose,
-                          child: Material(
-                            color: p.surfaceBright,
-                            child: hasTabStrip
-                                ? AnimatedBuilder(
-                                    animation: widget.tabController!,
-                                    builder: (context, _) {
-                                      final rawIndex =
-                                          widget.tabController!.index;
-                                      final currentIndex = rawIndex < 0
-                                          ? 0
-                                          : rawIndex >= orderedViews.length
-                                              ? orderedViews.length - 1
-                                              : rawIndex;
-                                      return orderedViews[currentIndex];
-                                    },
-                                  )
-                                : widget.body!,
+                      maxWidth: maxWidth,
+                      minHeight: 0,
+                      maxHeight: maxHeight,
+                      alignment: widget.alignment,
+                      insetPadding: widget.insetPadding,
+                      density: LibraryDensity.comfortable,
+                      expandBody: false,
+                      body: ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: maxHeight),
+                        child: Form(
+                          key: widget.formKey,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (hasTabStrip)
+                                LibraryEditTabStripFrame(
+                                  child: Visibility.maintain(
+                                    visible: _tabOrderReady,
+                                    child: LibraryEditReorderableTabStrip(
+                                      tabController: widget.tabController!,
+                                      tabs: orderedTabs,
+                                      accent: widget.accent,
+                                      allowReorder: widget.allowTabReorder &&
+                                          !widget.isBusy,
+                                      enabled: !widget.isBusy,
+                                      onReorderItem: _onReorderItem,
+                                    ),
+                                  ),
+                                ),
+                              Flexible(
+                                fit: FlexFit.loose,
+                                child: Material(
+                                  color: p.surfaceBright,
+                                  child: hasTabStrip
+                                      ? AnimatedBuilder(
+                                          animation: widget.tabController!,
+                                          builder: (context, _) {
+                                            final rawIndex =
+                                                widget.tabController!.index;
+                                            final currentIndex = rawIndex < 0
+                                                ? 0
+                                                : rawIndex >=
+                                                        orderedViews.length
+                                                    ? orderedViews.length - 1
+                                                    : rawIndex;
+                                            return orderedViews[currentIndex];
+                                          },
+                                        )
+                                      : widget.body!,
+                                ),
+                              ),
+                              if (widget.footerContent != null)
+                                Container(
+                                  width: double.infinity,
+                                  // Aligned with the tab content, as the
+                                  // reference's Collection Status row is.
+                                  padding:
+                                      const EdgeInsets.fromLTRB(15, 5, 15, 8),
+                                  color: p.panel,
+                                  child: widget.footerContent!,
+                                ),
+                            ],
                           ),
                         ),
-                        if (widget.footerContent != null)
-                          Container(
-                            width: double.infinity,
-                            // Aligned with the tab content, as the
-                            // reference's Collection Status row is.
-                            padding: const EdgeInsets.fromLTRB(15, 5, 15, 8),
-                            color: p.panel,
-                            child: widget.footerContent!,
-                          ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ),
             ),
           ),
         ),

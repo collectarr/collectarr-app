@@ -255,6 +255,12 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
       onCancel: () => Navigator.of(context).pop(),
       onSave: request.onAddEntry,
       footerContent: widget.footerContent,
+      mobilePrimaryAction: LibraryAddManualActionBar(
+        request: request,
+        formKey: _formKey,
+        validateAdditionalFields: _validateAllTabs,
+        nativeHeader: true,
+      ),
       footerOverride: LibraryAddManualActionBar(
         request: request,
         formKey: _formKey,
