@@ -67,7 +67,8 @@ void main() {
 
       await tester.tap(find.descendant(
           of: find.byType(ComicAddManualPane),
-          matching: find.byTooltip('Close')));
+          matching: find.byTooltip(
+              appPresentationPlatform.isNativeMobile ? 'Back' : 'Close')));
       await pumpUntilSettled(tester);
       expect(find.byType(ComicAddManualPane), findsNothing);
       expect(find.byType(LibraryAddDialog), findsNothing);

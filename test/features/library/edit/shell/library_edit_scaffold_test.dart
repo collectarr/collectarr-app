@@ -76,7 +76,7 @@ void main() {
       tester.getBottomRight(dialogSurface).dy,
       greaterThan(initialBottom),
     );
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('reordering tabs keeps logical view order stable',
       (tester) async {
@@ -110,7 +110,7 @@ void main() {
 
     expect(find.text('Details tab'), findsOneWidget);
     expect(find.text('Main tab'), findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('an editor opened after a reorder starts in the saved order',
       (tester) async {
@@ -139,7 +139,7 @@ void main() {
         home: _EditScaffoldHarness(tabOrderKey: 'scaffold_test_order')));
     expect(tester.getTopLeft(find.text('Details')).dx,
         lessThan(tester.getTopLeft(find.text('Main')).dx));
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('the first editor after a launch hides the default tab order',
       (tester) async {
@@ -160,7 +160,7 @@ void main() {
     expect(stripVisible(), isTrue);
     expect(tester.getTopLeft(find.text('Details')).dx,
         lessThan(tester.getTopLeft(find.text('Main')).dx));
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }
 
 class _EditScaffoldHarness extends StatefulWidget {

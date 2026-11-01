@@ -743,7 +743,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           MaterialPageRoute<void>(
             fullscreenDialog: true,
             builder: (routeContext) => Scaffold(
-              body: SafeArea(child: buildManualDialog(routeContext)),
+              resizeToAvoidBottomInset: false,
+              body: buildManualDialog(routeContext),
             ),
           ),
         );
