@@ -17,6 +17,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Clicking a title suggestion in Add opens it, instead of only closing the list.
 - Comics leave Grade empty when added, as in CLZ, instead of "Ungraded", and upgrading clears the "Ungraded" grade that earlier comics were given.
 - The Comics details panel lists Value as CLZ does: Grade and value, Grade status such as "Slabbed and graded by CGC", Slab Certification Number, and Purchased and Sold each on one line with their date, price and store.
 - A slabbed comic's cover sits in a slab as in CLZ in Cards, Covers, Shelves and the details panel: the label in its Label Type's colours with the grade box, a gold 10 and narrowed text grades, the grading company and a light blue case; a raw comic that names a grading company is no longer drawn slabbed.
