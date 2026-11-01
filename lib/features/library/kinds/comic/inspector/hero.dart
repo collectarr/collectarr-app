@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_e
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector/publisher_logo.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
@@ -249,17 +250,25 @@ class _ComicFacts extends ConsumerWidget {
         ),
       if (release.isNotEmpty) dated('Release', release),
       if (cover.isNotEmpty) dated('Cover', cover),
+      // As in the reference, a publisher or imprint with a known logo shows
+      // the logo instead of its name.
       for (final name in [publisher, imprint])
         if (name.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 10),
-            child: _FilterText(
-                value: name,
-                onFilter: onFilter,
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: kAppBoldFontWeight,
-                    color: palette.textPrimary)),
+            child: switch (comicPublisherLogoAsset(name)) {
+              final asset? => _FilterTap(
+                  value: name,
+                  onFilter: onFilter,
+                  child: ComicPublisherLogo(asset: asset, name: name)),
+              null => _FilterText(
+                  value: name,
+                  onFilter: onFilter,
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: kAppBoldFontWeight,
+                      color: palette.textPrimary)),
+            },
           ),
       if (barcode.isNotEmpty)
         Padding(
@@ -347,13 +356,30 @@ class _FilterText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final onTap = onFilter == null || filterValue == null
-        ? null
-        : () => onFilter!(filterValue!);
+    return _FilterTap(
+        value: filterValue,
+        onFilter: onFilter,
+        child: Text(value, style: style));
+  }
+}
+
+/// Filters the library by [value] when [child] is clicked.
+class _FilterTap extends StatelessWidget {
+  const _FilterTap(
+      {required this.value, required this.onFilter, required this.child});
+
+  final String? value;
+  final ValueChanged<String>? onFilter;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final onTap =
+        onFilter == null || value == null ? null : () => onFilter!(value!);
     return MouseRegion(
       cursor:
           onTap == null ? SystemMouseCursors.basic : SystemMouseCursors.click,
-      child: GestureDetector(onTap: onTap, child: Text(value, style: style)),
+      child: GestureDetector(onTap: onTap, child: child),
     );
   }
 }
