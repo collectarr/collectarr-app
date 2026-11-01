@@ -522,7 +522,8 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showChromeRow = onCollectionStatusScopeChanged != null;
+    final showChromeRow =
+        !isMobileApp && onCollectionStatusScopeChanged != null;
     final narrow = MediaQuery.sizeOf(context).width < 900;
     final showAlphabetRow = onLetterSelected != null && !narrow;
     final leftControls = Row(
@@ -948,7 +949,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showChromeRow = onCollectionStatusScopeChanged != null;
+    final showChromeRow =
+        !isMobileApp && onCollectionStatusScopeChanged != null;
     final showAlphabetRow =
         availableLetters.isNotEmpty && onLetterSelected != null;
 

@@ -1,6 +1,8 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:flutter/material.dart';
 
 const double shellAppBarHeight = 38;
+double get appShellBarHeight => isMobileApp ? 56 : shellAppBarHeight;
 const double secondaryHeaderHeight = 38;
 const double drawerHeaderHeight = secondaryHeaderHeight;
 

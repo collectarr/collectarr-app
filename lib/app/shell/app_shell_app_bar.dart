@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'app_library_search_bar.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/mobile_search_controller.dart';
@@ -36,7 +37,7 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
   final VoidCallback onOpenNavigation;
   final bool showLibrarySearch;
   @override
-  Size get preferredSize => const Size.fromHeight(shellAppBarHeight);
+  Size get preferredSize => Size.fromHeight(appShellBarHeight);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final toolbarIconStyle = appChromeIconButtonStyle(context);
@@ -52,11 +53,12 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
           kind: type.kind.apiValue,
           pluralLabel: type.identity.pluralLabel,
           accent: accent,
-          animationsEnabled: animationsEnabled);
+          animationsEnabled: animationsEnabled,
+          searchBackground: type.identity.mobileChromeDark);
     }
 
     return AppBar(
-      toolbarHeight: shellAppBarHeight,
+      toolbarHeight: appShellBarHeight,
       automaticallyImplyLeading: false,
       leadingWidth: 44,
       leading: Builder(
@@ -81,13 +83,15 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      iconTheme: const IconThemeData(color: Colors.white, size: 19),
+      iconTheme:
+          IconThemeData(color: Colors.white, size: isMobileApp ? 24 : 19),
       flexibleSpace: Stack(fit: StackFit.expand, children: [
         LibraryAccentChrome(
           accent: accent,
           animationDuration: animationsEnabled ? kAppAnimNormal : Duration.zero,
         ),
-        Center(child: _AccountLibraryLabel(kindTitle: type.identity.title)),
+        if (!isMobileApp)
+          Center(child: _AccountLibraryLabel(kindTitle: type.identity.title)),
       ]),
       actions: [
         MediaLibraryKindMenu(
@@ -95,12 +99,32 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
           registry: defaultLibraryKindRegistry,
           onSelected: onKindSelected,
         ),
-        SyncActionButton(style: toolbarIconStyle),
+        if (!isMobileApp) SyncActionButton(style: toolbarIconStyle),
         AppUpdateHeaderButton(style: toolbarIconStyle, kind: type.kind),
-        AppAccountButton(
-            style: toolbarIconStyle,
-            kind: type.kind.apiValue,
-            animationsEnabled: animationsEnabled),
+        if (!isMobileApp)
+          AppAccountButton(
+              style: toolbarIconStyle,
+              kind: type.kind.apiValue,
+              animationsEnabled: animationsEnabled),
+        if (nativeSearch) ...[
+          IconButton(
+              tooltip: 'Select ${type.identity.pluralLabel.toLowerCase()}',
+              style: toolbarIconStyle,
+              onPressed: search!.toggleSelection,
+              icon: const Icon(Icons.library_add_check_outlined)),
+          PopupMenuButton<LibraryCollectionStatusScope>(
+              tooltip: 'Collection status',
+              style: toolbarIconStyle,
+              icon: const Icon(Icons.filter_list, color: Colors.white),
+              onSelected: search.setStatus,
+              itemBuilder: (_) => [
+                    for (final status in LibraryCollectionStatusScope.values)
+                      CheckedPopupMenuItem(
+                          value: status,
+                          checked: status == search.status,
+                          child: Text(status.label))
+                  ]),
+        ],
         if (nativeSearch)
           IconButton(
               key: const Key('app.open-search'),

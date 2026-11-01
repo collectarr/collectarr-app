@@ -90,7 +90,7 @@ void main() {
       expect(collections!.any((c) => c.name == 'Keep after logout'), isTrue);
       expect(tester.takeException(), isNull);
       await disposeTestApp(tester);
-    });
+    }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
   }
 
   testWidgets(
@@ -109,7 +109,9 @@ void main() {
     // Exercise the real logout path before opening the signed-out drawer.
     await container.read(authControllerProvider.notifier).logout();
     await pumpUntilSettled(tester);
-    await tester.tap(find.byKey(const Key('app.account')));
+    await tester.tap(find.byKey(const Key('app.open-navigation')));
+    await pumpUntilSettled(tester);
+    await tester.tap(find.byKey(const Key('drawer.account')));
     await pumpUntilSettled(tester);
     expect(find.text('Logout'), findsNothing);
     expect(find.text('Sign in'), findsOneWidget);
@@ -118,7 +120,9 @@ void main() {
     expect(find.byType(MyAccountPage), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Sync & activity'), 250);
     expect(tester.takeException(), isNull);
-    await tester.tap(find.byKey(const Key('app.account')));
+    await tester.tap(find.byKey(const Key('app.open-navigation')));
+    await pumpUntilSettled(tester);
+    await tester.tap(find.byKey(const Key('drawer.account')));
     await pumpUntilSettled(tester);
     await tester.tap(find.text('Sign in').last);
     await pumpUntilSettled(tester);

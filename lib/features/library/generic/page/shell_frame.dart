@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/keyboard/shortcuts.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,7 @@ class LibraryPageShellFrame extends StatelessWidget {
       onPreviousItem: onPreviousItem,
       onEscape: onEscape,
       child: Scaffold(
+        resizeToAvoidBottomInset: !isMobileApp,
         backgroundColor: appPalette(context).canvas,
         bottomNavigationBar: SafeArea(top: false, child: bottomBar),
         floatingActionButton: showAddButton
