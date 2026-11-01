@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
 import 'package:collectarr_app/app/app_shell.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
@@ -47,7 +46,7 @@ void main() {
     expect(tester.testTextInput.isVisible, isTrue);
     expect(find.byTooltip('Clear search'), findsNothing);
     expect(find.byTooltip('Scan barcode'), findsOneWidget);
-    final tabs = find.byType(LibraryCollectionTab).first;
+    final tabs = find.byKey(const Key('app.mobile-navigation'));
     final tabsY = tester.getTopLeft(tabs).dy;
     tester.view.viewInsets = const FakeViewPadding(bottom: 300);
     await pumpUntilSettled(tester);

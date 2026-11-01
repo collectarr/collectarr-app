@@ -11,6 +11,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Native mobile uses Library, Activity, Calendar and More navigation, with a tablet rail and a touch-sized collection picker above the library.
 - Native mobile libraries use one touch-sized folder/view/sort/tools row and one item count; all six views, cover size, spacing and details options share one panel.
 - Native mobile Comics uses its Android teal palette and shared blue utility actions; desktop and web retain their existing colours.
 - On mobile, the top-right search button opens library search inside the header, with a barcode camera on the left and a clear button only when text is entered. Selection and status controls live in the header; account access moves to the sidebar.

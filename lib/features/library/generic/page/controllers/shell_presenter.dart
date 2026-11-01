@@ -78,13 +78,22 @@ abstract final class LibraryPageShellPresenter {
     );
     return LibraryPageShellFrame(
       topBar: state.widget.topBar,
-      toolbar: toolbar,
+      toolbar: appPresentationPlatform.isNativeMobile
+          ? Column(mainAxisSize: MainAxisSize.min, children: [
+              NativeCollectionPicker(
+                  mediaKind: state.widget.type.kind.apiValue,
+                  onSelected: (_) => state._onCollectionSelected()),
+              toolbar
+            ])
+          : toolbar,
       content: content,
-      bottomBar: LibraryCollectionTabBar(
-        mediaKind: state.widget.type.kind.apiValue,
-        accent: state.widget.accent,
-        onCollectionSelected: (_) => state._onCollectionSelected(),
-      ),
+      bottomBar: appPresentationPlatform.isNativeMobile
+          ? null
+          : LibraryCollectionTabBar(
+              mediaKind: state.widget.type.kind.apiValue,
+              accent: state.widget.accent,
+              onCollectionSelected: (_) => state._onCollectionSelected(),
+            ),
       accent: state.widget.accent,
       showAddButton: appPresentationPlatform.isNativeMobile,
       isScanningCover: state._isScanningCover,

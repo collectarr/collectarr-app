@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 enum DrawerAction {
+  library,
+  activity,
   addFromCore,
   addManually,
   managePickLists,
@@ -68,6 +70,7 @@ class AppDrawerDestination {
       required this.behavior,
       this.routePath,
       this.adminOnly = false,
+      this.nativeOnly = false,
       this.widgetKey})
       : assert(icon != null || svgAsset != null);
   final DrawerAction action;
@@ -78,6 +81,7 @@ class AppDrawerDestination {
   final DrawerActionBehavior behavior;
   final String? routePath;
   final bool adminOnly;
+  final bool nativeOnly;
   final String? widgetKey;
   bool get routesAway =>
       behavior == DrawerActionBehavior.routedPage ||
@@ -86,7 +90,29 @@ class AppDrawerDestination {
   bool get resetsToLibrary => behavior == DrawerActionBehavior.overlayPage;
 }
 
+const appMobilePrimaryActions = [
+  DrawerAction.library,
+  DrawerAction.activity,
+  DrawerAction.calendar
+];
+
 const appDrawerDestinations = <AppDrawerDestination>[
+  AppDrawerDestination(
+      action: DrawerAction.library,
+      label: 'Library',
+      icon: Icons.local_library_outlined,
+      section: AppDrawerSection.collection,
+      behavior: DrawerActionBehavior.routedPage,
+      routePath: AppRoutes.libraries,
+      nativeOnly: true),
+  AppDrawerDestination(
+      action: DrawerAction.activity,
+      label: 'Activity',
+      icon: Icons.history,
+      section: AppDrawerSection.tools,
+      behavior: DrawerActionBehavior.routedPage,
+      routePath: AppRoutes.activity,
+      nativeOnly: true),
   AppDrawerDestination(
       action: DrawerAction.addFromCore,
       label: 'Add from Core',

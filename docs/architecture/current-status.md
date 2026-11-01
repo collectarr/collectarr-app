@@ -105,10 +105,14 @@ one draft/session/validation/commit pipeline. Platform-specific chrome must
 consume these owners rather than duplicate them. Shared hosts render typed
 kind contributions and do not choose fields from hard-coded kind names.
 
-Remaining structural work includes the mixed shell renderer, inline narrow
-inspector navigation, ephemeral `/detail` route requests, width-driven Settings
-section navigation, desktop editor chrome on native, and
-the draggable native collection strip. UI comparisons and unverified workflows
+MobileShell and DesktopShell consume the same auth, kind, action and theme
+owners. Native primary destinations reuse the drawer model, with a bar below
+840 dp and a rail above; collection selection sits above library content and
+shares activation with desktop tabs.
+
+Remaining structural work includes inline narrow inspector navigation, ephemeral
+`/detail` route requests, width-driven Settings section navigation and desktop
+editor chrome on native. UI comparisons and unverified workflows
 remain in [CLZ parity](../clz-parity.md). Refactor presentation boundaries before
 mechanical kind-file renames.
 

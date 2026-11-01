@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import '../../support/app/provider_overrides.dart';
 import '../../support/app/test_app_harness.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -172,7 +173,7 @@ void main() {
           tester
               .widget<AppNavigationDrawer>(find.byType(AppNavigationDrawer))
               .selectedAction,
-          null);
+          appPresentationPlatform.isNativeMobile ? DrawerAction.library : null);
       expect(find.text('My Shelf'), findsNothing);
       await tester.tap(find.text('Add Albums from Core'));
       await pumpUntilSettled(tester);
