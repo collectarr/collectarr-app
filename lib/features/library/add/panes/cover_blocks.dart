@@ -71,15 +71,16 @@ class LibraryAddCoverBlocks extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       const extent = blockWidth + 2 * blockMargin;
       final columns = ((constraints.maxWidth - 2 * blockMargin) /
-              (isMobileApp ? 125 : extent))
+              (appPresentationPlatform.isNativeMobile ? 125 : extent))
           .floor()
           .clamp(
             1,
             1 << 20,
           );
       // Fixed-width blocks flow from the left, as in the reference.
-      final spare =
-          isMobileApp ? blockMargin : constraints.maxWidth - columns * extent;
+      final spare = appPresentationPlatform.isNativeMobile
+          ? blockMargin
+          : constraints.maxWidth - columns * extent;
       final mobileCoverHeight =
           ((constraints.maxWidth - 2 * blockMargin) / columns -
                   4 * blockMargin) *
@@ -91,7 +92,7 @@ class LibraryAddCoverBlocks extends StatelessWidget {
             spare.clamp(blockMargin, double.infinity), blockMargin),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: columns,
-          mainAxisExtent: isMobileApp
+          mainAxisExtent: appPresentationPlatform.isNativeMobile
               ? mobileCoverHeight + 75
               : blockHeight + 2 * blockMargin,
         ),
@@ -101,7 +102,9 @@ class LibraryAddCoverBlocks extends StatelessWidget {
           child: index == results.length
               ? _NotFoundBlock(onTap: onAddManually!)
               : tile(index,
-                  coverHeight: isMobileApp ? mobileCoverHeight : null),
+                  coverHeight: appPresentationPlatform.isNativeMobile
+                      ? mobileCoverHeight
+                      : null),
         ),
       );
     });
@@ -165,11 +168,11 @@ class _GridBlock extends StatelessWidget {
                       onPressed: args.onToggleCheck,
                     ),
                     const SizedBox(width: 5),
-                    if (isMobileApp)
+                    if (appPresentationPlatform.isNativeMobile)
                       Expanded(child: _BadgeBox(block.badge))
                     else
                       _BadgeBox(block.badge),
-                    if (!isMobileApp) const Spacer(),
+                    if (!appPresentationPlatform.isNativeMobile) const Spacer(),
                     Text(
                       [
                         if (block.month case final month?) month,

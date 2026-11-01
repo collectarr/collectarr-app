@@ -312,7 +312,8 @@ class LibraryToolbar extends StatelessWidget {
           dividerColor: kAppDivider,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              if (isMobileApp || constraints.maxWidth < 600) {
+              if (appPresentationPlatform.isNativeMobile ||
+                  constraints.maxWidth < 600) {
                 return LibraryCompactToolbarContent(
                   type: type,
                   searchController: searchController,

@@ -31,7 +31,7 @@ class LibraryToolbarPrimaryActions extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (!isMobileApp) ...[
+        if (!appPresentationPlatform.isNativeMobile) ...[
           SizedBox(
             height: 30,
             child: FilledButton(

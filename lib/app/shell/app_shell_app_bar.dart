@@ -41,7 +41,8 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final toolbarIconStyle = appChromeIconButtonStyle(context);
-    final nativeSearch = isMobileApp && showLibrarySearch;
+    final nativeSearch =
+        appPresentationPlatform.isNativeMobile && showLibrarySearch;
     final searchOpen = nativeSearch &&
         ref.watch(mobileLibrarySearchProvider(type.kind.apiValue));
     final search = nativeSearch
@@ -83,14 +84,15 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      iconTheme:
-          IconThemeData(color: Colors.white, size: isMobileApp ? 24 : 19),
+      iconTheme: IconThemeData(
+          color: Colors.white,
+          size: appPresentationPlatform.isNativeMobile ? 24 : 19),
       flexibleSpace: Stack(fit: StackFit.expand, children: [
         LibraryAccentChrome(
           accent: accent,
           animationDuration: animationsEnabled ? kAppAnimNormal : Duration.zero,
         ),
-        if (!isMobileApp)
+        if (!appPresentationPlatform.isNativeMobile)
           Center(child: _AccountLibraryLabel(kindTitle: type.identity.title)),
       ]),
       actions: [
@@ -99,9 +101,10 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
           registry: defaultLibraryKindRegistry,
           onSelected: onKindSelected,
         ),
-        if (!isMobileApp) SyncActionButton(style: toolbarIconStyle),
+        if (!appPresentationPlatform.isNativeMobile)
+          SyncActionButton(style: toolbarIconStyle),
         AppUpdateHeaderButton(style: toolbarIconStyle, kind: type.kind),
-        if (!isMobileApp)
+        if (!appPresentationPlatform.isNativeMobile)
           AppAccountButton(
               style: toolbarIconStyle,
               kind: type.kind.apiValue,

@@ -44,7 +44,7 @@ class LibraryPageShellFrame extends StatelessWidget {
       onPreviousItem: onPreviousItem,
       onEscape: onEscape,
       child: Scaffold(
-        resizeToAvoidBottomInset: !isMobileApp,
+        resizeToAvoidBottomInset: !appPresentationPlatform.isNativeMobile,
         backgroundColor: appPalette(context).canvas,
         bottomNavigationBar: SafeArea(top: false, child: bottomBar),
         floatingActionButton: showAddButton

@@ -91,7 +91,9 @@ Kind modules retain the operations and their domain rules.
 
 ## Native presentation boundaries
 
-Native Android/iOS and window size are separate presentation inputs. Mobile
+`AppPresentationPlatform` is the single native Android/iOS versus desktop/web
+policy. `AppWindowClass` describes width and height only; it does not infer a
+platform or prescribe navigation from width. Mobile
 header search, sidebar account access, the Add method chooser, full-screen
 Core search and consolidated library controls consume the existing library
 and Add state owners. Web and desktop retain their dense presentation at

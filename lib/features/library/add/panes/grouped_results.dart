@@ -217,7 +217,7 @@ class _LibraryAddGroupedResultsState extends State<LibraryAddGroupedResults> {
     );
     return ColoredBox(
       color: libraryAddSearchBackground(context),
-      child: isMobileApp
+      child: appPresentationPlatform.isNativeMobile
           ? selected == null
               ? groupList
               : Column(children: [

@@ -67,8 +67,9 @@ class AppThemePalette extends ThemeExtension<AppThemePalette> {
   Color get sidebar => const Color(0xFF383838);
 
   /// Utility actions and settings use a shared accent, independent of kind.
-  Color get utilityAction =>
-      isMobileApp ? const Color(0xFF2AA4CC) : const Color(0xFF5EB1DE);
+  Color get utilityAction => appPresentationPlatform.isNativeMobile
+      ? const Color(0xFF2AA4CC)
+      : const Color(0xFF5EB1DE);
 
   /// Item titles in lists, cards and the details header.
   Color get itemTitle => isDark ? utilityAction : const Color(0xFF0082A6);

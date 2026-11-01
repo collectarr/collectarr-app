@@ -9,10 +9,6 @@ void main() {
       expect(window.widthClass, WindowWidthClass.compact);
       expect(window.heightClass, WindowHeightClass.medium);
       expect(window.isCompact, isTrue);
-      expect(window.isMobile, isTrue);
-      expect(window.showBottomNav, isTrue);
-      expect(window.showNavRail, isFalse);
-      expect(window.showNavDrawer, isFalse);
     });
 
     test('resolves medium width for small tablets/foldables (600 - 839 dp)',
@@ -21,11 +17,7 @@ void main() {
       expect(window.widthClass, WindowWidthClass.medium);
       expect(window.heightClass, WindowHeightClass.expanded);
       expect(window.isMedium, isTrue);
-      expect(window.isTablet, isTrue);
       expect(window.isCompactOrMedium, isTrue);
-      expect(window.showBottomNav, isFalse);
-      expect(window.showNavRail, isTrue);
-      expect(window.showNavDrawer, isFalse);
     });
 
     test('resolves expanded width for laptops/large tablets (840 - 1199 dp)',
@@ -34,10 +26,6 @@ void main() {
       expect(window.widthClass, WindowWidthClass.expanded);
       expect(window.heightClass, WindowHeightClass.medium);
       expect(window.isExpanded, isTrue);
-      expect(window.isDesktop, isTrue);
-      expect(window.showBottomNav, isFalse);
-      expect(window.showNavRail, isTrue);
-      expect(window.showNavDrawer, isFalse);
     });
 
     test('resolves large width for standard desktops (1200 - 1599 dp)', () {
@@ -45,9 +33,6 @@ void main() {
       expect(window.widthClass, WindowWidthClass.large);
       expect(window.heightClass, WindowHeightClass.expanded);
       expect(window.isLarge, isTrue);
-      expect(window.isDesktop, isTrue);
-      expect(window.showNavDrawer, isTrue);
-      expect(window.showBottomNav, isFalse);
     });
 
     test('resolves extraLarge width for ultra-wide monitors (>= 1600 dp)', () {
@@ -56,7 +41,6 @@ void main() {
       expect(window.heightClass, WindowHeightClass.expanded);
       expect(window.isExtraLarge, isTrue);
       expect(window.isLargeOrGreater, isTrue);
-      expect(window.showNavDrawer, isTrue);
     });
 
     test('resolves compact height for landscape phones (< 480 dp)', () {
@@ -66,6 +50,21 @@ void main() {
     });
   });
 
+  for (final (width, expected) in [
+    (599.0, WindowWidthClass.compact),
+    (600.0, WindowWidthClass.medium),
+    (839.0, WindowWidthClass.medium),
+    (840.0, WindowWidthClass.expanded),
+    (1199.0, WindowWidthClass.expanded),
+    (1200.0, WindowWidthClass.large),
+    (1599.0, WindowWidthClass.large),
+    (1600.0, WindowWidthClass.extraLarge),
+  ]) {
+    test('width boundary $width resolves $expected', () {
+      expect(AppWindowClass.fromSize(Size(width, 800)).widthClass, expected);
+    });
+  }
+
   testWidgets('of responds to viewport changes', (tester) async {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -74,10 +73,9 @@ void main() {
       tester.view.physicalSize = Size(width, 800);
       await tester.pumpWidget(MaterialApp(
           home: Builder(
-              builder: (context) => Text(AppWindowClass.of(context).isCompact
-                  ? 'Mobile'
-                  : 'Desktop'))));
-      expect(find.text(width == 400 ? 'Mobile' : 'Desktop'), findsOneWidget);
+              builder: (context) => Text(
+                  AppWindowClass.of(context).isCompact ? 'Compact' : 'Wide'))));
+      expect(find.text(width == 400 ? 'Compact' : 'Wide'), findsOneWidget);
     }
   });
 }

@@ -59,11 +59,11 @@ Widget buildComicAddPreviewPane(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                width: isMobileApp ? 124 : 210,
+                width: appPresentationPlatform.isNativeMobile ? 124 : 210,
                 child: Center(
                   child: SizedBox(
-                    width: isMobileApp ? 104 : 137,
-                    height: isMobileApp ? 160 : 210,
+                    width: appPresentationPlatform.isNativeMobile ? 104 : 137,
+                    height: appPresentationPlatform.isNativeMobile ? 160 : 210,
                     child: LibraryInteractiveCover(
                       title: item.summary.primaryLabel,
                       imageUrl: fields.coverImageUrl,
