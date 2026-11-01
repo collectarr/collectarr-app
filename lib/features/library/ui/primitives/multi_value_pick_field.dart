@@ -222,6 +222,8 @@ class _LibraryMultiValuePickFieldState<TValue>
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
                         disabledBorder: InputBorder.none),
+                    // Enter adds the value and keeps typing in the field.
+                    onEditingComplete: () {},
                     onSubmitted: (_) {
                       submit();
                       _commitEntry();

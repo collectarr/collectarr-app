@@ -68,4 +68,16 @@ void main() {
             .bottomBorder,
         isTrue);
   });
+
+  testWidgets('Enter adds the typed value and keeps typing in the field',
+      (tester) async {
+    await _pumpGenres(tester, {});
+    await tester.tap(find.byType(TextField));
+    await tester.enterText(find.byType(TextField), 'Mystery');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(find.text('Mystery'), findsOneWidget);
+    final editable = tester.state<EditableTextState>(find.byType(EditableText));
+    expect(editable.widget.focusNode.hasFocus, isTrue);
+  });
 }
