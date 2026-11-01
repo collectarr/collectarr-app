@@ -3,7 +3,8 @@
 ## Unreleased
 
 ### Docs
-- The CLZ parity guide lists the Comics Value tab fields that still differ from CLZ: Signed by, Key Category and Custom Label.
+- The CLZ parity guide lists the Comics Value tab fields that still differ from CLZ, Signed by and Key Category, and why Custom Label images come only from the user's own files.
+- The CLZ parity guide lists how Add Games' suggestions and platform filter still differ from CLZ.
 - The architecture status records the planned move to Flutter's separate material_ui package and what it waits for.
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
