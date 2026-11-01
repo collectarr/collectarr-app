@@ -1,32 +1,28 @@
 # Current Architecture Status
 
-Last reviewed: 2026-10-23. Run `dart run tool/run_tests.dart` and the
+Last reviewed: 2026-11-02. Run `dart run tool/run_tests.dart` and the
 architecture checker for current findings; this page records structure, not
 test counts. UI differences from the reference app live in
 [CLZ parity](../clz-parity.md).
 
 ## Release scope
 
-`library_release_scope.dart` activates Music and the Games family (Game, Game
-Hardware, Game Toy) through the UI, capability registrations and pinned Core
-contracts. Published release v1.2.0 contains Music only; the Games family ships
-with the next release. Hardware and Toys are separate kinds with their own
-collections, models and Core catalogs, and store their entries in the shared
-library entry table; Game also has its own tracking table. The other kinds
-(Comic, Book, Board Game, Movie) remain isolated source
-modules under `lib/features/library/kinds/`; a fresh database creates shared,
-Music and Game tables only. Releasing another kind means its own tables where
-needed, an explicit migration and its own verification.
+`library_release_scope.dart` activates Music, Comics and the Games family
+(Game, Game Hardware, Game Toy), matching published v1.5.0. Hardware and Toys
+are separate kinds with their own collections, models and Core catalogs.
+Book, Board Game and Movie remain dormant source modules. Active kinds share
+library entry storage and contribute their own catalog, tracking and field
+contracts; a new kind must be explicitly registered and verified.
 
 ## Local data
 
-The Drift root is `lib/core/db/local_database.dart`, schema version 3, stored
-as `collectarr-library.sqlite` in application support. Version 1 is the first
-baseline: previous database and backup formats are not read. Version 2 added
-borrower contact details; version 3 added the Game tables and dropped the
-removed TV and Manga tables. From here on every
-schema change is an explicit, ordered, data-preserving migration; a database is
-never reset to make an upgrade work. See [local persistence](local-persistence.md).
+The Drift root is `lib/core/db/local_database.dart`, schema version 6, stored
+as `collectarr-library.sqlite` in application support. Published v1.5.0 uses
+schema 5. The next migration starts from that released baseline and adds
+user-supplied list-value images and the Comics grade cleanup. Earlier ordered
+migrations retain Music/Games data and introduce Comics reading/tracking.
+No intermediate unreleased schema is a migration baseline, and an upgrade
+never resets a database. See [local persistence](local-persistence.md).
 
 ## Catalog and entries
 
@@ -49,8 +45,8 @@ never reset to make an upgrade work. See [local persistence](local-persistence.m
 Album edition data stays at the root; discs own physical, technical and
 recording data, and tracks are contained in discs. Each non-null disc format
 has an explicit format family (Core contract 2.2.0); format-aware capabilities
-decide which disc fields apply. Album and disc credits have optional stable
-contributor IDs, role vocabularies and instruments, edited in one Credits tab.
+decide which disc fields apply. Album and disc credits use names, role vocabularies and instruments, edited
+in one Credits tab; retired contributor IDs are removed by the schema-5 migration.
 Partial dates have one canonical representation. `is_live` is a many-valued
 boolean with Live/Studio display labels.
 
@@ -93,14 +89,37 @@ Kind modules retain the operations and their domain rules.
 - Kind registration and generated artifacts:
   [kind registration](kind-registration-codegen.md).
 
+## Native presentation boundaries
+
+Native Android/iOS and window size are separate presentation inputs. Mobile
+header search, sidebar account access, the Add method chooser, full-screen
+Core search and consolidated library controls consume the existing library
+and Add state owners. Web and desktop retain their dense presentation at
+compact widths.
+
+Library projections, selection, search and preferences belong to the existing
+page session/providers. Add owns one `LibraryAddSessionController`; Edit keeps
+one draft/session/validation/commit pipeline. Platform-specific chrome must
+consume these owners rather than duplicate them. Shared hosts render typed
+kind contributions and do not choose fields from hard-coded kind names.
+
+Remaining structural work includes the mixed shell renderer, inline narrow
+inspector navigation, ephemeral `/detail` route requests, compact-width route
+choices in manual Add/Edit and Settings, desktop editor chrome on native, and
+the draggable native collection strip. UI comparisons and unverified workflows
+remain in [CLZ parity](../clz-parity.md). Refactor presentation boundaries before
+mechanical kind-file renames.
+
 ## Known limits
 
 - Field parity with CLZ is verified for Music only. The CLZ Games Edit form
   is captured in the [Game ledger](catalog-item-field-ledgers/game.md) with its
   gaps; the other kinds' ledgers in `catalog-item-field-ledgers/` are
   provisional.
-- Native pointer-driven comparison with the reference is done on Web; Windows
-  rendering is checked separately.
+- Web and Windows comparison covers desktop rendering. Android Comics is
+  compared read-only on a Motorola Edge 70 against an isolated Collectarr
+  review package; populated item flows, iOS and native tablets still need
+  device checks.
 - The app still imports Material from `package:flutter/material.dart`, while
   Flutter is moving it to the separate `material_ui` package (with
   `cupertino_ui`), which go_router and cached_network_image already use. The
