@@ -196,4 +196,70 @@ void main() {
     await tester.tap(find.text('Brick Knight').first);
     expect(picked, same(results.first));
   });
+
+  testWidgets(
+      'title suggestions start with Search for and show each game platform',
+      (tester) async {
+    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final query = TextEditingController(text: 'brick knight');
+    addTearDown(query.dispose);
+    final identifier = TextEditingController();
+    addTearDown(identifier.dispose);
+    var searched = false;
+    final suggestions = [
+      for (final group
+          in libraryAddResultGroups(results, gameAddResultGrouping))
+        group.first
+    ];
+    await tester.pumpWidget(ProviderScope(
+      child: MaterialApp(
+        home: Scaffold(
+          body: LibraryAddModeBar(
+            type: const GameRegistration(),
+            accent: Colors.red,
+            isWideLayout: true,
+            mode: LibraryAddDialogMode.search,
+            queryController: query,
+            identifierController: identifier,
+            isSearching: false,
+            onModeChanged: (_) {},
+            onSearch: () => searched = true,
+            onQueryChanged: (_) {},
+            suggestions: suggestions,
+            suggestionDetail: gameAddResultGrouping.groupDetail,
+            showSuggestions: true,
+            onSelectSuggestion: (_) {},
+            onDismissSuggestions: () {},
+            canScanCover: false,
+            isScanningCover: false,
+            onScanCover: () {},
+            onLookupIdentifier: () {},
+            onScanBarcode: () {},
+            onSearchCode: () {},
+            onManual: () {},
+            showAdvanced: false,
+            onToggleAdvanced: () {},
+            advancedFilterState: const {},
+            onAdvancedFilterChanged: (_, __) {},
+            advancedFilterDescriptors: const [],
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Search for "brick knight"'), findsOneWidget);
+    expect(find.text('Or pick from these suggestions:'), findsOneWidget);
+    // One row per game and platform, under it the platform, not the
+    // edition's publisher, year and barcode.
+    expect(find.text('Brick Knight'), findsNWidgets(2));
+    expect(find.text('PC'), findsOneWidget);
+    expect(find.text('PlayStation 4'), findsOneWidget);
+    // A real tap: the list must take hits where it is drawn.
+    await tester.tap(find.text('Search for "brick knight"'));
+    expect(searched, isTrue);
+  });
 }

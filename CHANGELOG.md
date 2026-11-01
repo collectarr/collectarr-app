@@ -4,7 +4,7 @@
 
 ### Docs
 - The CLZ parity guide lists the Comics Value tab fields that still differ from CLZ, Signed by and Key Category, and why Custom Label images come only from the user's own files.
-- The CLZ parity guide lists how Add Games' suggestions and platform filter still differ from CLZ.
+- The CLZ parity guide lists how the Add Games platform filter still differs from CLZ.
 - The architecture status records the planned move to Flutter's separate material_ui package and what it waits for.
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
@@ -17,6 +17,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Typing a title in Add shows CLZ's blue "Search for" row and "Or pick from these suggestions:", and Add Games suggests each game once per platform, with its platform, and opens that game's editions when picked.
 - Clicking a title suggestion in Add opens it, instead of only closing the list.
 - Comics leave Grade empty when added, as in CLZ, instead of "Ungraded", and upgrading clears the "Ungraded" grade that earlier comics were given.
 - The Comics details panel lists Value as CLZ does: Grade and value, Grade status such as "Slabbed and graded by CGC", Slab Certification Number, and Purchased and Sold each on one line with their date, price and store.

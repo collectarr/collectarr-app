@@ -194,7 +194,6 @@ weights (see [local font loading](architecture/local-font-loading.md)).
 
 | Priority | Area | Difference |
 | --- | --- | --- |
-| P2 | Add Games suggestions | CLZ: typing a title opens a list headed by a highlighted 'Search for "lego batman"' row, then 'Or pick from these suggestions:' with one row per game and platform (cover, title, platform logo and name). Collectarr: no Search-for row or heading, and one row per edition with 'publisher \| year \| barcode', so a game repeats once per edition |
 | P3 | Add Games platform filter | CLZ shows the chosen platform's logo and short name beside the title field (Windows logo, "PC") and remembers it; Collectarr shows "All" with no logo. The CLZ region bar (All, US, EU, AU, JP, Other) is dimmed until a game is chosen; Collectarr's is lit from the start |
 | P2 | Platform vocabulary | CLZ offers about 225 platforms with short names (Wii, PSP, SNES, Genesis / Mega Drive, Nintendo Switch 2); Collectarr's Pick Platform uses its 27 built-in names (Nintendo Wii, PlayStation Portable, ...). Renaming them changes stored entry values and needs an ordered migration, so it is an owner decision |
 | P2 | Pick lists | CLZ: Audience Rating, Condition, Developer, Format, Genre, Image Type, Loaned To, Location, Owner, Platform, Publisher, Purchase Store, Region, Series, Storage Device, Sub Type, Tag. The unused Age Rating and "Edition / Format" lists were removed (2026-10-23). Collectarr still adds Sold To (its own Sold fields) and has no Image Type list for My Images |

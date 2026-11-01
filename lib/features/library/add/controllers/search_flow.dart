@@ -22,6 +22,10 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
   static const _coreSearchPageSize = 20;
   static const _autocompleteDebounce = Duration(milliseconds: 350);
   static const _autocompleteLimit = 8;
+
+  /// A grouping kind suggests groups, so it fetches enough editions to fill
+  /// the reference's five game rows.
+  static const _groupedAutocompleteLimit = 40;
   void updateQuery(String query) {
     _suggestionsGeneration++;
     _suggestionsCancelToken?.cancel('Autocomplete query changed');
@@ -100,7 +104,9 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         catalog: catalog!,
         input: _searchCapability.core.inputBuilder(
           searchContext,
-          limit: _autocompleteLimit,
+          limit: libraryAddForKind(type.kind).resultPolicy.grouping == null
+              ? _autocompleteLimit
+              : _groupedAutocompleteLimit,
         ),
         ranking: _searchCapability.core.ranking,
         searchContext: searchContext,
