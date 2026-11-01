@@ -110,7 +110,6 @@ class LibraryBody extends StatelessWidget {
     this.groupLoading = false,
     required this.accent,
     required this.hasActiveFilter,
-    required this.onAdd,
     required this.onClearFilters,
     required this.selectionEnabled,
     required this.selectedItemIds,
@@ -191,7 +190,6 @@ class LibraryBody extends StatelessWidget {
   final bool groupLoading;
   final Color accent;
   final bool hasActiveFilter;
-  final VoidCallback onAdd;
   final VoidCallback onClearFilters;
   final bool selectionEnabled;
   final Set<String> selectedItemIds;
@@ -342,7 +340,6 @@ class LibraryBody extends StatelessWidget {
                 onBucketChanged: onBucketChanged,
                 accent: accent,
                 hasActiveFilter: hasActiveFilter,
-                onAdd: onAdd,
                 onClearFilters: onClearFilters,
                 selectedAnchorId: selectedAnchorId,
                 onApplySelection: onApplySelection,

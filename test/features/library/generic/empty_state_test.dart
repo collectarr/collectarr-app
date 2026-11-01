@@ -12,14 +12,28 @@ void main() {
         home: Scaffold(
             body: LibraryEmptyState(
                 type: libraryKindRegistrationForKind(CatalogMediaKind.game),
-                icon: Icons.games,
-                accent: Colors.red,
                 hasActiveFilter: true,
-                onAdd: () {},
                 onClearFilter: () => resets++))));
     expect(find.text('No results found...'), findsOneWidget);
     expect(find.text('Add from Collectarr Core'), findsNothing);
     await tester.tap(find.text('Reset all filters'));
     expect(resets, 1);
+  });
+
+  testWidgets('an empty collection shows the reference banner', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: LibraryEmptyState(
+                type: libraryKindRegistrationForKind(CatalogMediaKind.comic),
+                hasActiveFilter: false,
+                onClearFilter: () {}))));
+    expect(find.text('No comics yet.'), findsOneWidget);
+    expect(
+        find.textContaining('To start adding your comics, use the blue',
+            findRichText: true),
+        findsOneWidget);
+    expect(
+        find.textContaining('Add Comics', findRichText: true), findsOneWidget);
+    expect(find.text('Add from Collectarr Core'), findsNothing);
   });
 }

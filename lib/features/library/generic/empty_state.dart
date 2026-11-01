@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:flutter/material.dart';
@@ -7,93 +7,90 @@ class LibraryEmptyState extends StatelessWidget {
   const LibraryEmptyState({
     super.key,
     required this.type,
-    required this.icon,
-    required this.accent,
     required this.hasActiveFilter,
-    required this.onAdd,
     required this.onClearFilter,
   });
 
   final LibraryKindRegistration type;
-  final IconData icon;
-  final Color accent;
   final bool hasActiveFilter;
-  final VoidCallback onAdd;
   final VoidCallback onClearFilter;
 
   @override
+  Widget build(BuildContext context) => hasActiveFilter
+      ? _NoResultsBanner(onReset: onClearFilter)
+      : _EmptyCollectionBanner(type: type);
+}
+
+/// The reference's blue "No comics yet." banner over an empty collection,
+/// pointing at the blue Add button in the toolbar.
+class _EmptyCollectionBanner extends StatelessWidget {
+  const _EmptyCollectionBanner({required this.type});
+
+  final LibraryKindRegistration type;
+
+  @override
   Widget build(BuildContext context) {
-    if (hasActiveFilter) return _NoResultsBanner(onReset: onClearFilter);
-    return TweenAnimationBuilder<Color?>(
-      tween: ColorTween(end: accent),
-      duration: kAppAnimNormal,
-      curve: Curves.easeOutCubic,
-      builder: (context, color, _) {
-        final animatedAccent = color ?? accent;
-        final palette = appPalette(context);
-        return ColoredBox(
-          color: palette.canvas,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
-                  ),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 420),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(icon, size: 44, color: animatedAccent),
-                          const SizedBox(height: 12),
-                          Text(
-                            'This collection has no ${type.identity.pluralLabel.toLowerCase()} yet',
-                            textAlign: TextAlign.center,
-                            style:
-                                Theme.of(context).textTheme.panelTitle.copyWith(
-                                      color: palette.textPrimary,
-                                    ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _emptyStateSummary(type),
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .supportingText
-                                .copyWith(
-                                  color: palette.textMuted,
-                                ),
-                          ),
-                          const SizedBox(height: 16),
-                          FilledButton.icon(
-                            onPressed: onAdd,
-                            style: FilledButton.styleFrom(
-                              backgroundColor:
-                                  libraryAccentActionColor(animatedAccent),
-                              foregroundColor: appContrastingTextColor(
-                                libraryAccentActionColor(animatedAccent),
-                              ),
-                            ),
-                            icon: const Icon(Icons.add),
-                            label: const Text('Add from Collectarr Core'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      },
+    final palette = appPalette(context);
+    final plural = type.identity.pluralLabel;
+    return _Banner(
+      color: palette.utilityAction,
+      children: [
+        Text('No ${plural.toLowerCase()} yet.', style: _bannerTitleStyle),
+        const SizedBox(height: 15),
+        Text.rich(
+          TextSpan(children: [
+            TextSpan(
+                text: 'To start adding your ${plural.toLowerCase()}, '
+                    'use the blue '),
+            const WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Icon(AppIcons.add, size: 11, color: Colors.white)),
+            TextSpan(
+                text: ' Add $plural',
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            const TextSpan(text: ' button above'),
+          ]),
+          style: const TextStyle(
+              fontSize: 14, height: 20 / 14, color: Colors.white),
+        ),
+      ],
     );
   }
+}
+
+const _bannerTitleStyle = TextStyle(
+    fontSize: 26,
+    fontWeight: FontWeight.w700,
+    height: 1.1,
+    color: Colors.white);
+
+/// A full-width banner at the top of the empty item list: 10 px above, 5 px
+/// at the sides and 20 px inside, as in the reference.
+class _Banner extends StatelessWidget {
+  const _Banner({required this.color, required this.children});
+
+  final Color color;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => ColoredBox(
+        // The dark item area, as behind the reference's banner.
+        color: appPalette(context).gridCanvas,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: Container(
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+            padding: const EdgeInsets.all(20),
+            color: color,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: children,
+            ),
+          ),
+        ),
+      );
 }
 
 /// The reference's blue "No results found..." banner over the empty list,
@@ -107,57 +104,33 @@ class _NoResultsBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final blue = palette.utilityAction;
-    return ColoredBox(
-      color: palette.canvas,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Container(
-          width: double.infinity,
-          margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-          padding: const EdgeInsets.all(20),
-          color: blue,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Row(children: [
-                Icon(Icons.search, size: 26, color: Colors.white),
-                SizedBox(width: 6),
-                Flexible(
-                  child: Text('No results found...',
-                      style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w700,
-                          height: 1.1,
-                          color: Colors.white)),
-                ),
-              ]),
-              const SizedBox(height: 20),
-              TextButton.icon(
-                onPressed: onReset,
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: blue,
-                  minimumSize: const Size(0, 32),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4)),
-                  textStyle: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w400),
-                ),
-                icon: const Icon(Icons.sync, size: 14),
-                label: const Text('Reset all filters'),
-              ),
-            ],
+    return _Banner(
+      color: blue,
+      children: [
+        const Row(children: [
+          Icon(Icons.search, size: 26, color: Colors.white),
+          SizedBox(width: 6),
+          Flexible(
+            child: Text('No results found...', style: _bannerTitleStyle),
           ),
+        ]),
+        const SizedBox(height: 20),
+        TextButton.icon(
+          onPressed: onReset,
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: blue,
+            minimumSize: const Size(0, 32),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            textStyle:
+                const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+          ),
+          icon: const Icon(Icons.sync, size: 14),
+          label: const Text('Reset all filters'),
         ),
-      ),
+      ],
     );
   }
-}
-
-String _emptyStateSummary(LibraryKindRegistration type) {
-  final suffix = libraryPresentationForKind(type.kind).emptyStateSummarySuffix;
-  return 'Search Collectarr Core, or propose a missing ${type.identity.singularLabel.toLowerCase()}.$suffix';
 }

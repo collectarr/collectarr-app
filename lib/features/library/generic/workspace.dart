@@ -63,7 +63,6 @@ class LibraryWorkspace extends ConsumerWidget {
     this.onSetCollapsedGroupBuckets,
     required this.accent,
     required this.hasActiveFilter,
-    required this.onAdd,
     required this.onClearFilters,
     required this.onApplySelection,
     required this.onActivateItem,
@@ -93,7 +92,6 @@ class LibraryWorkspace extends ConsumerWidget {
   final ValueChanged<Set<String>>? onSetCollapsedGroupBuckets;
   final Color accent;
   final bool hasActiveFilter;
-  final VoidCallback onAdd;
   final VoidCallback onClearFilters;
   final void Function(Set<String> ids, String focusedId) onApplySelection;
   final ValueChanged<String> onActivateItem;
@@ -332,10 +330,7 @@ class LibraryWorkspace extends ConsumerWidget {
   Widget _emptyBuilder(BuildContext context) {
     return LibraryEmptyState(
       type: type,
-      icon: type.identity.icon,
-      accent: accent,
       hasActiveFilter: hasActiveFilter,
-      onAdd: onAdd,
       onClearFilter: onClearFilters,
     );
   }

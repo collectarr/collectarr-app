@@ -196,7 +196,6 @@ abstract final class LibraryPageShellPresenter {
             state._isFacetLoadInFlight(activeFacetLoadKey),
         accent: state.widget.accent,
         hasActiveFilter: state._hasActiveFilter,
-        onAdd: () => state._dialogCoordinator.showAddDialogFlow(),
         onClearFilters: state._clearFilters,
         selectionEnabled: state._session.selection.value.enabled &&
             viewState.viewMode != LibraryViewMode.cardFlow,

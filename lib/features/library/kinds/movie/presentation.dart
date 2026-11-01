@@ -172,7 +172,6 @@ final moviesLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: moviesLibraryBucketLabelBuilder,
   cardPresentationBuilder: buildMovieCardPresentation,
   compactBucketIcon: Icons.movie_filter_outlined,
-  emptyStateSummarySuffix: ' Physical formats are tracked as editions.',
   previewLabels: moviesPreviewLabels,
   statsLabels: moviesStatsLabels,
   filterDefinitions: moviesLibraryFilterDefinitions,
