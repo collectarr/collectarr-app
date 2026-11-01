@@ -57,5 +57,5 @@ void main() {
     await pumpUntilSettled(tester);
     expect(find.byType(ComicAddManualPane), findsNothing);
     expect(find.byType(LibraryAddDialog), findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/add/contracts/result_policy.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -146,96 +147,94 @@ class _LibraryAddGroupedResultsState extends State<LibraryAddGroupedResults> {
                   facet.valueOf(item) == segment)
                 item
           ];
-    return ColoredBox(
-      // The reference's slate dialog body shows below the rows and behind
-      // the variants.
-      color: libraryAddSearchBackground(context),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            width: LibraryAddResultGrouping.listWidth,
-            child: Column(
-              children: [
-                widget.caption,
-                Flexible(
-                  child: widget.list ??
-                      ListView(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        children: [
-                          for (final group in widget.groups)
-                            _GroupRow(
-                              group: group,
-                              grouping: grouping,
-                              selected: group.key == widget.selectedGroupKey,
-                              isEntry: group.variants.any((item) => widget
-                                  .entryCatalogRefs
-                                  .contains(item.reference)),
-                              onTap: () => widget.onSelectGroup(group.key),
-                            ),
-                        ],
-                      ),
-                ),
-                widget.footer,
-              ],
-            ),
-          ),
-          ColoredBox(
-            color: libraryAddPaneDivider(context),
-            child: const SizedBox(width: 6),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (facet != null || widget.variantControls != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Center(
-                      child: Wrap(spacing: 10, children: [
-                        if (facet != null)
-                          _FacetSegments(
-                            facet: facet,
-                            selected: segment,
-                            available: selected == null ? null : available,
-                            onSelected: (value) =>
-                                setState(() => _segment = value),
-                          ),
-                        if (widget.variantControls case final controls?)
-                          controls,
-                      ]),
+    final groupList = Column(
+      children: [
+        widget.caption,
+        Flexible(
+          child: widget.list ??
+              ListView(
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                children: [
+                  for (final group in widget.groups)
+                    _GroupRow(
+                      group: group,
+                      grouping: grouping,
+                      selected: group.key == widget.selectedGroupKey,
+                      isEntry: group.variants.any((item) =>
+                          widget.entryCatalogRefs.contains(item.reference)),
+                      onTap: () => widget.onSelectGroup(group.key),
                     ),
+                ],
+              ),
+        ),
+        widget.footer,
+      ],
+    );
+    final variantList = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (facet != null || widget.variantControls != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Center(
+              child: Wrap(spacing: 10, children: [
+                if (facet != null)
+                  _FacetSegments(
+                    facet: facet,
+                    selected: segment,
+                    available: selected == null ? null : available,
+                    onSelected: (value) => setState(() => _segment = value),
                   ),
-                Expanded(
-                  child: selected == null
-                      ? const SizedBox.shrink()
-                      // Fixed tiles flowing from the left, as in the reference.
-                      : SingleChildScrollView(
-                          key: const ValueKey('library-add-variant-grid'),
-                          padding: const EdgeInsets.fromLTRB(4, 5, 0, 5),
-                          child: Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: [
-                              for (final item in variants)
-                                _VariantTile(
-                                  item: item,
-                                  grouping: grouping,
-                                  selected: item.reference.id ==
-                                      widget.selectedResultId,
-                                  onTap: () =>
-                                      widget.onSelectResult(item.reference.id),
-                                ),
-                            ],
-                          ),
-                        ),
-                ),
-              ],
+                if (widget.variantControls case final controls?) controls,
+              ]),
             ),
           ),
-        ],
-      ),
+        Expanded(
+          child: selected == null
+              ? const SizedBox.shrink()
+              // Fixed tiles flowing from the left, as in the reference.
+              : SingleChildScrollView(
+                  key: const ValueKey('library-add-variant-grid'),
+                  padding: const EdgeInsets.fromLTRB(4, 5, 0, 5),
+                  child: Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      for (final item in variants)
+                        _VariantTile(
+                          item: item,
+                          grouping: grouping,
+                          selected:
+                              item.reference.id == widget.selectedResultId,
+                          onTap: () => widget.onSelectResult(item.reference.id),
+                        ),
+                    ],
+                  ),
+                ),
+        ),
+      ],
+    );
+    return ColoredBox(
+      color: libraryAddSearchBackground(context),
+      child: isMobileApp
+          ? selected == null
+              ? groupList
+              : Column(children: [
+                  ListTile(
+                      leading: const Icon(Icons.arrow_back),
+                      title: Text(selected.first.summary.primaryLabel),
+                      onTap: () => widget.onSelectGroup('')),
+                  Expanded(child: variantList),
+                ])
+          : Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              SizedBox(
+                  width: LibraryAddResultGrouping.listWidth, child: groupList),
+              ColoredBox(
+                  color: libraryAddPaneDivider(context),
+                  child: const SizedBox(width: 6)),
+              Expanded(child: variantList),
+            ]),
     );
   }
 }

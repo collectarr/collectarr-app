@@ -38,7 +38,8 @@ class LibraryAddBottomBar extends StatelessWidget {
               style: TextStyle(color: palette.textPrimary, fontSize: 14),
             ),
           const Spacer(),
-          LibraryAddStatusButton(
+          Flexible(
+              child: LibraryAddStatusButton(
             collectionStatus: addTarget == LibraryAddTarget.wishlist
                 ? LibraryCollectionStatusScope.wishList
                 : addTarget == LibraryAddTarget.track
@@ -52,7 +53,7 @@ class LibraryAddBottomBar extends StatelessWidget {
                 ? null
                 : (status) => request.onCollectionStatusChanged!(
                     libraryCollectionStatusValue(status)),
-          ),
+          )),
         ],
       ),
     );

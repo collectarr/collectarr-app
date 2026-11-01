@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'dart:math' as math;
 
 import 'dependencies.dart';
@@ -41,9 +42,11 @@ class LibraryAddConfirmSheet extends StatelessWidget {
                     .clamp(math.min(360.0, constraints.maxHeight),
                         constraints.maxHeight)
                     .toDouble();
-            final inset = fixed == null
-                ? 10.0
-                : math.max(10.0, (constraints.maxWidth - fixed.width) / 2);
+            final inset = isMobileApp
+                ? 0.0
+                : fixed == null
+                    ? 10.0
+                    : math.max(10.0, (constraints.maxWidth - fixed.width) / 2);
             return Stack(
               children: [
                 Positioned.fill(
@@ -64,7 +67,7 @@ class LibraryAddConfirmSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Container(
-                        height: 38,
+                        height: isMobileApp ? 48 : 38,
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         alignment: Alignment.centerLeft,
                         decoration: BoxDecoration(
@@ -72,14 +75,23 @@ class LibraryAddConfirmSheet extends StatelessWidget {
                           borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(6)),
                         ),
-                        child: const Text(
-                          'Confirm your selection',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                        child: Row(children: [
+                          Expanded(
+                              child: const Text(
+                            'Confirm your selection',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          )),
+                          if (isMobileApp)
+                            IconButton(
+                                tooltip: 'Back to results',
+                                onPressed: onDismiss,
+                                icon: const Icon(Icons.close,
+                                    color: Colors.white)),
+                        ]),
                       ),
                       Expanded(
                         child: ColoredBox(

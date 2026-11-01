@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/features/library/add/contracts/capability.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -87,6 +90,8 @@ class LibraryAddModeBar extends StatefulWidget {
     this.onCoreDataSettings,
     this.searchRowWidth,
     this.searchRowBeside,
+    this.showMobileInput = true,
+    this.onCoverTabChanged,
   });
 
   final LibraryKindRegistration type;
@@ -142,6 +147,8 @@ class LibraryAddModeBar extends StatefulWidget {
 
   /// Narrows the search row to [searchRowWidth] and shows [searchRowBeside]
   /// in the rest, for results laid out in two panes.
+  final ValueChanged<bool>? onCoverTabChanged;
+  final bool showMobileInput;
   final double? searchRowWidth;
   final Widget? searchRowBeside;
 
@@ -157,6 +164,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   final LayerLink _searchLayerLink = LayerLink();
   final GlobalKey _searchBarKey = GlobalKey();
   bool _dismissed = false;
+  bool _mobileCoverSelected = false;
 
   @override
   void initState() {
@@ -178,6 +186,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   @override
   void didUpdateWidget(covariant LibraryAddModeBar oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.mode != widget.mode) _mobileCoverSelected = false;
     _syncAdvancedControllers(_resolveAdvancedFields());
     final canShow =
         widget.showSuggestions && widget.suggestions.isNotEmpty && !_dismissed;
@@ -363,6 +372,113 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
     return widget.advancedFilterDescriptors;
   }
 
+  Widget _buildInput(String searchLabel, String queryHint) =>
+      switch (widget.mode) {
+        LibraryAddDialogMode.browse => _LibraryAddModeTextField(
+            mobile: isMobileApp,
+            fieldKey: const ValueKey('library-add-browse-field'),
+            controller: widget.browseQueryController!,
+            label: widget.browseTab!.label,
+            hintText: widget.browseTab!.hintText,
+            onChanged: widget.onBrowseChanged,
+            onSubmitted: widget.onSearchBrowse!,
+          ),
+        LibraryAddDialogMode.search => OverlayPortal(
+            controller: _suggestionsOverlayController,
+            overlayChildBuilder: _buildSuggestionsOverlay,
+            child: CompositedTransformTarget(
+              link: _searchLayerLink,
+              child: KeyedSubtree(
+                key: _searchBarKey,
+                child: _LibraryAddModeTextField(
+                  mobile: isMobileApp,
+                  fieldKey: const ValueKey('library-add-query-field'),
+                  controller: widget.queryController,
+                  label: searchLabel,
+                  hintText: queryHint,
+                  onChanged: _handleQueryChanged,
+                  onSubmitted: _handleSearch,
+                  trailing: widget.queryTrailing,
+                ),
+              ),
+            ),
+          ),
+        LibraryAddDialogMode.identifier => _LibraryAddModeTextField(
+            mobile: isMobileApp,
+            fieldKey: const ValueKey('library-add-barcode-field'),
+            controller: widget.identifierController,
+            label: 'Barcode / UPC / ISBN',
+            hintText: 'Enter barcode...',
+            keyboardType: TextInputType.number,
+            onSubmitted: widget.onLookupIdentifier,
+            trailing:
+                _LibraryAddScanBarcodeButton(onPressed: widget.onScanBarcode),
+          ),
+        LibraryAddDialogMode.code => _LibraryAddModeTextField(
+            mobile: isMobileApp,
+            fieldKey: const ValueKey('library-add-code-field'),
+            controller: widget.codeQueryController!,
+            label: widget.codeSearchTab!.label,
+            hintText: widget.codeSearchTab!.hintText,
+            onSubmitted: widget.onSearchCode,
+            trailing: widget.queryTrailing,
+          ),
+      };
+
+  Widget _buildMobile(
+      BuildContext context, String searchLabel, String queryHint) {
+    final tabs = <({LibraryAddDialogMode? value, String label})>[
+      if (widget.canScanCover) (value: null, label: 'Cover'),
+      (value: LibraryAddDialogMode.identifier, label: 'Barcode'),
+      if (widget.browseTab case final tab?)
+        (value: LibraryAddDialogMode.browse, label: tab.label),
+      (value: LibraryAddDialogMode.search, label: searchLabel),
+      if (widget.codeSearchTab case final tab?)
+        (value: LibraryAddDialogMode.code, label: tab.label),
+    ];
+    return Column(mainAxisSize: MainAxisSize.min, children: [
+      MobileTabStrip<LibraryAddDialogMode?>(
+        tabs: tabs,
+        selected: _mobileCoverSelected ? null : widget.mode,
+        color: widget.accent,
+        onSelected: (mode) {
+          FocusScope.of(context).unfocus();
+          widget.onDismissSuggestions();
+          setState(() => _mobileCoverSelected = mode == null);
+          widget.onCoverTabChanged?.call(mode == null);
+          if (mode != null) widget.onModeChanged(mode);
+        },
+      ),
+      if (_mobileCoverSelected)
+        Padding(
+            padding: const EdgeInsets.all(12),
+            child: FilledButton.icon(
+                onPressed: widget.isScanningCover ? null : widget.onScanCover,
+                icon: const Icon(Icons.camera_alt),
+                label: const Text('Scan cover')))
+      else if (widget.showMobileInput)
+        Padding(
+            padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+            child: _buildInput(searchLabel, queryHint)),
+      if (!_mobileCoverSelected &&
+          widget.mode == LibraryAddDialogMode.search &&
+          _resolveAdvancedFields().isNotEmpty) ...[
+        TextButton.icon(
+            onPressed: widget.onToggleAdvanced,
+            icon: Icon(
+                widget.showAdvanced ? Icons.expand_less : Icons.expand_more),
+            label: const Text('Advanced search')),
+        if (widget.showAdvanced)
+          Padding(
+              padding: const EdgeInsets.all(8),
+              child: _AdvancedSearchFields(
+                  advancedFilterDescriptors: _resolveAdvancedFields(),
+                  controllers: _advancedControllers,
+                  onSubmitted: _handleSearch)),
+      ],
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isBusy = widget.isSearching;
@@ -371,6 +487,10 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
     final palette = appPalette(context);
     final advancedFields = _resolveAdvancedFields();
     _syncAdvancedControllers(advancedFields);
+    if (isMobileApp) {
+      return _buildMobile(
+          context, searchLabels.addSearchTabLabel, searchLabels.queryHint);
+    }
     if (widget.isWideLayout) {
       return DecoratedBox(
         decoration: BoxDecoration(
@@ -553,58 +673,8 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                       const SizedBox(width: 5),
                     ],
                     Expanded(
-                      child: switch (widget.mode) {
-                        LibraryAddDialogMode.browse => _LibraryAddModeTextField(
-                            fieldKey:
-                                const ValueKey('library-add-browse-field'),
-                            controller: widget.browseQueryController!,
-                            label: widget.browseTab!.label,
-                            hintText: widget.browseTab!.hintText,
-                            onChanged: widget.onBrowseChanged,
-                            onSubmitted: widget.onSearchBrowse!,
-                          ),
-                        LibraryAddDialogMode.search => OverlayPortal(
-                            controller: _suggestionsOverlayController,
-                            overlayChildBuilder: _buildSuggestionsOverlay,
-                            child: CompositedTransformTarget(
-                              link: _searchLayerLink,
-                              child: KeyedSubtree(
-                                key: _searchBarKey,
-                                child: _LibraryAddModeTextField(
-                                  fieldKey:
-                                      const ValueKey('library-add-query-field'),
-                                  controller: widget.queryController,
-                                  label: searchLabels.addSearchTabLabel,
-                                  hintText: searchLabels.queryHint,
-                                  onChanged: _handleQueryChanged,
-                                  onSubmitted: _handleSearch,
-                                  trailing: widget.queryTrailing,
-                                ),
-                              ),
-                            ),
-                          ),
-                        LibraryAddDialogMode.identifier =>
-                          _LibraryAddModeTextField(
-                            fieldKey:
-                                const ValueKey('library-add-barcode-field'),
-                            controller: widget.identifierController,
-                            label: 'Barcode / UPC / ISBN',
-                            hintText: 'Enter barcode...',
-                            keyboardType: TextInputType.number,
-                            onSubmitted: widget.onLookupIdentifier,
-                            trailing: _LibraryAddScanBarcodeButton(
-                                onPressed: widget.onScanBarcode),
-                          ),
-                        LibraryAddDialogMode.code => _LibraryAddModeTextField(
-                            fieldKey: const ValueKey('library-add-code-field'),
-                            controller: widget.codeQueryController!,
-                            label: widget.codeSearchTab!.label,
-                            hintText: widget.codeSearchTab!.hintText,
-                            onSubmitted: widget.onSearchCode,
-                            trailing: widget.queryTrailing,
-                          ),
-                      },
-                    ),
+                        child: _buildInput(searchLabels.addSearchTabLabel,
+                            searchLabels.queryHint)),
                     const SizedBox(width: 10),
                     _LibraryAddSearchButton(
                       isBusy: widget.isSearching,
@@ -911,8 +981,10 @@ class _LibraryAddModeTextField extends StatelessWidget {
     this.onChanged,
     this.keyboardType,
     this.trailing,
+    this.mobile = false,
   });
 
+  final bool mobile;
   final Key fieldKey;
   final TextEditingController controller;
   final String label;
@@ -925,51 +997,72 @@ class _LibraryAddModeTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return SizedBox(
-      height: 34,
-      child: _LibraryAddModeFieldFrame(
-        child: TextField(
-          key: fieldKey,
-          controller: controller,
-          onChanged: onChanged,
-          cursorColor: palette.utilityAction,
-          keyboardType: keyboardType ?? TextInputType.text,
-          inputFormatters: [noNewlineFormatter],
-          expands: true,
-          minLines: null,
-          maxLines: null,
-          textInputAction: TextInputAction.search,
-          textAlignVertical: TextAlignVertical.center,
-          onSubmitted: (_) => onSubmitted(),
-          style: TextStyle(
-            color: palette.textPrimary,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-          decoration: InputDecoration(
-            isDense: true,
-            filled: false,
-            fillColor: Colors.transparent,
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            disabledBorder: InputBorder.none,
-            semanticCounterText: label,
-            suffixIcon: trailing,
-            suffixIconConstraints:
-                const BoxConstraints(minWidth: 34, minHeight: 34),
-            hintText: hintText,
-            hintStyle: TextStyle(
-              color:
-                  palette.isDark ? const Color(0xff999999) : palette.textMuted,
-              fontWeight: FontWeight.w400,
-            ),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          ),
+    void submit() {
+      if (mobile) FocusScope.of(context).unfocus();
+      onSubmitted();
+    }
+
+    final field = TextField(
+      key: fieldKey,
+      controller: controller,
+      onChanged: onChanged,
+      cursorColor: palette.utilityAction,
+      keyboardType: keyboardType ?? TextInputType.text,
+      inputFormatters: [noNewlineFormatter],
+      autofocus: mobile && controller.text.isEmpty,
+      expands: !mobile,
+      minLines: mobile ? 1 : null,
+      maxLines: mobile ? 1 : null,
+      textInputAction: TextInputAction.search,
+      textAlignVertical: TextAlignVertical.center,
+      onSubmitted: (_) => submit(),
+      style: TextStyle(
+        color: palette.textPrimary,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
+      decoration: InputDecoration(
+        isDense: true,
+        filled: false,
+        fillColor: Colors.transparent,
+        border: mobile
+            ? const OutlineInputBorder(borderRadius: BorderRadius.zero)
+            : InputBorder.none,
+        enabledBorder: mobile
+            ? OutlineInputBorder(
+                borderRadius: BorderRadius.zero,
+                borderSide: BorderSide(color: palette.divider))
+            : InputBorder.none,
+        focusedBorder: mobile
+            ? OutlineInputBorder(
+                borderRadius: BorderRadius.zero,
+                borderSide: BorderSide(color: palette.utilityAction, width: 2))
+            : InputBorder.none,
+        disabledBorder: InputBorder.none,
+        semanticCounterText: label,
+        labelText: mobile ? hintText : null,
+        floatingLabelBehavior: mobile ? FloatingLabelBehavior.always : null,
+        suffixIcon: mobile
+            ? Row(mainAxisSize: MainAxisSize.min, children: [
+                if (trailing != null) trailing!,
+                IconButton(
+                    tooltip: 'Search',
+                    onPressed: submit,
+                    icon: const Icon(Icons.search)),
+              ])
+            : trailing,
+        suffixIconConstraints:
+            const BoxConstraints(minWidth: 34, minHeight: 34),
+        hintText: mobile ? null : hintText,
+        hintStyle: TextStyle(
+          color: palette.isDark ? const Color(0xff999999) : palette.textMuted,
+          fontWeight: FontWeight.w400,
         ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       ),
     );
+    if (mobile) return SizedBox(height: 56, child: field);
+    return SizedBox(height: 34, child: _LibraryAddModeFieldFrame(child: field));
   }
 }
 
@@ -1124,6 +1217,22 @@ class _AdvancedSearchFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (advancedFilterDescriptors.isEmpty) return const SizedBox.shrink();
+    if (isMobileApp) {
+      return LayoutBuilder(
+          builder: (context, constraints) =>
+              Wrap(spacing: 6, runSpacing: 6, children: [
+                for (final descriptor in advancedFilterDescriptors)
+                  SizedBox(
+                      width: math.min(
+                          descriptor.width ?? 200, constraints.maxWidth),
+                      child: _AdvancedField(
+                          fieldKey: descriptor.key,
+                          controller: controllers[descriptor.id]!,
+                          hint: descriptor.label,
+                          keyboardType: descriptor.keyboardType,
+                          onSubmitted: onSubmitted)),
+              ]));
+    }
     return Row(
       children: [
         for (int i = 0; i < advancedFilterDescriptors.length; i++) ...[

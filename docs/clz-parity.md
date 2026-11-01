@@ -213,25 +213,24 @@ Reference: CLZ Comics 11.3.3 on a Motorola Edge 70, portrait 1220 × 2712 at
 480 dpi (about 407 dp wide), with an empty collection. Collectarr was checked
 both as installed 1.5.0 and as the current branch's debug build in the separate
 `com.example.collectarr_app.qolreview` package, labelled Collectarr Review.
-The differences below are present in the branch build. No reference records
-were created or saved; exact font weights and populated item density remain
-unverified.
+The differences below are present in the branch build. Core search results,
+series issues and the selection preview were also inspected read-only in CLZ.
+No reference records were created or saved; exact font weights and populated
+collection density remain unverified.
 
 | Priority | Area | Difference |
 | --- | --- | --- |
-| P1 | Add Comics width | The Series search overflows right by 59 logical pixels in the debug build, clipping the Search action with and without the keyboard. CLZ's Add is a dedicated mobile screen with its search contained within the viewport. Adapt the search row, tabs and result area to the available width |
+| P2 | Add Comics remaining parity | NCBD still depends on a release-calendar source in Core (see Comics NCBD). Validate camera/barcode flows on-device and compare populated results against equivalent Core data, including long issue/variant labels, larger system text, loading and error states |
 | P1 | Manual editor | The desktop form and Personal panel are stacked into separate short viewports; the footer's Add action is clipped on the right, and the tab strip opens with its first tabs out of view. CLZ has one full-width scrolling form per tab and a compact header action. Reflow the editor and its actions for portrait while keeping partial dates and the stronger data model |
-| P1 | Android bottom inset | Main Collection and its menu sit underneath the system's three-button navigation bar. Keep the collection bar and its touch targets above the system inset; also verify gesture navigation |
-| P2 | Library control density | The collection area starts around 340 dp from the top of the display, versus about 143 dp in CLZ. Collectarr shows a permanent search row, Add/Folder/Tools, a separate cover-size row and count, a status row, then another folder/view/sort/count/Tools row. Add is also a floating button. Consolidate repeated actions and counts into a mobile toolbar, with search expanded on demand |
-| P2 | Empty-state guidance | The branch's banner tells the user to use the blue Add Comics button above, while the upper Add is icon-only and the large floating Add is below. CLZ's guidance points to its floating Add. Make the mobile wording and placement refer to the visible action |
+| P2 | Library control density | The collection area starts around 340 dp from the top of the display, versus about 143 dp in CLZ. Collectarr shows a permanent search row, Folder/Tools, a separate cover-size row and count, a status row, then another folder/view/sort/count/Tools row. Consolidate repeated actions and counts into a mobile toolbar, with search expanded on demand |
 | P2 | Sort selector | Collectarr opens the desktop multi-field editor with a field list, a second selected-fields pane and Cancel/Save. CLZ opens a full-screen list of common sort orders with an inline direction control. Offer a direct mobile path for common sorts while keeping advanced multi-field sorting |
 | P2 | Folder navigation | CLZ's folder control opens a searchable full-screen field selector with favourites. Collectarr exposes two folder icons: the upper one opens custom shortlists, the lower one opens the current group's buckets. Make field grouping distinct from custom folders and easy to find on mobile; the field selector itself still needs comparison |
 | P3 | View controls | CLZ has one List/Cards/Images menu; Collectarr has both the cover-size control and the desktop six-view menu. Give the mobile view choice and cover size one clear entry point, keeping the additional views available |
 
 Still to compare: populated cards/list/covers, series folders and counts, item
 details and previous/next navigation, selection and bulk actions, every editor
-tab with the keyboard, populated search results, camera/barcode flows,
-landscape, gesture navigation, larger system text and light appearance.
+tab with the keyboard, populated search parity against the same Core data,
+camera/barcode flows, landscape, gesture navigation, larger system text and light appearance.
 
 ### Games
 

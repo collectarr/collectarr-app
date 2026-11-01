@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/add/dialog.dart';
 import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/ui/adaptive/window_class.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -27,21 +27,17 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
   LibraryAddDialogRequest request,
   bool startManually,
 ) {
-  final windowClass = AppWindowClass.of(context);
-  if (windowClass.isCompact) {
-    return Navigator.of(context).push<LibraryAddDialogResult>(
+  if (isMobileApp) {
+    return Navigator.of(context, rootNavigator: true)
+        .push<LibraryAddDialogResult>(
       MaterialPageRoute<LibraryAddDialogResult>(
         fullscreenDialog: true,
-        builder: (context) => Scaffold(
-          body: SafeArea(
-            child: LibraryAddDialog(
-              type: request.type,
-              accent: request.accent,
-              initialQuery: request.initialQuery,
-              initialIdentifier: request.initialIdentifier,
-              startManually: startManually,
-            ),
-          ),
+        builder: (context) => LibraryAddDialog(
+          type: request.type,
+          accent: request.accent,
+          initialQuery: request.initialQuery,
+          initialIdentifier: request.initialIdentifier,
+          startManually: startManually,
         ),
       ),
     );

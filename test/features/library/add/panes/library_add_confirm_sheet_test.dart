@@ -25,7 +25,7 @@ void main() {
     expect(find.text('Confirm your selection'), findsOneWidget);
     expect(find.text('Album'), findsOneWidget);
     expect(find.text('Add to Collection'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('the backdrop and Escape close the sheet', (tester) async {
     final dismissed = await pumpSheet(tester);
@@ -35,7 +35,7 @@ void main() {
     expect(dismissed(), 1);
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     expect(dismissed(), 2);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('a fixed-size sheet is centred at the bottom', (tester) async {
     tester.view.physicalSize = const Size(1200, 900);
@@ -63,5 +63,5 @@ void main() {
     expect(sheet.height, 369);
     expect(sheet.left, 235);
     expect(sheet.bottom, 900);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }
