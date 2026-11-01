@@ -11,7 +11,7 @@ void main() {
     TargetPlatform.android,
     TargetPlatform.iOS
   ]) {
-    testWidgets('brand identifies native $platform even at a narrow width',
+    testWidgets('brand omits the platform at a narrow width on $platform',
         (tester) async {
       await tester.pumpWidget(const MaterialApp(
           home: Scaffold(
@@ -23,9 +23,9 @@ void main() {
                     iconKey: Key('brand.icon'),
                     titleKey: Key('brand.title'),
                   )))));
-      final mobile =
-          platform == TargetPlatform.android || platform == TargetPlatform.iOS;
-      expect(find.text(mobile ? 'MOBILE' : 'DESKTOP'), findsOneWidget);
+      for (final label in ['MOBILE', 'DESKTOP', 'WEB']) {
+        expect(find.text(label), findsNothing);
+      }
       expect(find.text('CLR MUSIC'), findsOneWidget);
       expect(tester.takeException(), isNull);
     }, variant: TargetPlatformVariant({platform}));
