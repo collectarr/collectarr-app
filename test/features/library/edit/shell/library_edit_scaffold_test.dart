@@ -44,7 +44,7 @@ void main() {
       expect(style.fontSize, 14, reason: label);
       expect(style.fontWeight, FontWeight.w400, reason: label);
     }
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('edit dialog stays top-anchored as its content grows', (
     tester,

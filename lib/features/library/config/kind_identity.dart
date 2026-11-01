@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/toolbar_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/view_enums.dart';
@@ -13,7 +14,9 @@ class LibraryKindIdentity {
     required this.icon,
     this.collectionIconSvgAsset,
     required this.coverPlaceholderIcon,
-    required this.accent,
+    required Color accent,
+    this.mobileAccent,
+    this.mobileChromeDark,
     required this.preferencePrefix,
     this.routeSegments = const [],
     required this.mediaFamily,
@@ -29,7 +32,7 @@ class LibraryKindIdentity {
     this.collectionFamily,
     this.defaultCollectionName = 'Main Collection',
     this.hasTrailers = false,
-  });
+  }) : _accent = accent;
 
   final CatalogMediaKind kind;
   final String singularLabel;
@@ -42,7 +45,10 @@ class LibraryKindIdentity {
 
   /// Shown on the dark tile that stands in for a missing cover.
   final IconData coverPlaceholderIcon;
-  final Color accent;
+  final Color _accent;
+  final Color? mobileAccent;
+  final Color? mobileChromeDark;
+  Color get accent => isMobileApp ? mobileAccent ?? _accent : _accent;
   final String preferencePrefix;
   final List<String> routeSegments;
   final String mediaFamily;

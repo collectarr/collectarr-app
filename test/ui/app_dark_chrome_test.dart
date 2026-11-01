@@ -20,6 +20,13 @@ Future<AppThemePalette> _chromePalette(
 }
 
 void main() {
+  testWidgets('native utility actions share the Android reference blue',
+      (tester) async {
+    expect(kLightAppThemePalette.utilityAction, const Color(0xff2aa4cc));
+    expect(kDefaultAppThemePalette.utilityAction, const Color(0xff2aa4cc));
+  },
+      variant:
+          TargetPlatformVariant({TargetPlatform.android, TargetPlatform.iOS}));
   testWidgets('light theme keeps chrome on the dark skin with the kind accent',
       (tester) async {
     final palette = await _chromePalette(tester, kLightAppThemePalette);
@@ -33,7 +40,7 @@ void main() {
     expect(palette.accent, kDefaultAppThemePalette.accent);
   });
 
-  test('light content follows the reference skin', () {
+  testWidgets('light content follows the reference skin', (tester) async {
     const palette = kLightAppThemePalette;
     expect(palette.canvas, const Color(0xFFF6F6F6));
     expect(palette.panel, const Color(0xFFF9F9F9));
@@ -41,5 +48,5 @@ void main() {
     expect(palette.textPrimary, const Color(0xFF333333));
     expect(palette.utilityAction, const Color(0xFF5EB1DE));
     expect(palette.itemTitle, const Color(0xFF0082A6));
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }
