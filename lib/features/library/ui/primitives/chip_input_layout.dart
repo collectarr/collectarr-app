@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 /// Wraps chips and lets the last child (the editor) fill the remaining row.
@@ -10,20 +11,24 @@ class LibraryChipInputLayout extends MultiChildRenderObjectWidget {
     required super.children,
     required this.hasEditor,
     required this.minimumEditorWidth,
+    this.onWrappedChanged,
   });
   final bool hasEditor;
   final double minimumEditorWidth;
 
+  /// Told after layout whether the chips run onto more than one row.
+  final ValueChanged<bool>? onWrappedChanged;
+
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      RenderLibraryChipInputLayout(
-          hasEditor, minimumEditorWidth, Directionality.of(context));
+      RenderLibraryChipInputLayout(hasEditor, minimumEditorWidth,
+          Directionality.of(context), onWrappedChanged);
 
   @override
   void updateRenderObject(
       BuildContext context, RenderLibraryChipInputLayout renderObject) {
-    renderObject.update(
-        hasEditor, minimumEditorWidth, Directionality.of(context));
+    renderObject.update(hasEditor, minimumEditorWidth,
+        Directionality.of(context), onWrappedChanged);
   }
 }
 
@@ -33,14 +38,18 @@ class RenderLibraryChipInputLayout extends RenderBox
             ContainerBoxParentData<RenderBox>>,
         RenderBoxContainerDefaultsMixin<RenderBox,
             ContainerBoxParentData<RenderBox>> {
-  RenderLibraryChipInputLayout(
-      this._hasEditor, this._minimumEditorWidth, this._direction);
+  RenderLibraryChipInputLayout(this._hasEditor, this._minimumEditorWidth,
+      this._direction, this._onWrappedChanged);
   bool _hasEditor;
   double _minimumEditorWidth;
   TextDirection _direction;
+  ValueChanged<bool>? _onWrappedChanged;
+  bool? _wrapped;
   static const _spacing = 3.0;
 
-  void update(bool hasEditor, double width, TextDirection direction) {
+  void update(bool hasEditor, double width, TextDirection direction,
+      ValueChanged<bool>? onWrappedChanged) {
+    _onWrappedChanged = onWrappedChanged;
     if (_hasEditor == hasEditor &&
         _minimumEditorWidth == width &&
         _direction == direction) {
@@ -98,7 +107,18 @@ class RenderLibraryChipInputLayout extends RenderBox
       rowHeight = math.max(rowHeight, childSize.height);
       child = data.nextSibling;
     }
+    if (!dry) _reportWrapped(y > 0);
     return constraints.constrain(Size(width, y + rowHeight));
+  }
+
+  void _reportWrapped(bool wrapped) {
+    if (_wrapped == wrapped) return;
+    _wrapped = wrapped;
+    final callback = _onWrappedChanged;
+    if (callback == null) return;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (attached && _wrapped == wrapped) callback(wrapped);
+    });
   }
 
   @override

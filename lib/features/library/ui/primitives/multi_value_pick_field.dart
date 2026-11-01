@@ -60,6 +60,7 @@ class _LibraryMultiValuePickFieldState<TValue>
   final _entryFocusNode = FocusNode();
   bool _pickerOpen = false;
   bool _choosingSuggestion = false;
+  bool _wrapped = false;
 
   @override
   void initState() {
@@ -172,10 +173,11 @@ class _LibraryMultiValuePickFieldState<TValue>
   }
 
   Widget _entry(double availableWidth) {
-    final textStyle =
-        TextStyle(fontSize: 14, color: appPalette(context).textPrimary);
+    final textStyle = TextStyle(
+        fontSize: 14, height: 20 / 14, color: appPalette(context).textPrimary);
+    // As tall as a chip, so the caret sits centred in the chip row.
     return SizedBox(
-        height: 28,
+        height: LibraryValueChip.height,
         child: RawAutocomplete<LibraryFieldOption<TValue>>(
           textEditingController: _entryController,
           focusNode: _entryFocusNode,
@@ -202,27 +204,28 @@ class _LibraryMultiValuePickFieldState<TValue>
               }
               return KeyEventResult.ignored;
             },
-            child: TextField(
-                controller: controller,
-                focusNode: focusNode,
-                enabled: widget.enabled,
-                style: textStyle,
-                textAlignVertical: TextAlignVertical.center,
-                textInputAction: TextInputAction.done,
-                decoration: InputDecoration(
-                    hintText: widget.hintText,
-                    isCollapsed: true,
-                    isDense: true,
-                    filled: false,
-                    contentPadding: EdgeInsets.zero,
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none),
-                onSubmitted: (_) {
-                  submit();
-                  _commitEntry();
-                }),
+            child: Center(
+                child: TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    enabled: widget.enabled,
+                    style: textStyle,
+                    textAlignVertical: TextAlignVertical.center,
+                    textInputAction: TextInputAction.done,
+                    decoration: InputDecoration(
+                        hintText: widget.hintText,
+                        isCollapsed: true,
+                        isDense: true,
+                        filled: false,
+                        contentPadding: EdgeInsets.zero,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none),
+                    onSubmitted: (_) {
+                      submit();
+                      _commitEntry();
+                    })),
           ),
           optionsViewBuilder: (context, select, options) => Align(
               alignment: Alignment.topLeft,
@@ -290,16 +293,12 @@ class _LibraryMultiValuePickFieldState<TValue>
             enabled: widget.enabled,
             constraints: const BoxConstraints(
                 minHeight: LibraryMetrics.defaultFieldHeight),
-            contentPadding: EdgeInsets.zero,
-            suffixIconConstraints: const BoxConstraints.tightFor(
-                width: PickListFieldButton.width,
-                height: LibraryMetrics.defaultFieldHeight - 2),
-            suffixIcon: PickListFieldButton(
-                tooltip: 'Select ${widget.label.toLowerCase()}',
-                onPressed:
-                    widget.enabled && !_pickerOpen ? _openPicker : null)),
+            contentPadding: const EdgeInsetsDirectional.only(
+                end: PickListFieldButton.width + 1)),
         child: Padding(
-            padding: const EdgeInsets.all(3),
+            // The reference's 1 px border and 3 px padding; the border takes no
+            // layout space here.
+            padding: const EdgeInsets.all(4),
             child: LayoutBuilder(
                 builder: (context, constraints) => GestureDetector(
                     behavior: HitTestBehavior.translucent,
@@ -310,6 +309,9 @@ class _LibraryMultiValuePickFieldState<TValue>
                             hasEditor: TValue == String,
                             minimumEditorWidth:
                                 _minimumEditorWidth(constraints.maxWidth),
+                            onWrappedChanged: (wrapped) {
+                              if (mounted) setState(() => _wrapped = wrapped);
+                            },
                             children: [
                               for (final value in _value)
                                 LibraryValueChip(
@@ -320,8 +322,20 @@ class _LibraryMultiValuePickFieldState<TValue>
                               if (TValue == String)
                                 _entry(constraints.maxWidth),
                             ]))))));
+    // The reference keeps the list button on the first row while values
+    // wrap onto more rows, instead of centring it on the grown field.
+    final withButton = Stack(children: [
+      field,
+      PositionedDirectional(
+          top: 1,
+          end: 1,
+          child: PickListFieldButton(
+              tooltip: 'Select ${widget.label.toLowerCase()}',
+              bottomBorder: _wrapped,
+              onPressed: widget.enabled && !_pickerOpen ? _openPicker : null)),
+    ]);
     return widget.showFieldLabel
-        ? LibraryFormField(label: widget.label, child: field)
-        : field;
+        ? LibraryFormField(label: widget.label, child: withButton)
+        : withButton;
   }
 }
