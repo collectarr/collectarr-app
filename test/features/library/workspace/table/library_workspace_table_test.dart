@@ -392,7 +392,7 @@ void main() {
     expect(afterTapBox.boxShadow, isNull);
     expect(afterTapBorder.left.color, const Color(0xff5eb1de));
     expect(afterTapBorder.left.width, 3);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('workspace table column header does not render drag handles',
       (tester) async {

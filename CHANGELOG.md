@@ -10,6 +10,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Native mobile Comics uses its Android teal palette and shared blue utility actions; desktop and web retain their existing colours.
 - On mobile, the top-right search button opens library search inside the header instead of keeping a search bar above the collection.
 - Native mobile Add opens a full-screen page with touch-sized search tabs, full-width series and issues, and an adaptive cover grid; desktop and web keep their dialogs.
 - An optional command-line helper downloads platform logos marked public domain on Wikimedia Commons into a folder for local import; it never changes collection data.

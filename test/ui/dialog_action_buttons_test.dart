@@ -46,5 +46,5 @@ void main() {
             .resolve({WidgetState.disabled, WidgetState.hovered}),
         style.backgroundColor!.resolve({WidgetState.disabled}));
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

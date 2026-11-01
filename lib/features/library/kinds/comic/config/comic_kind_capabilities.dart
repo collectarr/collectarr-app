@@ -37,6 +37,8 @@ final comicKindIdentity = const LibraryKindIdentity(
   icon: Icons.mode_comment,
   coverPlaceholderIcon: AppIcons.bookOpen,
   accent: Color(0xFF00AEE6),
+  mobileAccent: Color(0xFF0081A6),
+  mobileChromeDark: Color(0xFF00577F),
   preferencePrefix: 'comics',
   routeSegments: ['comics', 'comic'],
   mediaFamily: 'print',
