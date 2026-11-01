@@ -103,6 +103,14 @@ Keep these when matching the reference visually.
 - The details panel shows a publisher logo only for the publishers whose logo
   is public domain on Wikimedia Commons (`assets/LOGOS.md`); the rest show
   their name. CLZ's own publisher images are never copied.
+- Custom Label images come only from the user's files. The reference's list
+  is CGC's and CBCS's custom slab labels (about 175, such as "Spawn #1") with
+  each label's artwork, which belongs to the grading companies and the
+  characters' owners; CGC's Terms of Use allow personal, non-commercial use
+  only and forbid copying from its site. Collectarr ships no label images and
+  never downloads them: the user loads an image for a label, or many named
+  after their labels, and it shows on the slab. The slab's label colours and
+  layout are drawn, not copied.
 
 ### Platform artwork licensing
 
@@ -175,7 +183,7 @@ weights (see [local font loading](architecture/local-font-loading.md)).
 | P1 | Missing Comics | It counts only catalog issues already in the library, so one owned issue per series reports nothing; read each series' issues from Core. Hidden series reappear when the dialog reopens |
 | P2 | Main screen layout | The details cover is about 95 px wide against the reference's 165 px, the "Cover:" date is missing, and Creators, Characters and Details are not three side-by-side columns |
 | P2 | Add Comics Series tab | The reference shows a publisher logo where Collectarr writes the publisher, and a 90 % translucent dialog body |
-| P2 | Value tab | CLZ: Signed by is a list of people (Name and Sort Name) added with a + beside the label, Key Category is a multi-value tag field with a list button, and Custom Label is a fixed list of slab label images. Collectarr: Signed by is one text box, Key Category a single pick list and Custom Label an editable pick list; Signed by and Key Category need a schema migration |
+| P2 | Value tab | CLZ: Signed by is a list of people (Name and Sort Name) added with a + beside the label and Key Category is a multi-value tag field with a list button. Collectarr: Signed by is one text box and Key Category a single pick list; both need a schema migration |
 | P3 | Main menu | The reference's Key Info > Update Key Info is only a selection action in Collectarr |
 | P3 | Import sources | Comic Collector Live CSV and Comic Collector user-defined fields need sample exports; Comic Collector XML is built from the Collectorz desktop shape and unverified against a real comics export |
 | P3 | Export to XML | Decide whether to also write the CLZ layout; Import Comics reads CLZ's file |
@@ -186,6 +194,8 @@ weights (see [local font loading](architecture/local-font-loading.md)).
 
 | Priority | Area | Difference |
 | --- | --- | --- |
+| P2 | Add Games suggestions | CLZ: typing a title opens a list headed by a highlighted 'Search for "lego batman"' row, then 'Or pick from these suggestions:' with one row per game and platform (cover, title, platform logo and name). Collectarr: no Search-for row or heading, and one row per edition with 'publisher \| year \| barcode', so a game repeats once per edition |
+| P3 | Add Games platform filter | CLZ shows the chosen platform's logo and short name beside the title field (Windows logo, "PC") and remembers it; Collectarr shows "All" with no logo. The CLZ region bar (All, US, EU, AU, JP, Other) is dimmed until a game is chosen; Collectarr's is lit from the start |
 | P2 | Platform vocabulary | CLZ offers about 225 platforms with short names (Wii, PSP, SNES, Genesis / Mega Drive, Nintendo Switch 2); Collectarr's Pick Platform uses its 27 built-in names (Nintendo Wii, PlayStation Portable, ...). Renaming them changes stored entry values and needs an ordered migration, so it is an owner decision |
 | P2 | Pick lists | CLZ: Audience Rating, Condition, Developer, Format, Genre, Image Type, Loaned To, Location, Owner, Platform, Publisher, Purchase Store, Region, Series, Storage Device, Sub Type, Tag. The unused Age Rating and "Edition / Format" lists were removed (2026-10-23). Collectarr still adds Sold To (its own Sold fields) and has no Image Type list for My Images |
 | P3 | Column chooser gaps | Games has no Back Cover image, Description, eBay, Core GameID/MediaID or Toy NFCID columns. Collectarr keeps its Status, Wishlist, Franchise and Box/Manual Only value columns |
