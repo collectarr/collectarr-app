@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -74,8 +75,8 @@ class _Banner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ColoredBox(
-        // The dark item area, as behind the reference's banner.
-        color: appPalette(context).gridCanvas,
+        // The item views' background, dark as behind the reference's banner.
+        color: libraryViewBackgroundColor(context),
         child: Align(
           alignment: Alignment.topCenter,
           child: Container(
