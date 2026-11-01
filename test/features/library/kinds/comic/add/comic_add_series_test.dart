@@ -228,6 +228,11 @@ void main() {
           ))));
       await tester.tap(find.text('Open Add'));
       await pumpUntilSettled(tester);
+      expect(find.byKey(const Key('add.method-picker')), findsOneWidget);
+      await tester
+          .ensureVisible(find.byKey(const ValueKey('add.method.search')));
+      await tester.tap(find.byKey(const ValueKey('add.method.search')));
+      await pumpUntilSettled(tester);
       expect(find.text('Outer app header'), findsNothing);
       expect(find.text('Add Comics'), findsOneWidget);
       expect(find.text('Series'), findsOneWidget);
@@ -279,6 +284,35 @@ void main() {
       await tester.tap(find.byType(BackButton));
       await pumpUntilSettled(tester);
       expect(find.text('Outer app header'), findsOneWidget);
+      if (size.width == 407) {
+        for (final method in ['barcode', 'cover']) {
+          await tester.tap(find.text('Open Add'));
+          await pumpUntilSettled(tester);
+          await tester.tap(find.byKey(ValueKey('add.method.$method')));
+          await pumpUntilSettled(tester);
+          if (method == 'barcode') {
+            expect(find.byKey(const ValueKey('library-add-barcode-field')),
+                findsOneWidget);
+          } else {
+            expect(find.text('Scan cover'), findsOneWidget);
+          }
+          await tester.tap(find.byType(BackButton));
+          await pumpUntilSettled(tester);
+        }
+        await tester.tap(find.text('Open Add'));
+        await pumpUntilSettled(tester);
+        await tester.tap(find.byType(CheckboxListTile));
+        await tester.tap(find.byKey(const ValueKey('add.method.search')));
+        await pumpUntilSettled(tester);
+        await tester.tap(find.byType(BackButton));
+        await pumpUntilSettled(tester);
+        await tester.tap(find.text('Open Add'));
+        await pumpUntilSettled(tester);
+        expect(find.byKey(const Key('add.method-picker')), findsNothing);
+        expect(find.byType(LibraryAddDialog), findsOneWidget);
+        await tester.tap(find.byType(BackButton));
+        await pumpUntilSettled(tester);
+      }
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpAndSettle();
     }, variant: TargetPlatformVariant.only(TargetPlatform.android));

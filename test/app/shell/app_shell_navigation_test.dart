@@ -176,6 +176,8 @@ void main() {
       expect(find.text('My Shelf'), findsNothing);
       await tester.tap(find.text('Add Albums from Core'));
       await pumpUntilSettled(tester);
+      await tester.tap(find.byKey(const ValueKey('add.method.search')));
+      await pumpUntilSettled(tester);
       expect(
           router.routeInformationProvider.value.uri.path, AppRoutes.libraries);
       expect(router.routeInformationProvider.value.uri.queryParameters['kind'],

@@ -1,3 +1,6 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
+import 'mobile_method_picker.dart';
 import 'package:collectarr_app/features/library/add/dialog.dart';
 import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -26,7 +29,34 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
   BuildContext context,
   LibraryAddDialogRequest request,
   bool startManually,
-) {
+) async {
+  MobileAddMethod? method;
+  if (isMobileApp &&
+      !startManually &&
+      (request.initialQuery?.isEmpty ?? true) &&
+      (request.initialIdentifier?.isEmpty ?? true)) {
+    final preferences = await SharedPreferences.getInstance();
+    if (!context.mounted) return null;
+    if (!(preferences.getBool('mobile.add.skipMethodPicker') ?? false)) {
+      final capability = libraryAddForKind(request.type.kind);
+      final searchLabel = libraryPresentationForKind(request.type.kind)
+          .searchFieldLabels
+          .addSearchTabLabel;
+      final browseLabel = capability.search.browse?.label;
+      final choice = await showMobileAddMethodPicker(context,
+          pluralLabel: request.type.identity.pluralLabel,
+          canScanCover: capability.chrome.canScanCover,
+          searchLabel: browseLabel == null
+              ? 'Search by ${searchLabel.toLowerCase()}'
+              : 'Search by ${browseLabel.toLowerCase()} / ${searchLabel.toLowerCase()}');
+      if (choice == null || !context.mounted) return null;
+      method = choice.method;
+      if (choice.remember) {
+        await preferences.setBool('mobile.add.skipMethodPicker', true);
+      }
+    }
+  }
+  if (!context.mounted) return null;
   if (isMobileApp) {
     return Navigator.of(context, rootNavigator: true)
         .push<LibraryAddDialogResult>(
@@ -38,6 +68,7 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
           initialQuery: request.initialQuery,
           initialIdentifier: request.initialIdentifier,
           startManually: startManually,
+          initialMobileMethod: method,
         ),
       ),
     );

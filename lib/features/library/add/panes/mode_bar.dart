@@ -92,6 +92,7 @@ class LibraryAddModeBar extends StatefulWidget {
     this.searchRowBeside,
     this.showMobileInput = true,
     this.onCoverTabChanged,
+    this.coverSelected = false,
   });
 
   final LibraryKindRegistration type;
@@ -147,6 +148,7 @@ class LibraryAddModeBar extends StatefulWidget {
 
   /// Narrows the search row to [searchRowWidth] and shows [searchRowBeside]
   /// in the rest, for results laid out in two panes.
+  final bool coverSelected;
   final ValueChanged<bool>? onCoverTabChanged;
   final bool showMobileInput;
   final double? searchRowWidth;
@@ -164,7 +166,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   final LayerLink _searchLayerLink = LayerLink();
   final GlobalKey _searchBarKey = GlobalKey();
   bool _dismissed = false;
-  bool _mobileCoverSelected = false;
+  bool get _mobileCoverSelected => widget.coverSelected;
 
   @override
   void initState() {
@@ -186,7 +188,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   @override
   void didUpdateWidget(covariant LibraryAddModeBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.mode != widget.mode) _mobileCoverSelected = false;
     _syncAdvancedControllers(_resolveAdvancedFields());
     final canShow =
         widget.showSuggestions && widget.suggestions.isNotEmpty && !_dismissed;
@@ -444,7 +445,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
         onSelected: (mode) {
           FocusScope.of(context).unfocus();
           widget.onDismissSuggestions();
-          setState(() => _mobileCoverSelected = mode == null);
           widget.onCoverTabChanged?.call(mode == null);
           if (mode != null) widget.onModeChanged(mode);
         },
