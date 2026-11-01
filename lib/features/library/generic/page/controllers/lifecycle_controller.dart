@@ -329,6 +329,6 @@ abstract final class _LibraryPageLifecycleControllerOps {
     state._session.preferences.viewStateSaveDebounce?.cancel();
     state._session.selection.hydrationDebounce?.cancel();
     state._shelfSubscription?.close();
-    state._searchController.dispose();
+    if (state._mobileSearch == null) state._searchController.dispose();
   }
 }

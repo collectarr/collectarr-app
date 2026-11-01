@@ -1,3 +1,6 @@
+import 'app_library_search_bar.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/features/library/generic/mobile_search_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_shell_brand.dart';
@@ -15,7 +18,7 @@ import 'package:collectarr_app/ui/app_icons.dart';
 
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 
-class AppShellAppBar extends StatelessWidget implements PreferredSizeWidget {
+class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const AppShellAppBar(
       {super.key,
       required this.type,
@@ -23,18 +26,35 @@ class AppShellAppBar extends StatelessWidget implements PreferredSizeWidget {
       required this.types,
       required this.animationsEnabled,
       required this.onKindSelected,
-      required this.onOpenNavigation});
+      required this.onOpenNavigation,
+      this.showLibrarySearch = false});
   final LibraryKindRegistration type;
   final Color accent;
   final List<CatalogMediaType> types;
   final bool animationsEnabled;
   final ValueChanged<CatalogMediaType> onKindSelected;
   final VoidCallback onOpenNavigation;
+  final bool showLibrarySearch;
   @override
   Size get preferredSize => const Size.fromHeight(shellAppBarHeight);
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final toolbarIconStyle = appChromeIconButtonStyle(context);
+    final nativeSearch = isMobileApp && showLibrarySearch;
+    final searchOpen = nativeSearch &&
+        ref.watch(mobileLibrarySearchProvider(type.kind.apiValue));
+    final search = nativeSearch
+        ? ref.read(mobileLibrarySearchProvider(type.kind.apiValue).notifier)
+        : null;
+    if (searchOpen) {
+      return AppLibrarySearchBar(
+          controller: search!,
+          kind: type.kind.apiValue,
+          pluralLabel: type.identity.pluralLabel,
+          accent: accent,
+          animationsEnabled: animationsEnabled);
+    }
+
     return AppBar(
       toolbarHeight: shellAppBarHeight,
       automaticallyImplyLeading: false,
@@ -81,6 +101,13 @@ class AppShellAppBar extends StatelessWidget implements PreferredSizeWidget {
             style: toolbarIconStyle,
             kind: type.kind.apiValue,
             animationsEnabled: animationsEnabled),
+        if (nativeSearch)
+          IconButton(
+              key: const Key('app.open-search'),
+              tooltip: 'Search library',
+              style: toolbarIconStyle,
+              onPressed: search!.open,
+              icon: const Icon(Icons.search)),
         const SizedBox(width: 4),
       ],
     );

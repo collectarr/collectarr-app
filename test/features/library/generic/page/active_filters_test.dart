@@ -109,5 +109,5 @@ void main() {
     container.dispose();
     await tester.pump(const Duration(milliseconds: 100));
     LibraryViewPreferenceStore.resetCachedPreferencesForTesting();
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

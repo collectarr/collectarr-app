@@ -1047,6 +1047,12 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                 extraActions: extraActions,
               ),
             ];
+            if (isMobileApp) {
+              return Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  runSpacing: 4,
+                  children: actions);
+            }
             if (constraints.maxWidth < 560) {
               return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
