@@ -9,6 +9,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- An optional command-line helper downloads platform logos marked public domain on Wikimedia Commons into a folder for local import; it never changes collection data.
 - Load your own platform icons from Settings > Appearance; SVG and raster images replace the built-in platform marks throughout the app and stay separate from Comics Custom Label images.
 - A comic's Custom Label can show an image on its slab and beside the field, as in CLZ: load one from your own files for a label, or load many at once from files named after their labels, whose names then join the Custom Label list. Collectarr ships no label images.
 - The Comics details panel shows the publisher's logo instead of its name, as CLZ does, for Marvel, DC, Image, Dark Horse, IDW, Viz Media, Kodansha, Shueisha, Tokyopop, Archie, Dynamite, Valiant, Vertigo, Fantagraphics and Panini.

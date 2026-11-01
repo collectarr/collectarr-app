@@ -50,3 +50,6 @@ sqlite3_temp.dat
 .tmp*
 test_output.txt
 clz_*.png
+
+# Private local images (never commit)
+/local-assets/

@@ -114,6 +114,14 @@ Keep these when matching the reference visually.
 
 ### Platform artwork licensing
 
+For optional local artwork, run
+`dart run tool/download_platform_logos.dart <output folder>`, then load the
+files from Settings > Appearance > Platform icons. The helper skips files
+unless Commons marks them public domain, excludes Windows and Xbox, and
+never opens a collection database. Keep downloaded artwork outside the
+repository or in the ignored `local-assets/` directory. Public-domain
+copyright status does not remove trademark restrictions.
+
 Keep the current FOSS device/category glyphs and platform names. The
 [Font Awesome Free license](https://github.com/FortAwesome/Font-Awesome/blob/7.x/LICENSE.txt)
 permits its font/SVG distribution under OFL/CC BY with attribution, but brand
