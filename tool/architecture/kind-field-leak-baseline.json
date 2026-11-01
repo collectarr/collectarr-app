@@ -200,11 +200,6 @@
                         "path":  "lib/features/library/workspace/tiles/card_presentation.dart",
                         "surface":  "member-declaration",
                         "symbol":  "variant"
-                    },
-                    {
-                        "path":  "lib/features/library/workspace/tiles/cover_image.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "labelType"
                     }
                 ]
 }
