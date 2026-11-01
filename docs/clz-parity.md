@@ -76,7 +76,7 @@ Keep these when matching the reference visually.
 | Add dialog | Search field only | Advanced artist, label and year fields toggle beside the field; cover search sits in the tab row |
 | Backups | Web: one downloadable backup file made on request; the old desktop app kept time-stamped backups for a set number of days | Desktop and mobile copy the database daily and before every restore or clear, prune by a kept period and restore from Settings > Data; a restore first keeps a copy of the current data, so it can be undone |
 | Number order | Text compares character by character: 12 before 2, Raft 10 before Raft 2 (checked on CLZ Music Web, 2026-10-18) | Digit runs compare by value: 2 before 12, Raft 2 before Raft 10 |
-| Sort Names | Shown only on the person lists (Artist, Composer, Conductor, Musician, Engineer, Producer, Songwriter, Signee) and Box Set; the other lists store one but hide it, so "The End Records" stays under T | Every pick list except Comics Publisher, Imprint and Format shows its Sort Name, fills it from the Name as it is typed (the article rule, as for Sort Title), and every pick-list folder is ordered by it |
+| Sort Names | Shown only on the person lists (Artist, Composer, Conductor, Musician, Engineer, Producer, Songwriter, Signee) and Box Set; the other lists store one but hide it, so "The End Records" stays under T | Every pick list except Comics Publisher, Imprint, Format, Country, Language and Age shows its Sort Name, fills it from the Name as it is typed (the article rule, as for Sort Title), and every pick-list folder is ordered by it |
 | Storage | Comics keeps a flat Storage Box pick list per app | Every kind files items in one shared Location tree (rooms, shelves, boxes) managed in Settings; Comics calls it Location |
 
 ### Deliberate Games behavior
@@ -172,6 +172,7 @@ weights (see [local font loading](architecture/local-font-loading.md)).
 | P1 | Missing Comics | It counts only catalog issues already in the library, so one owned issue per series reports nothing; read each series' issues from Core. Hidden series reappear when the dialog reopens |
 | P2 | Main screen layout | The details cover is about 95 px wide against the reference's 165 px, the "Cover:" date and the publisher logo row are missing, and Creators, Characters and Details are not three side-by-side columns |
 | P2 | Add Comics Series tab | The reference shows a publisher logo where Collectarr writes the publisher, and a 90 % translucent dialog body |
+| P2 | Value tab | CLZ: Signed by is a list of people (Name and Sort Name) added with a + beside the label, Key Category is a multi-value tag field with a list button, and Custom Label is a fixed list of slab label images. Collectarr: Signed by is one text box, Key Category a single pick list and Custom Label an editable pick list; Signed by and Key Category need a schema migration |
 | P3 | Main menu | The reference's Key Info > Update Key Info is only a selection action in Collectarr |
 | P3 | Import sources | Comic Collector Live CSV and Comic Collector user-defined fields need sample exports; Comic Collector XML is built from the Collectorz desktop shape and unverified against a real comics export |
 | P3 | Export to XML | Decide whether to also write the CLZ layout; Import Comics reads CLZ's file |
