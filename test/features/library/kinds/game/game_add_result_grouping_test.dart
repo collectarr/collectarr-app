@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/add/controllers/dialog_requests.
 import 'package:collectarr_app/features/library/kinds/game/add/preview.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/result_grouping.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,6 +26,11 @@ CatalogSearchCandidate _game(String id, String title, String platform,
         if (region != null) 'release_region': region,
       },
     });
+
+/// No platform icons loaded by the user, without a database.
+final _noLoadedIcons = [
+  listValueImageProvider.overrideWith((ref, key) => Stream.value(null))
+];
 
 void main() {
   final results = [
@@ -56,7 +62,8 @@ void main() {
     String? group;
     String? result;
     Widget pane() => ProviderScope(
-            child: MaterialApp(
+        overrides: _noLoadedIcons,
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddSearchPane(
               type: const GameRegistration(),
@@ -122,6 +129,7 @@ void main() {
       },
     });
     await tester.pumpWidget(ProviderScope(
+      overrides: _noLoadedIcons,
       child: MaterialApp(
         home: Scaffold(
           body: Builder(
@@ -157,6 +165,7 @@ void main() {
     addTearDown(identifier.dispose);
     CatalogSearchCandidate? picked;
     await tester.pumpWidget(ProviderScope(
+      overrides: _noLoadedIcons,
       child: MaterialApp(
         home: Scaffold(
           body: LibraryAddModeBar(
@@ -215,6 +224,7 @@ void main() {
         group.first
     ];
     await tester.pumpWidget(ProviderScope(
+      overrides: _noLoadedIcons,
       child: MaterialApp(
         home: Scaffold(
           body: LibraryAddModeBar(

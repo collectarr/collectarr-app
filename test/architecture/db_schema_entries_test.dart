@@ -109,6 +109,6 @@ void main() {
     }
 
     expect(declarations.keys, {'lib/core/db/universal_local_tables.dart'});
-    expect(declarations.values.single, hasLength(17));
+    expect(declarations.values.single, hasLength(18));
   });
 }

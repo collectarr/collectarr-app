@@ -30,6 +30,7 @@ part 'local_database.g.dart';
     UserFolderItemsCache,
     ReadingQueueCache,
     PickListValuesCache,
+    ListValueImagesCache,
     SerialAuthorityCache,
     ...collectarrKindTableTypes,
   ],
@@ -71,7 +72,7 @@ class LocalDatabase extends _$LocalDatabase {
         comicReadingRows,
         comicTrackingUnitRows,
         comicTrackingRows,
-        comicCustomLabelImageRows,
+        listValueImagesCache,
       ];
 
   @override
@@ -138,8 +139,9 @@ class LocalDatabase extends _$LocalDatabase {
                 _dropMusicCreditIds);
           }
           if (from < 6) {
-            // 6: Comics keep the images users load for their Custom Labels.
-            await migrator.createTable(comicCustomLabelImageRows);
+            // 6: Images users load for list values, such as platform icons
+            // and Custom Labels.
+            await migrator.createTable(listValueImagesCache);
             // Comics leave Grade empty, as the reference does, instead of
             // the "Ungraded" that Add gave them. Other kinds keep it.
             await _updatePayloadSectionIn('library_entries',

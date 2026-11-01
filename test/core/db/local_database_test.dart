@@ -106,7 +106,6 @@ void main() {
         'comic_reading_rows',
         'comic_tracking_unit_rows',
         'comic_tracking_rows',
-        'comic_custom_label_image_rows',
       });
       final columns = await db
           .customSelect('PRAGMA table_info(pick_list_values_cache)')
@@ -322,8 +321,8 @@ void main() {
       '{"kind":"comic","personal_data":{"grade":null}}',
       '{"kind":"game","personal_data":{"grade":"Ungraded"}}',
     ]);
-    // Schema 6 also keeps the images users load for Custom Labels.
-    expect(await db.select(db.comicCustomLabelImageRows).get(), isEmpty);
+    // Schema 6 also keeps the images users load for list values.
+    expect(await db.select(db.listValueImagesCache).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
     expect(version.data.values.single, 6);
   });

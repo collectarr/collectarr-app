@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/game/add/platform_picker_dialog.dart';
+import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,12 +23,18 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     String? chosen = 'unset';
-    await tester.pumpWidget(MaterialApp(
-      home: Builder(
-        builder: (context) => TextButton(
-          onPressed: () async =>
-              chosen = await showGamePlatformPicker(context, selected: ''),
-          child: const Text('open'),
+    // No platform icons loaded by the user, without a database.
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        listValueImageProvider.overrideWith((ref, key) => Stream.value(null))
+      ],
+      child: MaterialApp(
+        home: Builder(
+          builder: (context) => TextButton(
+            onPressed: () async =>
+                chosen = await showGamePlatformPicker(context, selected: ''),
+            child: const Text('open'),
+          ),
         ),
       ),
     ));

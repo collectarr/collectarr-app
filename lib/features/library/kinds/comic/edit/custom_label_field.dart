@@ -1,8 +1,7 @@
-import 'package:collectarr_app/features/library/kinds/comic/data/custom_label_images.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
-import 'package:collectarr_app/features/library/ui/primitives/image_intake.dart';
 import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary_field.dart';
+import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:collectarr_app/features/library/ui/density_scope.dart';
 import 'package:collectarr_app/features/library/ui/metrics.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -33,8 +32,8 @@ class ComicCustomLabelField extends ConsumerWidget {
               listName: ComicVocabularyIds.customLabel.value,
               mediaKind: 'comic',
               value: value,
-              builtIns:
-                  ref.watch(comicCustomLabelNamesProvider).value ?? const [],
+              builtIns: ref.watch(listValueImageValuesProvider(_list)).value ??
+                  const [],
               onChanged: onChanged,
             ),
           ),
@@ -43,6 +42,9 @@ class ComicCustomLabelField extends ConsumerWidget {
         ]),
       );
 }
+
+/// The list the images are kept for.
+final _list = ComicVocabularyIds.customLabel.value;
 
 enum _ImageAction { choose, remove, loadFiles }
 
@@ -57,7 +59,7 @@ class _CustomLabelImageButton extends ConsumerWidget {
     final name = label?.trim() ?? '';
     final image = name.isEmpty
         ? null
-        : ref.watch(comicCustomLabelImageProvider(name)).value;
+        : ref.watch(listValueImageProvider((list: _list, value: name))).value;
     final height = LibraryDensityScope.of(context).metrics.fieldHeight;
     return PopupMenuButton<_ImageAction>(
       tooltip: 'Custom Label image',
@@ -85,27 +87,28 @@ class _CustomLabelImageButton extends ConsumerWidget {
         alignment: Alignment.center,
         child: image == null
             ? Icon(AppIcons.tabImages, size: 15, color: palette.textMuted)
-            : Image.memory(image, fit: BoxFit.contain, gaplessPlayback: true),
+            : ListValueImageView(image),
       ),
     );
   }
 
   Future<void> _run(BuildContext context, WidgetRef ref, _ImageAction action,
       String name) async {
-    final images = ref.read(comicCustomLabelImagesProvider);
+    final images = ref.read(listValueImagesProvider);
     final messenger = ScaffoldMessenger.maybeOf(context);
     void tell(String message) =>
         messenger?.showSnackBar(SnackBar(content: Text(message)));
     switch (action) {
       case _ImageAction.remove:
-        await images.remove(name);
+        await images.remove(_list, name);
       case _ImageAction.choose:
-        final file = await openFile(acceptedTypeGroups: libraryImageFileTypes);
+        final file =
+            await openFile(acceptedTypeGroups: listValueImageFileTypes);
         if (file == null) return;
         try {
           final bytes = await file.readAsBytes();
-          await validateLibraryImageBytes(bytes);
-          await images.save(name, bytes);
+          await validateListValueImage(bytes);
+          await images.save(_list, name, bytes);
         } on FormatException catch (error) {
           tell(error.message);
         } catch (_) {
@@ -113,32 +116,10 @@ class _CustomLabelImageButton extends ConsumerWidget {
         }
       case _ImageAction.loadFiles:
         // Each file is named after its label, such as "Spawn #1.png".
-        final files =
-            await openFiles(acceptedTypeGroups: libraryImageFileTypes);
-        var loaded = 0;
-        final skipped = <String>[];
-        for (final file in files) {
-          final label = _labelFromFileName(file.name);
-          try {
-            final bytes = await file.readAsBytes();
-            await validateLibraryImageBytes(bytes);
-            await images.save(label, bytes);
-            loaded++;
-          } catch (_) {
-            skipped.add(file.name);
-          }
+        final result = await images.loadFiles(_list);
+        if (result.loaded > 0 || result.skipped.isNotEmpty) {
+          tell(listValueImagesLoadMessage(result));
         }
-        if (files.isEmpty) return;
-        tell([
-          'Loaded $loaded label ${loaded == 1 ? 'image' : 'images'}.',
-          if (skipped.isNotEmpty) 'Skipped: ${skipped.join(', ')}.',
-        ].join(' '));
     }
   }
-}
-
-/// "Spawn #1" from "Spawn #1.png".
-String _labelFromFileName(String fileName) {
-  final dot = fileName.lastIndexOf('.');
-  return (dot > 0 ? fileName.substring(0, dot) : fileName).trim();
 }
