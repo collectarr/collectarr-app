@@ -22,7 +22,7 @@ class ComicCustomLabelImages {
     final rows = _db.comicCustomLabelImageRows;
     return (_db.select(rows)..where((row) => row.labelKey.equals(key)))
         .watchSingleOrNull()
-        .map((row) => row?.imageData);
+        .map((row) => row?.labelImage);
   }
 
   /// The names of the labels that have an image, by name.
@@ -42,7 +42,7 @@ class ComicCustomLabelImages {
           ComicCustomLabelImageRowsCompanion.insert(
             labelKey: key,
             label: label.trim(),
-            imageData: image,
+            labelImage: image,
             updatedAt: DateTime.now().toUtc(),
           ),
         );

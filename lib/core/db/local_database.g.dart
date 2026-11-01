@@ -10488,11 +10488,11 @@ class $ComicCustomLabelImageRowsTable extends ComicCustomLabelImageRows
   late final GeneratedColumn<String> label = GeneratedColumn<String>(
       'label', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _imageDataMeta =
-      const VerificationMeta('imageData');
+  static const VerificationMeta _labelImageMeta =
+      const VerificationMeta('labelImage');
   @override
-  late final GeneratedColumn<Uint8List> imageData = GeneratedColumn<Uint8List>(
-      'image_data', aliasedName, false,
+  late final GeneratedColumn<Uint8List> labelImage = GeneratedColumn<Uint8List>(
+      'label_image', aliasedName, false,
       type: DriftSqlType.blob, requiredDuringInsert: true);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
@@ -10501,7 +10501,8 @@ class $ComicCustomLabelImageRowsTable extends ComicCustomLabelImageRows
       'updated_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [labelKey, label, imageData, updatedAt];
+  List<GeneratedColumn> get $columns =>
+      [labelKey, label, labelImage, updatedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -10525,11 +10526,13 @@ class $ComicCustomLabelImageRowsTable extends ComicCustomLabelImageRows
     } else if (isInserting) {
       context.missing(_labelMeta);
     }
-    if (data.containsKey('image_data')) {
-      context.handle(_imageDataMeta,
-          imageData.isAcceptableOrUnknown(data['image_data']!, _imageDataMeta));
+    if (data.containsKey('label_image')) {
+      context.handle(
+          _labelImageMeta,
+          labelImage.isAcceptableOrUnknown(
+              data['label_image']!, _labelImageMeta));
     } else if (isInserting) {
-      context.missing(_imageDataMeta);
+      context.missing(_labelImageMeta);
     }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
@@ -10551,8 +10554,8 @@ class $ComicCustomLabelImageRowsTable extends ComicCustomLabelImageRows
           .read(DriftSqlType.string, data['${effectivePrefix}label_key'])!,
       label: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}label'])!,
-      imageData: attachedDatabase.typeMapping
-          .read(DriftSqlType.blob, data['${effectivePrefix}image_data'])!,
+      labelImage: attachedDatabase.typeMapping
+          .read(DriftSqlType.blob, data['${effectivePrefix}label_image'])!,
       updatedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
     );
@@ -10569,19 +10572,19 @@ class ComicCustomLabelImageRow extends DataClass
   /// The label's trimmed, lower-case name.
   final String labelKey;
   final String label;
-  final Uint8List imageData;
+  final Uint8List labelImage;
   final DateTime updatedAt;
   const ComicCustomLabelImageRow(
       {required this.labelKey,
       required this.label,
-      required this.imageData,
+      required this.labelImage,
       required this.updatedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['label_key'] = Variable<String>(labelKey);
     map['label'] = Variable<String>(label);
-    map['image_data'] = Variable<Uint8List>(imageData);
+    map['label_image'] = Variable<Uint8List>(labelImage);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
@@ -10590,7 +10593,7 @@ class ComicCustomLabelImageRow extends DataClass
     return ComicCustomLabelImageRowsCompanion(
       labelKey: Value(labelKey),
       label: Value(label),
-      imageData: Value(imageData),
+      labelImage: Value(labelImage),
       updatedAt: Value(updatedAt),
     );
   }
@@ -10601,7 +10604,7 @@ class ComicCustomLabelImageRow extends DataClass
     return ComicCustomLabelImageRow(
       labelKey: serializer.fromJson<String>(json['labelKey']),
       label: serializer.fromJson<String>(json['label']),
-      imageData: serializer.fromJson<Uint8List>(json['imageData']),
+      labelImage: serializer.fromJson<Uint8List>(json['labelImage']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
@@ -10611,7 +10614,7 @@ class ComicCustomLabelImageRow extends DataClass
     return <String, dynamic>{
       'labelKey': serializer.toJson<String>(labelKey),
       'label': serializer.toJson<String>(label),
-      'imageData': serializer.toJson<Uint8List>(imageData),
+      'labelImage': serializer.toJson<Uint8List>(labelImage),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
@@ -10619,12 +10622,12 @@ class ComicCustomLabelImageRow extends DataClass
   ComicCustomLabelImageRow copyWith(
           {String? labelKey,
           String? label,
-          Uint8List? imageData,
+          Uint8List? labelImage,
           DateTime? updatedAt}) =>
       ComicCustomLabelImageRow(
         labelKey: labelKey ?? this.labelKey,
         label: label ?? this.label,
-        imageData: imageData ?? this.imageData,
+        labelImage: labelImage ?? this.labelImage,
         updatedAt: updatedAt ?? this.updatedAt,
       );
   ComicCustomLabelImageRow copyWithCompanion(
@@ -10632,7 +10635,8 @@ class ComicCustomLabelImageRow extends DataClass
     return ComicCustomLabelImageRow(
       labelKey: data.labelKey.present ? data.labelKey.value : this.labelKey,
       label: data.label.present ? data.label.value : this.label,
-      imageData: data.imageData.present ? data.imageData.value : this.imageData,
+      labelImage:
+          data.labelImage.present ? data.labelImage.value : this.labelImage,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -10642,7 +10646,7 @@ class ComicCustomLabelImageRow extends DataClass
     return (StringBuffer('ComicCustomLabelImageRow(')
           ..write('labelKey: $labelKey, ')
           ..write('label: $label, ')
-          ..write('imageData: $imageData, ')
+          ..write('labelImage: $labelImage, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -10650,14 +10654,14 @@ class ComicCustomLabelImageRow extends DataClass
 
   @override
   int get hashCode => Object.hash(
-      labelKey, label, $driftBlobEquality.hash(imageData), updatedAt);
+      labelKey, label, $driftBlobEquality.hash(labelImage), updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ComicCustomLabelImageRow &&
           other.labelKey == this.labelKey &&
           other.label == this.label &&
-          $driftBlobEquality.equals(other.imageData, this.imageData) &&
+          $driftBlobEquality.equals(other.labelImage, this.labelImage) &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -10665,37 +10669,37 @@ class ComicCustomLabelImageRowsCompanion
     extends UpdateCompanion<ComicCustomLabelImageRow> {
   final Value<String> labelKey;
   final Value<String> label;
-  final Value<Uint8List> imageData;
+  final Value<Uint8List> labelImage;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
   const ComicCustomLabelImageRowsCompanion({
     this.labelKey = const Value.absent(),
     this.label = const Value.absent(),
-    this.imageData = const Value.absent(),
+    this.labelImage = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ComicCustomLabelImageRowsCompanion.insert({
     required String labelKey,
     required String label,
-    required Uint8List imageData,
+    required Uint8List labelImage,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
   })  : labelKey = Value(labelKey),
         label = Value(label),
-        imageData = Value(imageData),
+        labelImage = Value(labelImage),
         updatedAt = Value(updatedAt);
   static Insertable<ComicCustomLabelImageRow> custom({
     Expression<String>? labelKey,
     Expression<String>? label,
-    Expression<Uint8List>? imageData,
+    Expression<Uint8List>? labelImage,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (labelKey != null) 'label_key': labelKey,
       if (label != null) 'label': label,
-      if (imageData != null) 'image_data': imageData,
+      if (labelImage != null) 'label_image': labelImage,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -10704,13 +10708,13 @@ class ComicCustomLabelImageRowsCompanion
   ComicCustomLabelImageRowsCompanion copyWith(
       {Value<String>? labelKey,
       Value<String>? label,
-      Value<Uint8List>? imageData,
+      Value<Uint8List>? labelImage,
       Value<DateTime>? updatedAt,
       Value<int>? rowid}) {
     return ComicCustomLabelImageRowsCompanion(
       labelKey: labelKey ?? this.labelKey,
       label: label ?? this.label,
-      imageData: imageData ?? this.imageData,
+      labelImage: labelImage ?? this.labelImage,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -10725,8 +10729,8 @@ class ComicCustomLabelImageRowsCompanion
     if (label.present) {
       map['label'] = Variable<String>(label.value);
     }
-    if (imageData.present) {
-      map['image_data'] = Variable<Uint8List>(imageData.value);
+    if (labelImage.present) {
+      map['label_image'] = Variable<Uint8List>(labelImage.value);
     }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
@@ -10742,7 +10746,7 @@ class ComicCustomLabelImageRowsCompanion
     return (StringBuffer('ComicCustomLabelImageRowsCompanion(')
           ..write('labelKey: $labelKey, ')
           ..write('label: $label, ')
-          ..write('imageData: $imageData, ')
+          ..write('labelImage: $labelImage, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -19139,7 +19143,7 @@ typedef $$ComicCustomLabelImageRowsTableCreateCompanionBuilder
     = ComicCustomLabelImageRowsCompanion Function({
   required String labelKey,
   required String label,
-  required Uint8List imageData,
+  required Uint8List labelImage,
   required DateTime updatedAt,
   Value<int> rowid,
 });
@@ -19147,7 +19151,7 @@ typedef $$ComicCustomLabelImageRowsTableUpdateCompanionBuilder
     = ComicCustomLabelImageRowsCompanion Function({
   Value<String> labelKey,
   Value<String> label,
-  Value<Uint8List> imageData,
+  Value<Uint8List> labelImage,
   Value<DateTime> updatedAt,
   Value<int> rowid,
 });
@@ -19167,8 +19171,8 @@ class $$ComicCustomLabelImageRowsTableFilterComposer
   ColumnFilters<String> get label => $composableBuilder(
       column: $table.label, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<Uint8List> get imageData => $composableBuilder(
-      column: $table.imageData, builder: (column) => ColumnFilters(column));
+  ColumnFilters<Uint8List> get labelImage => $composableBuilder(
+      column: $table.labelImage, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
@@ -19189,8 +19193,8 @@ class $$ComicCustomLabelImageRowsTableOrderingComposer
   ColumnOrderings<String> get label => $composableBuilder(
       column: $table.label, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<Uint8List> get imageData => $composableBuilder(
-      column: $table.imageData, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<Uint8List> get labelImage => $composableBuilder(
+      column: $table.labelImage, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
@@ -19211,8 +19215,8 @@ class $$ComicCustomLabelImageRowsTableAnnotationComposer
   GeneratedColumn<String> get label =>
       $composableBuilder(column: $table.label, builder: (column) => column);
 
-  GeneratedColumn<Uint8List> get imageData =>
-      $composableBuilder(column: $table.imageData, builder: (column) => column);
+  GeneratedColumn<Uint8List> get labelImage => $composableBuilder(
+      column: $table.labelImage, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -19251,28 +19255,28 @@ class $$ComicCustomLabelImageRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> labelKey = const Value.absent(),
             Value<String> label = const Value.absent(),
-            Value<Uint8List> imageData = const Value.absent(),
+            Value<Uint8List> labelImage = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ComicCustomLabelImageRowsCompanion(
             labelKey: labelKey,
             label: label,
-            imageData: imageData,
+            labelImage: labelImage,
             updatedAt: updatedAt,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String labelKey,
             required String label,
-            required Uint8List imageData,
+            required Uint8List labelImage,
             required DateTime updatedAt,
             Value<int> rowid = const Value.absent(),
           }) =>
               ComicCustomLabelImageRowsCompanion.insert(
             labelKey: labelKey,
             label: label,
-            imageData: imageData,
+            labelImage: labelImage,
             updatedAt: updatedAt,
             rowid: rowid,
           ),

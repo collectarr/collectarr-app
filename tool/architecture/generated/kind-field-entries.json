@@ -1454,6 +1454,28 @@
               "sqlName": "deleted_at"
             }
           ]
+        },
+        {
+          "name": "ComicCustomLabelImageRows",
+          "source": "lib/features/library/kinds/comic/data/local/comic_local_tables.dart",
+          "columns": [
+            {
+              "property": "labelKey",
+              "sqlName": "label_key"
+            },
+            {
+              "property": "label",
+              "sqlName": "label"
+            },
+            {
+              "property": "labelImage",
+              "sqlName": "label_image"
+            },
+            {
+              "property": "updatedAt",
+              "sqlName": "updated_at"
+            }
+          ]
         }
       ],
       "workspaceIdSources": [
@@ -1742,6 +1764,53 @@
           "workspaceFieldIds": [
             "comic.key_severity"
           ]
+        },
+        "label": {
+          "symbols": [
+            "label"
+          ],
+          "databaseColumns": [
+            "label"
+          ],
+          "databaseTables": [
+            "ComicCustomLabelImageRows"
+          ],
+          "sqlNames": [
+            "label"
+          ],
+          "workspaceFieldIds": []
+        },
+        "labelImage": {
+          "symbols": [
+            "labelImage",
+            "label_image"
+          ],
+          "databaseColumns": [
+            "labelImage"
+          ],
+          "databaseTables": [
+            "ComicCustomLabelImageRows"
+          ],
+          "sqlNames": [
+            "label_image"
+          ],
+          "workspaceFieldIds": []
+        },
+        "labelKey": {
+          "symbols": [
+            "labelKey",
+            "label_key"
+          ],
+          "databaseColumns": [
+            "labelKey"
+          ],
+          "databaseTables": [
+            "ComicCustomLabelImageRows"
+          ],
+          "sqlNames": [
+            "label_key"
+          ],
+          "workspaceFieldIds": []
         },
         "labelType": {
           "symbols": [
@@ -2070,6 +2139,7 @@
             "updatedAt"
           ],
           "databaseTables": [
+            "ComicCustomLabelImageRows",
             "ComicTrackingRows",
             "ComicTrackingUnitRows"
           ],

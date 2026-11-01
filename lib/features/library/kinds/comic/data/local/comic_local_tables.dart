@@ -52,7 +52,7 @@ class ComicCustomLabelImageRows extends Table {
   /// The label's trimmed, lower-case name.
   TextColumn get labelKey => text()();
   TextColumn get label => text()();
-  BlobColumn get imageData => blob()();
+  BlobColumn get labelImage => blob()();
   DateTimeColumn get updatedAt => dateTime()();
 
   @override
