@@ -53,10 +53,11 @@ final class LibraryPageSelectionController {
     selectItem(id);
   }
 
+  /// Ticks or unticks [id] for a bulk action. As in the reference, the active
+  /// item and the details panel stay where they are.
   void toggleSelectionItem(String id) {
     mutateState(() {
       selection.value = selection.value.toggle(id);
-      selection.selectedId = id;
       selection.anchorId = id;
     });
   }
