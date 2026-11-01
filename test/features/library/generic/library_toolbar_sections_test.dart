@@ -309,7 +309,7 @@ void main() {
     expect(find.text('ADMINISTRATION'), findsOneWidget);
     expect(find.text('HELP'), findsOneWidget);
     expect(find.text('Keyboard shortcuts'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('selection toolbar band on desktop width uses spaced layout',
       (tester) async {

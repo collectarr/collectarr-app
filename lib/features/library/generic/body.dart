@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/config/presentation/alphabet_field.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -404,7 +405,7 @@ class LibraryBody extends StatelessWidget {
             children: [
               if (desktopToolbarBand != null)
                 Row(children: [
-                  if (!canShowSidebar)
+                  if (!canShowSidebar && !isMobileApp)
                     PopupMenuButton<String>(
                       popUpAnimationStyle: AnimationStyle.noAnimation,
                       tooltip: 'Folders',
@@ -428,6 +429,31 @@ class LibraryBody extends StatelessWidget {
                     ),
                   Expanded(child: desktopToolbarBand!),
                 ]),
+              if (isMobileApp &&
+                  !canShowSidebar &&
+                  projection.buckets.length > 1)
+                PopupMenuButton<String>(
+                    tooltip: 'Choose folder',
+                    onSelected: (bucket) => onBucketChanged(
+                        bucket == genericAllBucketLabel(type) ? null : bucket),
+                    itemBuilder: (_) => [
+                          for (final bucket in projection.buckets)
+                            PopupMenuItem(
+                                value: bucket.title,
+                                height: 48,
+                                child:
+                                    Text('${bucket.title} (${bucket.count})'))
+                        ],
+                    child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 12),
+                        child: Row(children: [
+                          const Icon(Icons.folder_open_outlined, size: 24),
+                          const SizedBox(width: 8),
+                          Expanded(
+                              child: Text(selectedBucket ?? 'Choose folder')),
+                          const Icon(Icons.expand_more)
+                        ]))),
               if (quickView != null ||
                   filterSelection.hasActiveFilters ||
                   activeSmartListName != null)

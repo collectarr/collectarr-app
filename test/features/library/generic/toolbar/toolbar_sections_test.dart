@@ -115,7 +115,7 @@ void main() {
     await tester.pump();
 
     expect(appliedSortFavorite, 'series_issue');
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
       'desktop secondary toolbar hides details layout control when the details panel is visible',
@@ -197,7 +197,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(LibraryDetailsLayoutDropdown), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('desktop secondary toolbar exposes a split column launcher', (
     tester,
@@ -315,7 +315,7 @@ void main() {
     await tester.pump();
 
     expect(appliedPreset, 'Pricing');
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('sort favorites menu keeps pinned favorites first in saved order',
       (
@@ -444,7 +444,7 @@ void main() {
     expect(find.text(linkedLabel), findsOneWidget);
     await tester.tap(find.byTooltip('Clear'));
     expect(cleared, isTrue);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('compact toolbar exposes a visible folders shortcut',
       (tester) async {
@@ -491,7 +491,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(foldersPressed, 1);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
       'sort favorites manager keeps one compact list and adds available favorites',

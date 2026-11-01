@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_toolbar_trigger.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/actions/async_action_host.dart';
 import 'menus.dart';
@@ -68,30 +70,32 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
     final selected = _selectedQuickView();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final trigger = LibraryToolbarHoverSurface(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(selected?.icon ?? defaultIcon, size: 15),
-            const SizedBox(width: 5),
-            Text(
-              buttonLabel,
-              style: theme.textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.w700,
+    final trigger = isMobileApp
+        ? const MobileToolbarTrigger(icon: Icons.more_vert)
+        : LibraryToolbarHoverSurface(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(selected?.icon ?? defaultIcon, size: 15),
+                  const SizedBox(width: 5),
+                  Text(
+                    buttonLabel,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(width: 1),
+                  Icon(
+                    AppIcons.chevronDown,
+                    size: 12,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 1),
-            Icon(
-              AppIcons.chevronDown,
-              size: 12,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ],
-        ),
-      ),
-    );
+          );
     return AsyncActionHost(
         builder: (context, busy, run) => Badge(
               isLabelVisible: badgeCount > 0,

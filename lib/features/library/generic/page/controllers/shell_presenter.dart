@@ -330,6 +330,11 @@ abstract final class LibraryPageShellPresenter {
         onFolderTreeNodeSelected: state._selectFolderTreePath,
         onFolderTreeNodeExpandedToggled: state._toggleFolderTreeNodeExpanded,
         desktopToolbarBand: LibraryDesktopSecondaryToolbar(
+          currentSpacing: state.ref.watch(
+              uiPreferencesProvider.select((value) => value.gridSpacing)),
+          onSpacingChanged: (value) => state.ref
+              .read(uiPreferencesProvider.notifier)
+              .setGridSpacing(value),
           type: state.widget.type,
           viewState: viewState,
           counts: projection.counts,
