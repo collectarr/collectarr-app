@@ -71,6 +71,7 @@ class LocalDatabase extends _$LocalDatabase {
         comicReadingRows,
         comicTrackingUnitRows,
         comicTrackingRows,
+        comicCustomLabelImageRows,
       ];
 
   @override
@@ -137,7 +138,9 @@ class LocalDatabase extends _$LocalDatabase {
                 _dropMusicCreditIds);
           }
           if (from < 6) {
-            // 6: Comics leave Grade empty, as the reference does, instead of
+            // 6: Comics keep the images users load for their Custom Labels.
+            await migrator.createTable(comicCustomLabelImageRows);
+            // Comics leave Grade empty, as the reference does, instead of
             // the "Ungraded" that Add gave them. Other kinds keep it.
             await _updatePayloadSectionIn('library_entries',
                 " WHERE kind = 'comic'", 'personal_data', _clearUngraded);

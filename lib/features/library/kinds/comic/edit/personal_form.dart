@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/ui/primitives/money_amount_field
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
 import '../domain/comic_personal_data.dart';
 import 'entry_draft.dart';
+import 'custom_label_field.dart';
 import 'entry_fields.dart';
 import 'grading_options.dart';
 import 'package:collectarr_app/features/library/ui/primitives/responsive_form_row.dart';
@@ -93,7 +94,12 @@ class ComicPersonalForm extends StatelessWidget {
                 entry.labelType = value;
                 _collectorChanged();
               }),
-          _collector('custom_label'),
+          ComicCustomLabelField(
+              value: entry.customLabel,
+              onChanged: (value) {
+                entry.customLabel = value;
+                _collectorChanged();
+              }),
           LibraryFixedSelectField(
               label: 'Page Quality',
               value: entry.pageQuality,

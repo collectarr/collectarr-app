@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/comic/edit/grading_options.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/custom_label_images.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// A slab label type and the colours its label is printed in.
 typedef ComicSlabLabel = ({
@@ -63,15 +65,16 @@ double _slabScale(double width) => (width / 340).clamp(0.12, 1.0);
 
 const _slabBorder = Color(0xffc2d8e6);
 
-/// A slabbed comic's cover in its case: the slab label with the grade and
-/// grading company above the cover, and the case's light blue frame around
-/// it.
+/// A slabbed comic's cover in its case: the slab label with the grade,
+/// grading company and the user's Custom Label image above the cover, and
+/// the case's light blue frame around it.
 class ComicSlab extends StatelessWidget {
   const ComicSlab({
     required this.child,
     this.grade,
     this.gradingCompany,
     this.labelType,
+    this.customLabel,
     super.key,
   });
 
@@ -79,6 +82,7 @@ class ComicSlab extends StatelessWidget {
   final String? grade;
   final String? gradingCompany;
   final String? labelType;
+  final String? customLabel;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -93,6 +97,7 @@ class ComicSlab extends StatelessWidget {
                 label: comicSlabLabel(labelType),
                 grade: comicGradeCode(grade),
                 gradingCompany: gradingCompany?.trim() ?? '',
+                customLabel: customLabel,
               ),
               Flexible(
                 child: Container(
@@ -121,12 +126,14 @@ class _SlabLabel extends StatelessWidget {
     required this.label,
     required this.grade,
     required this.gradingCompany,
+    required this.customLabel,
   });
 
   final double scale;
   final ComicSlabLabel label;
   final String? grade;
   final String gradingCompany;
+  final String? customLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -159,6 +166,12 @@ class _SlabLabel extends StatelessWidget {
                         : const Color(0x38ffffff))),
           ),
         ),
+        if (comicCustomLabelKey(customLabel) != null)
+          Positioned(
+              top: 0,
+              right: 0,
+              bottom: 0,
+              child: _SlabCustomLabelImage(customLabel!)),
         if (grade case final grade?)
           Positioned(
             top: 5 * scale,
@@ -171,6 +184,22 @@ class _SlabLabel extends StatelessWidget {
       ]),
     );
   }
+}
+
+/// The image the user loaded for the slab's Custom Label, at the label's
+/// right edge and full height; nothing until one is loaded.
+class _SlabCustomLabelImage extends ConsumerWidget {
+  const _SlabCustomLabelImage(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) =>
+      switch (ref.watch(comicCustomLabelImageProvider(label)).value) {
+        final image? =>
+          Image.memory(image, fit: BoxFit.fitHeight, gaplessPlayback: true),
+        null => const SizedBox.shrink(),
+      };
 }
 
 /// The white grade box: the bar colour edges its left and bottom, a perfect

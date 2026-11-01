@@ -60,6 +60,7 @@ LibraryCardPresentation buildComicCardPresentation(
               grade: personal?.grade,
               gradingCompany: comicDetails?.gradingCompany,
               labelType: comicDetails?.labelType,
+              customLabel: comicDetails?.customLabel,
               child: child,
             )
         : null,

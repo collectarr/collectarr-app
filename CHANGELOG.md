@@ -8,6 +8,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- A comic's Custom Label can show an image on its slab and beside the field, as in CLZ: load one from your own files for a label, or load many at once from files named after their labels, whose names then join the Custom Label list. Collectarr ships no label images.
 - The Comics details panel shows the publisher's logo instead of its name, as CLZ does, for Marvel, DC, Image, Dark Horse, IDW, Viz Media, Kodansha, Shueisha, Tokyopop, Archie, Dynamite, Valiant, Vertigo, Fantagraphics and Panini.
 - The details panel shows CLZ's spinner over "Loading..." until the selected item's custom fields, images and cover are loaded, instead of filling in piece by piece.
 - Next and Previous in the edit dialog save the item's changes and show the neighbouring item, as in CLZ: the dialog gives way to a "Saving comic" window with a spinner until the next item opens, instead of asking to discard the changes.

@@ -1,12 +1,24 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:collectarr_app/features/library/kinds/comic/data/custom_label_images.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/grading_options.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/slab.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<void> _pumpSlab(WidgetTester tester, ComicSlab slab) =>
-    tester.pumpWidget(MaterialApp(
-        home: Center(child: SizedBox(width: 220, height: 400, child: slab))));
+Future<void> _pumpSlab(WidgetTester tester, ComicSlab slab,
+        {Uint8List? labelImage}) =>
+    tester.pumpWidget(ProviderScope(
+        overrides: [
+          comicCustomLabelImageProvider
+              .overrideWith((ref, label) => Stream.value(labelImage))
+        ],
+        child: MaterialApp(
+            home: Center(
+                child: SizedBox(width: 220, height: 400, child: slab)))));
 
 void main() {
   test('grade codes come only from the reference grades', () {
@@ -76,5 +88,25 @@ void main() {
             of: find.byType(ComicSlab), matching: find.byType(Transform)),
         findsNothing);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the slab shows the image loaded for its Custom Label',
+      (tester) async {
+    final png = base64Decode('iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAA'
+        'EUlEQVR4nGP4z8DwnwEIgBQAH/AD/W5uRBEAAAAASUVORK5CYII=');
+    final slabImage = find.descendant(
+        of: find.byType(ComicSlab), matching: find.byType(Image));
+    const slab = ComicSlab(
+        grade: '9.8 Near Mint/Mint',
+        customLabel: 'Spawn #1',
+        child: SizedBox.expand());
+    await _pumpSlab(tester, slab, labelImage: png);
+    await tester.pump();
+    expect(slabImage, findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    await _pumpSlab(tester, slab);
+    await tester.pump();
+    expect(slabImage, findsNothing);
   });
 }
