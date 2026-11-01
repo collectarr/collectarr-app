@@ -77,8 +77,9 @@ class ComicEntryDetails implements JsonEncodable {
   DateTime? get lastBagBoardDate =>
       _lastBagBoardDate ?? preservation.lastBagBoardDate;
 
-  bool get isSlabbed =>
-      rawOrSlabbed?.toLowerCase() == 'slabbed' || gradingCompany != null;
+  /// Whether the comic is in a slab; a raw comic may still name the company
+  /// that graded it.
+  bool get isSlabbed => rawOrSlabbed?.trim().toLowerCase() == 'slabbed';
 
   @override
   Map<String, dynamic> toJson() => {

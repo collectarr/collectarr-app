@@ -63,6 +63,9 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final item = widget.item;
     final dto = item.dto;
     final presentation = libraryCardPresentationForEntry(item);
+    // A kind may case the cover, such as a slabbed comic's slab.
+    final wrapCover =
+        presentation.coverOverlayBuilder ?? (Widget cover) => cover;
     final active = widget.active;
     final selected = widget.selected;
     final density = LibraryDensityScope.maybeOf(context)?.density ??
@@ -128,7 +131,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                               Expanded(
                                 child: Opacity(
                                   opacity: selected ? .5 : 1,
-                                  child: LibraryInteractiveCover(
+                                  child: wrapCover(LibraryInteractiveCover(
                                     title: dto.primaryLabel,
                                     itemNumber: presentation.itemNumber,
                                     imageUrl: dto.imageUrl,
@@ -142,7 +145,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                                     enableFullscreen: false,
                                     enableSecondaryControl: false,
                                     showFrame: false,
-                                  ),
+                                  )),
                                 ),
                               ),
                             ],

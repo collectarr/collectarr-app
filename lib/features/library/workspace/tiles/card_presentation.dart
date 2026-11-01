@@ -49,7 +49,7 @@ class LibraryCardPresentation {
   /// developer for the selected kind.
   final List<String> contextFacts;
 
-  /// Optional widget painted on top of the cover image (e.g. slab frame).
+  /// Wraps the cover image, such as a slabbed comic in its slab.
   final Widget Function(Widget child)? coverOverlayBuilder;
 
   /// Compact pill badges shown in the body area of the card.
@@ -67,8 +67,28 @@ class LibraryCardPresentation {
   /// Headlined cards: the large label under the cover, such as "#2A".
   final String? numberLabel;
 
-  /// Headlined cards: an outlined pill under the number, such as a grade.
-  final String? outlinedPill;
+  /// Headlined cards: an outlined pill under the number, such as a grade
+  /// and value.
+  final LibraryCardPill? outlinedPill;
+}
+
+/// An outlined pill of a lead segment, such as a grade, and a value.
+class LibraryCardPill {
+  const LibraryCardPill({
+    this.lead,
+    this.leadIcon,
+    this.leadBackground,
+    this.value,
+    this.valueIcon,
+  });
+
+  final String? lead;
+  final IconData? leadIcon;
+
+  /// Fills the lead segment, whose text then turns dark.
+  final Gradient? leadBackground;
+  final String? value;
+  final IconData? valueIcon;
 }
 
 /// A single compact pill shown inside a card.

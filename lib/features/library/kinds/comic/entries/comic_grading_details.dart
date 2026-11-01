@@ -20,9 +20,6 @@ class ComicGradingDetails {
   final String? pageQuality;
   final String? certificationNumber;
 
-  bool get isSlabbed =>
-      rawOrSlabbed?.toLowerCase() == 'slabbed' || gradingCompany != null;
-
   Map<String, dynamic> toJson() => {
         if (rawOrSlabbed != null) 'raw_or_slabbed': rawOrSlabbed,
         if (gradingCompany != null) 'grading_company': gradingCompany,
