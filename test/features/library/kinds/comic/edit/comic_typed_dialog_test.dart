@@ -91,7 +91,8 @@ void main() {
     await tester.tap(find.text('Value').first);
     await tester.pumpAndSettle();
     final certification = find.byWidgetPredicate((widget) =>
-        widget is LibraryFormField && widget.label == 'Slab Certification Number');
+        widget is LibraryFormField &&
+        widget.label == 'Slab Certification Number');
     await tester.ensureVisible(certification);
     await tester.enterText(
         find.descendant(
