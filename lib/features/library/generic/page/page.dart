@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/alphabet_options.dart';
 import 'package:collectarr_app/features/library/config/presentation/alphabet_field.dart';
 import 'package:collectarr_app/features/library/generic/sort_favorites_provider.dart';
@@ -79,7 +80,6 @@ import 'package:collectarr_app/features/library/generic/facet_bucket_service.dar
 import 'package:collectarr_app/features/library/generic/page/controllers/projection_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';

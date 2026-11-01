@@ -62,7 +62,7 @@ void main() {
           label == 'Add to Collection' ? 16 : 14,
           reason: label);
     }
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('plain editor popup items retain the active application family',
       (tester) async {
@@ -82,5 +82,5 @@ void main() {
         of: find.text('Disc 2'), matching: find.byType(RichText)));
     expect(paragraph.text.style!.fontFamily, appFontFamily);
     expect(paragraph.text.style!.fontSize, 14);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

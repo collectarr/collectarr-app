@@ -29,7 +29,6 @@ class UiPreferences {
     this.flatCovers = false,
     this.gridSpacing = 10.0,
     this.showCoverTitles = true,
-    this.fabAddButton = false,
     this.cardCoverWidth = 92.0,
     this.sidebarRowPadding = 4.0,
     this.showInspectorBackdrop = true,
@@ -73,9 +72,6 @@ class UiPreferences {
 
   /// Show title text below covers in grid view.
   final bool showCoverTitles;
-
-  /// Use a floating action button for Add instead of inline toolbar button.
-  final bool fabAddButton;
 
   /// Cover width in card view (60–120).
   final double cardCoverWidth;
@@ -134,7 +130,6 @@ class UiPreferences {
     bool? flatCovers,
     double? gridSpacing,
     bool? showCoverTitles,
-    bool? fabAddButton,
     double? cardCoverWidth,
     double? sidebarRowPadding,
     bool? showInspectorBackdrop,
@@ -174,7 +169,6 @@ class UiPreferences {
       flatCovers: flatCovers ?? this.flatCovers,
       gridSpacing: gridSpacing ?? this.gridSpacing,
       showCoverTitles: showCoverTitles ?? this.showCoverTitles,
-      fabAddButton: fabAddButton ?? this.fabAddButton,
       cardCoverWidth: cardCoverWidth ?? this.cardCoverWidth,
       sidebarRowPadding: sidebarRowPadding ?? this.sidebarRowPadding,
       showInspectorBackdrop:
@@ -231,7 +225,6 @@ class UiPreferencesStore {
   static const flatCoversKey = '$_prefix.flat_covers';
   static const gridSpacingKey = '$_prefix.grid_spacing';
   static const showCoverTitlesKey = '$_prefix.show_cover_titles';
-  static const fabAddButtonKey = '$_prefix.fab_add_button';
   static const cardCoverWidthKey = '$_prefix.card_cover_width';
   static const sidebarRowPaddingKey = '$_prefix.sidebar_row_padding';
 
@@ -293,7 +286,6 @@ class UiPreferencesStore {
       flatCovers: prefs.getBool(flatCoversKey) ?? false,
       gridSpacing: prefs.getDouble(gridSpacingKey) ?? 10.0,
       showCoverTitles: prefs.getBool(showCoverTitlesKey) ?? true,
-      fabAddButton: prefs.getBool(fabAddButtonKey) ?? false,
       cardCoverWidth: prefs.getDouble(cardCoverWidthKey) ?? 92.0,
       sidebarRowPadding: prefs.getDouble(sidebarRowPaddingKey) ?? 4.0,
       showInspectorBackdrop: prefs.getBool(showInspectorBackdropKey) ?? true,
@@ -407,7 +399,6 @@ class UiPreferencesStore {
     await prefs.setBool(flatCoversKey, preferences.flatCovers);
     await prefs.setDouble(gridSpacingKey, preferences.gridSpacing);
     await prefs.setBool(showCoverTitlesKey, preferences.showCoverTitles);
-    await prefs.setBool(fabAddButtonKey, preferences.fabAddButton);
     await prefs.setDouble(cardCoverWidthKey, preferences.cardCoverWidth);
     await prefs.setDouble(sidebarRowPaddingKey, preferences.sidebarRowPadding);
   }
@@ -448,9 +439,6 @@ class UiPreferencesController extends Notifier<UiPreferences> {
 
   Future<void> setShowCoverTitles(bool show) =>
       _update((s) => s.copyWith(showCoverTitles: show));
-
-  Future<void> setFabAddButton(bool fab) =>
-      _update((s) => s.copyWith(fabAddButton: fab));
 
   Future<void> setCardCoverWidth(double width) =>
       _update((s) => s.copyWith(cardCoverWidth: width));

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -47,9 +48,12 @@ class _EmptyCollectionBanner extends StatelessWidget {
                 alignment: PlaceholderAlignment.middle,
                 child: Icon(AppIcons.add, size: 11, color: Colors.white)),
             TextSpan(
-                text: ' Add $plural',
+                text: isMobileApp ? '' : ' Add $plural',
                 style: const TextStyle(fontWeight: FontWeight.w700)),
-            const TextSpan(text: ' button above'),
+            TextSpan(
+                text: isMobileApp
+                    ? ' button at the bottom right'
+                    : ' button above'),
           ]),
           style: const TextStyle(
               fontSize: 14, height: 20 / 14, color: Colors.white),

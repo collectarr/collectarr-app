@@ -505,18 +505,6 @@ class _SettingsAppearanceSectionState
                       .titleSmall
                       ?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.add_circle_outline),
-                title: const Text('Floating Add button'),
-                subtitle: const Text(
-                  'Use a floating action button instead of inline toolbar button.',
-                ),
-                value: uiPreferences.fabAddButton,
-                onChanged: (value) => ref
-                    .read(uiPreferencesProvider.notifier)
-                    .setFabAddButton(value),
-              ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.density_small),
