@@ -9,10 +9,13 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector/publisher_logo.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/slab.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
+import 'package:collectarr_app/features/library/workspace/tiles/card.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/app_formatted_text.dart';
@@ -126,6 +129,7 @@ class ComicInspectorHeader extends StatelessWidget {
               title: heading, comic: comic, entry: entry, width: 140);
           final facts = _ComicFacts(
               comic: comic,
+              entry: entry,
               onFilter: onFilter,
               ebayQuery: '$heading #$issue',
               isWishlisted: request.item.source.isWishlisted);
@@ -194,30 +198,42 @@ class _ComicCover extends StatelessWidget {
   final double width;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-        width: width,
-        child: LibraryCoverImage(
-          title: title,
-          imageUrl: comic?.coverImageUrl,
-          libraryEntryRef: entry == null
-              ? null
-              : LibraryEntryRef(kind: CatalogMediaKind.comic, id: entry!.id),
-          fallbackAspectRatio: 0.66,
-          borderRadius: 0,
-        ),
-      );
+  Widget build(BuildContext context) {
+    final cover = LibraryCoverImage(
+      title: title,
+      imageUrl: comic?.coverImageUrl,
+      libraryEntryRef: entry == null
+          ? null
+          : LibraryEntryRef(kind: CatalogMediaKind.comic, id: entry!.id),
+      fallbackAspectRatio: 0.66,
+      borderRadius: 0,
+    );
+    final personal = entry?.personal;
+    return SizedBox(
+      width: width,
+      child: personal != null && personal.details.isSlabbed
+          ? ComicSlab(
+              grade: personal.grade,
+              gradingCompany: personal.details.gradingCompany,
+              labelType: personal.details.labelType,
+              child: cover)
+          : cover,
+    );
+  }
 }
 
 /// Variant, Release and Cover dates, publisher, barcode and the eBay link.
 class _ComicFacts extends ConsumerWidget {
   const _ComicFacts({
     required this.comic,
+    required this.entry,
     required this.onFilter,
     required this.ebayQuery,
     required this.isWishlisted,
   });
 
   final ComicCatalogItem? comic;
+  final ComicLibraryEntry? entry;
   final ValueChanged<String>? onFilter;
   final String ebayQuery;
   final bool isWishlisted;
@@ -282,6 +298,21 @@ class _ComicFacts extends ConsumerWidget {
             ),
           ]),
         ),
+      if (entry?.personal case final personal?)
+        if (comicGradeAndValuePill(
+                grade: personal.grade,
+                valueCents: personal.marketValueCents,
+                currency: personal.currency,
+                slabbed: personal.details.isSlabbed,
+                labelType: personal.details.labelType)
+            case final pill?)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Align(
+                alignment: Alignment.centerLeft,
+                child: LibraryOutlinedPill(
+                    pill: pill, color: palette.textPrimary)),
+          ),
       if (ref.watch(uiPreferencesProvider) case final preferences
           when preferences.ebayNextToCover &&
               preferences.allowsEbayLinks(isWishlisted))

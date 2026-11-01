@@ -1,7 +1,8 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/grading_options.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/slab.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:flutter/material.dart';
 
@@ -38,19 +39,8 @@ LibraryCardPresentation buildComicCardPresentation(
     );
   }
 
-  Widget Function(Widget child)? overlay;
-  if (comicDetails?.rawOrSlabbed != null ||
-      comicDetails?.gradingCompany != null ||
-      comicDetails?.labelType != null ||
-      libraryEntry?.personal.grade != null) {
-    overlay = (child) => SlabFrameOverlay.maybeWrap(
-          rawOrSlabbed: comicDetails?.rawOrSlabbed,
-          companyName: comicDetails?.gradingCompany,
-          scoreLabel: libraryEntry?.personal.grade,
-          labelType: comicDetails?.labelType,
-          child: child,
-        );
-  }
+  final personal = libraryEntry?.personal;
+  final slabbed = comicDetails?.isSlabbed == true;
 
   return LibraryCardPresentation(
     itemNumber: comicDto?.itemNumber,
@@ -65,10 +55,17 @@ LibraryCardPresentation buildComicCardPresentation(
       comicDto?.artist,
       comicDto?.publisher,
     ].whereType<String>().where((value) => value.trim().isNotEmpty).toList(),
-    coverOverlayBuilder: overlay,
+    coverOverlayBuilder: slabbed
+        ? (child) => ComicSlab(
+              grade: personal?.grade,
+              gradingCompany: comicDetails?.gradingCompany,
+              labelType: comicDetails?.labelType,
+              child: child,
+            )
+        : null,
     compactBadges: badges,
     // The reference card: series above the cover, "#2A" and the release
-    // date under it, and the grade's number in an outlined pill.
+    // date under it, and the grade and value in an outlined pill.
     headline: comicDto?.seriesTitle ?? comicDto?.title,
     numberLabel: switch ('${comicDto?.itemNumber ?? ''}'
         '${comicDto?.variant ?? ''}') {
@@ -80,12 +77,38 @@ LibraryCardPresentation buildComicCardPresentation(
       '' => null,
       final date => date,
     },
-    outlinedPill: _gradeNumber(libraryEntry?.personal.grade),
+    outlinedPill: personal == null
+        ? null
+        : comicGradeAndValuePill(
+            grade: personal.grade,
+            valueCents: personal.marketValueCents,
+            currency: personal.currency,
+            slabbed: slabbed,
+            labelType: comicDetails?.labelType),
   );
 }
 
-/// "10.0" from a grade such as "10.0 Gem Mint".
-String? _gradeNumber(String? grade) {
-  final number = grade?.trim().split(' ').first;
-  return number == null || double.tryParse(number) == null ? null : number;
+/// The reference's grade and value ribbon: the grade's code, on the slab
+/// label's colours with a slab mark when slabbed, then My Value; a dash
+/// stands in for a missing grade.
+LibraryCardPill? comicGradeAndValuePill({
+  required String? grade,
+  required int? valueCents,
+  required String? currency,
+  required bool slabbed,
+  required String? labelType,
+}) {
+  final code = comicGradeCode(grade);
+  if (code == null && valueCents == null) return null;
+  return LibraryCardPill(
+    lead: code ?? '–',
+    leadIcon: slabbed ? Icons.crop_portrait : null,
+    leadBackground:
+        slabbed ? comicSlabLabelGradient(comicSlabLabel(labelType)) : null,
+    value: valueCents == null
+        ? null
+        : AppFormats.current
+            .formatMoney(valueCents, currency ?? AppFormats.current.currency),
+    valueIcon: valueCents == null ? null : Icons.person,
+  );
 }
