@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
-import 'package:collectarr_app/ui/adaptive/window_class.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 
 typedef LibraryEditDialogRequestLoader = Future<LibraryEditDialogRequest>
@@ -61,7 +61,6 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
         );
   }
 
-  final windowClass = AppWindowClass.of(context);
   // A save that keeps the dialog open leaves the cached drafts stale.
   final commits = LibraryEditCommitHandle(
     itemLabel: request.type.identity.singularLabel.toLowerCase(),
@@ -90,8 +89,9 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
 
   LibraryEditSelection? result;
   try {
-    if (windowClass.isCompact) {
-      result = await Navigator.of(context).push<LibraryEditSelection>(
+    if (appPresentationPlatform.isNativeMobile) {
+      result = await Navigator.of(context, rootNavigator: true)
+          .push<LibraryEditSelection>(
         MaterialPageRoute<LibraryEditSelection>(
           fullscreenDialog: true,
           builder: (ctx) => Scaffold(body: SafeArea(child: widgetBuilder(ctx))),

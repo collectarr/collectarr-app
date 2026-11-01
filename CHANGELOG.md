@@ -25,6 +25,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Manual Add and Edit open as native pages on Android/iOS, including tablets; desktop and web keep dialogs even in narrow windows.
 - The mobile keyboard overlays collection tabs instead of pushing them up while searching the library.
 - Library headers and the navigation sidebar no longer show Mobile, Desktop or Web beside the library name.
 - Add automatically uses a round floating button with a white plus on mobile and an inline toolbar button on desktop/web; its setting is removed and collection tabs stay above Android navigation.
