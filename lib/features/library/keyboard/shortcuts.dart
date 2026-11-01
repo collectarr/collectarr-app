@@ -38,56 +38,84 @@ class LibraryKeyboardShortcuts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CallbackShortcuts(
-      bindings: <ShortcutActivator, VoidCallback>{
-        // Ctrl+F / Cmd+F: Focus search
-        if (onSearch != null)
-          const SingleActivator(LogicalKeyboardKey.keyF, control: true):
-              onSearch!,
-        // Ctrl+N / Cmd+N: Add new item
-        if (onAdd != null)
-          const SingleActivator(LogicalKeyboardKey.keyN, control: true): onAdd!,
-        // Ctrl+B: Scan barcode
-        if (onScan != null)
-          const SingleActivator(LogicalKeyboardKey.keyB, control: true):
-              onScan!,
-        // F5 / Ctrl+R: Refresh
-        if (onRefresh != null) ...<ShortcutActivator, VoidCallback>{
-          const SingleActivator(LogicalKeyboardKey.f5): onRefresh!,
-          const SingleActivator(LogicalKeyboardKey.keyR, control: true):
-              onRefresh!,
-        },
-        // Ctrl+A: Select all
-        if (onSelectAll != null)
-          const SingleActivator(LogicalKeyboardKey.keyA, control: true):
-              onSelectAll!,
-        // Escape: Clear selection / close panels
-        if (onEscape != null)
-          const SingleActivator(LogicalKeyboardKey.escape): onEscape!,
-        // Delete: Remove selected item
-        if (onDelete != null)
-          const SingleActivator(LogicalKeyboardKey.delete): onDelete!,
-        // Arrow Down / J: Next item
-        if (onNextItem != null) ...<ShortcutActivator, VoidCallback>{
-          const SingleActivator(LogicalKeyboardKey.arrowDown): onNextItem!,
-          const SingleActivator(LogicalKeyboardKey.keyJ): onNextItem!,
-        },
-        // Arrow Up / K: Previous item
-        if (onPreviousItem != null) ...<ShortcutActivator, VoidCallback>{
-          const SingleActivator(LogicalKeyboardKey.arrowUp): onPreviousItem!,
-          const SingleActivator(LogicalKeyboardKey.keyK): onPreviousItem!,
-        },
-        // Ctrl+I: Toggle inspector/details panel
-        if (onToggleInspector != null)
-          const SingleActivator(LogicalKeyboardKey.keyI, control: true):
-              onToggleInspector!,
-      },
-      child: Focus(
-        autofocus: true,
-        child: child,
+    final bindings = <ShortcutActivator, _LibraryShortcutIntent>{};
+    void bind(ShortcutActivator activator, VoidCallback? callback,
+        {bool whileTyping = true}) {
+      if (callback == null) return;
+      bindings[activator] = _LibraryShortcutIntent(callback, whileTyping);
+    }
+
+    // Ctrl+F / Cmd+F: Focus search
+    bind(const SingleActivator(LogicalKeyboardKey.keyF, control: true),
+        onSearch);
+    // Ctrl+N / Cmd+N: Add new item
+    bind(const SingleActivator(LogicalKeyboardKey.keyN, control: true), onAdd);
+    // Ctrl+B: Scan barcode
+    bind(const SingleActivator(LogicalKeyboardKey.keyB, control: true), onScan);
+    // F5 / Ctrl+R: Refresh
+    bind(const SingleActivator(LogicalKeyboardKey.f5), onRefresh);
+    bind(const SingleActivator(LogicalKeyboardKey.keyR, control: true),
+        onRefresh);
+    // Escape: Clear selection / close panels
+    bind(const SingleActivator(LogicalKeyboardKey.escape), onEscape);
+    // Ctrl+I: Toggle inspector/details panel
+    bind(const SingleActivator(LogicalKeyboardKey.keyI, control: true),
+        onToggleInspector);
+    // These keys also edit text, so a focused text field keeps them: K and J
+    // type letters in the search box, Ctrl+A selects its text.
+    // Ctrl+A: Select all
+    bind(const SingleActivator(LogicalKeyboardKey.keyA, control: true),
+        onSelectAll,
+        whileTyping: false);
+    // Delete: Remove selected item
+    bind(const SingleActivator(LogicalKeyboardKey.delete), onDelete,
+        whileTyping: false);
+    // Arrow Down / J: Next item
+    bind(const SingleActivator(LogicalKeyboardKey.arrowDown), onNextItem,
+        whileTyping: false);
+    bind(const SingleActivator(LogicalKeyboardKey.keyJ), onNextItem,
+        whileTyping: false);
+    // Arrow Up / K: Previous item
+    bind(const SingleActivator(LogicalKeyboardKey.arrowUp), onPreviousItem,
+        whileTyping: false);
+    bind(const SingleActivator(LogicalKeyboardKey.keyK), onPreviousItem,
+        whileTyping: false);
+
+    return Shortcuts(
+      shortcuts: bindings,
+      child: Actions(
+        actions: {_LibraryShortcutIntent: _LibraryShortcutAction()},
+        child: Focus(
+          autofocus: true,
+          child: child,
+        ),
       ),
     );
   }
+}
+
+final class _LibraryShortcutIntent extends Intent {
+  const _LibraryShortcutIntent(this.callback, this.whileTyping);
+  final VoidCallback callback;
+  final bool whileTyping;
+}
+
+/// Runs a shortcut, except one that would steal a key from a focused text
+/// field: that shortcut is disabled so the key reaches the field.
+final class _LibraryShortcutAction extends Action<_LibraryShortcutIntent> {
+  @override
+  bool isEnabled(_LibraryShortcutIntent intent) =>
+      intent.whileTyping || !_isTyping();
+
+  static bool _isTyping() {
+    final context = FocusManager.instance.primaryFocus?.context;
+    if (context == null) return false;
+    return context.widget is EditableText ||
+        context.findAncestorWidgetOfExactType<EditableText>() != null;
+  }
+
+  @override
+  void invoke(_LibraryShortcutIntent intent) => intent.callback();
 }
 
 /// A help dialog showing available keyboard shortcuts.
