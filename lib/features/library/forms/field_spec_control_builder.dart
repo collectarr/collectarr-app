@@ -19,6 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/integer_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 
 import 'field_spec.dart';
@@ -191,6 +192,19 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       field.id,
       field.value(draft)?.toString() ?? '',
     );
+    if (field.decimalPlaces == 0) {
+      return LibraryIntegerField(
+        controller: controller,
+        focusNode: _focusNode(field.id),
+        minimum: field.minimum?.toInt() ?? 0,
+        validator: (_) =>
+            libraryNumberFieldError(field, controller.text, draft),
+        onChanged: (value) {
+          field.setValue(draft, _parseNumber(value));
+          onChanged?.call();
+        },
+      );
+    }
     return LibraryTextFormControl(
       controller: controller,
       focusNode: _focusNode(field.id),

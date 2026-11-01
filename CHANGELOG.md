@@ -13,6 +13,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Comics No. of Pages is a whole-number spin field like Index and Quantity: it takes digits only and shows the hover arrows.
 - Comics calls its storage field Location, the same nested location list every library shares, instead of Storage Box.
 - The Comics Value and Personal tabs follow CLZ's layout: its field widths, Owner across the right half, and My Rating as the ten-step star row instead of a number box.
 - Edit dialogs and Add no longer ask for a currency per item: prices use the Currency chosen in Settings, as in CLZ, and are saved with it.

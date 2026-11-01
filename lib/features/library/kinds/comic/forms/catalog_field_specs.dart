@@ -145,6 +145,7 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         value: (draft) => values(draft).pageCount,
         setValue: (draft, value) => values(draft).pageCount = value?.round(),
         minimum: 0,
+        decimalPlaces: 0,
       ),
       _text<T>(
         id: 'subtitle',
