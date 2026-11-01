@@ -39,7 +39,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   // Dormant kind models remain available to their isolated source modules.
   // The release database exposes and creates only shared and released-kind
@@ -79,7 +79,7 @@ class LocalDatabase extends _$LocalDatabase {
         // Explicit, ordered upgrade steps; each runs once, from the released
         // schema it follows.
         onUpgrade: (migrator, from, to) async {
-          if (from < 1 || to > 5) {
+          if (from < 1 || to > 6) {
             throw StateError(
                 'No released migration exists from schema $from to $to.');
           }
@@ -136,6 +136,18 @@ class LocalDatabase extends _$LocalDatabase {
                 'kind_data',
                 _dropMusicCreditIds);
           }
+          if (from < 6) {
+            // 6: Comics leave Grade empty, as the reference does, instead of
+            // the "Ungraded" that Add gave them. Other kinds keep it.
+            await _updatePayloadSectionIn('library_entries',
+                " WHERE kind = 'comic'", 'personal_data', _clearUngraded);
+            await _updatePayloadSectionIn(
+                'sync_queue',
+                " WHERE entity_type = 'library_entry'"
+                    " AND json_extract(payload_json, '\$.kind') = 'comic'",
+                'personal_data',
+                _clearUngraded);
+          }
         },
       );
 
@@ -158,6 +170,12 @@ class LocalDatabase extends _$LocalDatabase {
         if (raw.trim() case final tag when tag.isNotEmpty)
           if (seen.add(tag.toLowerCase())) tag,
     ];
+    return true;
+  }
+
+  static bool _clearUngraded(Map<String, dynamic> personal) {
+    if (personal['grade'] != 'Ungraded') return false;
+    personal['grade'] = null;
     return true;
   }
 

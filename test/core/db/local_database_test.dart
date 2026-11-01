@@ -52,16 +52,16 @@ void main() {
             .data
             .values
             .single,
-        5);
+        6);
   });
 
   test('creates the fresh schema at current version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 5);
+    expect(db.schemaVersion, 6);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 5);
+    expect(version.data.values.single, 6);
 
     final tables = await db
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
@@ -142,7 +142,7 @@ void main() {
     expect(row.email, isNull);
     expect(row.address, isNull);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 5);
+    expect(version.data.values.single, 6);
   });
 
   test('upgrades a schema 2 database by creating the Game tables', () async {
@@ -161,7 +161,7 @@ void main() {
     expect(kept, ['e1']);
     expect(await db.select(db.gameTrackingRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 5);
+    expect(version.data.values.single, 6);
   });
 
   test('upgrades a schema 2 database by dropping the TV and Manga tables',
@@ -227,7 +227,7 @@ void main() {
       '{"personal_data":{"tags":"kept"}}',
     ]);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 5);
+    expect(version.data.values.single, 6);
   });
 
   test('upgrades released schema 3 Games by dropping Core Region', () async {
@@ -254,7 +254,7 @@ void main() {
     ]);
     expect(await payloads('sync_queue'), ['{"personal_data":{}}']);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 5);
+    expect(version.data.values.single, 6);
   });
 
   test('upgrades released schema 4 Music credits to names', () async {
@@ -290,9 +290,43 @@ void main() {
     expect(await payloads('catalog_items_cache'),
         ['{"id":"i1","kind_data":$names}']);
   });
+
+  test('upgrades released schema 5 Comics by clearing the Ungraded grade',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
+      _createReleasedEntryTables(raw);
+      raw.execute("INSERT INTO library_entries VALUES "
+          "('e1', 'comic', '{\"personal_data\":{\"grade\":\"Ungraded\"}}', 0, NULL),"
+          "('e2', 'comic', '{\"personal_data\":{\"grade\":\"9.8 Near Mint/Mint\"}}', 0, NULL),"
+          "('e3', 'game', '{\"personal_data\":{\"grade\":\"Ungraded\"}}', 0, NULL)");
+      raw.execute("INSERT INTO sync_queue VALUES "
+          "('c1', 'library_entry', 'e1', 'update', "
+          "'{\"kind\":\"comic\",\"personal_data\":{\"grade\":\"Ungraded\"}}', 0),"
+          "('c2', 'library_entry', 'e3', 'update', "
+          "'{\"kind\":\"game\",\"personal_data\":{\"grade\":\"Ungraded\"}}', 0)");
+      raw.execute('PRAGMA user_version = 5');
+    }));
+    addTearDown(db.close);
+
+    Future<List<String>> payloads(String table) => db
+        .customSelect('SELECT payload_json FROM $table ORDER BY rowid')
+        .map((row) => row.read<String>('payload_json'))
+        .get();
+    expect(await payloads('library_entries'), [
+      '{"personal_data":{"grade":null}}',
+      '{"personal_data":{"grade":"9.8 Near Mint/Mint"}}',
+      '{"personal_data":{"grade":"Ungraded"}}',
+    ]);
+    expect(await payloads('sync_queue'), [
+      '{"kind":"comic","personal_data":{"grade":null}}',
+      '{"kind":"game","personal_data":{"grade":"Ungraded"}}',
+    ]);
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.single, 6);
+  });
 }
 
-/// The released entry, Sync queue and catalog cache tables, as schemas 1 to 4
+/// The released entry, Sync queue and catalog cache tables, as schemas 1 to 5
 /// created them.
 void _createReleasedEntryTables(Database raw) {
   raw.execute('CREATE TABLE library_entries (id TEXT NOT NULL, '
