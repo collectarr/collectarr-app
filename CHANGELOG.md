@@ -13,6 +13,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Pressing Enter in a multi-value field such as Genre adds the value and keeps the caret in the field for the next one, as in CLZ.
 - Multi-value fields such as Genre and Tags keep their list button on the first row when values wrap, with the typing caret centred on the chip row and CLZ's spacing.
 - The Comics Value tab uses CLZ's field names: Slab Certification Number, Grading Company, Grader Notes, Custom Label, Key Reason and Key Category.
 - Empty price fields show the currency, as in CLZ, instead of only once a price is typed.
