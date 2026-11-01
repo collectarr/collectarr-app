@@ -60,6 +60,7 @@ flutter:
     - assets/icons/
     - assets/logos/
     - assets/platform_logos/
+    - assets/publisher_logos/
     - assets/import_logos/
     - assets/flags/
     - web/icons/Icon-maskable-192.png

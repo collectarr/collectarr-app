@@ -21,6 +21,45 @@ Do not add logos copied from CLZ or files without a known license. Sources
 and platforms without a logo here (Xbox, Nintendo and Windows have none in
 Simple Icons) use a generic icon.
 
+## Publisher logos
+
+`publisher_logos/` holds the logos the Comics details panel shows in place of
+a publisher's or imprint's name, as CLZ does. Each comes from Wikimedia
+Commons, where it is marked
+[PD-textlogo](https://commons.wikimedia.org/wiki/Template:PD-textlogo): it
+consists only of simple typography and shapes, so it is below the threshold
+of originality and not protected by copyright in the United States, the
+publishers' home country. The SVGs are unchanged; the PNGs are scaled down to
+96 px high.
+
+| File | Publisher | Source |
+| --- | --- | --- |
+| `archie.svg` | Archie Comics | [Archie Comics logo 1987.svg](https://commons.wikimedia.org/wiki/File:Archie_Comics_logo_1987.svg) |
+| `dark_horse.svg` | Dark Horse Comics | [Dark Horse Comics wordmark.svg](https://commons.wikimedia.org/wiki/File:Dark_Horse_Comics_wordmark.svg) |
+| `dc.svg` | DC Comics | [DC 2024 flat.svg](https://commons.wikimedia.org/wiki/File:DC_2024_flat.svg) |
+| `dynamite.png` | Dynamite Entertainment | [Dynamite logo.png](https://commons.wikimedia.org/wiki/File:Dynamite_logo.png) |
+| `fantagraphics.png` | Fantagraphics Books | [Fantagraphics logo.png](https://commons.wikimedia.org/wiki/File:Fantagraphics_logo.png) |
+| `idw.svg` | IDW Publishing | [IDW Publishing logo 2025.svg](https://commons.wikimedia.org/wiki/File:IDW_Publishing_logo_2025.svg) |
+| `image.svg` | Image Comics | [Image Comics logo.svg](https://commons.wikimedia.org/wiki/File:Image_Comics_logo.svg) |
+| `kodansha.svg` | Kodansha | [Kōdansha logo.svg](https://commons.wikimedia.org/wiki/File:K%C5%8Ddansha_logo.svg) |
+| `marvel.svg` | Marvel Comics | [Marvel Logo.svg](https://commons.wikimedia.org/wiki/File:Marvel_Logo.svg) |
+| `panini.png` | Panini Comics | [Panini comics logo.png](https://commons.wikimedia.org/wiki/File:Panini_comics_logo.png) |
+| `shueisha.svg` | Shueisha | [Shueisha Logo.svg](https://commons.wikimedia.org/wiki/File:Shueisha_Logo.svg) |
+| `tokyopop.png` | Tokyopop | [TOKYOPOP logo.png](https://commons.wikimedia.org/wiki/File:TOKYOPOP_logo.png) |
+| `valiant.svg` | Valiant Comics | [Valiant Comics logo (April 2012).svg](https://commons.wikimedia.org/wiki/File:Valiant_Comics_logo_(April_2012).svg) |
+| `vertigo.svg` | Vertigo (DC Comics) | [Vertigo-Comics-Logo.svg](https://commons.wikimedia.org/wiki/File:Vertigo-Comics-Logo.svg) |
+| `viz.svg` | Viz Media | [Viz Media 2017 logo.svg](https://commons.wikimedia.org/wiki/File:Viz_Media_2017_logo.svg) |
+
+The logos remain trademarks of their publishers. Collectarr shows them only
+to identify who published an item and is not affiliated with or endorsed by
+these publishers. Copyright on simple logos differs between countries;
+anyone redistributing Collectarr elsewhere should check the local rules.
+
+Only add a publisher logo whose Commons file is marked PD-textlogo (or has a
+free license) and that `flutter_svg` draws correctly. Logos Wikipedia keeps
+as non-free or fair use (Aspen Comics, Zenescope) and CLZ's own
+`publishericons` images are not allowed; those publishers show their name.
+
 ## Flags
 
 `flags/` holds the 4:3 country flags of the languages in Settings >

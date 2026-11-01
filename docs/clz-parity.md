@@ -100,6 +100,9 @@ Keep these when matching the reference visually.
 - Import source logos stay generic icons: the reference's Comic Collector, CLZ
   and CCL logos are proprietary and not in Simple Icons. CovrPrice import is
   left out (see Deliberate improvements).
+- The details panel shows a publisher logo only for the publishers whose logo
+  is public domain on Wikimedia Commons (`assets/LOGOS.md`); the rest show
+  their name. CLZ's own publisher images are never copied.
 
 ### Platform artwork licensing
 
@@ -170,7 +173,7 @@ weights (see [local font loading](architecture/local-font-loading.md)).
 | --- | --- | --- |
 | P1 | Comics NCBD | CLZ: Add Comics has an NCBD tab: a week navigator ("This week", "Week 44 \| Oct 25 - Oct 31", previous/next), All / #1's / My Series / Pull List filters, a chart and sort toggle, "Check out all releases in one list" with the week's count, and one card per issue (publisher, series, "#25" badge, "121 variants"). Collectarr: No NCBD tab. Blocked on data, not UI: Core holds no release calendar, so a week's releases would come back nearly empty. It needs a source of upcoming issues with exact release dates fed into Core, ideally an automated, licence-compatible import or scraper run on a schedule; then a Core week query (issues released in the seven days from a date, by series and issue) and the tab in Add. Pull List also needs a per-user series watch list |
 | P1 | Missing Comics | It counts only catalog issues already in the library, so one owned issue per series reports nothing; read each series' issues from Core. Hidden series reappear when the dialog reopens |
-| P2 | Main screen layout | The details cover is about 95 px wide against the reference's 165 px, the "Cover:" date and the publisher logo row are missing, and Creators, Characters and Details are not three side-by-side columns |
+| P2 | Main screen layout | The details cover is about 95 px wide against the reference's 165 px, the "Cover:" date is missing, and Creators, Characters and Details are not three side-by-side columns |
 | P2 | Add Comics Series tab | The reference shows a publisher logo where Collectarr writes the publisher, and a 90 % translucent dialog body |
 | P2 | Value tab | CLZ: Signed by is a list of people (Name and Sort Name) added with a + beside the label, Key Category is a multi-value tag field with a list button, and Custom Label is a fixed list of slab label images. Collectarr: Signed by is one text box, Key Category a single pick list and Custom Label an editable pick list; Signed by and Key Category need a schema migration |
 | P3 | Main menu | The reference's Key Info > Update Key Info is only a selection action in Collectarr |
