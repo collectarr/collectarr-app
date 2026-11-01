@@ -100,7 +100,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       accent: accent,
       animationsEnabled: uiPreferences.animationsEnabled,
       child: Scaffold(
-        resizeToAvoidBottomInset: !isMobileApp,
+        resizeToAvoidBottomInset: !appPresentationPlatform.isNativeMobile,
         appBar: AppShellAppBar(
           showLibrarySearch: widget.routeUri.path == AppRoutes.libraries,
           type: activeType,

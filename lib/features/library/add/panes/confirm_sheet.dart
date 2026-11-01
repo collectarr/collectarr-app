@@ -42,7 +42,7 @@ class LibraryAddConfirmSheet extends StatelessWidget {
                     .clamp(math.min(360.0, constraints.maxHeight),
                         constraints.maxHeight)
                     .toDouble();
-            final inset = isMobileApp
+            final inset = appPresentationPlatform.isNativeMobile
                 ? 0.0
                 : fixed == null
                     ? 10.0
@@ -67,7 +67,8 @@ class LibraryAddConfirmSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Container(
-                        height: isMobileApp ? 48 : 38,
+                        height:
+                            appPresentationPlatform.isNativeMobile ? 48 : 38,
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         alignment: Alignment.centerLeft,
                         decoration: BoxDecoration(
@@ -85,7 +86,7 @@ class LibraryAddConfirmSheet extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                             ),
                           )),
-                          if (isMobileApp)
+                          if (appPresentationPlatform.isNativeMobile)
                             IconButton(
                                 tooltip: 'Back to results',
                                 onPressed: onDismiss,

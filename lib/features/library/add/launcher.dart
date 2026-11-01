@@ -31,7 +31,7 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
   bool startManually,
 ) async {
   MobileAddMethod? method;
-  if (isMobileApp &&
+  if (appPresentationPlatform.isNativeMobile &&
       !startManually &&
       (request.initialQuery?.isEmpty ?? true) &&
       (request.initialIdentifier?.isEmpty ?? true)) {
@@ -57,7 +57,7 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
     }
   }
   if (!context.mounted) return null;
-  if (isMobileApp) {
+  if (appPresentationPlatform.isNativeMobile) {
     return Navigator.of(context, rootNavigator: true)
         .push<LibraryAddDialogResult>(
       MaterialPageRoute<LibraryAddDialogResult>(

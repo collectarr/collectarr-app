@@ -134,7 +134,9 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                 key: const Key('drawer.header'),
                 color: Colors.transparent,
                 child: SizedBox(
-                  height: isMobileApp ? 76 : drawerHeaderHeight,
+                  height: appPresentationPlatform.isNativeMobile
+                      ? 76
+                      : drawerHeaderHeight,
                   width: double.infinity,
                   child: Row(children: [
                     SizedBox(
@@ -163,7 +165,8 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  if (isMobileApp && widget.onOpenAccount != null)
+                  if (appPresentationPlatform.isNativeMobile &&
+                      widget.onOpenAccount != null)
                     _MobileAccountSection(onOpen: () {
                       Navigator.of(context).pop();
                       WidgetsBinding.instance.addPostFrameCallback(

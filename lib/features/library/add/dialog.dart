@@ -1054,14 +1054,14 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               onCoverTabChanged: (selected) =>
                   setState(() => _mobileCoverSelected = selected),
               showMobileInput: !browseMode || openedGroup == null,
-              searchRowWidth: isMobileApp
+              searchRowWidth: appPresentationPlatform.isNativeMobile
                   ? null
                   : browseMode
                       ? LibraryAddBrowseGroupList.width
                       : grouping == null
                           ? null
                           : LibraryAddResultGrouping.listWidth,
-              searchRowBeside: isMobileApp
+              searchRowBeside: appPresentationPlatform.isNativeMobile
                   ? null
                   : browseMode
                       ? LibraryAddBrowseGroupHeader(group: openedGroup)
@@ -1079,7 +1079,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 capability: browse!,
                 state: state.browse,
                 onOpen: (group) {
-                  if (isMobileApp) FocusScope.of(context).unfocus();
+                  if (appPresentationPlatform.isNativeMobile) {
+                    FocusScope.of(context).unfocus();
+                  }
                   _controller.openBrowseGroup(group);
                 },
                 ownedKeys: _ownedGroupKeys,
@@ -1116,7 +1118,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 resultPolicyState: state.selection.resultPolicyState,
                 onResultPolicyOptionChanged: _controller.setResultPolicyOption,
                 onSelectResult: (id) {
-                  if (isMobileApp) FocusScope.of(context).unfocus();
+                  if (appPresentationPlatform.isNativeMobile) {
+                    FocusScope.of(context).unfocus();
+                  }
                   _controller.selectResult(id);
                 },
                 onToggleResultCheck: _controller.toggleCheckedResult,
@@ -1179,7 +1183,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           ? bottomBar(selectedOnly: false)
           : null,
     );
-    if (!isMobileApp) return surface;
+    if (!appPresentationPlatform.isNativeMobile) return surface;
     return Theme(
         data: dialogTheme,
         child: LibraryDensityScope(
@@ -1288,7 +1292,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           ),
         ),
     ]);
-    if (isMobileApp) {
+    if (appPresentationPlatform.isNativeMobile) {
       if (_controller.state.browse.opened case final group?) {
         return Column(children: [
           ListTile(

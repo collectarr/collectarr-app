@@ -48,10 +48,12 @@ class _EmptyCollectionBanner extends StatelessWidget {
                 alignment: PlaceholderAlignment.middle,
                 child: Icon(AppIcons.add, size: 11, color: Colors.white)),
             TextSpan(
-                text: isMobileApp ? '' : ' Add $plural',
+                text: appPresentationPlatform.isNativeMobile
+                    ? ''
+                    : ' Add $plural',
                 style: const TextStyle(fontWeight: FontWeight.w700)),
             TextSpan(
-                text: isMobileApp
+                text: appPresentationPlatform.isNativeMobile
                     ? ' button at the bottom right'
                     : ' button above'),
           ]),

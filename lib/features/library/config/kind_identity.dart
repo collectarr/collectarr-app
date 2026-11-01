@@ -52,7 +52,9 @@ class LibraryKindIdentity {
   final Color? mobileChromeDark;
   final Color? mobileToolbarDark;
   final Color? mobileToolbarLight;
-  Color get accent => isMobileApp ? mobileAccent ?? _accent : _accent;
+  Color get accent => appPresentationPlatform.isNativeMobile
+      ? mobileAccent ?? _accent
+      : _accent;
   final String preferencePrefix;
   final List<String> routeSegments;
   final String mediaFamily;

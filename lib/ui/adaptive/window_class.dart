@@ -117,20 +117,6 @@ class AppWindowClass {
   bool get isExpandedOrGreater => widthClass.isExpandedOrGreater;
   bool get isLargeOrGreater => widthClass.isLargeOrGreater;
 
-  // Semantic layout queries
-  bool get isMobile => isCompact;
-  bool get isTablet => isMedium || isExpanded;
-  bool get isDesktop => isExpandedOrGreater;
-
-  /// Whether navigation should be presented as a bottom navigation bar.
-  bool get showBottomNav => isCompact;
-
-  /// Whether navigation should be presented as a compact navigation rail.
-  bool get showNavRail => isMedium || isExpanded;
-
-  /// Whether navigation should be presented as an expanded navigation drawer/sidebar.
-  bool get showNavDrawer => isLargeOrGreater;
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

@@ -86,7 +86,7 @@ abstract final class LibraryPageShellPresenter {
         onCollectionSelected: (_) => state._onCollectionSelected(),
       ),
       accent: state.widget.accent,
-      showAddButton: isMobileApp,
+      showAddButton: appPresentationPlatform.isNativeMobile,
       isScanningCover: state._isScanningCover,
       onAdd: () => state._dialogCoordinator.showAddDialogFlow(),
       onEscape: state._handleKeyboardEscape,

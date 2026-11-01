@@ -131,7 +131,7 @@ class _LibraryGroupModeMenuButtonState
             ? 'Group By'
             : genericFolderPresetLabel(widget.folderPreset!, widget.type);
         final triggerColor = appPalette(context).textPrimary;
-        final child = isMobileApp
+        final child = appPresentationPlatform.isNativeMobile
             ? MobileToolbarTrigger(
                 icon: Icons.folder_outlined, label: label, chevron: true)
             : widget.iconOnly
@@ -187,7 +187,7 @@ class _LibraryGroupModeMenuButtonState
               },
               borderRadius: kLibraryToolbarHoverRadius,
               hoverColor: libraryToolbarControlHover(context),
-              child: isMobileApp
+              child: appPresentationPlatform.isNativeMobile
                   ? child
                   : LibraryToolbarHoverSurface(child: child),
             ),

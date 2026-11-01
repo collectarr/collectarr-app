@@ -405,7 +405,8 @@ class LibraryBody extends StatelessWidget {
             children: [
               if (desktopToolbarBand != null)
                 Row(children: [
-                  if (!canShowSidebar && !isMobileApp)
+                  if (!canShowSidebar &&
+                      !appPresentationPlatform.isNativeMobile)
                     PopupMenuButton<String>(
                       popUpAnimationStyle: AnimationStyle.noAnimation,
                       tooltip: 'Folders',
@@ -429,7 +430,7 @@ class LibraryBody extends StatelessWidget {
                     ),
                   Expanded(child: desktopToolbarBand!),
                 ]),
-              if (isMobileApp &&
+              if (appPresentationPlatform.isNativeMobile &&
                   !canShowSidebar &&
                   projection.buckets.length > 1)
                 PopupMenuButton<String>(

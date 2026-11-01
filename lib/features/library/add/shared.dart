@@ -86,7 +86,7 @@ ThemeData buildLibraryAddDialogTheme(Color accent, AppThemePalette palette) {
 /// reference.
 Color libraryAddSearchBackground(BuildContext context) {
   final palette = appPalette(context);
-  if (isMobileApp) return palette.canvas;
+  if (appPresentationPlatform.isNativeMobile) return palette.canvas;
   return palette.isDark ? const Color(0xff595e67) : palette.panel;
 }
 

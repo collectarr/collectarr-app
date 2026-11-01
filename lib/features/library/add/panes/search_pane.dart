@@ -462,7 +462,7 @@ class _LibraryAddBlockToolbar extends StatelessWidget {
         );
     final controls = [
       if (leading case final leading?) leading,
-      if (!isMobileApp) const Spacer(),
+      if (!appPresentationPlatform.isNativeMobile) const Spacer(),
       for (final option in options) ...[
         _LibraryAddResultOptionToggle(
           option: option,
@@ -488,10 +488,13 @@ class _LibraryAddBlockToolbar extends StatelessWidget {
     ];
     return Container(
       key: const ValueKey('library-add-block-toolbar'),
-      height: isMobileApp ? null : 38,
-      padding:
-          EdgeInsets.fromLTRB(10, isMobileApp ? 4 : 0, 4, isMobileApp ? 4 : 0),
-      child: isMobileApp
+      height: appPresentationPlatform.isNativeMobile ? null : 38,
+      padding: EdgeInsets.fromLTRB(
+          10,
+          appPresentationPlatform.isNativeMobile ? 4 : 0,
+          4,
+          appPresentationPlatform.isNativeMobile ? 4 : 0),
+      child: appPresentationPlatform.isNativeMobile
           ? Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
               runSpacing: 4,

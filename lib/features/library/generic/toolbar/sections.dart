@@ -168,7 +168,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         showBottomBorder: showBottomBorder,
       );
     }
-    if (isMobileApp) return _buildMobile(context);
+    if (appPresentationPlatform.isNativeMobile) return _buildMobile(context);
     return AppDarkChrome(
         child: DecoratedBox(
       decoration: BoxDecoration(
@@ -646,8 +646,8 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showChromeRow =
-        !isMobileApp && onCollectionStatusScopeChanged != null;
+    final showChromeRow = !appPresentationPlatform.isNativeMobile &&
+        onCollectionStatusScopeChanged != null;
     final narrow = MediaQuery.sizeOf(context).width < 900;
     final showAlphabetRow = onLetterSelected != null && !narrow;
     final leftControls = Row(
@@ -1073,12 +1073,12 @@ class LibraryCompactToolbarContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showChromeRow =
-        !isMobileApp && onCollectionStatusScopeChanged != null;
+    final showChromeRow = !appPresentationPlatform.isNativeMobile &&
+        onCollectionStatusScopeChanged != null;
     final showAlphabetRow =
         availableLetters.isNotEmpty && onLetterSelected != null;
 
-    if (isMobileApp) {
+    if (appPresentationPlatform.isNativeMobile) {
       return Column(mainAxisSize: MainAxisSize.min, children: [
         if (searchTargetOptions.isNotEmpty && onSearchTargetChanged != null)
           PopupMenuButton<LibrarySearchTarget>(
@@ -1160,7 +1160,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                 ),
               ],
               const SizedBox(width: 8),
-              if (!isMobileApp)
+              if (!appPresentationPlatform.isNativeMobile)
                 IconButton.filled(
                   style: IconButton.styleFrom(
                     backgroundColor: libraryAccentActionColor(accent),

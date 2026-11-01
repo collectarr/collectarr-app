@@ -169,7 +169,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void initState() {
     super.initState();
-    if (isMobileApp) {
+    if (appPresentationPlatform.isNativeMobile) {
       _mobileSearch = ref.read(
           mobileLibrarySearchProvider(widget.type.kind.apiValue).notifier);
     }

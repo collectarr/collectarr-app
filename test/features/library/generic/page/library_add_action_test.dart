@@ -26,12 +26,12 @@ void main() {
         content: const SizedBox.shrink(),
         bottomBar: const Text('Collections'),
         accent: Colors.orange,
-        showAddButton: isMobileApp,
+        showAddButton: appPresentationPlatform.isNativeMobile,
         isScanningCover: false,
         onAdd: () => added = true,
         onEscape: () {},
       )));
-      if (isMobileApp) {
+      if (appPresentationPlatform.isNativeMobile) {
         expect(find.text('Add Comics'), findsNothing);
         final fab = tester
             .widget<FloatingActionButton>(find.byType(FloatingActionButton));

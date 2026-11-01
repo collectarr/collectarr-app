@@ -70,7 +70,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
     final selected = _selectedQuickView();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final trigger = isMobileApp
+    final trigger = appPresentationPlatform.isNativeMobile
         ? const MobileToolbarTrigger(icon: Icons.more_vert)
         : LibraryToolbarHoverSurface(
             child: Padding(

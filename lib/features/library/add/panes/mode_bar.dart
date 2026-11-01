@@ -376,7 +376,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   Widget _buildInput(String searchLabel, String queryHint) =>
       switch (widget.mode) {
         LibraryAddDialogMode.browse => _LibraryAddModeTextField(
-            mobile: isMobileApp,
+            mobile: appPresentationPlatform.isNativeMobile,
             fieldKey: const ValueKey('library-add-browse-field'),
             controller: widget.browseQueryController!,
             label: widget.browseTab!.label,
@@ -392,7 +392,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
               child: KeyedSubtree(
                 key: _searchBarKey,
                 child: _LibraryAddModeTextField(
-                  mobile: isMobileApp,
+                  mobile: appPresentationPlatform.isNativeMobile,
                   fieldKey: const ValueKey('library-add-query-field'),
                   controller: widget.queryController,
                   label: searchLabel,
@@ -405,7 +405,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
             ),
           ),
         LibraryAddDialogMode.identifier => _LibraryAddModeTextField(
-            mobile: isMobileApp,
+            mobile: appPresentationPlatform.isNativeMobile,
             fieldKey: const ValueKey('library-add-barcode-field'),
             controller: widget.identifierController,
             label: 'Barcode / UPC / ISBN',
@@ -416,7 +416,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                 _LibraryAddScanBarcodeButton(onPressed: widget.onScanBarcode),
           ),
         LibraryAddDialogMode.code => _LibraryAddModeTextField(
-            mobile: isMobileApp,
+            mobile: appPresentationPlatform.isNativeMobile,
             fieldKey: const ValueKey('library-add-code-field'),
             controller: widget.codeQueryController!,
             label: widget.codeSearchTab!.label,
@@ -487,7 +487,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
     final palette = appPalette(context);
     final advancedFields = _resolveAdvancedFields();
     _syncAdvancedControllers(advancedFields);
-    if (isMobileApp) {
+    if (appPresentationPlatform.isNativeMobile) {
       return _buildMobile(
           context, searchLabels.addSearchTabLabel, searchLabels.queryHint);
     }
@@ -1217,7 +1217,7 @@ class _AdvancedSearchFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (advancedFilterDescriptors.isEmpty) return const SizedBox.shrink();
-    if (isMobileApp) {
+    if (appPresentationPlatform.isNativeMobile) {
       return LayoutBuilder(
           builder: (context, constraints) =>
               Wrap(spacing: 6, runSpacing: 6, children: [
