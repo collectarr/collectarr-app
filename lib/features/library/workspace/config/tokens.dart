@@ -273,6 +273,10 @@ Color libraryWorkspaceTableHoverColor(BuildContext context) =>
 Color libraryWorkspaceSelectionBackground(BuildContext context) =>
     appPalette(context).utilityAction;
 
+/// Rows and cards ticked for a bulk action, as in the reference: a darker blue
+/// than the active item's, so both stay visible together.
+const Color kLibraryCheckedItemBackground = Color(0xFF04698D);
+
 Color librarySelectionToolbarSurface(BuildContext context) => Color.alphaBlend(
       appPalette(context).textPrimary.withValues(
             alpha: appPalette(context).isDark ? 0.07 : 0.04,

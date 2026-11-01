@@ -143,7 +143,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
         ? (selectedColor == kAppSelection
             ? palette.utilityAction
             : selectedColor)
-        : palette.panelRaised;
+        : checked
+            ? kLibraryCheckedItemBackground
+            : palette.panelRaised;
     return RepaintBoundary(
         child: AnimatedContainer(
       duration: kAppAnimFast,
@@ -160,7 +162,8 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                   // A hover highlight keeps the alpha it appeared with, so
                   // turning it transparent on selection paints opaque black;
                   // a selected card repaints its own fill instead.
-                  hoverColor: selected ? background : palette.surfaceBright,
+                  hoverColor:
+                      selected || checked ? background : palette.surfaceBright,
                   highlightColor: Colors.transparent,
                   child: Stack(children: [
                     Padding(
@@ -362,7 +365,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
         ? (selectedColor == kAppSelection
             ? libraryWorkspaceSelectionBackground(context)
             : selectedColor)
-        : palette.panelRaised;
+        : checked
+            ? kLibraryCheckedItemBackground
+            : palette.panelRaised;
     final titleColor = selected
         ? kLibraryCardTitleColor
         : palette.isDark
@@ -391,7 +396,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                     mouseCursor: WidgetStateMouseCursor.clickable,
                     // See the horizontal card: never fade a hover to
                     // transparent, which paints black.
-                    hoverColor: selected ? background : palette.surfaceBright,
+                    hoverColor: selected || checked
+                        ? background
+                        : palette.surfaceBright,
                     highlightColor: Colors.transparent,
                     onTap: onReleaseTap,
                     onDoubleTap: onDoubleTap,
