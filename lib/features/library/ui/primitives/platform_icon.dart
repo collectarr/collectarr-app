@@ -1,6 +1,12 @@
+import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+/// The list platform icons the user loads from their own files are kept
+/// for, shared by every kind that names a platform.
+const platformIconsList = 'platform';
 
 /// A platform's logo from `assets/platform_logos/` (CC0 Simple Icons, see
 /// NOTICE.md there), with the PlayStation generation drawn as a number.
@@ -61,9 +67,10 @@ IconData resolvePlatformIcon(String platform) {
   return AppIcons.gamepad;
 }
 
-/// The logo or glyph for the platform called [name] at [size], in [color]
-/// or the current text color, with the name as tooltip.
-class PlatformIcon extends StatelessWidget {
+/// The icon the user loaded for the platform called [name], else its logo
+/// or glyph, at [size] in [color] or the current text color, with the name
+/// as tooltip. A loaded icon keeps its own colours.
+class PlatformIcon extends ConsumerWidget {
   const PlatformIcon(this.name, {super.key, this.size = 16, this.color});
 
   final String name;
@@ -71,8 +78,19 @@ class PlatformIcon extends StatelessWidget {
   final Color? color;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final loaded = ref
+        .watch(listValueImageProvider((list: platformIconsList, value: name)))
+        .value;
     final ink = color ?? DefaultTextStyle.of(context).style.color;
+    if (loaded != null) {
+      return Tooltip(
+          message: name,
+          child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: size * 3, maxHeight: size),
+              child:
+                  ListValueImageView(loaded, height: size, blackSvgTint: ink)));
+    }
     final logo = platformLogoFor(name);
     final Widget mark;
     if (logo == null) {

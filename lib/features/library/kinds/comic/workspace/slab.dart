@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/comic/edit/grading_options.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/custom_label_images.dart';
+import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
+import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -166,7 +167,7 @@ class _SlabLabel extends StatelessWidget {
                         : const Color(0x38ffffff))),
           ),
         ),
-        if (comicCustomLabelKey(customLabel) != null)
+        if (listValueImageKey(customLabel) != null)
           Positioned(
               top: 0,
               right: 0,
@@ -194,10 +195,11 @@ class _SlabCustomLabelImage extends ConsumerWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) =>
-      switch (ref.watch(comicCustomLabelImageProvider(label)).value) {
-        final image? =>
-          Image.memory(image, fit: BoxFit.fitHeight, gaplessPlayback: true),
+  Widget build(BuildContext context, WidgetRef ref) => switch (ref
+          .watch(listValueImageProvider(
+              (list: ComicVocabularyIds.customLabel.value, value: label)))
+          .value) {
+        final image? => ListValueImageView(image, fit: BoxFit.fitHeight),
         null => const SizedBox.shrink(),
       };
 }

@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:collectarr_app/features/library/kinds/comic/data/custom_label_images.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/grading_options.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/slab.dart';
+import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,7 +13,7 @@ Future<void> _pumpSlab(WidgetTester tester, ComicSlab slab,
         {Uint8List? labelImage}) =>
     tester.pumpWidget(ProviderScope(
         overrides: [
-          comicCustomLabelImageProvider
+          listValueImageProvider
               .overrideWith((ref, label) => Stream.value(labelImage))
         ],
         child: MaterialApp(

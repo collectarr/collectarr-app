@@ -81,7 +81,7 @@ Keep these when matching the reference visually.
 
 ### Deliberate Games behavior
 
-- Platform icons are CC0 Simple Icons logos where one exists (PlayStation with its generation, PSP, Vita, Steam, Steam Deck, Sega, Atari, Apple, Linux, Android) and Collectarr glyphs otherwise (Xbox, Nintendo, PC). CLZ's own platform images are never copied; see `assets/LOGOS.md`.
+- Platform icons are CC0 Simple Icons logos where one exists (PlayStation with its generation, PSP, Vita, Steam, Steam Deck, Sega, Atari, Apple, Linux, Android) and Collectarr glyphs otherwise (Xbox, Nintendo, PC). Users can replace them with their own SVG or raster files in Settings > Appearance > Platform icons. CLZ's own platform images are never copied; see `assets/LOGOS.md`.
 - Games, Hardware and Toys expose only their own fields. CLZ also shows generic Games columns and Toy folders across inventory types; Collectarr keeps Toy classification exclusively in Toys.
 - Without a recorded amount for a newly chosen completeness tier, preserve the
   manually entered value. A locked value also survives tier changes. Choosing

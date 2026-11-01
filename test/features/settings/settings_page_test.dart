@@ -138,6 +138,10 @@ void main() {
 
     expect(find.text('Application Skin'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
+    expect(find.text('Platform icons'), findsOneWidget);
+    // Let Drift finish cancelling the platform-image watch before teardown.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   });
 
   testWidgets('settings page renders scrollable section tabs on medium screen',
@@ -170,6 +174,8 @@ void main() {
 
     expect(find.text('Application Skin'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   });
 
   testWidgets('settings page persists animation preference', (tester) async {
@@ -206,6 +212,8 @@ void main() {
       prefs.getBool(UiPreferencesStore.animationsEnabledKey),
       isFalse,
     );
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   });
 
   testWidgets(

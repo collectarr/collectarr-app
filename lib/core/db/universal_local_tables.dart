@@ -199,6 +199,21 @@ class ReadingQueueCache extends Table {
   Set<Column> get primaryKey => {libraryEntryRefKey};
 }
 
+/// Images users load from their own files for list values, such as a
+/// platform's icon or a Custom Label's artwork. The app ships none.
+class ListValueImagesCache extends Table {
+  TextColumn get listKey => text()();
+
+  /// The value's trimmed, lower-case text.
+  TextColumn get valueKey => text()();
+  TextColumn get value => text()();
+  BlobColumn get valueImage => blob()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {listKey, valueKey};
+}
+
 class PickListValuesCache extends Table {
   TextColumn get id => text()();
   TextColumn get listName => text()();

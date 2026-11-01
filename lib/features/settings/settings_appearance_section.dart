@@ -12,6 +12,7 @@ import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/settings/core_data_settings_dialog.dart';
+import 'package:collectarr_app/features/settings/platform_icons_settings_panel.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
@@ -395,7 +396,14 @@ class _SettingsAppearanceSectionState
             child: TabBarView(children: [
           SettingsTabBody.columns(
             left: [customization, localization, behaviour, sorting],
-            right: [autoCap, ebay],
+            right: [
+              autoCap,
+              ebay,
+              const SettingsPanel(
+                  icon: Icons.sports_esports_outlined,
+                  title: 'Platform icons',
+                  child: PlatformIconsSettingsPanel()),
+            ],
             footer: SettingsResetAction(
                 label: 'Reset appearance defaults',
                 onReset: _resetAppearanceDefaults),
