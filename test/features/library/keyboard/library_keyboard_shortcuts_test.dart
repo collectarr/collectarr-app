@@ -47,4 +47,53 @@ void main() {
 
     expect(deleteInvocations, 1);
   });
+
+  testWidgets('a focused text field keeps K, J and Delete', (tester) async {
+    var moves = 0;
+    var deletes = 0;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryKeyboardShortcuts(
+            onNextItem: () => moves += 1,
+            onPreviousItem: () => moves += 1,
+            onDelete: () => deletes += 1,
+            child: const TextField(),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byType(TextField));
+    await tester.pump();
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyK);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyJ);
+    await tester.sendKeyEvent(LogicalKeyboardKey.delete);
+
+    expect(moves, 0);
+    expect(deletes, 0);
+  });
+
+  testWidgets('K and J move between items outside text fields', (tester) async {
+    var moves = 0;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryKeyboardShortcuts(
+            onNextItem: () => moves += 1,
+            onPreviousItem: () => moves += 1,
+            child: const SizedBox.expand(),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyK);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyJ);
+
+    expect(moves, 2);
+  });
 }
