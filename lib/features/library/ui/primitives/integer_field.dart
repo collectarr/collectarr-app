@@ -24,14 +24,21 @@ final class _WholeNumberFormatter extends TextInputFormatter {
 final class LibraryIntegerField extends StatefulWidget {
   const LibraryIntegerField({
     super.key,
-    required this.initialValue,
+    this.initialValue = '',
     required this.onChanged,
+    this.controller,
+    this.focusNode,
     this.validator,
     this.minimum = 0,
   });
 
   final String initialValue;
   final ValueChanged<String> onChanged;
+
+  /// Supplied by schema forms that keep their own controllers; otherwise the
+  /// field owns one seeded from [initialValue].
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
   final String? Function(String?)? validator;
   final int minimum;
 
@@ -40,12 +47,15 @@ final class LibraryIntegerField extends StatefulWidget {
 }
 
 final class _LibraryIntegerFieldState extends State<LibraryIntegerField> {
-  late final _controller = TextEditingController(text: widget.initialValue);
+  late final _ownController = widget.controller == null
+      ? TextEditingController(text: widget.initialValue)
+      : null;
+  TextEditingController get _controller => widget.controller ?? _ownController!;
   var _hovered = false;
 
   @override
   void dispose() {
-    _controller.dispose();
+    _ownController?.dispose();
     super.dispose();
   }
 
@@ -71,6 +81,7 @@ final class _LibraryIntegerFieldState extends State<LibraryIntegerField> {
         child: Stack(children: [
           LibraryTextFormControl(
               controller: _controller,
+              focusNode: widget.focusNode,
               keyboardType: TextInputType.number,
               inputFormatters: const [_WholeNumberFormatter()],
               validator: widget.validator,
