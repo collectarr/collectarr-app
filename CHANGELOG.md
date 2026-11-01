@@ -15,6 +15,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- An empty collection shows CLZ's blue "No comics yet." banner pointing to the Add button, instead of a centred icon and an Add from Collectarr Core button.
 - Typing K, J or Delete in the search box or any other text field enters the key instead of moving to another item or removing the selection, and Ctrl+A selects the field's text.
 - Pressing Enter in a multi-value field such as Genre adds the value and keeps the caret in the field for the next one, as in CLZ.
 - Multi-value fields such as Genre and Tags keep their list button on the first row when values wrap, with the typing caret centred on the chip row and CLZ's spacing.

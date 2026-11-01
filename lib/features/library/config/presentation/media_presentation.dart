@@ -31,7 +31,6 @@ class LibraryMediaPresentation {
     this.cardPresentationBuilder,
     this.quickViewMatcher,
     this.compactBucketIcon = Icons.folder,
-    this.emptyStateSummarySuffix = '',
     this.previewLabels = const LibraryMediaPreviewLabels(),
     this.statsLabels = const LibraryMediaStatsLabels(),
     this.sortFavorites = const [],
@@ -55,7 +54,6 @@ class LibraryMediaPresentation {
   final LibraryCardPresentationBuilder? cardPresentationBuilder;
   final LibraryQuickViewMatcher? quickViewMatcher;
   final IconData compactBucketIcon;
-  final String emptyStateSummarySuffix;
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
   final List<LibrarySortFavorite> sortFavorites;
