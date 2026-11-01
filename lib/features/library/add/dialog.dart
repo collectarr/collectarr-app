@@ -1,3 +1,4 @@
+import 'mobile_method_picker.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/features/library/ui/density_scope.dart';
@@ -81,6 +82,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.initialIdentifier,
     this.autoLookupInitialIdentifier = true,
     this.startManually = false,
+    this.initialMobileMethod,
     this.coverScanService = const LocalLibraryCoverScanService(),
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
@@ -96,6 +98,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   /// Opens Add Manually at once, as the menu's Add Manually entry does, and
   /// closes the dialog with it.
   final bool startManually;
+  final MobileAddMethod? initialMobileMethod;
   final LibraryCoverScanService coverScanService;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
@@ -215,6 +218,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           .clearSessionIfRejected(error),
     );
 
+    _mobileCoverSelected = widget.initialMobileMethod == MobileAddMethod.cover;
+    if (widget.initialMobileMethod == MobileAddMethod.barcode) {
+      _controller.setMode(LibraryAddDialogMode.identifier);
+    }
     _controller.addListener(_onControllerStateChanged);
 
     final editCap = libraryEditPresentationForKind(widget.type.kind);
@@ -1043,6 +1050,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               advancedFilterDescriptors:
                   modeBarRequest.advancedFilterDescriptors,
               onCoreDataSettings: _showCoreDataSettings,
+              coverSelected: _mobileCoverSelected,
               onCoverTabChanged: (selected) =>
                   setState(() => _mobileCoverSelected = selected),
               showMobileInput: !browseMode || openedGroup == null,
