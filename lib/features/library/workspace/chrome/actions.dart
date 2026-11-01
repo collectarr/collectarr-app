@@ -1,11 +1,10 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_typography.dart';
-import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LibraryToolbarPrimaryActions extends ConsumerWidget {
+class LibraryToolbarPrimaryActions extends StatelessWidget {
   const LibraryToolbarPrimaryActions({
     super.key,
     required this.addLabel,
@@ -28,13 +27,11 @@ class LibraryToolbarPrimaryActions extends ConsumerWidget {
   final Color addForegroundColor;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final useFab =
-        ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
+  Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (!useFab) ...[
+        if (!isMobileApp) ...[
           SizedBox(
             height: 30,
             child: FilledButton(

@@ -22,8 +22,6 @@ abstract final class LibraryPageShellPresenter {
     final projection = shelfState == null
         ? null
         : state._projectionForShelf(shelfState, viewState);
-    final useFab =
-        state.ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
     if (projection != null) {
       final uri = state.widget.routeUri;
       final request = uri.queryParameters['toolRequest'];
@@ -88,7 +86,7 @@ abstract final class LibraryPageShellPresenter {
         onCollectionSelected: (_) => state._onCollectionSelected(),
       ),
       accent: state.widget.accent,
-      showAddButton: useFab || MediaQuery.sizeOf(context).width < 900,
+      showAddButton: isMobileApp,
       isScanningCover: state._isScanningCover,
       onAdd: () => state._dialogCoordinator.showAddDialogFlow(),
       onEscape: state._handleKeyboardEscape,

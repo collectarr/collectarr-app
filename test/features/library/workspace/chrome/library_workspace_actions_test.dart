@@ -35,7 +35,7 @@ void main() {
     await tester.pump();
 
     expect(addPressed, isTrue);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('hovering Add darkens it like the editor Save button', (
     tester,
@@ -71,5 +71,5 @@ void main() {
 
     expect(fill(), filledButtonHoverColor(blue));
     expect(fill(), isNot(blue));
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

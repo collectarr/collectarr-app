@@ -44,15 +44,16 @@ class LibraryPageShellFrame extends StatelessWidget {
       onEscape: onEscape,
       child: Scaffold(
         backgroundColor: appPalette(context).canvas,
+        bottomNavigationBar: SafeArea(top: false, child: bottomBar),
         floatingActionButton: showAddButton
             ? FloatingActionButton(
+                heroTag: null,
                 onPressed: onAdd,
-                backgroundColor: libraryAccentActionColor(accent),
-                child: Icon(
-                  Icons.add,
-                  color:
-                      appContrastingTextColor(libraryAccentActionColor(accent)),
-                ),
+                tooltip: 'Add',
+                shape: const CircleBorder(),
+                backgroundColor: appPalette(context).utilityAction,
+                foregroundColor: Colors.white,
+                child: const Icon(Icons.add, color: Colors.white),
               )
             : null,
         body: SafeArea(
@@ -64,7 +65,6 @@ class LibraryPageShellFrame extends StatelessWidget {
                   topBar,
                   toolbar,
                   Expanded(child: content),
-                  bottomBar,
                 ],
               ),
               if (isScanningCover)

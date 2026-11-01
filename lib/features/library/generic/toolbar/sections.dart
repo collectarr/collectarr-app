@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/alphabet_options.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -1005,16 +1006,17 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                 ),
               ],
               const SizedBox(width: 8),
-              IconButton.filled(
-                style: IconButton.styleFrom(
-                  backgroundColor: libraryAccentActionColor(accent),
-                  foregroundColor:
-                      appContrastingTextColor(libraryAccentActionColor(accent)),
+              if (!isMobileApp)
+                IconButton.filled(
+                  style: IconButton.styleFrom(
+                    backgroundColor: libraryAccentActionColor(accent),
+                    foregroundColor: appContrastingTextColor(
+                        libraryAccentActionColor(accent)),
+                  ),
+                  onPressed: onAdd,
+                  icon: const Icon(Icons.add),
+                  tooltip: 'Add ${type.identity.pluralLabel}',
                 ),
-                onPressed: onAdd,
-                icon: const Icon(Icons.add),
-                tooltip: 'Add ${type.identity.pluralLabel}',
-              ),
               const SizedBox(width: 4),
               if (onFolders != null) ...[
                 Tooltip(
