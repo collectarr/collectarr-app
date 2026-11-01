@@ -13,6 +13,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Multi-value fields such as Genre and Tags keep their list button on the first row when values wrap, with the typing caret centred on the chip row and CLZ's spacing.
 - The Comics Value tab uses CLZ's field names: Slab Certification Number, Grading Company, Grader Notes, Custom Label, Key Reason and Key Category.
 - Empty price fields show the currency, as in CLZ, instead of only once a price is typed.
 - Comics No. of Pages is a whole-number spin field like Index and Quantity: it takes digits only and shows the hover arrows.

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 /// Compact neutral tag shared by vocabulary fields and nested credit values.
 class LibraryValueChip extends StatelessWidget {
   const LibraryValueChip({super.key, required this.label, this.onDeleted});
+  static const double height = 26;
   final String label;
   final VoidCallback? onDeleted;
 
@@ -14,7 +15,7 @@ class LibraryValueChip extends StatelessWidget {
         color: palette.divider,
         borderRadius: BorderRadius.circular(4),
         child: SizedBox(
-            height: 26,
+            height: height,
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               Flexible(
                   child: Padding(

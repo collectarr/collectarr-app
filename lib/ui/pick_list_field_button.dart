@@ -11,11 +11,16 @@ class PickListFieldButton extends StatelessWidget {
     required this.tooltip,
     required this.onPressed,
     this.embeddedInField = true,
+    this.bottomBorder = false,
     this.icon = AppIcons.viewHorizontalCards,
   });
 
   static const double width = 33;
   final bool embeddedInField;
+
+  /// Closes the button off below, for fields that grow past one row while
+  /// the button stays on the first, as in the reference.
+  final bool bottomBorder;
   final IconData icon;
   final String tooltip;
   final VoidCallback? onPressed;
@@ -24,7 +29,8 @@ class PickListFieldButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final height = embeddedInField
-        ? LibraryDensityScope.of(context).metrics.fieldHeight - 2
+        ? LibraryDensityScope.of(context).metrics.fieldHeight -
+            (bottomBorder ? 1 : 2)
         : 30.0;
     final foreground =
         embeddedInField ? palette.textMuted : palette.textPrimary;
@@ -39,7 +45,11 @@ class PickListFieldButton extends StatelessWidget {
                 child: DecoratedBox(
                     decoration: BoxDecoration(
                         border: embeddedInField
-                            ? Border(left: BorderSide(color: palette.divider))
+                            ? Border(
+                                left: BorderSide(color: palette.divider),
+                                bottom: bottomBorder
+                                    ? BorderSide(color: palette.divider)
+                                    : BorderSide.none)
                             : null),
                     child: Material(
                         color: Colors.transparent,
