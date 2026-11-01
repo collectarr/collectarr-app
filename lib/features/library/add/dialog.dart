@@ -135,6 +135,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   /// The result group whose variants are shown, and the search it belongs to.
   String? _selectedGroupKey;
+
+  /// The group a picked suggestion opens once its search has run.
+  String? _pendingGroupKey;
   int _selectedGroupSearch = 0;
 
   bool _isClosing = false;
@@ -885,7 +888,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final grouping = resultPolicy.grouping;
     if (_selectedGroupSearch != state.search.coreSearchGeneration) {
       _selectedGroupSearch = state.search.coreSearchGeneration;
-      _selectedGroupKey = null;
+      _selectedGroupKey = _pendingGroupKey;
+      _pendingGroupKey = null;
     }
     final selectedGroup = grouping == null
         ? null
@@ -986,11 +990,29 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 _controller.executeSearch();
               },
               onQueryChanged: _controller.updateQuery,
-              suggestions: state.search.suggestions,
+              // A grouping kind suggests each group once, as the reference
+              // suggests a game once per platform, and picking one searches
+              // its title and opens that group's variants.
+              suggestions: grouping == null
+                  ? state.search.suggestions
+                  : [
+                      for (final group in libraryAddResultGroups(
+                              state.search.suggestions, grouping)
+                          .take(5))
+                        group.first
+                    ],
+              suggestionDetail: grouping?.groupDetail,
               showSuggestions: state.search.showSuggestions,
               onSelectSuggestion: (item) {
                 _queryController.text = item.summary.primaryLabel;
-                _controller.selectSuggestion(item);
+                if (grouping == null) {
+                  _controller.selectSuggestion(item);
+                  return;
+                }
+                _pendingGroupKey = grouping.groupKey(item);
+                _controller.dismissSuggestions();
+                _controller.updateQuery(item.summary.primaryLabel);
+                _controller.executeSearch();
               },
               onDismissSuggestions: _controller.dismissSuggestions,
               canScanCover:

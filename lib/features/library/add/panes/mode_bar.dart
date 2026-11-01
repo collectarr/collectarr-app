@@ -68,6 +68,7 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.onSearch,
     required this.onQueryChanged,
     required this.suggestions,
+    this.suggestionDetail,
     required this.showSuggestions,
     required this.onSelectSuggestion,
     required this.onDismissSuggestions,
@@ -115,6 +116,11 @@ class LibraryAddModeBar extends StatefulWidget {
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
   final List<CatalogSearchCandidate> suggestions;
+
+  /// The line under a suggestion's title, such as a game's platform; the
+  /// kind's search result line otherwise.
+  final Widget Function(BuildContext context, CatalogSearchCandidate item)?
+      suggestionDetail;
   final bool showSuggestions;
   final ValueChanged<CatalogSearchCandidate> onSelectSuggestion;
   final VoidCallback onDismissSuggestions;
@@ -300,18 +306,36 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
               ),
               clipBehavior: Clip.antiAlias,
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 280),
+                constraints: const BoxConstraints(maxHeight: 360),
                 child: ListView.separated(
                   padding: EdgeInsets.zero,
                   shrinkWrap: true,
-                  itemCount: widget.suggestions.length,
-                  separatorBuilder: (_, __) =>
-                      Divider(height: 1, color: palette.divider),
+                  // The reference's "Search for" row and heading come first.
+                  itemCount: widget.suggestions.length + 2,
+                  separatorBuilder: (_, index) => index == 0
+                      ? const SizedBox.shrink()
+                      : Divider(height: 1, color: palette.divider),
                   itemBuilder: (context, index) {
-                    final item = widget.suggestions[index];
+                    if (index == 0) {
+                      return _SuggestedSearchRow(
+                          query: widget.queryController.text,
+                          onTap: _handleSearch);
+                    }
+                    if (index == 1) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+                        child: Text('Or pick from these suggestions:',
+                            style: TextStyle(
+                                color: palette.textPrimary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700)),
+                      );
+                    }
+                    final item = widget.suggestions[index - 2];
                     return _SuggestionTile(
                       type: widget.type,
                       item: item,
+                      detail: widget.suggestionDetail?.call(context, item),
                       accent: widget.accent,
                       onTap: () {
                         if (_suggestionsOverlayController.isShowing) {
@@ -1189,16 +1213,51 @@ class _AdvancedField extends StatelessWidget {
   }
 }
 
+/// The reference's blue first row: search for what was typed.
+class _SuggestedSearchRow extends StatelessWidget {
+  const _SuggestedSearchRow({required this.query, required this.onTap});
+
+  final String query;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+        key: const ValueKey('library-add-suggested-query-search'),
+        mouseCursor: SystemMouseCursors.click,
+        onTap: onTap,
+        child: Container(
+          height: 34,
+          color: appPalette(context).utilityAction,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(children: [
+            const Icon(AppIcons.search, size: 16, color: Colors.white),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text('Search for "${query.trim().toLowerCase()}"',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white, fontSize: 14)),
+            ),
+            const Icon(AppIcons.chevronRight, size: 14, color: Colors.white),
+          ]),
+        ),
+      );
+}
+
 class _SuggestionTile extends StatelessWidget {
   const _SuggestionTile({
     required this.type,
     required this.item,
+    this.detail,
     required this.accent,
     required this.onTap,
   });
 
   final LibraryKindRegistration type;
   final CatalogSearchCandidate item;
+
+  /// Replaces the result line under the title when set.
+  final Widget? detail;
   final Color accent;
   final VoidCallback onTap;
 
@@ -1255,7 +1314,14 @@ class _SuggestionTile extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  if (subtitleText.isNotEmpty)
+                  if (detail case final detail?)
+                    DefaultTextStyle.merge(
+                        style:
+                            TextStyle(color: palette.textMuted, fontSize: 13),
+                        child: IconTheme.merge(
+                            data: IconThemeData(color: palette.textMuted),
+                            child: detail))
+                  else if (subtitleText.isNotEmpty)
                     Text(
                       subtitleText,
                       maxLines: 1,
