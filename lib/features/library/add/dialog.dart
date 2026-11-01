@@ -62,7 +62,6 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
-import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -739,8 +738,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
 
     try {
-      if (AppWindowClass.of(context).isCompact) {
-        await Navigator.of(context).push<void>(
+      if (appPresentationPlatform.isNativeMobile) {
+        await Navigator.of(context, rootNavigator: true).push<void>(
           MaterialPageRoute<void>(
             fullscreenDialog: true,
             builder: (routeContext) => Scaffold(

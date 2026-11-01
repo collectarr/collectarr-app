@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/library/edit/draft/models.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -15,6 +18,64 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../support/fixtures/test_constants.dart';
 
 void main() {
+  for (final width in [390.0, 1024.0]) {
+    testWidgets('edit route follows native policy at $width dp',
+        (tester) async {
+      tester.view.physicalSize = Size(width, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final db = LocalDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final loaded = Completer<LibraryEditDialogRequest>();
+      var loads = 0;
+      await tester.pumpWidget(ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+            home: Scaffold(
+          appBar: AppBar(title: const Text('Outer shell')),
+          body: Navigator(
+              onGenerateRoute: (_) => MaterialPageRoute<void>(
+                  builder: (context) => FilledButton(
+                      onPressed: () => unawaited(showLibraryEditDialog(
+                          context: context,
+                          request: _musicEditRequest(),
+                          requestLoader: () {
+                            loads++;
+                            return loaded.future;
+                          })),
+                      child: const Text('Open editor')))),
+        )),
+      ));
+      await tester.tap(find.text('Open editor'));
+      await pumpUntilSettled(tester);
+      final route = ModalRoute.of(
+          tester.element(find.byType(CircularProgressIndicator)))!;
+      if (appPresentationPlatform.isNativeMobile) {
+        expect(route, isA<MaterialPageRoute<LibraryEditSelection>>());
+        expect((route as PageRoute).fullscreenDialog, isTrue);
+        expect(find.text('Outer shell'), findsNothing);
+      } else {
+        expect(route, isA<AppDialogRoute<LibraryEditSelection>>());
+        expect(find.text('Outer shell'), findsOneWidget);
+      }
+      expect(loads, 1);
+      route.navigator!.pop();
+      await pumpUntilSettled(tester);
+      loaded.complete(_musicEditRequest());
+      await pumpUntilSettled(tester);
+      expect(find.text('Outer shell'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+    },
+        variant: TargetPlatformVariant({
+          TargetPlatform.android,
+          TargetPlatform.iOS,
+          TargetPlatform.windows
+        }));
+  }
+
   testWidgets('showLibraryEditDialog opens immediately while request loads', (
     tester,
   ) async {
@@ -59,7 +120,7 @@ void main() {
 
     expect(find.textContaining('The Return of the King'), findsWidgets);
     expect(find.text('Save'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('switching items keeps the dialog on screen with no spinner', (
     tester,
@@ -100,7 +161,7 @@ void main() {
     expect(find.text('Save'), findsOneWidget);
     await pumpUntilSettled(tester);
     expect(find.textContaining('Another Album'), findsWidgets);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }
 
 LibraryEditDialogRequest _musicEditRequest({

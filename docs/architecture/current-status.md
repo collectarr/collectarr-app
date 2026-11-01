@@ -106,8 +106,8 @@ consume these owners rather than duplicate them. Shared hosts render typed
 kind contributions and do not choose fields from hard-coded kind names.
 
 Remaining structural work includes the mixed shell renderer, inline narrow
-inspector navigation, ephemeral `/detail` route requests, compact-width route
-choices in manual Add/Edit and Settings, desktop editor chrome on native, and
+inspector navigation, ephemeral `/detail` route requests, width-driven Settings
+section navigation, desktop editor chrome on native, and
 the draggable native collection strip. UI comparisons and unverified workflows
 remain in [CLZ parity](../clz-parity.md). Refactor presentation boundaries before
 mechanical kind-file renames.
