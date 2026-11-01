@@ -17,6 +17,8 @@ class LibraryKindIdentity {
     required Color accent,
     this.mobileAccent,
     this.mobileChromeDark,
+    this.mobileToolbarDark,
+    this.mobileToolbarLight,
     required this.preferencePrefix,
     this.routeSegments = const [],
     required this.mediaFamily,
@@ -48,6 +50,8 @@ class LibraryKindIdentity {
   final Color _accent;
   final Color? mobileAccent;
   final Color? mobileChromeDark;
+  final Color? mobileToolbarDark;
+  final Color? mobileToolbarLight;
   Color get accent => isMobileApp ? mobileAccent ?? _accent : _accent;
   final String preferencePrefix;
   final List<String> routeSegments;

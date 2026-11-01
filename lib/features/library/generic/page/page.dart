@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';

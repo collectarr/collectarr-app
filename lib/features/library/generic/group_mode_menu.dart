@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_toolbar_trigger.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
@@ -129,41 +131,44 @@ class _LibraryGroupModeMenuButtonState
             ? 'Group By'
             : genericFolderPresetLabel(widget.folderPreset!, widget.type);
         final triggerColor = appPalette(context).textPrimary;
-        final child = widget.iconOnly
-            ? LibraryToolbarCompactDropdownTrigger(icon: widget.icon)
-            : Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                constraints: const BoxConstraints(minHeight: 30),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      AppIcons.folderOpen,
-                      size: 14,
-                      color: triggerColor,
+        final child = isMobileApp
+            ? MobileToolbarTrigger(
+                icon: Icons.folder_outlined, label: label, chevron: true)
+            : widget.iconOnly
+                ? LibraryToolbarCompactDropdownTrigger(icon: widget.icon)
+                : Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    constraints: const BoxConstraints(minHeight: 30),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          AppIcons.folderOpen,
+                          size: 14,
+                          color: triggerColor,
+                        ),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            // The reference's folder trigger is 14 px regular.
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: triggerColor),
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(
+                          AppIcons.chevronDown,
+                          size: 14,
+                          color: triggerColor,
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        // The reference's folder trigger is 14 px regular.
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: triggerColor),
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    Icon(
-                      AppIcons.chevronDown,
-                      size: 14,
-                      color: triggerColor,
-                    ),
-                  ],
-                ),
-              );
+                  );
 
         return Tooltip(
           message: 'Group By',
@@ -182,7 +187,9 @@ class _LibraryGroupModeMenuButtonState
               },
               borderRadius: kLibraryToolbarHoverRadius,
               hoverColor: libraryToolbarControlHover(context),
-              child: LibraryToolbarHoverSurface(child: child),
+              child: isMobileApp
+                  ? child
+                  : LibraryToolbarHoverSurface(child: child),
             ),
           ),
         );

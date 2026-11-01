@@ -39,6 +39,8 @@ final comicKindIdentity = const LibraryKindIdentity(
   accent: Color(0xFF00AEE6),
   mobileAccent: Color(0xFF0081A6),
   mobileChromeDark: Color(0xFF00577F),
+  mobileToolbarDark: Color(0xFF28454D),
+  mobileToolbarLight: Color(0xFFD8E8EE),
   preferencePrefix: 'comics',
   routeSegments: ['comics', 'comic'],
   mediaFamily: 'print',

@@ -3,13 +3,14 @@
 ## Unreleased
 
 ### Docs
-- The CLZ parity guide tracks remaining Android gaps in the editor, library control density, scanner presentation, icons and Add results, with an isolated-device comparison workflow.
+- The CLZ parity guide tracks remaining Android gaps in the editor, folder and sort navigation, scanner presentation, surfaces and Add results, with an isolated-device comparison workflow.
 - The CLZ parity guide lists the Comics Value tab fields that still differ from CLZ, Signed by and Key Category, and why Custom Label images come only from the user's own files.
 - The CLZ parity guide lists how the Add Games platform filter still differs from CLZ.
 - The architecture status records the planned move to Flutter's separate material_ui package and what it waits for.
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Native mobile libraries use one touch-sized folder/view/sort/tools row and one item count; all six views, cover size, spacing and details options share one panel.
 - Native mobile Comics uses its Android teal palette and shared blue utility actions; desktop and web retain their existing colours.
 - On mobile, the top-right search button opens library search inside the header, with a barcode camera on the left and a clear button only when text is entered. Selection and status controls live in the header; account access moves to the sidebar.
 - Native mobile Add starts with a cover, barcode or text-search chooser that can be skipped next time, then opens a full-screen page with touch-sized tabs, full-width series and issues, and an adaptive cover grid; desktop and web keep their dialogs.
