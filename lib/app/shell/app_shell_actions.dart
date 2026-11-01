@@ -87,6 +87,13 @@ class AppShellActions {
   }) async {
     final context = _pageContext;
     switch (action) {
+      case DrawerAction.library:
+        context.go(AppRoutes.forKind(AppRoutes.libraries, type.kind.apiValue));
+        return;
+      case DrawerAction.activity:
+        context.openPage(
+            AppRoutes.forKind(AppRoutes.activity, type.kind.apiValue));
+        return;
       case DrawerAction.addFromCore:
         unawaited(_openCoreAdd(type, accent));
         return;

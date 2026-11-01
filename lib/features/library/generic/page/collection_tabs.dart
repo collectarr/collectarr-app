@@ -1,4 +1,4 @@
-import 'package:go_router/go_router.dart';
+import 'collection_selection.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -81,17 +81,13 @@ class _LibraryCollectionTabBarState
     final activeId = activeLibraryCollectionId(saved
         .where((collection) => collection.kind == widget.mediaKind)
         .toList());
-    Future<void> select(LibraryCollectionSummary collection) async {
-      // As in the reference, the open collection's own tab does nothing.
-      if (collection.id == activeId) return;
-      await repo.activate(collection.id);
-      if (!context.mounted) return;
-      if (collection.kind != widget.mediaKind) {
-        context.go('/libraries?kind=${collection.kind}');
-      } else {
-        widget.onCollectionSelected?.call(collection);
-      }
-    }
+    Future<void> select(LibraryCollectionSummary collection) =>
+        selectLibraryCollection(context,
+            repository: repo,
+            mediaKind: widget.mediaKind,
+            activeId: activeId,
+            collection: collection,
+            onSelected: widget.onCollectionSelected);
 
     // The collection tab bar stays dark in both themes.
     return AppDarkChrome(

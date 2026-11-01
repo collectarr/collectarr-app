@@ -175,6 +175,8 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                   for (final section in AppDrawerSection.values)
                     if (appDrawerDestinations.any((destination) =>
                         destination.section == section &&
+                        (!destination.nativeOnly ||
+                            appPresentationPlatform.isNativeMobile) &&
                         (!destination.adminOnly || widget.isAdmin))) ...[
                       if (section != AppDrawerSection.collection)
                         const _DrawerDivider(),
@@ -210,6 +212,8 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
       [
         for (final destination in appDrawerDestinations)
           if (destination.section == section &&
+              (!destination.nativeOnly ||
+                  appPresentationPlatform.isNativeMobile) &&
               (!destination.adminOnly || widget.isAdmin))
             // As in the reference, every kind of a collection family, such as
             // Games, Hardware and Toys, has its own Add from Core entry.

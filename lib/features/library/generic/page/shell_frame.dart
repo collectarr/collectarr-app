@@ -24,7 +24,7 @@ class LibraryPageShellFrame extends StatelessWidget {
   final Widget topBar;
   final Widget toolbar;
   final Widget content;
-  final Widget bottomBar;
+  final Widget? bottomBar;
   final Color accent;
   final bool showAddButton;
   final bool isScanningCover;
@@ -46,7 +46,8 @@ class LibraryPageShellFrame extends StatelessWidget {
       child: Scaffold(
         resizeToAvoidBottomInset: !appPresentationPlatform.isNativeMobile,
         backgroundColor: appPalette(context).canvas,
-        bottomNavigationBar: SafeArea(top: false, child: bottomBar),
+        bottomNavigationBar:
+            bottomBar == null ? null : SafeArea(top: false, child: bottomBar!),
         floatingActionButton: showAddButton
             ? FloatingActionButton(
                 heroTag: null,

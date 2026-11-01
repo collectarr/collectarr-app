@@ -1,3 +1,5 @@
+import 'shell/mobile_shell.dart';
+import 'shell/desktop_shell.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'shell/app_account_button.dart';
 import 'package:collectarr_app/features/settings/backups/automatic_backup_controller.dart';
@@ -70,8 +72,15 @@ class _AppShellState extends ConsumerState<AppShell> {
     if (oldWidget.routeUri != widget.routeUri) _openDrawerAction = null;
   }
 
-  DrawerAction? get _selectedDrawerAction =>
-      _openDrawerAction ?? appDrawerActionForRoute(widget.routeUri.path);
+  DrawerAction? get _selectedDrawerAction {
+    final selected =
+        _openDrawerAction ?? appDrawerActionForRoute(widget.routeUri.path);
+    return selected != null &&
+            !appPresentationPlatform.isNativeMobile &&
+            appDrawerDestination(selected).nativeOnly
+        ? null
+        : selected;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,75 +104,94 @@ class _AppShellState extends ConsumerState<AppShell> {
     final mediaQuery = MediaQuery.maybeOf(context);
     final accentTheme = buildLibraryAccentTheme(Theme.of(context), accent);
 
-    final shell = LibraryAccentScope(
-      kind: activeLibrary,
+    final appBar = AppShellAppBar(
+      showLibrarySearch: widget.routeUri.path == AppRoutes.libraries,
+      type: activeType,
       accent: accent,
+      types: libraryTypes,
       animationsEnabled: uiPreferences.animationsEnabled,
-      child: Scaffold(
-        resizeToAvoidBottomInset: !appPresentationPlatform.isNativeMobile,
-        appBar: AppShellAppBar(
-          showLibrarySearch: widget.routeUri.path == AppRoutes.libraries,
-          type: activeType,
-          accent: accent,
-          types: libraryTypes,
-          animationsEnabled: uiPreferences.animationsEnabled,
-          onKindSelected: (type) {
-            ref.read(selectedLibraryKindProvider.notifier).select(type.kind);
-            context.go(AppRoutes.forKind(AppRoutes.libraries, type.kind));
-          },
-          onOpenNavigation: () => unawaited(showAppNavigationDrawer(
-            context: context,
-            animationsEnabled: uiPreferences.animationsEnabled,
-            type: activeType,
-            selectedAction: _selectedDrawerAction,
-            onOpenAccount: () {
-              if (mounted) {
-                unawaited(showAppAccountDrawer(context, ref,
-                    kind: activeLibrary,
-                    animationsEnabled: uiPreferences.animationsEnabled));
-              }
-            },
-            isAdmin: auth.isAdmin,
-            accent: accent,
-            onAddFromCore: (drawerContext, type) {
-              Navigator.of(drawerContext).pop();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!mounted) return;
-                unawaited(_actions.handle(
-                  DrawerAction.addFromCore,
-                  type: type,
-                  accent: libraryAccentForKind(type.kind),
-                ));
-              });
-            },
-            onSelected: (drawerContext, action) {
-              Navigator.of(drawerContext).pop();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!mounted) return;
-                unawaited(_actions.handle(
-                  action,
-                  type: activeType,
-                  accent: accent,
-                ));
-              });
-            },
-          )),
-        ),
-        body: Stack(
-          children: [
-            AnimatedTheme(
-              data: accentTheme,
-              duration: uiPreferences.animationsEnabled
-                  ? kAppAnimNormal
-                  : Duration.zero,
-              curve: Curves.easeOutCubic,
-              child: widget.child,
-            ),
-            const SyncStatusOverlay(),
-          ],
-        ),
-      ),
+      onKindSelected: (type) {
+        ref.read(selectedLibraryKindProvider.notifier).select(type.kind);
+        context.go(AppRoutes.forKind(AppRoutes.libraries, type.kind));
+      },
+      onOpenNavigation: () => unawaited(showAppNavigationDrawer(
+        context: context,
+        animationsEnabled: uiPreferences.animationsEnabled,
+        type: activeType,
+        selectedAction: _selectedDrawerAction,
+        onOpenAccount: () {
+          if (mounted) {
+            unawaited(showAppAccountDrawer(context, ref,
+                kind: activeLibrary,
+                animationsEnabled: uiPreferences.animationsEnabled));
+          }
+        },
+        isAdmin: auth.isAdmin,
+        accent: accent,
+        onAddFromCore: (drawerContext, type) {
+          Navigator.of(drawerContext).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            unawaited(_actions.handle(
+              DrawerAction.addFromCore,
+              type: type,
+              accent: libraryAccentForKind(type.kind),
+            ));
+          });
+        },
+        onSelected: (drawerContext, action) {
+          Navigator.of(drawerContext).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            unawaited(_actions.handle(
+              action,
+              type: activeType,
+              accent: accent,
+            ));
+          });
+        },
+      )),
     );
+    final body = Stack(
+      children: [
+        AnimatedTheme(
+          data: accentTheme,
+          duration:
+              uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
+          curve: Curves.easeOutCubic,
+          child: widget.child,
+        ),
+        const SyncStatusOverlay(),
+      ],
+    );
+    final shell = LibraryAccentScope(
+        kind: activeLibrary,
+        accent: accent,
+        animationsEnabled: uiPreferences.animationsEnabled,
+        child: appPresentationPlatform.isNativeMobile
+            ? MobileShell(
+                appBar: appBar,
+                body: body,
+                routeUri: widget.routeUri,
+                onMore: appBar.onOpenNavigation,
+                onDestinationSelected: (destination) {
+                  final location =
+                      AppRoutes.forKind(destination.routePath!, activeLibrary);
+                  if (widget.routeUri.path == destination.routePath) return;
+                  final router = GoRouter.of(context);
+                  if (destination.action == DrawerAction.library) {
+                    if (router.canPop()) {
+                      router.pop();
+                    } else {
+                      router.go(location);
+                    }
+                  } else if (widget.routeUri.path == AppRoutes.libraries) {
+                    router.push<void>(location);
+                  } else {
+                    router.replace<void>(location);
+                  }
+                })
+            : DesktopShell(appBar: appBar, body: body));
     if (mediaQuery == null) {
       return shell;
     }
