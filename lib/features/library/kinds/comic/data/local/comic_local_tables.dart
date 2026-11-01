@@ -45,3 +45,16 @@ class ComicTrackingRows extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+/// The image a user loaded for a Custom Label, by the label's name. Images
+/// come only from the user's own files; the app ships none.
+class ComicCustomLabelImageRows extends Table {
+  /// The label's trimmed, lower-case name.
+  TextColumn get labelKey => text()();
+  TextColumn get label => text()();
+  BlobColumn get imageData => blob()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {labelKey};
+}

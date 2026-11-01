@@ -98,7 +98,7 @@ void main() {
           .get();
       final names = tables.map((row) => row.data['name'] as String).toSet();
       expect(names, db.allTables.map((table) => table.actualTableName).toSet());
-      expect(names, hasLength(25));
+      expect(names, hasLength(26));
       expect(names.where((name) => name.endsWith('_rows')).toSet(), {
         'music_tracking_rows',
         'music_listen_events_rows',
@@ -106,6 +106,7 @@ void main() {
         'comic_reading_rows',
         'comic_tracking_unit_rows',
         'comic_tracking_rows',
+        'comic_custom_label_image_rows',
       });
       final columns = await db
           .customSelect('PRAGMA table_info(pick_list_values_cache)')
@@ -291,7 +292,7 @@ void main() {
         ['{"id":"i1","kind_data":$names}']);
   });
 
-  test('upgrades released schema 5 Comics by clearing the Ungraded grade',
+  test('upgrades released schema 5 Comics: no Ungraded grade, label images',
       () async {
     final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
       _createReleasedEntryTables(raw);
@@ -321,6 +322,8 @@ void main() {
       '{"kind":"comic","personal_data":{"grade":null}}',
       '{"kind":"game","personal_data":{"grade":"Ungraded"}}',
     ]);
+    // Schema 6 also keeps the images users load for Custom Labels.
+    expect(await db.select(db.comicCustomLabelImageRows).get(), isEmpty);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
     expect(version.data.values.single, 6);
   });

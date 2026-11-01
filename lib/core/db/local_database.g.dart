@@ -10471,6 +10471,285 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   }
 }
 
+class $ComicCustomLabelImageRowsTable extends ComicCustomLabelImageRows
+    with TableInfo<$ComicCustomLabelImageRowsTable, ComicCustomLabelImageRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ComicCustomLabelImageRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _labelKeyMeta =
+      const VerificationMeta('labelKey');
+  @override
+  late final GeneratedColumn<String> labelKey = GeneratedColumn<String>(
+      'label_key', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+      'label', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _imageDataMeta =
+      const VerificationMeta('imageData');
+  @override
+  late final GeneratedColumn<Uint8List> imageData = GeneratedColumn<Uint8List>(
+      'image_data', aliasedName, false,
+      type: DriftSqlType.blob, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [labelKey, label, imageData, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'comic_custom_label_image_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ComicCustomLabelImageRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('label_key')) {
+      context.handle(_labelKeyMeta,
+          labelKey.isAcceptableOrUnknown(data['label_key']!, _labelKeyMeta));
+    } else if (isInserting) {
+      context.missing(_labelKeyMeta);
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+          _labelMeta, label.isAcceptableOrUnknown(data['label']!, _labelMeta));
+    } else if (isInserting) {
+      context.missing(_labelMeta);
+    }
+    if (data.containsKey('image_data')) {
+      context.handle(_imageDataMeta,
+          imageData.isAcceptableOrUnknown(data['image_data']!, _imageDataMeta));
+    } else if (isInserting) {
+      context.missing(_imageDataMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {labelKey};
+  @override
+  ComicCustomLabelImageRow map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ComicCustomLabelImageRow(
+      labelKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label_key'])!,
+      label: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label'])!,
+      imageData: attachedDatabase.typeMapping
+          .read(DriftSqlType.blob, data['${effectivePrefix}image_data'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $ComicCustomLabelImageRowsTable createAlias(String alias) {
+    return $ComicCustomLabelImageRowsTable(attachedDatabase, alias);
+  }
+}
+
+class ComicCustomLabelImageRow extends DataClass
+    implements Insertable<ComicCustomLabelImageRow> {
+  /// The label's trimmed, lower-case name.
+  final String labelKey;
+  final String label;
+  final Uint8List imageData;
+  final DateTime updatedAt;
+  const ComicCustomLabelImageRow(
+      {required this.labelKey,
+      required this.label,
+      required this.imageData,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['label_key'] = Variable<String>(labelKey);
+    map['label'] = Variable<String>(label);
+    map['image_data'] = Variable<Uint8List>(imageData);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  ComicCustomLabelImageRowsCompanion toCompanion(bool nullToAbsent) {
+    return ComicCustomLabelImageRowsCompanion(
+      labelKey: Value(labelKey),
+      label: Value(label),
+      imageData: Value(imageData),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ComicCustomLabelImageRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ComicCustomLabelImageRow(
+      labelKey: serializer.fromJson<String>(json['labelKey']),
+      label: serializer.fromJson<String>(json['label']),
+      imageData: serializer.fromJson<Uint8List>(json['imageData']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'labelKey': serializer.toJson<String>(labelKey),
+      'label': serializer.toJson<String>(label),
+      'imageData': serializer.toJson<Uint8List>(imageData),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  ComicCustomLabelImageRow copyWith(
+          {String? labelKey,
+          String? label,
+          Uint8List? imageData,
+          DateTime? updatedAt}) =>
+      ComicCustomLabelImageRow(
+        labelKey: labelKey ?? this.labelKey,
+        label: label ?? this.label,
+        imageData: imageData ?? this.imageData,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  ComicCustomLabelImageRow copyWithCompanion(
+      ComicCustomLabelImageRowsCompanion data) {
+    return ComicCustomLabelImageRow(
+      labelKey: data.labelKey.present ? data.labelKey.value : this.labelKey,
+      label: data.label.present ? data.label.value : this.label,
+      imageData: data.imageData.present ? data.imageData.value : this.imageData,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicCustomLabelImageRow(')
+          ..write('labelKey: $labelKey, ')
+          ..write('label: $label, ')
+          ..write('imageData: $imageData, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      labelKey, label, $driftBlobEquality.hash(imageData), updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ComicCustomLabelImageRow &&
+          other.labelKey == this.labelKey &&
+          other.label == this.label &&
+          $driftBlobEquality.equals(other.imageData, this.imageData) &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ComicCustomLabelImageRowsCompanion
+    extends UpdateCompanion<ComicCustomLabelImageRow> {
+  final Value<String> labelKey;
+  final Value<String> label;
+  final Value<Uint8List> imageData;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const ComicCustomLabelImageRowsCompanion({
+    this.labelKey = const Value.absent(),
+    this.label = const Value.absent(),
+    this.imageData = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ComicCustomLabelImageRowsCompanion.insert({
+    required String labelKey,
+    required String label,
+    required Uint8List imageData,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  })  : labelKey = Value(labelKey),
+        label = Value(label),
+        imageData = Value(imageData),
+        updatedAt = Value(updatedAt);
+  static Insertable<ComicCustomLabelImageRow> custom({
+    Expression<String>? labelKey,
+    Expression<String>? label,
+    Expression<Uint8List>? imageData,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (labelKey != null) 'label_key': labelKey,
+      if (label != null) 'label': label,
+      if (imageData != null) 'image_data': imageData,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ComicCustomLabelImageRowsCompanion copyWith(
+      {Value<String>? labelKey,
+      Value<String>? label,
+      Value<Uint8List>? imageData,
+      Value<DateTime>? updatedAt,
+      Value<int>? rowid}) {
+    return ComicCustomLabelImageRowsCompanion(
+      labelKey: labelKey ?? this.labelKey,
+      label: label ?? this.label,
+      imageData: imageData ?? this.imageData,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (labelKey.present) {
+      map['label_key'] = Variable<String>(labelKey.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (imageData.present) {
+      map['image_data'] = Variable<Uint8List>(imageData.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicCustomLabelImageRowsCompanion(')
+          ..write('labelKey: $labelKey, ')
+          ..write('label: $label, ')
+          ..write('imageData: $imageData, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $GameTrackingRowsTable extends GameTrackingRows
     with TableInfo<$GameTrackingRowsTable, GameTrackingRow> {
   @override
@@ -13036,6 +13315,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $ComicTrackingUnitRowsTable(this);
   late final $ComicTrackingRowsTable comicTrackingRows =
       $ComicTrackingRowsTable(this);
+  late final $ComicCustomLabelImageRowsTable comicCustomLabelImageRows =
+      $ComicCustomLabelImageRowsTable(this);
   late final $GameTrackingRowsTable gameTrackingRows =
       $GameTrackingRowsTable(this);
   late final $MovieTrackingRowsTable movieTrackingRows =
@@ -13075,6 +13356,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         comicReadingRows,
         comicTrackingUnitRows,
         comicTrackingRows,
+        comicCustomLabelImageRows,
         gameTrackingRows,
         movieTrackingRows,
         musicTrackingRows,
@@ -18853,6 +19135,178 @@ typedef $$ComicTrackingRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     ComicTrackingRow,
     PrefetchHooks Function()>;
+typedef $$ComicCustomLabelImageRowsTableCreateCompanionBuilder
+    = ComicCustomLabelImageRowsCompanion Function({
+  required String labelKey,
+  required String label,
+  required Uint8List imageData,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$ComicCustomLabelImageRowsTableUpdateCompanionBuilder
+    = ComicCustomLabelImageRowsCompanion Function({
+  Value<String> labelKey,
+  Value<String> label,
+  Value<Uint8List> imageData,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$ComicCustomLabelImageRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $ComicCustomLabelImageRowsTable> {
+  $$ComicCustomLabelImageRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get labelKey => $composableBuilder(
+      column: $table.labelKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get label => $composableBuilder(
+      column: $table.label, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<Uint8List> get imageData => $composableBuilder(
+      column: $table.imageData, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ComicCustomLabelImageRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ComicCustomLabelImageRowsTable> {
+  $$ComicCustomLabelImageRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get labelKey => $composableBuilder(
+      column: $table.labelKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get label => $composableBuilder(
+      column: $table.label, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<Uint8List> get imageData => $composableBuilder(
+      column: $table.imageData, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ComicCustomLabelImageRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ComicCustomLabelImageRowsTable> {
+  $$ComicCustomLabelImageRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get labelKey =>
+      $composableBuilder(column: $table.labelKey, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<Uint8List> get imageData =>
+      $composableBuilder(column: $table.imageData, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ComicCustomLabelImageRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $ComicCustomLabelImageRowsTable,
+    ComicCustomLabelImageRow,
+    $$ComicCustomLabelImageRowsTableFilterComposer,
+    $$ComicCustomLabelImageRowsTableOrderingComposer,
+    $$ComicCustomLabelImageRowsTableAnnotationComposer,
+    $$ComicCustomLabelImageRowsTableCreateCompanionBuilder,
+    $$ComicCustomLabelImageRowsTableUpdateCompanionBuilder,
+    (
+      ComicCustomLabelImageRow,
+      BaseReferences<_$LocalDatabase, $ComicCustomLabelImageRowsTable,
+          ComicCustomLabelImageRow>
+    ),
+    ComicCustomLabelImageRow,
+    PrefetchHooks Function()> {
+  $$ComicCustomLabelImageRowsTableTableManager(
+      _$LocalDatabase db, $ComicCustomLabelImageRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ComicCustomLabelImageRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ComicCustomLabelImageRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ComicCustomLabelImageRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> labelKey = const Value.absent(),
+            Value<String> label = const Value.absent(),
+            Value<Uint8List> imageData = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicCustomLabelImageRowsCompanion(
+            labelKey: labelKey,
+            label: label,
+            imageData: imageData,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String labelKey,
+            required String label,
+            required Uint8List imageData,
+            required DateTime updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicCustomLabelImageRowsCompanion.insert(
+            labelKey: labelKey,
+            label: label,
+            imageData: imageData,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$ComicCustomLabelImageRowsTable,
+                        ComicCustomLabelImageRow>(table),
+                    BaseReferences<
+                        _$LocalDatabase,
+                        $ComicCustomLabelImageRowsTable,
+                        ComicCustomLabelImageRow>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ComicCustomLabelImageRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $ComicCustomLabelImageRowsTable,
+        ComicCustomLabelImageRow,
+        $$ComicCustomLabelImageRowsTableFilterComposer,
+        $$ComicCustomLabelImageRowsTableOrderingComposer,
+        $$ComicCustomLabelImageRowsTableAnnotationComposer,
+        $$ComicCustomLabelImageRowsTableCreateCompanionBuilder,
+        $$ComicCustomLabelImageRowsTableUpdateCompanionBuilder,
+        (
+          ComicCustomLabelImageRow,
+          BaseReferences<_$LocalDatabase, $ComicCustomLabelImageRowsTable,
+              ComicCustomLabelImageRow>
+        ),
+        ComicCustomLabelImageRow,
+        PrefetchHooks Function()>;
 typedef $$GameTrackingRowsTableCreateCompanionBuilder
     = GameTrackingRowsCompanion Function({
   required String id,
@@ -20099,6 +20553,9 @@ class $LocalDatabaseManager {
       $$ComicTrackingUnitRowsTableTableManager(_db, _db.comicTrackingUnitRows);
   $$ComicTrackingRowsTableTableManager get comicTrackingRows =>
       $$ComicTrackingRowsTableTableManager(_db, _db.comicTrackingRows);
+  $$ComicCustomLabelImageRowsTableTableManager get comicCustomLabelImageRows =>
+      $$ComicCustomLabelImageRowsTableTableManager(
+          _db, _db.comicCustomLabelImageRows);
   $$GameTrackingRowsTableTableManager get gameTrackingRows =>
       $$GameTrackingRowsTableTableManager(_db, _db.gameTrackingRows);
   $$MovieTrackingRowsTableTableManager get movieTrackingRows =>

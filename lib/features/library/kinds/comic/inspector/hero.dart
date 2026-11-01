@@ -216,6 +216,7 @@ class _ComicCover extends StatelessWidget {
               grade: personal.grade,
               gradingCompany: personal.details.gradingCompany,
               labelType: personal.details.labelType,
+              customLabel: personal.details.customLabel,
               child: cover)
           : cover,
     );
