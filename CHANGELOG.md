@@ -21,6 +21,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Library headers and the navigation sidebar no longer show Mobile, Desktop or Web beside the library name.
 - Add automatically uses a round floating button with a white plus on mobile and an inline toolbar button on desktop/web; its setting is removed and collection tabs stay above Android navigation.
 - Typing a title in Add shows CLZ's blue "Search for" row and "Or pick from these suggestions:", and Add Games suggests each game once per platform, with its platform, and opens that game's editions when picked.
 - Clicking a title suggestion in Add opens it, instead of only closing the list.

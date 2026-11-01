@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AppShellBrand extends StatelessWidget {
@@ -26,45 +25,21 @@ class AppShellBrand extends StatelessWidget {
             child: FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerLeft,
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Text(
-                    'CLR ${kindTitle.toUpperCase()}',
-                    key: titleKey,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: appFontFamily,
-                      color: Colors.white,
-                      fontSize: 22,
-                      height: 1,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0,
-                    ),
+                child: Text(
+                  'CLR ${kindTitle.toUpperCase()}',
+                  key: titleKey,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: appFontFamily,
+                    color: Colors.white,
+                    fontSize: 22,
+                    height: 1,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0,
                   ),
-                  const SizedBox(width: 6),
-                  Text(_platformLabel,
-                      key: const Key('app.brand-platform'),
-                      style: TextStyle(
-                          fontFamily: appFontFamily,
-                          fontSize: 22,
-                          height: 1,
-                          // The reference outlines a lighter face than the
-                          // title, in a hairline.
-                          fontWeight: FontWeight.w500,
-                          foreground: Paint()
-                            ..color = Colors.white
-                            ..style = PaintingStyle.stroke
-                            ..strokeWidth = 1)),
-                ])),
+                )),
           ),
         ],
       );
-
-  String get _platformLabel {
-    if (kIsWeb) return 'WEB';
-    return switch (defaultTargetPlatform) {
-      TargetPlatform.android || TargetPlatform.iOS => 'MOBILE',
-      _ => 'DESKTOP',
-    };
-  }
 }
