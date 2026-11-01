@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
@@ -58,11 +59,11 @@ Widget buildComicAddPreviewPane(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                width: 210,
+                width: isMobileApp ? 124 : 210,
                 child: Center(
                   child: SizedBox(
-                    width: 137,
-                    height: 210,
+                    width: isMobileApp ? 104 : 137,
+                    height: isMobileApp ? 160 : 210,
                     child: LibraryInteractiveCover(
                       title: item.summary.primaryLabel,
                       imageUrl: fields.coverImageUrl,

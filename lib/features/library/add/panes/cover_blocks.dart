@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/add/contracts/capability.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
 
@@ -43,7 +44,7 @@ class LibraryAddCoverBlocks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget tile(int index) {
+    Widget tile(int index, {double? coverHeight}) {
       final item = results[index];
       final id = item.reference.id;
       final args = (
@@ -55,7 +56,7 @@ class LibraryAddCoverBlocks extends StatelessWidget {
         onToggleCheck: () => onToggleResultCheck(id),
       );
       return layout == LibraryAddBlockLayout.grid
-          ? _GridBlock(args)
+          ? _GridBlock(args, coverHeight: coverHeight)
           : _ListBlock(args);
     }
 
@@ -69,27 +70,38 @@ class LibraryAddCoverBlocks extends StatelessWidget {
     }
     return LayoutBuilder(builder: (context, constraints) {
       const extent = blockWidth + 2 * blockMargin;
-      final columns =
-          ((constraints.maxWidth - 2 * blockMargin) / extent).floor().clamp(
-                1,
-                1 << 20,
-              );
+      final columns = ((constraints.maxWidth - 2 * blockMargin) /
+              (isMobileApp ? 125 : extent))
+          .floor()
+          .clamp(
+            1,
+            1 << 20,
+          );
       // Fixed-width blocks flow from the left, as in the reference.
-      final spare = constraints.maxWidth - columns * extent;
+      final spare =
+          isMobileApp ? blockMargin : constraints.maxWidth - columns * extent;
+      final mobileCoverHeight =
+          ((constraints.maxWidth - 2 * blockMargin) / columns -
+                  4 * blockMargin) *
+              coverHeight /
+              coverWidth;
       return GridView.builder(
         key: const ValueKey('library-add-cover-grid'),
         padding: EdgeInsets.fromLTRB(blockMargin, blockMargin,
             spare.clamp(blockMargin, double.infinity), blockMargin),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: columns,
-          mainAxisExtent: blockHeight + 2 * blockMargin,
+          mainAxisExtent: isMobileApp
+              ? mobileCoverHeight + 75
+              : blockHeight + 2 * blockMargin,
         ),
         itemCount: results.length + (onAddManually == null ? 0 : 1),
         itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.all(blockMargin),
           child: index == results.length
               ? _NotFoundBlock(onTap: onAddManually!)
-              : tile(index),
+              : tile(index,
+                  coverHeight: isMobileApp ? mobileCoverHeight : null),
         ),
       );
     });
@@ -106,7 +118,9 @@ typedef _BlockArgs = ({
 });
 
 class _GridBlock extends StatelessWidget {
-  const _GridBlock(this.args);
+  const _GridBlock(this.args, {this.coverHeight});
+
+  final double? coverHeight;
 
   final _BlockArgs args;
 
@@ -131,7 +145,7 @@ class _GridBlock extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(
-                height: LibraryAddCoverBlocks.coverHeight,
+                height: coverHeight ?? LibraryAddCoverBlocks.coverHeight,
                 child: LibraryCoverImage(
                   title: args.item.summary.primaryLabel,
                   imageUrl: args.item.summary.imageUrl,
@@ -151,8 +165,11 @@ class _GridBlock extends StatelessWidget {
                       onPressed: args.onToggleCheck,
                     ),
                     const SizedBox(width: 5),
-                    _BadgeBox(block.badge),
-                    const Spacer(),
+                    if (isMobileApp)
+                      Expanded(child: _BadgeBox(block.badge))
+                    else
+                      _BadgeBox(block.badge),
+                    if (!isMobileApp) const Spacer(),
                     Text(
                       [
                         if (block.month case final month?) month,
@@ -319,6 +336,8 @@ class _BadgeBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(
               fontSize: 14, height: 1, fontWeight: FontWeight.w700)),
     );

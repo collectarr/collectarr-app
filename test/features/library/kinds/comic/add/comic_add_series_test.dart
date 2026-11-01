@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/add/launcher.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -190,13 +191,119 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+
+  for (final size in [
+    const Size(320, 700),
+    const Size(407, 904),
+    const Size(850, 407)
+  ]) {
+    testWidgets('mobile Add uses one page through series and issues at $size',
+        (tester) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      SharedPreferences.setMockInitialValues({});
+      final db = LocalDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      await tester.pumpWidget(ProviderScope(
+          overrides: [
+            mediaCatalogProvider
+                .overrideWith((ref) async => fallbackMediaCatalog),
+            localDatabaseProvider.overrideWithValue(db),
+            apiClientProvider.overrideWithValue(_SeriesApiFake()),
+          ],
+          child: MaterialApp(
+              home: Scaffold(
+            appBar: AppBar(title: const Text('Outer app header')),
+            body: Navigator(
+                onGenerateRoute: (_) => MaterialPageRoute<void>(
+                    builder: (context) => Center(
+                        child: TextButton(
+                            onPressed: () => showLibraryAddDialog(
+                                context: context,
+                                type: const ComicRegistration()),
+                            child: const Text('Open Add'))))),
+          ))));
+      await tester.tap(find.text('Open Add'));
+      await pumpUntilSettled(tester);
+      expect(find.text('Outer app header'), findsNothing);
+      expect(find.text('Add Comics'), findsOneWidget);
+      expect(find.text('Series'), findsOneWidget);
+      expect(find.text('Issue'), findsOneWidget);
+      expect(find.text('Barcode'), findsOneWidget);
+      expect(find.text('Cover'), findsOneWidget);
+      final field = find.byKey(const ValueKey('library-add-browse-field'));
+      await tester.enterText(field, 'fixture');
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await pumpUntilSettled(tester);
+      await tester.tap(find.text('Fixture (2018)'));
+      await pumpUntilSettled(tester);
+      expect(find.text('All (2)'), findsOneWidget);
+      expect(
+          find.byKey(const ValueKey('library-add-cover-grid')), findsOneWidget);
+      expect(
+          tester
+              .getSize(find.byKey(const ValueKey('library-add-cover-grid')))
+              .width,
+          lessThanOrEqualTo(size.width));
+      expect(tester.takeException(), isNull);
+      await tester.ensureVisible(find.text('#1'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('#1'));
+      await pumpUntilSettled(tester);
+      expect(find.text('Confirm your selection'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.byTooltip('Back to results'));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.widgetWithText(ListTile, 'Fixture (2018)'));
+      await pumpUntilSettled(tester);
+      expect(
+          find.byKey(const ValueKey('library-add-cover-grid')), findsNothing);
+      expect(find.text('Fixture (2018)'), findsOneWidget);
+      await tester.tap(find.text('Barcode'));
+      await pumpUntilSettled(tester);
+      expect(find.byKey(const ValueKey('library-add-barcode-field')),
+          findsOneWidget);
+      await tester.ensureVisible(find.text('Issue'));
+      await tester.tap(find.text('Issue'));
+      await pumpUntilSettled(tester);
+      expect(find.byKey(const ValueKey('library-add-query-field')),
+          findsOneWidget);
+      await tester.ensureVisible(find.text('Cover'));
+      await tester.tap(find.text('Cover'));
+      await pumpUntilSettled(tester);
+      expect(find.text('Scan cover'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.byType(BackButton));
+      await pumpUntilSettled(tester);
+      expect(find.text('Outer app header'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+    }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+  }
 }
 
 class _SeriesApiFake extends ApiClient {
   _SeriesApiFake() : super(baseUrl: 'http://unused', dio: Dio());
 
   Map<String, dynamic>? issueQuery;
+
+  @override
+  Future<Map<String, dynamic>> getCatalogItemJson(
+          {required CatalogMediaKind kind,
+          required String id,
+          CancelToken? cancelToken}) async =>
+      {
+        'id': id,
+        'kind': kind.apiValue,
+        'kind_data': {
+          'title': 'Fixture #1',
+          'series_title': 'Fixture',
+          'issue_number': '1'
+        },
+      };
 
   @override
   Future<List<Map<String, dynamic>>> getJsonRows(

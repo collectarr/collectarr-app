@@ -113,7 +113,7 @@ void main() {
     expect(find.text('Default US Edition'), findsOneWidget);
     expect(find.text('2000000000039'), findsNothing);
     expect(find.text('2 Results'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('the confirm sheet shows platform, year, edition and region',
       (tester) async {
@@ -153,7 +153,7 @@ void main() {
     expect(find.text('Default US Edition'), findsOneWidget);
     expect(find.text('US'), findsOneWidget);
     expect(gameKindAdd.chrome.confirmSheetSize, const Size(730, 369));
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
   testWidgets('clicking a title suggestion picks it', (tester) async {
     tester.view.physicalSize = const Size(1200, 900);
     tester.view.devicePixelRatio = 1;
@@ -204,7 +204,7 @@ void main() {
     // The list must take hits where it is drawn, not where it is laid out.
     await tester.tap(find.text('Brick Knight').first);
     expect(picked, same(results.first));
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
       'title suggestions start with Search for and show each game platform',
@@ -271,5 +271,5 @@ void main() {
     // A real tap: the list must take hits where it is drawn.
     await tester.tap(find.text('Search for "brick knight"'));
     expect(searched, isTrue);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

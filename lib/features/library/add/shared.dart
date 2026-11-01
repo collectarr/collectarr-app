@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/add/shell/dialog_theme.dart';
 import 'package:collectarr_app/features/library/add/services/cover_scan_service.dart';
 import 'package:collectarr_app/features/library/config/dialog_tokens.dart';
@@ -85,6 +86,7 @@ ThemeData buildLibraryAddDialogTheme(Color accent, AppThemePalette palette) {
 /// reference.
 Color libraryAddSearchBackground(BuildContext context) {
   final palette = appPalette(context);
+  if (isMobileApp) return palette.canvas;
   return palette.isDark ? const Color(0xff595e67) : palette.panel;
 }
 

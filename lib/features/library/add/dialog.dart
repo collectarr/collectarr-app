@@ -1,3 +1,7 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
+import 'package:collectarr_app/features/library/ui/density_scope.dart';
+import 'package:collectarr_app/features/library/ui/metrics.dart';
 import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
@@ -142,6 +146,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   bool _isClosing = false;
   bool _manualDialogOpen = false;
+  bool _mobileCoverSelected = false;
   bool _hasOpenedManualDialog = false;
   final Map<String, ({String listName, Set<String> values})>
       _manualVocabularyValues = {};
@@ -928,7 +933,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           ),
         );
 
-    return LibraryDialogScaffold(
+    final surface = LibraryDialogScaffold(
       accent: accent,
       themeData: dialogTheme,
       width: _dialogWidth ?? defaultDialogWidth,
@@ -1018,7 +1023,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               canScanCover:
                   libraryAddForKind(widget.type.kind).chrome.canScanCover,
               isScanningCover: state.search.isScanningCover,
-              onScanCover: () => _controller.scanCover(scopedContext),
+              onScanCover: () async {
+                await _controller.scanCover(scopedContext);
+                if (mounted) setState(() => _mobileCoverSelected = false);
+              },
               onLookupIdentifier: () => _controller.lookupIdentifier(
                 identifierCode: _identifierController.text,
               ),
@@ -1035,17 +1043,24 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               advancedFilterDescriptors:
                   modeBarRequest.advancedFilterDescriptors,
               onCoreDataSettings: _showCoreDataSettings,
-              searchRowWidth: browseMode
-                  ? LibraryAddBrowseGroupList.width
-                  : grouping == null
-                      ? null
-                      : LibraryAddResultGrouping.listWidth,
-              searchRowBeside: browseMode
-                  ? LibraryAddBrowseGroupHeader(group: openedGroup)
-                  : grouping == null
-                      ? null
-                      : LibraryAddGroupHeader(
-                          group: selectedGroup, grouping: grouping),
+              onCoverTabChanged: (selected) =>
+                  setState(() => _mobileCoverSelected = selected),
+              showMobileInput: !browseMode || openedGroup == null,
+              searchRowWidth: isMobileApp
+                  ? null
+                  : browseMode
+                      ? LibraryAddBrowseGroupList.width
+                      : grouping == null
+                          ? null
+                          : LibraryAddResultGrouping.listWidth,
+              searchRowBeside: isMobileApp
+                  ? null
+                  : browseMode
+                      ? LibraryAddBrowseGroupHeader(group: openedGroup)
+                      : grouping == null
+                          ? null
+                          : LibraryAddGroupHeader(
+                              group: selectedGroup, grouping: grouping),
             ),
           ),
         ],
@@ -1055,7 +1070,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             ? LibraryAddBrowseGroupList(
                 capability: browse!,
                 state: state.browse,
-                onOpen: _controller.openBrowseGroup,
+                onOpen: (group) {
+                  if (isMobileApp) FocusScope.of(context).unfocus();
+                  _controller.openBrowseGroup(group);
+                },
                 ownedKeys: _ownedGroupKeys,
                 onAddManually: state.browse.searched
                     ? () => _openManualDialog(accent, addCapability)
@@ -1089,7 +1107,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 resultPolicy: resultPolicy,
                 resultPolicyState: state.selection.resultPolicyState,
                 onResultPolicyOptionChanged: _controller.setResultPolicyOption,
-                onSelectResult: _controller.selectResult,
+                onSelectResult: (id) {
+                  if (isMobileApp) FocusScope.of(context).unfocus();
+                  _controller.selectResult(id);
+                },
                 onToggleResultCheck: _controller.toggleCheckedResult,
                 searched: state.search.coreSearchGeneration > 0,
                 selectedGroupKey: _selectedGroupKey,
@@ -1150,6 +1171,49 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           ? bottomBar(selectedOnly: false)
           : null,
     );
+    if (!isMobileApp) return surface;
+    return Theme(
+        data: dialogTheme,
+        child: LibraryDensityScope(
+          density: LibraryDensity.comfortable,
+          child: MobilePage(
+            title: 'Add ${widget.type.identity.pluralLabel}',
+            onBack: _closeDialog,
+            headerColor: accent,
+            backgroundColor: palette.panel,
+            actions: [
+              PopupMenuButton<String>(
+                tooltip: 'Add options',
+                onSelected: (action) {
+                  if (action == 'manual') {
+                    _openManualDialog(accent, addCapability);
+                  } else {
+                    _showCoreDataSettings();
+                  }
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: 'manual', child: Text('Add Manually')),
+                  PopupMenuItem(
+                      value: 'settings',
+                      child: Text('Add/Update from Core settings')),
+                ],
+              )
+            ],
+            contextBar: surface.contextBar,
+            body: _mobileCoverSelected
+                ? Center(
+                    child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                            'Scan the cover to find a ${widget.type.identity.singularLabel.toLowerCase()} in Core.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: palette.utilityAction, fontSize: 18))))
+                : surface.body!,
+            footer: surface.footer,
+            overlay: surface.overlay,
+          ),
+        ));
   }
 
   /// Asks Core for suggestions once typing pauses, as the reference does.
@@ -1195,33 +1259,46 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   /// The browse tab's groups at the left of what [content] shows.
   Widget _besideBrowseGroups(Widget? groups, Widget content) {
     if (groups == null) return content;
+    final groupList = Stack(children: [
+      Positioned.fill(child: groups),
+      if (_browseTyped.isNotEmpty)
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: TapRegion(
+            onTapOutside: (_) => _closeBrowseSuggestions(),
+            child: LibraryAddBrowseSuggestions(
+              query: _browseTyped,
+              groups: _browseSuggestions,
+              onSearch: _searchBrowseGroups,
+              onPick: (group) {
+                _closeBrowseSuggestions();
+                _controller.pickBrowseGroup(group, _browseQueryController.text);
+              },
+            ),
+          ),
+        ),
+    ]);
+    if (isMobileApp) {
+      if (_controller.state.browse.opened case final group?) {
+        return Column(children: [
+          ListTile(
+              leading: const Icon(Icons.arrow_back),
+              title: Text(group.title),
+              subtitle: group.details == null ? null : Text(group.details!),
+              onTap: _controller.closeBrowseGroup),
+          Expanded(child: content),
+        ]);
+      }
+      return groupList;
+    }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(
           width: LibraryAddBrowseGroupList.width,
-          child: Stack(children: [
-            Positioned.fill(child: groups),
-            if (_browseTyped.isNotEmpty)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: TapRegion(
-                  onTapOutside: (_) => _closeBrowseSuggestions(),
-                  child: LibraryAddBrowseSuggestions(
-                    query: _browseTyped,
-                    groups: _browseSuggestions,
-                    onSearch: _searchBrowseGroups,
-                    onPick: (group) {
-                      _closeBrowseSuggestions();
-                      _controller.pickBrowseGroup(
-                          group, _browseQueryController.text);
-                    },
-                  ),
-                ),
-              ),
-          ]),
+          child: groupList,
         ),
         ColoredBox(
           color: libraryAddPaneDivider(context),

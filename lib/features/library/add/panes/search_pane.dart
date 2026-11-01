@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
@@ -459,41 +460,43 @@ class _LibraryAddBlockToolbar extends StatelessWidget {
           onPressed: () => view.onLayoutChanged(layout),
           child: Icon(icon, size: 19, color: color),
         );
+    final controls = [
+      if (leading case final leading?) leading,
+      if (!isMobileApp) const Spacer(),
+      for (final option in options) ...[
+        _LibraryAddResultOptionToggle(
+          option: option,
+          selected:
+              optionState.valueFor(option.id, fallback: option.initialValue),
+          onSelected: (value) => onOptionChanged(option.id, value),
+        ),
+        const SizedBox(width: 8),
+      ],
+      _LibraryAddIconToggle(
+        key: const ValueKey('library-add-sort-issues'),
+        label: 'Sort Issues',
+        selected: view.descending,
+        onPressed: () => view.onDescendingChanged(!view.descending),
+        child: Icon(view.descending ? AppIcons.sortAlphaUp : AppIcons.sortAlpha,
+            size: 18, color: color),
+      ),
+      const SizedBox(width: 20),
+      layoutToggle(LibraryAddBlockLayout.grid, 'Grid View', AppIcons.viewGrid),
+      const SizedBox(width: 8),
+      layoutToggle(LibraryAddBlockLayout.list, 'List View',
+          AppIcons.viewHorizontalCards),
+    ];
     return Container(
       key: const ValueKey('library-add-block-toolbar'),
-      height: 38,
-      padding: const EdgeInsets.fromLTRB(10, 0, 4, 0),
-      child: Row(
-        children: [
-          if (leading case final leading?) leading,
-          const Spacer(),
-          for (final option in options) ...[
-            _LibraryAddResultOptionToggle(
-              option: option,
-              selected: optionState.valueFor(option.id,
-                  fallback: option.initialValue),
-              onSelected: (value) => onOptionChanged(option.id, value),
-            ),
-            const SizedBox(width: 8),
-          ],
-          _LibraryAddIconToggle(
-            key: const ValueKey('library-add-sort-issues'),
-            label: 'Sort Issues',
-            selected: view.descending,
-            onPressed: () => view.onDescendingChanged(!view.descending),
-            child: Icon(
-                view.descending ? AppIcons.sortAlphaUp : AppIcons.sortAlpha,
-                size: 18,
-                color: color),
-          ),
-          const SizedBox(width: 20),
-          layoutToggle(
-              LibraryAddBlockLayout.grid, 'Grid View', AppIcons.viewGrid),
-          const SizedBox(width: 8),
-          layoutToggle(LibraryAddBlockLayout.list, 'List View',
-              AppIcons.viewHorizontalCards),
-        ],
-      ),
+      height: isMobileApp ? null : 38,
+      padding:
+          EdgeInsets.fromLTRB(10, isMobileApp ? 4 : 0, 4, isMobileApp ? 4 : 0),
+      child: isMobileApp
+          ? Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runSpacing: 4,
+              children: controls)
+          : Row(children: controls),
     );
   }
 }
