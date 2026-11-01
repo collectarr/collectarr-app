@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/contracts/result_policy.dart';
 import 'package:collectarr_app/features/library/add/panes/grouped_results.dart';
+import 'package:collectarr_app/features/library/add/panes/mode_bar.dart';
+import 'package:collectarr_app/features/library/add/shared.dart';
 import 'package:collectarr_app/features/library/add/panes/search_pane.dart';
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/preview.dart';
@@ -143,5 +145,55 @@ void main() {
     expect(find.text('Default US Edition'), findsOneWidget);
     expect(find.text('US'), findsOneWidget);
     expect(gameKindAdd.chrome.confirmSheetSize, const Size(730, 369));
+  });
+  testWidgets('clicking a title suggestion picks it', (tester) async {
+    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final query = TextEditingController(text: 'brick knight');
+    addTearDown(query.dispose);
+    final identifier = TextEditingController();
+    addTearDown(identifier.dispose);
+    CatalogSearchCandidate? picked;
+    await tester.pumpWidget(ProviderScope(
+      child: MaterialApp(
+        home: Scaffold(
+          body: LibraryAddModeBar(
+            type: const GameRegistration(),
+            accent: Colors.red,
+            isWideLayout: true,
+            mode: LibraryAddDialogMode.search,
+            queryController: query,
+            identifierController: identifier,
+            isSearching: false,
+            onModeChanged: (_) {},
+            onSearch: () {},
+            onQueryChanged: (_) {},
+            suggestions: results,
+            showSuggestions: true,
+            onSelectSuggestion: (item) => picked = item,
+            onDismissSuggestions: () {},
+            canScanCover: false,
+            isScanningCover: false,
+            onScanCover: () {},
+            onLookupIdentifier: () {},
+            onScanBarcode: () {},
+            onSearchCode: () {},
+            onManual: () {},
+            showAdvanced: false,
+            onToggleAdvanced: () {},
+            advancedFilterState: const {},
+            onAdvancedFilterChanged: (_, __) {},
+            advancedFilterDescriptors: const [],
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    // The list must take hits where it is drawn, not where it is laid out.
+    await tester.tap(find.text('Brick Knight').first);
+    expect(picked, same(results.first));
   });
 }

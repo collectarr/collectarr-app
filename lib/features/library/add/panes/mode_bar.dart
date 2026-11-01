@@ -266,25 +266,28 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
     );
     return Align(
       alignment: Alignment.topLeft,
-      child: TapRegion(
-        groupId: this,
-        onTapOutside: (_) {
-          if (_suggestionsOverlayController.isShowing) {
-            _suggestionsOverlayController.hide();
-          }
-          if (mounted) {
-            setState(() {
-              _dismissed = true;
-            });
-          }
-          widget.onDismissSuggestions();
-        },
-        child: CompositedTransformFollower(
-          link: _searchLayerLink,
-          showWhenUnlinked: false,
-          targetAnchor: Alignment.bottomLeft,
-          followerAnchor: Alignment.topLeft,
-          offset: Offset.zero,
+      // The tap region sits inside the follower: outside it, hits are tested
+      // where the overlay is laid out, not where the list is drawn, so taps
+      // on a suggestion only closed the list.
+      child: CompositedTransformFollower(
+        link: _searchLayerLink,
+        showWhenUnlinked: false,
+        targetAnchor: Alignment.bottomLeft,
+        followerAnchor: Alignment.topLeft,
+        offset: Offset.zero,
+        child: TapRegion(
+          groupId: this,
+          onTapOutside: (_) {
+            if (_suggestionsOverlayController.isShowing) {
+              _suggestionsOverlayController.hide();
+            }
+            if (mounted) {
+              setState(() {
+                _dismissed = true;
+              });
+            }
+            widget.onDismissSuggestions();
+          },
           child: SizedBox(
             width: targetWidth,
             child: Material(
