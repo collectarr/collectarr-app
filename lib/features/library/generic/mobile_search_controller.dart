@@ -1,3 +1,4 @@
+import 'toolbar_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +12,10 @@ class MobileLibrarySearchController extends Notifier<bool> {
   ValueChanged<String>? _onChanged;
   ValueChanged<String>? _onSubmitted;
   VoidCallback? _onClear;
+  Future<void> Function()? _onScan;
+  VoidCallback? _onToggleSelection;
+  ValueChanged<LibraryCollectionStatusScope>? _onStatus;
+  LibraryCollectionStatusScope Function()? _readStatus;
 
   @override
   bool build() {
@@ -24,11 +29,19 @@ class MobileLibrarySearchController extends Notifier<bool> {
   void attach(Object owner,
       {required ValueChanged<String> onChanged,
       required ValueChanged<String> onSubmitted,
-      required VoidCallback onClear}) {
+      required VoidCallback onClear,
+      Future<void> Function()? onScan,
+      VoidCallback? onToggleSelection,
+      ValueChanged<LibraryCollectionStatusScope>? onStatus,
+      LibraryCollectionStatusScope Function()? readStatus}) {
     _owner = owner;
     _onChanged = onChanged;
     _onSubmitted = onSubmitted;
     _onClear = onClear;
+    _onScan = onScan;
+    _onToggleSelection = onToggleSelection;
+    _onStatus = onStatus;
+    _readStatus = readStatus;
   }
 
   void detach(Object owner) {
@@ -37,6 +50,10 @@ class MobileLibrarySearchController extends Notifier<bool> {
     _onChanged = null;
     _onSubmitted = null;
     _onClear = null;
+    _onScan = null;
+    _onToggleSelection = null;
+    _onStatus = null;
+    _readStatus = null;
     Future.microtask(() {
       if (ref.mounted && _owner == null) {
         textController.clear();
@@ -57,6 +74,17 @@ class MobileLibrarySearchController extends Notifier<bool> {
     clear();
     state = false;
   }
+
+  Future<void> scan() async {
+    focusNode.unfocus();
+    await _onScan?.call();
+  }
+
+  void toggleSelection() => _onToggleSelection?.call();
+  void setStatus(LibraryCollectionStatusScope status) =>
+      _onStatus?.call(status);
+  LibraryCollectionStatusScope get status =>
+      _readStatus?.call() ?? kDefaultCollectionStatusScope;
 
   void change(String value) => _onChanged?.call(value);
   void submit(String value) => _onSubmitted?.call(value);

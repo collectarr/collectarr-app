@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/features/library/generic/mobile_search_controller.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/alphabet_options.dart';
@@ -225,7 +228,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _mobileSearch?.attach(_searchStateKey,
         onChanged: _onSearchInputChanged,
         onSubmitted: _onSearchChanged,
-        onClear: _clearSearch);
+        onClear: _clearSearch,
+        onScan: _scanLibraryBarcode,
+        onToggleSelection: () => _mutateState(() => _session.selection.value =
+            _session.selection.value
+                .setEnabled(!_session.selection.value.enabled)),
+        onStatus: _setCollectionStatusScope,
+        readStatus: () => _session.facets.collectionStatusScope);
   }
 
   @override
@@ -245,6 +254,19 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   List<LibraryProjectionItem> _visibleItems(LibraryProjection projection) =>
       libraryItemsForLetter(projection.filteredItems, _alphabetField,
           _session.facets.selectedLetter);
+
+  Future<void> _scanLibraryBarcode() async {
+    final scanned = await showAppBottomSheet<ScannedCode>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (_) => const BarcodeScanSheet(
+            title: 'Search library by barcode', submitLabel: 'Search'));
+    if (scanned == null || !mounted) return;
+    _onSearchTargetChanged(LibrarySearchTarget.all);
+    _searchController.text = scanned.value;
+    _onSearchChanged(scanned.value);
+  }
 
   void _onSearchChanged(String value) =>
       _searchControllerOps.onSearchChanged(value);

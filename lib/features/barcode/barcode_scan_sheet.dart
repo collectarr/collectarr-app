@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/ui/app_close_button.dart';
@@ -140,6 +141,9 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
             ),
             const SizedBox(height: 12),
             FilledButton.icon(
+              style: FilledButton.styleFrom(
+                  backgroundColor: appPalette(context).utilityAction,
+                  foregroundColor: Colors.white),
               onPressed: _submitManual,
               icon: const Icon(Icons.search),
               label: Text(widget.submitLabel),

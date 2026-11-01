@@ -11,7 +11,7 @@
 
 ### Features
 - Native mobile Comics uses its Android teal palette and shared blue utility actions; desktop and web retain their existing colours.
-- On mobile, the top-right search button opens library search inside the header instead of keeping a search bar above the collection.
+- On mobile, the top-right search button opens library search inside the header, with a barcode camera on the left and a clear button only when text is entered. Selection and status controls live in the header; account access moves to the sidebar.
 - Native mobile Add opens a full-screen page with touch-sized search tabs, full-width series and issues, and an adaptive cover grid; desktop and web keep their dialogs.
 - An optional command-line helper downloads platform logos marked public domain on Wikimedia Commons into a folder for local import; it never changes collection data.
 - Load your own platform icons from Settings > Appearance; SVG and raster images replace the built-in platform marks throughout the app and stay separate from Comics Custom Label images.
@@ -23,6 +23,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- The mobile keyboard overlays collection tabs instead of pushing them up while searching the library.
 - Library headers and the navigation sidebar no longer show Mobile, Desktop or Web beside the library name.
 - Add automatically uses a round floating button with a white plus on mobile and an inline toolbar button on desktop/web; its setting is removed and collection tabs stay above Android navigation.
 - Typing a title in Add shows CLZ's blue "Search for" row and "Or pick from these suggestions:", and Add Games suggests each game once per platform, with its platform, and opens that game's editions when picked.

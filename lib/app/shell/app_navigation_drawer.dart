@@ -1,3 +1,6 @@
+import 'package:collectarr_app/state/auth_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/library/collections/family.dart';
 import 'package:collectarr_app/features/library/config/kind_style.dart';
@@ -28,6 +31,7 @@ TextStyle _drawerTextStyle(Color color, {required bool section}) => TextStyle(
 
 Future<void> showAppNavigationDrawer({
   required BuildContext context,
+  VoidCallback? onOpenAccount,
   required LibraryKindRegistration type,
   required DrawerAction? selectedAction,
   required bool isAdmin,
@@ -57,6 +61,7 @@ Future<void> showAppNavigationDrawer({
         child: AppDarkChrome(
           accent: accent,
           child: AppNavigationDrawer(
+            onOpenAccount: onOpenAccount,
             type: type,
             selectedAction: selectedAction,
             isAdmin: isAdmin,
@@ -79,6 +84,7 @@ Future<void> showAppNavigationDrawer({
 class AppNavigationDrawer extends StatefulWidget {
   const AppNavigationDrawer({
     super.key,
+    this.onOpenAccount,
     required this.selectedAction,
     required this.isAdmin,
     required this.accent,
@@ -87,6 +93,7 @@ class AppNavigationDrawer extends StatefulWidget {
     required this.onAddFromCore,
   });
 
+  final VoidCallback? onOpenAccount;
   final DrawerAction? selectedAction;
   final bool isAdmin;
   final Color accent;
@@ -127,7 +134,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                 key: const Key('drawer.header'),
                 color: Colors.transparent,
                 child: SizedBox(
-                  height: drawerHeaderHeight,
+                  height: isMobileApp ? 76 : drawerHeaderHeight,
                   width: double.infinity,
                   child: Row(children: [
                     SizedBox(
@@ -156,6 +163,12 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
+                  if (isMobileApp && widget.onOpenAccount != null)
+                    _MobileAccountSection(onOpen: () {
+                      Navigator.of(context).pop();
+                      WidgetsBinding.instance.addPostFrameCallback(
+                          (_) => widget.onOpenAccount?.call());
+                    }),
                   for (final section in AppDrawerSection.values)
                     if (appDrawerDestinations.any((destination) =>
                         destination.section == section &&
@@ -395,6 +408,27 @@ class _DrawerDivider extends StatelessWidget {
             width: 1,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _MobileAccountSection extends ConsumerWidget {
+  const _MobileAccountSection({required this.onOpen});
+  final VoidCallback onOpen;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authControllerProvider);
+    return Material(
+      color: appPalette(context).utilityAction.withValues(alpha: .12),
+      child: ListTile(
+        key: const Key('drawer.account'),
+        title: const Text('Collectarr Account:',
+            style: TextStyle(fontWeight: FontWeight.w700)),
+        subtitle: Text(
+            auth.isAuthenticated ? auth.email ?? 'Signed in' : 'Not signed in'),
+        trailing: const Icon(Icons.person_outline),
+        onTap: onOpen,
       ),
     );
   }

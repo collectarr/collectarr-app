@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'shell/app_account_button.dart';
 import 'package:collectarr_app/features/settings/backups/automatic_backup_controller.dart';
 import 'dart:async';
 
@@ -98,6 +100,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       accent: accent,
       animationsEnabled: uiPreferences.animationsEnabled,
       child: Scaffold(
+        resizeToAvoidBottomInset: !isMobileApp,
         appBar: AppShellAppBar(
           showLibrarySearch: widget.routeUri.path == AppRoutes.libraries,
           type: activeType,
@@ -113,6 +116,13 @@ class _AppShellState extends ConsumerState<AppShell> {
             animationsEnabled: uiPreferences.animationsEnabled,
             type: activeType,
             selectedAction: _selectedDrawerAction,
+            onOpenAccount: () {
+              if (mounted) {
+                unawaited(showAppAccountDrawer(context, ref,
+                    kind: activeLibrary,
+                    animationsEnabled: uiPreferences.animationsEnabled));
+              }
+            },
             isAdmin: auth.isAdmin,
             accent: accent,
             onAddFromCore: (drawerContext, type) {
