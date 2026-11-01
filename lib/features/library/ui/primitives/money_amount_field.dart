@@ -36,8 +36,10 @@ final class LibraryMoneyAmountField extends StatelessWidget {
           readOnly: readOnly,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
-            // Follows Settings > Localization > Currency display.
+            // Follows Settings > Localization > Currency display. As in the
+            // reference, the currency stays visible while the field is empty.
             prefixText: '${AppFormats.current.currencyName(_currencyCode)} ',
+            floatingLabelBehavior: FloatingLabelBehavior.always,
           ),
           validator: _validate,
           onChanged: _handleChanged,
