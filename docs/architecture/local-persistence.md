@@ -3,10 +3,11 @@
 ## Database file and baseline
 
 `lib/core/db/local_database.dart` is the Drift composition root. The supported
-schema version is `3` with explicit ordered migrations from the initial
-baseline. Version 2 is the latest published baseline; version 3 combines Games
-tracking and list-valued personal tags in one data-preserving upgrade, and
-drops the tracking tables of the removed TV and Manga kinds.
+schema version is `6`, with explicit ordered migrations from the initial
+baseline. Published v1.5.0 uses schema `5`, including Comics reading/tracking
+and the Music credit-ID cleanup. Version `6` is the next unreleased upgrade:
+it adds user-supplied list-value images and clears the obsolete Comics
+"Ungraded" default while retaining entries and pending sync changes.
 Intermediate development schemas do not add migration steps. Native platforms create
 `collectarr-library.sqlite` in the application support directory. Web
 uses the `collectarr-library-sqlite3` database name. Older database and backup
