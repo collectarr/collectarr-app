@@ -109,9 +109,6 @@ class LibraryWorkspace extends ConsumerWidget {
   bool _isSelectionSelected(LibraryProjectionItem item) =>
       selectedIds.contains(item.target.id);
 
-  bool _isHighlighted(LibraryProjectionItem item) =>
-      selectionEnabled ? _isSelectionSelected(item) : _isActive(item);
-
   VoidCallback _selectionTap(LibraryProjectionItem item) {
     return () {
       final isRangeSelection = isLibraryRangeModifierPressed();
@@ -259,7 +256,7 @@ class LibraryWorkspace extends ConsumerWidget {
             key: ValueKey(item.target.id),
             item: item,
             customFieldBadges: item.customFieldBadges,
-            selected: _isHighlighted(item),
+            selected: _isActive(item),
             checked: _isSelectionSelected(item),
             onTap: _selectionTap(item),
             onDoubleTap: () => onOpenItem(item),
@@ -476,7 +473,7 @@ class LibraryWorkspace extends ConsumerWidget {
                       target: schemaNode,
                     ),
                     cellBuilder: (entry, column) => _tableCell(entry, column),
-                    isSelected: _isHighlighted,
+                    isSelected: _isActive,
                     onEntryTap: (item) => _selectionTap(item)(),
                     onEntryDoubleTap: onOpenItem,
                     onEntrySecondaryTapUp: onItemContextMenu == null
@@ -613,7 +610,7 @@ class LibraryWorkspace extends ConsumerWidget {
               key: ValueKey(item.target.id),
               item: item,
               customFieldBadges: item.customFieldBadges,
-              selected: _isHighlighted(item),
+              selected: _isActive(item),
               checked: _isSelectionSelected(item),
               onTap: _selectionTap(item),
               onDoubleTap: () => onOpenItem(item),

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/ui/chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/density_scope.dart';
+import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/ui/app_press_tap.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +8,7 @@ class LibraryTableInkRow extends StatelessWidget {
   const LibraryTableInkRow({
     super.key,
     required this.selected,
+    this.checked = false,
     required this.odd,
     required this.onTap,
     this.onDoubleTap,
@@ -25,6 +27,10 @@ class LibraryTableInkRow extends StatelessWidget {
   });
 
   final bool selected;
+
+  /// Ticked for a bulk action; drawn in [kLibraryCheckedItemBackground] unless
+  /// the row is also the active one.
+  final bool checked;
   final bool odd;
   final VoidCallback onTap;
   final VoidCallback? onDoubleTap;
@@ -50,9 +56,14 @@ class LibraryTableInkRow extends StatelessWidget {
     final resolvedVerticalPadding =
         verticalPadding * densityMetrics.tableVerticalPaddingScale;
     final baseColor = odd ? oddColor : evenColor;
+    final fill = selected
+        ? selectedColor
+        : checked
+            ? kLibraryCheckedItemBackground
+            : null;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: selected ? selectedColor : baseColor,
+        color: fill ?? baseColor,
         border: Border(
           left: BorderSide(
             color: selected ? selectionRailColor : Colors.transparent,
@@ -75,11 +86,11 @@ class LibraryTableInkRow extends StatelessWidget {
                   // A highlight keeps the alpha it appeared with, so turning
                   // it transparent on selection paints opaque black; a
                   // selected row repaints its own fill instead.
-                  hoverColor: selected ? selectedColor : hoverColor,
+                  hoverColor: fill ?? hoverColor,
                   // Row hover changes instantly, as in the reference list.
                   hoverDuration: Duration.zero,
                   // A keyboard-focused row must not hide the selection fill.
-                  focusColor: selected ? selectedColor : hoverColor,
+                  focusColor: fill ?? hoverColor,
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       resolvedHorizontalMargin,

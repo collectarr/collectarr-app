@@ -15,6 +15,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- In every view the active item and ticked items look as in CLZ: List and Cards show the active item in light blue and ticked ones in dark blue, Covers and Shelves frame the active cover and show ticked covers faded over blue, and tick boxes stay light grey.
 - Ticking an item's box keeps the active item and the details panel where they were, as in CLZ, instead of jumping to the ticked item.
 - An empty collection shows CLZ's blue "No comics yet." banner pointing to the Add button, instead of a centred icon and an Add from Collectarr Core button.
 - Typing K, J or Delete in the search box or any other text field enters the key instead of moving to another item or removing the selection, and Ctrl+A selects the field's text.

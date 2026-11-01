@@ -770,6 +770,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
         // Table dimensions have already been scaled together with the header.
         density: LibraryDensity.comfortable,
         selected: selected,
+        checked: isChecked,
         odd: odd,
         onTap: onTap,
         onDoubleTap: onDoubleTap,

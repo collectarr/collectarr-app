@@ -88,9 +88,11 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     return RepaintBoundary(
       child: Container(
         clipBehavior: Clip.antiAlias,
+        // As in the reference, the active item has the blue frame and a ticked
+        // one shows its cover at half opacity over the blue.
         decoration: BoxDecoration(
           color: selected || active ? resolvedSelectedColor : null,
-          border: selected || active
+          border: active
               ? Border.all(
                   color: palette.utilityAction,
                   width: selectedBorderWidth,
@@ -122,19 +124,23 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
-                                child: LibraryInteractiveCover(
-                                  title: dto.primaryLabel,
-                                  itemNumber: presentation.itemNumber,
-                                  imageUrl: dto.imageUrl,
-                                  libraryEntryRef: item.source.libraryEntryRef,
-                                  targetCacheWidth: targetCacheWidth,
-                                  fallbackAspectRatio:
-                                      widget.fallbackCoverAspectRatio,
-                                  accentColor: widget.accentColor,
-                                  fit: BoxFit.contain,
-                                  enableFullscreen: false,
-                                  enableSecondaryControl: false,
-                                  showFrame: false,
+                                child: Opacity(
+                                  opacity: selected ? .5 : 1,
+                                  child: LibraryInteractiveCover(
+                                    title: dto.primaryLabel,
+                                    itemNumber: presentation.itemNumber,
+                                    imageUrl: dto.imageUrl,
+                                    libraryEntryRef:
+                                        item.source.libraryEntryRef,
+                                    targetCacheWidth: targetCacheWidth,
+                                    fallbackAspectRatio:
+                                        widget.fallbackCoverAspectRatio,
+                                    accentColor: widget.accentColor,
+                                    fit: BoxFit.contain,
+                                    enableFullscreen: false,
+                                    enableSecondaryControl: false,
+                                    showFrame: false,
+                                  ),
                                 ),
                               ),
                             ],
@@ -217,15 +223,17 @@ class LibraryTileSelectionToggle extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         width: integrated ? 30 : 24,
         height: 24,
+        // The reference's tick box stays light grey with a dark ticked square;
+        // only an unticked box on the active card takes the blue.
         decoration: BoxDecoration(
           color:
-              selected || highlighted ? accentColor : const Color(0xffdddddd),
+              highlighted && !selected ? accentColor : const Color(0xffdddddd),
           borderRadius:
               integrated ? BorderRadius.zero : BorderRadius.circular(4),
         ),
-        child: Icon(selected ? AppIcons.check : Icons.check_box_outline_blank,
+        child: Icon(selected ? Icons.check_box : Icons.check_box_outline_blank,
             size: 16,
-            color: selected || highlighted
+            color: highlighted && !selected
                 ? Colors.white
                 : const Color(0xff444444)),
       );
