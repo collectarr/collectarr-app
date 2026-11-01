@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Docs
+- The CLZ parity guide now identifies Android layout gaps in Add, the editor, library controls and system navigation insets, with an isolated-device comparison workflow.
 - The CLZ parity guide lists the Comics Value tab fields that still differ from CLZ, Signed by and Key Category, and why Custom Label images come only from the user's own files.
 - The CLZ parity guide lists how the Add Games platform filter still differs from CLZ.
 - The architecture status records the planned move to Flutter's separate material_ui package and what it waits for.
