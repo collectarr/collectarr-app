@@ -7,7 +7,7 @@ export 'admin/movie_admin_contributor.dart';
 export 'barcode/movie_barcode_resolver.dart';
 export 'calendar/movie_calendar_contributor.dart';
 export 'data/movie_catalog_transport_codec.dart';
-export 'integrations/catalog/movie_catalog_lookup.dart';
+export 'integrations/catalog/lookup.dart';
 export 'integrations/collection_csv/movie_collection_csv_projection.dart';
 export 'entries/movie_entry_contributor.dart';
 export 'page.dart';

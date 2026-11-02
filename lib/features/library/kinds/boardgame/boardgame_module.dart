@@ -7,7 +7,7 @@ export 'admin/boardgame_admin_contributor.dart';
 export 'barcode/boardgame_barcode_resolver.dart';
 export 'calendar/boardgame_calendar_contributor.dart';
 export 'data/boardgame_catalog_transport_codec.dart';
-export 'integrations/catalog/boardgame_catalog_lookup.dart';
+export 'integrations/catalog/lookup.dart';
 export 'integrations/collection_csv/boardgame_collection_csv_projection.dart';
 export 'entries/boardgame_entry_contributor.dart';
 export 'page.dart';

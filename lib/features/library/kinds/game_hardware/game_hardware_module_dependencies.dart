@@ -56,7 +56,7 @@ export 'package:collectarr_app/features/library/kinds/game_hardware/entries/game
 export 'package:collectarr_app/features/library/kinds/game_hardware/forms/catalog_form_values.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/forms/main_form.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/inspector/sections.dart';
-export 'package:collectarr_app/features/library/kinds/game_hardware/integrations/catalog/game_hardware_catalog_lookup.dart';
+export 'package:collectarr_app/features/library/kinds/game_hardware/integrations/catalog/lookup.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/vocabulary/game_hardware_vocabularies.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/workspace/contribution.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/workspace/data.dart';

@@ -13,7 +13,7 @@ export 'data/music_album_image_providers.dart';
 export 'data/music_listening_providers.dart';
 export 'data/music_listening_sync_codec.dart';
 export 'data/remote/music_catalog_remote_source.dart';
-export 'integrations/catalog/music_catalog_lookup.dart';
+export 'integrations/catalog/lookup.dart';
 export 'integrations/collection_csv/music_collection_csv_projection.dart';
 export 'entries/music_entry_contributor.dart';
 export 'page.dart';

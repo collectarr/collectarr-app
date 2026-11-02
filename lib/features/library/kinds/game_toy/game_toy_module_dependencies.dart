@@ -56,7 +56,7 @@ export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_
 export 'package:collectarr_app/features/library/kinds/game_toy/forms/catalog_form_values.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/forms/main_form.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/inspector/sections.dart';
-export 'package:collectarr_app/features/library/kinds/game_toy/integrations/catalog/game_toy_catalog_lookup.dart';
+export 'package:collectarr_app/features/library/kinds/game_toy/integrations/catalog/lookup.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/vocabulary/game_toy_vocabularies.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/workspace/contribution.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/workspace/data.dart';

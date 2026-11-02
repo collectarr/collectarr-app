@@ -7,7 +7,7 @@ export 'admin/book_admin_contributor.dart';
 export 'barcode/book_isbn_resolver.dart';
 export 'calendar/book_calendar_contributor.dart';
 export 'data/book_catalog_transport_codec.dart';
-export 'integrations/catalog/book_catalog_lookup.dart';
+export 'integrations/catalog/lookup.dart';
 export 'integrations/collection_csv/book_collection_csv_projection.dart';
 export 'entries/book_entry_contributor.dart';
 export 'page.dart';

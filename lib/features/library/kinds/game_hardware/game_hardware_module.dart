@@ -7,7 +7,7 @@ export 'admin/game_hardware_admin_contributor.dart';
 export 'barcode/game_hardware_barcode_resolver.dart';
 export 'calendar/game_hardware_calendar_contributor.dart';
 export 'data/game_hardware_catalog_transport_codec.dart';
-export 'integrations/catalog/game_hardware_catalog_lookup.dart';
+export 'integrations/catalog/lookup.dart';
 export 'entries/game_hardware_entry_contributor.dart';
 export 'page.dart';
 export 'vocabulary/game_hardware_vocabularies.dart';
