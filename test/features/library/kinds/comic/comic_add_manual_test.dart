@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add/draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/manual_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';

@@ -38,6 +38,9 @@ old modules.
   Dart symbols and persisted identifiers stay explicit and are independent of
   file naming. Configuration uses `config/configuration.dart`,
   `config/capabilities.dart` and `config/field_identities.dart` where present.
+  Entry boundaries use `entries/details_codec.dart`, `entries/create_payload.dart`
+  and `entries/update_payload.dart`; concrete domain/detail models keep their
+  distinguishing names.
 - A kind owns every representation of its domain data.
 - After kind dispatch, never erase the type.
 - Core owns source-neutral canonical catalog data and its API contract.

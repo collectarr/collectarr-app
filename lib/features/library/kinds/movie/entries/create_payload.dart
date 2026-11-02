@@ -1,29 +1,17 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/config/entry_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
-import '../domain/comic_reading_state.dart';
-import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
 
-/// Comic-entry personal-copy values for the Add command.
-///
-/// Universal-looking fields are intentionally repeated in each kind payload;
-/// they are part of the kind's complete Entry lifecycle and not a shared
-/// domain aggregate.
-final class ComicLibraryEntryCreatePayload
+final class MovieLibraryEntryCreatePayload
     implements LibraryEntryCreatePayload {
-  const ComicLibraryEntryCreatePayload({
+  const MovieLibraryEntryCreatePayload({
     required this.details,
-    this.quantity = 1,
-    this.indexNumber,
-    this.reading = const ComicReadingState(),
-    this.marketValueCents,
-    this.soldAt,
-    this.sellPriceCents,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -38,17 +26,11 @@ final class ComicLibraryEntryCreatePayload
     this.tags = const [],
   });
 
-  factory ComicLibraryEntryCreatePayload.fromTypedItem(
-    ComicLibraryEntry item,
+  factory MovieLibraryEntryCreatePayload.fromTypedItem(
+    MovieLibraryEntry item,
   ) {
-    return ComicLibraryEntryCreatePayload(
-      details: ComicEntryDetailsCodec().draftFromDetails(item.personal.details),
-      quantity: item.personal.quantity,
-      indexNumber: item.personal.indexNumber,
-      reading: item.personal.reading,
-      marketValueCents: item.personal.marketValueCents,
-      soldAt: item.personal.soldAt,
-      sellPriceCents: item.personal.sellPriceCents,
+    return MovieLibraryEntryCreatePayload(
+      details: MovieEntryDetailsCodec().draftFromDetails(item.personal.details),
       condition: item.personal.condition,
       grade: item.personal.grade,
       purchaseDate: item.personal.purchaseDate,
@@ -64,16 +46,10 @@ final class ComicLibraryEntryCreatePayload
     );
   }
 
-  final ComicEntryDetailsDraft details;
-  final int quantity;
-  final int? indexNumber;
-  final ComicReadingState reading;
-  final int? marketValueCents;
-  final DateTime? soldAt;
-  final int? sellPriceCents;
+  final MovieEntryDetailsDraft details;
 
   @override
-  ComicEntryDetailsDraft get detailsDraft => details;
+  MovieEntryDetailsDraft get detailsDraft => details;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -88,7 +64,7 @@ final class ComicLibraryEntryCreatePayload
   final bool? isDigital;
   final List<String> tags;
 
-  ComicLibraryEntry toLibraryEntry({
+  MovieLibraryEntry toLibraryEntry({
     required String id,
     required CatalogSearchCandidate sourceCatalogItem,
     required DateTime createdAt,
@@ -96,29 +72,22 @@ final class ComicLibraryEntryCreatePayload
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    if (sourceCatalogItem.reference.kind != CatalogMediaKind.comic) {
+    if (sourceCatalogItem.reference.kind != CatalogMediaKind.movie) {
       throw ArgumentError.value(
         sourceCatalogItem.reference.kind,
         'sourceCatalogItem',
-        'Comic entries require a Comic catalog item.',
+        'Movie entries require a Movie catalog item.',
       );
     }
-    return ComicLibraryEntry(
+    return MovieLibraryEntry(
       id: LibraryEntryId(id),
       metadata: sourceCatalogItem.kindCapability.mapTransport(
-        (item) => ComicCatalogItem.fromJson(item.kindData),
+        (item) => MovieCatalogMetadata.fromJson(item.kindData),
       ),
       sourceCatalogRef: !sourceCatalogItem.kindCapability.isPrivateLocal
           ? sourceCatalogItem.reference
           : null,
-      createdAt: createdAt,
-      personal: ComicPersonalData(
-        quantity: quantity,
-        indexNumber: indexNumber,
-        reading: reading,
-        marketValueCents: marketValueCents,
-        soldAt: soldAt,
-        sellPriceCents: sellPriceCents,
+      personal: MoviePersonalData(
         isDigital: isDigital ?? existingIsDigital,
         details: details.toDetails(),
         condition: condition,
@@ -134,6 +103,7 @@ final class ComicLibraryEntryCreatePayload
         ownerUserId: ownerUserId,
         ownerLabel: this.ownerLabel ?? ownerLabel,
       ),
+      createdAt: createdAt,
       updatedAt: createdAt,
     );
   }

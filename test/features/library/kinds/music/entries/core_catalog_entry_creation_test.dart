@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_rep
 import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/entries/music_library_entry_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/create_payload.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 

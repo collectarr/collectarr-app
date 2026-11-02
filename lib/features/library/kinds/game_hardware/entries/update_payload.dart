@@ -1,11 +1,12 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/entries/details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_entry_details_draft.dart';
 
-final class GameLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
-  const GameLibraryEntryUpdatePayload({
+final class GameHardwareLibraryEntryUpdatePayload
+    implements LibraryEntryUpdatePayload {
+  const GameHardwareLibraryEntryUpdatePayload({
     required this.condition,
     required this.grade,
     required this.purchaseDate,
@@ -25,7 +26,7 @@ final class GameLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
     required this.details,
   });
 
-  factory GameLibraryEntryUpdatePayload.partial({
+  factory GameHardwareLibraryEntryUpdatePayload.partial({
     Patch<String?> condition = const Patch.unchanged(),
     Patch<String?> grade = const Patch.unchanged(),
     Patch<DateTime?> purchaseDate = const Patch.unchanged(),
@@ -42,9 +43,9 @@ final class GameLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
     Patch<String?> soldTo = const Patch.unchanged(),
     Patch<int?> marketValueCents = const Patch.unchanged(),
     Patch<int?> indexNumber = const Patch.unchanged(),
-    Patch<GameEntryDetailsDraft> details = const Patch.unchanged(),
+    Patch<GameHardwareEntryDetailsDraft> details = const Patch.unchanged(),
   }) =>
-      GameLibraryEntryUpdatePayload(
+      GameHardwareLibraryEntryUpdatePayload(
         condition: condition,
         grade: grade,
         purchaseDate: purchaseDate,
@@ -79,18 +80,18 @@ final class GameLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
   final Patch<String?> soldTo;
   final Patch<int?> marketValueCents;
   final Patch<int?> indexNumber;
-  final Patch<GameEntryDetailsDraft> details;
+  final Patch<GameHardwareEntryDetailsDraft> details;
 
-  bool canApplyTo(GameLibraryEntry existing) => true;
+  bool canApplyTo(GameHardwareLibraryEntry existing) => true;
 
-  GameLibraryEntry applyTo(
-    GameLibraryEntry existing, {
+  GameHardwareLibraryEntry applyTo(
+    GameHardwareLibraryEntry existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
   }) {
     final existingPersonal = existing.personal;
-    final codec = const GameEntryDetailsCodec();
+    final codec = const GameHardwareEntryDetailsCodec();
     final resolvedDetails = details.when(
       unchanged: () => existingPersonal.details,
       set: (draft) {

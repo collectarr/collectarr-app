@@ -1,12 +1,11 @@
-import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
-import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_entry_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
 
-final class GameHardwareLibraryEntryUpdatePayload
+final class MovieLibraryEntryUpdatePayload
     implements LibraryEntryUpdatePayload {
-  const GameHardwareLibraryEntryUpdatePayload({
+  const MovieLibraryEntryUpdatePayload({
     required this.condition,
     required this.grade,
     required this.purchaseDate,
@@ -26,7 +25,7 @@ final class GameHardwareLibraryEntryUpdatePayload
     required this.details,
   });
 
-  factory GameHardwareLibraryEntryUpdatePayload.partial({
+  factory MovieLibraryEntryUpdatePayload.partial({
     Patch<String?> condition = const Patch.unchanged(),
     Patch<String?> grade = const Patch.unchanged(),
     Patch<DateTime?> purchaseDate = const Patch.unchanged(),
@@ -43,9 +42,9 @@ final class GameHardwareLibraryEntryUpdatePayload
     Patch<String?> soldTo = const Patch.unchanged(),
     Patch<int?> marketValueCents = const Patch.unchanged(),
     Patch<int?> indexNumber = const Patch.unchanged(),
-    Patch<GameHardwareEntryDetailsDraft> details = const Patch.unchanged(),
+    Patch<MovieEntryDetailsDraft> details = const Patch.unchanged(),
   }) =>
-      GameHardwareLibraryEntryUpdatePayload(
+      MovieLibraryEntryUpdatePayload(
         condition: condition,
         grade: grade,
         purchaseDate: purchaseDate,
@@ -80,18 +79,18 @@ final class GameHardwareLibraryEntryUpdatePayload
   final Patch<String?> soldTo;
   final Patch<int?> marketValueCents;
   final Patch<int?> indexNumber;
-  final Patch<GameHardwareEntryDetailsDraft> details;
+  final Patch<MovieEntryDetailsDraft> details;
 
-  bool canApplyTo(GameHardwareLibraryEntry existing) => true;
+  bool canApplyTo(MovieLibraryEntry existing) => true;
 
-  GameHardwareLibraryEntry applyTo(
-    GameHardwareLibraryEntry existing, {
+  MovieLibraryEntry applyTo(
+    MovieLibraryEntry existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
   }) {
     final existingPersonal = existing.personal;
-    final codec = const GameHardwareEntryDetailsCodec();
+    final codec = const MovieEntryDetailsCodec();
     final resolvedDetails = details.when(
       unchanged: () => existingPersonal.details,
       set: (draft) {
@@ -120,17 +119,6 @@ final class GameHardwareLibraryEntryUpdatePayload
       purchaseDate: purchaseDate.when(
         unchanged: () => existingPersonal.purchaseDate,
         set: (value) => value,
-        clear: () => null,
-      ),
-      // A re-sent unchanged date keeps its precision, including a year-only
-      // date that has no full purchaseDate.
-      purchaseDateParts: purchaseDate.when(
-        unchanged: () => existingPersonal.purchaseDateParts,
-        set: (value) => value == existingPersonal.purchaseDate
-            ? existingPersonal.purchaseDateParts
-            : value == null
-                ? null
-                : PartialDate.fromDateTime(value),
         clear: () => null,
       ),
       pricePaidCents: pricePaidCents.when(

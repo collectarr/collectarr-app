@@ -47,11 +47,11 @@ export 'package:collectarr_app/features/library/kinds/game_hardware/edit/typed_p
 export 'package:collectarr_app/features/library/kinds/game_hardware/edit/value_tab.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_entry_contributor.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_entry_details.dart';
-export 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_entry_details_codec.dart';
+export 'package:collectarr_app/features/library/kinds/game_hardware/entries/details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_entry_details_draft.dart';
-export 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_library_entry_create_payload.dart';
+export 'package:collectarr_app/features/library/kinds/game_hardware/entries/create_payload.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_library_entry_semantics.dart';
-export 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_library_entry_update_payload.dart';
+export 'package:collectarr_app/features/library/kinds/game_hardware/entries/update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_transfer_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/forms/catalog_form_values.dart';
 export 'package:collectarr_app/features/library/kinds/game_hardware/forms/main_form.dart';

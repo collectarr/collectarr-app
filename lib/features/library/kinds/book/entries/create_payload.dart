@@ -2,15 +2,14 @@ import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/entry_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_personal_data.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
 
-final class BoardgameLibraryEntryCreatePayload
-    implements LibraryEntryCreatePayload {
-  const BoardgameLibraryEntryCreatePayload({
+final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
+  const BookLibraryEntryCreatePayload({
     required this.details,
     this.condition,
     this.grade,
@@ -26,12 +25,11 @@ final class BoardgameLibraryEntryCreatePayload
     this.tags = const [],
   });
 
-  factory BoardgameLibraryEntryCreatePayload.fromTypedItem(
-    BoardGameLibraryEntry item,
+  factory BookLibraryEntryCreatePayload.fromTypedItem(
+    BookLibraryEntry item,
   ) {
-    return BoardgameLibraryEntryCreatePayload(
-      details:
-          BoardgameEntryDetailsCodec().draftFromDetails(item.personal.details),
+    return BookLibraryEntryCreatePayload(
+      details: BookEntryDetailsCodec().draftFromDetails(item.personal.details),
       condition: item.personal.condition,
       grade: item.personal.grade,
       purchaseDate: item.personal.purchaseDate,
@@ -47,10 +45,10 @@ final class BoardgameLibraryEntryCreatePayload
     );
   }
 
-  final BoardgameEntryDetailsDraft details;
+  final BookEntryDetailsDraft details;
 
   @override
-  BoardgameEntryDetailsDraft get detailsDraft => details;
+  BookEntryDetailsDraft get detailsDraft => details;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -65,7 +63,7 @@ final class BoardgameLibraryEntryCreatePayload
   final bool? isDigital;
   final List<String> tags;
 
-  BoardGameLibraryEntry toLibraryEntry({
+  BookLibraryEntry toLibraryEntry({
     required String id,
     required CatalogSearchCandidate sourceCatalogItem,
     required DateTime createdAt,
@@ -73,22 +71,22 @@ final class BoardgameLibraryEntryCreatePayload
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    if (sourceCatalogItem.reference.kind != CatalogMediaKind.boardgame) {
+    if (sourceCatalogItem.reference.kind != CatalogMediaKind.book) {
       throw ArgumentError.value(
         sourceCatalogItem.reference.kind,
         'sourceCatalogItem',
-        'Board Game entries require a Board Game catalog item.',
+        'Book entries require a Book catalog item.',
       );
     }
-    return BoardGameLibraryEntry(
+    return BookLibraryEntry(
       id: LibraryEntryId(id),
       metadata: sourceCatalogItem.kindCapability.mapTransport(
-        (item) => BoardGameMetadata.fromJson(item.kindData),
+        (item) => BookCatalogMetadata.fromJson(item.kindData),
       ),
       sourceCatalogRef: !sourceCatalogItem.kindCapability.isPrivateLocal
           ? sourceCatalogItem.reference
           : null,
-      personal: BoardGamePersonalData(
+      personal: BookPersonalData(
         isDigital: isDigital ?? existingIsDigital,
         details: details.toDetails(),
         condition: condition,

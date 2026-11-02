@@ -3,8 +3,8 @@ import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/data/game_toy_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/data/game_toy_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_library_entry_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/entries/create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/entries/update_payload.dart';
 import 'package:collectarr_app/features/library/entries/kind_contributor.dart';
 
 final gameToyEntryContributor = TypedEntryKindContributor<GameToyLibraryEntry>(

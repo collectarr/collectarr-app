@@ -47,11 +47,11 @@ export 'package:collectarr_app/features/library/kinds/game_toy/edit/typed_presen
 export 'package:collectarr_app/features/library/kinds/game_toy/edit/value_tab.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_contributor.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_details.dart';
-export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_details_codec.dart';
+export 'package:collectarr_app/features/library/kinds/game_toy/entries/details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_details_draft.dart';
-export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_library_entry_create_payload.dart';
+export 'package:collectarr_app/features/library/kinds/game_toy/entries/create_payload.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_library_entry_semantics.dart';
-export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_library_entry_update_payload.dart';
+export 'package:collectarr_app/features/library/kinds/game_toy/entries/update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_transfer_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/forms/catalog_form_values.dart';
 export 'package:collectarr_app/features/library/kinds/game_toy/forms/main_form.dart';

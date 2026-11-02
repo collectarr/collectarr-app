@@ -1,12 +1,11 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
-import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
 
-final class GameToyLibraryEntryUpdatePayload
-    implements LibraryEntryUpdatePayload {
-  const GameToyLibraryEntryUpdatePayload({
+final class GameLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
+  const GameLibraryEntryUpdatePayload({
     required this.condition,
     required this.grade,
     required this.purchaseDate,
@@ -26,7 +25,7 @@ final class GameToyLibraryEntryUpdatePayload
     required this.details,
   });
 
-  factory GameToyLibraryEntryUpdatePayload.partial({
+  factory GameLibraryEntryUpdatePayload.partial({
     Patch<String?> condition = const Patch.unchanged(),
     Patch<String?> grade = const Patch.unchanged(),
     Patch<DateTime?> purchaseDate = const Patch.unchanged(),
@@ -43,9 +42,9 @@ final class GameToyLibraryEntryUpdatePayload
     Patch<String?> soldTo = const Patch.unchanged(),
     Patch<int?> marketValueCents = const Patch.unchanged(),
     Patch<int?> indexNumber = const Patch.unchanged(),
-    Patch<GameToyEntryDetailsDraft> details = const Patch.unchanged(),
+    Patch<GameEntryDetailsDraft> details = const Patch.unchanged(),
   }) =>
-      GameToyLibraryEntryUpdatePayload(
+      GameLibraryEntryUpdatePayload(
         condition: condition,
         grade: grade,
         purchaseDate: purchaseDate,
@@ -80,18 +79,18 @@ final class GameToyLibraryEntryUpdatePayload
   final Patch<String?> soldTo;
   final Patch<int?> marketValueCents;
   final Patch<int?> indexNumber;
-  final Patch<GameToyEntryDetailsDraft> details;
+  final Patch<GameEntryDetailsDraft> details;
 
-  bool canApplyTo(GameToyLibraryEntry existing) => true;
+  bool canApplyTo(GameLibraryEntry existing) => true;
 
-  GameToyLibraryEntry applyTo(
-    GameToyLibraryEntry existing, {
+  GameLibraryEntry applyTo(
+    GameLibraryEntry existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
   }) {
     final existingPersonal = existing.personal;
-    final codec = const GameToyEntryDetailsCodec();
+    final codec = const GameEntryDetailsCodec();
     final resolvedDetails = details.when(
       unchanged: () => existingPersonal.details,
       set: (draft) {

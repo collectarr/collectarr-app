@@ -3,8 +3,8 @@ import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/data/game_hardware_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/data/game_hardware_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_library_entry_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/entries/create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/entries/update_payload.dart';
 import 'package:collectarr_app/features/library/entries/kind_contributor.dart';
 
 final gameHardwareEntryContributor =

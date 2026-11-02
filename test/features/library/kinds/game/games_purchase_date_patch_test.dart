@@ -4,15 +4,15 @@ import 'package:collectarr_app/features/collection/commands/library_entry_comman
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
-import 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game_hardware/domain/game_hardware_personal_data.dart';
-import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/entries/update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_personal_data.dart';
-import 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/entries/update_payload.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _yearOnly = PartialDate(year: 2014);

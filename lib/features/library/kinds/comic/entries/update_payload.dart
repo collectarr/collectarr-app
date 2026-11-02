@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
 
 /// Comic-entry update values.

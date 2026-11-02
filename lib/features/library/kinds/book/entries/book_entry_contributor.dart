@@ -3,8 +3,8 @@ import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/book/entries/book_library_entry_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/book/entries/book_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/update_payload.dart';
 import 'package:collectarr_app/features/library/entries/kind_contributor.dart';
 
 final bookEntryContributor = TypedEntryKindContributor<BookLibraryEntry>(
