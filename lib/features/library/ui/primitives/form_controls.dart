@@ -7,6 +7,36 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// Enables the native editor's taller, internally labelled text fields while
+/// leaving the shared desktop/web controls and draft ownership untouched.
+class LibraryMobileEditFormScope extends InheritedWidget {
+  const LibraryMobileEditFormScope({super.key, required super.child});
+
+  static bool active(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<LibraryMobileEditFormScope>() !=
+      null;
+
+  @override
+  bool updateShouldNotify(LibraryMobileEditFormScope oldWidget) => false;
+}
+
+class _MobileFieldLabel extends InheritedWidget {
+  const _MobileFieldLabel({required this.label, required super.child});
+
+  final String label;
+
+  static String? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_MobileFieldLabel>()?.label;
+
+  @override
+  bool updateShouldNotify(_MobileFieldLabel oldWidget) =>
+      label != oldWidget.label;
+}
+
+/// A composite control whose inner text input can receive the field label.
+abstract interface class LibraryMobileInlineLabelControl {}
+
 /// Compact external labels shared by catalog and personal forms.
 class LibraryFormField extends StatelessWidget {
   const LibraryFormField(
@@ -21,35 +51,47 @@ class LibraryFormField extends StatelessWidget {
   final TextStyle? labelStyle;
 
   @override
-  Widget build(BuildContext context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            height: 20,
-            child: Row(children: [
-              Expanded(
-                  child: Text(label,
-                      style: TextStyle(
-                        // The reference draws labels white at 70% (#C4C4C4
-                        // on the dialog panel) and #333 in the light skin.
-                        color: appPalette(context).isDark
-                            ? appPalette(context)
-                                .textPrimary
-                                .withValues(alpha: 0.7)
-                            : appPalette(context).textPrimary,
-                        fontSize: 13,
-                        fontWeight: kAppBoldFontWeight,
-                        height: 20 / 14,
-                        letterSpacing: 0,
-                      ).merge(labelStyle))),
-              if (action != null) action!,
-            ]),
-          ),
-          const SizedBox(height: 1),
-          child,
-        ],
-      );
+  Widget build(BuildContext context) {
+    if (LibraryMobileEditFormScope.active(context) &&
+        (child is LibraryTextFormControl ||
+            child is LibraryMobileInlineLabelControl)) {
+      final field = _MobileFieldLabel(label: label, child: child);
+      if (action == null) return field;
+      return Row(children: [
+        Expanded(child: field),
+        SizedBox(width: 32, height: 56, child: Center(child: action)),
+      ]);
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 20,
+          child: Row(children: [
+            Expanded(
+                child: Text(label,
+                    style: TextStyle(
+                      // The reference draws labels white at 70% (#C4C4C4
+                      // on the dialog panel) and #333 in the light skin.
+                      color: appPalette(context).isDark
+                          ? appPalette(context)
+                              .textPrimary
+                              .withValues(alpha: 0.7)
+                          : appPalette(context).textPrimary,
+                      fontSize: 13,
+                      fontWeight: kAppBoldFontWeight,
+                      height: 20 / 14,
+                      letterSpacing: 0,
+                    ).merge(labelStyle))),
+            if (action != null) action!,
+          ]),
+        ),
+        const SizedBox(height: 1),
+        child,
+      ],
+    );
+  }
 }
 
 /// Shared unlabelled text input used inside the common labelled form chrome.
@@ -108,6 +150,24 @@ class LibraryTextFormControl extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveAccent = appPalette(context).utilityAction;
     final effectiveCursorColor = cursorColor ?? effectiveAccent;
+    final mobileLabel = _MobileFieldLabel.of(context);
+    final nativeField = mobileLabel != null;
+    final mobileDecoration = nativeField
+        ? (decoration ?? const InputDecoration()).copyWith(
+            labelText: mobileLabel,
+            labelStyle: const TextStyle(fontSize: 16),
+            floatingLabelStyle: const TextStyle(fontSize: 12),
+            floatingLabelBehavior: FloatingLabelBehavior.auto,
+            border: const OutlineInputBorder(borderRadius: BorderRadius.zero),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.zero,
+              borderSide: BorderSide(color: appPalette(context).divider),
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+            constraints: const BoxConstraints(minHeight: 56),
+          )
+        : null;
     return TextFormField(
       controller: controller,
       cursorColor: effectiveCursorColor,
@@ -125,20 +185,24 @@ class LibraryTextFormControl extends StatelessWidget {
       obscureText: obscureText,
       enabled: enabled,
       readOnly: readOnly,
-      style: style ?? context.libraryTextTheme.controlText,
+      style: style ??
+          (nativeField
+              ? context.libraryTextTheme.controlText.copyWith(fontSize: 16)
+              : context.libraryTextTheme.controlText),
       textAlign: textAlign,
       textAlignVertical: TextAlignVertical.center,
       textCapitalization: textCapitalization,
       textInputAction: textInputAction,
-      decoration: (decoration ?? const InputDecoration()).copyWith(
-        constraints: BoxConstraints(minHeight: minimumHeight),
-        contentPadding: (maxLines == 1 &&
-                minimumHeight == LibraryMetrics.defaultFieldHeight)
-            // The outline and fill follow the content, not the minimum
-            // height, so the padding itself makes the 34 px field.
-            ? const EdgeInsets.symmetric(horizontal: 7, vertical: 7)
-            : decoration?.contentPadding,
-      ),
+      decoration: mobileDecoration ??
+          (decoration ?? const InputDecoration()).copyWith(
+            constraints: BoxConstraints(minHeight: minimumHeight),
+            contentPadding: (maxLines == 1 &&
+                    minimumHeight == LibraryMetrics.defaultFieldHeight)
+                // The outline and fill follow the content, not the minimum
+                // height, so the padding itself makes the 34 px field.
+                ? const EdgeInsets.symmetric(horizontal: 7, vertical: 7)
+                : decoration?.contentPadding,
+          ),
     );
   }
 }
@@ -219,45 +283,81 @@ class LibraryPartialDateField extends StatelessWidget {
   final TextStyle? labelStyle;
 
   @override
-  Widget build(BuildContext context) => LibraryFormField(
-        label: label,
-        labelStyle: labelStyle,
-        action: Builder(
-          builder: (context) => Tooltip(
-            message: 'Choose $label',
-            child: InkWell(
-              mouseCursor: SystemMouseCursors.click,
-              onTap: () async {
-                final now = DateTime.now();
-                final picked = await showAppAnchoredCalendar(
-                  context: context,
-                  initialDate: value?.asDateTime ??
-                      DateTime(value?.year ?? now.year, value?.month ?? 1),
-                  firstDate: DateTime(1),
-                  lastDate: DateTime(9999, 12, 31),
-                );
-                if (picked != null) onChanged(PartialDate.fromDateTime(picked));
-              },
-              child: SizedBox(
-                width: 22,
-                height: 16,
-                child: Center(
-                  child: Icon(
-                    AppIcons.calendar,
-                    size: 14,
-                    color: appPalette(context).textMuted,
-                  ),
+  Widget build(BuildContext context) {
+    if (LibraryMobileEditFormScope.active(context)) {
+      return InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          border: const OutlineInputBorder(borderRadius: BorderRadius.zero),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.zero,
+            borderSide: BorderSide(color: appPalette(context).divider),
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(10, 4, 4, 4),
+          constraints: const BoxConstraints(minHeight: 56),
+        ),
+        child: Row(children: [
+          Expanded(
+            child: LibraryPartialDateInput(
+              value: value,
+              focusNode: focusNode,
+              onChanged: onChanged,
+            ),
+          ),
+          IconButton(
+            tooltip: 'Choose $label',
+            icon: Icon(AppIcons.calendar,
+                size: 18, color: appPalette(context).utilityAction),
+            constraints: const BoxConstraints.tightFor(width: 32, height: 40),
+            padding: EdgeInsets.zero,
+            onPressed: () => _chooseDate(context),
+          ),
+        ]),
+      );
+    }
+    return LibraryFormField(
+      label: label,
+      labelStyle: labelStyle,
+      action: Builder(
+        builder: (context) => Tooltip(
+          message: 'Choose $label',
+          child: InkWell(
+            mouseCursor: SystemMouseCursors.click,
+            onTap: () => _chooseDate(context),
+            child: SizedBox(
+              width: 22,
+              height: 16,
+              child: Center(
+                child: Icon(
+                  AppIcons.calendar,
+                  size: 14,
+                  color: appPalette(context).textMuted,
                 ),
               ),
             ),
           ),
         ),
-        child: LibraryPartialDateInput(
-          value: value,
-          focusNode: focusNode,
-          onChanged: onChanged,
-        ),
-      );
+      ),
+      child: LibraryPartialDateInput(
+        value: value,
+        focusNode: focusNode,
+        onChanged: onChanged,
+      ),
+    );
+  }
+
+  Future<void> _chooseDate(BuildContext context) async {
+    final now = DateTime.now();
+    final picked = await showAppAnchoredCalendar(
+      context: context,
+      initialDate: value?.asDateTime ??
+          DateTime(value?.year ?? now.year, value?.month ?? 1),
+      firstDate: DateTime(1),
+      lastDate: DateTime(9999, 12, 31),
+    );
+    if (picked != null) onChanged(PartialDate.fromDateTime(picked));
+  }
 }
 
 class LibraryPartialDateInput extends StatefulWidget {
@@ -325,10 +425,13 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
   Widget build(BuildContext context) {
     // Parts are stored year, month, day; Settings chooses the entry order.
     final order = dateEntryPartOrder(AppFormats.current.dateEntry);
+    final nativeEditor = LibraryMobileEditFormScope.active(context);
     return Row(children: [
       for (var position = 0; position < 3; position++)
         for (final i in [order[position]]) ...[
-          if (position > 0)
+          if (position > 0 && nativeEditor)
+            Text('/', style: TextStyle(color: appPalette(context).textMuted))
+          else if (position > 0)
             Container(
               key: ValueKey('partial-date-separator-$position'),
               width: 8,
@@ -341,6 +444,12 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
                 controller: _controllers[i],
                 focusNode: position == 0 ? widget.focusNode : null,
                 textAlign: TextAlign.center,
+                style: nativeEditor
+                    ? context.libraryTextTheme.controlText
+                        .copyWith(fontSize: 14)
+                    : null,
+                minimumHeight:
+                    nativeEditor ? 40 : LibraryMetrics.defaultFieldHeight,
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
@@ -348,6 +457,14 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
                 ],
                 decoration: InputDecoration(
                   hintText: ['YYYY', 'MM', 'DD'][i],
+                  hintStyle:
+                      nativeEditor ? const TextStyle(fontSize: 14) : null,
+                  border: nativeEditor ? InputBorder.none : null,
+                  enabledBorder: nativeEditor ? InputBorder.none : null,
+                  focusedBorder: nativeEditor ? InputBorder.none : null,
+                  contentPadding: nativeEditor
+                      ? const EdgeInsets.symmetric(horizontal: 1, vertical: 8)
+                      : null,
                 ),
                 validator: (raw) {
                   if (raw == null || raw.isEmpty) return null;

@@ -47,6 +47,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     required this.tabOrderKey,
     this.extraTabs = const [],
     this.contributions = const LibraryEditSchemaContributions(),
+    this.inlineCollectionStatus = false,
   });
 
   final EditSchema<TModel, TDraft> schema;
@@ -69,6 +70,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final String tabOrderKey;
   final List<EditSchemaExtraTab> extraTabs;
   final LibraryEditSchemaContributions contributions;
+  final bool inlineCollectionStatus;
 
   @override
   State<LibraryEditSchemaDialog<TModel, TDraft>> createState() =>
@@ -224,8 +226,9 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
       icon: AppIcons.edit,
       title: widget.title,
       badges: widget.badges,
-      footerContent:
-          entry == null ? null : LibraryEntryStatusStrip(draft: entry),
+      footerContent: entry == null || widget.inlineCollectionStatus
+          ? null
+          : LibraryEntryStatusStrip(draft: entry),
       isBusy: _saving,
       onClose: _cancelIfIdle,
       onCancel: _cancelIfIdle,

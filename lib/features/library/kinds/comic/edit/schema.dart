@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/comic/config/field_identit
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_values.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import '../forms/catalog_form_layout.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -113,6 +114,62 @@ final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
             'genres'
           ]),
         )
+      ],
+    ),
+  ],
+);
+
+/// CLZ's native editor keeps the catalog fields in Main. Plot and the extra
+/// Collectarr metadata remain editable in the same draft and save pipeline.
+final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
+    comicMobileEditSchema = EditSchema(
+  title: comicEditHeaderTitle,
+  validate: (_, values) => validateComicCatalogItem(values),
+  tabs: [
+    EditTabSpec<ComicCatalogItemFormValues>(
+      id: 'main',
+      label: 'Main',
+      icon: AppIcons.book,
+      sections: [
+        LibraryFormSectionSpec(
+          id: 'issue',
+          label: '',
+          columns: comicMobileMainColumns,
+          fields: [
+            ..._fields(const [
+              'comic.series',
+              'comic.issue_number',
+              'comic.variant',
+              'variant_description',
+              'cover_date',
+              'release_date',
+              'barcode',
+              'physical_format',
+              'comic.page_count',
+              'crossover',
+              'story_arcs',
+              'title',
+              'subtitle',
+              'publisher',
+              'comic.imprint',
+              'series_group',
+              'publication_age',
+              'country',
+              'language',
+              'genres',
+            ]),
+            LibraryCustomFieldSpec<ComicCatalogItemFormValues>(
+              id: 'comic.plot',
+              label: 'Plot',
+              builder: (context, draft) => LibraryTextFormControl(
+                initialValue: draft.description,
+                minLines: 4,
+                maxLines: 8,
+                onChanged: (value) => draft.description = value,
+              ),
+            ),
+          ],
+        ),
       ],
     ),
   ],

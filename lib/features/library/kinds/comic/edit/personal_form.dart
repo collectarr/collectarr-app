@@ -11,6 +11,7 @@ import 'entry_fields.dart';
 import 'grading_options.dart';
 import 'package:collectarr_app/features/library/ui/primitives/responsive_form_row.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 
 class ComicPersonalForm extends StatelessWidget {
   const ComicPersonalForm(
@@ -18,11 +19,13 @@ class ComicPersonalForm extends StatelessWidget {
       required this.personal,
       required this.entry,
       required this.valueTab,
+      this.keyTab = false,
       required this.update,
       required this.commonFields});
   final ComicPersonalData personal;
   final ComicEntryEditDraft entry;
   final bool valueTab;
+  final bool keyTab;
 
   /// Prices are in the currency chosen in Settings and store it with them.
   String get currency => AppFormats.current.currency;
@@ -36,7 +39,164 @@ class ComicPersonalForm extends StatelessWidget {
   Widget _common(String id) => commonFields[id] ?? const SizedBox.shrink();
 
   @override
-  Widget build(BuildContext context) => valueTab ? _value() : _personal();
+  Widget build(BuildContext context) {
+    if (appPresentationPlatform.isNativeMobile) {
+      if (keyTab) return _mobileKey();
+      return valueTab ? _mobileValue() : _mobilePersonal();
+    }
+    return valueTab ? _value() : _personal();
+  }
+
+  Widget _mobilePersonal() => _stack([
+        _common('owner_label'),
+        _ComicRatingField(
+          rating: personal.reading.rating,
+          onChanged: (value) => update(personal.copyWith(
+              reading: personal.reading.copyWith(rating: value))),
+        ),
+        _row([
+          LibrarySegmentedChoiceField<bool>(
+            label: 'Read',
+            options: const [(false, 'No'), (true, 'Yes')],
+            value: personal.reading.status == 'Read',
+            onChanged: (value) => update(personal.copyWith(
+              reading:
+                  personal.reading.copyWith(status: value ? 'Read' : 'Unread'),
+            )),
+          ),
+          LibraryPartialDateField.fullDate(
+            label: 'Read Date',
+            date: personal.reading.finishedAt,
+            onDateChanged: (value) => update(personal.copyWith(
+              reading: personal.reading.copyWith(finishedAt: value),
+            )),
+          ),
+        ]),
+        _common('tags'),
+        LibraryPartialDateField.fullDate(
+          label: 'Bag/Board Date',
+          date: entry.lastBagBoardDate,
+          onDateChanged: (value) {
+            entry.lastBagBoardDate = value;
+            _collectorChanged();
+          },
+        ),
+        _common('personal_notes'),
+      ]);
+
+  Widget _mobileValue() => _stack([
+        _row([
+          LibrarySegmentedChoiceField<String>(
+            label: 'Raw / Slabbed',
+            value: entry.rawOrSlabbed ?? 'Raw',
+            options: const [('Raw', 'Raw'), ('Slabbed', 'Slabbed')],
+            onChanged: (value) {
+              entry.rawOrSlabbed = value;
+              _collectorChanged();
+            },
+          ),
+          LibraryFixedSelectField(
+            label: 'Grade',
+            value: personal.grade,
+            options: comicGradeOptions,
+            onChanged: (value) => update(personal.copyWith(grade: value)),
+          ),
+        ]),
+        LibraryMoneyAmountField(
+          label: 'My Value',
+          amountMinorUnits: personal.marketValueCents,
+          currency: currency,
+          onChanged: (value) => update(personal.copyWith(
+            marketValueCents: value,
+            currency: currency,
+          )),
+        ),
+        _row([
+          _collector('grading_company'),
+          _collector('certification_number')
+        ]),
+        _row([
+          LibraryFixedSelectField(
+            label: 'Label Type',
+            value: entry.labelType,
+            options: comicLabelTypeOptions,
+            onChanged: (value) {
+              entry.labelType = value;
+              _collectorChanged();
+            },
+          ),
+          LibraryFixedSelectField(
+            label: 'Page Quality',
+            value: entry.pageQuality,
+            options: comicPageQualityOptions,
+            onChanged: (value) {
+              entry.pageQuality = value;
+              _collectorChanged();
+            },
+          ),
+        ]),
+        ComicCustomLabelField(
+          value: entry.customLabel,
+          onChanged: (value) {
+            entry.customLabel = value;
+            _collectorChanged();
+          },
+        ),
+        _collector('grader_notes'),
+        _collector('signed_by'),
+        _row([
+          _common('purchase_store'),
+          LibraryMoneyAmountField(
+            label: 'Cover Price',
+            amountMinorUnits: entry.coverPriceCents,
+            currency: currency,
+            onChanged: (value) {
+              entry.coverPriceCents = value;
+              update(personal.copyWith(
+                details: entry.toDetails(),
+                currency: currency,
+              ));
+            },
+          ),
+        ]),
+        _row([_common('purchase_date'), _common('price_paid_cents')]),
+        _row([
+          LibraryPartialDateField.fullDate(
+            label: 'Sold Date',
+            date: personal.soldAt,
+            onDateChanged: (value) => update(personal.copyWith(soldAt: value)),
+          ),
+          LibraryMoneyAmountField(
+            label: 'Price Sold',
+            amountMinorUnits: personal.sellPriceCents,
+            currency: currency,
+            onChanged: (value) => update(personal.copyWith(
+              sellPriceCents: value,
+              currency: currency,
+            )),
+          ),
+        ]),
+      ]);
+
+  Widget _mobileKey() => _stack([
+        LibrarySegmentedChoiceField<String>(
+          label: 'Key Comic',
+          value: entry.keyComic ? entry.keySeverity : 'No',
+          options: const [
+            ('Major', 'Major'),
+            ('Minor', 'Minor'),
+            ('Trivia', 'Trivia'),
+            ('No', 'No'),
+          ],
+          onChanged: (value) {
+            entry.keyComic = value != 'No';
+            entry.keySeverity = entry.keyComic ? value : null;
+            _collectorChanged();
+          },
+        ),
+        _collector('key_reason'),
+        _collector('key_category'),
+      ]);
 
   // The reference's Value tab, 1170 px wide: two 578 px halves, then rows
   // whose widths follow its 282 / 381 / 479 px columns.

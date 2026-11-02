@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,6 +29,37 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('empty'), findsOneWidget);
   });
+
+  testWidgets(
+      'native date groups parts and calendar without losing partial dates',
+      (tester) async {
+    PartialDate? saved;
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: LibraryMobileEditFormScope(
+          child: SizedBox(
+              width: 188,
+              child: LibraryPartialDateField(
+                label: 'Cover Date',
+                value: null,
+                onChanged: (value) => saved = value,
+              )),
+        ),
+      ),
+    ));
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is InputDecorator &&
+            widget.decoration.labelText == 'Cover Date'),
+        findsOneWidget);
+    expect(find.byTooltip('Choose Cover Date'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).first, '2024');
+    await tester.pump();
+    expect(saved?.year, 2024);
+    expect(saved?.month, isNull);
+    expect(saved?.day, isNull);
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant({TargetPlatform.android}));
 }
 
 class _DateFieldHarness extends StatefulWidget {

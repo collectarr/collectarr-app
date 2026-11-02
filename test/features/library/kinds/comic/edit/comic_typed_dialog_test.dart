@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -123,5 +124,92 @@ void main() {
     expect(record.personalData['certification_number'], 'QA-123');
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
-  });
+  }, variant: TargetPlatformVariant({TargetPlatform.windows}));
+
+  testWidgets('native comic editor keeps CLZ tab order and saves Key changes',
+      (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final manual = ComicAddManualDraft();
+    manual.values.seriesTitle = 'Fictional QA Series';
+    final candidate = buildComicManualCandidate(manual, title: 'Issue')!;
+    addTearDown(manual.dispose);
+    final record = LibraryEntryRecord(
+      id: 'mobile-comic-copy',
+      kind: CatalogMediaKind.comic,
+      catalogData:
+          candidate.kindCapability.mapTransport((item) => item.kindData),
+      personalData: const {'quantity': 1, 'key_comic': false},
+      updatedAt: DateTime.utc(2026),
+    );
+    final personal = LibraryEntryEditDraft(record);
+    addTearDown(personal.dispose);
+    LibraryEditSelection? saved;
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: MaterialApp(
+          home: Scaffold(
+              body: Builder(
+        builder: (context) => TextButton(
+          onPressed: () => showDialog<void>(
+            context: context,
+            builder: (_) => LibraryEntryEditScope(
+              draft: personal,
+              onCommit: (value) async => saved = value,
+              child: ComicItemEditDialog(
+                  request: LibraryEditDialogRequest(
+                type: const ComicRegistration(),
+                item: candidate,
+                libraryEntry: null,
+                accent: Colors.teal,
+              )),
+            ),
+          ),
+          child: const Text('Open'),
+        ),
+      ))),
+    ));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    final tabs =
+        tester.widget<MobileTabStrip<int>>(find.byType(MobileTabStrip<int>));
+    expect(tabs.tabs.map((tab) => tab.label).toList(), [
+      'Main',
+      'Personal',
+      'Custom Fields',
+      'Value',
+      'Key',
+      'Creators',
+      'Characters',
+      'Images',
+      'Links',
+    ]);
+    expect(find.text('Details'), findsNothing);
+    await tester.tap(find.text('Personal').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Collection Status'), findsWidgets);
+    expect(find.byTooltip('Collection details'), findsNothing);
+    await tester.ensureVisible(find.text('Key').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Key').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Key Comic'), findsWidgets);
+    await tester.tap(find
+        .descendant(
+          of: find.byType(LibrarySegmentedChoiceField<String>),
+          matching: find.text('Major'),
+        )
+        .first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save').first);
+    await tester.pumpAndSettle();
+    expect(saved, isNotNull);
+    expect(saved!.entryPersonalData!['key_comic'], isTrue);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  }, variant: TargetPlatformVariant({TargetPlatform.android}));
 }
