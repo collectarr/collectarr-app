@@ -488,6 +488,10 @@ class _LibraryAddBlockToolbar extends StatelessWidget {
     ];
     return Container(
       key: const ValueKey('library-add-block-toolbar'),
+      width: double.infinity,
+      color: appPresentationPlatform.isNativeMobile
+          ? libraryAddMobileGroupHeaderColor(appPalette(context))
+          : null,
       height: appPresentationPlatform.isNativeMobile ? null : 38,
       padding: EdgeInsets.fromLTRB(
           10,

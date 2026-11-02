@@ -8,6 +8,7 @@ typedef MobileAddChoice = ({MobileAddMethod method, bool remember});
 
 Future<MobileAddChoice?> showMobileAddMethodPicker(BuildContext context,
         {required String pluralLabel,
+        required Color headerColor,
         required bool canScanCover,
         required String searchLabel}) =>
     showAppDialog<MobileAddChoice>(
@@ -15,15 +16,18 @@ Future<MobileAddChoice?> showMobileAddMethodPicker(BuildContext context,
         barrierDismissible: true,
         builder: (_) => _MobileAddMethodPicker(
             pluralLabel: pluralLabel,
+            headerColor: headerColor,
             canScanCover: canScanCover,
             searchLabel: searchLabel));
 
 class _MobileAddMethodPicker extends StatefulWidget {
   const _MobileAddMethodPicker(
       {required this.pluralLabel,
+      required this.headerColor,
       required this.canScanCover,
       required this.searchLabel});
   final String pluralLabel;
+  final Color headerColor;
   final bool canScanCover;
   final String searchLabel;
   @override
@@ -61,60 +65,81 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
       ),
     ];
 
-    return AlertDialog(
-      key: const Key('add.method-picker'),
-      title: Text(
-        'Add ${widget.pluralLabel} from Core',
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-      ),
-      contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 380),
-        child: SingleChildScrollView(
+    return Center(
+      child: Dialog(
+        key: const Key('add.method-picker'),
+        alignment: Alignment.center,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+        backgroundColor: palette.panelRaised,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
+        clipBehavior: Clip.antiAlias,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 380),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Adding $plural to the app is done by adding them from "Core", our central online ${plural.endsWith('s') ? plural.substring(0, plural.length - 1) : plural} database.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: palette.textMuted,
-                  height: 1.35,
+              Container(
+                width: double.infinity,
+                color: widget.headerColor,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  'Add ${widget.pluralLabel} from Core',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                'How do you want to add $plural?',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  for (var i = 0; i < choices.length; i++) ...[
-                    if (i > 0) const SizedBox(width: 8),
-                    Expanded(child: _cardChoice(choices[i])),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Adding $plural to the app is done by adding them from "Core", our central online ${plural.endsWith('s') ? plural.substring(0, plural.length - 1) : plural} database.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: palette.textMuted,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'How do you want to add $plural?',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        for (var i = 0; i < choices.length; i++) ...[
+                          if (i > 0) const SizedBox(width: 8),
+                          Expanded(child: _cardChoice(choices[i])),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      dense: true,
+                      title: const Text(
+                        "Don't show this again",
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      value: _remember,
+                      onChanged: (value) =>
+                          setState(() => _remember = value ?? false),
+                    ),
                   ],
-                ],
-              ),
-              const SizedBox(height: 12),
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-                dense: true,
-                title: const Text(
-                  "Don't show this again",
-                  style: TextStyle(fontSize: 13),
                 ),
-                value: _remember,
-                onChanged: (value) =>
-                    setState(() => _remember = value ?? false),
               ),
             ],
           ),
@@ -132,34 +157,31 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
     }) choice,
   ) {
     final palette = appPalette(context);
-    final bg =
-        palette.isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF2F6F9);
-    final borderColor = palette.divider.withValues(alpha: 0.6);
+    final bg = palette.utilityAction;
 
     return Semantics(
       button: true,
       child: Material(
         color: bg,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(7),
         child: InkWell(
           key: ValueKey('add.method.${choice.method.name}'),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(7),
           onTap: () => Navigator.of(context).pop<MobileAddChoice>(
             (method: choice.method, remember: _remember),
           ),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: borderColor),
+              borderRadius: BorderRadius.circular(7),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   choice.icon,
-                  size: 34,
-                  color: palette.utilityAction,
+                  size: 38,
+                  color: Colors.white,
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -167,7 +189,7 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 11,
-                    color: palette.textMuted,
+                    color: Colors.white,
                   ),
                 ),
                 Text(
@@ -176,6 +198,7 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
               ],

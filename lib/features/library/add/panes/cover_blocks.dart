@@ -86,16 +86,50 @@ class LibraryAddCoverBlocks extends StatelessWidget {
                   4 * blockMargin) *
               coverHeight /
               coverWidth;
+      final gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: columns,
+        mainAxisExtent: appPresentationPlatform.isNativeMobile
+            ? mobileCoverHeight + 88
+            : blockHeight + 2 * blockMargin,
+      );
+      if (appPresentationPlatform.isNativeMobile) {
+        return CustomScrollView(
+          key: const ValueKey('library-add-cover-grid'),
+          slivers: [
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(blockMargin, blockMargin,
+                  spare.clamp(blockMargin, double.infinity), blockMargin),
+              sliver: SliverGrid(
+                gridDelegate: gridDelegate,
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => Padding(
+                    padding: const EdgeInsets.all(blockMargin),
+                    child: tile(index, coverHeight: mobileCoverHeight),
+                  ),
+                  childCount: results.length,
+                ),
+              ),
+            ),
+            if (onAddManually != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: OutlinedButton.icon(
+                    key: const ValueKey('library-add-cover-not-found'),
+                    onPressed: onAddManually,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Not found? Add it manually'),
+                  ),
+                ),
+              ),
+          ],
+        );
+      }
       return GridView.builder(
         key: const ValueKey('library-add-cover-grid'),
         padding: EdgeInsets.fromLTRB(blockMargin, blockMargin,
             spare.clamp(blockMargin, double.infinity), blockMargin),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: columns,
-          mainAxisExtent: appPresentationPlatform.isNativeMobile
-              ? mobileCoverHeight + 75
-              : blockHeight + 2 * blockMargin,
-        ),
+        gridDelegate: gridDelegate,
         itemCount: results.length + (onAddManually == null ? 0 : 1),
         itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.all(blockMargin),
@@ -136,11 +170,16 @@ class _GridBlock extends StatelessWidget {
       onClick: args.onSelect,
       builder: (context, hovered) => Container(
         padding: const EdgeInsets.all(5),
-        color: args.selected
-            ? palette.utilityAction
-            : palette.isDark
-                ? const Color(0xff383838)
-                : palette.panelRaised,
+        decoration: BoxDecoration(
+          color: args.selected
+              ? palette.utilityAction
+              : palette.isDark
+                  ? const Color(0xff383838)
+                  : palette.panelRaised,
+          border: appPresentationPlatform.isNativeMobile
+              ? Border.all(color: palette.divider)
+              : null,
+        ),
         child: DefaultTextStyle.merge(
           style: TextStyle(
               color: args.selected ? Colors.white : palette.textPrimary),
@@ -187,7 +226,7 @@ class _GridBlock extends StatelessWidget {
               const SizedBox(height: 1),
               Text(
                 block.caption ?? '',
-                maxLines: 1,
+                maxLines: appPresentationPlatform.isNativeMobile ? 2 : 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 12, height: 17 / 12),
               ),

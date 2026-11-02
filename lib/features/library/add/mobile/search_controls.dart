@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 
 /// Native Add chrome. Query controllers and search/scan behavior stay in the
 /// shared mode bar and Add session; this widget only arranges their controls.
@@ -29,11 +30,16 @@ class LibraryAddMobileSearchControls<T> extends StatelessWidget {
               tabs: tabs,
               selected: selected,
               color: accent,
+              compact: true,
               onSelected: onSelected),
           if (input != null)
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: input),
+            ColoredBox(
+              color: appPalette(context).canvas,
+              child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  child: input),
+            ),
           if (advanced != null) advanced!,
         ],
       );

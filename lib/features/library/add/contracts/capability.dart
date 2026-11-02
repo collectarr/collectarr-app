@@ -125,6 +125,7 @@ class LibraryAddBrowseCapability {
   const LibraryAddBrowseCapability({
     required this.label,
     required this.hintText,
+    this.emptyPrompt,
     required this.icon,
     required this.searchGroups,
     required this.loadItemRows,
@@ -135,6 +136,7 @@ class LibraryAddBrowseCapability {
   /// Names the tab, the group list and its empty state, as "Series".
   final String label;
   final String hintText;
+  final String? emptyPrompt;
   final IconData icon;
 
   /// Groups whose title matches the query.

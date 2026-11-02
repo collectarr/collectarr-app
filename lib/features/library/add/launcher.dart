@@ -45,6 +45,7 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
       final browseLabel = capability.search.browse?.label;
       final choice = await showMobileAddMethodPicker(context,
           pluralLabel: request.type.identity.pluralLabel,
+          headerColor: request.type.identity.accent,
           canScanCover: capability.chrome.canScanCover,
           searchLabel: browseLabel == null
               ? 'Search by ${searchLabel.toLowerCase()}'

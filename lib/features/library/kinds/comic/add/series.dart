@@ -11,6 +11,8 @@ import 'package:collectarr_app/ui/app_icons.dart';
 const comicAddSeries = LibraryAddBrowseCapability(
   label: 'Series',
   hintText: 'Enter series title...',
+  emptyPrompt:
+      'Find your series, then select the issues you own.\n\nUse the tabs above for other ways to add comics.',
   icon: AppIcons.search,
   searchGroups: searchComicSeries,
   loadItemRows: loadComicSeriesIssueRows,

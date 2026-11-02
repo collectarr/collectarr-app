@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/add/contracts/capability.dart';
 import 'package:collectarr_app/features/library/add/controllers/browse_state.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
@@ -47,17 +48,22 @@ class LibraryAddBrowseGroupList extends StatelessWidget {
     if (state.found.isEmpty) {
       return ColoredBox(
         color: libraryAddSearchBackground(context),
-        child: Center(
-          child: Text(
-            message,
-            key: const ValueKey('library-add-browse-message'),
-            style: TextStyle(
-              color: palette.textMuted,
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
+        child: !state.searched &&
+                state.error == null &&
+                capability.emptyPrompt != null &&
+                appPresentationPlatform.isNativeMobile
+            ? _MobileBrowsePrompt(capability.emptyPrompt!)
+            : Center(
+                child: Text(
+                  message,
+                  key: const ValueKey('library-add-browse-message'),
+                  style: TextStyle(
+                    color: palette.textMuted,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
       );
     }
     final count = state.found.length;
@@ -82,6 +88,49 @@ class LibraryAddBrowseGroupList extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MobileBrowsePrompt extends StatefulWidget {
+  const _MobileBrowsePrompt(this.message);
+  final String message;
+
+  @override
+  State<_MobileBrowsePrompt> createState() => _MobileBrowsePromptState();
+}
+
+class _MobileBrowsePromptState extends State<_MobileBrowsePrompt> {
+  bool _dismissed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_dismissed) return const SizedBox.shrink();
+    final palette = appPalette(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Icon(Icons.north_west, color: Color(0xffffbf00), size: 44),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: Text(widget.message,
+                  key: const ValueKey('library-add-browse-prompt'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: palette.utilityAction, fontSize: 16, height: 1.3)),
+            ),
+          ),
+        ]),
+        TextButton(
+          onPressed: () => setState(() => _dismissed = true),
+          child: Text('dismiss',
+              style: TextStyle(
+                  color: palette.textMuted,
+                  decoration: TextDecoration.underline)),
+        ),
+      ]),
     );
   }
 }
