@@ -1,6 +1,8 @@
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/add/contracts/capability.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
+import 'package:collectarr_app/features/library/add/mobile/cover_grid.dart';
+import 'package:collectarr_app/features/library/add/presentation_tokens.dart';
 
 import 'dependencies.dart';
 import 'search_pane.dart';
@@ -69,62 +71,32 @@ class LibraryAddCoverBlocks extends StatelessWidget {
       );
     }
     return LayoutBuilder(builder: (context, constraints) {
-      const extent = blockWidth + 2 * blockMargin;
-      final columns = ((constraints.maxWidth - 2 * blockMargin) /
-              (appPresentationPlatform.isNativeMobile ? 125 : extent))
-          .floor()
-          .clamp(
-            1,
-            1 << 20,
-          );
-      // Fixed-width blocks flow from the left, as in the reference.
-      final spare = appPresentationPlatform.isNativeMobile
-          ? blockMargin
-          : constraints.maxWidth - columns * extent;
-      final mobileCoverHeight =
-          ((constraints.maxWidth - 2 * blockMargin) / columns -
-                  4 * blockMargin) *
-              coverHeight /
-              coverWidth;
-      final gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: columns,
-        mainAxisExtent: appPresentationPlatform.isNativeMobile
-            ? mobileCoverHeight + 88
-            : blockHeight + 2 * blockMargin,
-      );
+      final tokens = LibraryAddPresentationTokens.current;
       if (appPresentationPlatform.isNativeMobile) {
-        return CustomScrollView(
-          key: const ValueKey('library-add-cover-grid'),
-          slivers: [
-            SliverPadding(
-              padding: EdgeInsets.fromLTRB(blockMargin, blockMargin,
-                  spare.clamp(blockMargin, double.infinity), blockMargin),
-              sliver: SliverGrid(
-                gridDelegate: gridDelegate,
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => Padding(
-                    padding: const EdgeInsets.all(blockMargin),
-                    child: tile(index, coverHeight: mobileCoverHeight),
-                  ),
-                  childCount: results.length,
-                ),
-              ),
-            ),
-            if (onAddManually != null)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: OutlinedButton.icon(
-                    key: const ValueKey('library-add-cover-not-found'),
-                    onPressed: onAddManually,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Not found? Add it manually'),
-                  ),
-                ),
-              ),
-          ],
+        return LibraryAddMobileCoverGrid(
+          width: constraints.maxWidth,
+          count: results.length,
+          coverAspectRatio: coverHeight / coverWidth,
+          minimumWidth: tokens.gridMinimumWidth,
+          margin: blockMargin,
+          itemBuilder: (index, height) => tile(index, coverHeight: height),
+          onAddManually: onAddManually,
         );
       }
+      const extent = blockWidth + 2 * blockMargin;
+      final columns =
+          ((constraints.maxWidth - 2 * blockMargin) / tokens.gridMinimumWidth)
+              .floor()
+              .clamp(
+                1,
+                1 << 20,
+              );
+      // Fixed-width blocks flow from the left, as in the reference.
+      final spare = constraints.maxWidth - columns * extent;
+      final gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: columns,
+        mainAxisExtent: blockHeight + 2 * blockMargin,
+      );
       return GridView.builder(
         key: const ValueKey('library-add-cover-grid'),
         padding: EdgeInsets.fromLTRB(blockMargin, blockMargin,
@@ -135,10 +107,7 @@ class LibraryAddCoverBlocks extends StatelessWidget {
           padding: const EdgeInsets.all(blockMargin),
           child: index == results.length
               ? _NotFoundBlock(onTap: onAddManually!)
-              : tile(index,
-                  coverHeight: appPresentationPlatform.isNativeMobile
-                      ? mobileCoverHeight
-                      : null),
+              : tile(index),
         ),
       );
     });
@@ -164,6 +133,7 @@ class _GridBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final tokens = LibraryAddPresentationTokens.current;
     final block = args.block;
     return AppClickTarget(
       key: ValueKey('library-add-cover-block-${args.item.reference.id}'),
@@ -176,9 +146,8 @@ class _GridBlock extends StatelessWidget {
               : palette.isDark
                   ? const Color(0xff383838)
                   : palette.panelRaised,
-          border: appPresentationPlatform.isNativeMobile
-              ? Border.all(color: palette.divider)
-              : null,
+          border:
+              tokens.borderedCover ? Border.all(color: palette.divider) : null,
         ),
         child: DefaultTextStyle.merge(
           style: TextStyle(
@@ -207,11 +176,11 @@ class _GridBlock extends StatelessWidget {
                       onPressed: args.onToggleCheck,
                     ),
                     const SizedBox(width: 5),
-                    if (appPresentationPlatform.isNativeMobile)
+                    if (tokens.badgeFillsRow)
                       Expanded(child: _BadgeBox(block.badge))
                     else
                       _BadgeBox(block.badge),
-                    if (!appPresentationPlatform.isNativeMobile) const Spacer(),
+                    if (!tokens.badgeFillsRow) const Spacer(),
                     Text(
                       [
                         if (block.month case final month?) month,
@@ -226,7 +195,7 @@ class _GridBlock extends StatelessWidget {
               const SizedBox(height: 1),
               Text(
                 block.caption ?? '',
-                maxLines: appPresentationPlatform.isNativeMobile ? 2 : 1,
+                maxLines: tokens.captionLines,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 12, height: 17 / 12),
               ),

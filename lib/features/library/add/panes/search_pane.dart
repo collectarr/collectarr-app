@@ -5,6 +5,7 @@ import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:collectarr_app/ui/app_spinner.dart';
 import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/features/library/add/contracts/result_policy.dart';
+import 'package:collectarr_app/features/library/add/presentation_tokens.dart';
 
 import 'cover_blocks.dart';
 import 'grouped_results.dart';
@@ -451,6 +452,7 @@ class _LibraryAddBlockToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = appPalette(context).textPrimary;
+    final tokens = LibraryAddPresentationTokens.current;
     Widget layoutToggle(
             LibraryAddBlockLayout layout, String label, IconData icon) =>
         _LibraryAddIconToggle(
@@ -462,7 +464,7 @@ class _LibraryAddBlockToolbar extends StatelessWidget {
         );
     final controls = [
       if (leading case final leading?) leading,
-      if (!appPresentationPlatform.isNativeMobile) const Spacer(),
+      if (tokens.toolbarHeight != null) const Spacer(),
       for (final option in options) ...[
         _LibraryAddResultOptionToggle(
           option: option,
@@ -489,15 +491,10 @@ class _LibraryAddBlockToolbar extends StatelessWidget {
     return Container(
       key: const ValueKey('library-add-block-toolbar'),
       width: double.infinity,
-      color: appPresentationPlatform.isNativeMobile
-          ? libraryAddMobileGroupHeaderColor(appPalette(context))
-          : null,
-      height: appPresentationPlatform.isNativeMobile ? null : 38,
+      color: tokens.toolbarColor(appPalette(context)),
+      height: tokens.toolbarHeight,
       padding: EdgeInsets.fromLTRB(
-          10,
-          appPresentationPlatform.isNativeMobile ? 4 : 0,
-          4,
-          appPresentationPlatform.isNativeMobile ? 4 : 0),
+          10, tokens.toolbarVerticalPadding, 4, tokens.toolbarVerticalPadding),
       child: appPresentationPlatform.isNativeMobile
           ? Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
