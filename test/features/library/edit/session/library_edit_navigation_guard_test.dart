@@ -50,7 +50,7 @@ void main() {
     await tester.tap(find.text('Keep editing'));
     await tester.pumpAndSettle();
     expect(find.text('Edited content'), findsOneWidget);
-    await tester.tap(find.text('Save'));
+    await tester.tap(find.byKey(const Key('library.mobile-editor.save')));
     await tester.pumpAndSettle();
     expect(find.text('Edited content'), findsNothing);
     expect(find.text('Unsaved changes'), findsNothing);

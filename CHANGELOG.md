@@ -13,7 +13,7 @@
 
 ### Features
 - Native mobile Pre-fill Settings opens as a full-height page on mobile and tablet matching CLZ's layout, with kind-specific titles, an Always show toggle, and Clear All and Save actions.
-- Native mobile editors match CLZ's header with direct delete, previous, next and save actions, extend full height on tablets, use border-embedded floating labels with rectangular transparent fields, and show single-arrow pick fields.
+- Native mobile editors match CLZ's header with direct delete, previous, next navigation and a DONE action, extend full height on tablets, use border-embedded floating labels with rectangular transparent fields, and align Comics Value and Personal tabs.
 - Native mobile shell replaces the persistent rail and navigation bar with full-viewport collection tabs at the bottom, styles the Add from Core method picker as three horizontal option tiles matching CLZ, provides tablet split-pane series and issues browsing, and matches mobile page transitions with desktop forwards fading.
 - Native folder and sort selectors, sorting favorites, column editors, Smart Lists, personal folders and Pick List management open as full-screen pages; the library sort button opens its page directly with a selected-row direction control.
 - Every active library kind has an Add Manually shortcut in the navigation drawer, including Games, Hardware and Toys.

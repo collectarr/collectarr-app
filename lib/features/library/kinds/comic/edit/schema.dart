@@ -59,7 +59,7 @@ String comicEditHeaderTitle(ComicCatalogItem item) {
   final name = series.isEmpty ? item.title.trim() : series;
   final issue =
       '${item.issueNumber?.trim() ?? ''}${item.variant?.trim() ?? ''}';
-  if (name.isEmpty) return 'Edit comic';
+  if (name.isEmpty) return 'Edit Comic';
   return issue.isEmpty ? name : '$name #$issue';
 }
 

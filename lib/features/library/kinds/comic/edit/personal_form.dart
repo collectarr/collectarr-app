@@ -74,7 +74,7 @@ class ComicPersonalForm extends StatelessWidget {
         ]),
         _common('tags'),
         LibraryPartialDateField.fullDate(
-          label: 'Bag/Board Date',
+          label: 'Last Bag/Board Date',
           date: entry.lastBagBoardDate,
           onDateChanged: (value) {
             entry.lastBagBoardDate = value;
@@ -101,6 +101,9 @@ class ComicPersonalForm extends StatelessWidget {
             options: comicGradeOptions,
             onChanged: (value) => update(personal.copyWith(grade: value)),
           ),
+        ], flexes: const [
+          230,
+          770
         ]),
         LibraryMoneyAmountField(
           label: 'My Value',
@@ -135,7 +138,7 @@ class ComicPersonalForm extends StatelessWidget {
         _row([_common('purchase_date'), _common('price_paid_cents')]),
         _row([
           LibraryPartialDateField.fullDate(
-            label: 'Sold Date',
+            label: 'Date Sold',
             date: personal.soldAt,
             onDateChanged: (value) => update(personal.copyWith(soldAt: value)),
           ),
@@ -149,26 +152,24 @@ class ComicPersonalForm extends StatelessWidget {
             )),
           ),
         ]),
-        _row([
-          LibraryFixedSelectField(
-            label: 'Label Type',
-            value: entry.labelType,
-            options: comicLabelTypeOptions,
-            onChanged: (value) {
-              entry.labelType = value;
-              _collectorChanged();
-            },
-          ),
-          LibraryFixedSelectField(
-            label: 'Page Quality',
-            value: entry.pageQuality,
-            options: comicPageQualityOptions,
-            onChanged: (value) {
-              entry.pageQuality = value;
-              _collectorChanged();
-            },
-          ),
-        ]),
+        LibraryFixedSelectField(
+          label: 'Label Type',
+          value: entry.labelType,
+          options: comicLabelTypeOptions,
+          onChanged: (value) {
+            entry.labelType = value;
+            _collectorChanged();
+          },
+        ),
+        LibraryFixedSelectField(
+          label: 'Page Quality',
+          value: entry.pageQuality,
+          options: comicPageQualityOptions,
+          onChanged: (value) {
+            entry.pageQuality = value;
+            _collectorChanged();
+          },
+        ),
         ComicCustomLabelField(
           value: entry.customLabel,
           onChanged: (value) {
@@ -356,7 +357,7 @@ class ComicPersonalForm extends StatelessWidget {
           _common('tags'),
           _row([
             LibraryPartialDateField.fullDate(
-                label: 'Bag/Board Date',
+                label: 'Last Bag/Board Date',
                 date: entry.lastBagBoardDate,
                 onDateChanged: (value) {
                   entry.lastBagBoardDate = value;
