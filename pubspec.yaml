@@ -27,7 +27,7 @@ dependencies:
   google_mlkit_text_recognition: ^0.17.1
   csv: ^8.0.0
   archive: ^4.5.2
-  crypto: ^3.0.6
+  crypto: ^3.0.8
   file_selector: ^1.0.3
   desktop_drop: ^0.8.4
   pasteboard: ^0.6.0
