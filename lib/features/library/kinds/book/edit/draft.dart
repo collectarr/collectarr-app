@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/kinds/book/forms/catalog_externa
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/book/entries/book_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/entry_personal_bindings.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 

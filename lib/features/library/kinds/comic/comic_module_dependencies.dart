@@ -35,10 +35,10 @@ export 'package:collectarr_app/features/library/kinds/comic/inspector/hero.dart'
 export 'package:collectarr_app/features/library/kinds/comic/inspector/sections.dart';
 export 'package:collectarr_app/features/library/kinds/comic/metadata/compare.dart';
 export 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_semantics.dart';
-export 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_codec.dart';
+export 'package:collectarr_app/features/library/kinds/comic/entries/details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
-export 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_create_payload.dart';
-export 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_update_payload.dart';
+export 'package:collectarr_app/features/library/kinds/comic/entries/create_payload.dart';
+export 'package:collectarr_app/features/library/kinds/comic/entries/update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 export 'package:collectarr_app/features/library/kinds/comic/relations/comic_relation_capability.dart';
 export 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';

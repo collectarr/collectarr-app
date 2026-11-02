@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/add/models/kind_draft.dart';
 import '../domain/comic_personal_data.dart';
-import '../entries/comic_entry_details_codec.dart';
+import '../entries/details_codec.dart';
 import 'package:flutter/foundation.dart';
 
 /// Comics owns the personal state collected by Value, Personal and the footer.

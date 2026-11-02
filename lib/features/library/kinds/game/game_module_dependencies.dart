@@ -25,10 +25,10 @@ export 'package:collectarr_app/features/library/kinds/game/edit/typed_presentati
 export 'package:collectarr_app/features/library/kinds/game/config/game_physical_media_formats.dart';
 export 'package:collectarr_app/features/library/kinds/game/inspector/sections.dart';
 export 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_semantics.dart';
-export 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_codec.dart';
+export 'package:collectarr_app/features/library/kinds/game/entries/details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
-export 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_create_payload.dart';
-export 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_update_payload.dart';
+export 'package:collectarr_app/features/library/kinds/game/entries/create_payload.dart';
+export 'package:collectarr_app/features/library/kinds/game/entries/update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/game/presentation.dart';
 export 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capability.dart';
 export 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_profile.dart';

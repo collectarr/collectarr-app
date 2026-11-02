@@ -1,21 +1,21 @@
 import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/game_hardware/entries/game_hardware_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game_hardware/entries/details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/entries/details_codec.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/details_codec.dart';
 
 /// Test-only adapter for executing the same serialization contract against
 /// concrete kind codecs. Production code does not use a common details codec.

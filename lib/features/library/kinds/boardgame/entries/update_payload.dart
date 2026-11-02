@@ -1,10 +1,11 @@
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
 
-final class BookLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
-  const BookLibraryEntryUpdatePayload({
+final class BoardgameLibraryEntryUpdatePayload
+    implements LibraryEntryUpdatePayload {
+  const BoardgameLibraryEntryUpdatePayload({
     required this.condition,
     required this.grade,
     required this.purchaseDate,
@@ -24,7 +25,7 @@ final class BookLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
     required this.details,
   });
 
-  factory BookLibraryEntryUpdatePayload.partial({
+  factory BoardgameLibraryEntryUpdatePayload.partial({
     Patch<String?> condition = const Patch.unchanged(),
     Patch<String?> grade = const Patch.unchanged(),
     Patch<DateTime?> purchaseDate = const Patch.unchanged(),
@@ -41,9 +42,9 @@ final class BookLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
     Patch<String?> soldTo = const Patch.unchanged(),
     Patch<int?> marketValueCents = const Patch.unchanged(),
     Patch<int?> indexNumber = const Patch.unchanged(),
-    Patch<BookEntryDetailsDraft> details = const Patch.unchanged(),
+    Patch<BoardgameEntryDetailsDraft> details = const Patch.unchanged(),
   }) =>
-      BookLibraryEntryUpdatePayload(
+      BoardgameLibraryEntryUpdatePayload(
         condition: condition,
         grade: grade,
         purchaseDate: purchaseDate,
@@ -62,7 +63,6 @@ final class BookLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
         indexNumber: indexNumber,
         details: details,
       );
-
   final Patch<String?> condition;
   final Patch<String?> grade;
   final Patch<DateTime?> purchaseDate;
@@ -79,18 +79,18 @@ final class BookLibraryEntryUpdatePayload implements LibraryEntryUpdatePayload {
   final Patch<String?> soldTo;
   final Patch<int?> marketValueCents;
   final Patch<int?> indexNumber;
-  final Patch<BookEntryDetailsDraft> details;
+  final Patch<BoardgameEntryDetailsDraft> details;
 
-  bool canApplyTo(BookLibraryEntry existing) => true;
+  bool canApplyTo(BoardGameLibraryEntry existing) => true;
 
-  BookLibraryEntry applyTo(
-    BookLibraryEntry existing, {
+  BoardGameLibraryEntry applyTo(
+    BoardGameLibraryEntry existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
   }) {
     final existingPersonal = existing.personal;
-    final codec = const BookEntryDetailsCodec();
+    final codec = const BoardgameEntryDetailsCodec();
     final resolvedDetails = details.when(
       unchanged: () => existingPersonal.details,
       set: (draft) {

@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/edit/fields/external_links_table
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/entry_personal_bindings.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';

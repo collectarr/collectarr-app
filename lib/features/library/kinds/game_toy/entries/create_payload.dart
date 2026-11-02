@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/config/entry_create_payload.dart
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/domain/game_toy_personal_data.dart';
-import 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game_toy/entries/details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game_toy/entries/game_toy_entry_details_draft.dart';
 
 final class GameToyLibraryEntryCreatePayload

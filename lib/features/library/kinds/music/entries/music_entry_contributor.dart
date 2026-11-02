@@ -6,8 +6,8 @@ import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/music/entries/music_library_entry_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/music/entries/music_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/update_payload.dart';
 import 'package:collectarr_app/features/library/entries/kind_contributor.dart';
 
 final musicEntryContributor = TypedEntryKindContributor<MusicLibraryEntry>(

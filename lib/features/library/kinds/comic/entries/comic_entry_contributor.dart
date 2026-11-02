@@ -3,8 +3,8 @@ import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/update_payload.dart';
 import 'package:collectarr_app/features/library/entries/kind_contributor.dart';
 
 final comicEntryContributor = TypedEntryKindContributor<ComicLibraryEntry>(

@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadat
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/movie/entries/movie_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/entry_personal_bindings.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';

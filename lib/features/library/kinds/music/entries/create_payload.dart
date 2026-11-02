@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalo
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
-import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_draft.dart';
 
 final class MusicLibraryEntryCreatePayload

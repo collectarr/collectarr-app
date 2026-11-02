@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/config/entry_create_payload.dart
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
-import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
 
 final class GameLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
