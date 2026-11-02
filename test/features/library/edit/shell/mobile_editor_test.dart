@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/edit/fields/layout_widgets.dart';
 import 'package:collectarr_app/features/library/edit/shell/scaffold.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       final harnessKey = GlobalKey<_EditorHarnessState>();
       await tester.pumpWidget(MaterialApp(
+          theme: buildAppShellTheme(palette: kDefaultAppThemePalette),
           home: MediaQuery(
               data: MediaQueryData(
                   size: Size(width, 900), textScaler: TextScaler.linear(1.3)),
@@ -22,6 +24,12 @@ void main() {
       await tester.pumpAndSettle();
       final save = find.byKey(const Key('library.mobile-editor.save'));
       expect(save, findsOneWidget);
+      expect(tester.widget<AppBar>(find.byType(AppBar)).titleTextStyle?.color,
+          Colors.white);
+      final backTheme =
+          IconButtonTheme.of(tester.element(find.byType(BackButton)));
+      expect(backTheme.style?.backgroundColor?.resolve({}), Colors.transparent);
+      expect(backTheme.style?.foregroundColor?.resolve({}), Colors.white);
       expect(tester.getRect(save).top, lessThan(80));
       await tester.enterText(
           find.byKey(const Key('draft.title')), 'Changed draft');
@@ -32,6 +40,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Changed draft'), findsOneWidget);
       await tester.pumpWidget(MaterialApp(
+          theme: buildAppShellTheme(palette: kDefaultAppThemePalette),
           home: MediaQuery(
               data: MediaQueryData(
                   size: Size(width, 900),
@@ -43,6 +52,14 @@ void main() {
       await tester.tap(save);
       await tester.pumpAndSettle();
       expect(harnessKey.currentState!.saved, 'Changed draft');
+      await tester.tap(find.byTooltip('Collection details'));
+      await tester.pumpAndSettle();
+      expect(find.text('Collection status control'), findsOneWidget);
+      await tester.tap(find.text('Update collection'));
+      await tester.pumpAndSettle();
+      expect(find.text('Updated collection'), findsOneWidget);
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('More editor actions'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Next item'));
@@ -69,6 +86,7 @@ class _EditorHarnessState extends State<_EditorHarness>
   final form = GlobalKey<FormState>();
   String? saved;
   int nextCount = 0;
+  String collectionLabel = 'Collection status control';
   @override
   void dispose() {
     tabs.dispose();
@@ -95,6 +113,13 @@ class _EditorHarnessState extends State<_EditorHarness>
           ]),
           const EditTabShell(children: [Text('Personal tab')]),
         ],
+        footerContent: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text(collectionLabel),
+          TextButton(
+              onPressed: () =>
+                  setState(() => collectionLabel = 'Updated collection'),
+              child: const Text('Update collection'))
+        ]),
         onClose: () {},
         onCancel: () {},
         onSave: () {

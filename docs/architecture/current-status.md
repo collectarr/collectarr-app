@@ -123,8 +123,11 @@ there is no iOS runner in this repository yet.
 `LibraryMobileEditorScaffold` supplies native chrome inside the same schema,
 text-controller store, form, tab navigation scope and dirty guard as desktop.
 Native Add Manually provides its validated Add action in the header. Native
-editor tabs retain their subtrees and scroll state while keyboard insets shrink
-only the content area; Save remains in the header. Desktop keeps dialog chrome.
+`MobilePageHeader` scopes white text and transparent header buttons independently
+of desktop chrome; Add, Edit and item details share it. Native editor tabs retain their subtrees and scroll state while keyboard insets shrink
+only the content area; Save remains in the header. Collection status/index/quantity/
+location controls reuse their existing draft in a native sheet rather than fixing
+a second short viewport below the form. Desktop keeps dialog chrome.
 
 Native Settings sections use `/settings?section=...&kind=...` on phones and
 tablets, including cold entry and a safe return to the section index. Desktop

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -127,12 +128,20 @@ void main() {
     await tester.tap(read);
     await tester.pumpAndSettle();
     expect(personal.personal.reading.status, 'Read');
+    if (appPresentationPlatform.isNativeMobile) {
+      await tester.tap(find.byTooltip('Collection details'));
+      await tester.pumpAndSettle();
+    }
     final quantity = find.byType(LibraryIntegerField).last;
     await tester.enterText(
         find.descendant(of: quantity, matching: find.byType(TextFormField)),
         '3');
     await tester.pumpAndSettle();
     expect(personal.personal.quantity, 3);
+    if (appPresentationPlatform.isNativeMobile) {
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+    }
     final details = personal.toEntryDetailsDraft() as ComicEntryDetailsDraft;
     final candidate = buildComicManualCandidate(manual.kindDraft, title: '')!;
     final item = ComicLibraryEntryCreatePayload(

@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/library/generic/body.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_tile.dart';
+import 'package:collectarr_app/features/library/generic/sidebar/compact_bucket_bar.dart';
 import 'package:collectarr_app/app/app_shell.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
@@ -58,6 +61,31 @@ void main() {
       final container =
           ProviderScope.containerOf(tester.element(find.byType(AppShell)));
       final router = container.read(appRouterProvider);
+      router.go('/libraries?kind=music&q=Offline');
+      await pumpUntilSettled(tester);
+      final tile = find.byType(LibraryCoverTile).first;
+      expect(find.byType(LibraryCompactBucketBar), findsNothing);
+      await tester.longPress(tile);
+      await pumpUntilSettled(tester);
+      expect(
+          tester.widget<LibraryBody>(find.byType(LibraryBody)).selectionEnabled,
+          isTrue);
+      expect(
+          router.routeInformationProvider.value.uri.path, AppRoutes.libraries);
+      await tester.tap(tile);
+      await pumpUntilSettled(tester);
+      expect(
+          tester.widget<LibraryBody>(find.byType(LibraryBody)).selectionEnabled,
+          isFalse);
+      await tester.tap(tile);
+      await pumpUntilSettled(tester);
+      expect(find.byType(LibraryDetailPage), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await pumpUntilSettled(tester);
+      expect(tester.widget<LibraryBody>(find.byType(LibraryBody)).searchQuery,
+          'Offline');
+      expect(router.routeInformationProvider.value.uri.queryParameters['q'],
+          'Offline');
       final uri = LibraryDetailLocation(EntryTargetRef(
               LibraryEntryRef(kind: CatalogMediaKind.music, id: entry.id)))
           .toUri();
