@@ -162,5 +162,6 @@ void main() {
     expect(metadata.description, 'An original fictional plot.');
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 100));
   });
 }

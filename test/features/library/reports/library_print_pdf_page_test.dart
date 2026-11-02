@@ -65,7 +65,7 @@ void main() {
     expect(find.descendant(of: sortSection, matching: find.text('Title')),
         findsOneWidget);
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('LibraryPrintPdfPage renders full layout with all CLZ sections',
       (tester) async {

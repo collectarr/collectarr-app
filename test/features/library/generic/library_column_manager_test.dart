@@ -55,5 +55,5 @@ void main() {
         find.byKey(const ValueKey('column-preset-Essential')), findsOneWidget);
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

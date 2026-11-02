@@ -74,7 +74,7 @@ void main() {
         findsNothing);
     await tester.pumpWidget(tab(true));
     expect(decoration().color, Colors.orange);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
   late LocalDatabase db;
   late LibraryCollectionRepository repo;
   setUp(() {
@@ -234,7 +234,7 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('a dropped collection tab stays in place while the save lands',
       (tester) async {
@@ -282,7 +282,7 @@ void main() {
         (await tester.runAsync(() => repo.list('music')))!.first.id, vinyl.id);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('tabs of a multi-kind family show their kind icon',
       (tester) async {
@@ -322,7 +322,7 @@ void main() {
         isTrue);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
       'collection tabs select real collections and open a compact manager',
@@ -368,5 +368,5 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }
