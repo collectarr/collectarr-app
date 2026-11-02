@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Docs
+- The testing guide explains native viewport coverage, isolated Android review builds and remaining platform checks.
 - The architecture guide reflects the published kinds and schema baseline, shared mobile state owners and remaining native navigation boundaries.
 - The CLZ parity guide tracks remaining Android gaps in the editor, folder and sort navigation, scanner presentation, surfaces and Add results, with an isolated-device comparison workflow.
 - The CLZ parity guide lists the Comics Value tab fields that still differ from CLZ, Signed by and Key Category, and why Custom Label images come only from the user's own files.

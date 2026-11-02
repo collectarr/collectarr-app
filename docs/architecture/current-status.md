@@ -122,10 +122,10 @@ there is no iOS runner in this repository yet.
 
 `LibraryMobileEditorScaffold` supplies native chrome inside the same schema,
 text-controller store, form, tab navigation scope and dirty guard as desktop.
-Native Add Manually provides its validated Add action in the header. Native
+Native Add Manually provides its validated Add action in the header.
 `MobilePageHeader` scopes white text and transparent header buttons independently
-of desktop chrome; Add, Edit and item details share it. Native editor tabs retain their subtrees and scroll state while keyboard insets shrink
-only the content area; Save remains in the header. Collection status/index/quantity/
+of desktop chrome; Add, Edit and item details share it. Native editor tabs retain
+their subtrees and scroll state while keyboard insets shrink only the content area; Save remains in the header. Collection status/index/quantity/
 location controls reuse their existing draft in a native sheet rather than fixing
 a second short viewport below the form. Desktop keeps dialog chrome.
 
@@ -134,8 +134,10 @@ tablets, including cold entry and a safe return to the section index. Desktop
 keeps responsive section tabs. Native collection management reuses repository
 commands in a full-screen reorderable list; short name/confirmation prompts stay
 dialogs. Sorting exposes kind-owned favorites directly and reuses the same
-advanced multi-field rules, with touch-sized shared field selection controls. UI comparisons and unverified workflows
-remain in [CLZ parity](../clz-parity.md).
+advanced multi-field rules, with touch-sized shared field selection controls.
+The native folder selector uses toolbar constraints, including space consumed by
+the tablet rail, so a hidden sidebar never removes folder access. UI comparisons
+and unverified workflows remain in [CLZ parity](../clz-parity.md).
 
 `toolbar/sections.dart` composes exports rather than owning every toolbar.
 `secondary.dart` binds the common kind values/actions, `desktop/filtering.dart`
@@ -150,10 +152,13 @@ colors, action widgets and count text. No toolbar presentation owns domain state
   is captured in the [Game ledger](catalog-item-field-ledgers/game.md) with its
   gaps; the other kinds' ledgers in `catalog-item-field-ledgers/` are
   provisional.
-- Web and Windows comparison covers desktop rendering. Android Comics is
-  compared read-only on a Motorola Edge 70 against an isolated Collectarr
-  review package; populated item flows, iOS and native tablets still need
-  device checks.
+- CLZ Android comparison uses read-only Motorola captures. Isolated Android
+  and Windows integration flows cover navigation, account, Core Add, local Edit,
+  persistence and fonts. BlueStacks also covers native phone/tablet presentation;
+  this does not verify physical barcode decoding or iOS system behavior.
+- There is no iOS runner; iOS presentation is covered by widget matrices only.
+  Browser release compilation passes, while fresh browser visual validation
+  remains open. See the [presentation test matrix](../testing.md#native-presentation-matrix).
 - The app still imports Material from `package:flutter/material.dart`, while
   Flutter is moving it to the separate `material_ui` package (with
   `cupertino_ui`), which go_router and cached_network_image already use. The
