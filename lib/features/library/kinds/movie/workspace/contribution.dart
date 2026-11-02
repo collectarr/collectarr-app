@@ -1,5 +1,5 @@
 import '../movie_module_dependencies.dart';
-import '../config/movie_kind_capabilities.dart';
+import '../config/capabilities.dart';
 import 'catalog_schema.dart';
 
 final movieKindWorkspace = TypedLibraryKindWorkspace<MovieWorkspaceDto>(

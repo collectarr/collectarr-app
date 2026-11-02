@@ -1,5 +1,5 @@
 import '../book_module_dependencies.dart';
-import '../config/book_kind_configuration.dart';
+import '../config/configuration.dart';
 import 'manual_candidate.dart';
 
 final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(

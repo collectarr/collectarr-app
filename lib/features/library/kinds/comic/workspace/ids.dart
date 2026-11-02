@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/field_identities.dart';
 
 abstract final class ComicFieldIds {
   static const status = LibraryFieldId<ComicKind, String?>('comic.status');

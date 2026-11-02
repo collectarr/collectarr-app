@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/book/forms/person_credits_
 import 'package:collectarr_app/features/library/kinds/book/forms/catalog_form_field_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/external_links_editor.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';

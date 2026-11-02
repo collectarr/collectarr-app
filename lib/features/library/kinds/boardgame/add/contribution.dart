@@ -1,5 +1,5 @@
 import '../boardgame_module_dependencies.dart';
-import '../config/boardgame_kind_configuration.dart';
+import '../config/configuration.dart';
 import 'manual_candidate.dart';
 
 final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(

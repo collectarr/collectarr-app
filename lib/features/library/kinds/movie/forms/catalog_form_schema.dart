@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/catalog_field_specs.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/field_identities.dart';
 
 /// Builds one tab's fields from the same Movie field definitions used by Add
 /// and Edit.

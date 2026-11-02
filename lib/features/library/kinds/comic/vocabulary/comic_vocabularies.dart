@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/field_identities.dart';
 
 abstract final class ComicVocabularyIds {
   static const gradingCompany = VocabularyId<String>('comic.grading_company');

@@ -1,9 +1,9 @@
 export 'add/contribution.dart';
 export 'edit/contribution.dart';
-export 'config/music_kind_capabilities.dart';
+export 'config/capabilities.dart';
 export 'config/music_import_sources.dart';
 export 'reports/music_export_capability.dart';
-export 'config/music_kind_configuration.dart';
+export 'config/configuration.dart';
 export 'workspace/contribution.dart';
 export 'admin/music_admin_contributor.dart';
 export 'barcode/music_barcode_resolver.dart';

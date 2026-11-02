@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
-import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/personal_fields.dart';

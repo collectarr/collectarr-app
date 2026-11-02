@@ -18,7 +18,7 @@ import 'draft.dart';
 import '../domain/comic_personal_data.dart';
 import 'personal_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/links_tab.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/person_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/people_editors.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';

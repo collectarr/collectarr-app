@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/library/forms/field_spec.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/field_identities.dart';
 
 typedef BoardGameFormValuesReader<TDraft> = BoardGameCatalogFormValues Function(
     TDraft draft);

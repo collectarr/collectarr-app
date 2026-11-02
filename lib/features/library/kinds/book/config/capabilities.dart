@@ -1,6 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../book_module_dependencies.dart';
-import 'book_kind_configuration.dart';
+import 'configuration.dart';
 import '../data/book_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 

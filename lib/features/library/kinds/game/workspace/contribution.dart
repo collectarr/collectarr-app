@@ -1,5 +1,5 @@
 import '../game_module_dependencies.dart';
-import '../config/game_kind_capabilities.dart';
+import '../config/capabilities.dart';
 
 final gameKindWorkspace = TypedLibraryKindWorkspace<GameWorkspaceDto>(
   catalogItemWorkspace: TypedLibraryTargetWorkspace<GameWorkspaceDto>(

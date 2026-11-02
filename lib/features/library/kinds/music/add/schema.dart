@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/add/schema/catalog_title_field.d
 import 'package:collectarr_app/features/library/kinds/music/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/catalog_field_specs.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/field_identities.dart';
 
 final LibraryFormSchema<MusicAddManualDraft> musicAddSchema =
     musicAddSchemaFor();

@@ -1,6 +1,6 @@
 import 'groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';

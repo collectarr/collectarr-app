@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_artist_
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/forms/field_spec.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/field_identities.dart';
 
 typedef MusicAlbumValuesReader<TDraft> = MusicAlbumFormValues Function(
     TDraft draft);

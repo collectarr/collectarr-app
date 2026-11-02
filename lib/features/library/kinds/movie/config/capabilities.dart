@@ -1,6 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../movie_module_dependencies.dart';
-import 'movie_kind_configuration.dart';
+import 'configuration.dart';
 import '../data/movie_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 

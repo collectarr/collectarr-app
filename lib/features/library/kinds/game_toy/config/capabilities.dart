@@ -1,6 +1,6 @@
 import '../stats/game_toy_stats_capability.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'game_toy_kind_configuration.dart';
+import 'configuration.dart';
 import '../game_toy_module_dependencies.dart';
 
 final gameToyKindIdentity = const LibraryKindIdentity(

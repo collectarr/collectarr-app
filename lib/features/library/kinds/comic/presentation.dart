@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation_builder
 import 'package:collectarr_app/features/library/kinds/comic/workspace/card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/alphabet_fields.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/field_identities.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const comicsMetadataLabels = LibraryMetadataLabels(
