@@ -10,8 +10,7 @@ import '../actions/missing_issues_dialog.dart';
 
 final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
   kind: CatalogMediaKind.comic,
-  chrome: const LibraryAddChromeConfig(
-      menuAddsManually: true, confirmSheetSize: Size(730, 524)),
+  chrome: const LibraryAddChromeConfig(confirmSheetSize: Size(730, 524)),
   initialDraftBuilder: ComicAddDraft.new,
   coreCatalogProjectionBuilder: comicCatalogTransportFromCoreItem,
   manualDraftBuilder: ComicAddManualDraft.new,

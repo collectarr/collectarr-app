@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('app shell drawer renders semantic icons, headers, and dividers',
       (tester) async {
-    tester.view.physicalSize = const Size(1280, 1200);
+    tester.view.physicalSize = const Size(1280, 1400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -25,6 +25,7 @@ void main() {
             isAdmin: true,
             accent: const Color(0xFFF2932F),
             onAddFromCore: (_, __) {},
+            onAddManually: (_, __) {},
             onSelected: (context, action) {
               selectedAction = action;
             },
@@ -155,6 +156,7 @@ void main() {
             isAdmin: false,
             accent: const Color(0xFFE23149),
             onAddFromCore: (_, __) {},
+            onAddManually: (_, __) {},
             onSelected: (_, __) {},
           ),
         ),
@@ -186,6 +188,7 @@ void main() {
             isAdmin: false,
             accent: const Color(0xFFE23149),
             onAddFromCore: (_, type) => opened.add(type.kind),
+            onAddManually: (_, __) {},
             onSelected: (_, __) {},
           ),
         ),
@@ -199,16 +202,50 @@ void main() {
     expect(opened, [CatalogMediaKind.gameToy]);
   });
 
+  testWidgets('Games family manual shortcuts open the selected kind',
+      (tester) async {
+    tester.view.physicalSize = const Size(1280, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final opened = <CatalogMediaKind>[];
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: AppNavigationDrawer(
+          type: defaultLibraryKindRegistry.require(CatalogMediaKind.game),
+          selectedAction: null,
+          isAdmin: false,
+          accent: Colors.red,
+          onAddFromCore: (_, __) {},
+          onAddManually: (_, type) => opened.add(type.kind),
+          onSelected: (_, __) {},
+        ),
+      ),
+    ));
+    for (final label in [
+      'Add Games Manually',
+      'Add Hardware Manually',
+      'Add Toys Manually',
+    ]) {
+      expect(find.text(label), findsOneWidget);
+    }
+    await tester.tap(find.text('Add Toys Manually'));
+    expect(opened, [CatalogMediaKind.gameToy]);
+  });
+
   for (final (kind, label) in [
     (CatalogMediaKind.comic, 'Add Comics Manually'),
-    (CatalogMediaKind.music, null),
+    (CatalogMediaKind.music, 'Add Albums Manually'),
+    (CatalogMediaKind.game, 'Add Games Manually'),
+    (CatalogMediaKind.gameHardware, 'Add Hardware Manually'),
+    (CatalogMediaKind.gameToy, 'Add Toys Manually'),
   ]) {
     testWidgets('${kind.apiValue} menu Add Manually entry', (tester) async {
       tester.view.physicalSize = const Size(1280, 1200);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      final selected = <DrawerAction>[];
+      final opened = <CatalogMediaKind>[];
 
       await tester.pumpWidget(
         MaterialApp(
@@ -219,21 +256,22 @@ void main() {
               isAdmin: false,
               accent: const Color(0xFF2A9FD6),
               onAddFromCore: (_, __) {},
-              onSelected: (_, action) => selected.add(action),
+              onAddManually: (_, type) => opened.add(type.kind),
+              onSelected: (_, __) {},
             ),
           ),
         ),
       );
 
-      if (label == null) {
-        expect(find.textContaining('Manually'), findsNothing);
-        return;
-      }
-      // The reference lists it right after Add from Core.
-      expect(tester.getTopLeft(find.text(label)).dy,
-          greaterThan(tester.getTopLeft(find.text('Add Comics from Core')).dy));
+      // The shortcut follows Add from Core for its kind.
+      expect(
+          tester.getTopLeft(find.text(label)).dy,
+          greaterThan(tester
+              .getTopLeft(find.text(
+                  'Add ${defaultLibraryKindRegistry.require(kind).identity.pluralLabel} from Core'))
+              .dy));
       await tester.tap(find.text(label));
-      expect(selected, [DrawerAction.addManually]);
+      expect(opened, [kind]);
     });
   }
 
@@ -257,6 +295,7 @@ void main() {
               isAdmin: false,
               accent: const Color(0xFF2A9FD6),
               onAddFromCore: (_, __) {},
+              onAddManually: (_, __) {},
               onSelected: (_, action) => selected.add(action),
             ),
           ),

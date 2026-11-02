@@ -139,6 +139,17 @@ class _AppShellState extends ConsumerState<AppShell> {
             ));
           });
         },
+        onAddManually: (drawerContext, type) {
+          Navigator.of(drawerContext).pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            unawaited(_actions.handle(
+              DrawerAction.addManually,
+              type: type,
+              accent: libraryAccentForKind(type.kind),
+            ));
+          });
+        },
         onSelected: (drawerContext, action) {
           Navigator.of(drawerContext).pop();
           WidgetsBinding.instance.addPostFrameCallback((_) {

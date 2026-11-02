@@ -39,6 +39,7 @@ Future<void> showAppNavigationDrawer({
   required bool animationsEnabled,
   required void Function(BuildContext, DrawerAction) onSelected,
   required void Function(BuildContext, LibraryKindRegistration) onAddFromCore,
+  required void Function(BuildContext, LibraryKindRegistration) onAddManually,
 }) =>
     // As in the reference menu, a click on the overlay closes the drawer;
     // it holds no edits, unlike modal panels.
@@ -68,6 +69,7 @@ Future<void> showAppNavigationDrawer({
             accent: accent,
             onSelected: onSelected,
             onAddFromCore: onAddFromCore,
+            onAddManually: onAddManually,
           ),
         ),
       ),
@@ -91,6 +93,7 @@ class AppNavigationDrawer extends StatefulWidget {
     required this.type,
     required this.onSelected,
     required this.onAddFromCore,
+    required this.onAddManually,
   });
 
   final VoidCallback? onOpenAccount;
@@ -103,6 +106,8 @@ class AppNavigationDrawer extends StatefulWidget {
   /// Opens Add from Core for one kind of the open collection family.
   final void Function(BuildContext context, LibraryKindRegistration type)
       onAddFromCore;
+  final void Function(BuildContext context, LibraryKindRegistration type)
+      onAddManually;
 
   @override
   State<AppNavigationDrawer> createState() => _AppNavigationDrawerState();
@@ -223,11 +228,13 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                 _action(context, destination,
                     label: 'Add ${type.identity.pluralLabel} from Core',
                     onTap: () => widget.onAddFromCore(context, type))
-            else if (destination.action == DrawerAction.addManually) ...[
-              if (libraryAddChromeForKind(widget.type.kind).menuAddsManually)
+            else if (destination.action == DrawerAction.addManually)
+              for (final type
+                  in collectionFamilyKinds(widget.type.kind.apiValue))
                 _action(context, destination,
-                    label: 'Add ${widget.type.identity.pluralLabel} Manually'),
-            ] else if (destination.action == DrawerAction.missingItems) ...[
+                    label: 'Add ${type.identity.pluralLabel} Manually',
+                    onTap: () => widget.onAddManually(context, type))
+            else if (destination.action == DrawerAction.missingItems) ...[
               if (libraryToolbarForKind(widget.type.kind)?.missingReport !=
                   null)
                 _action(context, destination,
