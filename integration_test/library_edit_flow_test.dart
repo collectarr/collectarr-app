@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_tile.dart';
 import 'dart:io';
 
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -19,7 +21,9 @@ void main() {
   testWidgets('personal edit persists across database close and app reload',
       (tester) async {
     setUpTestAppPreferences();
-    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.physicalSize = appPresentationPlatform.isNativeMobile
+        ? const Size(390, 844)
+        : const Size(1400, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -42,10 +46,15 @@ void main() {
     await tester.pumpWidget(
         testApp(overrides: testAppOverrides(database: database, api: api)));
     await pumpUntilSettled(tester);
-    await tester.tap(find.text('Native Personal Album').first);
-    await tester.pump(const Duration(milliseconds: 80));
-    await tester.tap(find.text('Native Personal Album').first);
-    await pumpUntilSettled(tester);
+    if (appPresentationPlatform.isNativeMobile) {
+      await tester.tap(find.byType(LibraryCoverTile).first);
+      await pumpUntilSettled(tester);
+    } else {
+      await tester.tap(find.text('Native Personal Album').first);
+      await tester.pump(const Duration(milliseconds: 80));
+      await tester.tap(find.text('Native Personal Album').first);
+      await pumpUntilSettled(tester);
+    }
     await tester.tap(find.byTooltip('Edit').first);
     await pumpUntilSettled(tester);
     expect(find.byType(LibraryEditDialogScaffold), findsOneWidget);

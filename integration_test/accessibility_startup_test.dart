@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/app/app_shell.dart';
@@ -55,15 +56,30 @@ void main() {
           container: container, child: const CollectarrApp()));
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
-      expect(find.byType(Slider), findsWidgets);
-      await tester.tap(find.byKey(const Key('app.account')));
+      if (appPresentationPlatform.isNativeMobile) {
+        await tester.tap(find.byKey(const Key('library.mobile-views')));
+        await pumpUntilSettled(tester);
+        expect(find.byType(Slider), findsWidgets);
+        await tester.tap(find.byTooltip('Close'));
+        await pumpUntilSettled(tester);
+        await tester.tap(find.byKey(const Key('app.open-navigation')));
+        await pumpUntilSettled(tester);
+        await tester.tap(find.byKey(const Key('drawer.account')));
+      } else {
+        expect(find.byType(Slider), findsWidgets);
+        await tester.tap(find.byKey(const Key('app.account')));
+      }
       await pumpUntilSettled(tester);
       await tester.tap(find.text('My Account'));
       await pumpUntilSettled(tester);
       expect(find.text('Library totals on this device'), findsOneWidget);
       await tester.tap(find.text('Back').first);
       await pumpUntilSettled(tester);
-      expect(find.byType(Slider), findsWidgets);
+      expect(
+          appPresentationPlatform.isNativeMobile
+              ? find.byKey(const Key('library.mobile-views'))
+              : find.byType(Slider),
+          findsWidgets);
       expect(tester.takeException(), isNull);
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);

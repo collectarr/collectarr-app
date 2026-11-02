@@ -1,3 +1,10 @@
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/features/library/detail/item_provider.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
+import '../../../support/builders/catalog_item_builder.dart';
 import 'package:collectarr_app/features/library/generic/body.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_tile.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/compact_bucket_bar.dart';
@@ -38,6 +45,58 @@ void main() {
     ]) {
       expect(
           LibraryDetailLocation.fromUri(Uri.parse('/detail?$query')), isNull);
+    }
+  });
+
+  test(
+      'cold hydration keeps catalog, wishlist and deleted entry namespaces distinct',
+      () async {
+    setUpTestAppPreferences();
+    final db = LocalDatabase(NativeDatabase.memory());
+    final container =
+        ProviderContainer(overrides: testAppOverrides(database: db));
+    try {
+      final entry = musicLibraryEntryFixture(
+          id: 'shared-id', metadata: musicAlbumFixture(title: 'Local copy'));
+      await MusicEntryRepository(db).upsert(entry);
+      await CatalogItemCacheRepository(db).upsert(testCatalogItem(
+          id: 'shared-id', kind: 'music', title: 'Cached catalog album'));
+      const catalog = CatalogTargetRef(
+          CatalogItemRef(kind: CatalogMediaKind.music, id: 'shared-id'));
+      const local = EntryTargetRef(LibraryEntryRef(
+          kind: CatalogMediaKind.music, id: LibraryEntryId('shared-id')));
+      final cached =
+          await container.read(restorableDetailItemProvider(catalog).future);
+      expect(cached?.source.title, 'Cached catalog album');
+      expect(cached?.source.isEntry, isFalse);
+      expect(
+          (await container.read(restorableDetailItemProvider(local).future))
+              ?.source
+              .title,
+          'Local copy');
+      final now = DateTime.utc(2026, 11, 2);
+      await WishlistItemsCacheRepository(db).upsert(WishlistItem(
+          id: 'wish', catalogRef: catalog.ref, createdAt: now, updatedAt: now));
+      container.invalidate(wishlistProvider);
+      container.invalidate(shelfProvider);
+      expect(
+          (await container.read(restorableDetailItemProvider(catalog).future))
+              ?.source
+              .isWishlisted,
+          isTrue);
+      await MusicEntryRepository(db).upsert(entry.copyWith(deletedAt: now));
+      container.invalidate(collectionSummariesProvider);
+      container.invalidate(shelfProvider);
+      expect(await container.read(restorableDetailItemProvider(local).future),
+          isNull);
+      expect(
+          (await container.read(restorableDetailItemProvider(catalog).future))
+              ?.source
+              .title,
+          'Cached catalog album');
+    } finally {
+      container.dispose();
+      await db.close();
     }
   });
 

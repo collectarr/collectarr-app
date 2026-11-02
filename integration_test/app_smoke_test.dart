@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/ui/app_page_header.dart';
 import '../test/support/app/provider_overrides.dart';
 import '../test/support/app/test_app_harness.dart';
 // End-to-end smoke test for the Collectarr app across desktop and mobile form factors.
@@ -27,8 +29,7 @@ void main() {
   tearDown(() async => database.close());
 
   group('App Smoke Tests', () {
-    testWidgets(
-        'desktop smoke: can navigate through all mandatory destinations',
+    testWidgets('wide shell: can navigate through all mandatory destinations',
         (tester) async {
       setUpTestAppPreferences();
       addTearDown(() async {
@@ -59,7 +60,11 @@ void main() {
 
       // Verify all mandatory destination keys exist
       await openDrawer();
-      expect(find.byKey(const Key('nav.library')), findsNothing);
+      expect(
+          find.byKey(const Key('nav.library')),
+          appPresentationPlatform.isNativeMobile
+              ? findsOneWidget
+              : findsNothing);
       expect(find.byKey(const Key('nav.more')), findsOneWidget);
       expect(find.byKey(const Key('nav.calendar')), findsOneWidget);
 
@@ -87,7 +92,7 @@ void main() {
       expect(find.byType(AppShell), findsOneWidget);
 
       // Navigate back to Libraries
-      await tester.tap(find.byKey(const Key('settings.back')));
+      await tester.tap(find.byType(AppPageBackButton).first);
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
 
@@ -121,7 +126,11 @@ void main() {
       // Mandatory keys must be present on mobile
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
-      expect(find.byKey(const Key('nav.library')), findsNothing);
+      expect(
+          find.byKey(const Key('nav.library')),
+          appPresentationPlatform.isNativeMobile
+              ? findsOneWidget
+              : findsNothing);
 
       // Dismiss navigation without changing the current library.
       Navigator.of(tester.element(find.byKey(const Key('nav.more')))).pop();
@@ -135,7 +144,7 @@ void main() {
       expect(find.byType(AppShell), findsOneWidget);
 
       // Navigate back to Libraries
-      await tester.tap(find.byKey(const Key('settings.back')));
+      await tester.tap(find.byType(AppPageBackButton).first);
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
 
