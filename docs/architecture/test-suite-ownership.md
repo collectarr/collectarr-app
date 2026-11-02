@@ -4,6 +4,10 @@ Ordinary tests mirror `lib/`. Architecture rules, contracts and shared support
 are the only special categories. Integration flows live in `integration_test/`;
 performance measurements live in `benchmark/` and never add skipped tests to
 the correctness suite. Production code cannot depend on test support.
+Within a mirrored folder, test filenames name the behavior without repeating
+ancestor folders: `test/features/library/add/panes/confirm_sheet_test.dart`
+rather than a `library_add_` prefix. Keep a domain word when it distinguishes
+two concepts in the same folder.
 
 ## Implemented ownership
 
