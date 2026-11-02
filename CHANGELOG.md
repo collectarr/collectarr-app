@@ -68,7 +68,7 @@
 
 ### Refactors
 - Native presentation decisions are centralized and kept independent from responsive window sizes.
-- Shared library files are named by their job inside their folders, without repeating "library" or the folder name.
+- Shared library files are named by their job inside their folders; toolbar selection, filtering, compact controls and native layout have separate owners.
 - Board Game, Book, Movie, Music, Comics and Games configuration, entry payload, catalog lookup, editor, inspector, stats and action files are named by their job inside their kind's folders, as the other kind files already were.
 
 ### CI & Build

@@ -135,8 +135,14 @@ keeps responsive section tabs. Native collection management reuses repository
 commands in a full-screen reorderable list; short name/confirmation prompts stay
 dialogs. Sorting exposes kind-owned favorites directly and reuses the same
 advanced multi-field rules, with touch-sized shared field selection controls. UI comparisons and unverified workflows
-remain in [CLZ parity](../clz-parity.md). Refactor presentation boundaries before
-mechanical kind-file renames.
+remain in [CLZ parity](../clz-parity.md).
+
+`toolbar/sections.dart` composes exports rather than owning every toolbar.
+`secondary.dart` binds the common kind values/actions, `desktop/filtering.dart`
+owns dense filtering, `selection.dart` owns selection controls, and `compact.dart`
+owns compact search/context controls. `chrome.dart` contains shared toolbar
+mechanics; `mobile/actions.dart` supplies native touch geometry from immutable
+colors, action widgets and count text. No toolbar presentation owns domain state.
 
 ## Known limits
 

@@ -1,12 +1,10 @@
+import 'selection.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
-import 'package:collectarr_app/features/library/generic/toolbar/alphabet_options.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:collectarr_app/features/library/generic/group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
@@ -24,6 +22,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
+
+import 'mobile/actions.dart';
 
 const double _kLibraryToolbarBandVerticalPadding = 0;
 const double _kLibraryToolbarBandHorizontalPadding = 4;
@@ -360,120 +360,106 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
             : type.identity.mobileToolbarLight) ??
         Color.alphaBlend(
             type.identity.accent.withValues(alpha: .2), palette.panel);
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Material(
-          color: background,
-          child: IconButtonTheme(
-              data: IconButtonThemeData(
-                  style: IconButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: palette.textPrimary,
-                      minimumSize: const Size.square(48),
-                      fixedSize: const Size.square(48))),
-              child: Row(key: const Key('library.mobile-controls'), children: [
-                if (onGroupModeChanged != null &&
-                    (MediaQuery.sizeOf(context).width < 1000 ||
-                        !viewState.isSidebarVisible))
-                  Expanded(
-                      child: LibraryGroupModeMenuButton(
-                    type: type,
-                    folderPreset: folderPreset,
-                    accent: type.identity.accent,
-                    icon: Icons.folder_outlined,
-                    onChanged: onGroupModeChanged!,
-                    sidebarVisible: viewState.isSidebarVisible,
-                    onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                    onClearBucket: onClearBucket,
-                    availableModes: availableGroupModes,
-                    pinnedFolderPresets: pinnedFolderPresets,
-                    onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
-                  ))
-                else
-                  const Spacer(),
-                IconButton(
-                    key: const Key('library.mobile-views'),
-                    tooltip: 'Views and cover size',
-                    icon: const Icon(Icons.grid_view),
-                    onPressed: () => showViewAndOrganizeSheet(
-                          context: context,
-                          currentViewMode: viewState.viewMode,
-                          onViewModeChanged: onViewModeChanged,
-                          currentDetailsLayout: viewState.detailsLayout,
-                          onDetailsLayoutChanged: onDetailsLayoutChanged,
-                          currentCoverSize: viewState.coverSize,
-                          minCoverSize:
-                              libraryViewProfileForKind(type.kind).minCoverSize,
-                          maxCoverSize:
-                              libraryViewProfileForKind(type.kind).maxCoverSize,
-                          onCoverSizeChanged: onCoverSizeChanged,
-                          currentSpacing: currentSpacing,
-                          onSpacingChanged: onSpacingChanged,
-                          onOpenColumnChooser: onEditColumns,
-                          onOpenSortDialog: onEditSort,
-                        )),
-                if (onEditSort != null)
-                  PopupMenuButton<Object>(
-                      key: const Key('library.mobile-sort'),
-                      tooltip: 'Change Sorting',
-                      style: IconButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          minimumSize: const Size.square(48)),
-                      icon: const Icon(Icons.sort_by_alpha),
-                      onSelected: (value) {
-                        if (value == 'sort') {
-                          onEditSort!();
-                        } else if (value == 'manage') {
-                          onManageSortFavorites?.call();
-                        } else if (value is LibrarySortFavorite) {
-                          onSortFavoriteSelected?.call(value);
-                        }
-                      },
-                      itemBuilder: (_) => [
-                            const PopupMenuItem(
-                                value: 'sort',
-                                height: 48,
-                                child: Text('Sort...')),
-                            for (final favorite in sortFavorites)
-                              CheckedPopupMenuItem(
-                                  value: favorite,
-                                  height: 48,
-                                  checked: favorite.id == activeSortFavoriteId,
-                                  child: Text(favorite.label)),
-                            if (onManageSortFavorites != null)
-                              const PopupMenuItem(
-                                  value: 'manage',
-                                  height: 48,
-                                  child: Text('Manage sorting favorites...')),
-                          ]),
-                LibraryToolsButton(
-                    type: type,
-                    counts: counts,
-                    selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
-                    quickView: quickView,
-                    hasActiveFilters: hasActiveFilters,
-                    onQuickViewSelected: onQuickViewSelected,
-                    onClearFilters: onClearFilters,
-                    onRandomPick: onRandomPick,
-                    shelfState: shelfState,
-                    onSmartLists: onSmartLists,
-                    onFolders: onFolders,
-                    onReadingQueue: onReadingQueue,
-                    onEditConditionPickList: onEditConditionPickList,
-                    onEditGradePickList: onEditGradePickList,
-                    onTransferFieldData: onTransferFieldData,
-                    onReassignIndex: onReassignIndex,
-                    onShareCollection: onShareCollection,
-                    onCompareMetadataWithServer: onCompareMetadataWithServer,
-                    extraActions: extraActions),
-              ]))),
-      Padding(
-          key: const Key('library.mobile-count'),
-          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-          child: Text(
-              '${counts.shown}${counts.shown == counts.total ? '' : ' / ${counts.total}'} ${type.identity.countLabel(counts.shown).toLowerCase()}',
-              style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w700))),
-    ]);
+    return LibraryMobileToolbarActions(
+      background: background,
+      foreground: palette.textPrimary,
+      actions: [
+        if (onGroupModeChanged != null &&
+            (MediaQuery.sizeOf(context).width < 1000 ||
+                !viewState.isSidebarVisible))
+          Expanded(
+              child: LibraryGroupModeMenuButton(
+            type: type,
+            folderPreset: folderPreset,
+            accent: type.identity.accent,
+            icon: Icons.folder_outlined,
+            onChanged: onGroupModeChanged!,
+            sidebarVisible: viewState.isSidebarVisible,
+            onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+            onClearBucket: onClearBucket,
+            availableModes: availableGroupModes,
+            pinnedFolderPresets: pinnedFolderPresets,
+            onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
+          ))
+        else
+          const Spacer(),
+        IconButton(
+            key: const Key('library.mobile-views'),
+            tooltip: 'Views and cover size',
+            icon: const Icon(Icons.grid_view),
+            onPressed: () => showViewAndOrganizeSheet(
+                  context: context,
+                  currentViewMode: viewState.viewMode,
+                  onViewModeChanged: onViewModeChanged,
+                  currentDetailsLayout: viewState.detailsLayout,
+                  onDetailsLayoutChanged: onDetailsLayoutChanged,
+                  currentCoverSize: viewState.coverSize,
+                  minCoverSize:
+                      libraryViewProfileForKind(type.kind).minCoverSize,
+                  maxCoverSize:
+                      libraryViewProfileForKind(type.kind).maxCoverSize,
+                  onCoverSizeChanged: onCoverSizeChanged,
+                  currentSpacing: currentSpacing,
+                  onSpacingChanged: onSpacingChanged,
+                  onOpenColumnChooser: onEditColumns,
+                  onOpenSortDialog: onEditSort,
+                )),
+        if (onEditSort != null)
+          PopupMenuButton<Object>(
+              key: const Key('library.mobile-sort'),
+              tooltip: 'Change Sorting',
+              style: IconButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  minimumSize: const Size.square(48)),
+              icon: const Icon(Icons.sort_by_alpha),
+              onSelected: (value) {
+                if (value == 'sort') {
+                  onEditSort!();
+                } else if (value == 'manage') {
+                  onManageSortFavorites?.call();
+                } else if (value is LibrarySortFavorite) {
+                  onSortFavoriteSelected?.call(value);
+                }
+              },
+              itemBuilder: (_) => [
+                    const PopupMenuItem(
+                        value: 'sort', height: 48, child: Text('Sort...')),
+                    for (final favorite in sortFavorites)
+                      CheckedPopupMenuItem(
+                          value: favorite,
+                          height: 48,
+                          checked: favorite.id == activeSortFavoriteId,
+                          child: Text(favorite.label)),
+                    if (onManageSortFavorites != null)
+                      const PopupMenuItem(
+                          value: 'manage',
+                          height: 48,
+                          child: Text('Manage sorting favorites...')),
+                  ]),
+        LibraryToolsButton(
+            type: type,
+            counts: counts,
+            selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
+            quickView: quickView,
+            hasActiveFilters: hasActiveFilters,
+            onQuickViewSelected: onQuickViewSelected,
+            onClearFilters: onClearFilters,
+            onRandomPick: onRandomPick,
+            shelfState: shelfState,
+            onSmartLists: onSmartLists,
+            onFolders: onFolders,
+            onReadingQueue: onReadingQueue,
+            onEditConditionPickList: onEditConditionPickList,
+            onEditGradePickList: onEditGradePickList,
+            onTransferFieldData: onTransferFieldData,
+            onReassignIndex: onReassignIndex,
+            onShareCollection: onShareCollection,
+            onCompareMetadataWithServer: onCompareMetadataWithServer,
+            extraActions: extraActions),
+      ],
+      countLabel:
+          '${counts.shown}${counts.shown == counts.total ? '' : ' / ${counts.total}'} ${type.identity.countLabel(counts.shown).toLowerCase()}',
+    );
   }
 
   Widget _buildSpacingSlider(BuildContext context, {required String tooltip}) {
@@ -588,854 +574,4 @@ class _LibraryColumnLauncher extends StatelessWidget {
       tooltip: 'Change Columns',
     );
   }
-}
-
-class LibraryDesktopFilteringToolbar extends StatelessWidget {
-  const LibraryDesktopFilteringToolbar({
-    super.key,
-    required this.type,
-    required this.accent,
-    required this.searchController,
-    required this.collectionStatusScope,
-    required this.availableLetters,
-    required this.onAdd,
-    required this.onScan,
-    required this.onRefreshMetadata,
-    required this.onSearchChanged,
-    this.onSearchInputChanged,
-    this.onClearSearch,
-    this.searchActive = false,
-    this.searchSuggestions = const <LibraryToolbarSearchSuggestion>[],
-    this.onSearchSuggestionSelected,
-    this.onCollectionStatusScopeChanged,
-    this.selectedLetter,
-    this.alphabetOptions,
-    this.onLetterSelected,
-    this.onRandomPick,
-    this.onScanCover,
-    this.searchTarget = LibrarySearchTarget.all,
-    this.searchTargetOptions = const <LibrarySearchTarget>[],
-    this.onSearchTargetChanged,
-  });
-
-  final LibraryKindRegistration type;
-  final Color accent;
-  final TextEditingController searchController;
-  final LibraryCollectionStatusScope collectionStatusScope;
-  final ValueChanged<LibraryCollectionStatusScope>?
-      onCollectionStatusScopeChanged;
-  final Set<String> availableLetters;
-  final String? selectedLetter;
-  final LibraryAlphabetOptions? alphabetOptions;
-  final ValueChanged<String?>? onLetterSelected;
-  final VoidCallback onAdd;
-  final VoidCallback onScan;
-  final VoidCallback onRefreshMetadata;
-  final ValueChanged<String> onSearchChanged;
-  final ValueChanged<String>? onSearchInputChanged;
-  final VoidCallback? onClearSearch;
-  final bool searchActive;
-  final List<LibraryToolbarSearchSuggestion> searchSuggestions;
-  final ValueChanged<LibraryToolbarSearchSuggestion>?
-      onSearchSuggestionSelected;
-  final VoidCallback? onRandomPick;
-  final VoidCallback? onScanCover;
-  final LibrarySearchTarget searchTarget;
-  final List<LibrarySearchTarget> searchTargetOptions;
-  final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final showChromeRow = !appPresentationPlatform.isNativeMobile &&
-        onCollectionStatusScopeChanged != null;
-    final narrow = MediaQuery.sizeOf(context).width < 900;
-    final showAlphabetRow = onLetterSelected != null && !narrow;
-    final leftControls = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (!narrow)
-          LibraryToolbarPrimaryActions(
-            addLabel: 'Add ${type.identity.pluralLabel}',
-            onAdd: onAdd,
-            onScanBarcode: onScan,
-            onRefreshMetadata: onRefreshMetadata,
-            onRandomPick: onRandomPick,
-            onScanCover: onScanCover,
-            // Add is a utility action: shared blue in every kind, as in the
-            // reference.
-            addBackgroundColor: appPalette(context).utilityAction,
-            addForegroundColor: Colors.white,
-          ),
-        if (showChromeRow) ...[
-          const LibraryWorkspaceSeparator(),
-          LibraryCollectionStatusScopeDropdown(
-            collectionStatusScope: collectionStatusScope,
-            onCollectionStatusScopeChanged: onCollectionStatusScopeChanged!,
-          ),
-          const LibraryWorkspaceSeparator(),
-        ],
-      ],
-    );
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, top: 2, bottom: 2),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final sideWidth =
-              (constraints.maxWidth * 0.3).clamp(0.0, 420.0).toDouble();
-          final searchWidth = (constraints.maxWidth * (narrow ? 0.58 : 0.3))
-              .clamp(0.0, 480.0)
-              .toDouble();
-          return Row(
-            children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: sideWidth),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: leftControls,
-                ),
-              ),
-              const SizedBox(width: 6),
-              if (showAlphabetRow)
-                Expanded(
-                  child: LibraryToolbarAlphabetRow(
-                    letters: availableLetters,
-                    selectedLetter: selectedLetter,
-                    alphabetOptions: alphabetOptions,
-                    accent: accent,
-                    onLetterSelected: onLetterSelected!,
-                  ),
-                )
-              else
-                const Expanded(child: SizedBox.shrink()),
-              const SizedBox(width: 6),
-              SizedBox(
-                width: searchWidth,
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: LibraryToolbarSearch(
-                    controller: searchController,
-                    hintText: libraryPresentationForKind(type.kind)
-                            .searchFieldLabels
-                            .libraryHint ??
-                        'Search ${type.identity.pluralLabel.toLowerCase()}...',
-                    onScanBarcode: onScan,
-                    onScanCover: onScanCover,
-                    onRandomPick: onRandomPick,
-                    onSearch: onSearchChanged,
-                    onChanged: onSearchInputChanged,
-                    selectionColor: appPalette(context).utilityAction,
-                    searchTarget: searchTarget,
-                    searchTargetOptions: searchTargetOptions,
-                    onSearchTargetChanged: onSearchTargetChanged,
-                    onClearSearch: onClearSearch,
-                    searchActive: searchActive,
-                    suggestions: searchSuggestions,
-                    onSuggestionSelected: onSearchSuggestionSelected,
-                    maxWidth: 400,
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class LibraryToolbarDividerLine extends StatelessWidget {
-  const LibraryToolbarDividerLine({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Divider(
-      height: 1,
-      thickness: 1,
-      color: appPalette(context).divider,
-    );
-  }
-}
-
-class LibrarySelectionToolbarBand extends StatelessWidget {
-  const LibrarySelectionToolbarBand({
-    super.key,
-    required this.selectedCount,
-    required this.totalSelectableCount,
-    required this.callbacks,
-    this.accent,
-    this.itemPluralLabel,
-    this.showBottomBorder = true,
-  });
-
-  final int selectedCount;
-  final int totalSelectableCount;
-  final LibrarySelectionCallbacks callbacks;
-  final Color? accent;
-  final String? itemPluralLabel;
-  final bool showBottomBorder;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    // Selection is a shared-blue state, not a kind identity (see the item
-    // selection fill), so the band ignores the kind accent.
-    final effectiveAccent = palette.utilityAction;
-
-    final borderBottom = Color.lerp(effectiveAccent, Colors.black, 0.14)!;
-    final badgeBg = palette.isDark
-        ? const Color(0xFF4CA3D8)
-        : Color.lerp(effectiveAccent, Colors.black, 0.18)!;
-    final dividerLeft = Color.lerp(effectiveAccent, Colors.black, 0.09)!;
-    final dividerRight = Color.lerp(effectiveAccent, Colors.white, 0.11)!;
-
-    final actionButtonStyle = TextButton.styleFrom(
-      visualDensity: VisualDensity.compact,
-      foregroundColor: Colors.white,
-      backgroundColor: Colors.transparent,
-      overlayColor: Colors.white.withValues(alpha: 0.15),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
-      minimumSize: Size.zero,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      textStyle: TextStyle(
-          fontFamily: appFontFamily,
-          fontFamilyFallback: kAppFontFamilyFallback,
-          fontSize: 14,
-          fontWeight: FontWeight.w400),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
-      ),
-    );
-
-    final isAllSelected =
-        selectedCount == totalSelectableCount && totalSelectableCount > 0;
-
-    final mergeLabel =
-        itemPluralLabel != null && itemPluralLabel!.toLowerCase() == 'music'
-            ? 'Merge Albums'
-            : 'Merge ${itemPluralLabel ?? 'Albums'}';
-
-    return AnimatedLibraryChrome(
-      accent: effectiveAccent,
-      borderBuilder: (animatedAccent, _) => Border(
-        bottom: showBottomBorder
-            ? BorderSide(color: borderBottom)
-            : BorderSide.none,
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        height: kLibraryToolbarBandHeight,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final leftOptions = Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Tooltip(
-                    message: 'Cancel',
-                    child: TextButton(
-                      onPressed: callbacks.onClearSelection,
-                      style: actionButtonStyle,
-                      child: const Icon(
-                        AppIcons.close,
-                        size: 13,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  LibrarySelectionToolbarDivider(
-                    dividerLeft: dividerLeft,
-                    dividerRight: dividerRight,
-                  ),
-                  Tooltip(
-                    message: 'Select all visible items',
-                    child: TextButton.icon(
-                      onPressed: callbacks.onSelectAll,
-                      style: actionButtonStyle,
-                      icon: Icon(
-                        isAllSelected
-                            ? AppIcons.selectAll
-                            : AppIcons.selectNone,
-                        size: 14,
-                        color: Colors.white,
-                      ),
-                      label: const Text('All'),
-                    ),
-                  ),
-                ],
-              );
-
-              final centerActions = LibrarySelectionControls(
-                callbacks: callbacks,
-                onAccent: true,
-                accent: effectiveAccent,
-                mergeLabel: mergeLabel,
-              );
-
-              final rightCountPill = DecoratedBox(
-                decoration: BoxDecoration(
-                  color: badgeBg,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 3,
-                  ),
-                  child: Text(
-                    '$selectedCount of $totalSelectableCount',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
-                  ),
-                ),
-              );
-
-              const minWidthForSpacedLayout = 880.0;
-              final useSpacedLayout = constraints.hasBoundedWidth &&
-                  constraints.maxWidth >= minWidthForSpacedLayout;
-
-              if (useSpacedLayout) {
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    leftOptions,
-                    const Spacer(),
-                    centerActions,
-                    const Spacer(),
-                    Center(child: rightCountPill),
-                  ],
-                );
-              }
-
-              return SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  height: kLibraryToolbarBandHeight - 6,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      leftOptions,
-                      const SizedBox(width: 12),
-                      centerActions,
-                      const SizedBox(width: 16),
-                      Center(child: rightCountPill),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class LibraryCompactToolbarContent extends StatelessWidget {
-  const LibraryCompactToolbarContent({
-    super.key,
-    required this.type,
-    required this.searchController,
-    required this.accent,
-    required this.counts,
-    required this.viewMode,
-    required this.selectedBucket,
-    this.linkedMetadataFilterLabel,
-    required this.onAdd,
-    required this.onScan,
-    required this.onSearchChanged,
-    this.onSearchInputChanged,
-    required this.onRefreshMetadata,
-    required this.onViewModeChanged,
-    required this.onDetailsLayoutChanged,
-    required this.onDensityPresetChanged,
-    required this.onCoverSizeChanged,
-    required this.quickView,
-    required this.onQuickViewSelected,
-    this.collectionStatusScope = LibraryCollectionStatusScope.all,
-    this.onCollectionStatusScopeChanged,
-    this.activeViewPreset,
-    this.onViewPresetSelected,
-    this.pinnedViewPresets = const {},
-    this.onTogglePinnedViewPreset,
-    this.sortFavorites = const [],
-    this.activeSortFavoriteId,
-    this.onSortFavoriteSelected,
-    this.pinnedSortFavoriteIds = const {},
-    this.onTogglePinnedSortFavorite,
-    this.columnFavoritePresets = const [],
-    this.activeColumnFavoriteLabel,
-    this.onColumnFavoriteSelected,
-    this.pinnedColumnFavoriteKeys = const {},
-    this.onTogglePinnedColumnFavorite,
-    required this.onManageColumns,
-    this.onManageColumnFavorites,
-    this.canJumpToNumber = false,
-    this.onJumpToNumberSubmitted,
-    required this.hasActiveFilters,
-    required this.onClearFilters,
-    required this.onClearBucket,
-    this.onRandomPick,
-    this.onSmartLists,
-    this.onFolders,
-    this.onReadingQueue,
-    this.onEditConditionPickList,
-    this.onEditGradePickList,
-    this.onEditSort,
-    this.onCompareMetadataWithServer,
-    this.extraActions = const [],
-    this.availableLetters = const {},
-    this.selectedLetter,
-    this.alphabetOptions,
-    this.onLetterSelected,
-    this.selectionCallbacks,
-    this.selectedCount = 0,
-    this.totalSelectableCount = 0,
-    this.searchTarget = LibrarySearchTarget.all,
-    this.searchTargetOptions = const <LibrarySearchTarget>[],
-    this.onSearchTargetChanged,
-    this.onClearSearch,
-    this.searchActive = false,
-    this.groupPresentation,
-    this.onGroupPresentationChanged,
-  });
-
-  final LibraryKindRegistration type;
-  final TextEditingController searchController;
-  final Color accent;
-  final LibraryToolbarCounts counts;
-  final LibraryViewMode viewMode;
-  final String? selectedBucket;
-  final String? linkedMetadataFilterLabel;
-  final VoidCallback onAdd;
-  final VoidCallback onScan;
-  final ValueChanged<String> onSearchChanged;
-  final ValueChanged<String>? onSearchInputChanged;
-  final VoidCallback onRefreshMetadata;
-  final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
-  final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
-  final ValueChanged<double> onCoverSizeChanged;
-  final LibraryQuickView? quickView;
-  final ValueChanged<LibraryQuickView> onQuickViewSelected;
-  final LibraryCollectionStatusScope collectionStatusScope;
-  final ValueChanged<LibraryCollectionStatusScope>?
-      onCollectionStatusScopeChanged;
-  final LibraryWorkspacePreset? activeViewPreset;
-  final ValueChanged<LibraryWorkspacePreset>? onViewPresetSelected;
-  final Set<LibraryWorkspacePreset> pinnedViewPresets;
-  final ValueChanged<LibraryWorkspacePreset>? onTogglePinnedViewPreset;
-  final List<LibrarySortFavorite> sortFavorites;
-  final String? activeSortFavoriteId;
-  final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
-  final Set<String> pinnedSortFavoriteIds;
-  final ValueChanged<LibrarySortFavorite>? onTogglePinnedSortFavorite;
-  final List<LibraryTableColumnPreset> columnFavoritePresets;
-  final String? activeColumnFavoriteLabel;
-  final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
-  final Set<String> pinnedColumnFavoriteKeys;
-  final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedColumnFavorite;
-  final VoidCallback onManageColumns;
-  final VoidCallback? onManageColumnFavorites;
-  final bool canJumpToNumber;
-  final ValueChanged<String>? onJumpToNumberSubmitted;
-  final bool hasActiveFilters;
-  final VoidCallback onClearFilters;
-  final VoidCallback onClearBucket;
-  final VoidCallback? onRandomPick;
-  final VoidCallback? onSmartLists;
-  final VoidCallback? onFolders;
-  final VoidCallback? onReadingQueue;
-  final VoidCallback? onEditConditionPickList;
-  final VoidCallback? onEditGradePickList;
-  final VoidCallback? onEditSort;
-  final VoidCallback? onCompareMetadataWithServer;
-  final List<LibraryUtilityMenuAction> extraActions;
-  final Set<String> availableLetters;
-  final String? selectedLetter;
-  final LibraryAlphabetOptions? alphabetOptions;
-  final ValueChanged<String?>? onLetterSelected;
-  final LibrarySelectionCallbacks? selectionCallbacks;
-  final int selectedCount;
-  final int totalSelectableCount;
-  final LibrarySearchTarget searchTarget;
-  final List<LibrarySearchTarget> searchTargetOptions;
-  final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
-  final VoidCallback? onClearSearch;
-  final bool searchActive;
-  final LibraryGroupPresentation? groupPresentation;
-  final ValueChanged<LibraryGroupPresentation>? onGroupPresentationChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final showChromeRow = !appPresentationPlatform.isNativeMobile &&
-        onCollectionStatusScopeChanged != null;
-    final showAlphabetRow =
-        availableLetters.isNotEmpty && onLetterSelected != null;
-
-    if (appPresentationPlatform.isNativeMobile) {
-      return Column(mainAxisSize: MainAxisSize.min, children: [
-        if (searchActive &&
-            searchTargetOptions.isNotEmpty &&
-            onSearchTargetChanged != null)
-          PopupMenuButton<LibrarySearchTarget>(
-              tooltip: 'Search scope',
-              onSelected: onSearchTargetChanged,
-              itemBuilder: (_) => [
-                    for (final option in searchTargetOptions)
-                      CheckedPopupMenuItem(
-                          value: option,
-                          checked: option == searchTarget,
-                          child: Text(_librarySearchTargetLabel(option)))
-                  ],
-              child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(_librarySearchTargetLabel(searchTarget)))),
-        if (linkedMetadataFilterLabel != null)
-          LibraryToolbarScopeChip(
-              label: linkedMetadataFilterLabel!, onClear: onClearBucket),
-        if (showAlphabetRow)
-          LibraryToolbarAlphabetRow(
-              letters: availableLetters,
-              selectedLetter: selectedLetter,
-              alphabetOptions: alphabetOptions,
-              accent: accent,
-              onLetterSelected: onLetterSelected!),
-      ]);
-    }
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-          child: LayoutBuilder(builder: (context, constraints) {
-            final search = SearchBar(
-              controller: searchController,
-              constraints: const BoxConstraints.tightFor(height: 36),
-              hintText: libraryPresentationForKind(type.kind)
-                      .searchFieldLabels
-                      .libraryHint ??
-                  'Search ${type.identity.pluralLabel.toLowerCase()}...',
-              leading: const Icon(Icons.search),
-              trailing: searchActive
-                  ? [
-                      IconButton(
-                        tooltip: 'Clear search',
-                        onPressed: onClearSearch,
-                        icon: const Icon(Icons.clear, size: 18),
-                      ),
-                    ]
-                  : null,
-              onChanged: onSearchInputChanged,
-              onSubmitted: onSearchChanged,
-            );
-            final actions = <Widget>[
-              if (searchTargetOptions.isNotEmpty &&
-                  onSearchTargetChanged != null) ...[
-                const SizedBox(width: 6),
-                PopupMenuButton<LibrarySearchTarget>(
-                  popUpAnimationStyle: AnimationStyle.noAnimation,
-                  tooltip: 'Search scope',
-                  color: libraryToolbarMenuSurface(context),
-                  shape: libraryToolbarDropdownMenuShape(context),
-                  surfaceTintColor: Colors.transparent,
-                  position: PopupMenuPosition.under,
-                  menuPadding: EdgeInsets.zero,
-                  onSelected: onSearchTargetChanged,
-                  itemBuilder: (context) => [
-                    for (final option in searchTargetOptions)
-                      PopupMenuItem<LibrarySearchTarget>(
-                        value: option,
-                        height: 30,
-                        padding: const EdgeInsets.symmetric(horizontal: 7),
-                        child: Text(_librarySearchTargetLabel(option)),
-                      ),
-                  ],
-                  child: _CompactSearchScopeTrigger(
-                    label: _librarySearchTargetLabel(searchTarget),
-                  ),
-                ),
-              ],
-              const SizedBox(width: 8),
-              if (!appPresentationPlatform.isNativeMobile)
-                IconButton.filled(
-                  style: IconButton.styleFrom(
-                    backgroundColor: libraryAccentActionColor(accent),
-                    foregroundColor: appContrastingTextColor(
-                        libraryAccentActionColor(accent)),
-                  ),
-                  onPressed: onAdd,
-                  icon: const Icon(Icons.add),
-                  tooltip: 'Add ${type.identity.pluralLabel}',
-                ),
-              const SizedBox(width: 4),
-              if (onFolders != null) ...[
-                Tooltip(
-                  message: 'Folders',
-                  child: IconButton.filledTonal(
-                    onPressed: onFolders,
-                    icon: const Icon(Icons.folder_outlined),
-                  ),
-                ),
-                const SizedBox(width: 4),
-              ],
-              LibraryToolsButton(
-                type: type,
-                counts: counts,
-                selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
-                quickView: quickView,
-                hasActiveFilters: hasActiveFilters,
-                onQuickViewSelected: onQuickViewSelected,
-                onClearFilters: onClearFilters,
-                onRandomPick: onRandomPick,
-                onSmartLists: onSmartLists,
-                onFolders: onFolders,
-                onReadingQueue: onReadingQueue,
-                onEditConditionPickList: onEditConditionPickList,
-                onEditGradePickList: onEditGradePickList,
-                onEditSort: onEditSort,
-                onCompareMetadataWithServer: onCompareMetadataWithServer,
-                extraActions: extraActions,
-              ),
-            ];
-            if (constraints.maxWidth < 560) {
-              return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    search,
-                    const SizedBox(height: 6),
-                    Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        runSpacing: 4,
-                        children: actions),
-                  ]);
-            }
-            return Row(children: [Expanded(child: search), ...actions]);
-          }),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
-                  alignment: WrapAlignment.start,
-                  children: [
-                    Tooltip(
-                      message: viewMode.supportsCoverSize
-                          ? 'Views and cover size'
-                          : 'Views (cover size unavailable in this view)',
-                      child: IconButton.filledTonal(
-                        onPressed: () => showLibraryCompactCoverSizeSheet(
-                          context,
-                          viewMode,
-                          onViewModeChanged,
-                          onDetailsLayoutChanged,
-                          onCoverSizeChanged,
-                        ),
-                        icon: const Icon(
-                          Icons.photo_size_select_large_outlined,
-                        ),
-                      ),
-                    ),
-                    if (linkedMetadataFilterLabel != null)
-                      LibraryToolbarScopeChip(
-                        label: linkedMetadataFilterLabel!,
-                        onClear: onClearBucket,
-                      ),
-                    LibraryItemCountLabel(
-                      shown: counts.shown,
-                      total: counts.total,
-                      singularLabel: type.identity.singularLabel,
-                      pluralLabel: type.identity.pluralLabel,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (selectionCallbacks != null && selectedCount > 0) ...[
-          const LibraryToolbarDividerLine(),
-          LibrarySelectionToolbarBand(
-            selectedCount: selectedCount,
-            totalSelectableCount: totalSelectableCount,
-            callbacks: selectionCallbacks!,
-            accent: accent,
-            itemPluralLabel: type.identity.pluralLabel,
-            showBottomBorder: !showChromeRow,
-          ),
-        ],
-        if (showChromeRow) ...[
-          const LibraryToolbarDividerLine(),
-          LibraryToolbarChromeRow(
-            collectionStatusScope: collectionStatusScope,
-            onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
-            activeViewPreset: activeViewPreset,
-            onViewPresetSelected: onViewPresetSelected,
-            pinnedViewPresets: pinnedViewPresets,
-            onTogglePinnedViewPreset: onTogglePinnedViewPreset,
-            sortFavorites: sortFavorites,
-            activeSortFavoriteId: activeSortFavoriteId,
-            onSortFavoriteSelected: onSortFavoriteSelected,
-            pinnedSortFavoriteIds: pinnedSortFavoriteIds,
-            onTogglePinnedSortFavorite: onTogglePinnedSortFavorite,
-            columnFavoritePresets: columnFavoritePresets,
-            activeColumnFavoriteLabel: activeColumnFavoriteLabel,
-            onColumnFavoriteSelected: onColumnFavoriteSelected,
-            pinnedColumnFavoriteKeys: pinnedColumnFavoriteKeys,
-            onTogglePinnedColumnFavorite: onTogglePinnedColumnFavorite,
-            onManageColumns: onManageColumns,
-            onManageColumnFavorites: onManageColumnFavorites,
-            canJumpToNumber: canJumpToNumber,
-            onJumpToNumberSubmitted: onJumpToNumberSubmitted,
-          ),
-        ],
-        if (showAlphabetRow) ...[
-          const LibraryToolbarDividerLine(),
-          LibraryToolbarAlphabetRow(
-            letters: availableLetters,
-            selectedLetter: selectedLetter,
-            alphabetOptions: alphabetOptions,
-            accent: accent,
-            onLetterSelected: onLetterSelected!,
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _CompactSearchScopeTrigger extends StatefulWidget {
-  const _CompactSearchScopeTrigger({required this.label});
-  final String label;
-
-  @override
-  State<_CompactSearchScopeTrigger> createState() =>
-      _CompactSearchScopeTriggerState();
-}
-
-class _CompactSearchScopeTriggerState
-    extends State<_CompactSearchScopeTrigger> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final palette = appPalette(context);
-    final bgColor = _hovered
-        ? (palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright)
-        : Colors.transparent;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: Container(
-        height: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: _hovered
-                ? theme.colorScheme.primary
-                : theme.colorScheme.outlineVariant,
-          ),
-        ),
-        child: LayoutBuilder(
-            builder: (context, constraints) => Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.tune, size: 16),
-                    if (constraints.maxWidth >= 50) ...[
-                      const SizedBox(width: 4),
-                      Flexible(
-                          child: Text(widget.label,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.labelMedium)),
-                    ],
-                  ],
-                )),
-      ),
-    );
-  }
-}
-
-class LibraryToolbarChromeRow extends StatelessWidget {
-  const LibraryToolbarChromeRow({
-    super.key,
-    required this.collectionStatusScope,
-    this.onCollectionStatusScopeChanged,
-    this.activeViewPreset,
-    this.onViewPresetSelected,
-    this.pinnedViewPresets = const {},
-    this.onTogglePinnedViewPreset,
-    this.sortFavorites = const [],
-    this.activeSortFavoriteId,
-    this.onSortFavoriteSelected,
-    this.pinnedSortFavoriteIds = const {},
-    this.onTogglePinnedSortFavorite,
-    this.columnFavoritePresets = const [],
-    this.activeColumnFavoriteLabel,
-    this.onColumnFavoriteSelected,
-    this.pinnedColumnFavoriteKeys = const {},
-    this.onTogglePinnedColumnFavorite,
-    required this.onManageColumns,
-    this.onManageColumnFavorites,
-    this.canJumpToNumber = false,
-    this.onJumpToNumberSubmitted,
-  });
-
-  final LibraryCollectionStatusScope collectionStatusScope;
-  final ValueChanged<LibraryCollectionStatusScope>?
-      onCollectionStatusScopeChanged;
-  final LibraryWorkspacePreset? activeViewPreset;
-  final ValueChanged<LibraryWorkspacePreset>? onViewPresetSelected;
-  final Set<LibraryWorkspacePreset> pinnedViewPresets;
-  final ValueChanged<LibraryWorkspacePreset>? onTogglePinnedViewPreset;
-  final List<LibrarySortFavorite> sortFavorites;
-  final String? activeSortFavoriteId;
-  final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
-  final Set<String> pinnedSortFavoriteIds;
-  final ValueChanged<LibrarySortFavorite>? onTogglePinnedSortFavorite;
-  final List<LibraryTableColumnPreset> columnFavoritePresets;
-  final String? activeColumnFavoriteLabel;
-  final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
-  final Set<String> pinnedColumnFavoriteKeys;
-  final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedColumnFavorite;
-  final VoidCallback onManageColumns;
-  final VoidCallback? onManageColumnFavorites;
-  final bool canJumpToNumber;
-  final ValueChanged<String>? onJumpToNumberSubmitted;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: onCollectionStatusScopeChanged == null
-            ? const SizedBox.shrink()
-            : Align(
-                alignment: Alignment.centerLeft,
-                child: LibraryCollectionStatusScopeDropdown(
-                  collectionStatusScope: collectionStatusScope,
-                  onCollectionStatusScopeChanged:
-                      onCollectionStatusScopeChanged!,
-                ),
-              ),
-      );
-}
-
-String _librarySearchTargetLabel(LibrarySearchTarget target) {
-  return switch (target) {
-    LibrarySearchTarget.all => 'Albums & Tracks',
-    LibrarySearchTarget.mediaOnly => 'Albums',
-    LibrarySearchTarget.tracksOnly => 'Tracks',
-  };
 }
