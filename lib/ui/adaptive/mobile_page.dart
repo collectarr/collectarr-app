@@ -5,7 +5,8 @@ import 'package:flutter/services.dart';
 class MobilePage extends StatelessWidget {
   const MobilePage(
       {super.key,
-      required this.title,
+      this.title,
+      this.titleWidget,
       required this.onBack,
       required this.headerColor,
       required this.backgroundColor,
@@ -16,7 +17,8 @@ class MobilePage extends StatelessWidget {
       this.footer,
       this.overlay});
 
-  final String title;
+  final String? title;
+  final Widget? titleWidget;
   final bool canGoBack;
   final VoidCallback onBack;
   final Color headerColor;
@@ -35,6 +37,7 @@ class MobilePage extends StatelessWidget {
         backgroundColor: backgroundColor,
         appBar: MobilePageHeader(
             title: title,
+            titleWidget: titleWidget,
             onBack: onBack,
             color: headerColor,
             canGoBack: canGoBack,
@@ -57,12 +60,14 @@ class MobilePage extends StatelessWidget {
 class MobilePageHeader extends StatelessWidget implements PreferredSizeWidget {
   const MobilePageHeader(
       {super.key,
-      required this.title,
+      this.title,
+      this.titleWidget,
       required this.onBack,
       required this.color,
       this.actions,
       this.canGoBack = true});
-  final String title;
+  final String? title;
+  final Widget? titleWidget;
   final VoidCallback onBack;
   final Color color;
   final List<Widget>? actions;
@@ -91,7 +96,9 @@ class MobilePageHeader extends StatelessWidget implements PreferredSizeWidget {
                   tooltip: 'Back',
                   onPressed: null,
                   icon: Icon(Icons.arrow_back)),
-          title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+          titleSpacing: titleWidget != null ? 0 : null,
+          title: titleWidget ??
+              Text(title ?? '', maxLines: 1, overflow: TextOverflow.ellipsis),
           actions: actions,
         ),
       );
@@ -113,55 +120,83 @@ class MobileTabStrip<T> extends StatelessWidget {
   final bool compact;
 
   @override
-  Widget build(BuildContext context) => ColoredBox(
-      color: color,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: compact ? 3 : 5),
-        child: Center(
-            child: SingleChildScrollView(
+  Widget build(BuildContext context) {
+    final hsl = HSLColor.fromColor(color);
+    final containerColor =
+        hsl.withLightness((hsl.lightness * 0.72).clamp(0.0, 1.0)).toColor();
+    final activeColor =
+        hsl.withLightness((hsl.lightness * 1.35).clamp(0.0, 0.75)).toColor();
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4, vertical: compact ? 3 : 5),
+      child: Center(
+        child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DecoratedBox(
-              decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: .16),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                for (final (index, tab) in tabs.indexed) ...[
-                  if (compact && index > 0)
-                    Container(
-                      width: 1,
-                      height: 20,
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                      color: Colors.white.withValues(alpha: .3),
-                    ),
-                  Semantics(
+            decoration: BoxDecoration(
+              color: containerColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final (index, tab) in tabs.indexed) ...[
+                    if (compact &&
+                        index > 0 &&
+                        tab.value != selected &&
+                        tabs[index - 1].value != selected)
+                      Container(
+                        width: 1,
+                        height: 16,
+                        margin: const EdgeInsets.symmetric(horizontal: 1),
+                        color: Colors.white.withValues(alpha: .2),
+                      ),
+                    Semantics(
                       selected: tab.value == selected,
                       button: true,
                       child: Material(
-                          color: tab.value == selected
-                              ? Colors.white.withValues(alpha: .2)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(8),
-                          child: InkWell(
-                              borderRadius: BorderRadius.circular(8),
-                              onTap: () => onSelected(tab.value),
-                              child: ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                      minHeight: compact ? 34 : 44,
-                                      minWidth: compact ? 48 : 64),
-                                  child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: compact ? 9 : 10),
-                                      child: Center(
-                                          child: Text(tab.label,
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: compact ? 12 : 14,
-                                                  fontWeight: tab.value ==
-                                                          selected
-                                                      ? FontWeight.w700
-                                                      : FontWeight.w400)))))))),
+                        color: tab.value == selected
+                            ? activeColor
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(6),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(6),
+                          onTap: () => onSelected(tab.value),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: compact ? 32 : 40,
+                              minWidth: compact ? 48 : 64,
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: compact ? 12 : 14,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  tab.label,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: compact ? 13 : 14,
+                                    fontWeight: tab.value == selected
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
-              ])),
-        )),
-      ));
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

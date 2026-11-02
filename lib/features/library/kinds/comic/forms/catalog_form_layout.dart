@@ -22,23 +22,40 @@ const comicMainColumns = [
 /// One-column reading order for the native editor. The same field specs and
 /// draft are used by desktop and mobile; only the arrangement changes.
 const comicMobileMainColumns = [
-  LibraryFormColumnSpec(rows: [
-    ['comic.series'],
-    ['comic.issue_number', 'comic.variant'],
-    ['variant_description'],
-    ['cover_date', 'release_date'],
-    ['barcode'],
-    ['physical_format', 'comic.page_count'],
-    ['crossover'],
-    ['story_arcs'],
-    ['title'],
-    ['subtitle'],
-    ['publisher', 'comic.imprint'],
-    ['series_group', 'publication_age'],
-    ['country', 'language'],
-    ['genres'],
-    ['comic.plot'],
-  ]),
+  LibraryFormColumnSpec(
+    rows: [
+      ['comic.series', 'comic.issue_number', 'comic.variant'],
+      ['variant_description', 'cover_date', 'release_date'],
+      ['barcode', 'physical_format', 'comic.page_count'],
+      ['crossover', 'story_arcs', 'title'],
+      ['subtitle'],
+      ['publisher', 'comic.imprint'],
+      ['series_group', 'publication_age'],
+      ['country', 'language'],
+      ['genres'],
+      ['comic.plot'],
+    ],
+    fieldFlex: {
+      'comic.series': 420,
+      'comic.issue_number': 100,
+      'comic.variant': 100,
+      'variant_description': 218,
+      'cover_date': 100,
+      'release_date': 100,
+      'barcode': 322,
+      'physical_format': 322,
+      'comic.page_count': 100,
+      'crossover': 1,
+      'story_arcs': 1,
+      'title': 1,
+      'publisher': 1,
+      'comic.imprint': 1,
+      'series_group': 1,
+      'publication_age': 1,
+      'country': 1,
+      'language': 1,
+    },
+  ),
 ];
 
 List<LibraryFormColumnSpec> comicDetailsColumns(String titleField) => [
