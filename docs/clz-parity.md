@@ -220,7 +220,7 @@ collection density remain unverified.
 
 | Priority | Area | Difference |
 | --- | --- | --- |
-| P2 | Add Comics remaining parity | NCBD still depends on a release-calendar source in Core (see Comics NCBD). Validate camera/barcode flows on-device and compare populated results against equivalent Core data, including long issue/variant labels, larger system text, loading and error states |
+| P2 | Add Comics remaining parity | NCBD still depends on a release-calendar source in Core (see Comics NCBD). CLZ has a favourite-series star in the selected-series header; Collectarr needs a series watch-list model before matching it. Validate camera/barcode flows on-device and compare populated results against equivalent Core data, including long issue/variant labels, larger system text, loading and error states |
 | P2 | Scanner presentation | The library header camera opens the shared live-camera sheet with manual barcode entry. CLZ overlays the camera directly on the library with scanning corners. Align the native camera presentation while preserving manual entry; real barcode decoding still needs a physical-code check |
 | P3 | Library surfaces and empty state | Collectarr retains the desktop canvas gradient and a filled blue onboarding card; CLZ uses a flat dark canvas with centred teal text. Compare the light skin before adapting native surfaces |
 | P2 | Populated folder navigation | Compare CLZ's favourite presets and multi-folder bucket navigation against Collectarr with populated collections; the separate bucket chooser has not yet been checked against equivalent data |

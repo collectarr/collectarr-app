@@ -14,6 +14,7 @@ class MobilePage extends StatelessWidget {
       this.actions,
       this.canGoBack = true,
       this.contextBar,
+      this.contextBarBottomPadding = 6,
       this.footer,
       this.overlay});
 
@@ -26,6 +27,7 @@ class MobilePage extends StatelessWidget {
   final Widget body;
   final List<Widget>? actions;
   final Widget? contextBar;
+  final double contextBarBottomPadding;
   final Widget? footer;
   final Widget? overlay;
 
@@ -50,7 +52,7 @@ class MobilePage extends StatelessWidget {
                   DecoratedBox(
                     decoration: BoxDecoration(color: headerColor),
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
+                      padding: EdgeInsets.only(bottom: contextBarBottomPadding),
                       child: contextBar!,
                     ),
                   ),

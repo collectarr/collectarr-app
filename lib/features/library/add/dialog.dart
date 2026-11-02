@@ -1198,10 +1198,27 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           density: LibraryDensity.comfortable,
           child: MobilePage(
             title: 'Add ${widget.type.identity.pluralLabel}',
+            titleWidget: Text(
+              'My ${widget.type.identity.pluralLabel}',
+              style: const TextStyle(fontSize: 13, color: Colors.white),
+            ),
             onBack: _closeDialog,
             headerColor: accent,
             backgroundColor: palette.panel,
+            contextBarBottomPadding: 0,
             actions: [
+              Center(
+                child: Text(
+                  MediaQuery.sizeOf(context).width < 360
+                      ? 'COLLECTARR'
+                      : 'COLLECTARR ${widget.type.identity.pluralLabel.toUpperCase()}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
               PopupMenuButton<String>(
                 tooltip: 'Add options',
                 onSelected: (action) {
@@ -1303,12 +1320,22 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     ]);
     if (isMobilePhone) {
       if (_controller.state.browse.opened case final group?) {
+        final facts = [
+          if (group.details case final details?) details,
+          if (group.period case final period?) '($period)',
+        ].join(' ');
         return Column(children: [
-          ListTile(
-              leading: const Icon(Icons.arrow_back),
-              title: Text(group.title),
-              subtitle: group.details == null ? null : Text(group.details!),
-              onTap: _controller.closeBrowseGroup),
+          Material(
+            color: libraryAddMobileGroupHeaderColor(appPalette(context)),
+            child: ListTile(
+                dense: true,
+                minTileHeight: 48,
+                leading: const Icon(Icons.arrow_back),
+                title: Text(group.title,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: facts.isEmpty ? null : Text(facts),
+                onTap: _controller.closeBrowseGroup),
+          ),
           Expanded(child: content),
         ]);
       }

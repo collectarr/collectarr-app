@@ -234,7 +234,9 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('add.method.search')));
       await pumpUntilSettled(tester);
       expect(find.text('Outer app header'), findsNothing);
-      expect(find.text('Add Comics'), findsOneWidget);
+      expect(find.text('My Comics'), findsOneWidget);
+      expect(find.text(size.width < 360 ? 'COLLECTARR' : 'COLLECTARR COMICS'),
+          findsOneWidget);
       expect(find.text('Series'), findsOneWidget);
       expect(find.text('Issue'), findsOneWidget);
       expect(find.text('Barcode'), findsOneWidget);
