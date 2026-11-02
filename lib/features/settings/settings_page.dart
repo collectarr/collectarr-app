@@ -180,16 +180,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             backgroundColor: appManagementCanvasColor(context),
             appBar: AppPageHeader(
                 icon: Icons.settings_outlined,
-                leading: AppPageBackButton(onPressed: () {
-                  if (context.canPop()) {
-                    context.pop();
-                  } else {
-                    context.go(AppRoutes.forKind(
-                        AppRoutes.settings,
-                        GoRouterState.of(context).uri.queryParameters['kind'] ??
-                            ref.read(selectedLibraryKindProvider)));
-                  }
-                }),
+                leading: AppPageBackButton(
+                    key: const Key('settings.back'),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go(AppRoutes.forKind(
+                            AppRoutes.settings,
+                            GoRouterState.of(context)
+                                    .uri
+                                    .queryParameters['kind'] ??
+                                ref.read(selectedLibraryKindProvider)));
+                      }
+                    }),
                 title: Text(section.title)),
             body: SafeArea(
                 top: false,
