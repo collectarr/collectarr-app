@@ -711,6 +711,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
   }
 
+  static bool _isPhone(BuildContext context) {
+    final viewport = MediaQuery.sizeOf(context);
+    return viewport.width < 600 || viewport.height < 480;
+  }
+
   Future<void> _openManualDialog(
     Color accent,
     LibraryAddCapability capability,
@@ -807,6 +812,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   @override
   Widget build(BuildContext context) {
     if (widget.startManually) return const SizedBox.shrink();
+    final isPhone = _isPhone(context);
     final accent = widget.accent ??
         LibraryAccentScope.accentOf(context,
             fallback: widget.type.identity.accent);
@@ -1053,22 +1059,24 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               coverSelected: _mobileCoverSelected,
               onCoverTabChanged: (selected) =>
                   setState(() => _mobileCoverSelected = selected),
-              showMobileInput: !browseMode || openedGroup == null,
-              searchRowWidth: appPresentationPlatform.isNativeMobile
-                  ? null
-                  : browseMode
-                      ? LibraryAddBrowseGroupList.width
-                      : grouping == null
-                          ? null
-                          : LibraryAddResultGrouping.listWidth,
-              searchRowBeside: appPresentationPlatform.isNativeMobile
-                  ? null
-                  : browseMode
-                      ? LibraryAddBrowseGroupHeader(group: openedGroup)
-                      : grouping == null
-                          ? null
-                          : LibraryAddGroupHeader(
-                              group: selectedGroup, grouping: grouping),
+              showMobileInput: !browseMode || openedGroup == null || !isPhone,
+              searchRowWidth:
+                  (appPresentationPlatform.isNativeMobile && isPhone)
+                      ? null
+                      : browseMode
+                          ? LibraryAddBrowseGroupList.width
+                          : grouping == null
+                              ? null
+                              : LibraryAddResultGrouping.listWidth,
+              searchRowBeside:
+                  (appPresentationPlatform.isNativeMobile && isPhone)
+                      ? null
+                      : browseMode
+                          ? LibraryAddBrowseGroupHeader(group: openedGroup)
+                          : grouping == null
+                              ? null
+                              : LibraryAddGroupHeader(
+                                  group: selectedGroup, grouping: grouping),
             ),
           ),
         ],
@@ -1079,7 +1087,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 capability: browse!,
                 state: state.browse,
                 onOpen: (group) {
-                  if (appPresentationPlatform.isNativeMobile) {
+                  if (appPresentationPlatform.isNativeMobile && isPhone) {
                     FocusScope.of(context).unfocus();
                   }
                   _controller.openBrowseGroup(group);
@@ -1118,7 +1126,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 resultPolicyState: state.selection.resultPolicyState,
                 onResultPolicyOptionChanged: _controller.setResultPolicyOption,
                 onSelectResult: (id) {
-                  if (appPresentationPlatform.isNativeMobile) {
+                  if (appPresentationPlatform.isNativeMobile && isPhone) {
                     FocusScope.of(context).unfocus();
                   }
                   _controller.selectResult(id);
@@ -1292,7 +1300,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           ),
         ),
     ]);
-    if (appPresentationPlatform.isNativeMobile) {
+    if (appPresentationPlatform.isNativeMobile && _isPhone(context)) {
       if (_controller.state.browse.opened case final group?) {
         return Column(children: [
           ListTile(

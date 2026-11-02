@@ -453,7 +453,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
               icon: const Icon(Icons.camera_alt),
               label: const Text('Scan cover'))
           : widget.showMobileInput
-              ? _buildInput(searchLabel, queryHint)
+              ? _besideSearchRow(_buildInput(searchLabel, queryHint))
               : null,
       advanced: !_mobileCoverSelected &&
               widget.mode == LibraryAddDialogMode.search &&
