@@ -146,7 +146,7 @@ class _WeightedRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => LayoutBuilder(
         builder: (context, constraints) {
-          final stackBreakpoint = flexes.length >= 3 ? 600.0 : 300.0;
+          final stackBreakpoint = 300.0;
           return constraints.maxWidth < stackBreakpoint
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

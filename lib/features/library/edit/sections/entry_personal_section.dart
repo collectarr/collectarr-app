@@ -393,13 +393,16 @@ class _LibraryEntryStatusStripState
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  fields[0],
-                  const SizedBox(height: 10),
-                  Row(children: [
-                    Expanded(child: fields[1]),
-                    const SizedBox(width: 10),
-                    Expanded(child: fields[2]),
-                  ]),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 504, child: fields[0]),
+                      const SizedBox(width: 10),
+                      Expanded(flex: 210, child: fields[1]),
+                      const SizedBox(width: 10),
+                      Expanded(flex: 210, child: fields[2]),
+                    ],
+                  ),
                   const SizedBox(height: 10),
                   fields[3],
                 ],

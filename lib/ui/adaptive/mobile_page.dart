@@ -46,7 +46,14 @@ class MobilePage extends StatelessWidget {
             top: false,
             child: Stack(children: [
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                if (contextBar != null) contextBar!,
+                if (contextBar != null)
+                  DecoratedBox(
+                    decoration: BoxDecoration(color: headerColor),
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: contextBar!,
+                    ),
+                  ),
                 Expanded(child: body),
                 if (footer != null) footer!,
               ]),
