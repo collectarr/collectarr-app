@@ -68,6 +68,7 @@ explicit Music search requests and rejects unexpected network traffic.
 ```sh
 flutter test integration_test/app_smoke_test.dart -d windows
 flutter test integration_test/accessibility_startup_test.dart -d windows
+flutter test integration_test/font_rendering_test.dart -d windows
 flutter test integration_test/library_add_flow_test.dart -d windows
 flutter test integration_test/library_edit_flow_test.dart -d windows
 ```
@@ -75,6 +76,41 @@ flutter test integration_test/library_edit_flow_test.dart -d windows
 Run them sequentially per checkout to avoid native SQLite library locks. CI runs
 the same files on Linux under Xvfb. Personal persistence uses a temporary database
 created by the test, closes it and reloads it; it never opens the user's database.
+
+For Android, use a disposable checkout with a distinct application ID, then run
+`dart run tool/ci_check.dart integration --device <adb-serial>` there. Installing
+an integration APK replaces its entry point and may uninstall that package on
+completion. The runner's **Test starting...** screen is not the normal app.
+When finished, build `flutter build apk --debug --target lib/main.dart`, install
+that normal review APK and launch it explicitly. Never run device installs over
+an application ID containing the user's collection.
+
+## Native presentation matrix
+
+Platform policy is independent of width. The widget matrices cover Android/iOS
+at 320, 390, 600, 840 and 1024 dp, plus 844x390 landscape with 200 percent text
+and keyboard insets. Native detail checks include cold local/catalog/wishlist
+hydration, deleted targets, identical IDs in different namespaces, long-press
+selection and Back retaining the library query. Settings checks include cold
+section URLs, account access and returning to the index. Desktop dialog geometry
+runs with an explicit desktop target; synthetic-kind and architecture contracts
+remain part of normal correctness execution.
+
+| Environment | Coverage and limits |
+| --- | --- |
+| Android / BlueStacks | Five integration files cover six flows: wide/phone navigation, accessibility/account, fonts, Core Add and persistent local Edit. A separate normal review build is inspected at phone/tablet widths. |
+| Windows | The same six native flows, desktop widget regressions and the rendered 1500-comic grid profile. |
+| iOS | Widget presentation and lifecycle matrices; no runner or physical iOS permission/gesture verification is available. |
+| Browser | Release compilation and explicit web-policy unit cases pass. The local Windows Chrome widget harness fails during Flutter bootstrap before test bodies. A fresh visual browser launch was rejected by automatic tool review, so it is not counted as a passed check. |
+| Source-only kinds | Run the inactive-kind files selected by `--kinds=all` as well as the released/shared suite; this does not enable those kinds in the app. |
+
+The current Windows profile is a local measurement, not a portable performance
+threshold: first cover 286 ms, twelve covers 323 ms, scroll build p99 8.95 ms
+with no missed build budgets; cover-size dragging build p99 12.10 ms with two
+missed build budgets in 737 frames. Music projection/facts reuse is also checked
+with the 1000/5000-album benchmark. Keep reports and captures in temporary
+storage or ignored build artifacts, and compare against the same environment
+before claiming a performance improvement.
 
 CI also uploads machine test events and `build/test-timings.json`, listing the
 slowest files and directories by summed test-body duration. Concurrent test
