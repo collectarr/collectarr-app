@@ -6,11 +6,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  for (final width in [320.0, 390.0, 600.0, 840.0, 1024.0]) {
-    testWidgets('native editor keeps Save, draft and tab state at $width dp',
+  for (final (width, height, scale) in [
+    for (final width in [320.0, 390.0, 600.0, 840.0, 1024.0])
+      (width, 900.0, 1.3),
+    (844.0, 390.0, 2.0),
+  ]) {
+    testWidgets(
+        'native editor keeps Save, draft and tab state at ${width}x$height dp ($scale text)',
         (tester) async {
       SharedPreferences.setMockInitialValues({});
-      tester.view.physicalSize = Size(width, 900);
+      tester.view.physicalSize = Size(width, height);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -19,7 +24,8 @@ void main() {
           theme: buildAppShellTheme(palette: kDefaultAppThemePalette),
           home: MediaQuery(
               data: MediaQueryData(
-                  size: Size(width, 900), textScaler: TextScaler.linear(1.3)),
+                  size: Size(width, height),
+                  textScaler: TextScaler.linear(scale)),
               child: _EditorHarness(key: harnessKey))));
       await tester.pumpAndSettle();
       final save = find.byKey(const Key('library.mobile-editor.save'));
@@ -43,9 +49,10 @@ void main() {
           theme: buildAppShellTheme(palette: kDefaultAppThemePalette),
           home: MediaQuery(
               data: MediaQueryData(
-                  size: Size(width, 900),
-                  textScaler: TextScaler.linear(1.3),
-                  viewInsets: const EdgeInsets.only(bottom: 300)),
+                  size: Size(width, height),
+                  textScaler: TextScaler.linear(scale),
+                  viewInsets:
+                      EdgeInsets.only(bottom: height < 500 ? 160 : 300)),
               child: _EditorHarness(key: harnessKey))));
       await tester.pumpAndSettle();
       expect(tester.getRect(save).top, lessThan(80));
@@ -58,6 +65,8 @@ void main() {
       await tester.tap(find.text('Update collection'));
       await tester.pumpAndSettle();
       expect(find.text('Updated collection'), findsOneWidget);
+      await tester.ensureVisible(find.text('Done'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Done'));
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('More editor actions'));
