@@ -40,7 +40,8 @@ old modules.
   `config/capabilities.dart` and `config/field_identities.dart` where present.
   Entry boundaries use `entries/details_codec.dart`, `entries/create_payload.dart`
   and `entries/update_payload.dart`; concrete domain/detail models keep their
-  distinguishing names.
+  distinguishing names. Catalog adapters use `integrations/catalog/lookup.dart`;
+  exported Dart classes retain their explicit kind names.
 - A kind owns every representation of its domain data.
 - After kind dispatch, never erase the type.
 - Core owns source-neutral canonical catalog data and its API contract.
