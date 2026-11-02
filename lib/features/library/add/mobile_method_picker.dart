@@ -73,54 +73,54 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
         constraints: const BoxConstraints(maxWidth: 380),
         child: SingleChildScrollView(
           child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Adding $plural to the app is done by adding them from "Core", our central online ${plural.endsWith('s') ? plural.substring(0, plural.length - 1) : plural} database.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: palette.textMuted,
-                height: 1.35,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Adding $plural to the app is done by adding them from "Core", our central online ${plural.endsWith('s') ? plural.substring(0, plural.length - 1) : plural} database.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: palette.textMuted,
+                  height: 1.35,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'How do you want to add $plural?',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+              const SizedBox(height: 16),
+              Text(
+                'How do you want to add $plural?',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                for (var i = 0; i < choices.length; i++) ...[
-                  if (i > 0) const SizedBox(width: 8),
-                  Expanded(child: _cardChoice(choices[i])),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  for (var i = 0; i < choices.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 8),
+                    Expanded(child: _cardChoice(choices[i])),
+                  ],
                 ],
-              ],
-            ),
-            const SizedBox(height: 12),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              dense: true,
-              title: const Text(
-                "Don't show this again",
-                style: TextStyle(fontSize: 13),
               ),
-              value: _remember,
-              onChanged: (value) =>
-                  setState(() => _remember = value ?? false),
-            ),
-          ],
+              const SizedBox(height: 12),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                dense: true,
+                title: const Text(
+                  "Don't show this again",
+                  style: TextStyle(fontSize: 13),
+                ),
+                value: _remember,
+                onChanged: (value) =>
+                    setState(() => _remember = value ?? false),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
   }
 
   Widget _cardChoice(
@@ -132,9 +132,8 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
     }) choice,
   ) {
     final palette = appPalette(context);
-    final bg = palette.isDark
-        ? const Color(0xFF2C2C2C)
-        : const Color(0xFFF2F6F9);
+    final bg =
+        palette.isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF2F6F9);
     final borderColor = palette.divider.withValues(alpha: 0.6);
 
     return Semantics(

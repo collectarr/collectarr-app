@@ -180,28 +180,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         accent: accent,
         animationsEnabled: uiPreferences.animationsEnabled,
         child: appPresentationPlatform.isNativeMobile
-            ? MobileShell(
-                appBar: appBar,
-                body: body,
-                routeUri: widget.routeUri,
-                onMore: appBar.onOpenNavigation,
-                onDestinationSelected: (destination) {
-                  final location =
-                      AppRoutes.forKind(destination.routePath!, activeLibrary);
-                  if (widget.routeUri.path == destination.routePath) return;
-                  final router = GoRouter.of(context);
-                  if (destination.action == DrawerAction.library) {
-                    if (router.canPop()) {
-                      router.pop();
-                    } else {
-                      router.go(location);
-                    }
-                  } else if (widget.routeUri.path == AppRoutes.libraries) {
-                    router.push<void>(location);
-                  } else {
-                    router.replace<void>(location);
-                  }
-                })
+            ? MobileShell(appBar: appBar, body: body)
             : DesktopShell(appBar: appBar, body: body));
     if (mediaQuery == null) {
       return shell;
