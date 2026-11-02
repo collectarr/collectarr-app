@@ -83,8 +83,8 @@ void main() {
       await pumpUntilSettled(tester);
       await tester.tap(find.byKey(const Key('library.mobile-sort')));
       await pumpUntilSettled(tester);
-      expect(find.text('Sort...'), findsOneWidget);
-      Navigator.of(tester.element(find.text('Sort...'))).pop();
+      expect(find.text('Select Sort Order'), findsOneWidget);
+      await tester.tap(find.byTooltip('Back').last);
       await pumpUntilSettled(tester);
       await tester.tap(find.byTooltip('Library tools'));
       await pumpUntilSettled(tester);

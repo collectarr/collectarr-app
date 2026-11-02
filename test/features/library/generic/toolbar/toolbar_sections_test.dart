@@ -550,7 +550,7 @@ void main() {
         findsOneWidget);
     expect(find.text('Edit'), findsNWidgets(2));
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }
 
 void _noop() {}

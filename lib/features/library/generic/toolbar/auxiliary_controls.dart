@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'alphabet_options.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -29,7 +31,7 @@ Future<Set<String>?> showSortFavoritesManagerDialog({
   required Set<String> initialPinnedIds,
   String? activeFavoriteId,
 }) {
-  return showAppDialog<Set<String>>(
+  return showAppPageOrDialog<Set<String>>(
     context: context,
     builder: (context) => _SortFavoritesManagerDialog(
       type: type,
@@ -540,6 +542,77 @@ class _SortFavoritesManagerDialogState
     final available = _allFavorites
         .where((f) => !_pinnedFavorites.any((p) => p.id == f.id))
         .toList();
+    if (appPresentationPlatform.isNativeMobile) {
+      return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop && !_busy) _close();
+        },
+        child: MobilePage(
+          title: 'Manage Sorting Favorites',
+          onBack: _busy ? () {} : _close,
+          headerColor: widget.type.identity.accent,
+          backgroundColor: palette.panel,
+          actions: [
+            IconButton(
+              tooltip: 'New sorting favorite',
+              onPressed: _busy ? null : _edit,
+              icon: const Icon(Icons.add),
+            ),
+          ],
+          body: ReorderableListView.builder(
+            itemCount: _pinnedFavorites.length,
+            onReorderItem: (oldIndex, newIndex) => setState(() {
+              _pinnedFavorites.insert(
+                  newIndex, _pinnedFavorites.removeAt(oldIndex));
+            }),
+            itemBuilder: (context, index) {
+              final favorite = _pinnedFavorites[index];
+              return ListTile(
+                key: ValueKey('sortFavorite_${favorite.id}'),
+                leading: ReorderableDragStartListener(
+                    index: index, child: const Icon(Icons.drag_handle)),
+                title: Text(favorite.label),
+                subtitle: _SortFavoriteRules(
+                    rules: favorite.rules, fieldLabel: _fieldLabel),
+                trailing: PopupMenuButton<String>(
+                  tooltip: 'Favorite actions',
+                  onSelected: (action) {
+                    if (action == 'edit') {
+                      _edit(favorite);
+                    } else {
+                      setState(() => _pinnedFavorites.removeAt(index));
+                    }
+                  },
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(value: 'edit', child: Text('Edit')),
+                    PopupMenuItem(value: 'remove', child: Text('Remove')),
+                  ],
+                ),
+              );
+            },
+          ),
+          footer: available.isEmpty
+              ? null
+              : SafeArea(
+                  top: false,
+                  child: PopupMenuButton<LibrarySortFavorite>(
+                    tooltip: 'Add Favorite',
+                    onSelected: (favorite) =>
+                        setState(() => _pinnedFavorites.add(favorite)),
+                    itemBuilder: (_) => [
+                      for (final favorite in available)
+                        PopupMenuItem(
+                            value: favorite, child: Text(favorite.label)),
+                    ],
+                    child: const ListTile(
+                      leading: Icon(Icons.add),
+                      title: Text('Add Favorite'),
+                    ),
+                  )),
+        ),
+      );
+    }
     // The reference Sorting Favorites manager, laid out like Manage Folder
     // Favorites: a heading with the blue add button over bordered rows.
     return Dialog(

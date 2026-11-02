@@ -85,7 +85,7 @@ void main() {
     expect(find.text('Audience Rating'), findsNothing);
     expect(find.text('Artist'), findsWidgets);
     expect(find.text('Label'), findsWidgets);
-  });
+  }, variant: TargetPlatformVariant({TargetPlatform.windows}));
 
   testWidgets('sidebar shows a manage button for editable group buckets', (
     tester,

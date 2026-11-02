@@ -4,11 +4,49 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/ui/primitives/field_selection.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  testWidgets('native sort opens as a page and returns the chosen order',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    List<LibrarySortRule>? result;
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: Builder(
+                builder: (context) => TextButton(
+                    onPressed: () async => result = await showLibrarySortDialog(
+                            context: context,
+                            type: const MusicRegistration(),
+                            currentRules: const [
+                              LibrarySortRule(
+                                  column: 'music.title', ascending: true)
+                            ]),
+                    child: const Text('Open'))))));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(find.byType(MobilePage), findsOneWidget);
+    expect(tester.widget<MobilePage>(find.byType(MobilePage)).title,
+        'Select Sort Order');
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    expect(result, isNull);
+    expect(find.byType(MobilePage), findsNothing);
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Highest First'));
+    await tester.pumpAndSettle();
+    expect(result,
+        const [LibrarySortRule(column: 'music.title', ascending: false)]);
+  }, variant: TargetPlatformVariant({TargetPlatform.android}));
+
   testWidgets('reassign keeps declared categories without sorting favorites',
       (tester) async {
     SharedPreferences.setMockInitialValues({});

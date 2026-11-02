@@ -11,7 +11,7 @@ Future<List<String>?> showLibraryReportColumns(
   required List<({String id, String label})> fields,
   required List<String> selected,
 }) async {
-  final result = await showAppDialog<Set<String>>(
+  final result = await showAppPageOrDialog<Set<String>>(
       context: context,
       builder: (_) => LibraryColumnChooserDialog(
             availableColumns: [for (final field in fields) field.id],
@@ -31,7 +31,7 @@ Future<List<({String id, bool ascending})>?> showLibraryReportSorts(
 }) {
   final chosen = [...selected];
   var query = '';
-  return showAppDialog<List<({String id, bool ascending})>>(
+  return showAppPageOrDialog<List<({String id, bool ascending})>>(
     context: context,
     builder: (dialogContext) => StatefulBuilder(
         builder: (context, update) => LibraryFieldSelectionDialog(

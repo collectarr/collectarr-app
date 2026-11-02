@@ -24,8 +24,9 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
   String confirmLabel = 'Save',
   String? description,
   bool showFavorites = true,
+  Future<void> Function()? onManageFavorites,
 }) {
-  return showAppDialog<List<LibrarySortRule>>(
+  return showAppPageOrDialog<List<LibrarySortRule>>(
     context: context,
     builder: (context) => _LibrarySortDialog(
       type: type,
@@ -37,6 +38,7 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
       confirmLabel: confirmLabel,
       description: description,
       showFavorites: showFavorites,
+      onManageFavorites: onManageFavorites,
     ),
   );
 }
@@ -52,6 +54,7 @@ class _LibrarySortDialog extends StatefulWidget {
     required this.confirmLabel,
     this.description,
     required this.showFavorites,
+    this.onManageFavorites,
   });
 
   final LibraryKindRegistration type;
@@ -63,6 +66,7 @@ class _LibrarySortDialog extends StatefulWidget {
   final String confirmLabel;
   final String? description;
   final bool showFavorites;
+  final Future<void> Function()? onManageFavorites;
 
   @override
   State<_LibrarySortDialog> createState() => _LibrarySortDialogState();
@@ -105,38 +109,54 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
         widget.showFavorites &&
         !_advancedMobile) {
       return MobilePage(
-        title: 'Sort',
+        title: 'Select Sort Order',
         headerColor: widget.type.identity.accent,
         backgroundColor: appPalette(context).panel,
         onBack: () => Navigator.of(context).pop(),
+        actions: widget.onManageFavorites == null
+            ? null
+            : [
+                IconButton(
+                    tooltip: 'Manage sorting favorites',
+                    onPressed: () async {
+                      await widget.onManageFavorites!();
+                      if (mounted) await _loadPresets();
+                    },
+                    icon: const Icon(Icons.settings_outlined)),
+              ],
         body: ListView(children: [
-          ListTile(
-              title: const Text('Current sort'),
-              subtitle: Text(_sortRuleSummary(widget.type, _rules))),
+          Container(
+            color: widget.type.identity.accent.withValues(alpha: 0.2),
+            child: ListTile(
+              title: Text(_sortRuleSummary(widget.type, _rules)),
+              trailing: ToggleButtons(
+                isSelected: [_rules.first.ascending, !_rules.first.ascending],
+                onPressed: (index) {
+                  setState(() =>
+                      _rules[0] = _rules.first.copyWith(ascending: index == 0));
+                  _saveAndClose();
+                },
+                constraints: const BoxConstraints(minHeight: 34),
+                children: const [
+                  Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 5),
+                      child:
+                          Text('Lowest First', style: TextStyle(fontSize: 11))),
+                  Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 5),
+                      child: Text('Highest First',
+                          style: TextStyle(fontSize: 11))),
+                ],
+              ),
+            ),
+          ),
           for (final preset in _combinedPresets)
             ListTile(
               title: Text(preset.label),
-              selected: _sameSortRules(preset.rules, _rules),
-              selectedColor: appPalette(context).utilityAction,
               onTap: () {
                 _applyPreset(preset);
                 _saveAndClose();
               },
-              trailing: IconButton(
-                  tooltip: preset.rules.first.ascending
-                      ? 'Sort descending'
-                      : 'Sort ascending',
-                  icon: Icon(preset.rules.first.ascending
-                      ? Icons.arrow_upward
-                      : Icons.arrow_downward),
-                  onPressed: () {
-                    setState(() => _rules = [
-                          preset.rules.first.copyWith(
-                              ascending: !preset.rules.first.ascending),
-                          ...preset.rules.skip(1)
-                        ]);
-                    _saveAndClose();
-                  }),
             ),
           const Divider(),
           ListTile(

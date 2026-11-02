@@ -35,7 +35,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
         (preset) => availableColumns.containsAll(preset.columns),
       )
       .toList(growable: false);
-  return showAppDialog<Set<String>>(
+  return showAppPageOrDialog<Set<String>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
       showFavorites: manageFavorites,
