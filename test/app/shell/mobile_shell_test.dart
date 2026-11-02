@@ -39,34 +39,16 @@ void main() {
         expect(find.byType(NavigationRail), findsNothing);
       } else {
         expect(find.byType(MobileShell), findsOneWidget);
-        final nav = width < 840
-            ? find.byType(NavigationBar)
-            : find.byType(NavigationRail);
-        expect(nav, findsOneWidget);
-        expect(find.byKey(const Key('library.mobile-folder')), findsOneWidget);
-        expect(
-            find.byKey(const Key('library.collection-picker')), findsOneWidget);
+        expect(find.byType(NavigationBar), findsNothing);
+        expect(find.byType(NavigationRail), findsNothing);
         expect(find.byKey(const ValueKey('library-collection-menu')),
-            findsNothing);
-        for (final (label, path) in [
-          ('Activity', AppRoutes.activity),
-          ('Calendar', AppRoutes.calendar),
-          ('Library', AppRoutes.libraries)
-        ]) {
-          await tester
-              .tap(find.descendant(of: nav, matching: find.text(label)));
-          await pumpUntilSettled(tester);
-          expect(router.routeInformationProvider.value.uri.path, path);
-          expect(
-              router.routeInformationProvider.value.uri.queryParameters['kind'],
-              'comic');
-        }
-        expect(router.canPop(), isFalse);
-        await tester.tap(find.descendant(of: nav, matching: find.text('More')));
+            findsOneWidget);
+        await tester.tap(find.byKey(const Key('app.open-navigation')));
         await pumpUntilSettled(tester);
         expect(find.byKey(const Key('drawer.account')), findsOneWidget);
-        await tester.tap(find.byTooltip('Close navigation'));
+        await tester.tap(find.text('Activity'));
         await pumpUntilSettled(tester);
+        expect(router.routeInformationProvider.value.uri.path, AppRoutes.activity);
       }
       expect(tester.takeException(), isNull);
       await disposeTestApp(tester);

@@ -46,7 +46,7 @@ void main() {
     expect(tester.testTextInput.isVisible, isTrue);
     expect(find.byTooltip('Clear search'), findsNothing);
     expect(find.byTooltip('Scan barcode'), findsOneWidget);
-    final tabs = find.byKey(const Key('app.mobile-navigation'));
+    final tabs = find.byKey(const Key('app.mobile-shell'));
     final tabsY = tester.getTopLeft(tabs).dy;
     tester.view.viewInsets = const FakeViewPadding(bottom: 300);
     await pumpUntilSettled(tester);

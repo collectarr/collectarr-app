@@ -126,7 +126,7 @@ ThemeData buildAppShellTheme({
         TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
         TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
         TargetPlatform.macOS: FadeForwardsPageTransitionsBuilder(),
-        TargetPlatform.android: ZoomPageTransitionsBuilder(),
+        TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
         TargetPlatform.iOS: FadeForwardsPageTransitionsBuilder(),
       },
     ),
