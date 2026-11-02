@@ -56,10 +56,11 @@ void main() {
       await mount();
       await tester.tap(find.byTooltip('Group By'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.byKey(const Key('native-folder-search')),
-          'Purchase Date');
+      await tester.enterText(
+          find.byKey(const Key('native-folder-search')), 'Purchase Date');
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('native-folder-Purchase Date')));
+      await tester
+          .tap(find.byKey(const ValueKey('native-folder-Purchase Date')));
       await tester.pumpAndSettle();
       expect(find.text('Purchase Date'), findsOneWidget);
       final preferences = LibraryViewPreferenceStore(kind);
