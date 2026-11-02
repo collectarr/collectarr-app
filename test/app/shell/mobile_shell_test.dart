@@ -43,6 +43,7 @@ void main() {
             ? find.byType(NavigationBar)
             : find.byType(NavigationRail);
         expect(nav, findsOneWidget);
+        expect(find.byKey(const Key('library.mobile-folder')), findsOneWidget);
         expect(
             find.byKey(const Key('library.collection-picker')), findsOneWidget);
         expect(find.byKey(const ValueKey('library-collection-menu')),

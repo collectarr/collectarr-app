@@ -354,112 +354,114 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   }
 
   Widget _buildMobile(BuildContext context) {
-    final palette = appPalette(context);
-    final background = (palette.isDark
-            ? type.identity.mobileToolbarDark
-            : type.identity.mobileToolbarLight) ??
-        Color.alphaBlend(
-            type.identity.accent.withValues(alpha: .2), palette.panel);
-    return LibraryMobileToolbarActions(
-      background: background,
-      foreground: palette.textPrimary,
-      actions: [
-        if (onGroupModeChanged != null &&
-            (MediaQuery.sizeOf(context).width < 1000 ||
-                !viewState.isSidebarVisible))
-          Expanded(
-              child: LibraryGroupModeMenuButton(
-            type: type,
-            folderPreset: folderPreset,
-            accent: type.identity.accent,
-            icon: Icons.folder_outlined,
-            onChanged: onGroupModeChanged!,
-            sidebarVisible: viewState.isSidebarVisible,
-            onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-            onClearBucket: onClearBucket,
-            availableModes: availableGroupModes,
-            pinnedFolderPresets: pinnedFolderPresets,
-            onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
-          ))
-        else
-          const Spacer(),
-        IconButton(
-            key: const Key('library.mobile-views'),
-            tooltip: 'Views and cover size',
-            icon: const Icon(Icons.grid_view),
-            onPressed: () => showViewAndOrganizeSheet(
-                  context: context,
-                  currentViewMode: viewState.viewMode,
-                  onViewModeChanged: onViewModeChanged,
-                  currentDetailsLayout: viewState.detailsLayout,
-                  onDetailsLayoutChanged: onDetailsLayoutChanged,
-                  currentCoverSize: viewState.coverSize,
-                  minCoverSize:
-                      libraryViewProfileForKind(type.kind).minCoverSize,
-                  maxCoverSize:
-                      libraryViewProfileForKind(type.kind).maxCoverSize,
-                  onCoverSizeChanged: onCoverSizeChanged,
-                  currentSpacing: currentSpacing,
-                  onSpacingChanged: onSpacingChanged,
-                  onOpenColumnChooser: onEditColumns,
-                  onOpenSortDialog: onEditSort,
-                )),
-        if (onEditSort != null)
-          PopupMenuButton<Object>(
-              key: const Key('library.mobile-sort'),
-              tooltip: 'Change Sorting',
-              style: IconButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  minimumSize: const Size.square(48)),
-              icon: const Icon(Icons.sort_by_alpha),
-              onSelected: (value) {
-                if (value == 'sort') {
-                  onEditSort!();
-                } else if (value == 'manage') {
-                  onManageSortFavorites?.call();
-                } else if (value is LibrarySortFavorite) {
-                  onSortFavoriteSelected?.call(value);
-                }
-              },
-              itemBuilder: (_) => [
-                    const PopupMenuItem(
-                        value: 'sort', height: 48, child: Text('Sort...')),
-                    for (final favorite in sortFavorites)
-                      CheckedPopupMenuItem(
-                          value: favorite,
-                          height: 48,
-                          checked: favorite.id == activeSortFavoriteId,
-                          child: Text(favorite.label)),
-                    if (onManageSortFavorites != null)
+    return LayoutBuilder(builder: (context, constraints) {
+      final palette = appPalette(context);
+      final background = (palette.isDark
+              ? type.identity.mobileToolbarDark
+              : type.identity.mobileToolbarLight) ??
+          Color.alphaBlend(
+              type.identity.accent.withValues(alpha: .2), palette.panel);
+      return LibraryMobileToolbarActions(
+        background: background,
+        foreground: palette.textPrimary,
+        actions: [
+          if (onGroupModeChanged != null &&
+              (constraints.maxWidth < 1000 || !viewState.isSidebarVisible))
+            Expanded(
+                child: LibraryGroupModeMenuButton(
+              key: const Key('library.mobile-folder'),
+              type: type,
+              folderPreset: folderPreset,
+              accent: type.identity.accent,
+              icon: Icons.folder_outlined,
+              onChanged: onGroupModeChanged!,
+              sidebarVisible: viewState.isSidebarVisible,
+              onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+              onClearBucket: onClearBucket,
+              availableModes: availableGroupModes,
+              pinnedFolderPresets: pinnedFolderPresets,
+              onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
+            ))
+          else
+            const Spacer(),
+          IconButton(
+              key: const Key('library.mobile-views'),
+              tooltip: 'Views and cover size',
+              icon: const Icon(Icons.grid_view),
+              onPressed: () => showViewAndOrganizeSheet(
+                    context: context,
+                    currentViewMode: viewState.viewMode,
+                    onViewModeChanged: onViewModeChanged,
+                    currentDetailsLayout: viewState.detailsLayout,
+                    onDetailsLayoutChanged: onDetailsLayoutChanged,
+                    currentCoverSize: viewState.coverSize,
+                    minCoverSize:
+                        libraryViewProfileForKind(type.kind).minCoverSize,
+                    maxCoverSize:
+                        libraryViewProfileForKind(type.kind).maxCoverSize,
+                    onCoverSizeChanged: onCoverSizeChanged,
+                    currentSpacing: currentSpacing,
+                    onSpacingChanged: onSpacingChanged,
+                    onOpenColumnChooser: onEditColumns,
+                    onOpenSortDialog: onEditSort,
+                  )),
+          if (onEditSort != null)
+            PopupMenuButton<Object>(
+                key: const Key('library.mobile-sort'),
+                tooltip: 'Change Sorting',
+                style: IconButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    minimumSize: const Size.square(48)),
+                icon: const Icon(Icons.sort_by_alpha),
+                onSelected: (value) {
+                  if (value == 'sort') {
+                    onEditSort!();
+                  } else if (value == 'manage') {
+                    onManageSortFavorites?.call();
+                  } else if (value is LibrarySortFavorite) {
+                    onSortFavoriteSelected?.call(value);
+                  }
+                },
+                itemBuilder: (_) => [
                       const PopupMenuItem(
-                          value: 'manage',
-                          height: 48,
-                          child: Text('Manage sorting favorites...')),
-                  ]),
-        LibraryToolsButton(
-            type: type,
-            counts: counts,
-            selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
-            quickView: quickView,
-            hasActiveFilters: hasActiveFilters,
-            onQuickViewSelected: onQuickViewSelected,
-            onClearFilters: onClearFilters,
-            onRandomPick: onRandomPick,
-            shelfState: shelfState,
-            onSmartLists: onSmartLists,
-            onFolders: onFolders,
-            onReadingQueue: onReadingQueue,
-            onEditConditionPickList: onEditConditionPickList,
-            onEditGradePickList: onEditGradePickList,
-            onTransferFieldData: onTransferFieldData,
-            onReassignIndex: onReassignIndex,
-            onShareCollection: onShareCollection,
-            onCompareMetadataWithServer: onCompareMetadataWithServer,
-            extraActions: extraActions),
-      ],
-      countLabel:
-          '${counts.shown}${counts.shown == counts.total ? '' : ' / ${counts.total}'} ${type.identity.countLabel(counts.shown).toLowerCase()}',
-    );
+                          value: 'sort', height: 48, child: Text('Sort...')),
+                      for (final favorite in sortFavorites)
+                        CheckedPopupMenuItem(
+                            value: favorite,
+                            height: 48,
+                            checked: favorite.id == activeSortFavoriteId,
+                            child: Text(favorite.label)),
+                      if (onManageSortFavorites != null)
+                        const PopupMenuItem(
+                            value: 'manage',
+                            height: 48,
+                            child: Text('Manage sorting favorites...')),
+                    ]),
+          LibraryToolsButton(
+              type: type,
+              counts: counts,
+              selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
+              quickView: quickView,
+              hasActiveFilters: hasActiveFilters,
+              onQuickViewSelected: onQuickViewSelected,
+              onClearFilters: onClearFilters,
+              onRandomPick: onRandomPick,
+              shelfState: shelfState,
+              onSmartLists: onSmartLists,
+              onFolders: onFolders,
+              onReadingQueue: onReadingQueue,
+              onEditConditionPickList: onEditConditionPickList,
+              onEditGradePickList: onEditGradePickList,
+              onTransferFieldData: onTransferFieldData,
+              onReassignIndex: onReassignIndex,
+              onShareCollection: onShareCollection,
+              onCompareMetadataWithServer: onCompareMetadataWithServer,
+              extraActions: extraActions),
+        ],
+        countLabel:
+            '${counts.shown}${counts.shown == counts.total ? '' : ' / ${counts.total}'} ${type.identity.countLabel(counts.shown).toLowerCase()}',
+      );
+    });
   }
 
   Widget _buildSpacingSlider(BuildContext context, {required String tooltip}) {
