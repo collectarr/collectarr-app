@@ -18,7 +18,7 @@ void main() {
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    // Fictional canonical response produced by tool/local_core/seed.py.
+    // Fictional canonical Core response kept as a stable test fixture.
     final payload = jsonDecode(
         await File('test/support/fixtures/music_core_ui_album.json')
             .readAsString()) as Map<String, dynamic>;
