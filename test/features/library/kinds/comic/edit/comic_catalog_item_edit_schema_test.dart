@@ -70,8 +70,10 @@ void main() {
     expect(nativeFields, {...desktopFields, 'comic.plot'});
     final columns = comicMobileEditSchema.tabs.single.sections.single.columns;
     expect(columns.length, 1);
-    expect(columns.single.rows.first, ['comic.series']);
-    expect(columns.single.rows[1], ['comic.issue_number', 'comic.variant']);
+    expect(columns.single.rows.first,
+        ['comic.series', 'comic.issue_number', 'comic.variant']);
+    expect(columns.single.rows[1],
+        ['variant_description', 'cover_date', 'release_date']);
   });
 
   test('edits subtitle and variant description independently of edition', () {

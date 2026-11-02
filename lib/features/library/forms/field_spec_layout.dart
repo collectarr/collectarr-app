@@ -145,24 +145,27 @@ class _WeightedRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, constraints) => constraints.maxWidth < 300
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (var i = 0; i < children.length; i++) ...[
-                    if (i > 0) const SizedBox(height: 14),
-                    children[i],
+        builder: (context, constraints) {
+          final stackBreakpoint = flexes.length >= 3 ? 600.0 : 300.0;
+          return constraints.maxWidth < stackBreakpoint
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var i = 0; i < children.length; i++) ...[
+                      if (i > 0) const SizedBox(height: 14),
+                      children[i],
+                    ],
                   ],
-                ],
-              )
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (var i = 0; i < children.length; i++) ...[
-                    if (i > 0) const SizedBox(width: 14),
-                    Expanded(flex: flexes[i], child: children[i]),
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (var i = 0; i < children.length; i++) ...[
+                      if (i > 0) const SizedBox(width: 14),
+                      Expanded(flex: flexes[i], child: children[i]),
+                    ],
                   ],
-                ],
-              ),
+                );
+        },
       );
 }

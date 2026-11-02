@@ -115,33 +115,6 @@ class ComicPersonalForm extends StatelessWidget {
           _collector('grading_company'),
           _collector('certification_number')
         ]),
-        _row([
-          LibraryFixedSelectField(
-            label: 'Label Type',
-            value: entry.labelType,
-            options: comicLabelTypeOptions,
-            onChanged: (value) {
-              entry.labelType = value;
-              _collectorChanged();
-            },
-          ),
-          LibraryFixedSelectField(
-            label: 'Page Quality',
-            value: entry.pageQuality,
-            options: comicPageQualityOptions,
-            onChanged: (value) {
-              entry.pageQuality = value;
-              _collectorChanged();
-            },
-          ),
-        ]),
-        ComicCustomLabelField(
-          value: entry.customLabel,
-          onChanged: (value) {
-            entry.customLabel = value;
-            _collectorChanged();
-          },
-        ),
         _collector('grader_notes'),
         _collector('signed_by'),
         _row([
@@ -176,6 +149,33 @@ class ComicPersonalForm extends StatelessWidget {
             )),
           ),
         ]),
+        _row([
+          LibraryFixedSelectField(
+            label: 'Label Type',
+            value: entry.labelType,
+            options: comicLabelTypeOptions,
+            onChanged: (value) {
+              entry.labelType = value;
+              _collectorChanged();
+            },
+          ),
+          LibraryFixedSelectField(
+            label: 'Page Quality',
+            value: entry.pageQuality,
+            options: comicPageQualityOptions,
+            onChanged: (value) {
+              entry.pageQuality = value;
+              _collectorChanged();
+            },
+          ),
+        ]),
+        ComicCustomLabelField(
+          value: entry.customLabel,
+          onChanged: (value) {
+            entry.customLabel = value;
+            _collectorChanged();
+          },
+        ),
       ]);
 
   Widget _mobileKey() => _stack([

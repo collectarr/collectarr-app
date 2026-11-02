@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart' show listEquals;
 import 'package:collectarr_app/features/library/edit/fields/layout_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
+import 'package:collectarr_app/features/library/edit/shell/mobile_scaffold.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/edit/tab_strip.dart';
 import 'package:collectarr_app/features/library/edit/session/vocabulary_edit_accumulator.dart';
@@ -158,6 +159,7 @@ class EditSchemaRendererState<TModel, TDraft>
   /// never paints the default order before the saved one.
   late bool _tabOrderReady;
   late int _selectedTabIndex;
+  int? _lastPushedTabIndex;
   String? _selectedTabId;
   final _localVocabularyAccumulator = LibraryVocabularyEditAccumulator();
   bool _isSaving = false;
@@ -503,7 +505,7 @@ class EditSchemaRendererState<TModel, TDraft>
     int selectedIndex,
   ) {
     if (appPresentationPlatform.isNativeMobile) {
-      return MobileTabStrip<int>(
+      final tabStrip = MobileTabStrip<int>(
         compact: true,
         tabs: [
           for (var index = 0; index < tabIndexes.length; index++)
@@ -517,6 +519,18 @@ class EditSchemaRendererState<TModel, TDraft>
           _rememberSelectedTab();
         }),
       );
+      final headerTabsScope =
+          LibraryMobileEditorHeaderTabsScope.maybeOf(context);
+      if (headerTabsScope != null) {
+        if (_lastPushedTabIndex != selectedIndex) {
+          _lastPushedTabIndex = selectedIndex;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) headerTabsScope.value = tabStrip;
+          });
+        }
+        return const SizedBox.shrink();
+      }
+      return tabStrip;
     }
     final tabs = [
       for (final index in tabIndexes) _tabForSourceIndex(index),

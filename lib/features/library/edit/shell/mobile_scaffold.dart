@@ -1,7 +1,29 @@
+import 'dart:math' as math;
+
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+
+/// Provides the active editor header tabs notifier to descendants, allowing
+/// embedded schema renderers to hoist their tab strip directly into the toolbar.
+class LibraryMobileEditorHeaderTabsScope extends InheritedWidget {
+  const LibraryMobileEditorHeaderTabsScope({
+    super.key,
+    required this.tabsNotifier,
+    required super.child,
+  });
+
+  final ValueNotifier<Widget?> tabsNotifier;
+
+  static ValueNotifier<Widget?>? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<LibraryMobileEditorHeaderTabsScope>()
+      ?.tabsNotifier;
+
+  @override
+  bool updateShouldNotify(LibraryMobileEditorHeaderTabsScope oldWidget) =>
+      tabsNotifier != oldWidget.tabsNotifier;
+}
 
 /// Native editor chrome around the shared form, tabs and guarded commands.
 class LibraryMobileEditorScaffold extends StatefulWidget {
@@ -42,10 +64,14 @@ class LibraryMobileEditorScaffold extends StatefulWidget {
 class _LibraryMobileEditorScaffoldState
     extends State<LibraryMobileEditorScaffold> {
   late final _collectionContent = ValueNotifier<Widget?>(widget.footer);
+  late final _headerTabs = ValueNotifier<Widget?>(widget.tabs);
 
   @override
   void didUpdateWidget(LibraryMobileEditorScaffold oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.tabs != null) {
+      _headerTabs.value = widget.tabs;
+    }
     // The sheet is on another route; update its presentation after the parent
     // frame, while draft values and commands remain owned by the editor.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -56,6 +82,7 @@ class _LibraryMobileEditorScaffoldState
   @override
   void dispose() {
     _collectionContent.dispose();
+    _headerTabs.dispose();
     super.dispose();
   }
 
@@ -75,48 +102,97 @@ class _LibraryMobileEditorScaffoldState
       :footer,
       :body
     ) = widget;
-    return MobilePage(
-      key: const Key('library.mobile-editor'),
-      title: title,
-      headerColor: accent,
-      backgroundColor: appPalette(context).surfaceBright,
-      onBack: onBack,
-      canGoBack: !isBusy,
-      actions: [
-        if (footer != null)
-          IconButton(
-              tooltip: 'Collection details',
-              icon: const Icon(Icons.inventory_2_outlined),
-              onPressed: isBusy ? null : () => _showCollectionDetails(context)),
-        if (primaryAction != null)
-          primaryAction
-        else
-          TextButton(
-            key: const Key('library.mobile-editor.save'),
-            onPressed: isBusy ? null : onSave,
-            style: TextButton.styleFrom(
-                foregroundColor: Colors.white, minimumSize: const Size(64, 48)),
-            child: Text(isBusy ? 'Saving…' : 'Save'),
+
+    final viewport = MediaQuery.sizeOf(context);
+    final isTablet = viewport.width >= 720;
+
+    final page = ValueListenableBuilder<Widget?>(
+      valueListenable: _headerTabs,
+      builder: (context, headerTabs, _) {
+        final showTabsInHeader = isTablet && headerTabs != null;
+        return MobilePage(
+          key: const Key('library.mobile-editor'),
+          title: showTabsInHeader ? null : title,
+          titleWidget: showTabsInHeader ? headerTabs : null,
+          headerColor: accent,
+          backgroundColor: appPalette(context).surfaceBright,
+          onBack: onBack,
+          canGoBack: !isBusy,
+          actions: [
+            if (footer != null)
+              IconButton(
+                  tooltip: 'Collection details',
+                  icon: const Icon(Icons.inventory_2_outlined),
+                  onPressed:
+                      isBusy ? null : () => _showCollectionDetails(context)),
+            if (primaryAction != null)
+              primaryAction
+            else
+              TextButton.icon(
+                key: const Key('library.mobile-editor.save'),
+                onPressed: isBusy ? null : onSave,
+                icon: isBusy
+                    ? const SizedBox.square(
+                        dimension: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.check, size: 20),
+                label: Text(isBusy ? 'Saving…' : 'Save'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  minimumSize: const Size(64, 48),
+                ),
+              ),
+            if (onPropose != null || onPrevious != null || onNext != null)
+              PopupMenuButton<VoidCallback>(
+                tooltip: 'More editor actions',
+                enabled: !isBusy,
+                onSelected: (action) => action(),
+                itemBuilder: (_) => [
+                  if (onPropose != null)
+                    PopupMenuItem(
+                        value: onPropose, child: const Text('Propose to Core')),
+                  if (onPrevious != null)
+                    PopupMenuItem(
+                        value: onPrevious, child: const Text('Previous item')),
+                  if (onNext != null)
+                    PopupMenuItem(
+                        value: onNext, child: const Text('Next item')),
+                ],
+              ),
+          ],
+          contextBar: showTabsInHeader ? null : (headerTabs ?? tabs),
+          body: LibraryMobileEditorHeaderTabsScope(
+            tabsNotifier: _headerTabs,
+            child: body,
           ),
-        if (onPropose != null || onPrevious != null || onNext != null)
-          PopupMenuButton<VoidCallback>(
-            tooltip: 'More editor actions',
-            enabled: !isBusy,
-            onSelected: (action) => action(),
-            itemBuilder: (_) => [
-              if (onPropose != null)
-                PopupMenuItem(
-                    value: onPropose, child: const Text('Propose to Core')),
-              if (onPrevious != null)
-                PopupMenuItem(
-                    value: onPrevious, child: const Text('Previous item')),
-              if (onNext != null)
-                PopupMenuItem(value: onNext, child: const Text('Next item')),
-            ],
+        );
+      },
+    );
+
+    if (!isTablet) return page;
+
+    final cardWidth = math.min(1152.0, viewport.width - 32);
+    final cardHeight = math.min(1152.0, viewport.height - 32);
+
+    return Scaffold(
+      backgroundColor: Colors.black54,
+      body: SafeArea(
+        child: Center(
+          child: SizedBox(
+            width: cardWidth,
+            height: cardHeight,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: page,
+            ),
           ),
-      ],
-      contextBar: tabs,
-      body: body,
+        ),
+      ),
     );
   }
 

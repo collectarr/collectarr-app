@@ -12,6 +12,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Native mobile editors match CLZ's toolbar tab strip and pill styling, center tablet dialogs in a bounded card, and lay out Comics Main and Value fields in matching multi-column rows.
 - Native folder and sort selectors, sorting favorites, column editors, Smart Lists, personal folders and Pick List management open as full-screen pages; the library sort button opens its page directly with a selected-row direction control.
 - Every active library kind has an Add Manually shortcut in the navigation drawer, including Games, Hardware and Toys.
 - Native Settings sections restore from their URLs with consistent Back navigation; collection management uses a full-screen touch list, and sorting offers common orders with an advanced editor.
