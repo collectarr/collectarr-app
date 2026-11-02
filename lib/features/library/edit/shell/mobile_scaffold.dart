@@ -126,31 +126,18 @@ class _LibraryMobileEditorScaffoldState
                 icon: const Icon(Icons.delete_outline),
                 onPressed: isBusy ? null : onDelete,
               ),
-            if (primaryAction == null) ...[
+            if (primaryAction == null || onPrevious != null)
               IconButton(
                 tooltip: 'Previous item',
                 icon: const Icon(Icons.chevron_left),
                 onPressed: (isBusy || onPrevious == null) ? null : onPrevious,
               ),
+            if (primaryAction == null || onNext != null)
               IconButton(
                 tooltip: 'Next item',
                 icon: const Icon(Icons.chevron_right),
                 onPressed: (isBusy || onNext == null) ? null : onNext,
               ),
-            ] else ...[
-              if (onPrevious != null)
-                IconButton(
-                  tooltip: 'Previous item',
-                  icon: const Icon(Icons.chevron_left),
-                  onPressed: isBusy ? null : onPrevious,
-                ),
-              if (onNext != null)
-                IconButton(
-                  tooltip: 'Next item',
-                  icon: const Icon(Icons.chevron_right),
-                  onPressed: isBusy ? null : onNext,
-                ),
-            ],
             if (footer != null)
               IconButton(
                 tooltip: 'Collection details',
