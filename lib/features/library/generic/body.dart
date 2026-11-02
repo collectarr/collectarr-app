@@ -485,7 +485,8 @@ class LibraryBody extends StatelessWidget {
                     ],
                   ),
                 ),
-              if (workspaceOverride == null &&
+              if (!appPresentationPlatform.isNativeMobile &&
+                  workspaceOverride == null &&
                   !showSidebar &&
                   constraints.maxWidth < 600 &&
                   projection.buckets.length > 1)

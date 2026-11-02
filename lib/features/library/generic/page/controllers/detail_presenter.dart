@@ -71,24 +71,43 @@ abstract final class _LibraryDetailPresenter {
           }
 
           return Scaffold(
-              appBar: AppBar(
-                  backgroundColor: state.widget.accent,
-                  foregroundColor: Colors.white,
-                  leading: BackButton(onPressed: back),
-                  title: Text(loaded.source.title,
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
-                  actions: [
-                    IconButton(
-                        tooltip: 'Previous item',
-                        onPressed: index > 0 ? () => neighbor(-1) : null,
-                        icon: const Icon(Icons.chevron_left)),
-                    IconButton(
-                        tooltip: 'Next item',
-                        onPressed: index >= 0 && index + 1 < neighbors.length
-                            ? () => neighbor(1)
-                            : null,
-                        icon: const Icon(Icons.chevron_right))
-                  ]),
+              appBar: appPresentationPlatform.isNativeMobile
+                  ? MobilePageHeader(
+                      title: loaded.source.title,
+                      onBack: back,
+                      color: state.widget.accent,
+                      actions: [
+                          IconButton(
+                              tooltip: 'Previous item',
+                              onPressed: index > 0 ? () => neighbor(-1) : null,
+                              icon: const Icon(Icons.chevron_left)),
+                          IconButton(
+                              tooltip: 'Next item',
+                              onPressed:
+                                  index >= 0 && index + 1 < neighbors.length
+                                      ? () => neighbor(1)
+                                      : null,
+                              icon: const Icon(Icons.chevron_right)),
+                        ])
+                  : AppBar(
+                      backgroundColor: state.widget.accent,
+                      foregroundColor: Colors.white,
+                      leading: BackButton(onPressed: back),
+                      title: Text(loaded.source.title,
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                      actions: [
+                          IconButton(
+                              tooltip: 'Previous item',
+                              onPressed: index > 0 ? () => neighbor(-1) : null,
+                              icon: const Icon(Icons.chevron_left)),
+                          IconButton(
+                              tooltip: 'Next item',
+                              onPressed:
+                                  index >= 0 && index + 1 < neighbors.length
+                                      ? () => neighbor(1)
+                                      : null,
+                              icon: const Icon(Icons.chevron_right))
+                        ]),
               body: LibraryDetailPage.fromRequest(request,
                   popAfterNavigationActions: false, onFilterByValue: (value) {
                 final parentFilter = state.widget.detailHint?.onFilterByValue;

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/library/detail/item_provider.dart';
 import 'package:collectarr_app/features/library/detail/page.dart';

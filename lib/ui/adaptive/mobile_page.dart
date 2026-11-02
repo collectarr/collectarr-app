@@ -11,11 +11,13 @@ class MobilePage extends StatelessWidget {
       required this.backgroundColor,
       required this.body,
       this.actions,
+      this.canGoBack = true,
       this.contextBar,
       this.footer,
       this.overlay});
 
   final String title;
+  final bool canGoBack;
   final VoidCallback onBack;
   final Color headerColor;
   final Color backgroundColor;
@@ -31,12 +33,11 @@ class MobilePage extends StatelessWidget {
           style: IconButton.styleFrom(backgroundColor: Colors.transparent)),
       child: Scaffold(
         backgroundColor: backgroundColor,
-        appBar: AppBar(
-            systemOverlayStyle: SystemUiOverlayStyle.light,
-            backgroundColor: headerColor,
-            foregroundColor: Colors.white,
-            leading: BackButton(onPressed: onBack),
-            title: Text(title),
+        appBar: MobilePageHeader(
+            title: title,
+            onBack: onBack,
+            color: headerColor,
+            canGoBack: canGoBack,
             actions: actions),
         body: SafeArea(
             top: false,
@@ -49,6 +50,51 @@ class MobilePage extends StatelessWidget {
               if (overlay != null) Positioned.fill(child: overlay!),
             ])),
       ));
+}
+
+/// Header styling is scoped to native chrome, so desktop button fills and
+/// title colors do not leak into mobile pages or recolor their form controls.
+class MobilePageHeader extends StatelessWidget implements PreferredSizeWidget {
+  const MobilePageHeader(
+      {super.key,
+      required this.title,
+      required this.onBack,
+      required this.color,
+      this.actions,
+      this.canGoBack = true});
+  final String title;
+  final VoidCallback onBack;
+  final Color color;
+  final List<Widget>? actions;
+  final bool canGoBack;
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  @override
+  Widget build(BuildContext context) => IconButtonTheme(
+        data: IconButtonThemeData(
+            style: IconButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.white38,
+        )),
+        child: AppBar(
+          systemOverlayStyle: SystemUiOverlayStyle.light,
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          titleTextStyle: Theme.of(context)
+              .textTheme
+              .titleLarge
+              ?.copyWith(color: Colors.white, fontSize: 20),
+          leading: canGoBack
+              ? BackButton(onPressed: onBack)
+              : const IconButton(
+                  tooltip: 'Back',
+                  onPressed: null,
+                  icon: Icon(Icons.arrow_back)),
+          title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+          actions: actions,
+        ),
+      );
 }
 
 /// Touch-sized segmented tabs, scrolling when text or tab count needs room.

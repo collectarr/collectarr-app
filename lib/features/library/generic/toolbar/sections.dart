@@ -1080,7 +1080,9 @@ class LibraryCompactToolbarContent extends StatelessWidget {
 
     if (appPresentationPlatform.isNativeMobile) {
       return Column(mainAxisSize: MainAxisSize.min, children: [
-        if (searchTargetOptions.isNotEmpty && onSearchTargetChanged != null)
+        if (searchActive &&
+            searchTargetOptions.isNotEmpty &&
+            onSearchTargetChanged != null)
           PopupMenuButton<LibrarySearchTarget>(
               tooltip: 'Search scope',
               onSelected: onSearchTargetChanged,
