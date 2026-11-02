@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
@@ -7,7 +9,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/ui/primitives/field_selection.dart';
 import 'package:collectarr_app/features/library/generic/folder_reorder_list.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
-import 'package:collectarr_app/ui/theme/app_typography.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
@@ -75,6 +77,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   String? _editingPresetId;
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
+  bool _advancedMobile = false;
   final Map<String, bool> _expandedGroups = {};
 
   @override
@@ -98,6 +101,52 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   @override
   Widget build(BuildContext context) {
     final columns = _filteredColumns();
+    if (appPresentationPlatform.isNativeMobile &&
+        widget.showFavorites &&
+        !_advancedMobile) {
+      return MobilePage(
+        title: 'Sort',
+        headerColor: widget.type.identity.accent,
+        backgroundColor: appPalette(context).panel,
+        onBack: () => Navigator.of(context).pop(),
+        body: ListView(children: [
+          ListTile(
+              title: const Text('Current sort'),
+              subtitle: Text(_sortRuleSummary(widget.type, _rules))),
+          for (final preset in _combinedPresets)
+            ListTile(
+              title: Text(preset.label),
+              selected: _sameSortRules(preset.rules, _rules),
+              selectedColor: appPalette(context).utilityAction,
+              onTap: () {
+                _applyPreset(preset);
+                _saveAndClose();
+              },
+              trailing: IconButton(
+                  tooltip: preset.rules.first.ascending
+                      ? 'Sort descending'
+                      : 'Sort ascending',
+                  icon: Icon(preset.rules.first.ascending
+                      ? Icons.arrow_upward
+                      : Icons.arrow_downward),
+                  onPressed: () {
+                    setState(() => _rules = [
+                          preset.rules.first.copyWith(
+                              ascending: !preset.rules.first.ascending),
+                          ...preset.rules.skip(1)
+                        ]);
+                    _saveAndClose();
+                  }),
+            ),
+          const Divider(),
+          ListTile(
+              leading: const Icon(Icons.tune),
+              title: const Text('Advanced sorting'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => setState(() => _advancedMobile = true)),
+        ]),
+      );
+    }
     return LibraryFieldSelectionDialog(
         icon: widget.icon,
         title: widget.title,

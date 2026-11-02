@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'dart:convert';
 
@@ -87,7 +88,7 @@ void main() {
     expect(find.text('Device identity'), findsOneWidget);
     expect(find.text('Session expiry unavailable'), findsNothing);
     expect(find.text('Save settings'), findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
       'settings page renders drill-down list on compact screen and navigates',
@@ -100,13 +101,18 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
+    final router = GoRouter(initialLocation: '/settings', routes: [
+      GoRoute(
+          path: '/settings',
+          builder: (_, state) => SettingsPage(
+              initialSection: settingsSectionFromRouteValue(
+                  state.uri.queryParameters['section']))),
+    ]);
+    addTearDown(router.dispose);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp(
-          theme: ThemeData(platform: TargetPlatform.android),
-          home: const SettingsPage(),
-        ),
+        child: MaterialApp.router(routerConfig: router),
       ),
     );
     await pumpUntilSettled(tester);
@@ -142,7 +148,9 @@ void main() {
     // Let Drift finish cancelling the platform-image watch before teardown.
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
-  });
+  },
+      variant:
+          TargetPlatformVariant({TargetPlatform.android, TargetPlatform.iOS}));
 
   testWidgets('settings page renders scrollable section tabs on medium screen',
       (tester) async {
@@ -176,7 +184,7 @@ void main() {
     expect(find.text('Animations'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('settings page persists animation preference', (tester) async {
     SharedPreferences.setMockInitialValues({});
@@ -214,7 +222,7 @@ void main() {
     );
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
       'settings page appearance renders sliders with gridSpacing 24.0 without throwing',
@@ -247,7 +255,7 @@ void main() {
     expect(find.text('Grid spacing'), findsOneWidget);
     final sliderFinder = find.byType(Slider).first;
     expect(tester.widget<Slider>(sliderFinder).value, 24.0);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('settings page warns that web sync can be browser-blocked',
       (tester) async {
@@ -277,7 +285,7 @@ void main() {
       find.textContaining('Browser CORS, HTTPS, and local-network access'),
       findsOneWidget,
     );
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('settings page shows rejected sync changes for review',
       (tester) async {
@@ -329,7 +337,7 @@ void main() {
     await tester.tap(find.byTooltip('Keep service version'));
     await pumpUntilSettled(tester);
     expect(find.text('Sync conflict review'), findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('settings page explains keep local queues the next sync',
       (tester) async {
@@ -376,7 +384,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Sync conflict review'), findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('settings page applies pasted pairing code', (tester) async {
     SharedPreferences.setMockInitialValues({});
@@ -418,7 +426,7 @@ void main() {
     expect(find.text('http://metadata.local:8010'), findsOneWidget);
     await _scrollToText(tester, 'Personal sync service');
     expect(find.text('http://sync.local:8020'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('settings page shows pairing QR code', (tester) async {
     SharedPreferences.setMockInitialValues({});
@@ -447,7 +455,7 @@ void main() {
 
     expect(find.text('Pairing QR'), findsOneWidget);
     expect(find.text('Copy code'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('settings page shows account session status', (tester) async {
     final token = _jwtExpiringAt(
@@ -485,7 +493,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.textContaining('Sign out'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }
 
 Future<void> _scrollToText(WidgetTester tester, String text) async {

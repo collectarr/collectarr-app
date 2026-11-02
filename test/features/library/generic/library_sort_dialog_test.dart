@@ -56,7 +56,7 @@ void main() {
     expect(result,
         const [LibrarySortRule(column: 'music.title', ascending: true)]);
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('sort field search can be cleared and used again',
       (tester) async {
@@ -111,7 +111,7 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(find.text('Select Sort Fields'), findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
   testWidgets(
       'sort fields reorder, change direction and save in priority order',
       (tester) async {
@@ -159,7 +159,7 @@ void main() {
       LibrarySortRule(column: 'music.title', ascending: true)
     ]);
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('sort dialog keeps both lists usable on a 350px window',
       (tester) async {
@@ -184,5 +184,5 @@ void main() {
         findsOneWidget);
     expect(find.text('Save'), findsOneWidget);
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

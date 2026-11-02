@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -53,41 +55,58 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
                     palette.panel))
           ]),
       child: Builder(
-          builder: (context) => Dialog(
-                alignment: Alignment.topCenter,
-                insetPadding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
-                backgroundColor: pickListSurface(context),
-                shape: appDialogShape,
-                clipBehavior: Clip.antiAlias,
-                child: SizedBox(
-                    width: 600,
-                    height: MediaQuery.sizeOf(context).height - 60,
-                    child: DefaultTextStyle.merge(
-                        style: librarySelectionFieldStyle,
-                        child: Column(children: [
-                          AccentDialogHeader(
-                              icon: icon,
-                              title: title,
-                              accent: accent,
-                              minHeight: 38,
-                              trailing: headerAction,
-                              onClose: () => Navigator.of(context).pop()),
-                          Expanded(
-                              child: Padding(
-                                  padding: const EdgeInsets.all(15),
-                                  child: child)),
-                          DialogActionFooter(actions: [
-                            DialogActionButton(
-                                label: 'Cancel',
-                                onPressed: () => Navigator.of(context).pop()),
-                            DialogActionButton(
-                                label: confirmLabel,
-                                primary: true,
-                                onPressed: onSave),
-                          ]),
-                        ]))),
-              )),
+          builder: (context) => appPresentationPlatform.isNativeMobile
+              ? MobilePage(
+                  title: title,
+                  headerColor: accent,
+                  backgroundColor: pickListSurface(context),
+                  onBack: () => Navigator.of(context).pop(),
+                  actions: [
+                    if (headerAction != null) headerAction!,
+                    TextButton(
+                        style:
+                            TextButton.styleFrom(foregroundColor: Colors.white),
+                        onPressed: onSave,
+                        child: Text(confirmLabel)),
+                  ],
+                  body:
+                      Padding(padding: const EdgeInsets.all(12), child: child),
+                )
+              : Dialog(
+                  alignment: Alignment.topCenter,
+                  insetPadding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
+                  backgroundColor: pickListSurface(context),
+                  shape: appDialogShape,
+                  clipBehavior: Clip.antiAlias,
+                  child: SizedBox(
+                      width: 600,
+                      height: MediaQuery.sizeOf(context).height - 60,
+                      child: DefaultTextStyle.merge(
+                          style: librarySelectionFieldStyle,
+                          child: Column(children: [
+                            AccentDialogHeader(
+                                icon: icon,
+                                title: title,
+                                accent: accent,
+                                minHeight: 38,
+                                trailing: headerAction,
+                                onClose: () => Navigator.of(context).pop()),
+                            Expanded(
+                                child: Padding(
+                                    padding: const EdgeInsets.all(15),
+                                    child: child)),
+                            DialogActionFooter(actions: [
+                              DialogActionButton(
+                                  label: 'Cancel',
+                                  onPressed: () => Navigator.of(context).pop()),
+                              DialogActionButton(
+                                  label: confirmLabel,
+                                  primary: true,
+                                  onPressed: onSave),
+                            ]),
+                          ]))),
+                )),
     );
   }
 }
@@ -107,6 +126,18 @@ class LibraryFieldSelectionPanes extends StatelessWidget {
                     : appPalette(context).surfaceSubtle,
                 borderRadius: BorderRadius.circular(4)),
             child: selected);
+        if (appPresentationPlatform.isNativeMobile &&
+            constraints.maxWidth < 600) {
+          return DefaultTabController(
+              length: 2,
+              child: Column(children: [
+                const TabBar(tabs: [
+                  Tab(text: 'Fields', height: 48),
+                  Tab(text: 'Selected', height: 48)
+                ]),
+                Expanded(child: TabBarView(children: [available, right])),
+              ]));
+        }
         if (constraints.maxWidth < 380) {
           return Column(children: [
             Expanded(child: available),
@@ -150,12 +181,12 @@ class _LibraryFieldSelectionSearchState
     final palette = appPalette(context);
     final ink = palette.isDark ? Colors.white : palette.textPrimary;
     return SizedBox(
-        height: 28,
+        height: appPresentationPlatform.isNativeMobile ? 48 : 28,
         child: TextField(
             controller: controller,
             style: librarySelectionFieldStyle,
             // The reference types with a white caret.
-            cursorColor: ink,
+            cursorColor: palette.utilityAction,
             onChanged: (value) {
               setState(() {});
               widget.onChanged(value);
@@ -294,7 +325,8 @@ class _LibraryFieldSelectionCategoryState
                   child: InkWell(
                       onTap: widget.onToggle,
                       child: SizedBox(
-                          height: 28,
+                          height:
+                              appPresentationPlatform.isNativeMobile ? 48 : 28,
                           child: Row(children: [
                             if (check != null)
                               GestureDetector(
@@ -347,7 +379,7 @@ class LibraryFieldSelectionCheckbox extends StatelessWidget {
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) => Container(
-      height: 28,
+      height: appPresentationPlatform.isNativeMobile ? 48 : 28,
       margin: const EdgeInsets.only(bottom: 1),
       decoration: BoxDecoration(
           border: Border.all(
@@ -399,7 +431,7 @@ class LibrarySelectedFieldRow extends StatelessWidget {
     final color = palette.isDark ? const Color(0xff444444) : palette.field;
     return LibraryFolderReorderRow(
         selectedField: true,
-        height: 28,
+        height: appPresentationPlatform.isNativeMobile ? 48 : 28,
         bottomSpacing: 3,
         color: color,
         hoverColor: color,
@@ -425,8 +457,10 @@ class LibrarySelectedFieldRow extends StatelessWidget {
                       behavior: HitTestBehavior.opaque,
                       onTap: onRemove,
                       child: SizedBox(
-                          width: 25,
-                          height: 26,
+                          width:
+                              appPresentationPlatform.isNativeMobile ? 48 : 25,
+                          height:
+                              appPresentationPlatform.isNativeMobile ? 48 : 26,
                           child: Center(
                               child: Icon(AppIcons.close,
                                   size: 12,
@@ -466,6 +500,12 @@ class _SortDirectionSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    if (appPresentationPlatform.isNativeMobile) {
+      return IconButton(
+          tooltip: ascending ? 'Sort descending' : 'Sort ascending',
+          onPressed: onTap,
+          icon: Icon(ascending ? Icons.arrow_upward : Icons.arrow_downward));
+    }
     final ink = palette.isDark ? Colors.white : palette.textPrimary;
     final dark = palette.isDark ? const Color(0xFF1D1D1D) : palette.panel;
     return MouseRegion(
