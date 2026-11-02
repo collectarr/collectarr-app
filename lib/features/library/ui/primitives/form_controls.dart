@@ -157,11 +157,18 @@ class LibraryTextFormControl extends StatelessWidget {
             labelText: mobileLabel,
             labelStyle: const TextStyle(fontSize: 16),
             floatingLabelStyle: const TextStyle(fontSize: 12),
-            floatingLabelBehavior: FloatingLabelBehavior.auto,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            filled: false,
+            fillColor: Colors.transparent,
             border: const OutlineInputBorder(borderRadius: BorderRadius.zero),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.zero,
               borderSide: BorderSide(color: appPalette(context).divider),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.zero,
+              borderSide: BorderSide(
+                  color: appPalette(context).utilityAction, width: 2),
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 15),

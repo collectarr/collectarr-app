@@ -22,25 +22,30 @@ class ComicCustomLabelField extends ConsumerWidget {
   final ValueChanged<String?> onChanged;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => LibraryFormField(
-        label: 'Custom Label',
-        child: Row(children: [
-          Expanded(
-            child: LibraryManagedVocabularyField(
-              label: 'Custom Label',
-              showFieldLabel: false,
-              listName: ComicVocabularyIds.customLabel.value,
-              mediaKind: 'comic',
-              value: value,
-              builtIns: ref.watch(listValueImageValuesProvider(_list)).value ??
-                  const [],
-              onChanged: onChanged,
-            ),
-          ),
-          const SizedBox(width: 4),
-          _CustomLabelImageButton(label: value),
-        ]),
-      );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final nativeEditor = LibraryMobileEditFormScope.active(context);
+    final content = Row(children: [
+      Expanded(
+        child: LibraryManagedVocabularyField(
+          label: 'Custom Label',
+          showFieldLabel: !nativeEditor,
+          listName: ComicVocabularyIds.customLabel.value,
+          mediaKind: 'comic',
+          value: value,
+          builtIns: ref.watch(listValueImageValuesProvider(_list)).value ??
+              const [],
+          onChanged: onChanged,
+        ),
+      ),
+      const SizedBox(width: 4),
+      _CustomLabelImageButton(label: value),
+    ]);
+    if (nativeEditor) return content;
+    return LibraryFormField(
+      label: 'Custom Label',
+      child: content,
+    );
+  }
 }
 
 /// The list the images are kept for.

@@ -45,6 +45,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     required this.onClose,
     required this.onCancel,
     required this.onSave,
+    this.onDelete,
     this.onProposeToCore,
     this.onPrevious,
     this.onNext,
@@ -84,6 +85,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final VoidCallback onClose;
   final VoidCallback onCancel;
   final VoidCallback? onSave;
+  final VoidCallback? onDelete;
   final VoidCallback? onProposeToCore;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
@@ -313,6 +315,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                       isBusy: widget.isBusy,
                       onBack: widget.onCancel,
                       onSave: widget.onSave,
+                      onDelete: widget.onDelete,
                       onPropose: widget.onProposeToCore,
                       onPrevious: widget.onPrevious,
                       onNext: widget.onNext,

@@ -14,7 +14,8 @@ typedef LibraryDropdownPickHandler = Future<String?> Function({
 /// The inline caret filters nearby values. The list action opens the full
 /// searchable pick list and can provide create/manage actions for persistent
 /// vocabularies.
-class LibraryDropdownPickField<TValue> extends StatefulWidget {
+class LibraryDropdownPickField<TValue> extends StatefulWidget
+    implements LibraryMobileInlineLabelControl {
   const LibraryDropdownPickField({
     super.key,
     required this.label,
@@ -163,7 +164,7 @@ class _LibraryDropdownPickFieldState<TValue>
       controller: _controller,
       focusNode: widget.focusNode,
       label: widget.label,
-      showInlineLabel: false,
+      showInlineLabel: LibraryMobileEditFormScope.active(context),
       options: _labels,
       validator: (_) => widget.errorText,
       helperText: widget.helperText,

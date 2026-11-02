@@ -138,6 +138,7 @@ class LibraryEditDialogRequest {
     this.itemImages = const [],
     this.onPrevious,
     this.onNext,
+    this.onDelete,
     this.openMetadataCompareOnOpen = false,
   }) : kindItem = item;
 
@@ -165,6 +166,7 @@ class LibraryEditDialogRequest {
   final List<ItemImage> itemImages;
   final Future<void> Function()? onPrevious;
   final Future<void> Function()? onNext;
+  final Future<void> Function()? onDelete;
   final bool openMetadataCompareOnOpen;
 
   LibraryEditDialogRequest copyWith({
@@ -183,6 +185,7 @@ class LibraryEditDialogRequest {
     List<ItemImage>? itemImages,
     Future<void> Function()? onPrevious,
     Future<void> Function()? onNext,
+    Future<void> Function()? onDelete,
     bool? openMetadataCompareOnOpen,
   }) {
     return LibraryEditDialogRequest(
@@ -203,6 +206,7 @@ class LibraryEditDialogRequest {
       itemImages: itemImages ?? this.itemImages,
       onPrevious: onPrevious ?? this.onPrevious,
       onNext: onNext ?? this.onNext,
+      onDelete: onDelete ?? this.onDelete,
       openMetadataCompareOnOpen:
           openMetadataCompareOnOpen ?? this.openMetadataCompareOnOpen,
     );

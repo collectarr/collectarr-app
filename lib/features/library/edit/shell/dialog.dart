@@ -66,6 +66,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.itemImages = const [],
     this.onPrevious,
     this.onNext,
+    this.onDelete,
     this.target,
   })  : request = null,
         isEntryTarget = target is EntryTargetRef || libraryEntry != null;
@@ -89,6 +90,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         itemImages = request.itemImages,
         onPrevious = request.onPrevious,
         onNext = request.onNext,
+        onDelete = request.onDelete,
         isEntryTarget = request.isLibraryEntry;
 
   final LibraryKindRegistration type;
@@ -109,6 +111,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final List<ItemImage> itemImages;
   final Future<void> Function()? onPrevious;
   final Future<void> Function()? onNext;
+  final Future<void> Function()? onDelete;
   final LibraryTargetRef? target;
   final bool isEntryTarget;
   final LibraryEditDialogRequest? request;
@@ -406,6 +409,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       onClose: () => unawaited(_leave(() => Navigator.of(context).pop())),
       onCancel: () => unawaited(_leave(() => Navigator.of(context).pop())),
       onSave: _isSaving ? null : () => unawaited(_submit()),
+      onDelete: _isSaving || widget.onDelete == null ? null : () => unawaited(widget.onDelete!()),
       onProposeToCore: _isSaving ||
               (LibraryEntryEditScope.maybeOf(context)
                           ?.record

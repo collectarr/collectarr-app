@@ -34,6 +34,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     required this.accent,
     required this.onSave,
     required this.onCancel,
+    this.onDelete,
     this.coreCorrectionSourceBuilder,
     this.badges = const <Widget>[],
     this.onPrevious,
@@ -58,6 +59,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final List<Widget> badges;
   final FutureOr<void> Function(TDraft draft) onSave;
   final VoidCallback onCancel;
+  final VoidCallback? onDelete;
   final LibraryCoreCorrectionSource Function()? coreCorrectionSourceBuilder;
   final Future<void> Function()? onPrevious;
   final Future<void> Function()? onNext;
@@ -232,6 +234,7 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
       isBusy: _saving,
       onClose: _cancelIfIdle,
       onCancel: _cancelIfIdle,
+      onDelete: _saving ? null : widget.onDelete,
       onSave: _saving ? null : _save,
       onProposeToCore: _saving ||
               (entry != null && entry.record.sourceCatalogRef == null) ||
