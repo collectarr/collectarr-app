@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/features/library/add/presentation_tokens.dart';
 import 'dart:math' as math;
 
 import 'dependencies.dart';
@@ -27,6 +27,7 @@ class LibraryAddConfirmSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final tokens = LibraryAddPresentationTokens.current;
     return CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.escape): onDismiss,
@@ -42,11 +43,7 @@ class LibraryAddConfirmSheet extends StatelessWidget {
                     .clamp(math.min(360.0, constraints.maxHeight),
                         constraints.maxHeight)
                     .toDouble();
-            final inset = appPresentationPlatform.isNativeMobile
-                ? 0.0
-                : fixed == null
-                    ? 10.0
-                    : math.max(10.0, (constraints.maxWidth - fixed.width) / 2);
+            final inset = tokens.confirmHorizontalInset(constraints, fixed);
             return Stack(
               children: [
                 Positioned.fill(
@@ -67,8 +64,7 @@ class LibraryAddConfirmSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Container(
-                        height:
-                            appPresentationPlatform.isNativeMobile ? 48 : 38,
+                        height: tokens.confirmHeaderHeight,
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         alignment: Alignment.centerLeft,
                         decoration: BoxDecoration(
@@ -86,7 +82,7 @@ class LibraryAddConfirmSheet extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                             ),
                           )),
-                          if (appPresentationPlatform.isNativeMobile)
+                          if (tokens.confirmCloseButton)
                             IconButton(
                                 tooltip: 'Back to results',
                                 onPressed: onDismiss,

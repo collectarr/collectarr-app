@@ -74,6 +74,7 @@
 - The web app leaves zoom to the browser, so its zoom shortcuts and Ctrl + wheel change the browser's zoom instead of adding an app zoom that read 100 % on an already zoomed page.
 
 ### Refactors
+- Add presentation values are centralized, and the mobile issue grid can evolve without changing the desktop Add layout.
 - Native presentation decisions are centralized and kept independent from responsive window sizes.
 - Shared library files are named by their job inside their folders; toolbar selection, filtering, compact controls and native layout have separate owners.
 - Board Game, Book, Movie, Music, Comics and Games configuration, entry payload, catalog lookup, editor, inspector, stats and action files are named by their job inside their kind's folders, as the other kind files already were.

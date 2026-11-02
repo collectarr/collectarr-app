@@ -1,4 +1,5 @@
 import 'mobile_method_picker.dart';
+import 'presentation_tokens.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/features/library/ui/density_scope.dart';
@@ -1326,7 +1327,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         ].join(' ');
         return Column(children: [
           Material(
-            color: libraryAddMobileGroupHeaderColor(appPalette(context)),
+            color: LibraryAddPresentationTokens.mobile
+                .mobileGroupHeaderColor(appPalette(context)),
             child: ListTile(
                 dense: true,
                 minTileHeight: 48,

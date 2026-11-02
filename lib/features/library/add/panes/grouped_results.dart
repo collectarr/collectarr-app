@@ -33,9 +33,6 @@ List<LibraryAddResultGroup> libraryAddResultGroups(
 Color libraryAddGroupHeaderColor(AppThemePalette palette) =>
     palette.isDark ? const Color(0xff666666) : const Color(0xffd6d6d6);
 
-Color libraryAddMobileGroupHeaderColor(AppThemePalette palette) =>
-    palette.isDark ? const Color(0xff29464f) : const Color(0xffd4e8ef);
-
 Color _tileColor(AppThemePalette palette) =>
     palette.isDark ? const Color(0xff383838) : const Color(0xffeeeeee);
 
