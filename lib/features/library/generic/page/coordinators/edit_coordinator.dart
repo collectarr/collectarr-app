@@ -225,7 +225,8 @@ class LibraryPageEditCoordinator {
                 final confirmed = await _s.confirmSingleRemove(
                   _s.context,
                   title: target.dto.primaryLabel,
-                  itemLabel: _s.widget.type.identity.singularLabel.toLowerCase(),
+                  itemLabel:
+                      _s.widget.type.identity.singularLabel.toLowerCase(),
                 );
                 if (confirmed && _s.mounted) {
                   nav.pop();

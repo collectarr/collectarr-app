@@ -48,7 +48,8 @@ void main() {
         expect(find.byKey(const Key('drawer.account')), findsOneWidget);
         await tester.tap(find.text('Activity'));
         await pumpUntilSettled(tester);
-        expect(router.routeInformationProvider.value.uri.path, AppRoutes.activity);
+        expect(
+            router.routeInformationProvider.value.uri.path, AppRoutes.activity);
       }
       expect(tester.takeException(), isNull);
       await disposeTestApp(tester);

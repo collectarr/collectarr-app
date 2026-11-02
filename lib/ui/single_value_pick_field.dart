@@ -258,7 +258,8 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           isDense: true,
-          labelText: (widget.showInlineLabel || nativeEditor) ? widget.label : null,
+          labelText:
+              (widget.showInlineLabel || nativeEditor) ? widget.label : null,
           labelStyle: nativeEditor ? const TextStyle(fontSize: 16) : null,
           floatingLabelStyle:
               nativeEditor ? const TextStyle(fontSize: 12) : null,

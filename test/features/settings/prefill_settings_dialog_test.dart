@@ -215,7 +215,8 @@ void main() {
     expect(find.text('Always show'), findsOneWidget);
   });
 
-  testWidgets('PrefillSettingsDialog renders centered card on native mobile tablet',
+  testWidgets(
+      'PrefillSettingsDialog renders centered card on native mobile tablet',
       (tester) async {
     tester.view.physicalSize = const Size(1024, 768);
     tester.view.devicePixelRatio = 1;

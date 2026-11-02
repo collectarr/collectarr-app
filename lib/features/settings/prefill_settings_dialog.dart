@@ -246,29 +246,25 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                     child: SingleValuePickField(
                         showInlineLabel: false,
                         controller: _conditionController,
-                        options: libraryEditPresentationForKind(
-                                draft.record.kind)
-                            .conditions,
+                        options:
+                            libraryEditPresentationForKind(draft.record.kind)
+                                .conditions,
                         label: 'Condition',
-                        onChanged: (value) =>
-                            draft.set('condition', value))),
+                        onChanged: (value) => draft.set('condition', value))),
             ],
           ),
           if (_personalDraft case final draft?) ...[
             const SizedBox(height: 15),
             LibraryEntryPersonalSection(
                 draft: draft,
-                layoutBuilder: (fields, _) =>
-                    LibraryResponsiveFieldLayout(
+                layoutBuilder: (fields, _) => LibraryResponsiveFieldLayout(
                       maxColumns: 2,
                       columnBreakpoints: const {2: 600},
                       spacing: 30,
                       runSpacing: 15,
                       children: [
-                        if (fields['owner_label'] case final field?)
-                          field,
-                        if (fields['purchase_date'] case final field?)
-                          field,
+                        if (fields['owner_label'] case final field?) field,
+                        if (fields['purchase_date'] case final field?) field,
                         Align(
                             alignment: Alignment.bottomLeft,
                             child: SizedBox(
@@ -278,14 +274,10 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                                     child: _checkbox(
                                         'Fill purchase date with today',
                                         _fillToday,
-                                        (value) => setState(() =>
-                                            _fillToday = value))))),
-                        if (fields['purchase_store']
-                            case final field?)
-                          field,
-                        if (fields['price_paid_cents']
-                            case final field?)
-                          field,
+                                        (value) => setState(
+                                            () => _fillToday = value))))),
+                        if (fields['purchase_store'] case final field?) field,
+                        if (fields['price_paid_cents'] case final field?) field,
                       ],
                     )),
           ],
@@ -293,9 +285,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
               appPresentationPlatform.isNativeMobile) ...[
             const SizedBox(height: 15),
             LibraryMultiVocabularyField(
-                label: 'Tags',
-                options: _tagOptions,
-                controller: _tags),
+                label: 'Tags', options: _tagOptions, controller: _tags),
           ],
         ],
       );

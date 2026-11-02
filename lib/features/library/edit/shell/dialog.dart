@@ -409,7 +409,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       onClose: () => unawaited(_leave(() => Navigator.of(context).pop())),
       onCancel: () => unawaited(_leave(() => Navigator.of(context).pop())),
       onSave: _isSaving ? null : () => unawaited(_submit()),
-      onDelete: _isSaving || widget.onDelete == null ? null : () => unawaited(widget.onDelete!()),
+      onDelete: _isSaving || widget.onDelete == null
+          ? null
+          : () => unawaited(widget.onDelete!()),
       onProposeToCore: _isSaving ||
               (LibraryEntryEditScope.maybeOf(context)
                           ?.record

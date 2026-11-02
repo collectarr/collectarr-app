@@ -32,8 +32,8 @@ class ComicCustomLabelField extends ConsumerWidget {
           listName: ComicVocabularyIds.customLabel.value,
           mediaKind: 'comic',
           value: value,
-          builtIns: ref.watch(listValueImageValuesProvider(_list)).value ??
-              const [],
+          builtIns:
+              ref.watch(listValueImageValuesProvider(_list)).value ?? const [],
           onChanged: onChanged,
         ),
       ),
