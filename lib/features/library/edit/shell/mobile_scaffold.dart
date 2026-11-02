@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -121,7 +122,7 @@ class _LibraryMobileEditorScaffoldState
 
   void _showCollectionDetails(BuildContext context) {
     FocusScope.of(context).unfocus();
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
