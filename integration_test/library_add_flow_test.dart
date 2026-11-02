@@ -29,7 +29,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final database = LocalDatabase(NativeDatabase.memory());
-    addTearDown(database.close);
+    addTearDown(() async {
+      await disposeTestApp(tester);
+      await database.close();
+    });
     final api = MusicCatalogApiFake(
         searchId: 'native-core-album', title: 'Native Core Album');
     await tester.pumpWidget(

@@ -28,12 +28,13 @@ void main() {
       });
     }
   }
-  testWidgets('runtime policy follows the native platform at every width',
+  testWidgets('runtime policy respects platform and web at every width',
       (tester) async {
     expect(
         appPresentationPlatform.isNativeMobile,
-        defaultTargetPlatform == TargetPlatform.android ||
-            defaultTargetPlatform == TargetPlatform.iOS);
+        !kIsWeb &&
+            (defaultTargetPlatform == TargetPlatform.android ||
+                defaultTargetPlatform == TargetPlatform.iOS));
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.view.resetPhysicalSize);
