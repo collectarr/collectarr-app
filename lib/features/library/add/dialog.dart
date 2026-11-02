@@ -1,9 +1,8 @@
 import 'mobile_method_picker.dart';
-import 'presentation_tokens.dart';
+import 'mobile/page.dart';
+import 'mobile/browse_layout.dart';
+import 'desktop/browse_layout.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
-import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
-import 'package:collectarr_app/features/library/ui/density_scope.dart';
-import 'package:collectarr_app/features/library/ui/metrics.dart';
 import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
@@ -916,12 +915,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         : libraryAddResultGroups(visibleCore, grouping)
             .where((group) => group.key == _selectedGroupKey)
             .firstOrNull;
-    final defaultDialogWidth = browseMode
-        ? LibraryAddDialogLayout.browseDialogWidth
-        : grouping == null
-            ? LibraryAddDialogLayout.defaultDialogWidth
-            : LibraryAddResultGrouping.dialogWidth;
-
     LibraryAddBottomBar bottomBar({required bool selectedOnly}) =>
         LibraryAddBottomBar(
           request: LibraryAddBottomBarRequest(
@@ -948,7 +941,241 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           ),
         );
 
-    final surface = LibraryDialogScaffold(
+    final contextBar = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.initialIdentifier != null &&
+            widget.initialIdentifier!.trim().isNotEmpty &&
+            state.mode == LibraryAddDialogMode.identifier)
+          LibraryAddIdentifierPrefillBanner(
+            type: widget.type,
+            identifierCode: widget.initialIdentifier!.trim(),
+          ),
+        Builder(
+          builder: (scopedContext) => LibraryAddModeBar(
+            type: widget.type,
+            accent: accent,
+            isWideLayout: isWideLayout,
+            mode: state.mode,
+            queryController: _queryController,
+            identifierController: _identifierController,
+            codeSearchTab: addCapability.search.input.codeSearchTab,
+            codeQueryController: _codeQueryController,
+            browseTab: browse,
+            browseQueryController: _browseQueryController,
+            onSearchBrowse: _searchBrowseGroups,
+            onBrowseChanged: _suggestBrowseGroups,
+            queryTrailing: queryTrailing,
+            isSearching: state.search.isBusy || state.browse.isBusy,
+            onModeChanged: _selectAddMode,
+            onSearch: () {
+              _controller.dismissSuggestions();
+              _controller.updateQuery(_queryController.text);
+              _controller.executeSearch();
+            },
+            onQueryChanged: _controller.updateQuery,
+            // A grouping kind suggests each group once, as the reference
+            // suggests a game once per platform, and picking one searches
+            // its title and opens that group's variants.
+            suggestions: grouping == null
+                ? state.search.suggestions
+                : [
+                    for (final group in libraryAddResultGroups(
+                            state.search.suggestions, grouping)
+                        .take(5))
+                      group.first
+                  ],
+            suggestionDetail: grouping?.groupDetail,
+            showSuggestions: state.search.showSuggestions,
+            onSelectSuggestion: (item) {
+              _queryController.text = item.summary.primaryLabel;
+              if (grouping == null) {
+                _controller.selectSuggestion(item);
+                return;
+              }
+              _pendingGroupKey = grouping.groupKey(item);
+              _controller.dismissSuggestions();
+              _controller.updateQuery(item.summary.primaryLabel);
+              _controller.executeSearch();
+            },
+            onDismissSuggestions: _controller.dismissSuggestions,
+            canScanCover:
+                libraryAddForKind(widget.type.kind).chrome.canScanCover,
+            isScanningCover: state.search.isScanningCover,
+            onScanCover: () async {
+              await _controller.scanCover(scopedContext);
+              if (mounted) setState(() => _mobileCoverSelected = false);
+            },
+            onLookupIdentifier: () => _controller.lookupIdentifier(
+              identifierCode: _identifierController.text,
+            ),
+            onScanBarcode: _scanBarcode,
+            onSearchCode: () {
+              _controller.updateCodeQuery(_codeQueryController.text);
+              _controller.executeSearch();
+            },
+            onManual: () => _openManualDialog(accent, addCapability),
+            showAdvanced: state.search.showAdvancedSearch,
+            onToggleAdvanced: _controller.toggleAdvancedSearch,
+            advancedFilterState: state.search.advancedFilters,
+            onAdvancedFilterChanged: _controller.updateAdvancedFilter,
+            advancedFilterDescriptors: modeBarRequest.advancedFilterDescriptors,
+            onCoreDataSettings: _showCoreDataSettings,
+            coverSelected: _mobileCoverSelected,
+            onCoverTabChanged: (selected) =>
+                setState(() => _mobileCoverSelected = selected),
+            showMobileInput: !browseMode || openedGroup == null || !isPhone,
+            searchRowWidth: isMobilePhone
+                ? null
+                : browseMode
+                    ? LibraryAddBrowseGroupList.width
+                    : grouping == null
+                        ? null
+                        : LibraryAddResultGrouping.listWidth,
+            searchRowBeside: isMobilePhone
+                ? null
+                : browseMode
+                    ? LibraryAddBrowseGroupHeader(group: openedGroup)
+                    : grouping == null
+                        ? null
+                        : LibraryAddGroupHeader(
+                            group: selectedGroup, grouping: grouping),
+          ),
+        ),
+      ],
+    );
+    final body = _besideBrowseGroups(
+      browseMode
+          ? LibraryAddBrowseGroupList(
+              capability: browse!,
+              state: state.browse,
+              onOpen: (group) {
+                if (isMobilePhone) {
+                  FocusScope.of(context).unfocus();
+                }
+                _controller.openBrowseGroup(group);
+              },
+              ownedKeys: _ownedGroupKeys,
+              onAddManually: state.browse.searched
+                  ? () => _openManualDialog(accent, addCapability)
+                  : null,
+            )
+          : null,
+      browseMode && openedGroup == null
+          ? ColoredBox(color: libraryAddSearchBackground(context))
+          : LibraryAddSearchPane(
+              type: widget.type,
+              isBusy: state.search.isBusy || state.browse.isLoadingItems,
+              isLoadingMoreResults: state.search.isLoadingMoreResults,
+              hasMoreResults: state.search.hasMoreResults,
+              loadMoreError: state.search.loadMoreError,
+              onLoadMoreResults: _controller.loadMoreResults,
+              error: browseMode ? state.browse.error : state.search.error,
+              accent: accent,
+              selectionColor: (state.target == LibraryAddTarget.wishlist
+                      ? LibraryCollectionStatusScope.wishList
+                      : state.target == LibraryAddTarget.track
+                          ? LibraryCollectionStatusScope.notInCollection
+                          : libraryCollectionStatusFromValue(
+                              state.commonDraft.collectionStatus))
+                  .color,
+              results: visibleCore,
+              selectedResultId: state.selection.selectedResultId,
+              checkedResultIds: state.selection.checkedResultIds,
+              entryCatalogRefs: entryByCatalogRef.keys.toSet(),
+              coreMatchSummary: (item) => addCapability.search.presentation
+                  .coreMatchSummary(item, searchContext),
+              resultPolicy: resultPolicy,
+              resultPolicyState: state.selection.resultPolicyState,
+              onResultPolicyOptionChanged: _controller.setResultPolicyOption,
+              onSelectResult: (id) {
+                if (isMobilePhone) {
+                  FocusScope.of(context).unfocus();
+                }
+                _controller.selectResult(id);
+              },
+              onToggleResultCheck: _controller.toggleCheckedResult,
+              searched: state.search.coreSearchGeneration > 0,
+              selectedGroupKey: _selectedGroupKey,
+              onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
+              coverBlocks: browseMode && browse?.coverBlock != null
+                  ? LibraryAddCoverBlockView(
+                      block: browse!.coverBlock!,
+                      layout: _blockLayout,
+                      onLayoutChanged: (layout) =>
+                          setState(() => _blockLayout = layout),
+                      descending: _blocksDescending,
+                      onDescendingChanged: (descending) =>
+                          setState(() => _blocksDescending = descending),
+                      onAddManually: () =>
+                          _openManualDialog(accent, addCapability),
+                    )
+                  : null,
+              headerTrailing: browseMode
+                  ? LibraryAddCheckAllToggle(
+                      count: visibleCore.length,
+                      partial: visibleCore.any((item) => state
+                          .selection.checkedResultIds
+                          .contains(item.reference.id)),
+                      checked: visibleCore.isNotEmpty &&
+                          visibleCore.every((item) => state
+                              .selection.checkedResultIds
+                              .contains(item.reference.id)),
+                      onChanged: (checked) => _controller.setAllResultsChecked(
+                          visibleCore.map((item) => item.reference.id),
+                          checked),
+                    )
+                  : kindControls,
+              onAddManually: browseMode
+                  ? null
+                  : () => _openManualDialog(accent, addCapability),
+            ),
+      isMobilePhone: isMobilePhone,
+    );
+    final overlay = selectedItem == null
+        ? null
+        : LibraryAddConfirmSheet(
+            accent: accent,
+            size: addCapability.chrome.confirmSheetSize,
+            onDismiss: _controller.clearSelectedResult,
+            content: LibraryAddPreviewPane(
+              type: widget.type,
+              accent: accent,
+              isWideLayout: isWideLayout,
+              previewPaneBuilder: addCapability.previewPaneBuilder,
+              item: selectedItem,
+              isFetchingPreview: state.preview.pendingHydratedResultRefs
+                  .contains(selectedItem.reference),
+              searched: true,
+            ),
+            footer: bottomBar(selectedOnly: true),
+          );
+    final footer = hasCheckedSelection && selectedItem == null
+        ? bottomBar(selectedOnly: false)
+        : null;
+    if (appPresentationPlatform.isNativeMobile) {
+      return LibraryAddMobilePage(
+        pluralLabel: widget.type.identity.pluralLabel,
+        singularLabel: widget.type.identity.singularLabel,
+        accent: accent,
+        themeData: dialogTheme,
+        contextBar: contextBar,
+        body: body,
+        footer: footer,
+        overlay: overlay,
+        coverSelected: _mobileCoverSelected,
+        onBack: _closeDialog,
+        onManual: () => _openManualDialog(accent, addCapability),
+        onCoreDataSettings: _showCoreDataSettings,
+      );
+    }
+    final defaultDialogWidth = browseMode
+        ? LibraryAddDialogLayout.browseDialogWidth
+        : grouping == null
+            ? LibraryAddDialogLayout.defaultDialogWidth
+            : LibraryAddResultGrouping.dialogWidth;
+    return LibraryDialogScaffold(
       accent: accent,
       themeData: dialogTheme,
       width: _dialogWidth ?? defaultDialogWidth,
@@ -963,7 +1190,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         );
       }),
       onResizeHeight: (delta) => setState(() {
-        // Resize from the height on screen, not the unbounded default.
         final shown = math.min(
             _dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight,
             MediaQuery.sizeOf(context).height - 2 * kAppEditorTopInset);
@@ -976,282 +1202,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         icon: widget.type.identity.icon,
         onClose: _closeDialog,
       ),
-      contextBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (widget.initialIdentifier != null &&
-              widget.initialIdentifier!.trim().isNotEmpty &&
-              state.mode == LibraryAddDialogMode.identifier)
-            LibraryAddIdentifierPrefillBanner(
-              type: widget.type,
-              identifierCode: widget.initialIdentifier!.trim(),
-            ),
-          Builder(
-            builder: (scopedContext) => LibraryAddModeBar(
-              type: widget.type,
-              accent: accent,
-              isWideLayout: isWideLayout,
-              mode: state.mode,
-              queryController: _queryController,
-              identifierController: _identifierController,
-              codeSearchTab: addCapability.search.input.codeSearchTab,
-              codeQueryController: _codeQueryController,
-              browseTab: browse,
-              browseQueryController: _browseQueryController,
-              onSearchBrowse: _searchBrowseGroups,
-              onBrowseChanged: _suggestBrowseGroups,
-              queryTrailing: queryTrailing,
-              isSearching: state.search.isBusy || state.browse.isBusy,
-              onModeChanged: _selectAddMode,
-              onSearch: () {
-                _controller.dismissSuggestions();
-                _controller.updateQuery(_queryController.text);
-                _controller.executeSearch();
-              },
-              onQueryChanged: _controller.updateQuery,
-              // A grouping kind suggests each group once, as the reference
-              // suggests a game once per platform, and picking one searches
-              // its title and opens that group's variants.
-              suggestions: grouping == null
-                  ? state.search.suggestions
-                  : [
-                      for (final group in libraryAddResultGroups(
-                              state.search.suggestions, grouping)
-                          .take(5))
-                        group.first
-                    ],
-              suggestionDetail: grouping?.groupDetail,
-              showSuggestions: state.search.showSuggestions,
-              onSelectSuggestion: (item) {
-                _queryController.text = item.summary.primaryLabel;
-                if (grouping == null) {
-                  _controller.selectSuggestion(item);
-                  return;
-                }
-                _pendingGroupKey = grouping.groupKey(item);
-                _controller.dismissSuggestions();
-                _controller.updateQuery(item.summary.primaryLabel);
-                _controller.executeSearch();
-              },
-              onDismissSuggestions: _controller.dismissSuggestions,
-              canScanCover:
-                  libraryAddForKind(widget.type.kind).chrome.canScanCover,
-              isScanningCover: state.search.isScanningCover,
-              onScanCover: () async {
-                await _controller.scanCover(scopedContext);
-                if (mounted) setState(() => _mobileCoverSelected = false);
-              },
-              onLookupIdentifier: () => _controller.lookupIdentifier(
-                identifierCode: _identifierController.text,
-              ),
-              onScanBarcode: _scanBarcode,
-              onSearchCode: () {
-                _controller.updateCodeQuery(_codeQueryController.text);
-                _controller.executeSearch();
-              },
-              onManual: () => _openManualDialog(accent, addCapability),
-              showAdvanced: state.search.showAdvancedSearch,
-              onToggleAdvanced: _controller.toggleAdvancedSearch,
-              advancedFilterState: state.search.advancedFilters,
-              onAdvancedFilterChanged: _controller.updateAdvancedFilter,
-              advancedFilterDescriptors:
-                  modeBarRequest.advancedFilterDescriptors,
-              onCoreDataSettings: _showCoreDataSettings,
-              coverSelected: _mobileCoverSelected,
-              onCoverTabChanged: (selected) =>
-                  setState(() => _mobileCoverSelected = selected),
-              showMobileInput: !browseMode || openedGroup == null || !isPhone,
-              searchRowWidth: isMobilePhone
-                  ? null
-                  : browseMode
-                      ? LibraryAddBrowseGroupList.width
-                      : grouping == null
-                          ? null
-                          : LibraryAddResultGrouping.listWidth,
-              searchRowBeside: isMobilePhone
-                  ? null
-                  : browseMode
-                      ? LibraryAddBrowseGroupHeader(group: openedGroup)
-                      : grouping == null
-                          ? null
-                          : LibraryAddGroupHeader(
-                              group: selectedGroup, grouping: grouping),
-            ),
-          ),
-        ],
-      ),
-      body: _besideBrowseGroups(
-        browseMode
-            ? LibraryAddBrowseGroupList(
-                capability: browse!,
-                state: state.browse,
-                onOpen: (group) {
-                  if (isMobilePhone) {
-                    FocusScope.of(context).unfocus();
-                  }
-                  _controller.openBrowseGroup(group);
-                },
-                ownedKeys: _ownedGroupKeys,
-                onAddManually: state.browse.searched
-                    ? () => _openManualDialog(accent, addCapability)
-                    : null,
-              )
-            : null,
-        browseMode && openedGroup == null
-            ? ColoredBox(color: libraryAddSearchBackground(context))
-            : LibraryAddSearchPane(
-                type: widget.type,
-                isBusy: state.search.isBusy || state.browse.isLoadingItems,
-                isLoadingMoreResults: state.search.isLoadingMoreResults,
-                hasMoreResults: state.search.hasMoreResults,
-                loadMoreError: state.search.loadMoreError,
-                onLoadMoreResults: _controller.loadMoreResults,
-                error: browseMode ? state.browse.error : state.search.error,
-                accent: accent,
-                selectionColor: (state.target == LibraryAddTarget.wishlist
-                        ? LibraryCollectionStatusScope.wishList
-                        : state.target == LibraryAddTarget.track
-                            ? LibraryCollectionStatusScope.notInCollection
-                            : libraryCollectionStatusFromValue(
-                                state.commonDraft.collectionStatus))
-                    .color,
-                results: visibleCore,
-                selectedResultId: state.selection.selectedResultId,
-                checkedResultIds: state.selection.checkedResultIds,
-                entryCatalogRefs: entryByCatalogRef.keys.toSet(),
-                coreMatchSummary: (item) => addCapability.search.presentation
-                    .coreMatchSummary(item, searchContext),
-                resultPolicy: resultPolicy,
-                resultPolicyState: state.selection.resultPolicyState,
-                onResultPolicyOptionChanged: _controller.setResultPolicyOption,
-                onSelectResult: (id) {
-                  if (isMobilePhone) {
-                    FocusScope.of(context).unfocus();
-                  }
-                  _controller.selectResult(id);
-                },
-                onToggleResultCheck: _controller.toggleCheckedResult,
-                searched: state.search.coreSearchGeneration > 0,
-                selectedGroupKey: _selectedGroupKey,
-                onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
-                coverBlocks: browseMode && browse?.coverBlock != null
-                    ? LibraryAddCoverBlockView(
-                        block: browse!.coverBlock!,
-                        layout: _blockLayout,
-                        onLayoutChanged: (layout) =>
-                            setState(() => _blockLayout = layout),
-                        descending: _blocksDescending,
-                        onDescendingChanged: (descending) =>
-                            setState(() => _blocksDescending = descending),
-                        onAddManually: () =>
-                            _openManualDialog(accent, addCapability),
-                      )
-                    : null,
-                headerTrailing: browseMode
-                    ? LibraryAddCheckAllToggle(
-                        count: visibleCore.length,
-                        partial: visibleCore.any((item) => state
-                            .selection.checkedResultIds
-                            .contains(item.reference.id)),
-                        checked: visibleCore.isNotEmpty &&
-                            visibleCore.every((item) => state
-                                .selection.checkedResultIds
-                                .contains(item.reference.id)),
-                        onChanged: (checked) =>
-                            _controller.setAllResultsChecked(
-                                visibleCore.map((item) => item.reference.id),
-                                checked),
-                      )
-                    : kindControls,
-                onAddManually: browseMode
-                    ? null
-                    : () => _openManualDialog(accent, addCapability),
-              ),
-        isMobilePhone: isMobilePhone,
-      ),
-      overlay: selectedItem == null
-          ? null
-          : LibraryAddConfirmSheet(
-              accent: accent,
-              size: addCapability.chrome.confirmSheetSize,
-              onDismiss: _controller.clearSelectedResult,
-              content: LibraryAddPreviewPane(
-                type: widget.type,
-                accent: accent,
-                isWideLayout: isWideLayout,
-                previewPaneBuilder: addCapability.previewPaneBuilder,
-                item: selectedItem,
-                isFetchingPreview: state.preview.pendingHydratedResultRefs
-                    .contains(selectedItem.reference),
-                searched: true,
-              ),
-              footer: bottomBar(selectedOnly: true),
-            ),
-      footer: hasCheckedSelection && selectedItem == null
-          ? bottomBar(selectedOnly: false)
-          : null,
+      contextBar: contextBar,
+      body: body,
+      overlay: overlay,
+      footer: footer,
     );
-    if (!appPresentationPlatform.isNativeMobile) return surface;
-    return Theme(
-        data: dialogTheme,
-        child: LibraryDensityScope(
-          density: LibraryDensity.comfortable,
-          child: MobilePage(
-            title: 'Add ${widget.type.identity.pluralLabel}',
-            titleWidget: Text(
-              'My ${widget.type.identity.pluralLabel}',
-              style: const TextStyle(fontSize: 13, color: Colors.white),
-            ),
-            onBack: _closeDialog,
-            headerColor: accent,
-            backgroundColor: palette.panel,
-            contextBarBottomPadding: 0,
-            actions: [
-              Center(
-                child: Text(
-                  MediaQuery.sizeOf(context).width < 360
-                      ? 'COLLECTARR'
-                      : 'COLLECTARR ${widget.type.identity.pluralLabel.toUpperCase()}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              PopupMenuButton<String>(
-                tooltip: 'Add options',
-                onSelected: (action) {
-                  if (action == 'manual') {
-                    _openManualDialog(accent, addCapability);
-                  } else {
-                    _showCoreDataSettings();
-                  }
-                },
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: 'manual', child: Text('Add Manually')),
-                  PopupMenuItem(
-                      value: 'settings',
-                      child: Text('Add/Update from Core settings')),
-                ],
-              )
-            ],
-            contextBar: surface.contextBar,
-            body: _mobileCoverSelected
-                ? Center(
-                    child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text(
-                            'Scan the cover to find a ${widget.type.identity.singularLabel.toLowerCase()} in Core.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: palette.utilityAction, fontSize: 18))))
-                : surface.body!,
-            footer: surface.footer,
-            overlay: surface.overlay,
-          ),
-        ));
   }
 
   /// Asks Core for suggestions once typing pauses, as the reference does.
@@ -1320,42 +1275,17 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         ),
     ]);
     if (isMobilePhone) {
-      if (_controller.state.browse.opened case final group?) {
-        final facts = [
-          if (group.details case final details?) details,
-          if (group.period case final period?) '($period)',
-        ].join(' ');
-        return Column(children: [
-          Material(
-            color: LibraryAddPresentationTokens.mobile
-                .mobileGroupHeaderColor(appPalette(context)),
-            child: ListTile(
-                dense: true,
-                minTileHeight: 48,
-                leading: const Icon(Icons.arrow_back),
-                title: Text(group.title,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-                subtitle: facts.isEmpty ? null : Text(facts),
-                onTap: _controller.closeBrowseGroup),
-          ),
-          Expanded(child: content),
-        ]);
-      }
-      return groupList;
+      return LibraryAddMobileBrowseLayout(
+        groupList: groupList,
+        content: content,
+        opened: _controller.state.browse.opened,
+        onBack: _controller.closeBrowseGroup,
+      );
     }
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(
-          width: LibraryAddBrowseGroupList.width,
-          child: groupList,
-        ),
-        ColoredBox(
-          color: libraryAddPaneDivider(context),
-          child: const SizedBox(width: 6),
-        ),
-        Expanded(child: content),
-      ],
+    return LibraryAddDesktopBrowseLayout(
+      groupList: groupList,
+      content: content,
+      groupWidth: LibraryAddBrowseGroupList.width,
     );
   }
 }

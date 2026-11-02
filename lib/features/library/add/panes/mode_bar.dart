@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
-import 'package:collectarr_app/features/library/add/mobile/search_controls.dart';
+import 'package:collectarr_app/features/library/add/mobile/mode_bar.dart';
 import 'package:collectarr_app/features/library/add/contracts/capability.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
+import 'package:collectarr_app/features/library/add/presentation_tokens.dart';
 import 'dependencies.dart';
 
 class LibraryAddIdentifierPrefillBanner extends StatelessWidget {
@@ -376,7 +377,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   Widget _buildInput(String searchLabel, String queryHint) =>
       switch (widget.mode) {
         LibraryAddDialogMode.browse => _LibraryAddModeTextField(
-            mobile: appPresentationPlatform.isNativeMobile,
             fieldKey: const ValueKey('library-add-browse-field'),
             controller: widget.browseQueryController!,
             label: widget.browseTab!.label,
@@ -392,7 +392,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
               child: KeyedSubtree(
                 key: _searchBarKey,
                 child: _LibraryAddModeTextField(
-                  mobile: appPresentationPlatform.isNativeMobile,
                   fieldKey: const ValueKey('library-add-query-field'),
                   controller: widget.queryController,
                   label: searchLabel,
@@ -405,7 +404,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
             ),
           ),
         LibraryAddDialogMode.identifier => _LibraryAddModeTextField(
-            mobile: appPresentationPlatform.isNativeMobile,
             fieldKey: const ValueKey('library-add-barcode-field'),
             controller: widget.identifierController,
             label: 'Barcode / UPC / ISBN',
@@ -416,7 +414,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                 _LibraryAddScanBarcodeButton(onPressed: widget.onScanBarcode),
           ),
         LibraryAddDialogMode.code => _LibraryAddModeTextField(
-            mobile: appPresentationPlatform.isNativeMobile,
             fieldKey: const ValueKey('library-add-code-field'),
             controller: widget.codeQueryController!,
             label: widget.codeSearchTab!.label,
@@ -428,33 +425,25 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
 
   Widget _buildMobile(
       BuildContext context, String searchLabel, String queryHint) {
-    final tabs = <({LibraryAddDialogMode? value, String label})>[
-      if (widget.canScanCover) (value: null, label: 'Cover'),
-      (value: LibraryAddDialogMode.identifier, label: 'Barcode'),
-      if (widget.browseTab case final tab?)
-        (value: LibraryAddDialogMode.browse, label: tab.label),
-      (value: LibraryAddDialogMode.search, label: searchLabel),
-      if (widget.codeSearchTab case final tab?)
-        (value: LibraryAddDialogMode.code, label: tab.label),
-    ];
-    return LibraryAddMobileSearchControls<LibraryAddDialogMode?>(
-      tabs: tabs,
-      selected: _mobileCoverSelected ? null : widget.mode,
+    return LibraryAddMobileModeBar(
       accent: widget.accent,
-      onSelected: (mode) {
+      mode: widget.mode,
+      coverSelected: _mobileCoverSelected,
+      canScanCover: widget.canScanCover,
+      isScanningCover: widget.isScanningCover,
+      searchLabel: searchLabel,
+      browseLabel: widget.browseTab?.label,
+      codeLabel: widget.codeSearchTab?.label,
+      onModeSelected: (mode) {
         FocusScope.of(context).unfocus();
         widget.onDismissSuggestions();
         widget.onCoverTabChanged?.call(mode == null);
         if (mode != null) widget.onModeChanged(mode);
       },
-      input: _mobileCoverSelected
-          ? FilledButton.icon(
-              onPressed: widget.isScanningCover ? null : widget.onScanCover,
-              icon: const Icon(Icons.camera_alt),
-              label: const Text('Scan cover'))
-          : widget.showMobileInput
-              ? _besideSearchRow(_buildInput(searchLabel, queryHint))
-              : null,
+      onScanCover: widget.onScanCover,
+      input: !_mobileCoverSelected && widget.showMobileInput
+          ? _besideSearchRow(_buildInput(searchLabel, queryHint))
+          : null,
       advanced: !_mobileCoverSelected &&
               widget.mode == LibraryAddDialogMode.search &&
               _resolveAdvancedFields().isNotEmpty
@@ -979,10 +968,8 @@ class _LibraryAddModeTextField extends StatelessWidget {
     this.onChanged,
     this.keyboardType,
     this.trailing,
-    this.mobile = false,
   });
 
-  final bool mobile;
   final Key fieldKey;
   final TextEditingController controller;
   final String label;
@@ -995,6 +982,7 @@ class _LibraryAddModeTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final mobile = LibraryAddPresentationTokens.current.nativeInput;
     void submit() {
       if (mobile) FocusScope.of(context).unfocus();
       onSubmitted();

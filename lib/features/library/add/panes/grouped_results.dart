@@ -1,6 +1,8 @@
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/add/contracts/result_policy.dart';
+import 'package:collectarr_app/features/library/add/desktop/grouped_results_layout.dart';
+import 'package:collectarr_app/features/library/add/mobile/grouped_results_layout.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 
 import 'dependencies.dart';
@@ -218,23 +220,16 @@ class _LibraryAddGroupedResultsState extends State<LibraryAddGroupedResults> {
     return ColoredBox(
       color: libraryAddSearchBackground(context),
       child: appPresentationPlatform.isNativeMobile
-          ? selected == null
-              ? groupList
-              : Column(children: [
-                  ListTile(
-                      leading: const Icon(Icons.arrow_back),
-                      title: Text(selected.first.summary.primaryLabel),
-                      onTap: () => widget.onSelectGroup('')),
-                  Expanded(child: variantList),
-                ])
-          : Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              SizedBox(
-                  width: LibraryAddResultGrouping.listWidth, child: groupList),
-              ColoredBox(
-                  color: libraryAddPaneDivider(context),
-                  child: const SizedBox(width: 6)),
-              Expanded(child: variantList),
-            ]),
+          ? LibraryAddMobileGroupedResultsLayout(
+              groupList: groupList,
+              variantList: variantList,
+              selectedTitle: selected?.first.summary.primaryLabel,
+              onBack: () => widget.onSelectGroup(''),
+            )
+          : LibraryAddDesktopGroupedResultsLayout(
+              groupList: groupList,
+              variantList: variantList,
+            ),
     );
   }
 }

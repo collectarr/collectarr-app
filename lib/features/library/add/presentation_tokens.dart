@@ -18,6 +18,7 @@ class LibraryAddPresentationTokens {
     required this.toolbarHeight,
     required this.tintedToolbar,
     required this.searchOnCanvas,
+    required this.nativeInput,
   });
 
   static const desktop = LibraryAddPresentationTokens._(
@@ -32,6 +33,7 @@ class LibraryAddPresentationTokens {
     toolbarHeight: 38,
     tintedToolbar: false,
     searchOnCanvas: false,
+    nativeInput: false,
   );
 
   static const mobile = LibraryAddPresentationTokens._(
@@ -46,6 +48,7 @@ class LibraryAddPresentationTokens {
     toolbarHeight: null,
     tintedToolbar: true,
     searchOnCanvas: true,
+    nativeInput: true,
   );
 
   static LibraryAddPresentationTokens get current =>
@@ -62,6 +65,7 @@ class LibraryAddPresentationTokens {
   final double? toolbarHeight;
   final bool tintedToolbar;
   final bool searchOnCanvas;
+  final bool nativeInput;
 
   Color? toolbarColor(AppThemePalette palette) =>
       tintedToolbar ? mobileGroupHeaderColor(palette) : null;

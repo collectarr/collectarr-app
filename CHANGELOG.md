@@ -74,6 +74,7 @@
 - The web app leaves zoom to the browser, so its zoom shortcuts and Ctrl + wheel change the browser's zoom instead of adding an app zoom that read 100 % on an already zoomed page.
 
 ### Refactors
+- Native Add pages and browse layouts are independent from desktop dialogs while sharing the same search and selection behavior.
 - Add presentation values are centralized, and the mobile issue grid can evolve without changing the desktop Add layout.
 - Native presentation decisions are centralized and kept independent from responsive window sizes.
 - Shared library files are named by their job inside their folders; toolbar selection, filtering, compact controls and native layout have separate owners.
