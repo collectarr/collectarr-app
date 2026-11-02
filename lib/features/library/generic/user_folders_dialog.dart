@@ -1,4 +1,6 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -13,17 +15,19 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 Future<void> showUserFoldersDialog({
   required BuildContext context,
   required LocalDatabase db,
+  required Color accent,
 }) {
-  return showAppDialog<void>(
+  return showAppPageOrDialog<void>(
     context: context,
-    builder: (_) => _UserFoldersDialog(db: db),
+    builder: (_) => _UserFoldersDialog(db: db, accent: accent),
   );
 }
 
 class _UserFoldersDialog extends StatefulWidget {
-  const _UserFoldersDialog({required this.db});
+  const _UserFoldersDialog({required this.db, required this.accent});
 
   final LocalDatabase db;
+  final Color accent;
 
   @override
   State<_UserFoldersDialog> createState() => _UserFoldersDialogState();
@@ -124,42 +128,102 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     required String hintText,
     String? initialValue,
   }) async {
-    final nameCtrl = TextEditingController(text: initialValue ?? '');
-    try {
-      return await showAppDialog<String>(
-        context: context,
-        builder: (ctx) => AccentAlertDialog(
-          headerIcon: AppIcons.folderOpen,
-          backgroundColor: appPalette(ctx).panel,
-          title: Text(title),
-          content: TextField(
-            controller: nameCtrl,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: 'Name',
-              hintText: hintText,
-            ),
+    var name = initialValue ?? '';
+    return showAppDialog<String>(
+      context: context,
+      builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.folderOpen,
+        backgroundColor: appPalette(ctx).panel,
+        title: Text(title),
+        content: TextFormField(
+          initialValue: name,
+          onChanged: (value) => name = value,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: 'Name',
+            hintText: hintText,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(ctx, nameCtrl.text.trim()),
-              child: Text(confirmLabel),
-            ),
-          ],
         ),
-      );
-    } finally {
-      nameCtrl.dispose();
-    }
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, name.trim()),
+            child: Text(confirmLabel),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final content = _loading
+        ? const Center(child: CircularProgressIndicator())
+        : _folders.isEmpty
+            ? Center(
+                child: Text(
+                  'No folders yet.\n'
+                  'Create a folder to organize items\n'
+                  'into custom shortlists.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: palette.textMuted),
+                ),
+              )
+            : ListView.separated(
+                itemCount: _folders.length,
+                separatorBuilder: (_, __) =>
+                    Divider(height: 1, color: palette.divider),
+                itemBuilder: (context, i) {
+                  final folder = _folders[i];
+                  final count = _folderLibraryEntryRefs[folder.id]?.length ?? 0;
+                  return ListTile(
+                    leading: Icon(_iconForFolder(folder.iconName), size: 20),
+                    title: Text(folder.name),
+                    subtitle: Text('$count ${count == 1 ? 'item' : 'items'}',
+                        style:
+                            TextStyle(color: palette.textMuted, fontSize: 12)),
+                    trailing: PopupMenuButton<_FolderAction>(
+                      popUpAnimationStyle: AnimationStyle.noAnimation,
+                      icon: const Icon(Icons.more_horiz, size: 18),
+                      tooltip: 'Folder actions',
+                      onSelected: (action) async {
+                        switch (action) {
+                          case _FolderAction.rename:
+                            await _renameFolder(folder);
+                          case _FolderAction.delete:
+                            await _deleteFolder(folder);
+                        }
+                      },
+                      itemBuilder: (context) => const [
+                        PopupMenuItem(
+                            value: _FolderAction.rename, child: Text('Rename')),
+                        PopupMenuItem(
+                            value: _FolderAction.delete, child: Text('Delete')),
+                      ],
+                    ),
+                  );
+                },
+              );
+    if (appPresentationPlatform.isNativeMobile) {
+      return MobilePage(
+        title: 'Folders',
+        onBack: () => Navigator.of(context).pop(),
+        headerColor: widget.accent,
+        backgroundColor: palette.panel,
+        actions: [
+          IconButton(
+            tooltip: 'Create folder',
+            icon: const Icon(Icons.add),
+            onPressed: _createFolder,
+          ),
+        ],
+        body: content,
+      );
+    }
     return AccentAlertDialog(
       backgroundColor: palette.panel,
       title: Row(
@@ -177,66 +241,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
       content: SizedBox(
         width: 420,
         height: 340,
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : _folders.isEmpty
-                ? Center(
-                    child: Text(
-                      'No folders yet.\n'
-                      'Create a folder to organize items\n'
-                      'into custom shortlists.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: palette.textMuted),
-                    ),
-                  )
-                : ListView.separated(
-                    itemCount: _folders.length,
-                    separatorBuilder: (_, __) =>
-                        Divider(height: 1, color: palette.divider),
-                    itemBuilder: (context, i) {
-                      final folder = _folders[i];
-                      final count =
-                          _folderLibraryEntryRefs[folder.id]?.length ?? 0;
-                      return ListTile(
-                        leading: Icon(
-                          _iconForFolder(folder.iconName),
-                          size: 20,
-                        ),
-                        title: Text(folder.name),
-                        subtitle: Text(
-                          '$count ${count == 1 ? 'item' : 'items'}',
-                          style: TextStyle(
-                            color: palette.textMuted,
-                            fontSize: 12,
-                          ),
-                        ),
-                        dense: true,
-                        trailing: PopupMenuButton<_FolderAction>(
-                          popUpAnimationStyle: AnimationStyle.noAnimation,
-                          icon: const Icon(Icons.more_horiz, size: 18),
-                          tooltip: 'Folder actions',
-                          onSelected: (action) async {
-                            switch (action) {
-                              case _FolderAction.rename:
-                                await _renameFolder(folder);
-                              case _FolderAction.delete:
-                                await _deleteFolder(folder);
-                            }
-                          },
-                          itemBuilder: (context) => const [
-                            PopupMenuItem(
-                              value: _FolderAction.rename,
-                              child: Text('Rename'),
-                            ),
-                            PopupMenuItem(
-                              value: _FolderAction.delete,
-                              child: Text('Delete'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+        child: content,
       ),
       actions: [
         TextButton(

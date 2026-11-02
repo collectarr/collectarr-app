@@ -10,6 +10,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import '../models/pick_list_definition.dart';
 import '../models/pick_list_scope.dart';
@@ -56,19 +58,25 @@ Future<PickListManagerChanges?> showPickListManagerDialog(
         Color? accent,
         String? initialListName,
         String? initialMediaKind}) =>
-    showAppDialog<PickListManagerChanges>(
+    showAppPageOrDialog<PickListManagerChanges>(
       context: context,
-      barrierDismissible: false,
       builder: (context) => Theme(
           data: accent == null
               ? Theme.of(context)
               : libraryAccentTheme(context, accent),
-          child: PickListDialog(
-              child: PickListManagerPage(
+          child: appPresentationPlatform.isNativeMobile
+              ? PickListManagerPage(
                   db: db,
                   registry: registry,
                   initialListName: initialListName,
-                  initialMediaKind: initialMediaKind))),
+                  initialMediaKind: initialMediaKind,
+                  standaloneNativePage: true)
+              : PickListDialog(
+                  child: PickListManagerPage(
+                      db: db,
+                      registry: registry,
+                      initialListName: initialListName,
+                      initialMediaKind: initialMediaKind))),
     );
 
 class PickListManagerPage extends StatefulWidget {
@@ -78,6 +86,7 @@ class PickListManagerPage extends StatefulWidget {
       required this.registry,
       this.initialListName,
       this.initialMediaKind,
+      this.standaloneNativePage = false,
       this.onBack,
       this.onClose,
       this.onLoaded});
@@ -85,6 +94,7 @@ class PickListManagerPage extends StatefulWidget {
   final PickListRegistry registry;
   final String? initialListName;
   final String? initialMediaKind;
+  final bool standaloneNativePage;
 
   /// When entered from a selector, CLZ hides the list switcher and offers Back.
   final ValueChanged<PickListManagerChanges>? onBack;
@@ -380,176 +390,186 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
         .toList();
     final palette = appPalette(context);
     final fromSelection = widget.onBack != null;
-    return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) {
-          if (!didPop) _close();
-        },
-        child: Material(
-            color: pickListSurface(context),
-            child: DefaultTextStyle.merge(
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      PickListHeader(
-                          title: 'Manage ${pickListPluralLabel(label)}',
-                          onClose: _busy ? null : _close),
-                      PickListToolbar(
-                          search: TextField(
-                              controller: _search,
-                              onChanged: (_) => setState(() {}),
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w500),
-                              decoration: pickListInputDecoration(context,
-                                  hintText: 'Search...',
-                                  suffixIcon: IconButton(
-                                      style: IconButton.styleFrom(
-                                          backgroundColor: Colors.transparent,
-                                          disabledBackgroundColor:
-                                              Colors.transparent,
-                                          side: BorderSide.none),
-                                      padding: EdgeInsets.zero,
-                                      iconSize: 18,
-                                      icon: Icon(query.isEmpty
-                                          ? Icons.search
-                                          : Icons.close),
-                                      onPressed: () =>
-                                          setState(() => _search.clear())))),
-                          middle: fromSelection || definition == null
-                              ? null
-                              : PickListCount(
-                                  count: visible.length,
-                                  label: pickListPluralLabel(label)),
-                          trailing: fromSelection
-                              ? null
-                              : SizedBox(
-                                  width: 200,
-                                  height: 32,
-                                  child: AppSelect<String>(
-                                      value: _selectedListName,
-                                      hint: Text('Select a list...',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: palette.textPrimary)),
-                                      decoration:
-                                          pickListInputDecoration(context),
+    final panel = Material(
+        color: pickListSurface(context),
+        child: DefaultTextStyle.merge(
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            child: Column(
+                mainAxisSize: widget.standaloneNativePage
+                    ? MainAxisSize.max
+                    : MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (!widget.standaloneNativePage)
+                    PickListHeader(
+                        title: 'Manage ${pickListPluralLabel(label)}',
+                        onClose: _busy ? null : _close),
+                  PickListToolbar(
+                      search: TextField(
+                          controller: _search,
+                          onChanged: (_) => setState(() {}),
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w500),
+                          decoration: pickListInputDecoration(context,
+                              hintText: 'Search...',
+                              suffixIcon: IconButton(
+                                  style: IconButton.styleFrom(
+                                      backgroundColor: Colors.transparent,
+                                      disabledBackgroundColor:
+                                          Colors.transparent,
+                                      side: BorderSide.none),
+                                  padding: EdgeInsets.zero,
+                                  iconSize: 18,
+                                  icon: Icon(query.isEmpty
+                                      ? Icons.search
+                                      : Icons.close),
+                                  onPressed: () =>
+                                      setState(() => _search.clear())))),
+                      middle: fromSelection || definition == null
+                          ? null
+                          : PickListCount(
+                              count: visible.length,
+                              label: pickListPluralLabel(label)),
+                      trailing: fromSelection
+                          ? null
+                          : SizedBox(
+                              width: 200,
+                              height: 32,
+                              child: AppSelect<String>(
+                                  value: _selectedListName,
+                                  hint: Text('Select a list...',
                                       style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          color: palette.textPrimary),
-                                      options: [
-                                        for (final item in _definitions)
-                                          (item.listName, '${item.label} list')
-                                      ],
-                                      onChanged: _busy
-                                          ? null
-                                          : (value) {
-                                              setState(() {
-                                                _selectedListName = value;
-                                                _loading = true;
-                                                _mergeMode = false;
-                                                _selected.clear();
-                                                _search.clear();
-                                              });
-                                              unawaited(_load());
-                                            }))),
-                      if (_busy) const LinearProgressIndicator(minHeight: 2),
-                      if (_error != null)
-                        MaterialBanner(content: Text(_error!), actions: [
-                          TextButton(
-                              onPressed: _busy ? null : _load,
-                              child: const Text('Retry'))
-                        ]),
-                      if (_mergeMode)
-                        Container(
-                            height: 45,
-                            color: pickListToolbar(context),
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            child: Text(
-                                'Checkbox the ${pickListPluralLabel(label)} you want to merge:',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700))),
-                      Flexible(
-                          fit: FlexFit.loose,
-                          child: SizedBox(
-                              height: definition == null
-                                  ? 32.0
-                                  : math.max(1, visible.length) * 48.0 + 48,
-                              child: _loading
-                                  ? const Center(
-                                      child: CircularProgressIndicator())
-                                  : definition == null
-                                      ? const PickListPlaceholder(
-                                          'Select a pick list to manage in the '
-                                          'top right dropdown menu...')
-                                      : PickListValuesTable(
-                                          key: ValueKey(_selectedListName),
-                                          values: visible,
-                                          usageCounts: _counts,
-                                          showSortName: definition.hasSortName,
-                                          mode: _mergeMode
-                                              ? PickListTableMode.merge
-                                              : PickListTableMode.manage,
-                                          selectedIds: _selected,
-                                          enabled: !_busy,
-                                          onSelect: (value) => setState(() {
-                                                if (!_selected.add(value.id)) {
-                                                  _selected.remove(value.id);
-                                                }
-                                              }),
-                                          onEdit: _edit,
-                                          onDelete: _delete))),
-                      Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Row(children: [
-                            if (_mergeMode)
-                              Expanded(
-                                  child: Padding(
-                                      padding: const EdgeInsets.only(left: 26),
-                                      child: Text(
-                                          '${_selected.length} selected',
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.w700))))
-                            else ...[
-                              if (fromSelection)
-                                FilledButton(
-                                    style: pickListButtonStyle(context,
-                                        primary: false, footer: true),
-                                    onPressed: _busy
-                                        ? null
-                                        : () => widget.onBack!(_changes),
-                                    child: const Text('Back')),
-                              const Spacer(),
-                            ],
-                            if (_mergeMode) ...[
-                              FilledButton(
-                                  style: pickListButtonStyle(context,
-                                      primary: false, footer: true),
-                                  onPressed: _busy
+                                          color: palette.textPrimary)),
+                                  decoration: pickListInputDecoration(context),
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: palette.textPrimary),
+                                  options: [
+                                    for (final item in _definitions)
+                                      (item.listName, '${item.label} list')
+                                  ],
+                                  onChanged: _busy
                                       ? null
-                                      : () => setState(() {
+                                      : (value) {
+                                          setState(() {
+                                            _selectedListName = value;
+                                            _loading = true;
                                             _mergeMode = false;
                                             _selected.clear();
+                                            _search.clear();
+                                          });
+                                          unawaited(_load());
+                                        }))),
+                  if (_busy) const LinearProgressIndicator(minHeight: 2),
+                  if (_error != null)
+                    MaterialBanner(content: Text(_error!), actions: [
+                      TextButton(
+                          onPressed: _busy ? null : _load,
+                          child: const Text('Retry'))
+                    ]),
+                  if (_mergeMode)
+                    Container(
+                        height: 45,
+                        color: pickListToolbar(context),
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Text(
+                            'Checkbox the ${pickListPluralLabel(label)} you want to merge:',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w700))),
+                  Flexible(
+                      fit: widget.standaloneNativePage
+                          ? FlexFit.tight
+                          : FlexFit.loose,
+                      child: SizedBox(
+                          height: widget.standaloneNativePage
+                              ? null
+                              : definition == null
+                                  ? 32.0
+                                  : math.max(1, visible.length) * 48.0 + 48,
+                          child: _loading
+                              ? const Center(child: CircularProgressIndicator())
+                              : definition == null
+                                  ? const PickListPlaceholder(
+                                      'Select a pick list to manage in the '
+                                      'top right dropdown menu...')
+                                  : PickListValuesTable(
+                                      key: ValueKey(_selectedListName),
+                                      values: visible,
+                                      usageCounts: _counts,
+                                      showSortName: definition.hasSortName,
+                                      mode: _mergeMode
+                                          ? PickListTableMode.merge
+                                          : PickListTableMode.manage,
+                                      selectedIds: _selected,
+                                      enabled: !_busy,
+                                      onSelect: (value) => setState(() {
+                                            if (!_selected.add(value.id)) {
+                                              _selected.remove(value.id);
+                                            }
                                           }),
-                                  child: const Text('Cancel')),
-                              const SizedBox(width: 5),
-                              _mergeButton(context),
-                            ] else
-                              FilledButton(
-                                  onPressed: _busy ||
-                                          definition?.allowMerge != true
-                                      ? null
-                                      : () => setState(() => _mergeMode = true),
-                                  style: pickListButtonStyle(context,
-                                      footer: true),
-                                  child: const Text('Merge Mode')),
-                          ])),
-                    ]))));
+                                      onEdit: _edit,
+                                      onDelete: _delete))),
+                  Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(children: [
+                        if (_mergeMode)
+                          Expanded(
+                              child: Padding(
+                                  padding: const EdgeInsets.only(left: 26),
+                                  child: Text('${_selected.length} selected',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w700))))
+                        else ...[
+                          if (fromSelection)
+                            FilledButton(
+                                style: pickListButtonStyle(context,
+                                    primary: false, footer: true),
+                                onPressed: _busy
+                                    ? null
+                                    : () => widget.onBack!(_changes),
+                                child: const Text('Back')),
+                          const Spacer(),
+                        ],
+                        if (_mergeMode) ...[
+                          FilledButton(
+                              style: pickListButtonStyle(context,
+                                  primary: false, footer: true),
+                              onPressed: _busy
+                                  ? null
+                                  : () => setState(() {
+                                        _mergeMode = false;
+                                        _selected.clear();
+                                      }),
+                              child: const Text('Cancel')),
+                          const SizedBox(width: 5),
+                          _mergeButton(context),
+                        ] else
+                          FilledButton(
+                              onPressed: _busy || definition?.allowMerge != true
+                                  ? null
+                                  : () => setState(() => _mergeMode = true),
+                              style: pickListButtonStyle(context, footer: true),
+                              child: const Text('Merge Mode')),
+                      ])),
+                ])));
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _close();
+      },
+      child: widget.standaloneNativePage
+          ? MobilePage(
+              title: 'Manage ${pickListPluralLabel(label)}',
+              onBack: _close,
+              headerColor: palette.accent,
+              backgroundColor: pickListSurface(context),
+              body: panel)
+          : panel,
+    );
   }
 
   Widget _mergeButton(BuildContext context) {

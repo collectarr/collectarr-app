@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/adaptive/mobile_toolbar_trigger.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
@@ -33,7 +34,7 @@ Future<List<LibraryFolderPreset>?> showLibraryFolderFavoritesDialog({
   required List<String> availableModes,
   List<LibraryFolderPreset> initialFavorites = const [],
 }) {
-  return showAppDialog<List<LibraryFolderPreset>>(
+  return showAppPageOrDialog<List<LibraryFolderPreset>>(
     context: context,
     builder: (dialogContext) => Theme(
       data: libraryAccentTheme(context, type.identity.accent),
@@ -87,6 +88,26 @@ class _LibraryGroupModeMenuButtonState
   bool get _menuOpen => _menuController.isShowing;
 
   void _closeGroupModeMenu() => _menuController.hide();
+
+  Future<void> _openNativeSelector(List<String> modes) async {
+    final result = await Navigator.of(context, rootNavigator: true)
+        .push<Object?>(MaterialPageRoute(
+      builder: (context) => Theme(
+        data: libraryAccentTheme(context, widget.accent),
+        child: _NativeFolderSelectorPage(
+          type: widget.type,
+          accent: widget.accent,
+          availableModes: modes,
+          selectedPreset: widget.folderPreset,
+          pinnedPresets: widget.pinnedFolderPresets,
+          sidebarVisible: widget.sidebarVisible,
+          canHideFolders: widget.onSidebarVisibilityChanged != null,
+          canManageFavorites: widget.onPinnedPresetsChanged != null,
+        ),
+      ),
+    ));
+    if (mounted && result != null) _handleMenuSelection(result, modes);
+  }
 
   void _handleMenuSelection(Object? value, List<String> modes) async {
     _closeGroupModeMenu();
@@ -179,6 +200,11 @@ class _LibraryGroupModeMenuButtonState
             child: InkWell(
               mouseCursor: WidgetStateMouseCursor.clickable,
               onTap: () {
+                if (appPresentationPlatform.isNativeMobile) {
+                  unawaited(_openNativeSelector(widget.availableModes ??
+                      libraryGroupModesForType(widget.type)));
+                  return;
+                }
                 if (_menuOpen) {
                   _closeGroupModeMenu();
                 } else {
@@ -239,6 +265,162 @@ class _LibraryGroupModeMenuButtonState
 
   double _resolveMenuWidth(BuildContext context) =>
       250.0.clamp(0.0, MediaQuery.sizeOf(context).width - 16);
+}
+
+/// The native folder field picker uses the same presets and callbacks as the
+/// desktop menu, but gives search and the full field list their own page.
+class _NativeFolderSelectorPage extends StatefulWidget {
+  const _NativeFolderSelectorPage({
+    required this.type,
+    required this.accent,
+    required this.availableModes,
+    required this.selectedPreset,
+    required this.pinnedPresets,
+    required this.sidebarVisible,
+    required this.canHideFolders,
+    required this.canManageFavorites,
+  });
+
+  final LibraryKindRegistration type;
+  final Color accent;
+  final List<String> availableModes;
+  final LibraryFolderPreset? selectedPreset;
+  final List<LibraryFolderPreset> pinnedPresets;
+  final bool sidebarVisible;
+  final bool canHideFolders;
+  final bool canManageFavorites;
+
+  @override
+  State<_NativeFolderSelectorPage> createState() =>
+      _NativeFolderSelectorPageState();
+}
+
+class _NativeFolderSelectorPageState extends State<_NativeFolderSelectorPage> {
+  final _searchController = TextEditingController();
+  var _query = '';
+  var _otherExpanded = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  bool _matches(String label) =>
+      label.toLowerCase().contains(_query.trim().toLowerCase());
+
+  bool _isSelected(LibraryFolderPreset preset) {
+    final selected = widget.selectedPreset;
+    if (selected == null || selected.modes.length != preset.modes.length) {
+      return false;
+    }
+    final fields = libraryKindWorkspaceForKind(widget.type.kind).fields;
+    for (var i = 0; i < preset.modes.length; i++) {
+      if (!fields
+          .decodeGroupId(selected.modes[i])
+          .sameIdentityAs(fields.decodeGroupId(preset.modes[i]))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Widget _heading(String label) => Container(
+        color: appPalette(context).surface,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        alignment: Alignment.centerLeft,
+        child: Text(label,
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: appPalette(context).textMuted)),
+      );
+
+  Widget _row(String label, Object result,
+          {bool selected = false, IconData? icon}) =>
+      Column(children: [
+        ListTile(
+          key: ValueKey('native-folder-$label'),
+          minTileHeight: 48,
+          leading: Icon(
+              icon ?? (selected ? Icons.check : Icons.folder_outlined),
+              color: selected ? widget.accent : appPalette(context).textMuted),
+          title: Text(label),
+          selected: selected,
+          onTap: () => Navigator.of(context).pop(result),
+        ),
+        const Divider(height: 1),
+      ]);
+
+  @override
+  Widget build(BuildContext context) {
+    final categories = libraryGroupModeCategories(
+      widget.type,
+      widget.availableModes,
+    );
+    final favorites = [
+      for (final preset in widget.pinnedPresets)
+        if (preset.modes.every(widget.availableModes.contains) &&
+            _matches(genericFolderPresetLabel(preset, widget.type)))
+          preset,
+    ];
+    final matchingModes = [
+      for (final category in categories)
+        for (final mode in category.modes.cast<String>())
+          if (_matches(genericGroupModeFolderSetLabel(mode, widget.type)))
+            (category: category.label, mode: mode),
+    ];
+    return MobilePage(
+      title: 'Select Folder Field:',
+      onBack: () => Navigator.of(context).pop(),
+      headerColor: widget.accent,
+      backgroundColor: appPalette(context).panelRaised,
+      contextBar: Padding(
+        padding: const EdgeInsets.all(8),
+        child: TextField(
+          key: const Key('native-folder-search'),
+          controller: _searchController,
+          onChanged: (value) => setState(() => _query = value),
+          decoration: const InputDecoration(
+            hintText: 'Search folder',
+            prefixIcon: Icon(Icons.search),
+          ),
+        ),
+      ),
+      body: ListView(children: [
+        _heading('Favorites'),
+        if (widget.sidebarVisible &&
+            widget.canHideFolders &&
+            _matches('No Folders'))
+          _row('No Folders', LibraryGroupModeMenuAction.disableFolders,
+              icon: Icons.folder_off_outlined),
+        for (final preset in favorites)
+          _row(genericFolderPresetLabel(preset, widget.type), preset,
+              selected: _isSelected(preset)),
+        if (widget.canManageFavorites && _query.isEmpty)
+          _row(
+              'Add New Favorite', _ManageFavoritesRequest(widget.pinnedPresets),
+              icon: Icons.add),
+        ListTile(
+          title: const Text('Other Fields'),
+          trailing: Icon(_otherExpanded || _query.isNotEmpty
+              ? Icons.expand_less
+              : Icons.expand_more),
+          onTap: () => setState(() => _otherExpanded = !_otherExpanded),
+        ),
+        if (_otherExpanded || _query.isNotEmpty)
+          for (final category in categories) ...[
+            if (matchingModes.any((item) => item.category == category.label))
+              _heading(category.label),
+            for (final item in matchingModes)
+              if (item.category == category.label)
+                _row(genericGroupModeFolderSetLabel(item.mode, widget.type),
+                    LibraryFolderPreset.single(item.mode),
+                    selected:
+                        _isSelected(LibraryFolderPreset.single(item.mode))),
+          ],
+      ]),
+    );
+  }
 }
 
 class LibraryGroupModeDropdownMenu extends StatefulWidget {
@@ -799,6 +981,21 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
 
   @override
   Widget build(BuildContext context) {
+    if (appPresentationPlatform.isNativeMobile) {
+      return MobilePage(
+        title: 'Manage Folder Favorites',
+        onBack: () => Navigator.of(context).pop(),
+        headerColor: widget.type.identity.accent,
+        backgroundColor: pickListSurface(context),
+        body: DefaultTextStyle.merge(
+          style: _fieldStyle.copyWith(color: appPalette(context).textPrimary),
+          child: _isEditorVisible
+              ? _buildEditor(context)
+              : _buildFavorites(context),
+        ),
+        footer: _buildFooter(context),
+      );
+    }
     final availableHeight = MediaQuery.sizeOf(context).height - 60;
     final listHeight =
         (167.0 + _favoritePresets.length * 49).clamp(200.0, double.infinity);

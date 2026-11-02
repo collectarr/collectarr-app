@@ -1,4 +1,7 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -52,7 +55,7 @@ Future<SmartListLoadResult?> showSmartListsDialog({
   List<CustomFieldDefinition> customFieldDefinitions = const [],
   bool allowCurrentViewUpdate = true,
 }) {
-  return showAppDialog<SmartListLoadResult>(
+  return showAppPageOrDialog<SmartListLoadResult>(
     context: context,
     builder: (_) => _SmartListsDialog(
       db: db,
@@ -105,6 +108,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
   List<SmartList> _lists = [];
   bool _loading = true;
   String? _selectedListId;
+  bool _mobileDetailsVisible = false;
 
   @override
   void initState() {
@@ -401,6 +405,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     final repo = SmartListRepository(widget.db);
     await repo.delete(list.id);
     await _load();
+    if (mounted) setState(() => _mobileDetailsVisible = false);
   }
 
   void _load_(SmartList list) {
@@ -435,6 +440,76 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final selectedList = _selectedList;
+    if (appPresentationPlatform.isNativeMobile) {
+      return MobilePage(
+        title: _mobileDetailsVisible && selectedList != null
+            ? selectedList.name
+            : 'Smart Lists',
+        onBack: () {
+          if (_mobileDetailsVisible) {
+            setState(() => _mobileDetailsVisible = false);
+          } else {
+            Navigator.pop(context);
+          }
+        },
+        headerColor: libraryAccentForKind(
+            catalogMediaKindFromApiValue(widget.mediaKind)),
+        backgroundColor: palette.panel,
+        actions: _mobileDetailsVisible
+            ? null
+            : [
+                IconButton(
+                  tooltip: 'Save current view as smart list',
+                  icon: const Icon(Icons.add),
+                  onPressed: _saveCurrentAsSmartList,
+                ),
+              ],
+        body: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _mobileDetailsVisible && selectedList != null
+                ? Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: _SmartListDetailsPane(
+                      list: selectedList,
+                      customFieldDefinitions: widget.customFieldDefinitions,
+                      onLoad: () => _load_(selectedList),
+                      onRename: () => _rename(selectedList),
+                      onEditKinds: () => _editKinds(selectedList),
+                      onEditFieldRules: () => _editFieldRules(selectedList),
+                      onOverwriteFromCurrentView: () =>
+                          _overwriteFromCurrentView(selectedList),
+                      onDelete: () => _delete(selectedList),
+                    ),
+                  )
+                : _lists.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No saved smart lists.\nApply filters, then tap + to save the current view as a smart list.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: palette.textMuted),
+                        ),
+                      )
+                    : ListView.separated(
+                        itemCount: _lists.length,
+                        separatorBuilder: (_, __) =>
+                            Divider(height: 1, color: palette.divider),
+                        itemBuilder: (context, i) {
+                          final list = _lists[i];
+                          return ListTile(
+                            key: ValueKey('mobile-smart-list-${list.id}'),
+                            leading: const Icon(Icons.filter_list),
+                            title: Text(list.name),
+                            subtitle: _buildSubtitle(list),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () => setState(() {
+                              _selectedListId = list.id;
+                              _mobileDetailsVisible = true;
+                            }),
+                          );
+                        },
+                      ),
+      );
+    }
     return AccentAlertDialog(
       backgroundColor: palette.panel,
       title: Row(

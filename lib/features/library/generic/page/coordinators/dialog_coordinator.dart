@@ -192,6 +192,7 @@ class LibraryPageDialogCoordinator {
     final sortRules = await showLibrarySortDialog(
       context: _page.context,
       type: _page.type,
+      onManageFavorites: showSortFavoritesManagerFlow,
       currentRules: [
         for (final rule in viewState.sortRules)
           LibrarySortRule(
@@ -355,7 +356,8 @@ class LibraryPageDialogCoordinator {
 
   Future<void> showUserFoldersFlow() async {
     final db = _page.ref.read(localDatabaseProvider);
-    await showUserFoldersDialog(context: _page.context, db: db);
+    await showUserFoldersDialog(
+        context: _page.context, db: db, accent: _page.accent);
   }
 
   Future<void> showTransferFieldDataFlow(

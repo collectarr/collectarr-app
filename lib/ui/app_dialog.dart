@@ -1,6 +1,7 @@
 import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 
 /// Shared panel corners, without an outer border.
 const ShapeBorder appDialogShape = RoundedRectangleBorder(
@@ -277,4 +278,21 @@ Future<T?> showAppDialog<T>({
           !MediaQuery.disableAnimationsOf(context),
     ),
   );
+}
+
+/// Opens a full native page for workflows with their own header and content;
+/// desktop/web retain the ordinary modal route and its barrier behavior.
+Future<T?> showAppPageOrDialog<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+}) {
+  if (!appPresentationPlatform.isNativeMobile) {
+    return showAppDialog<T>(context: context, builder: builder);
+  }
+  final navigator = Navigator.of(context, rootNavigator: true);
+  final themes = InheritedTheme.capture(from: context, to: navigator.context);
+  return navigator.push<T>(MaterialPageRoute<T>(
+    fullscreenDialog: true,
+    builder: (routeContext) => themes.wrap(Builder(builder: builder)),
+  ));
 }

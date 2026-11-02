@@ -406,37 +406,14 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     onOpenSortDialog: onEditSort,
                   )),
           if (onEditSort != null)
-            PopupMenuButton<Object>(
+            IconButton(
                 key: const Key('library.mobile-sort'),
                 tooltip: 'Change Sorting',
                 style: IconButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     minimumSize: const Size.square(48)),
                 icon: const Icon(Icons.sort_by_alpha),
-                onSelected: (value) {
-                  if (value == 'sort') {
-                    onEditSort!();
-                  } else if (value == 'manage') {
-                    onManageSortFavorites?.call();
-                  } else if (value is LibrarySortFavorite) {
-                    onSortFavoriteSelected?.call(value);
-                  }
-                },
-                itemBuilder: (_) => [
-                      const PopupMenuItem(
-                          value: 'sort', height: 48, child: Text('Sort...')),
-                      for (final favorite in sortFavorites)
-                        CheckedPopupMenuItem(
-                            value: favorite,
-                            height: 48,
-                            checked: favorite.id == activeSortFavoriteId,
-                            child: Text(favorite.label)),
-                      if (onManageSortFavorites != null)
-                        const PopupMenuItem(
-                            value: 'manage',
-                            height: 48,
-                            child: Text('Manage sorting favorites...')),
-                    ]),
+                onPressed: onEditSort),
           LibraryToolsButton(
               type: type,
               counts: counts,

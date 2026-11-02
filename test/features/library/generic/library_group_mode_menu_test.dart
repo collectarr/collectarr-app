@@ -7,8 +7,42 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 
+void desktopTestWidgets(String description, WidgetTesterCallback callback) =>
+    testWidgets(description, callback,
+        variant: TargetPlatformVariant({TargetPlatform.windows}));
+
 void main() {
-  testWidgets('group menu tooltips remain valid during layout and resizing',
+  testWidgets('native folder selector is a searchable page', (tester) async {
+    LibraryFolderPreset? selected;
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: LibraryGroupModeMenuButton(
+          type: const MusicRegistration(),
+          folderPreset: null,
+          accent: Colors.orange,
+          icon: Icons.folder,
+          onChanged: (value) => selected = value,
+          pinnedFolderPresets: [LibraryFolderPreset.single('music.artist')],
+          onPinnedPresetsChanged: (_) {},
+        ),
+      ),
+    ));
+    await tester.tap(find.byTooltip('Group By'));
+    await tester.pumpAndSettle();
+    expect(find.text('Select Folder Field:'), findsOneWidget);
+    expect(find.byKey(const Key('native-folder-search')), findsOneWidget);
+    expect(find.text('Favorites'), findsOneWidget);
+    expect(find.text('Other Fields'), findsOneWidget);
+    await tester.enterText(
+        find.byKey(const Key('native-folder-search')), 'artist');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('native-folder-Artist')).first);
+    await tester.pumpAndSettle();
+    expect(selected, LibraryFolderPreset.single('music.artist'));
+    expect(find.text('Select Folder Field:'), findsNothing);
+  }, variant: TargetPlatformVariant({TargetPlatform.android}));
+  desktopTestWidgets(
+      'group menu tooltips remain valid during layout and resizing',
       (tester) async {
     await tester.pumpWidget(MaterialApp(
         home: Scaffold(
@@ -37,7 +71,7 @@ void main() {
     await tester.binding.setSurfaceSize(null);
     await tester.pumpWidget(const SizedBox());
   });
-  testWidgets('group menu tooltips work under a nested overlay',
+  desktopTestWidgets('group menu tooltips work under a nested overlay',
       (tester) async {
     await tester.pumpWidget(MaterialApp(
         home: Scaffold(
@@ -67,7 +101,7 @@ void main() {
     expect(find.text('Manage Folder Favorites'), findsOneWidget);
     await pointer.removePointer();
   });
-  testWidgets('folder favorite actions inherit the kind accent',
+  desktopTestWidgets('folder favorite actions inherit the kind accent',
       (tester) async {
     await tester.pumpWidget(MaterialApp(
         home: Builder(
@@ -92,7 +126,8 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
   });
-  testWidgets('group mode dropdown exposes favorites and folders sections', (
+  desktopTestWidgets(
+      'group mode dropdown exposes favorites and folders sections', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -145,7 +180,8 @@ void main() {
         findsNothing);
   });
 
-  testWidgets('hidden grouping menu does not offer a show folders toggle', (
+  desktopTestWidgets(
+      'hidden grouping menu does not offer a show folders toggle', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -169,7 +205,7 @@ void main() {
     expect(find.byIcon(Icons.check), findsNothing);
   });
 
-  testWidgets('manage favorites button opens a dedicated dialog', (
+  desktopTestWidgets('manage favorites button opens a dedicated dialog', (
     tester,
   ) async {
     List<LibraryFolderPreset>? savedPresets;
@@ -214,7 +250,8 @@ void main() {
     );
   });
 
-  testWidgets('no folders clears the active bucket before hiding folders', (
+  desktopTestWidgets(
+      'no folders clears the active bucket before hiding folders', (
     tester,
   ) async {
     var clearedBucket = false;
@@ -248,7 +285,8 @@ void main() {
     expect(sidebarVisible, isFalse);
   });
 
-  testWidgets('add favorite button opens the editor pane', (tester) async {
+  desktopTestWidgets('add favorite button opens the editor pane',
+      (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -281,7 +319,8 @@ void main() {
         findsOneWidget);
   });
 
-  testWidgets('group mode button shows the configured folder set label', (
+  desktopTestWidgets('group mode button shows the configured folder set label',
+      (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -303,7 +342,8 @@ void main() {
     expect(find.text('Artist / Label'), findsOneWidget);
   });
 
-  testWidgets('group mode button stays quiet when its slot is too narrow', (
+  desktopTestWidgets(
+      'group mode button stays quiet when its slot is too narrow', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -327,7 +367,7 @@ void main() {
     expect(find.text('Artist'), findsNothing);
   });
 
-  testWidgets('group mode button opens menu on hover', (tester) async {
+  desktopTestWidgets('group mode button opens menu on hover', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -351,7 +391,7 @@ void main() {
     expect(find.text('Manage Favorites'), findsOneWidget);
   });
 
-  testWidgets(
+  desktopTestWidgets(
       'group mode button closes menu after pointer leaves trigger and menu', (
     tester,
   ) async {
@@ -386,7 +426,8 @@ void main() {
         find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsNothing);
   });
 
-  testWidgets('Music grouping offers catalog, credits and personal sections', (
+  desktopTestWidgets(
+      'Music grouping offers catalog, credits and personal sections', (
     tester,
   ) async {
     await tester.pumpWidget(
