@@ -1061,23 +1061,21 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               onCoverTabChanged: (selected) =>
                   setState(() => _mobileCoverSelected = selected),
               showMobileInput: !browseMode || openedGroup == null || !isPhone,
-              searchRowWidth:
-                  isMobilePhone
-                      ? null
-                      : browseMode
-                          ? LibraryAddBrowseGroupList.width
-                          : grouping == null
-                              ? null
-                              : LibraryAddResultGrouping.listWidth,
-              searchRowBeside:
-                  isMobilePhone
-                      ? null
-                      : browseMode
-                          ? LibraryAddBrowseGroupHeader(group: openedGroup)
-                          : grouping == null
-                              ? null
-                              : LibraryAddGroupHeader(
-                                  group: selectedGroup, grouping: grouping),
+              searchRowWidth: isMobilePhone
+                  ? null
+                  : browseMode
+                      ? LibraryAddBrowseGroupList.width
+                      : grouping == null
+                          ? null
+                          : LibraryAddResultGrouping.listWidth,
+              searchRowBeside: isMobilePhone
+                  ? null
+                  : browseMode
+                      ? LibraryAddBrowseGroupHeader(group: openedGroup)
+                      : grouping == null
+                          ? null
+                          : LibraryAddGroupHeader(
+                              group: selectedGroup, grouping: grouping),
             ),
           ),
         ],
@@ -1279,7 +1277,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   /// The browse tab's groups at the left of what [content] shows.
-  Widget _besideBrowseGroups(Widget? groups, Widget content, {required bool isMobilePhone}) {
+  Widget _besideBrowseGroups(Widget? groups, Widget content,
+      {required bool isMobilePhone}) {
     if (groups == null) return content;
     final groupList = Stack(children: [
       Positioned.fill(child: groups),

@@ -51,13 +51,13 @@ ThemeData editDialogTheme({
   final base = palette.isDark
       ? ThemeData.dark(useMaterial3: true)
       : ThemeData.light(useMaterial3: true);
-    final isNativeMobile = appPresentationPlatform.isNativeMobile;
-    final borderRadius = (compactDesktop && !isNativeMobile)
-        ? BorderRadius.circular(kAppInputBorderRadius)
-        : (isNativeMobile
-            ? BorderRadius.zero
-            : BorderRadius.circular(kAppInputBorderRadius));
-    return base.copyWith(
+  final isNativeMobile = appPresentationPlatform.isNativeMobile;
+  final borderRadius = (compactDesktop && !isNativeMobile)
+      ? BorderRadius.circular(kAppInputBorderRadius)
+      : (isNativeMobile
+          ? BorderRadius.zero
+          : BorderRadius.circular(kAppInputBorderRadius));
+  return base.copyWith(
     extensions: [palette],
     // The reference has no press ripples anywhere.
     splashFactory: NoSplash.splashFactory,
