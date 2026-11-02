@@ -161,5 +161,5 @@ void main() {
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
     }
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

@@ -72,6 +72,7 @@
 - Board Game, Book, Movie, Music, Comics and Games editor, inspector, stats and action files are named by their job inside their kind's folders, as the other kind files already were.
 
 ### CI & Build
+- UI regression checks distinguish desktop dialog geometry from native mobile navigation and drain form streams before teardown.
 - Release notes list the commits of each merged pull request under it instead of only its title.
 - Release banners count the issues open when the release was published instead of showing none.
 

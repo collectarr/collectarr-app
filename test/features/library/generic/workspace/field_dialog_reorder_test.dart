@@ -64,7 +64,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(rules.last.ascending, isTrue);
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('column drag down saves exact order and Cancel discards removal',
       (tester) async {
@@ -108,7 +108,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(columns.toList(), ['publisher', 'barcode', 'title']);
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('field dialogs fit a narrow viewport with saved favorites',
       (tester) async {

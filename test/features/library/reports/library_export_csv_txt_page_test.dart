@@ -72,7 +72,7 @@ void main() {
     await pumpUntilSettled(tester);
     expect(preview()[1], contains('Alpha'));
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('LibraryExportCsvTxtPage renders full layout and controls',
       (tester) async {
@@ -279,5 +279,5 @@ void main() {
     // Close modal
     await tester.tap(find.text('Cancel'));
     await pumpUntilSettled(tester);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

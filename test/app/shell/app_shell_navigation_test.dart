@@ -256,7 +256,7 @@ void main() {
 
       expect(tester.takeException(), isNull);
       await disposeTestApp(tester);
-    });
+    }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
     testWidgets(
         'mobile phone smoke (390x844): navigates shell, settings, and back without overflow',
