@@ -126,18 +126,31 @@ class _LibraryMobileEditorScaffoldState
                 icon: const Icon(Icons.delete_outline),
                 onPressed: isBusy ? null : onDelete,
               ),
-            if (onPrevious != null)
+            if (primaryAction == null) ...[
               IconButton(
                 tooltip: 'Previous item',
                 icon: const Icon(Icons.chevron_left),
-                onPressed: isBusy ? null : onPrevious,
+                onPressed: (isBusy || onPrevious == null) ? null : onPrevious,
               ),
-            if (onNext != null)
               IconButton(
                 tooltip: 'Next item',
                 icon: const Icon(Icons.chevron_right),
-                onPressed: isBusy ? null : onNext,
+                onPressed: (isBusy || onNext == null) ? null : onNext,
               ),
+            ] else ...[
+              if (onPrevious != null)
+                IconButton(
+                  tooltip: 'Previous item',
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: isBusy ? null : onPrevious,
+                ),
+              if (onNext != null)
+                IconButton(
+                  tooltip: 'Next item',
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: isBusy ? null : onNext,
+                ),
+            ],
             if (footer != null)
               IconButton(
                 tooltip: 'Collection details',
@@ -148,10 +161,15 @@ class _LibraryMobileEditorScaffoldState
             if (primaryAction != null)
               primaryAction
             else
-              TextButton.icon(
+              TextButton(
                 key: const Key('library.mobile-editor.save'),
                 onPressed: isBusy ? null : onSave,
-                icon: isBusy
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  minimumSize: const Size(60, 48),
+                ),
+                child: isBusy
                     ? const SizedBox.square(
                         dimension: 16,
                         child: CircularProgressIndicator(
@@ -159,13 +177,15 @@ class _LibraryMobileEditorScaffoldState
                           color: Colors.white,
                         ),
                       )
-                    : const Icon(Icons.check, size: 20),
-                label: Text(isBusy ? 'Saving…' : 'Save'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  minimumSize: const Size(64, 48),
-                ),
+                    : const Text(
+                        'DONE',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
               ),
             if (onPropose != null || onPrevious != null || onNext != null)
               PopupMenuButton<VoidCallback>(

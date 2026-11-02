@@ -205,7 +205,7 @@ void main() {
         )
         .first);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Save').first);
+    await tester.tap(find.byKey(const Key('library.mobile-editor.save')));
     await tester.pumpAndSettle();
     expect(saved, isNotNull);
     expect(saved!.entryPersonalData!['key_comic'], isTrue);
