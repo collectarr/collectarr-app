@@ -12,6 +12,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Native mobile Pre-fill Settings opens as a full-height page on mobile and tablet matching CLZ's layout, with kind-specific titles, an Always show toggle, and Clear All and Save actions.
 - Native mobile editors match CLZ's toolbar tab strip and pill styling, center tablet dialogs in a 768 dp card, keep multi-column fields on phones, and align the Personal status row.
 - Native mobile shell replaces the persistent rail and navigation bar with full-viewport collection tabs at the bottom, styles the Add from Core method picker as three horizontal option tiles matching CLZ, provides tablet split-pane series and issues browsing, and matches mobile page transitions with desktop forwards fading.
 - Native folder and sort selectors, sorting favorites, column editors, Smart Lists, personal folders and Pick List management open as full-screen pages; the library sort button opens its page directly with a selected-row direction control.

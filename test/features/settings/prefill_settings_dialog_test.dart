@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/library/add/models/prefill_defaults.dart';
@@ -129,7 +130,7 @@ void main() {
         find.descendant(of: condition, matching: find.byType(TextFormField)),
         'Good');
     await tester.tap(find.text('Fill purchase date with today'));
-    await tester.tap(find.text('Always show this screen'));
+    await tester.tap(find.textContaining('Always show'));
     await tester.tap(find.widgetWithText(FilledButton, 'Add'));
     await pumpUntilSettled(tester);
     expect(result!.personalValues['condition'], 'Good');
@@ -185,5 +186,59 @@ void main() {
     expect(result!.personalValues['game_has_manual'], isTrue);
     expect(result!.personalValues['quantity'], 2);
     expect(result!.personalValues.containsKey('market_value_cents'), isFalse);
+  });
+
+  testWidgets('PrefillSettingsDialog renders MobilePage on native mobile phone',
+      (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: const MaterialApp(
+        home: Scaffold(
+          body: PrefillSettingsDialog(
+            accent: Colors.teal,
+            kind: CatalogMediaKind.comic,
+          ),
+        ),
+      ),
+    ));
+    await pumpUntilSettled(tester);
+
+    expect(find.byType(MobilePage), findsOneWidget);
+    expect(find.text('Pre-fill Comic Details'), findsOneWidget);
+    expect(find.text('Always show'), findsOneWidget);
+  });
+
+  testWidgets('PrefillSettingsDialog renders centered card on native mobile tablet',
+      (tester) async {
+    tester.view.physicalSize = const Size(1024, 768);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: const MaterialApp(
+        home: Scaffold(
+          body: PrefillSettingsDialog(
+            accent: Colors.teal,
+            kind: CatalogMediaKind.comic,
+          ),
+        ),
+      ),
+    ));
+    await pumpUntilSettled(tester);
+
+    expect(find.byType(MobilePage), findsOneWidget);
+    expect(find.text('Pre-fill Comic Details'), findsOneWidget);
+    expect(find.text('Always show'), findsOneWidget);
   });
 }
