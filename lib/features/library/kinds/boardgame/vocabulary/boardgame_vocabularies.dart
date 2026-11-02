@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/field_identities.dart';
 
 abstract final class BoardGameVocabularyIds {
   static const condition = VocabularyId<String>('boardgame.condition');

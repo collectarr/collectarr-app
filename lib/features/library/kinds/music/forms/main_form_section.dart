@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/forms/schema.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/field_identities.dart';
 
 /// CLZ Main composition shared by Music Manual Add and Edit.
 LibraryFormSectionSpec<TDraft> musicMainFormSection<TDraft>({

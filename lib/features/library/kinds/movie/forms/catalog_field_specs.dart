@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/forms/field_spec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/characters_editor.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 
 typedef MovieFormValuesReader<TDraft> = MovieCatalogFormValues Function(

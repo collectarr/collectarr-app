@@ -1,5 +1,5 @@
 import '../book_module_dependencies.dart';
-import '../config/book_kind_capabilities.dart';
+import '../config/capabilities.dart';
 
 final bookKindWorkspace = TypedLibraryKindWorkspace<BookWorkspaceDto>(
   catalogItemWorkspace: TypedLibraryTargetWorkspace<BookWorkspaceDto>(

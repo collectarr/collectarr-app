@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
-import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/field_identities.dart';
 
 abstract final class GameFieldIds {
   static const status = LibraryFieldId<GameKind, String?>('game.status');

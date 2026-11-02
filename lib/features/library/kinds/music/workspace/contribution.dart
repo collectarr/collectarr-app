@@ -1,5 +1,5 @@
 import '../music_module_dependencies.dart';
-import '../config/music_kind_capabilities.dart';
+import '../config/capabilities.dart';
 
 final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceProjection>(
   catalogItemWorkspace: TypedLibraryTargetWorkspace<MusicWorkspaceProjection>(

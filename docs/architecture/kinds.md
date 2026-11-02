@@ -1,9 +1,9 @@
 # Typed kind architecture
 
 The source tree has eight kinds: Comic, Book, Game, Game Hardware,
-Game Toy, BoardGame, Movie, and Music. Music and the Games family
+Game Toy, BoardGame, Movie, and Music. Music, Comics and the Games family
 (Game, Game Hardware, Game Toy) are in the release scope
-(`library_release_scope.dart`; Game through schema 3). Hardware and Toys are
+(`library_release_scope.dart`; the published schema baseline is 5). Hardware and Toys are
 independent kinds that share the Games collection family and tab bar but never
 import the Game kind. The others stay isolated source modules without database
 tables until each is released with its own migration. Each
@@ -33,10 +33,11 @@ old modules.
   such as `catalog_columns.dart`, `personal_fields.dart`, or `album_draft.dart`.
   Shared files under `lib/features/library` follow the same rule:
   `forms/schema.dart`, `entries/store.dart`, `edit/shell/dialog.dart`. Kind
-  module, domain, persistence, integration, and registration boundaries
+  module entry points, domain models, persistence and registration boundaries
   retain explicit names; the tools find each kind by its `<kind>_module.dart`.
   Dart symbols and persisted identifiers stay explicit and are independent of
-  file naming.
+  file naming. Configuration uses `config/configuration.dart`,
+  `config/capabilities.dart` and `config/field_identities.dart` where present.
 - A kind owns every representation of its domain data.
 - After kind dispatch, never erase the type.
 - Core owns source-neutral canonical catalog data and its API contract.

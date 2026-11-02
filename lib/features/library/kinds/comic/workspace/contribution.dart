@@ -1,5 +1,5 @@
 import '../comic_module_dependencies.dart';
-import '../config/comic_kind_capabilities.dart';
+import '../config/capabilities.dart';
 
 final comicKindWorkspace = TypedLibraryKindWorkspace<ComicWorkspaceDto>(
   catalogItemWorkspace: TypedLibraryTargetWorkspace<ComicWorkspaceDto>(

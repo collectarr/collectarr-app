@@ -1,7 +1,7 @@
 export 'add/contribution.dart';
 export 'edit/contribution.dart';
-export 'config/boardgame_kind_capabilities.dart';
-export 'config/boardgame_kind_configuration.dart';
+export 'config/capabilities.dart';
+export 'config/configuration.dart';
 export 'workspace/contribution.dart';
 export 'admin/boardgame_admin_contributor.dart';
 export 'barcode/boardgame_barcode_resolver.dart';

@@ -1,6 +1,6 @@
 import '../stats/game_hardware_stats_capability.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'game_hardware_kind_configuration.dart';
+import 'configuration.dart';
 import '../game_hardware_module_dependencies.dart';
 
 final gameHardwareKindIdentity = const LibraryKindIdentity(

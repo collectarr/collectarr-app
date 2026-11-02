@@ -1,5 +1,5 @@
 import '../movie_module_dependencies.dart';
-import '../config/movie_kind_configuration.dart';
+import '../config/configuration.dart';
 import '../catalog/movie_catalog_fields.dart';
 import 'manual_candidate.dart';
 

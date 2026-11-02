@@ -1,7 +1,7 @@
 export 'add/contribution.dart';
 export 'edit/contribution.dart';
-export 'config/game_toy_kind_capabilities.dart';
-export 'config/game_toy_kind_configuration.dart';
+export 'config/capabilities.dart';
+export 'config/configuration.dart';
 export 'workspace/contribution.dart';
 export 'admin/game_toy_admin_contributor.dart';
 export 'barcode/game_toy_barcode_resolver.dart';

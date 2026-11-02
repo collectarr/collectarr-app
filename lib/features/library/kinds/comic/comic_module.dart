@@ -1,8 +1,8 @@
 export 'add/contribution.dart';
 export 'config/comic_import_sources.dart';
 export 'edit/contribution.dart';
-export 'config/comic_kind_capabilities.dart';
-export 'config/comic_kind_configuration.dart';
+export 'config/capabilities.dart';
+export 'config/configuration.dart';
 export 'workspace/contribution.dart';
 export 'admin/comic_admin_contributor.dart';
 export 'barcode/comic_barcode_resolver.dart';

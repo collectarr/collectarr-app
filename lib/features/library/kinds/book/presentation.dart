@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/book/config/book_workspace
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/dto.dart';
-import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/field_identities.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const booksPreviewLabels = LibraryMediaPreviewLabels(

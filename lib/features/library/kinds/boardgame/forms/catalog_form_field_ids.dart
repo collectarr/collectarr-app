@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/field_identities.dart';
 
 const boardGameMainFieldIds = {
   'catalog_title',

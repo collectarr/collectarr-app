@@ -1,7 +1,7 @@
 export 'add/contribution.dart';
 export 'edit/contribution.dart';
-export 'config/game_hardware_kind_capabilities.dart';
-export 'config/game_hardware_kind_configuration.dart';
+export 'config/capabilities.dart';
+export 'config/configuration.dart';
 export 'workspace/contribution.dart';
 export 'admin/game_hardware_admin_contributor.dart';
 export 'barcode/game_hardware_barcode_resolver.dart';

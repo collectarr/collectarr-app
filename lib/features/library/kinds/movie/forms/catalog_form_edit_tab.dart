@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/edit/draft/shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/layout_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/catalog_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/catalog_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:flutter/material.dart';
 

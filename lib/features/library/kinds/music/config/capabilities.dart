@@ -1,7 +1,7 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../actions/merge_albums.dart';
 import '../music_module_dependencies.dart';
-import 'music_kind_configuration.dart';
+import 'configuration.dart';
 import '../actions/log_listen.dart';
 import '../add/contribution.dart';
 import '../reports/music_export_capability.dart';

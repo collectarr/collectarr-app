@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/forms/catalog_field_specs.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/field_identities.dart';
 import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/features/library/forms/field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
-import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/field_identities.dart';
 
 abstract final class BookFieldIds {
   static const status = LibraryFieldId<BookKind, String?>('book.status');

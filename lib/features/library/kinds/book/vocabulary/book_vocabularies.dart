@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/field_identities.dart';
 
 abstract final class BookVocabularyIds {
   static const publisher = BookFieldIdentities.publisherVocabulary;

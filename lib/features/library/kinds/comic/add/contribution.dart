@@ -3,7 +3,7 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import '../comic_module_dependencies.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
-import '../config/comic_kind_configuration.dart';
+import '../config/configuration.dart';
 import 'manual_candidate.dart';
 import 'series.dart';
 import '../actions/missing_issues_dialog.dart';

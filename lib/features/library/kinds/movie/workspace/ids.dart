@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/schema/identifier_types.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/field_identities.dart';
 
 abstract final class MovieFieldIds {
   static const status = LibraryFieldId<MovieKind, String?>('movie.status');

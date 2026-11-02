@@ -1,7 +1,7 @@
 export 'add/contribution.dart';
 export 'edit/contribution.dart';
-export 'config/book_kind_capabilities.dart';
-export 'config/book_kind_configuration.dart';
+export 'config/capabilities.dart';
+export 'config/configuration.dart';
 export 'workspace/contribution.dart';
 export 'admin/book_admin_contributor.dart';
 export 'barcode/book_isbn_resolver.dart';

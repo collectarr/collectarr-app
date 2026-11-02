@@ -1,6 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../comic_module_dependencies.dart';
-import 'comic_kind_configuration.dart';
+import 'configuration.dart';
 import '../data/comic_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/workspace/shared/media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/workspace/entry/view_state.dart';

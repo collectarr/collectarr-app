@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/kinds/book/forms/catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/forms/field_spec.dart';
-import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/field_identities.dart';
 
 typedef BookFormValuesReader<TDraft> = BookCatalogFormValues Function(
   TDraft draft,
