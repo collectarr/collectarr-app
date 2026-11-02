@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/edit/fields/dialog_widgets.dart';
 import 'package:collectarr_app/features/library/forms/field_spec.dart';
@@ -94,10 +96,79 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     });
   }
 
+  String get _title {
+    if (widget.kind case final kind?) {
+      final identity = defaultLibraryKindRegistry.tryGet(kind)?.identity;
+      if (identity != null) {
+        return 'Pre-fill ${identity.singularLabel} Details';
+      }
+    }
+    return 'Pre-fill Settings';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+
+    if (appPresentationPlatform.isNativeMobile) {
+      final viewport = MediaQuery.sizeOf(context);
+      final isPhone = viewport.width < 600 || viewport.height < 480;
+
+      final mobilePage = MobilePage(
+        title: _title,
+        headerColor: widget.accent,
+        backgroundColor: palette.panel,
+        onBack: () => Navigator.of(context).pop(),
+        actions: [
+          IconButton(
+            tooltip: widget.confirmLabel ?? 'Save',
+            icon: const Icon(Icons.check),
+            onPressed: _save,
+          ),
+        ],
+        body: !_loaded
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_kindFields(_personalDraft) case final kindFields?)
+                        _kindPrefillFields(_personalDraft!, kindFields)
+                      else
+                        _buildDefaultFields(),
+                    ],
+                  ),
+                ),
+              ),
+        footer: _buildMobileFooter(palette),
+      );
+
+      if (!isPhone) {
+        return Scaffold(
+          backgroundColor: Colors.black54,
+          body: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => Navigator.of(context).pop(),
+            child: Center(
+              child: GestureDetector(
+                onTap: () {},
+                child: SizedBox(
+                  width: 600,
+                  child: mobilePage,
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+      return mobilePage;
+    }
+
     return Dialog(
-      backgroundColor: appPalette(context).panel,
+      backgroundColor: palette.panel,
       alignment: const Alignment(0, -.9),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       child: ConstrainedBox(
@@ -121,69 +192,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   if (_kindFields(_personalDraft) case final kindFields?)
                     _kindPrefillFields(_personalDraft!, kindFields)
-                  else ...[
-                    LibraryResponsiveFieldLayout(
-                      maxColumns: 2,
-                      columnBreakpoints: const {2: 600},
-                      spacing: 30,
-                      runSpacing: 15,
-                      children: [
-                        _locationField(),
-                        if (_personalDraft case final draft?)
-                          LibraryFormField(
-                              label: 'Condition',
-                              child: SingleValuePickField(
-                                  showInlineLabel: false,
-                                  controller: _conditionController,
-                                  options: libraryEditPresentationForKind(
-                                          draft.record.kind)
-                                      .conditions,
-                                  label: 'Condition',
-                                  onChanged: (value) =>
-                                      draft.set('condition', value))),
-                      ],
-                    ),
-                    if (_personalDraft case final draft?) ...[
-                      const SizedBox(height: 15),
-                      LibraryEntryPersonalSection(
-                          draft: draft,
-                          layoutBuilder: (fields, _) =>
-                              LibraryResponsiveFieldLayout(
-                                maxColumns: 2,
-                                columnBreakpoints: const {2: 600},
-                                spacing: 30,
-                                runSpacing: 15,
-                                children: [
-                                  if (fields['purchase_date'] case final field?)
-                                    field,
-                                  Align(
-                                      alignment: Alignment.bottomLeft,
-                                      child: SizedBox(
-                                          height: 55,
-                                          child: Align(
-                                              alignment: Alignment.bottomLeft,
-                                              child: _checkbox(
-                                                  'Fill purchase date with today',
-                                                  _fillToday,
-                                                  (value) => setState(() =>
-                                                      _fillToday = value))))),
-                                  if (fields['purchase_store']
-                                      case final field?)
-                                    field,
-                                  if (fields['price_paid_cents']
-                                      case final field?)
-                                    field,
-                                ],
-                              )),
-                    ],
-                    if (_showAdditionalFields) ...[
-                      const SizedBox(height: 15),
-                      LibraryMultiVocabularyField(
-                          label: 'Tags',
-                          options: _tagOptions,
-                          controller: _tags),
-                    ],
-                  ],
+                  else
+                    _buildDefaultFields(),
                   const SizedBox(height: 25),
                   SizedBox(
                       width: double.infinity,
@@ -213,6 +223,145 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                 ]),
               ))),
             _footer(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDefaultFields() => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          LibraryResponsiveFieldLayout(
+            maxColumns: 2,
+            columnBreakpoints: const {2: 600},
+            spacing: 30,
+            runSpacing: 15,
+            children: [
+              _locationField(),
+              if (_personalDraft case final draft?)
+                LibraryFormField(
+                    label: 'Condition',
+                    child: SingleValuePickField(
+                        showInlineLabel: false,
+                        controller: _conditionController,
+                        options: libraryEditPresentationForKind(
+                                draft.record.kind)
+                            .conditions,
+                        label: 'Condition',
+                        onChanged: (value) =>
+                            draft.set('condition', value))),
+            ],
+          ),
+          if (_personalDraft case final draft?) ...[
+            const SizedBox(height: 15),
+            LibraryEntryPersonalSection(
+                draft: draft,
+                layoutBuilder: (fields, _) =>
+                    LibraryResponsiveFieldLayout(
+                      maxColumns: 2,
+                      columnBreakpoints: const {2: 600},
+                      spacing: 30,
+                      runSpacing: 15,
+                      children: [
+                        if (fields['owner_label'] case final field?)
+                          field,
+                        if (fields['purchase_date'] case final field?)
+                          field,
+                        Align(
+                            alignment: Alignment.bottomLeft,
+                            child: SizedBox(
+                                height: 55,
+                                child: Align(
+                                    alignment: Alignment.bottomLeft,
+                                    child: _checkbox(
+                                        'Fill purchase date with today',
+                                        _fillToday,
+                                        (value) => setState(() =>
+                                            _fillToday = value))))),
+                        if (fields['purchase_store']
+                            case final field?)
+                          field,
+                        if (fields['price_paid_cents']
+                            case final field?)
+                          field,
+                      ],
+                    )),
+          ],
+          if (_showAdditionalFields ||
+              appPresentationPlatform.isNativeMobile) ...[
+            const SizedBox(height: 15),
+            LibraryMultiVocabularyField(
+                label: 'Tags',
+                options: _tagOptions,
+                controller: _tags),
+          ],
+        ],
+      );
+
+  Widget _buildMobileFooter(AppThemePalette palette) {
+    final actionLabel = widget.confirmLabel ?? 'Save';
+    return Container(
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(
+          top: BorderSide(color: palette.divider.withValues(alpha: 0.5)),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: SafeArea(
+        top: false,
+        child: Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Switch(
+                  value: _alwaysShow,
+                  onChanged: (value) => setState(() => _alwaysShow = value),
+                ),
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: () => setState(() => _alwaysShow = !_alwaysShow),
+                  child: Text(
+                    'Always show',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: palette.textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton(
+                  onPressed: _clearAll,
+                  child: const Text('Clear All'),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: palette.utilityAction,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    minimumSize: const Size(80, 44),
+                    textStyle: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  onPressed: _save,
+                  child: Text(actionLabel),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -286,7 +435,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
 
   Widget _header() {
     return AccentDialogHeader(
-      title: 'Pre-fill Settings',
+      title: _title,
       accent: widget.accent,
       icon: Icons.auto_fix_high,
     );
@@ -401,14 +550,28 @@ Future<PrefillDefaults?> showPrefillSettingsDialog({
   CatalogMediaKind? kind,
   String? confirmLabel,
 }) {
+  final content = Theme(
+    data: editDialogTheme(
+      seedColor: accent,
+      palette: appPalette(context),
+      compactDesktop: !appPresentationPlatform.isNativeMobile,
+    ),
+    child: PrefillSettingsDialog(
+      accent: accent,
+      kind: kind,
+      confirmLabel: confirmLabel,
+    ),
+  );
+  if (appPresentationPlatform.isNativeMobile) {
+    return Navigator.of(context, rootNavigator: true).push<PrefillDefaults>(
+      MaterialPageRoute<PrefillDefaults>(
+        fullscreenDialog: true,
+        builder: (_) => content,
+      ),
+    );
+  }
   return showAppDialog<PrefillDefaults>(
     context: context,
-    builder: (context) => Theme(
-        data: editDialogTheme(
-            seedColor: accent,
-            palette: appPalette(context),
-            compactDesktop: true),
-        child: PrefillSettingsDialog(
-            accent: accent, kind: kind, confirmLabel: confirmLabel)),
+    builder: (_) => content,
   );
 }
