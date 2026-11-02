@@ -29,6 +29,7 @@ import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_a
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_form_values.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 
 Widget buildComicItemEditDialog(
   BuildContext context,
@@ -114,44 +115,88 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      LibraryEditSchemaDialog<ComicCatalogItem, ComicCatalogItemFormValues>(
-        schema: comicCatalogItemEditSchema,
-        model: _media,
-        maxDialogWidth: 1200,
-        insetPadding: EdgeInsets.fromLTRB(
-          MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
-          kAppEditorTopInset,
-          MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
-          24,
-        ),
-        draft: _draft,
-        title: comicEditHeaderTitle(_media),
-        mediaKind: widget.request.type.kind.apiValue,
-        accent: widget.request.accent,
-        tabOrderKey: 'library_edit_tabs_comic_typed',
-        hasUnsavedChanges: () =>
-            _initialJson != jsonEncode(_editedMedia().toJson()) ||
-            _imageEdits.isNotEmpty ||
-            _coverEdits.isNotEmpty ||
-            _initialCustomJson != jsonEncode(_customFieldEdits),
-        extraTabs: [
-          if (LibraryEntryEditScope.maybeOf(context) case final personal?) ...[
-            _personalTab(personal, valueTab: true),
-            _personalTab(personal, valueTab: false),
-          ],
+  Widget build(BuildContext context) {
+    final native = appPresentationPlatform.isNativeMobile;
+    final personal = LibraryEntryEditScope.maybeOf(context);
+    return LibraryEditSchemaDialog<ComicCatalogItem,
+        ComicCatalogItemFormValues>(
+      schema: native ? comicMobileEditSchema : comicCatalogItemEditSchema,
+      model: _media,
+      maxDialogWidth: 1200,
+      insetPadding: EdgeInsets.fromLTRB(
+        MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
+        kAppEditorTopInset,
+        MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
+        24,
+      ),
+      draft: _draft,
+      title: comicEditHeaderTitle(_media),
+      mediaKind: widget.request.type.kind.apiValue,
+      accent: widget.request.accent,
+      inlineCollectionStatus: native,
+      tabOrderKey: native
+          ? 'library_edit_tabs_comic_mobile'
+          : 'library_edit_tabs_comic_typed',
+      hasUnsavedChanges: () =>
+          _initialJson != jsonEncode(_editedMedia().toJson()) ||
+          _imageEdits.isNotEmpty ||
+          _coverEdits.isNotEmpty ||
+          _initialCustomJson != jsonEncode(_customFieldEdits),
+      extraTabs: [
+        if (native && personal != null) _personalTab(personal, valueTab: false),
+        if (!native && personal != null) ...[
+          _personalTab(personal, valueTab: true),
+          _personalTab(personal, valueTab: false),
+        ],
+        EditSchemaExtraTab(
+            id: 'custom_fields',
+            label: 'Custom Fields',
+            icon: AppIcons.tabCustomFields,
+            content: CustomFieldsEditSection(
+              definitions: widget.request.customFieldDefinitions,
+              values: _customFieldEdits,
+              accent: widget.request.accent,
+              mediaKind: 'comic',
+              onChanged: (values) =>
+                  setState(() => _customFieldEdits = Map.of(values)),
+            )),
+        if (native && personal != null) ...[
+          _personalTab(personal, valueTab: true),
+          _keyTab(personal),
+        ],
+        if (native) ...[_creatorsTab(), _charactersTab()],
+        if (native)
           EditSchemaExtraTab(
-              id: 'custom_fields',
-              label: 'Custom Fields',
-              icon: AppIcons.tabCustomFields,
-              content: CustomFieldsEditSection(
-                definitions: widget.request.customFieldDefinitions,
-                values: _customFieldEdits,
-                accent: widget.request.accent,
-                mediaKind: 'comic',
-                onChanged: (values) =>
-                    setState(() => _customFieldEdits = Map.of(values)),
-              )),
+            id: 'images',
+            label: 'Images',
+            icon: AppIcons.tabImages,
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ComicCoversTab(
+                  images: [
+                    for (final image in widget.request.itemImages)
+                      if (_isCover(image)) image
+                  ],
+                  coverImageUrl: _draft.coverImageUrl,
+                  originalCoverImageUrl: _media.coverImageUrl ?? '',
+                  onCoverImageUrlChanged: (value) =>
+                      _draft.coverImageUrl = value,
+                  onEdits: (edits) => setState(() => _coverEdits = edits),
+                  searchTitle: () => _draft.seriesTitle,
+                ),
+                ItemImagesEditSection(
+                  images: [
+                    for (final image in widget.request.itemImages)
+                      if (!_isCover(image)) image
+                  ],
+                  accent: widget.request.accent,
+                  onChanged: (edits) => setState(() => _imageEdits = edits),
+                ),
+              ],
+            ),
+          ),
+        if (!native) ...[
           EditSchemaExtraTab(
               id: 'covers',
               label: 'Covers',
@@ -191,34 +236,53 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
                 maxLines: 18,
                 onChanged: (value) => _draft.description = value,
               )),
-          _linksTab(),
         ],
-        coreCorrectionSourceBuilder: () =>
-            LibraryCoreCorrectionSource.fromTypedFields(
-          request: widget.request,
-          coreCatalogRef: coreCatalogRefForEditRequest(widget.request),
-          originalFields: _media.toJson(),
-          proposedFields: _editedMedia().toJson(),
+        _linksTab(),
+      ],
+      coreCorrectionSourceBuilder: () =>
+          LibraryCoreCorrectionSource.fromTypedFields(
+        request: widget.request,
+        coreCatalogRef: coreCatalogRefForEditRequest(widget.request),
+        originalFields: _media.toJson(),
+        proposedFields: _editedMedia().toJson(),
+      ),
+      onCancel: () => Navigator.of(context).pop(),
+      onPrevious: widget.request.onPrevious,
+      onNext: widget.request.onNext,
+      onSave: (_) async {
+        final updatedMedia = _editedMedia();
+        final updated = widget.request.kindItem.kindCapability.mapTransport(
+          (transport) => CatalogSearchCandidate.fromItem(
+            transport.replacingKindData(updatedMedia),
+            basedOn: widget.request.kindItem,
+          ),
+        );
+        await commitLibraryEdit(
+          context,
+          LibraryEditSelection(
+              kindItem: updated,
+              customFieldEdits: Map.unmodifiable(_customFieldEdits),
+              itemImageEdits: [..._imageEdits, ..._coverEdits]),
+        );
+      },
+    );
+  }
+
+  EditSchemaExtraTab _keyTab(LibraryEntryEditDraft draft) => EditSchemaExtraTab(
+        id: 'key',
+        label: 'Key',
+        icon: AppIcons.tabValue,
+        content: AnimatedBuilder(
+          animation: draft,
+          builder: (context, _) => ComicPersonalForm(
+            personal: ComicPersonalData.fromJson(draft.values),
+            entry: _entry!,
+            valueTab: true,
+            keyTab: true,
+            commonFields: const {},
+            update: (value) => _updatePersonalDraft(draft, value),
+          ),
         ),
-        onCancel: () => Navigator.of(context).pop(),
-        onPrevious: widget.request.onPrevious,
-        onNext: widget.request.onNext,
-        onSave: (_) async {
-          final updatedMedia = _editedMedia();
-          final updated = widget.request.kindItem.kindCapability.mapTransport(
-            (transport) => CatalogSearchCandidate.fromItem(
-              transport.replacingKindData(updatedMedia),
-              basedOn: widget.request.kindItem,
-            ),
-          );
-          await commitLibraryEdit(
-            context,
-            LibraryEditSelection(
-                kindItem: updated,
-                customFieldEdits: Map.unmodifiable(_customFieldEdits),
-                itemImageEdits: [..._imageEdits, ..._coverEdits]),
-          );
-        },
       );
 
   EditSchemaExtraTab _personalTab(LibraryEntryEditDraft draft,
@@ -229,27 +293,38 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
         icon: valueTab ? AppIcons.tabValue : AppIcons.tabPersonal,
         content: AnimatedBuilder(
           animation: draft,
-          builder: (context, _) => LibraryEntryPersonalSection(
-            draft: draft,
-            layoutBuilder: (fields, _) => ComicPersonalForm(
-              personal: ComicPersonalData.fromJson(draft.values),
-              entry: _entry!,
-              valueTab: valueTab,
-              commonFields: fields,
-              update: (value) {
-                final previous =
-                    ComicPersonalData.fromJson(draft.values).toJson();
-                final next = value.toJson();
-                for (final key in {...previous.keys, ...next.keys}) {
-                  if (jsonEncode(previous[key]) != jsonEncode(next[key])) {
-                    draft.set(key, next[key]);
-                  }
-                }
-              },
-            ),
+          builder: (context, _) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (appPresentationPlatform.isNativeMobile && !valueTab) ...[
+                LibraryEntryStatusStrip(draft: draft),
+                const SizedBox(height: 10),
+              ],
+              LibraryEntryPersonalSection(
+                draft: draft,
+                layoutBuilder: (fields, _) => ComicPersonalForm(
+                  personal: ComicPersonalData.fromJson(draft.values),
+                  entry: _entry!,
+                  valueTab: valueTab,
+                  commonFields: fields,
+                  update: (value) => _updatePersonalDraft(draft, value),
+                ),
+              ),
+            ],
           ),
         ),
       );
+
+  void _updatePersonalDraft(
+      LibraryEntryEditDraft draft, ComicPersonalData value) {
+    final previous = ComicPersonalData.fromJson(draft.values).toJson();
+    final next = value.toJson();
+    for (final key in {...previous.keys, ...next.keys}) {
+      if (jsonEncode(previous[key]) != jsonEncode(next[key])) {
+        draft.set(key, next[key]);
+      }
+    }
+  }
 
   EditSchemaExtraTab _creatorsTab() => EditSchemaExtraTab(
         id: 'creators',

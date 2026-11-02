@@ -24,6 +24,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/library/ui/primitives/integer_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 
 class LibraryEntryPersonalSection extends ConsumerStatefulWidget {
   const LibraryEntryPersonalSection({
@@ -386,6 +387,24 @@ class _LibraryEntryStatusStripState
             final wide = constraints.maxWidth >= 720;
             final locationIndex = specs.indexWhere((spec) =>
                 spec.inputKind == PersonalLibraryFieldEditor.location);
+            if (appPresentationPlatform.isNativeMobile &&
+                fields.length == 4 &&
+                locationIndex == 3) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  fields[0],
+                  const SizedBox(height: 10),
+                  Row(children: [
+                    Expanded(child: fields[1]),
+                    const SizedBox(width: 10),
+                    Expanded(child: fields[2]),
+                  ]),
+                  const SizedBox(height: 10),
+                  fields[3],
+                ],
+              );
+            }
             if (wide) {
               // The reference strip follows the form's two halves: Collection
               // Status 282 px, Index and Quantity 134 px, Location the right

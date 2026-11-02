@@ -104,17 +104,19 @@ class MobileTabStrip<T> extends StatelessWidget {
       required this.tabs,
       required this.selected,
       required this.onSelected,
-      required this.color});
+      required this.color,
+      this.compact = false});
   final List<({T value, String label})> tabs;
   final T selected;
   final ValueChanged<T> onSelected;
   final Color color;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) => ColoredBox(
       color: color,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: compact ? 3 : 5),
         child: Center(
             child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -123,7 +125,14 @@ class MobileTabStrip<T> extends StatelessWidget {
                   color: Colors.black.withValues(alpha: .16),
                   borderRadius: BorderRadius.circular(10)),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
-                for (final tab in tabs)
+                for (final (index, tab) in tabs.indexed) ...[
+                  if (compact && index > 0)
+                    Container(
+                      width: 1,
+                      height: 20,
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      color: Colors.white.withValues(alpha: .3),
+                    ),
                   Semantics(
                       selected: tab.value == selected,
                       button: true,
@@ -136,20 +145,22 @@ class MobileTabStrip<T> extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                               onTap: () => onSelected(tab.value),
                               child: ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                      minHeight: 44, minWidth: 64),
+                                  constraints: BoxConstraints(
+                                      minHeight: compact ? 34 : 44,
+                                      minWidth: compact ? 48 : 64),
                                   child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: compact ? 9 : 10),
                                       child: Center(
                                           child: Text(tab.label,
                                               style: TextStyle(
                                                   color: Colors.white,
-                                                  fontSize: 14,
+                                                  fontSize: compact ? 12 : 14,
                                                   fontWeight: tab.value ==
                                                           selected
                                                       ? FontWeight.w700
                                                       : FontWeight.w400)))))))),
+                ],
               ])),
         )),
       ));

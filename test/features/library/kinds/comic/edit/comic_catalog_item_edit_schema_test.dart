@@ -55,6 +55,25 @@ void main() {
     );
   });
 
+  test('native Main keeps every desktop catalog field and Plot', () {
+    final desktopFields = {
+      for (final tab in comicCatalogItemEditSchema.tabs)
+        for (final section in tab.sections)
+          for (final field in section.fields) field.id,
+    };
+    final nativeFields = {
+      for (final tab in comicMobileEditSchema.tabs)
+        for (final section in tab.sections)
+          for (final field in section.fields) field.id,
+    };
+    expect(comicMobileEditSchema.tabs.map((tab) => tab.id), ['main']);
+    expect(nativeFields, {...desktopFields, 'comic.plot'});
+    final columns = comicMobileEditSchema.tabs.single.sections.single.columns;
+    expect(columns.length, 1);
+    expect(columns.single.rows.first, ['comic.series']);
+    expect(columns.single.rows[1], ['comic.issue_number', 'comic.variant']);
+  });
+
   test('edits subtitle and variant description independently of edition', () {
     const original = ComicCatalogItem(
       title: 'The issue title',

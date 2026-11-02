@@ -178,7 +178,7 @@ class _LibraryDropdownPickFieldState<TValue>
       onChanged: _selectLabel,
       onManage: widget.onManage ?? _openPicker,
     );
-    return widget.showFieldLabel
+    return widget.showFieldLabel && !LibraryMobileEditFormScope.active(context)
         ? LibraryFormField(label: widget.label, child: field)
         : field;
   }

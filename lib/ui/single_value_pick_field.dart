@@ -8,6 +8,7 @@ import 'package:collectarr_app/ui/pick_list_field_button.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_dropdown_menu.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 class SingleValuePickField extends StatefulWidget {
@@ -229,13 +230,16 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
 
   @override
   Widget build(BuildContext context) {
+    final nativeEditor = LibraryMobileEditFormScope.active(context);
     final normalizedOptions = _normalizedOptions(
       widget.options,
       selectedValue: widget.controller.text,
     );
     final hasBrowseAction =
         widget.onManage != null || widget.showPickerListAction;
-    final fieldHeight = LibraryDensityScope.of(context).metrics.fieldHeight;
+    final fieldHeight = nativeEditor
+        ? 56.0
+        : LibraryDensityScope.of(context).metrics.fieldHeight;
     final suffixWidth =
         _suffixButtonExtent + (hasBrowseAction ? PickListFieldButton.width : 0);
     return KeyedSubtree(
@@ -247,18 +251,27 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         validator: widget.validator,
         enabled: widget.enabled,
         readOnly: widget.readOnly,
-        style: context.libraryTextTheme.controlText,
+        style: nativeEditor
+            ? context.libraryTextTheme.controlText.copyWith(fontSize: 16)
+            : context.libraryTextTheme.controlText,
         textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           isDense: true,
-          labelText: widget.showInlineLabel ? widget.label : null,
+          labelText:
+              widget.showInlineLabel || nativeEditor ? widget.label : null,
+          labelStyle: nativeEditor ? const TextStyle(fontSize: 16) : null,
+          floatingLabelStyle:
+              nativeEditor ? const TextStyle(fontSize: 12) : null,
+          border: nativeEditor
+              ? const OutlineInputBorder(borderRadius: BorderRadius.zero)
+              : null,
           hintText: widget.hint,
           helperText: widget.helperText,
           errorText: widget.errorText,
           // The outline follows the content, so the padding around the
           // 20 px text line makes the full field height.
           contentPadding: EdgeInsets.symmetric(
-            horizontal: 7,
+            horizontal: nativeEditor ? 12 : 7,
             vertical: (fieldHeight - 20) / 2,
           ),
           constraints: BoxConstraints(

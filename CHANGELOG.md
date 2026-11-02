@@ -13,7 +13,7 @@
 
 ### Features
 - Native Settings sections restore from their URLs with consistent Back navigation; collection management uses a full-screen touch list, and sorting offers common orders with an advanced editor.
-- Native Add Manually and Edit use full-screen forms with clear header icons, persistent Add/Save actions, touch-sized tabs and a keyboard-safe collection-details sheet, retaining drafts and validation across tab changes.
+- Native Add Manually and Edit use full-screen forms with persistent actions and draft validation; Comics Edit groups catalog fields in Main, collection details in Personal, grading and key details in separate tabs, and images together, with compact text tabs and touch-sized labelled inputs.
 - Native libraries keep folder navigation available beside the tablet rail, open items in full-screen details and support long-press selection; detail links restore local and cached catalog items without the original page.
 - Native mobile uses Library, Activity, Calendar and More navigation, with a tablet rail and a touch-sized collection picker above the library.
 - Native mobile libraries use one touch-sized folder/view/sort/tools row and one item count; all six views, cover size, spacing and details options share one panel.

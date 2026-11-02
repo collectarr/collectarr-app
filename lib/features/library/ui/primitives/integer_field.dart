@@ -21,7 +21,8 @@ final class _WholeNumberFormatter extends TextInputFormatter {
 
 /// A whole-number field with the reference's hover up/down arrows for quick
 /// increments. Typing accepts only digits and drops leading zeros.
-final class LibraryIntegerField extends StatefulWidget {
+final class LibraryIntegerField extends StatefulWidget
+    implements LibraryMobileInlineLabelControl {
   const LibraryIntegerField({
     super.key,
     this.initialValue = '',

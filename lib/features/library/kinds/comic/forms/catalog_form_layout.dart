@@ -19,6 +19,28 @@ const comicMainColumns = [
   }),
 ];
 
+/// One-column reading order for the native editor. The same field specs and
+/// draft are used by desktop and mobile; only the arrangement changes.
+const comicMobileMainColumns = [
+  LibraryFormColumnSpec(rows: [
+    ['comic.series'],
+    ['comic.issue_number', 'comic.variant'],
+    ['variant_description'],
+    ['cover_date', 'release_date'],
+    ['barcode'],
+    ['physical_format', 'comic.page_count'],
+    ['crossover'],
+    ['story_arcs'],
+    ['title'],
+    ['subtitle'],
+    ['publisher', 'comic.imprint'],
+    ['series_group', 'publication_age'],
+    ['country', 'language'],
+    ['genres'],
+    ['comic.plot'],
+  ]),
+];
+
 List<LibraryFormColumnSpec> comicDetailsColumns(String titleField) => [
       LibraryFormColumnSpec(rows: [
         ['crossover'],

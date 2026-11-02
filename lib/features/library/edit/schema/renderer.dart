@@ -4,6 +4,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:collectarr_app/features/library/edit/fields/layout_widgets.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/edit/tab_strip.dart';
 import 'package:collectarr_app/features/library/edit/session/vocabulary_edit_accumulator.dart';
 import 'package:collectarr_app/features/library/forms/schema_validation.dart';
@@ -436,7 +439,11 @@ class EditSchemaRendererState<TModel, TDraft>
           if (widget.fillAvailableHeight)
             Flexible(
               fit: FlexFit.loose,
-              child: _contentList(context, visibleTabIndexes, selectedIndex),
+              child: appPresentationPlatform.isNativeMobile
+                  ? LibraryMobileEditFormScope(
+                      child: _contentList(
+                          context, visibleTabIndexes, selectedIndex))
+                  : _contentList(context, visibleTabIndexes, selectedIndex),
             )
           else
             ConstrainedBox(
@@ -495,6 +502,22 @@ class EditSchemaRendererState<TModel, TDraft>
     List<int> tabIndexes,
     int selectedIndex,
   ) {
+    if (appPresentationPlatform.isNativeMobile) {
+      return MobileTabStrip<int>(
+        compact: true,
+        tabs: [
+          for (var index = 0; index < tabIndexes.length; index++)
+            (value: index, label: _tabForSourceIndex(tabIndexes[index]).label),
+        ],
+        selected: selectedIndex,
+        color: widget.tabAccent ?? Theme.of(context).colorScheme.primary,
+        onSelected: (index) => setState(() {
+          _selectedTabIndex = index;
+          _selectedTabId = _tabIdForVisibleIndex(tabIndexes, index);
+          _rememberSelectedTab();
+        }),
+      );
+    }
     final tabs = [
       for (final index in tabIndexes) _tabForSourceIndex(index),
     ];

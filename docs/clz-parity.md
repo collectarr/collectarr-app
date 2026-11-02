@@ -224,6 +224,8 @@ collection density remain unverified.
 | P2 | Scanner presentation | The library header camera opens the shared live-camera sheet with manual barcode entry. CLZ overlays the camera directly on the library with scanning corners. Align the native camera presentation while preserving manual entry; real barcode decoding still needs a physical-code check |
 | P3 | Library surfaces and empty state | Collectarr retains the desktop canvas gradient and a filled blue onboarding card; CLZ uses a flat dark canvas with centred teal text. Compare the light skin before adapting native surfaces |
 | P2 | Folder navigation | CLZ's folder control opens a searchable full-screen field selector with favourites. Collectarr still opens the desktop field menu and uses a separate bucket chooser when the selected field has several folders. Compare and adapt the field selector, favourites and populated bucket navigation |
+| P2 | Comics mobile Edit controls | Collectarr groups editable year/month/day parts and a calendar in one outlined date control to preserve partial dates; CLZ shows one formatted date string. Compare a populated CLZ Edit record and align the date text, barcode camera, picker and segmented controls without losing partial dates or existing values |
+| P3 | Comics mobile Value and Key | Compare populated Value, Key and Images against CLZ Edit. CLZ's CovrPrice and eBay actions depend on external services, while Collectarr currently shows only the editable value; Signed By and Key Category still use single-value controls (see Comics Value differences) |
 
 Still to compare: populated cards/list/covers, series folders and counts, item
 details and previous/next navigation, selection and bulk actions, every editor

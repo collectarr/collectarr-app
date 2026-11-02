@@ -15,10 +15,10 @@ import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dial
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
-import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/integer_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 
@@ -61,10 +61,11 @@ final class LibraryFieldSpecControlBuilder<TDraft>
 
   Widget build(LibraryFieldSpec<TDraft> field) {
     final child = field.accept(this);
+    final nativeEditor = LibraryMobileEditFormScope.active(context);
     final external = field is LibraryTextFieldSpec<TDraft> ||
         field is LibraryNumberFieldSpec<TDraft> ||
         field is LibraryMoneyFieldSpec<TDraft> ||
-        field is LibrarySelectFieldSpec<TDraft, Object?> ||
+        (!nativeEditor && field is LibrarySelectFieldSpec<TDraft, Object?>) ||
         field is LibraryImageFieldSpec<TDraft, Object?> ||
         field is LibraryReadOnlyFieldSpec<TDraft, Object?> ||
         (mode == LibraryFieldSpecControlMode.add &&

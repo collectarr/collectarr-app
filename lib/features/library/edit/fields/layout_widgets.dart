@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/ui/form_layout.dart';
 import 'package:collectarr_app/features/library/ui/primitives/responsive_field_layout.dart';
 import 'package:collectarr_app/features/library/ui/section_state_message.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/library/edit/fields/summary_widgets.dart';
@@ -38,11 +39,15 @@ class EditTabShell extends StatelessWidget {
           ),
           child: scrollable
               ? SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(15, 16, 15, 16),
+                  padding: appPresentationPlatform.isNativeMobile
+                      ? const EdgeInsets.fromLTRB(8, 10, 8, 16)
+                      : const EdgeInsets.fromLTRB(15, 16, 15, 16),
                   child: content,
                 )
               : Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 16, 15, 16),
+                  padding: appPresentationPlatform.isNativeMobile
+                      ? const EdgeInsets.fromLTRB(8, 10, 8, 16)
+                      : const EdgeInsets.fromLTRB(15, 16, 15, 16),
                   child: content,
                 ),
         );

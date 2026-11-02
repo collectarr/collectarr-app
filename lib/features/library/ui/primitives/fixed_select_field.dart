@@ -16,6 +16,7 @@ class LibraryMenuSelectField<T> extends StatelessWidget {
     required this.itemBuilder,
     required this.onSelected,
     this.background,
+    this.hasValue = true,
   });
 
   final String label;
@@ -29,75 +30,104 @@ class LibraryMenuSelectField<T> extends StatelessWidget {
   /// Paints the whole field, caret included, such as a slab label's colours;
   /// the caret button then turns transparent.
   final Gradient? background;
+  final bool hasValue;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final menu = AppDropdownMenuStyle.of(context);
-    return LibraryFormField(
-      label: label,
-      child: LayoutBuilder(
-        builder: (context, constraints) => PopupMenuButton<T>(
-          popUpAnimationStyle: AnimationStyle.noAnimation,
-          tooltip: tooltip,
-          position: PopupMenuPosition.under,
-          color: menu.background,
-          shape: menu.shape,
-          elevation: AppDropdownMenuStyle.elevation,
-          surfaceTintColor: Colors.transparent,
-          menuPadding: const EdgeInsets.only(top: 5),
-          constraints: BoxConstraints(
-              minWidth: constraints.maxWidth,
-              maxWidth: constraints.maxWidth,
-              maxHeight: 300),
-          itemBuilder: itemBuilder,
-          onSelected: onSelected,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: SizedBox(
-              height: LibraryMetrics.defaultFieldHeight,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: background != null
-                        ? null
-                        : Theme.of(context).inputDecorationTheme.fillColor ??
-                            palette.surface,
-                    gradient: background,
-                    border: Border.all(
-                        color: background != null
-                            ? Colors.transparent
-                            : palette.divider),
-                    borderRadius: BorderRadius.circular(4),
+    final native =
+        LibraryMobileEditFormScope.active(context) && background == null;
+    final control = LayoutBuilder(
+      builder: (context, constraints) => PopupMenuButton<T>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
+        tooltip: tooltip,
+        position: PopupMenuPosition.under,
+        color: menu.background,
+        shape: menu.shape,
+        elevation: AppDropdownMenuStyle.elevation,
+        surfaceTintColor: Colors.transparent,
+        menuPadding: const EdgeInsets.only(top: 5),
+        constraints: BoxConstraints(
+            minWidth: constraints.maxWidth,
+            maxWidth: constraints.maxWidth,
+            maxHeight: 300),
+        itemBuilder: itemBuilder,
+        onSelected: onSelected,
+        child: native
+            ? InputDecorator(
+                isEmpty: !hasValue,
+                decoration: InputDecoration(
+                  labelText: label,
+                  labelStyle: const TextStyle(fontSize: 16),
+                  floatingLabelStyle: const TextStyle(fontSize: 12),
+                  border:
+                      const OutlineInputBorder(borderRadius: BorderRadius.zero),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide: BorderSide(color: palette.divider),
                   ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  constraints: const BoxConstraints(minHeight: 56),
+                ),
+                child: SizedBox(
+                  height: 40,
                   child: Row(children: [
-                    Expanded(
-                        child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 7),
-                      child: display,
-                    )),
-                    ColoredBox(
-                        color: background != null
-                            ? Colors.transparent
-                            : palette.divider,
-                        child: SizedBox(
-                            width: 34,
-                            height: 34,
-                            child: Center(
-                                child: Icon(AppIcons.caretDown,
-                                    size: 12,
-                                    color: background != null
-                                        ? _onSlab
-                                        : palette.textMuted)))),
+                    Expanded(child: display),
+                    Icon(AppIcons.caretDown,
+                        size: 14, color: palette.textMuted),
                   ]),
                 ),
+              )
+            : MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: SizedBox(
+                  height: LibraryMetrics.defaultFieldHeight,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: background != null
+                            ? null
+                            : Theme.of(context)
+                                    .inputDecorationTheme
+                                    .fillColor ??
+                                palette.surface,
+                        gradient: background,
+                        border: Border.all(
+                            color: background != null
+                                ? Colors.transparent
+                                : palette.divider),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(children: [
+                        Expanded(
+                            child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 7),
+                          child: display,
+                        )),
+                        ColoredBox(
+                            color: background != null
+                                ? Colors.transparent
+                                : palette.divider,
+                            child: SizedBox(
+                                width: 34,
+                                height: 34,
+                                child: Center(
+                                    child: Icon(AppIcons.caretDown,
+                                        size: 12,
+                                        color: background != null
+                                            ? _onSlab
+                                            : palette.textMuted)))),
+                      ]),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
       ),
     );
+    return native ? control : LibraryFormField(label: label, child: control);
   }
 }
 
@@ -137,6 +167,7 @@ class LibraryFixedSelectField extends StatelessWidget {
     const style = TextStyle(fontSize: 14, fontWeight: FontWeight.w400);
     return LibraryMenuSelectField<String>(
       label: label,
+      hasValue: current != null,
       tooltip: 'Choose ${label.toLowerCase()}',
       background: background,
       display: Text(current ?? '',
