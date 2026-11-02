@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
-import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
+import 'package:collectarr_app/features/library/add/mobile/search_controls.dart';
 import 'package:collectarr_app/features/library/add/contracts/capability.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -437,46 +437,44 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
       if (widget.codeSearchTab case final tab?)
         (value: LibraryAddDialogMode.code, label: tab.label),
     ];
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      MobileTabStrip<LibraryAddDialogMode?>(
-        tabs: tabs,
-        selected: _mobileCoverSelected ? null : widget.mode,
-        color: widget.accent,
-        onSelected: (mode) {
-          FocusScope.of(context).unfocus();
-          widget.onDismissSuggestions();
-          widget.onCoverTabChanged?.call(mode == null);
-          if (mode != null) widget.onModeChanged(mode);
-        },
-      ),
-      if (_mobileCoverSelected)
-        Padding(
-            padding: const EdgeInsets.all(12),
-            child: FilledButton.icon(
-                onPressed: widget.isScanningCover ? null : widget.onScanCover,
-                icon: const Icon(Icons.camera_alt),
-                label: const Text('Scan cover')))
-      else if (widget.showMobileInput)
-        Padding(
-            padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
-            child: _buildInput(searchLabel, queryHint)),
-      if (!_mobileCoverSelected &&
-          widget.mode == LibraryAddDialogMode.search &&
-          _resolveAdvancedFields().isNotEmpty) ...[
-        TextButton.icon(
-            onPressed: widget.onToggleAdvanced,
-            icon: Icon(
-                widget.showAdvanced ? Icons.expand_less : Icons.expand_more),
-            label: const Text('Advanced search')),
-        if (widget.showAdvanced)
-          Padding(
-              padding: const EdgeInsets.all(8),
-              child: _AdvancedSearchFields(
-                  advancedFilterDescriptors: _resolveAdvancedFields(),
-                  controllers: _advancedControllers,
-                  onSubmitted: _handleSearch)),
-      ],
-    ]);
+    return LibraryAddMobileSearchControls<LibraryAddDialogMode?>(
+      tabs: tabs,
+      selected: _mobileCoverSelected ? null : widget.mode,
+      accent: widget.accent,
+      onSelected: (mode) {
+        FocusScope.of(context).unfocus();
+        widget.onDismissSuggestions();
+        widget.onCoverTabChanged?.call(mode == null);
+        if (mode != null) widget.onModeChanged(mode);
+      },
+      input: _mobileCoverSelected
+          ? FilledButton.icon(
+              onPressed: widget.isScanningCover ? null : widget.onScanCover,
+              icon: const Icon(Icons.camera_alt),
+              label: const Text('Scan cover'))
+          : widget.showMobileInput
+              ? _buildInput(searchLabel, queryHint)
+              : null,
+      advanced: !_mobileCoverSelected &&
+              widget.mode == LibraryAddDialogMode.search &&
+              _resolveAdvancedFields().isNotEmpty
+          ? Column(mainAxisSize: MainAxisSize.min, children: [
+              TextButton.icon(
+                  onPressed: widget.onToggleAdvanced,
+                  icon: Icon(widget.showAdvanced
+                      ? Icons.expand_less
+                      : Icons.expand_more),
+                  label: const Text('Advanced search')),
+              if (widget.showAdvanced)
+                Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: _AdvancedSearchFields(
+                        advancedFilterDescriptors: _resolveAdvancedFields(),
+                        controllers: _advancedControllers,
+                        onSubmitted: _handleSearch)),
+            ])
+          : null,
+    );
   }
 
   @override

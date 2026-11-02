@@ -95,7 +95,8 @@ Kind modules retain the operations and their domain rules.
 policy. `AppWindowClass` describes width and height only; it does not infer a
 platform or prescribe navigation from width. Mobile
 header search, sidebar account access, the Add method chooser, full-screen
-Core search and consolidated library controls consume the existing library
+`LibraryAddMobileSearchControls` arranges shared search inputs without owning
+controllers or query/scan behavior. Core search and consolidated library controls consume the existing library
 and Add state owners. Web and desktop retain their dense presentation at
 compact widths.
 

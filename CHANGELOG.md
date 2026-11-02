@@ -17,7 +17,7 @@
 - Native mobile libraries use one touch-sized folder/view/sort/tools row and one item count; all six views, cover size, spacing and details options share one panel.
 - Native mobile Comics uses its Android teal palette and shared blue utility actions; desktop and web retain their existing colours.
 - On mobile, the top-right search button opens library search inside the header, with a barcode camera on the left and a clear button only when text is entered. Selection and status controls live in the header; account access moves to the sidebar.
-- Native mobile Add starts with a cover, barcode or text-search chooser that can be skipped next time, then opens a full-screen page with touch-sized tabs, full-width series and issues, and an adaptive cover grid; desktop and web keep their dialogs.
+- Native mobile Add starts with a cover, barcode or text-search chooser that can be skipped next time, then opens a full-screen page with touch-sized cover, barcode, browse and text-search controls, full-width series and issues, and an adaptive cover grid; desktop and web keep their dialogs.
 - An optional command-line helper downloads platform logos marked public domain on Wikimedia Commons into a folder for local import; it never changes collection data.
 - Load your own platform icons from Settings > Appearance; SVG and raster images replace the built-in platform marks throughout the app and stay separate from Comics Custom Label images.
 - A comic's Custom Label can show an image on its slab and beside the field, as in CLZ: load one from your own files for a label, or load many at once from files named after their labels, whose names then join the Custom Label list. Collectarr ships no label images.

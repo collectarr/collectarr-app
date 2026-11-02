@@ -85,6 +85,7 @@ void main() {
       }
 
       await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 100));
       manualDraft.dispose();
     }
   });
