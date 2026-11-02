@@ -19,6 +19,7 @@ void main() {
         accent: Colors.orange,
         type: defaultLibraryKindRegistry.require(CatalogMediaKind.music),
         onAddFromCore: (_, __) {},
+        onAddManually: (_, __) {},
         onSelected: (_, action) {},
       )),
     ));
@@ -66,6 +67,7 @@ void main() {
           isAdmin: false,
           accent: Colors.orange,
           onAddFromCore: (_, __) {},
+          onAddManually: (_, __) {},
           animationsEnabled: true,
           onSelected: (context, _) => Navigator.of(context).pop(),
         ),
@@ -102,6 +104,7 @@ void main() {
           isAdmin: false,
           accent: Colors.orange,
           onAddFromCore: (_, __) {},
+          onAddManually: (_, __) {},
           animationsEnabled: false,
           onSelected: (context, _) => Navigator.of(context).pop(),
         ),

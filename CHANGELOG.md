@@ -12,6 +12,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Every active library kind has an Add Manually shortcut in the navigation drawer, including Games, Hardware and Toys.
 - Native Settings sections restore from their URLs with consistent Back navigation; collection management uses a full-screen touch list, and sorting offers common orders with an advanced editor.
 - Native Add Manually and Edit use full-screen forms with persistent actions and draft validation; Comics Edit groups catalog fields in Main, collection details in Personal, grading and key details in separate tabs, and images together, with compact text tabs and touch-sized labelled inputs.
 - Native libraries keep folder navigation available beside the tablet rail, open items in full-screen details and support long-press selection; detail links restore local and cached catalog items without the original page.
