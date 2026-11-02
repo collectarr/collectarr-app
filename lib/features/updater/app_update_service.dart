@@ -360,7 +360,9 @@ class AppUpdateController extends Notifier<AppUpdateState> {
   Future<void> init() async {
     try {
       final info = await PackageInfo.fromPlatform();
+      if (!ref.mounted) return;
       final settings = await UpdateSettings.load(info.version);
+      if (!ref.mounted) return;
       state = state.copyWith(
         currentVersion: info.version,
         settings: settings,
@@ -369,6 +371,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
         await checkForUpdate();
       }
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         status: UpdateStatus.error,
         errorMessage: 'Could not read the installed version: $e',
@@ -378,6 +381,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
 
   Future<void> updateSettings(UpdateSettings settings) async {
     await settings.save();
+    if (!ref.mounted) return;
     state = state.copyWith(settings: settings);
   }
 
@@ -394,6 +398,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
       final url =
           'https://api.github.com/repos/$kGitHubOwner/$kGitHubRepo/releases?per_page=100';
       final response = await _dio.get<List<dynamic>>(url);
+      if (!ref.mounted) return;
       if (response.data == null) {
         state = state.copyWith(
           status: UpdateStatus.error,
@@ -430,11 +435,13 @@ class AppUpdateController extends Notifier<AppUpdateState> {
         release: release,
       );
     } on DioException catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         status: UpdateStatus.error,
         errorMessage: e.message ?? 'Network error while checking for updates',
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         status: UpdateStatus.error,
         errorMessage: e.toString(),
@@ -455,6 +462,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
 
     try {
       final tempDir = await getTemporaryDirectory();
+      if (!ref.mounted) return;
       final assetName = release.primaryAsset?.name.isNotEmpty == true
           ? release.primaryAsset!.name
           : 'collectarr-${release.version}.msix';
@@ -465,7 +473,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
         savePath,
         cancelToken: _cancelToken,
         onReceiveProgress: (received, total) {
-          if (total > 0) {
+          if (total > 0 && ref.mounted) {
             state = state.copyWith(
               downloadProgress: received / total,
             );
@@ -473,12 +481,14 @@ class AppUpdateController extends Notifier<AppUpdateState> {
         },
       );
 
+      if (!ref.mounted) return;
       state = state.copyWith(
         status: UpdateStatus.readyToInstall,
         downloadedPath: savePath,
         downloadProgress: 1.0,
       );
     } on DioException catch (e) {
+      if (!ref.mounted) return;
       if (e.type == DioExceptionType.cancel) {
         state = state.copyWith(status: UpdateStatus.updateAvailable);
       } else {
@@ -488,6 +498,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
         );
       }
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         status: UpdateStatus.error,
         errorMessage: e.toString(),
@@ -507,6 +518,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
     try {
       await _installer.install(path);
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         status: UpdateStatus.error,
         errorMessage: 'Failed to launch installer: $e',

@@ -29,6 +29,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Closing or restarting the interface during an update check no longer triggers a background state error.
 - Manual Add and Edit open as native pages on Android/iOS, including tablets; desktop and web keep dialogs even in narrow windows.
 - The mobile keyboard overlays collection tabs instead of pushing them up while searching the library.
 - Library headers and the navigation sidebar no longer show Mobile, Desktop or Web beside the library name.
