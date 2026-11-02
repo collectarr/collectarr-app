@@ -813,6 +813,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Widget build(BuildContext context) {
     if (widget.startManually) return const SizedBox.shrink();
     final isPhone = _isPhone(context);
+    final isMobilePhone = appPresentationPlatform.isNativeMobile && isPhone;
     final accent = widget.accent ??
         LibraryAccentScope.accentOf(context,
             fallback: widget.type.identity.accent);
@@ -1061,7 +1062,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   setState(() => _mobileCoverSelected = selected),
               showMobileInput: !browseMode || openedGroup == null || !isPhone,
               searchRowWidth:
-                  (appPresentationPlatform.isNativeMobile && isPhone)
+                  isMobilePhone
                       ? null
                       : browseMode
                           ? LibraryAddBrowseGroupList.width
@@ -1069,7 +1070,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                               ? null
                               : LibraryAddResultGrouping.listWidth,
               searchRowBeside:
-                  (appPresentationPlatform.isNativeMobile && isPhone)
+                  isMobilePhone
                       ? null
                       : browseMode
                           ? LibraryAddBrowseGroupHeader(group: openedGroup)
@@ -1087,7 +1088,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 capability: browse!,
                 state: state.browse,
                 onOpen: (group) {
-                  if (appPresentationPlatform.isNativeMobile && isPhone) {
+                  if (isMobilePhone) {
                     FocusScope.of(context).unfocus();
                   }
                   _controller.openBrowseGroup(group);
@@ -1126,7 +1127,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 resultPolicyState: state.selection.resultPolicyState,
                 onResultPolicyOptionChanged: _controller.setResultPolicyOption,
                 onSelectResult: (id) {
-                  if (appPresentationPlatform.isNativeMobile && isPhone) {
+                  if (isMobilePhone) {
                     FocusScope.of(context).unfocus();
                   }
                   _controller.selectResult(id);
@@ -1168,6 +1169,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     ? null
                     : () => _openManualDialog(accent, addCapability),
               ),
+        isMobilePhone: isMobilePhone,
       ),
       overlay: selectedItem == null
           ? null
@@ -1277,7 +1279,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   /// The browse tab's groups at the left of what [content] shows.
-  Widget _besideBrowseGroups(Widget? groups, Widget content) {
+  Widget _besideBrowseGroups(Widget? groups, Widget content, {required bool isMobilePhone}) {
     if (groups == null) return content;
     final groupList = Stack(children: [
       Positioned.fill(child: groups),
@@ -1300,7 +1302,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           ),
         ),
     ]);
-    if (appPresentationPlatform.isNativeMobile && _isPhone(context)) {
+    if (isMobilePhone) {
       if (_controller.state.browse.opened case final group?) {
         return Column(children: [
           ListTile(
