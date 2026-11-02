@@ -218,6 +218,21 @@ class LibraryPageEditCoordinator {
         customFieldDefinitions: definitions,
         customFieldValues: customFieldValues,
         itemImages: images,
+        onDelete: entry == null
+            ? null
+            : () async {
+                final nav = Navigator.of(_s.context, rootNavigator: true);
+                final confirmed = await _s.confirmSingleRemove(
+                  _s.context,
+                  title: target.dto.primaryLabel,
+                  itemLabel: _s.widget.type.identity.singularLabel.toLowerCase(),
+                );
+                if (confirmed && _s.mounted) {
+                  nav.pop();
+                  await _s._collectionActionCoordinator
+                      .runCollectionAction((a) => a.removeEntry(target));
+                }
+              },
       );
 
       return (

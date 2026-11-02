@@ -35,6 +35,7 @@ class LibraryMobileEditorScaffold extends StatefulWidget {
     required this.onSave,
     required this.body,
     this.isBusy = false,
+    this.onDelete,
     this.onPropose,
     this.onPrevious,
     this.onNext,
@@ -47,6 +48,7 @@ class LibraryMobileEditorScaffold extends StatefulWidget {
   final Color accent;
   final VoidCallback onBack;
   final VoidCallback? onSave;
+  final VoidCallback? onDelete;
   final VoidCallback? onPropose;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
@@ -93,6 +95,7 @@ class _LibraryMobileEditorScaffoldState
       :accent,
       :onBack,
       :onSave,
+      :onDelete,
       :onPropose,
       :onPrevious,
       :onNext,
@@ -109,22 +112,39 @@ class _LibraryMobileEditorScaffoldState
     final page = ValueListenableBuilder<Widget?>(
       valueListenable: _headerTabs,
       builder: (context, headerTabs, _) {
-        final showTabsInHeader = isTablet && headerTabs != null;
         return MobilePage(
           key: const Key('library.mobile-editor'),
-          title: showTabsInHeader ? null : title,
-          titleWidget: showTabsInHeader ? headerTabs : null,
+          title: title,
           headerColor: accent,
           backgroundColor: appPalette(context).surfaceBright,
           onBack: onBack,
           canGoBack: !isBusy,
           actions: [
+            if (onDelete != null)
+              IconButton(
+                tooltip: 'Remove',
+                icon: const Icon(Icons.delete_outline),
+                onPressed: isBusy ? null : onDelete,
+              ),
+            if (onPrevious != null)
+              IconButton(
+                tooltip: 'Previous item',
+                icon: const Icon(Icons.chevron_left),
+                onPressed: isBusy ? null : onPrevious,
+              ),
+            if (onNext != null)
+              IconButton(
+                tooltip: 'Next item',
+                icon: const Icon(Icons.chevron_right),
+                onPressed: isBusy ? null : onNext,
+              ),
             if (footer != null)
               IconButton(
-                  tooltip: 'Collection details',
-                  icon: const Icon(Icons.inventory_2_outlined),
-                  onPressed:
-                      isBusy ? null : () => _showCollectionDetails(context)),
+                tooltip: 'Collection details',
+                icon: const Icon(Icons.inventory_2_outlined),
+                onPressed:
+                    isBusy ? null : () => _showCollectionDetails(context),
+              ),
             if (primaryAction != null)
               primaryAction
             else
@@ -155,17 +175,23 @@ class _LibraryMobileEditorScaffoldState
                 itemBuilder: (_) => [
                   if (onPropose != null)
                     PopupMenuItem(
-                        value: onPropose, child: const Text('Propose to Core')),
+                      value: onPropose,
+                      child: const Text('Propose to Core'),
+                    ),
                   if (onPrevious != null)
                     PopupMenuItem(
-                        value: onPrevious, child: const Text('Previous item')),
+                      value: onPrevious,
+                      child: const Text('Previous item'),
+                    ),
                   if (onNext != null)
                     PopupMenuItem(
-                        value: onNext, child: const Text('Next item')),
+                      value: onNext,
+                      child: const Text('Next item'),
+                    ),
                 ],
               ),
           ],
-          contextBar: showTabsInHeader ? null : (headerTabs ?? tabs),
+          contextBar: headerTabs ?? tabs,
           body: LibraryMobileEditorHeaderTabsScope(
             tabsNotifier: _headerTabs,
             child: body,
@@ -177,20 +203,14 @@ class _LibraryMobileEditorScaffoldState
     if (!isTablet) return page;
 
     final cardWidth = math.min(768.0, viewport.width - 32);
-    final cardHeight = math.min(768.0, viewport.height - 32);
 
     return Scaffold(
       backgroundColor: Colors.black54,
-      body: SafeArea(
-        child: Center(
-          child: SizedBox(
-            width: cardWidth,
-            height: cardHeight,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: page,
-            ),
-          ),
+      body: Center(
+        child: SizedBox(
+          width: cardWidth,
+          height: double.infinity,
+          child: page,
         ),
       ),
     );

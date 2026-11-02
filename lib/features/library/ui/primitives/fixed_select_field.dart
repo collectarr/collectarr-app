@@ -61,11 +61,19 @@ class LibraryMenuSelectField<T> extends StatelessWidget {
                   labelText: label,
                   labelStyle: const TextStyle(fontSize: 16),
                   floatingLabelStyle: const TextStyle(fontSize: 12),
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  filled: false,
+                  fillColor: Colors.transparent,
                   border:
                       const OutlineInputBorder(borderRadius: BorderRadius.zero),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(color: palette.divider),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide:
+                        BorderSide(color: palette.utilityAction, width: 2),
                   ),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

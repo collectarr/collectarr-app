@@ -11,7 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
-class SingleValuePickField extends StatefulWidget {
+class SingleValuePickField extends StatefulWidget
+    implements LibraryMobileInlineLabelControl {
   const SingleValuePickField({
     super.key,
     required this.controller,
@@ -257,19 +258,33 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           isDense: true,
-          labelText:
-              widget.showInlineLabel || nativeEditor ? widget.label : null,
+          labelText: (widget.showInlineLabel || nativeEditor) ? widget.label : null,
           labelStyle: nativeEditor ? const TextStyle(fontSize: 16) : null,
           floatingLabelStyle:
               nativeEditor ? const TextStyle(fontSize: 12) : null,
+          floatingLabelBehavior:
+              nativeEditor ? FloatingLabelBehavior.always : null,
+          filled: !nativeEditor,
+          fillColor: nativeEditor ? Colors.transparent : null,
           border: nativeEditor
               ? const OutlineInputBorder(borderRadius: BorderRadius.zero)
+              : null,
+          enabledBorder: nativeEditor
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide(color: appPalette(context).divider),
+                )
+              : null,
+          focusedBorder: nativeEditor
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide(
+                      color: appPalette(context).utilityAction, width: 2),
+                )
               : null,
           hintText: widget.hint,
           helperText: widget.helperText,
           errorText: widget.errorText,
-          // The outline follows the content, so the padding around the
-          // 20 px text line makes the full field height.
           contentPadding: EdgeInsets.symmetric(
             horizontal: nativeEditor ? 12 : 7,
             vertical: (fieldHeight - 20) / 2,
@@ -278,12 +293,12 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
             minHeight: fieldHeight,
           ),
           suffixIconConstraints: BoxConstraints(
-            minWidth: suffixWidth,
-            maxWidth: suffixWidth,
+            minWidth: nativeEditor ? 44.0 : suffixWidth,
+            maxWidth: nativeEditor ? 44.0 : suffixWidth,
             minHeight: fieldHeight - 2,
           ),
           suffixIcon: SizedBox(
-            width: suffixWidth,
+            width: nativeEditor ? 44.0 : suffixWidth,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               mainAxisSize: MainAxisSize.max,
@@ -293,7 +308,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                   onPressed: () => _openInlinePicker(normalizedOptions),
                   icon: AppIcons.caretDown,
                 ),
-                if (hasBrowseAction)
+                if (hasBrowseAction && !nativeEditor)
                   PickListFieldButton(
                     tooltip: widget.manageTooltip ?? 'Browse ${widget.label}',
                     onPressed: widget.enabled

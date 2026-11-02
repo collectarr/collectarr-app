@@ -249,6 +249,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
       onCancel: () => Navigator.of(context).pop(),
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,
+      onDelete: widget.request.onDelete,
       onSave: (_) async {
         final updatedMedia = _editedMedia();
         final updated = widget.request.kindItem.kindCapability.mapTransport(

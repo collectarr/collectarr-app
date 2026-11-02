@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/ui/metrics.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +51,13 @@ ThemeData editDialogTheme({
   final base = palette.isDark
       ? ThemeData.dark(useMaterial3: true)
       : ThemeData.light(useMaterial3: true);
-  return base.copyWith(
+    final isNativeMobile = appPresentationPlatform.isNativeMobile;
+    final borderRadius = (compactDesktop && !isNativeMobile)
+        ? BorderRadius.circular(kAppInputBorderRadius)
+        : (isNativeMobile
+            ? BorderRadius.zero
+            : BorderRadius.circular(kAppInputBorderRadius));
+    return base.copyWith(
     extensions: [palette],
     // The reference has no press ripples anywhere.
     splashFactory: NoSplash.splashFactory,
@@ -98,48 +105,52 @@ ThemeData editDialogTheme({
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: palette.isDark ? const Color(0xFF444444) : palette.field,
+      filled: !isNativeMobile,
+      fillColor: isNativeMobile
+          ? Colors.transparent
+          : (palette.isDark ? const Color(0xFF444444) : palette.field),
       isDense: true,
-      // Outline and fill follow the content height, so the padding makes
-      // the 34 px reference field; the constraint alone does not.
       contentPadding: EdgeInsets.symmetric(
-        horizontal: 7,
-        vertical: 7,
+        horizontal: isNativeMobile ? 12 : 7,
+        vertical: isNativeMobile ? 15 : 7,
       ),
-      constraints: const BoxConstraints(
-        minHeight: LibraryMetrics.defaultFieldHeight,
+      constraints: BoxConstraints(
+        minHeight: isNativeMobile ? 56 : LibraryMetrics.defaultFieldHeight,
       ),
-      floatingLabelBehavior: compactDesktop
-          ? FloatingLabelBehavior.always
-          : FloatingLabelBehavior.auto,
-      // A floating label is painted at 75% of its style size, so the style is
-      // enlarged to draw the reference's 13 px label.
+      floatingLabelBehavior: FloatingLabelBehavior.always,
       labelStyle: TextStyle(
         color: palette.textPrimary.withValues(alpha: 0.7),
-        fontSize: compactDesktop ? kEditFloatingLabelStyleSize : 13,
+        fontSize: isNativeMobile
+            ? 16
+            : (compactDesktop ? kEditFloatingLabelStyleSize : 13),
         fontWeight: kAppBoldFontWeight,
       ),
       floatingLabelStyle: TextStyle(
         color: palette.textPrimary.withValues(alpha: 0.7),
-        fontSize: compactDesktop ? kEditFloatingLabelStyleSize : 13,
+        fontSize: isNativeMobile
+            ? 12
+            : (compactDesktop ? kEditFloatingLabelStyleSize : 13),
         fontWeight: kAppBoldFontWeight,
       ),
       hintStyle: TextStyle(
         color: palette.textMuted.withValues(alpha: 0.7),
-        fontSize: compactDesktop ? 13 : null,
+        fontSize: isNativeMobile ? 14 : (compactDesktop ? 13 : null),
       ),
       border: OutlineInputBorder(
         borderSide: BorderSide(color: palette.divider),
-        borderRadius: BorderRadius.circular(kAppInputBorderRadius),
+        borderRadius: borderRadius,
       ),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: palette.divider),
-        borderRadius: BorderRadius.circular(kAppInputBorderRadius),
+        borderRadius: borderRadius,
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(color: palette.utilityAction, width: 2),
-        borderRadius: BorderRadius.circular(kAppInputBorderRadius),
+        borderRadius: borderRadius,
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: palette.divider.withValues(alpha: 0.5)),
+        borderRadius: borderRadius,
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
