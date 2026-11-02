@@ -32,6 +32,7 @@ void main() {
         File('${root.path}${Platform.pathSeparator}collectarr-library.sqlite');
     LocalDatabase? database = LocalDatabase(NativeDatabase(file));
     addTearDown(() async {
+      await disposeTestApp(tester);
       await database?.close();
       // Only files created by this test in its own temporary directory.
       for (final entry in root.listSync()) {
@@ -58,7 +59,10 @@ void main() {
     await tester.tap(find.byTooltip('Edit').first);
     await pumpUntilSettled(tester);
     expect(find.byType(LibraryEditDialogScaffold), findsOneWidget);
-    await tester.tap(find.text('Personal').last);
+    final personalTab = find.text('Personal').last;
+    await tester.ensureVisible(personalTab);
+    await pumpUntilSettled(tester);
+    await tester.tap(personalTab);
     await pumpUntilSettled(tester);
     final notes = find.descendant(
         of: find.byKey(const ValueKey('library-entry-personal_notes')),

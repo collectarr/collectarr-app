@@ -38,7 +38,7 @@ class _NoAutomaticBackups extends AutomaticBackupController {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('startup and account navigation retain Windows accessibility',
+  testWidgets('startup and account navigation retain accessibility',
       (tester) async {
     setUpTestAppPreferences();
     final database = LocalDatabase(NativeDatabase.memory());

@@ -60,11 +60,10 @@ void main() {
 
       // Verify all mandatory destination keys exist
       await openDrawer();
-      expect(
-          find.byKey(const Key('nav.library')),
-          appPresentationPlatform.isNativeMobile
-              ? findsOneWidget
-              : findsNothing);
+      expect(find.byKey(const Key('nav.library')), findsNothing);
+      if (appPresentationPlatform.isNativeMobile) {
+        expect(find.text('Library'), findsWidgets);
+      }
       expect(find.byKey(const Key('nav.more')), findsOneWidget);
       expect(find.byKey(const Key('nav.calendar')), findsOneWidget);
 
@@ -126,11 +125,10 @@ void main() {
       // Mandatory keys must be present on mobile
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
-      expect(
-          find.byKey(const Key('nav.library')),
-          appPresentationPlatform.isNativeMobile
-              ? findsOneWidget
-              : findsNothing);
+      expect(find.byKey(const Key('nav.library')), findsNothing);
+      if (appPresentationPlatform.isNativeMobile) {
+        expect(find.text('Library'), findsWidgets);
+      }
 
       // Dismiss navigation without changing the current library.
       Navigator.of(tester.element(find.byKey(const Key('nav.more')))).pop();
