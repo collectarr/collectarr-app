@@ -285,35 +285,42 @@ class LibraryPartialDateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (LibraryMobileEditFormScope.active(context)) {
-      return InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          border: const OutlineInputBorder(borderRadius: BorderRadius.zero),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.zero,
-            borderSide: BorderSide(color: appPalette(context).divider),
-          ),
-          contentPadding: const EdgeInsets.fromLTRB(10, 4, 4, 4),
-          constraints: const BoxConstraints(minHeight: 56),
-        ),
-        child: Row(children: [
-          Expanded(
-            child: LibraryPartialDateInput(
-              value: value,
-              focusNode: focusNode,
-              onChanged: onChanged,
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final showCalendar = constraints.maxWidth >= 140;
+          return InputDecorator(
+            decoration: InputDecoration(
+              labelText: label,
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              border: const OutlineInputBorder(borderRadius: BorderRadius.zero),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.zero,
+                borderSide: BorderSide(color: appPalette(context).divider),
+              ),
+              contentPadding: const EdgeInsets.fromLTRB(6, 4, 4, 4),
+              constraints: const BoxConstraints(minHeight: 56),
             ),
-          ),
-          IconButton(
-            tooltip: 'Choose $label',
-            icon: Icon(AppIcons.calendar,
-                size: 18, color: appPalette(context).utilityAction),
-            constraints: const BoxConstraints.tightFor(width: 32, height: 40),
-            padding: EdgeInsets.zero,
-            onPressed: () => _chooseDate(context),
-          ),
-        ]),
+            child: Row(children: [
+              Expanded(
+                child: LibraryPartialDateInput(
+                  value: value,
+                  focusNode: focusNode,
+                  onChanged: onChanged,
+                ),
+              ),
+              if (showCalendar)
+                IconButton(
+                  tooltip: 'Choose $label',
+                  icon: Icon(AppIcons.calendar,
+                      size: 18, color: appPalette(context).utilityAction),
+                  constraints:
+                      const BoxConstraints.tightFor(width: 32, height: 40),
+                  padding: EdgeInsets.zero,
+                  onPressed: () => _chooseDate(context),
+                ),
+            ]),
+          );
+        },
       );
     }
     return LibraryFormField(

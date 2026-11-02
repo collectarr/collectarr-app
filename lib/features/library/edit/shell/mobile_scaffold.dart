@@ -176,8 +176,8 @@ class _LibraryMobileEditorScaffoldState
 
     if (!isTablet) return page;
 
-    final cardWidth = math.min(1152.0, viewport.width - 32);
-    final cardHeight = math.min(1152.0, viewport.height - 32);
+    final cardWidth = math.min(768.0, viewport.width - 32);
+    final cardHeight = math.min(768.0, viewport.height - 32);
 
     return Scaffold(
       backgroundColor: Colors.black54,
