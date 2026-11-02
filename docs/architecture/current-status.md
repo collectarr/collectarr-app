@@ -93,12 +93,11 @@ Kind modules retain the operations and their domain rules.
 
 `AppPresentationPlatform` is the single native Android/iOS versus desktop/web
 policy. `AppWindowClass` describes width and height only; it does not infer a
-platform or prescribe navigation from width. Mobile
-header search, sidebar account access, the Add method chooser, full-screen
-`LibraryAddMobileSearchControls` arranges shared search inputs without owning
-controllers or query/scan behavior. Core search and consolidated library controls consume the existing library
-and Add state owners. Web and desktop retain their dense presentation at
-compact widths.
+platform or prescribe navigation from width. Mobile header search, sidebar
+account access, the Add method chooser, full-screen Core search and consolidated
+library controls consume existing state owners. `LibraryAddMobileSearchControls`
+arranges shared inputs without owning controllers or query/scan behavior. Web
+and desktop retain their dense presentation at compact widths.
 
 Library projections, selection, search and preferences belong to the existing
 page session/providers. Add owns one `LibraryAddSessionController`; Edit keeps
@@ -127,7 +126,12 @@ Native Add Manually provides its validated Add action in the header. Native
 editor tabs retain their subtrees and scroll state while keyboard insets shrink
 only the content area; Save remains in the header. Desktop keeps dialog chrome.
 
-Remaining structural work includes width-driven Settings section navigation. UI comparisons and unverified workflows
+Native Settings sections use `/settings?section=...&kind=...` on phones and
+tablets, including cold entry and a safe return to the section index. Desktop
+keeps responsive section tabs. Native collection management reuses repository
+commands in a full-screen reorderable list; short name/confirmation prompts stay
+dialogs. Sorting exposes kind-owned favorites directly and reuses the same
+advanced multi-field rules, with touch-sized shared field selection controls. UI comparisons and unverified workflows
 remain in [CLZ parity](../clz-parity.md). Refactor presentation boundaries before
 mechanical kind-file renames.
 

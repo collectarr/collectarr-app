@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_management_content.dart';
@@ -170,7 +171,32 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       );
     }
 
-    if (windowClass.isCompact) {
+    if (appPresentationPlatform.isNativeMobile || windowClass.isCompact) {
+      final section = widget.initialSection;
+      if (section != null) {
+        return Theme(
+          data: _settingsTheme(context),
+          child: Scaffold(
+            backgroundColor: appManagementCanvasColor(context),
+            appBar: AppPageHeader(
+                icon: Icons.settings_outlined,
+                leading: AppPageBackButton(onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go(AppRoutes.forKind(
+                        AppRoutes.settings,
+                        GoRouterState.of(context).uri.queryParameters['kind'] ??
+                            ref.read(selectedLibraryKindProvider)));
+                  }
+                }),
+                title: Text(section.title)),
+            body: SafeArea(
+                top: false,
+                child: AppManagementContent(child: buildSection(section))),
+          ),
+        );
+      }
       return Theme(
         data: _settingsTheme(context),
         child: Scaffold(
@@ -194,22 +220,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
                 trailing: const Icon(Icons.chevron_right, size: 20),
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (ctx) => Theme(
-                        data: _settingsTheme(ctx),
-                        child: Scaffold(
-                          backgroundColor: appManagementCanvasColor(context),
-                          appBar: AppPageHeader(
-                              icon: Icons.settings_outlined,
-                              leading: AppPageBackButton(),
-                              title: Text(section.title)),
-                          body: AppManagementContent(
-                              child: buildSection(section)),
-                        ),
-                      ),
-                    ),
-                  );
+                  final kind =
+                      GoRouterState.of(context).uri.queryParameters['kind'] ??
+                          LibraryAccentScope.maybeOf(context)?.kind ??
+                          ref.read(selectedLibraryKindProvider);
+                  context.push(Uri(path: AppRoutes.settings, queryParameters: {
+                    'kind': kind,
+                    'section': section.name,
+                  }).toString());
                 },
               );
             },
@@ -268,6 +286,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             context.go(AppRoutes.forKind(
                 AppRoutes.libraries,
                 LibraryAccentScope.maybeOf(context)?.kind ??
+                    GoRouterState.of(context).uri.queryParameters['kind'] ??
                     ref.read(selectedLibraryKindProvider)));
           }
         });

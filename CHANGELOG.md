@@ -11,6 +11,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Native Settings sections restore from their URLs; collection management uses a full-screen touch list, and sorting offers common orders with an advanced editor.
 - Native Add Manually and Edit use full-screen forms with persistent Add/Save actions, touch-sized tabs and overflow actions, retaining drafts and validation across tab changes.
 - Native libraries open items in full-screen details and support long-press selection; detail links restore local and cached catalog items without the original page.
 - Native mobile uses Library, Activity, Calendar and More navigation, with a tablet rail and a touch-sized collection picker above the library.

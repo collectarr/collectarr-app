@@ -43,7 +43,7 @@ void main() {
     expect(tester.getSize(find.byType(LibraryFieldSelectionCategory)).height,
         28 + 1 + 10);
     expect(find.text('Artist'), findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('the ASC/DESC switch slides between its labels and removes',
       (tester) async {
@@ -74,7 +74,7 @@ void main() {
     expect(end - before, closeTo(41, 0.5));
     await tester.tap(find.byTooltip('Remove'));
     expect(removed, isTrue);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('search shows a white disc to clear the text', (tester) async {
     final controller = TextEditingController(text: 'abc');
@@ -83,11 +83,11 @@ void main() {
     await tester.pumpWidget(_host(LibraryFieldSelectionSearch(
         controller: controller, onChanged: (value) => query = value)));
     expect(tester.widget<TextField>(find.byType(TextField)).cursorColor,
-        Colors.white);
+        appPalette(tester.element(find.byType(TextField))).utilityAction);
     await tester.tap(find.byTooltip('Clear search'));
     await tester.pump();
     expect(controller.text, isEmpty);
     expect(query, isEmpty);
     expect(find.byTooltip('Clear search'), findsNothing);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }

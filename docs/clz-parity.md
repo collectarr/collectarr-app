@@ -221,10 +221,8 @@ collection density remain unverified.
 | Priority | Area | Difference |
 | --- | --- | --- |
 | P2 | Add Comics remaining parity | NCBD still depends on a release-calendar source in Core (see Comics NCBD). Validate camera/barcode flows on-device and compare populated results against equivalent Core data, including long issue/variant labels, larger system text, loading and error states |
-| P1 | Manual editor | The desktop form and Personal panel are stacked into separate short viewports; the footer's Add action is clipped on the right, and the tab strip opens with its first tabs out of view. CLZ has one full-width scrolling form per tab and a compact header action. Reflow the editor and its actions for portrait while keeping partial dates and the stronger data model |
 | P2 | Scanner presentation | The library header camera opens the shared live-camera sheet with manual barcode entry. CLZ overlays the camera directly on the library with scanning corners. Align the native camera presentation while preserving manual entry; real barcode decoding still needs a physical-code check |
 | P3 | Library surfaces and empty state | Collectarr retains the desktop canvas gradient and a filled blue onboarding card; CLZ uses a flat dark canvas with centred teal text. Compare the light skin before adapting native surfaces |
-| P2 | Sort selector | Collectarr opens the desktop multi-field editor with a field list, a second selected-fields pane and Cancel/Save. CLZ opens a full-screen list of common sort orders with an inline direction control. Offer a direct mobile path for common sorts while keeping advanced multi-field sorting |
 | P2 | Folder navigation | CLZ's folder control opens a searchable full-screen field selector with favourites. Collectarr still opens the desktop field menu and uses a separate bucket chooser when the selected field has several folders. Compare and adapt the field selector, favourites and populated bucket navigation |
 
 Still to compare: populated cards/list/covers, series folders and counts, item

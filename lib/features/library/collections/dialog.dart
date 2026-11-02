@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'family.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -18,8 +20,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> showLibraryCollectionsDialog(BuildContext context,
         {required String kind}) =>
-    showAppDialog<void>(
-        context: context, builder: (_) => _CollectionsDialog(kind: kind));
+    appPresentationPlatform.isNativeMobile
+        ? Navigator.of(context, rootNavigator: true).push<void>(
+            MaterialPageRoute<void>(
+                fullscreenDialog: true,
+                builder: (_) => _CollectionsDialog(kind: kind)))
+        : showAppDialog<void>(
+            context: context, builder: (_) => _CollectionsDialog(kind: kind));
 
 Future<String?> chooseLibraryCollection(BuildContext context,
     {required LocalDatabase db,
@@ -78,6 +85,79 @@ final class _CollectionsDialog extends ConsumerWidget {
         accent: accent,
         selection: Color.alphaBlend(
             accent.withValues(alpha: 0.22), basePalette.panel));
+    final collectionList = collections.when(
+        loading: () => const Padding(
+            padding: EdgeInsets.all(24),
+            child: Center(child: CircularProgressIndicator())),
+        error: (error, _) =>
+            Padding(padding: const EdgeInsets.all(20), child: Text('$error')),
+        data: (values) => ReorderableListView.builder(
+            shrinkWrap: true,
+            buildDefaultDragHandles: false,
+            // No elevation shadow, and the row's own 1 px
+            // right and bottom border lines are cut off:
+            // lifted out of the table they read as a
+            // highlight along those edges.
+            proxyDecorator: (child, _, __) => Material(
+                type: MaterialType.transparency,
+                child:
+                    ClipRect(clipper: const _DragRowClipper(), child: child)),
+            itemCount: values.length,
+            onReorderItem: (oldIndex, newIndex) async {
+              final ids = values.map((c) => c.id).toList();
+              final id = ids.removeAt(oldIndex);
+              ids.insert(newIndex, id);
+              await repo.reorderKinds(
+                  collectionFamilyKinds(kind)
+                      .map((member) => member.kind.apiValue)
+                      .toSet(),
+                  ids);
+            },
+            itemBuilder: (context, index) {
+              final collection = values[index];
+              return _CollectionRow(
+                key: ValueKey(collection.id),
+                collection: collection,
+                index: index,
+                itemLabel: defaultLibraryKindRegistry
+                    .require(catalogMediaKindFromApiValue(collection.kind))
+                    .identity
+                    .countLabel(collection.count)
+                    .toLowerCase(),
+                onRename: () => showAppDialog<void>(
+                    context: context,
+                    builder: (_) => _CollectionNameDialog(
+                        repo: repo,
+                        kind: collection.kind,
+                        collection: collection)),
+                onDelete: values
+                            .where((item) => item.kind == collection.kind)
+                            .length ==
+                        1
+                    ? null
+                    : () => _delete(context, db, repo, collection, values),
+              );
+            }));
+    if (appPresentationPlatform.isNativeMobile) {
+      return Theme(
+          data: editDialogTheme(palette: palette),
+          child: MobilePage(
+            title: 'Manage Collections',
+            onBack: () => Navigator.of(context).pop(),
+            headerColor: accent,
+            backgroundColor: palette.panel,
+            actions: [
+              IconButton(
+                  tooltip: 'Create collection',
+                  icon: const Icon(Icons.add),
+                  onPressed: () => showAppDialog<void>(
+                      context: context,
+                      builder: (_) =>
+                          _CollectionNameDialog(repo: repo, kind: kind)))
+            ],
+            body: collectionList,
+          ));
+    }
     return Theme(
       data: editDialogTheme(palette: palette),
       child: Builder(
@@ -121,69 +201,7 @@ final class _CollectionsDialog extends ConsumerWidget {
                                   context: context,
                                   builder: (_) => _CollectionNameDialog(
                                       repo: repo, kind: kind)))),
-                      Flexible(
-                          child: collections.when(
-                              loading: () => const Padding(
-                                  padding: EdgeInsets.all(24),
-                                  child: Center(
-                                      child: CircularProgressIndicator())),
-                              error: (error, _) => Padding(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Text('$error')),
-                              data: (values) => ReorderableListView.builder(
-                                  shrinkWrap: true,
-                                  buildDefaultDragHandles: false,
-                                  // No elevation shadow, and the row's own 1 px
-                                  // right and bottom border lines are cut off:
-                                  // lifted out of the table they read as a
-                                  // highlight along those edges.
-                                  proxyDecorator: (child, _, __) => Material(
-                                      type: MaterialType.transparency,
-                                      child: ClipRect(
-                                          clipper: const _DragRowClipper(),
-                                          child: child)),
-                                  itemCount: values.length,
-                                  onReorderItem: (oldIndex, newIndex) async {
-                                    final ids =
-                                        values.map((c) => c.id).toList();
-                                    final id = ids.removeAt(oldIndex);
-                                    ids.insert(newIndex, id);
-                                    await repo.reorderKinds(
-                                        collectionFamilyKinds(kind)
-                                            .map((member) =>
-                                                member.kind.apiValue)
-                                            .toSet(),
-                                        ids);
-                                  },
-                                  itemBuilder: (context, index) {
-                                    final collection = values[index];
-                                    return _CollectionRow(
-                                      key: ValueKey(collection.id),
-                                      collection: collection,
-                                      index: index,
-                                      itemLabel: defaultLibraryKindRegistry
-                                          .require(catalogMediaKindFromApiValue(
-                                              collection.kind))
-                                          .identity
-                                          .countLabel(collection.count)
-                                          .toLowerCase(),
-                                      onRename: () => showAppDialog<void>(
-                                          context: context,
-                                          builder: (_) => _CollectionNameDialog(
-                                              repo: repo,
-                                              kind: collection.kind,
-                                              collection: collection)),
-                                      onDelete: values
-                                                  .where((item) =>
-                                                      item.kind ==
-                                                      collection.kind)
-                                                  .length ==
-                                              1
-                                          ? null
-                                          : () => _delete(context, db, repo,
-                                              collection, values),
-                                    );
-                                  }))),
+                      Flexible(child: collectionList),
                       const SizedBox(height: 15),
                       Container(
                           color: palette.panelRaised,
@@ -405,6 +423,26 @@ class _CollectionRowState extends State<_CollectionRow> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    if (appPresentationPlatform.isNativeMobile) {
+      return ListTile(
+        leading: ReorderableDragStartListener(
+            index: widget.index,
+            child: const SizedBox(
+                width: 48, height: 48, child: Icon(Icons.drag_handle))),
+        title: Text(widget.collection.name),
+        subtitle: Text(widget.itemLabel),
+        trailing: PopupMenuButton<VoidCallback>(
+          tooltip: 'Collection actions',
+          onSelected: (action) => action(),
+          itemBuilder: (_) => [
+            PopupMenuItem(value: widget.onRename, child: const Text('Rename')),
+            if (widget.onDelete != null)
+              PopupMenuItem(
+                  value: widget.onDelete, child: const Text('Delete')),
+          ],
+        ),
+      );
+    }
     final border = palette.isDark ? const Color(0xff383838) : palette.divider;
     Widget cell(Widget child, {double? width, bool padded = true}) => Container(
           width: width,
