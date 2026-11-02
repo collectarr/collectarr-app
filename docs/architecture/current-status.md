@@ -100,13 +100,12 @@ arranges shared inputs without owning controllers or query/scan behavior. Web
 and desktop retain their dense presentation at compact widths.
 
 Add's presentation tokens choose native or desktop values once for shared
-widgets, including result cards, the confirm sheet, search background and
-toolbar. The mobile cover grid owns its different scrolling structure and
-full-width manual Add action; the issue card and selection behavior stay
-shared. The mode bar is the next useful full split: its phone tabs and desktop
-rows already differ structurally, while their controllers, suggestions and
-search actions should remain one owner. Grouped variant results have the same
-boundary between a mobile stack and desktop side-by-side panes.
+widgets, including result cards, the confirm sheet, search background, toolbar
+and input geometry. Native Add has its own page, mode chrome, browse and
+grouped-result layouts, and cover grid; desktop keeps its dialog and
+side-by-side panes. The issue cards, filters, suggestions, search actions and
+`LibraryAddSessionController` remain shared. Small primitive differences stay
+in tokens rather than duplicating whole widgets.
 
 Library projections, selection, search and preferences belong to the existing
 page session/providers. Add owns one `LibraryAddSessionController`; Edit keeps
