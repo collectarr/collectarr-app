@@ -76,7 +76,7 @@ Keep these when matching the reference visually.
 | List header | No sort indicator | Shared-blue caret and priority number on sorted columns |
 | Chrome icons | Dialog and editor titles only | Kind icons in the top bar and dialog headers, kept at the owner's request; edit dialogs show the shared edit pen |
 | Narrow windows | Folder panel and details keep their widths; the list collapses to nothing and details run off-screen | Folder panel keeps its width, details shrink to their minimum, the list keeps at least 320 px |
-| Settings | One page | The reference page is Appearance > Customization; Connection, Proposals, Data, Account, Updates and Logs are added tabs; pick lists and keyboard shortcuts stay in the main menu and Tools, so there is no Libraries tab |
+| Settings | One page | General preferences are grouped in Appearance, Connection, Proposals, Data, Account, Updates and Logs; each enabled kind has its own layout, Core, pre-fill and custom field tab settings. Pick lists and keyboard shortcuts remain in the main menu and Tools |
 | Played History | Mark as listened records today | A date beside the button records listens on other days |
 | Search | Search field only; regular expressions only in the old desktop app | Extra barcode, cover-search and random-pick buttons; "matches:" regular expressions in the local search, never sent to Core |
 | Localization | Application language, time zone and a time display format | The Application Language list shows CLZ's 12 languages with their flags (FOSS flag-icons) and native names; the interface is English only so far, so the others are listed but disabled. The time zone follows the device, shown read-only; Music lengths keep m:ss and h:mm:ss, which CLZ Music shows regardless of its time format |

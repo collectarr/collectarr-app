@@ -29,6 +29,11 @@ import 'package:collectarr_app/features/settings/settings_account_section.dart';
 import 'package:collectarr_app/features/settings/settings_appearance_section.dart';
 import 'package:collectarr_app/features/settings/settings_data_section.dart';
 import 'package:collectarr_app/features/settings/settings_layout.dart';
+import 'package:collectarr_app/features/settings/settings_kind_section.dart';
+import 'package:collectarr_app/features/library/home/catalog.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/providers/nav_preferences.dart';
 import 'package:collectarr_app/features/settings/settings_updates_section.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -107,10 +112,12 @@ class SettingsPage extends ConsumerStatefulWidget {
     super.key,
     this.showWebSyncWarning = kIsWeb,
     this.initialSection,
+    this.initialKind,
   });
 
   final bool showWebSyncWarning;
   final SettingsSection? initialSection;
+  final String? initialKind;
 
   @override
   ConsumerState<SettingsPage> createState() => _SettingsPageState();
@@ -127,11 +134,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   ConnectionSettings? _lastSyncedSettings;
   Timer? _connectionSaveDebounce;
   SettingsSection _selectedSection = SettingsSection.appearance;
+  String? _selectedKindTab;
 
   @override
   void initState() {
     super.initState();
     _selectedSection = widget.initialSection ?? SettingsSection.appearance;
+    _selectedKindTab = widget.initialKind;
   }
 
   @override
@@ -140,6 +149,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (oldWidget.initialSection != widget.initialSection &&
         widget.initialSection != null) {
       _selectedSection = widget.initialSection!;
+      _selectedKindTab = null;
+    }
+    if (oldWidget.initialKind != widget.initialKind) {
+      _selectedKindTab = widget.initialKind;
     }
   }
 
@@ -158,6 +171,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final sync = ref.watch(syncControllerProvider);
     final metadataProposalHistory = ref.watch(_metadataProposalHistoryProvider);
     final accent = appPalette(context).utilityAction;
+    final catalog =
+        ref.watch(mediaCatalogProvider).value ?? fallbackMediaCatalog;
+    final navPreferences = ref.watch(libraryNavPreferencesProvider);
+    final kinds = [
+      for (final type in orderedLibraryHomeTypes(catalog, navPreferences))
+        if (navPreferences.isVisible(type.kind))
+          if (defaultLibraryKindRegistry.tryGet(type.mediaKind)
+              case final registration?)
+            registration,
+    ];
+    final kindSection = widget.initialKind == null
+        ? null
+        : kinds
+            .where((type) => type.kind.apiValue == widget.initialKind)
+            .firstOrNull;
+    final selectedKindTabIndex =
+        kinds.indexWhere((kind) => kind.kind.apiValue == _selectedKindTab);
     _syncTextControllers(settings);
 
     final windowClass = AppWindowClass.of(context);
@@ -172,6 +202,39 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
 
     if (appPresentationPlatform.isNativeMobile || windowClass.isCompact) {
+      if (kindSection != null) {
+        return Theme(
+          data: _settingsTheme(context),
+          child: Scaffold(
+            backgroundColor: appManagementCanvasColor(context),
+            appBar: AppPageHeader(
+              icon: kindSection.identity.icon,
+              leading: AppPageBackButton(
+                  key: const Key('settings.back'),
+                  onPressed: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go(AppRoutes.forKind(
+                          AppRoutes.settings,
+                          GoRouterState.of(context)
+                                  .uri
+                                  .queryParameters['kind'] ??
+                              ref.read(selectedLibraryKindProvider)));
+                    }
+                  }),
+              title: Text('${kindSection.identity.title} settings'),
+            ),
+            body: SafeArea(
+                top: false,
+                child: AppManagementContent(
+                    child: SettingsKindSection(
+                        key: ValueKey(
+                            'settings.kind.${kindSection.kind.apiValue}'),
+                        type: kindSection))),
+          ),
+        );
+      }
       final section = widget.initialSection;
       if (section != null) {
         return Theme(
@@ -212,27 +275,39 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           body: AppManagementContent(
               child: ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: SettingsSection.values.length,
+            itemCount: SettingsSection.values.length + kinds.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (context, index) {
+              final routeKind =
+                  GoRouterState.of(context).uri.queryParameters['kind'] ??
+                      LibraryAccentScope.maybeOf(context)?.kind ??
+                      ref.read(selectedLibraryKindProvider);
+              if (index >= SettingsSection.values.length) {
+                final kind = kinds[index - SettingsSection.values.length];
+                return ListTile(
+                  key: ValueKey('settings.kind.tab.${kind.kind.apiValue}'),
+                  leading: Icon(kind.identity.icon, color: accent),
+                  title: Text(kind.identity.title,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  trailing: const Icon(Icons.chevron_right, size: 20),
+                  onTap: () => context
+                      .push(Uri(path: AppRoutes.settings, queryParameters: {
+                    'kind': routeKind,
+                    'settingsKind': kind.kind.apiValue,
+                  }).toString()),
+                );
+              }
               final section = SettingsSection.values[index];
               return ListTile(
                 leading: Icon(section.icon, color: accent),
-                title: Text(
-                  section.title,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
+                title: Text(section.title,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
                 trailing: const Icon(Icons.chevron_right, size: 20),
-                onTap: () {
-                  final kind =
-                      GoRouterState.of(context).uri.queryParameters['kind'] ??
-                          LibraryAccentScope.maybeOf(context)?.kind ??
-                          ref.read(selectedLibraryKindProvider);
-                  context.push(Uri(path: AppRoutes.settings, queryParameters: {
-                    'kind': kind,
-                    'section': section.name,
-                  }).toString());
-                },
+                onTap: () => context
+                    .push(Uri(path: AppRoutes.settings, queryParameters: {
+                  'kind': routeKind,
+                  'section': section.name,
+                }).toString()),
               );
             },
           )),
@@ -243,9 +318,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return Theme(
       data: _settingsTheme(context),
       child: DefaultTabController(
-        key: ValueKey(_selectedSection),
-        initialIndex: SettingsSection.values.indexOf(_selectedSection),
-        length: SettingsSection.values.length,
+        key: ValueKey(
+            '${_selectedSection.name}:${widget.initialKind}:${kinds.map((kind) => kind.kind.apiValue).join(',')}'),
+        initialIndex: selectedKindTabIndex < 0
+            ? SettingsSection.values.indexOf(_selectedSection)
+            : SettingsSection.values.length + selectedKindTabIndex,
+        length: SettingsSection.values.length + kinds.length,
         child: Scaffold(
           backgroundColor: appManagementCanvasColor(context),
           appBar: AppPageHeader(
@@ -253,6 +331,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               leading: _buildBackButton(context),
               title: const Text('Settings'),
               bottom: TabBar(
+                onTap: (index) {
+                  if (index < SettingsSection.values.length) {
+                    _selectedSection = SettingsSection.values[index];
+                    _selectedKindTab = null;
+                  } else {
+                    _selectedKindTab =
+                        kinds[index - SettingsSection.values.length]
+                            .kind
+                            .apiValue;
+                  }
+                },
                 isScrollable: true,
                 tabAlignment: TabAlignment.center,
                 labelColor: appPalette(context).textPrimary,
@@ -266,13 +355,30 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           const SizedBox(width: 6),
                           Text(s.title)
                         ])))
-                    .toList(),
+                    .followedBy([
+                  for (final kind in kinds)
+                    Tab(
+                        key:
+                            ValueKey('settings.kind.tab.${kind.kind.apiValue}'),
+                        height: 36,
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                          Icon(kind.identity.icon, size: 16),
+                          const SizedBox(width: 6),
+                          Text(kind.identity.title),
+                        ])),
+                ]).toList(),
               )),
           // Room for the reference 958 px page plus its 16 px margins.
           body: AppManagementContent(
               maxWidth: 990,
               child: TabBarView(
-                children: SettingsSection.values.map(buildSection).toList(),
+                children: [
+                  ...SettingsSection.values.map(buildSection),
+                  for (final kind in kinds)
+                    SettingsKindSection(
+                        key: ValueKey('settings.kind.${kind.kind.apiValue}'),
+                        type: kind),
+                ],
               )),
         ),
       ),
