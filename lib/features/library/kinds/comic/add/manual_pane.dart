@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
@@ -139,6 +140,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
   Widget build(BuildContext context) {
     final comicDraft = widget.request.manualDraftAs<ComicAddManualDraft>();
     final request = widget.request;
+    final mobile = appPresentationPlatform.isNativeMobile;
     LibraryFormSchema<ComicAddManualDraft> schemaFor(
       Set<String> fieldIds,
       String sectionLabel,
@@ -183,6 +185,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
             ],
           ),
           includeTitle: false,
+          mobile: mobile,
         );
 
     LibraryAddManualPaneTab schemaTab({
@@ -210,7 +213,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
         id: 'main',
         label: 'Main',
         icon: AppIcons.book,
-        fieldIds: const {
+        fieldIds: {
           ComicFieldIdentities.seriesId,
           ComicFieldIdentities.issueNumberId,
           ComicFieldIdentities.variantId,
@@ -222,27 +225,40 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           'release_date',
           'publisher',
           ComicFieldIdentities.imprintId,
+          if (mobile) ...{
+            'title',
+            ComicFieldIdentities.pageCountId,
+            'publication_age',
+            'subtitle',
+            'genres',
+            'language',
+            'country',
+            'crossover',
+            'story_arcs',
+            'comic.plot',
+          },
         },
         sectionLabel: '',
         validateSchema: true,
       ),
-      schemaTab(
-        id: 'details',
-        label: 'Details',
-        icon: AppIcons.tabLookup,
-        fieldIds: const {
-          'catalog_title',
-          ComicFieldIdentities.pageCountId,
-          'publication_age',
-          'subtitle',
-          'genres',
-          'language',
-          'country',
-          'crossover',
-          'story_arcs',
-        },
-        sectionLabel: '',
-      ),
+      if (!mobile)
+        schemaTab(
+          id: 'details',
+          label: 'Details',
+          icon: AppIcons.tabLookup,
+          fieldIds: const {
+            'catalog_title',
+            ComicFieldIdentities.pageCountId,
+            'publication_age',
+            'subtitle',
+            'genres',
+            'language',
+            'country',
+            'crossover',
+            'story_arcs',
+          },
+          sectionLabel: '',
+        ),
       LibraryAddManualPaneTab(
         id: 'creators',
         label: 'Creators',
@@ -370,21 +386,41 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           ]),
         ),
       ),
-      LibraryAddManualPaneTab(
-        id: 'plot',
-        label: 'Plot',
-        icon: AppIcons.tabPlot,
-        content: LibraryTextFormControl(
-          initialValue: comicDraft.values.description,
-          minLines: 18,
-          maxLines: 18,
-          onChanged: (value) {
-            comicDraft.values.description = value;
-            request.onManualDraftChanged?.call();
-          },
+      if (!mobile)
+        LibraryAddManualPaneTab(
+          id: 'plot',
+          label: 'Plot',
+          icon: AppIcons.tabPlot,
+          content: LibraryTextFormControl(
+            initialValue: comicDraft.values.description,
+            minLines: 18,
+            maxLines: 18,
+            onChanged: (value) {
+              comicDraft.values.description = value;
+              request.onManualDraftChanged?.call();
+            },
+          ),
         ),
-      ),
     ];
+    if (mobile) {
+      final covers = tabs.firstWhere((tab) => tab.id == 'covers');
+      final images = tabs.firstWhere((tab) => tab.id == 'my_images');
+      tabs.add(LibraryAddManualPaneTab(
+        id: 'images',
+        label: 'Images',
+        icon: AppIcons.tabImages,
+        content: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [covers.content, images.content]),
+      ));
+      tabs.add(LibraryAddManualPaneTab(
+        id: 'key',
+        label: 'Key',
+        icon: AppIcons.tabValue,
+        content: ComicAddPersonalTab(
+            request: request, entry: _entry, valueTab: true, keyTab: true),
+      ));
+    }
     final byId = {for (final tab in tabs) tab.id: tab};
     return LibraryAddManualPaneShell(
       request: request,
@@ -398,19 +434,31 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
             _updatePersonal(_personal.personal.copyWith(quantity: value)),
       ),
       tabs: [
-        for (final id in const [
-          'main',
-          'details',
-          'value',
-          'personal',
-          'custom_fields',
-          'covers',
-          'my_images',
-          'creators',
-          'characters',
-          'plot',
-          'links'
-        ])
+        for (final id in (mobile
+            ? const [
+                'main',
+                'personal',
+                'custom_fields',
+                'value',
+                'key',
+                'creators',
+                'characters',
+                'images',
+                'links'
+              ]
+            : const [
+                'main',
+                'details',
+                'value',
+                'personal',
+                'custom_fields',
+                'covers',
+                'my_images',
+                'creators',
+                'characters',
+                'plot',
+                'links'
+              ]))
           byId[id]!
       ],
     );
