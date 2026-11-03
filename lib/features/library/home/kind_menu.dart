@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
@@ -15,12 +16,14 @@ class MediaLibraryKindMenu extends StatefulWidget {
     required this.types,
     required this.registry,
     required this.onSelected,
+    required this.activeKind,
     this.trigger,
   });
 
   final List<CatalogMediaType> types;
   final LibraryKindRegistry registry;
   final ValueChanged<CatalogMediaType> onSelected;
+  final CatalogMediaKind activeKind;
   final Widget? trigger;
 
   @override
@@ -95,27 +98,17 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
       ),
       menuChildren: [
         for (final type in _familyEntryTypes())
-          MenuItemButton(
+          _KindMenuItem(
             key: ValueKey('library-kind-picker-item-${type.kind}'),
+            type: type,
+            selected: _isSelected(type),
+            icon: widget.registry.tryGet(type.mediaKind)?.identity.icon ??
+                libraryIconForKind(type.mediaKind),
+            iconSvgAsset: widget.registry
+                .tryGet(type.mediaKind)
+                ?.identity
+                .collectionIconSvgAsset,
             onPressed: () => widget.onSelected(type),
-            style: const ButtonStyle(
-              minimumSize: WidgetStatePropertyAll(Size(0, 36)),
-              maximumSize: WidgetStatePropertyAll(Size(double.infinity, 36)),
-              padding:
-                  WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 7)),
-              visualDensity: VisualDensity.standard,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              overlayColor: WidgetStatePropertyAll(Color(0x1F000000)),
-            ),
-            child: _KindMenuRow(
-              type: type,
-              icon: widget.registry.tryGet(type.mediaKind)?.identity.icon ??
-                  libraryIconForKind(type.mediaKind),
-              iconSvgAsset: widget.registry
-                  .tryGet(type.mediaKind)
-                  ?.identity
-                  .collectionIconSvgAsset,
-            ),
           ),
       ],
       child: widget.trigger != null
@@ -138,6 +131,15 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
     );
   }
 
+  bool _isSelected(CatalogMediaType type) {
+    if (type.mediaKind == widget.activeKind) return true;
+    final family =
+        widget.registry.tryGet(widget.activeKind)?.identity.collectionFamily;
+    return family != null &&
+        family ==
+            widget.registry.tryGet(type.mediaKind)?.identity.collectionFamily;
+  }
+
   /// One entry per collection family: Hardware and Toys open from the Games
   /// collection tabs, as in the reference app list.
   List<CatalogMediaType> _familyEntryTypes() {
@@ -150,57 +152,104 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
   }
 }
 
-class _KindMenuRow extends StatelessWidget {
-  const _KindMenuRow({
-    required this.type,
-    required this.icon,
-    this.iconSvgAsset,
-  });
-
+class _KindMenuItem extends StatefulWidget {
+  const _KindMenuItem(
+      {super.key,
+      required this.type,
+      required this.selected,
+      required this.icon,
+      this.iconSvgAsset,
+      required this.onPressed});
   final CatalogMediaType type;
+  final bool selected;
   final IconData icon;
   final String? iconSvgAsset;
+  final VoidCallback onPressed;
+
+  @override
+  State<_KindMenuItem> createState() => _KindMenuItemState();
+}
+
+class _KindMenuItemState extends State<_KindMenuItem> {
+  bool _hovered = false;
+  bool _focused = false;
 
   @override
   Widget build(BuildContext context) {
-    final accent = libraryAccentForKind(type.mediaKind);
-    return SizedBox(
-      height: 36,
-      child: Row(
-        children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: accent,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: Colors.white.withValues(alpha: .45)),
-            ),
-            child: SizedBox.square(
-              dimension: 26,
-              child: iconSvgAsset == null
-                  ? Icon(icon, size: 18, color: Colors.white)
-                  : Padding(
-                      padding: const EdgeInsets.all(3),
-                      child: SvgPicture.asset(iconSvgAsset!,
-                          width: 18, height: 18)),
-            ),
-          ),
-          const SizedBox(width: 7),
-          Expanded(
-            // Named as in the header brand, in its face.
-            child: Text(
-              'CLR ${libraryNavLabel(type)}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: const Color(0xFF333333),
-                fontFamily: appFontFamily,
-                fontFamilyFallback: kAppFontFamilyFallback,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+    final colorEnabled = widget.selected || _hovered || _focused;
+    final accent = libraryAccentForKind(widget.type.mediaKind);
+    final icon = DecoratedBox(
+      decoration: BoxDecoration(
+          color: accent,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: Colors.white.withValues(alpha: .45))),
+      child: SizedBox.square(
+          dimension: 26,
+          child: widget.iconSvgAsset == null
+              ? Icon(widget.icon, size: 18, color: Colors.white)
+              : Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: SvgPicture.asset(widget.iconSvgAsset!,
+                      width: 18, height: 18))),
+    );
+    return Semantics(
+      selected: widget.selected,
+      child: MenuItemButton(
+        onPressed: widget.onPressed,
+        requestFocusOnHover: false,
+        onHover: (value) => setState(() => _hovered = value),
+        onFocusChange: (value) => setState(() => _focused = value),
+        style: const ButtonStyle(
+          minimumSize: WidgetStatePropertyAll(Size(0, 36)),
+          maximumSize: WidgetStatePropertyAll(Size(double.infinity, 36)),
+          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 7)),
+          visualDensity: VisualDensity.standard,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          overlayColor: WidgetStatePropertyAll(Color(0x1F000000)),
+        ),
+        child: SizedBox(
+            height: 36,
+            child: Row(children: [
+              ColorFiltered(
+                key: ValueKey('library-kind-icon-${widget.type.kind}'),
+                colorFilter: colorEnabled
+                    ? const ColorFilter.mode(Colors.transparent, BlendMode.dst)
+                    : const ColorFilter.matrix([
+                        0.38,
+                        0.54,
+                        0.08,
+                        0,
+                        0,
+                        0.18,
+                        0.74,
+                        0.08,
+                        0,
+                        0,
+                        0.18,
+                        0.54,
+                        0.28,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                      ]),
+                child: icon,
               ),
-            ),
-          ),
-        ],
+              const SizedBox(width: 7),
+              Expanded(
+                  child: Text('CLR ${libraryNavLabel(widget.type)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          color: const Color(0xFF333333),
+                          fontFamily: appFontFamily,
+                          fontFamilyFallback: kAppFontFamilyFallback,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400))),
+            ])),
       ),
     );
   }
