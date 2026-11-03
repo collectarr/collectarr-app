@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'mobile_method_picker.dart';
+import 'mobile/method_preferences.dart';
 import 'package:collectarr_app/features/library/add/dialog.dart';
 import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -37,8 +38,11 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
       (request.initialIdentifier?.isEmpty ?? true)) {
     final preferences = await SharedPreferences.getInstance();
     if (!context.mounted) return null;
-    if (!(preferences.getBool('mobile.add.skipMethodPicker') ?? false)) {
-      final capability = libraryAddForKind(request.type.kind);
+    final capability = libraryAddForKind(request.type.kind);
+    final key = mobileAddDefaultMethodKey(request.type.kind.apiValue);
+    method = readMobileAddDefaultMethod(preferences, request.type.kind.apiValue,
+        canScanCover: capability.chrome.canScanCover);
+    if (method == null) {
       final searchLabel = libraryPresentationForKind(request.type.kind)
           .searchFieldLabels
           .addSearchTabLabel;
@@ -54,9 +58,7 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
               : 'Search by ${browseLabel.toLowerCase()} / ${searchLabel.toLowerCase()}');
       if (choice == null || !context.mounted) return null;
       method = choice.method;
-      if (choice.remember) {
-        await preferences.setBool('mobile.add.skipMethodPicker', true);
-      }
+      if (choice.remember) await preferences.setString(key, method.name);
     }
   }
   if (!context.mounted) return null;

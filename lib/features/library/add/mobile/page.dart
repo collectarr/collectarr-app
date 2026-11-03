@@ -21,6 +21,7 @@ class LibraryAddMobilePage extends StatelessWidget {
     required this.onBack,
     required this.onManual,
     required this.onCoreDataSettings,
+    required this.onResetMethod,
   });
 
   final String pluralLabel;
@@ -36,6 +37,7 @@ class LibraryAddMobilePage extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onManual;
   final VoidCallback onCoreDataSettings;
+  final VoidCallback onResetMethod;
 
   @override
   Widget build(BuildContext context) {
@@ -70,10 +72,19 @@ class LibraryAddMobilePage extends StatelessWidget {
             ),
             PopupMenuButton<String>(
               tooltip: 'Add options',
-              onSelected: (action) =>
-                  action == 'manual' ? onManual() : onCoreDataSettings(),
+              onSelected: (action) {
+                if (action == 'manual') {
+                  onManual();
+                } else if (action == 'reset') {
+                  onResetMethod();
+                } else {
+                  onCoreDataSettings();
+                }
+              },
               itemBuilder: (_) => const [
                 PopupMenuItem(value: 'manual', child: Text('Add Manually')),
+                PopupMenuItem(
+                    value: 'reset', child: Text('Reset default Add method')),
                 PopupMenuItem(
                   value: 'settings',
                   child: Text('Add/Update from Core settings'),

@@ -1,4 +1,6 @@
 import 'mobile_method_picker.dart';
+import 'mobile/method_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'mobile/page.dart';
 import 'mobile/browse_layout.dart';
 import 'desktop/browse_layout.dart';
@@ -1169,6 +1171,15 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         onBack: _closeDialog,
         onManual: () => _openManualDialog(accent, addCapability),
         onCoreDataSettings: _showCoreDataSettings,
+        onResetMethod: () async {
+          final preferences = await SharedPreferences.getInstance();
+          await preferences
+              .remove(mobileAddDefaultMethodKey(widget.type.kind.apiValue));
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Choose an Add method next time.')));
+          }
+        },
       );
     }
     final defaultDialogWidth = browseMode

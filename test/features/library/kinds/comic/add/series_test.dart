@@ -315,7 +315,7 @@ void main() {
         await tester.tap(find.text('Open Add'));
         await pumpUntilSettled(tester);
         await tester.tap(find.byType(CheckboxListTile));
-        await tester.tap(find.byKey(const ValueKey('add.method.search')));
+        await tester.tap(find.byKey(const ValueKey('add.method.barcode')));
         await pumpUntilSettled(tester);
         await tester.tap(find.byType(BackButton));
         await pumpUntilSettled(tester);
@@ -323,7 +323,18 @@ void main() {
         await pumpUntilSettled(tester);
         expect(find.byKey(const Key('add.method-picker')), findsNothing);
         expect(find.byType(LibraryAddDialog), findsOneWidget);
+        expect(find.byKey(const ValueKey('library-add-barcode-field')),
+            findsOneWidget);
+        await tester.tap(find.byTooltip('Add options'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Reset default Add method'));
+        await pumpUntilSettled(tester);
         await tester.tap(find.byType(BackButton));
+        await pumpUntilSettled(tester);
+        await tester.tap(find.text('Open Add'));
+        await pumpUntilSettled(tester);
+        expect(find.byKey(const Key('add.method-picker')), findsOneWidget);
+        await tester.binding.handlePopRoute();
         await pumpUntilSettled(tester);
       }
       await tester.pumpWidget(const SizedBox.shrink());
