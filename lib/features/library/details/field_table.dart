@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/details/field_row.dart';
 import 'package:collectarr_app/features/library/details/models.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -24,8 +25,9 @@ class LibraryDetailFieldTable extends StatelessWidget {
     final palette = appPalette(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns =
-            (constraints.maxWidth / minCellWidth).floor().clamp(1, 3);
+        final columns = appPresentationPlatform.isNativeMobile
+            ? 1
+            : (constraints.maxWidth / minCellWidth).floor().clamp(1, 3);
         final gap = 12.0;
         final cellWidth =
             (constraints.maxWidth - gap * (columns - 1)) / columns;

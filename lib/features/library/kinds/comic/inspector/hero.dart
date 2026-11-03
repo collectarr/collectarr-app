@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/app_formatted_text.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -125,8 +126,13 @@ class ComicInspectorHeader extends StatelessWidget {
           ),
         const SizedBox(height: 10),
         LayoutBuilder(builder: (context, constraints) {
+          final mobile = appPresentationPlatform.isNativeMobile;
           final cover = _ComicCover(
-              title: heading, comic: comic, entry: entry, width: 140);
+              title: heading,
+              comic: comic,
+              entry: entry,
+              width:
+                  mobile ? (constraints.maxWidth - 58).clamp(0.0, 280.0) : 140);
           final facts = _ComicFacts(
               comic: comic,
               entry: entry,
@@ -134,6 +140,23 @@ class ComicInspectorHeader extends StatelessWidget {
               ebayQuery: '$heading #$issue',
               isWishlisted: request.item.source.isWishlisted);
           final plot = _ComicStatusAndPlot(comic: comic, entry: entry);
+          if (mobile) {
+            return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    cover,
+                    const SizedBox(width: 12),
+                    Expanded(
+                        child: _ComicStatusAndPlot(
+                            comic: comic, entry: entry, showPlot: false)),
+                  ]),
+                  const SizedBox(height: 12),
+                  facts,
+                  _ComicStatusAndPlot(
+                      comic: comic, entry: entry, showStatus: false),
+                ]);
+          }
           if (constraints.maxWidth < 560) {
             return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,10 +362,17 @@ class _ComicFacts extends ConsumerWidget {
 
 /// The collection copy's Collection Status, then the plot.
 class _ComicStatusAndPlot extends StatelessWidget {
-  const _ComicStatusAndPlot({required this.comic, required this.entry});
+  const _ComicStatusAndPlot({
+    required this.comic,
+    required this.entry,
+    this.showStatus = true,
+    this.showPlot = true,
+  });
 
   final ComicCatalogItem? comic;
   final ComicLibraryEntry? entry;
+  final bool showStatus;
+  final bool showPlot;
 
   @override
   Widget build(BuildContext context) {
@@ -355,20 +385,21 @@ class _ComicStatusAndPlot extends StatelessWidget {
         ? null
         : libraryCollectionStatusFromValue(entry!.personal.collectionStatus);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      if (status != null)
+      if (showStatus && status != null)
         Tooltip(
           message: status.label,
           child:
               LibraryCollectionStatusIcon(collectionStatus: status, size: 30),
         ),
-      for (final text in plot)
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: AppFormattedText(text,
-              textAlign: TextAlign.justify,
-              style: TextStyle(
-                  fontSize: 14, height: 18 / 14, color: palette.textPrimary)),
-        ),
+      if (showPlot)
+        for (final text in plot)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: AppFormattedText(text,
+                textAlign: TextAlign.justify,
+                style: TextStyle(
+                    fontSize: 14, height: 18 / 14, color: palette.textPrimary)),
+          ),
     ]);
   }
 }

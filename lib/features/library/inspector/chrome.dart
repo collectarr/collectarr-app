@@ -342,6 +342,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
     this.framed = false,
     this.includeLayoutControl = true,
     this.contentMaxWidth,
+    this.mobileBottomBar = false,
   });
 
   final LibraryProjectionView item;
@@ -363,6 +364,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
   final bool framed;
   final bool includeLayoutControl;
   final double? contentMaxWidth;
+  final bool mobileBottomBar;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -389,6 +391,93 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                 .soldOnlyFor(isWishlisted: item.source.isWishlisted),
           )
         : null;
+    if (mobileBottomBar) {
+      return Material(
+        color: const Color(0xFF202020),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            child: Row(children: [
+              MenuAnchor(
+                menuChildren: [
+                  if (onShare != null)
+                    _inspectorMenuItem('Share', AppIcons.cloudSharing, onShare),
+                  if (ebayUri != null)
+                    _inspectorMenuItem('Find sold listings on eBay',
+                        AppIcons.search, () => launchUrl(ebayUri)),
+                  if (onDuplicate != null)
+                    _inspectorMenuItem(
+                        'Duplicate', AppIcons.duplicateAction, onDuplicate),
+                  if (onToggleEntry != null)
+                    _inspectorMenuItem(
+                        item.source.isEntry ? 'Remove' : 'Collect',
+                        item.source.isEntry
+                            ? AppIcons.removeAction
+                            : AppIcons.collect,
+                        onToggleEntry),
+                  _inspectorMenuItem('Loan', AppIcons.loanAction, onLoan),
+                  if (onMoveToCollection != null)
+                    _inspectorMenuItem('Move to other collection',
+                        AppIcons.moveCollection, onMoveToCollection),
+                  if (onRefreshMetadata != null)
+                    _inspectorMenuItem('Update from Core',
+                        AppIcons.updateFromCore, onRefreshMetadata),
+                  if (onUnlinkFromCore != null)
+                    _inspectorMenuItem(
+                        'Unlink from Core', AppIcons.unlink, onUnlinkFromCore),
+                  if (onLinkToCore != null)
+                    _inspectorMenuItem(
+                        'Link to Core', AppIcons.link, onLinkToCore),
+                  if (onSubmitToCore != null)
+                    _inspectorMenuItem(
+                        'Submit to Core', AppIcons.upload, onSubmitToCore),
+                  if (includeLayoutControl && onDetailsLayoutChanged != null)
+                    SubmenuButton(
+                      menuChildren: [
+                        for (final layout in LibraryDetailsLayout.values)
+                          MenuItemButton(
+                            onPressed: () =>
+                                onDetailsLayoutChanged?.call(layout),
+                            child: Text('Details ${layout.name}'),
+                          ),
+                      ],
+                      child: const Text('Details layout'),
+                    ),
+                ],
+                builder: (context, controller, _) => TextButton.icon(
+                  key: const Key('inspector.mobile-actions'),
+                  onPressed: () => controller.isOpen
+                      ? controller.close()
+                      : controller.open(),
+                  style: TextButton.styleFrom(
+                      backgroundColor: const Color(0xFF8B8B8B),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4))),
+                  icon: const Icon(Icons.menu, size: 18),
+                  label: const Text('Action'),
+                ),
+              ),
+              const Spacer(),
+              if (onEdit != null)
+                FilledButton(
+                  key: const Key('inspector.mobile-edit'),
+                  onPressed: onEdit,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: palette.utilityAction,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(120, 36),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4)),
+                  ),
+                  child: const Text('Edit'),
+                ),
+            ]),
+          ),
+        ),
+      );
+    }
     final content = LayoutBuilder(
       builder: (context, constraints) {
         // The reference shows Edit, Share and Layout labels only when the
