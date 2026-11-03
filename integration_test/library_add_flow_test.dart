@@ -4,6 +4,8 @@ import 'package:collectarr_app/app/app_shell.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/library/add/dialog.dart';
+import 'package:collectarr_app/features/library/add/models/prefill_defaults.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,7 @@ void main() {
       'Core search selection saves a Music entry and returns to library',
       (tester) async {
     setUpTestAppPreferences();
+    await const PrefillDefaults(alwaysShow: true).save(CatalogMediaKind.music);
     tester.view.physicalSize = appPresentationPlatform.isNativeMobile
         ? const Size(390, 844)
         : const Size(1400, 1000);
@@ -64,7 +67,7 @@ void main() {
     await tester.tap(find.text('Add to Collection'));
     await pumpUntilSettled(tester);
     // Adding confirms the pre-fill settings first, as in the reference.
-    expect(find.text('Pre-fill Settings'), findsOneWidget);
+    expect(find.text('Pre-fill Album Details'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Add'));
     await pumpUntilSettled(tester);
     expect(find.byType(LibraryAddDialog), findsNothing);
