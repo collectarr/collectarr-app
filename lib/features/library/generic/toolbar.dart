@@ -26,6 +26,7 @@ export 'toolbar/config.dart';
 export 'toolbar/presentation.dart';
 export 'toolbar/state.dart';
 export 'toolbar/auxiliary_controls.dart';
+export 'toolbar/alphabet_row.dart';
 export 'toolbar/sections.dart';
 
 class LibraryToolbar extends StatelessWidget {
