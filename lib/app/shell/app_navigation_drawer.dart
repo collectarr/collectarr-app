@@ -25,7 +25,9 @@ TextStyle _drawerTextStyle(Color color, {required bool section}) => TextStyle(
       fontSize: 14,
       height: 20 / 14,
       letterSpacing: 0,
-      fontWeight: section ? FontWeight.w700 : FontWeight.w400,
+      fontWeight: section && !appPresentationPlatform.isNativeMobile
+          ? FontWeight.w700
+          : FontWeight.w400,
       color: color,
     );
 
@@ -120,6 +122,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final drawerBg = palette.sidebar;
+    final mobile = appPresentationPlatform.isNativeMobile;
     final sectionHeaderColor =
         (palette.isDark ? Colors.white : palette.textPrimary)
             .withValues(alpha: 0.4);
@@ -127,7 +130,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
     return Drawer(
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       backgroundColor: drawerBg,
-      width: (MediaQuery.sizeOf(context).width * 0.86)
+      width: (MediaQuery.sizeOf(context).width * (mobile ? 0.74 : 0.86))
           .clamp(0.0, 320.0)
           .toDouble(),
       child: SafeArea(
@@ -228,7 +231,10 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
       DrawerAction.linkItems => 'Link ${widget.type.identity.pluralLabel}',
       _ => destination.label,
     };
-    final icon = destination.icon;
+    final mobile = appPresentationPlatform.isNativeMobile;
+    final icon = mobile && action == DrawerAction.addManually
+        ? Icons.post_add
+        : destination.icon;
     final key =
         destination.widgetKey == null ? null : Key(destination.widgetKey!);
     final palette = appPalette(context);
@@ -237,6 +243,8 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
         ? widget.accent
         : (palette.isDark ? Colors.white : palette.textPrimary);
 
+    final iconColor =
+        mobile && !selected ? itemColor.withValues(alpha: .55) : itemColor;
     return Semantics(
       selected: selected,
       child: InkWell(
@@ -249,23 +257,25 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
           color: selected
               ? widget.accent.withValues(alpha: palette.isDark ? 0.2 : 0.1)
               : Colors.transparent,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+          constraints: BoxConstraints(minHeight: mobile ? 40 : 0),
+          padding:
+              EdgeInsets.symmetric(horizontal: mobile ? 18 : 14, vertical: 5),
           child: Row(
             children: [
               SizedBox(
-                width: 17.5,
-                height: 20,
+                width: mobile ? 28 : 17.5,
+                height: mobile ? 26 : 20,
                 child: Center(
                   child: destination.svgAsset != null
                       ? SvgPicture.asset(destination.svgAsset!,
-                          width: 17.5,
-                          height: 14,
+                          width: mobile ? 23 : 17.5,
+                          height: mobile ? 23 : 14,
                           colorFilter:
-                              ColorFilter.mode(itemColor, BlendMode.srcIn))
-                      : Icon(icon, size: 14, color: itemColor),
+                              ColorFilter.mode(iconColor, BlendMode.srcIn))
+                      : Icon(icon, size: mobile ? 23 : 14, color: iconColor),
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: mobile ? 18 : 14),
               Expanded(
                 child: Text(
                   label,
