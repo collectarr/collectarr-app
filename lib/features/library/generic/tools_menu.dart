@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/utility_menu.dart';
-import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:flutter/material.dart';
 
 class LibraryToolsButton extends StatelessWidget {
@@ -23,8 +22,6 @@ class LibraryToolsButton extends StatelessWidget {
     this.onEditConditionPickList,
     this.onEditGradePickList,
     this.onEditSort,
-    this.onReassignIndex,
-    this.onTransferFieldData,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.extraActions = const [],
@@ -45,8 +42,6 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
   final VoidCallback? onEditSort;
-  final VoidCallback? onReassignIndex;
-  final VoidCallback? onTransferFieldData;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraActions;
@@ -83,15 +78,6 @@ class LibraryToolsButton extends StatelessWidget {
             onSelected: onCompareMetadataWithServer!,
           ),
         ...extraActions,
-        LibraryUtilityMenuAction(
-          icon: Icons.auto_fix_high,
-          label: 'Pre-fill settings...',
-          section: 'Administration',
-          onSelected: () {
-            final accent = Theme.of(context).colorScheme.primary;
-            showPrefillSettingsDialog(context: context, accent: accent);
-          },
-        ),
         if (onEditConditionPickList != null)
           LibraryUtilityMenuAction(
             icon: Icons.inventory_2_outlined,
@@ -105,20 +91,6 @@ class LibraryToolsButton extends StatelessWidget {
             label: 'Grade values...',
             section: 'Administration',
             onSelected: onEditGradePickList!,
-          ),
-        if (onTransferFieldData != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.swap_horiz,
-            label: 'Transfer field data...',
-            section: 'Administration',
-            onSelected: onTransferFieldData!,
-          ),
-        if (onReassignIndex != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.format_list_numbered,
-            label: 'Re-assign index values...',
-            section: 'Administration',
-            onSelected: onReassignIndex!,
           ),
         if (onSmartLists != null)
           LibraryUtilityMenuAction(

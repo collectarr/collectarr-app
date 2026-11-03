@@ -47,8 +47,6 @@ class LibraryToolbarActions {
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
-    this.onTransferFieldData,
-    this.onReassignIndex,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.onPinnedFolderPresetsChanged,
@@ -98,8 +96,6 @@ class LibraryToolbarActions {
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
-  final VoidCallback? onTransferFieldData;
-  final VoidCallback? onReassignIndex;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;

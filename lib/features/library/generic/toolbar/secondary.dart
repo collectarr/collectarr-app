@@ -68,8 +68,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
-    this.onTransferFieldData,
-    this.onReassignIndex,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.extraActions = const [],
@@ -126,8 +124,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
-  final VoidCallback? onTransferFieldData;
-  final VoidCallback? onReassignIndex;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraActions;
@@ -338,8 +334,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     onReadingQueue: onReadingQueue,
                     onEditConditionPickList: onEditConditionPickList,
                     onEditGradePickList: onEditGradePickList,
-                    onTransferFieldData: onTransferFieldData,
-                    onReassignIndex: onReassignIndex,
                     onShareCollection: onShareCollection,
                     onCompareMetadataWithServer: onCompareMetadataWithServer,
                     extraActions: extraActions,
@@ -429,8 +423,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
               onReadingQueue: onReadingQueue,
               onEditConditionPickList: onEditConditionPickList,
               onEditGradePickList: onEditGradePickList,
-              onTransferFieldData: onTransferFieldData,
-              onReassignIndex: onReassignIndex,
               onShareCollection: onShareCollection,
               onCompareMetadataWithServer: onCompareMetadataWithServer,
               extraActions: extraActions),

@@ -609,14 +609,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     );
   }
 
-  bool _hasLibraryEntriesInProjection(LibraryProjection? projection) {
-    if (projection == null) {
-      return false;
-    }
-    return projection.filteredItems
-        .any((item) => item.source.libraryEntryRef != null);
-  }
-
   bool _hasLibraryEntriesInSelection(LibraryProjection? projection) {
     if (projection == null || _session.selection.value.itemIds.isEmpty) {
       return false;
