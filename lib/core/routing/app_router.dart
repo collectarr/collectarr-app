@@ -169,6 +169,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   initialSection: settingsSectionFromRouteValue(
                     state.uri.queryParameters['section'],
                   ),
+                  initialKind: state.uri.queryParameters['settingsKind'],
                 )),
           ),
           if (!appPresentationPlatform.isNativeMobile) detailRoute,

@@ -1,23 +1,17 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/localization/app_languages.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/settings/title_case_exceptions_dialog.dart';
 import 'package:collectarr_app/core/utils/title_case.dart';
 import 'ebay_search_preferences.dart';
-import 'package:collectarr_app/features/settings/library_layout_setting.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/settings/local_font_settings_panel.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/features/library/kind_registry.dart';
-import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
-import 'package:collectarr_app/features/settings/core_data_settings_dialog.dart';
 import 'package:collectarr_app/features/settings/platform_icons_settings_panel.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_slider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,14 +34,6 @@ class _SettingsAppearanceSectionState
 
   Widget _buildAppearanceSection(UiPreferences preferences) {
     final controller = ref.read(uiPreferencesProvider.notifier);
-    // The shell resolves the kind from the route, also on a reload.
-    final kindIdentity = libraryKindRegistrationForKind(
-            catalogMediaKindFromValue(
-                LibraryAccentScope.maybeOf(context)?.kind ??
-                    ref.watch(selectedLibraryKindProvider)))
-        .identity;
-    final kindPlural = kindIdentity.pluralLabel.toLowerCase();
-    final kindSingular = kindIdentity.singularLabel.toLowerCase();
     // The reference Settings page: Customization, Localization, Behaviour
     // and Sorting on the left; Auto Capitalization and eBay links on the
     // right.
@@ -87,17 +73,11 @@ class _SettingsAppearanceSectionState
               ),
             ),
           ),
-          SettingsGroupPair(
-            left: const SettingsGroup(
-                legend: 'Main Screen Layout', child: LibraryLayoutSetting()),
-            right: const SizedBox.shrink(),
-          ),
           const SettingsLegend('Details Panel'),
-          if (kindIdentity.hasTrailers)
-            SettingsCheck(
-                label: 'Show trailer videos',
-                value: preferences.showInspectorTrailers,
-                onChanged: controller.setShowInspectorTrailers),
+          SettingsCheck(
+              label: 'Show trailer videos',
+              value: preferences.showInspectorTrailers,
+              onChanged: controller.setShowInspectorTrailers),
           SettingsCheck(
               label: 'Show backdrop',
               value: preferences.showInspectorBackdrop,
@@ -160,8 +140,8 @@ class _SettingsAppearanceSectionState
                     : kTimeZones.first,
                 values: kTimeZones,
                 labelOf: (value) => value,
-                onChanged: (tz) => controller.setFormats(
-                    preferences.formats.copyWith(timeZone: tz))),
+                onChanged: (tz) => controller
+                    .setFormats(preferences.formats.copyWith(timeZone: tz))),
           ),
           SettingsGroupPair(
             left: SettingsGroup(
@@ -233,22 +213,13 @@ class _SettingsAppearanceSectionState
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           const SettingsLegend('Ask for confirmation'),
           SettingsCheck(
-              label: 'when removing $kindPlural',
+              label: 'when removing items',
               value: preferences.confirmRemoval,
               onChanged: controller.setConfirmRemoval),
           SettingsCheck(
-              label: 'when duplicating $kindPlural',
+              label: 'when duplicating items',
               value: preferences.confirmDuplication,
               onChanged: controller.setConfirmDuplication),
-          const SizedBox(height: 10),
-          const SettingsLegend('Adding from Core'),
-          SettingsBlockButton(
-            label: 'Add/Update from Core settings',
-            onPressed: () => showCoreDataSettingsDialog(
-                context: context,
-                accent: kindIdentity.accent,
-                kind: kindIdentity.kind),
-          ),
         ]));
     final sorting = SettingsPanel(
         icon: Icons.sort_by_alpha,
@@ -280,7 +251,7 @@ class _SettingsAppearanceSectionState
         title: 'Auto Capitalization',
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          SettingsLegend('Auto Cap $kindSingular titles'),
+          const SettingsLegend('Auto Cap item titles'),
           SettingsCheck(
               label: 'when adding from Core',
               value: preferences.autocapFromCore,
