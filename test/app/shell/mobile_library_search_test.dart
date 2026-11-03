@@ -31,6 +31,12 @@ void main() {
     expect(find.byKey(const Key('app.kind-icon')), findsNothing);
     expect(find.byType(SearchBar), findsNothing);
     expect(find.byKey(const Key('app.account')), findsNothing);
+    expect(find.byTooltip('Select comics'), findsNothing);
+    await tester.tap(find.byKey(const Key('app.brand-title')));
+    await pumpUntilSettled(tester);
+    expect(find.text('CLR Games'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('app.brand-title')));
+    await pumpUntilSettled(tester);
     await tester.tap(find.byKey(const Key('app.open-navigation')));
     await pumpUntilSettled(tester);
     expect(find.byKey(const Key('drawer.app-logo')), findsOneWidget);

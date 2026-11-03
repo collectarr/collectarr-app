@@ -15,11 +15,13 @@ class MediaLibraryKindMenu extends StatefulWidget {
     required this.types,
     required this.registry,
     required this.onSelected,
+    this.trigger,
   });
 
   final List<CatalogMediaType> types;
   final LibraryKindRegistry registry;
   final ValueChanged<CatalogMediaType> onSelected;
+  final Widget? trigger;
 
   @override
   State<MediaLibraryKindMenu> createState() => _MediaLibraryKindMenuState();
@@ -61,8 +63,11 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
     // The panel hangs from the header's bottom edge; its pointer rises into
     // the header under the icon.
     _controller.open(
-        position:
-            Offset(left - bounds.left, shellAppBarHeight - 1 - bounds.top));
+        position: Offset(
+            left - bounds.left,
+            widget.trigger == null
+                ? shellAppBarHeight - 1 - bounds.top
+                : bounds.height));
   }
 
   @override
@@ -113,16 +118,23 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
             ),
           ),
       ],
-      child: IconButton(
-        key: const Key('nav.library-kind-picker'),
-        focusNode: _buttonFocus,
-        tooltip: 'Switch library',
-        style: iconButtonStyle,
-        onPressed: _toggle,
-        icon: SvgPicture.asset(AppIcons.librarySwitcherSvg,
-            width: 20, height: 20),
-        padding: EdgeInsets.zero,
-      ),
+      child: widget.trigger != null
+          ? InkWell(
+              key: const Key('nav.library-kind-picker'),
+              focusNode: _buttonFocus,
+              onTap: _toggle,
+              child: widget.trigger,
+            )
+          : IconButton(
+              key: const Key('nav.library-kind-picker'),
+              focusNode: _buttonFocus,
+              tooltip: 'Switch library',
+              style: iconButtonStyle,
+              onPressed: _toggle,
+              icon: SvgPicture.asset(AppIcons.librarySwitcherSvg,
+                  width: 20, height: 20),
+              padding: EdgeInsets.zero,
+            ),
     );
   }
 
