@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Docs
+- The Android parity guide records the font families embedded in the CLZ reference and the remaining typography comparison.
 - The testing guide explains native viewport coverage, isolated Android review builds and remaining platform checks.
 - The architecture guide reflects the published kinds and schema baseline, shared mobile state owners and remaining native navigation boundaries.
 - The CLZ parity guide tracks remaining Android gaps in the editor, folder and sort navigation, scanner presentation, surfaces and Add results, with an isolated-device comparison workflow.
