@@ -2,6 +2,7 @@ import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/app/app_shell.dart';
+import 'package:collectarr_app/app/shell/app_navigation_drawer.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
@@ -62,13 +63,12 @@ void main() {
         expect(find.byType(Slider), findsWidgets);
         await tester.tap(find.byTooltip('Close'));
         await pumpUntilSettled(tester);
-        await tester.tap(find.byKey(const Key('app.open-navigation')));
-        await pumpUntilSettled(tester);
-        await tester.tap(find.byKey(const Key('drawer.account')));
       } else {
         expect(find.byType(Slider), findsWidgets);
-        await tester.tap(find.byKey(const Key('app.account')));
       }
+      await tester.tap(find.byKey(const Key('app.open-navigation')));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.byKey(const Key('drawer.account')));
       await pumpUntilSettled(tester);
       await tester.tap(find.text('My Account'));
       await pumpUntilSettled(tester);
@@ -83,6 +83,12 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
+      await tester.scrollUntilVisible(find.text('Settings'), 250,
+          scrollable: find
+              .descendant(
+                  of: find.byType(AppNavigationDrawer),
+                  matching: find.byType(Scrollable))
+              .first);
       await tester.tap(find.text('Settings'));
       await pumpUntilSettled(tester);
       final covers = find.widgetWithText(Tab, 'Covers & layout');
