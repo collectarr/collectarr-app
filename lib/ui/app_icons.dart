@@ -9,7 +9,7 @@ const String _regular = 'FontAwesomeRegular';
 /// Exposes native [IconData] instances so all widgets across the codebase
 /// can consume standard [Icon] widgets with compile-time constants.
 abstract final class AppIcons {
-  static const String appLogoPng = 'web/icons/Icon-maskable-192.png';
+  static const String appLogoPng = 'web/icons/Icon-192.png';
   static const IconData eye =
       IconData(0xf06e, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData eyeSlash =
