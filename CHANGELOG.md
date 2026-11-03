@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Docs
+- The parity guide distinguishes CLZ web's slab fonts from its general interface font.
 - The Android parity guide records the font families embedded in the CLZ reference and the remaining typography comparison.
 - The testing guide explains native viewport coverage, isolated Android review builds and remaining platform checks.
 - The architecture guide reflects the published kinds and schema baseline, shared mobile state owners and remaining native navigation boundaries.
