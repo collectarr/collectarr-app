@@ -28,6 +28,7 @@ class LibraryCoverImage extends ConsumerWidget {
     this.localImageType = 'front_cover',
     this.borderRadius = 4,
     this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
     this.showPlaceholder = true,
     this.allowWebImageElement = true,
     super.key,
@@ -43,6 +44,7 @@ class LibraryCoverImage extends ConsumerWidget {
   final String localImageType;
   final double borderRadius;
   final BoxFit fit;
+  final Alignment alignment;
   final bool showPlaceholder;
 
   /// Whether the web app may show a cover that blocks cross-origin reads as
@@ -83,11 +85,14 @@ class LibraryCoverImage extends ConsumerWidget {
     }
 
     final fallbackCover = showPlaceholder
-        ? LibraryGeneratedCover(
-            itemNumber: itemNumber,
-            borderRadius: borderRadius,
-            aspectRatio: fallbackAspectRatio,
-            fit: fit,
+        ? Align(
+            alignment: alignment,
+            child: LibraryGeneratedCover(
+              itemNumber: itemNumber,
+              borderRadius: borderRadius,
+              aspectRatio: fallbackAspectRatio,
+              fit: fit,
+            ),
           )
         : const SizedBox.expand();
 
@@ -106,6 +111,7 @@ class LibraryCoverImage extends ConsumerWidget {
             child: Image.memory(
               safeLocal,
               fit: fit,
+              alignment: alignment,
               cacheWidth: cacheWidth,
               gaplessPlayback: true,
               filterQuality: FilterQuality.high,
@@ -130,6 +136,7 @@ class LibraryCoverImage extends ConsumerWidget {
               // another cover needs a new element.
               key: ValueKey(url),
               fit: fit,
+              alignment: alignment,
               cacheWidth: null,
               gaplessPlayback: true,
               filterQuality: FilterQuality.high,
@@ -157,6 +164,7 @@ class LibraryCoverImage extends ConsumerWidget {
           child: CachedNetworkImage(
             imageUrl: url,
             fit: fit,
+            alignment: alignment,
             fadeInDuration: Duration.zero,
             fadeOutDuration: Duration.zero,
             placeholderFadeInDuration: Duration.zero,
@@ -173,6 +181,7 @@ class LibraryCoverImage extends ConsumerWidget {
               return Image(
                 image: imageProvider,
                 fit: fit,
+                alignment: alignment,
                 gaplessPlayback: true,
                 filterQuality: FilterQuality.high,
                 errorBuilder: (_, __, ___) => fallbackCover,
@@ -335,6 +344,7 @@ class LibraryInteractiveCover extends StatefulWidget {
     this.libraryEntryRef,
     this.borderRadius = 4,
     this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
     this.accentColor = kAppAccent,
     this.enableFullscreen = true,
     this.enableHoverCue = true,
@@ -355,6 +365,7 @@ class LibraryInteractiveCover extends StatefulWidget {
   final LibraryEntryRef? libraryEntryRef;
   final double borderRadius;
   final BoxFit fit;
+  final Alignment alignment;
   final Color accentColor;
   final bool enableFullscreen;
   final bool enableHoverCue;
@@ -735,6 +746,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                     fallbackAspectRatio: widget.fallbackAspectRatio,
                     borderRadius: widget.borderRadius,
                     fit: widget.fit,
+                    alignment: widget.alignment,
                   ),
                 ),
                 if (interactive && hoverCue)
