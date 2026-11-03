@@ -9,6 +9,7 @@ typedef MobileAddChoice = ({MobileAddMethod method, bool remember});
 Future<MobileAddChoice?> showMobileAddMethodPicker(BuildContext context,
         {required String pluralLabel,
         required Color headerColor,
+        String? description,
         required bool canScanCover,
         required String searchLabel}) =>
     showAppDialog<MobileAddChoice>(
@@ -17,6 +18,7 @@ Future<MobileAddChoice?> showMobileAddMethodPicker(BuildContext context,
         builder: (_) => _MobileAddMethodPicker(
             pluralLabel: pluralLabel,
             headerColor: headerColor,
+            description: description,
             canScanCover: canScanCover,
             searchLabel: searchLabel));
 
@@ -24,10 +26,12 @@ class _MobileAddMethodPicker extends StatefulWidget {
   const _MobileAddMethodPicker(
       {required this.pluralLabel,
       required this.headerColor,
+      this.description,
       required this.canScanCover,
       required this.searchLabel});
   final String pluralLabel;
   final Color headerColor;
+  final String? description;
   final bool canScanCover;
   final String searchLabel;
   @override
@@ -74,8 +78,12 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
         clipBehavior: Clip.antiAlias,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 380),
-          child: Column(
+          constraints: BoxConstraints(
+            maxWidth: 380,
+            maxHeight: MediaQuery.sizeOf(context).height - 32,
+          ),
+          child: SingleChildScrollView(
+              child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
@@ -83,7 +91,7 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
                 color: widget.headerColor,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Text(
-                  'Add ${widget.pluralLabel} from Core',
+                  'Add ${widget.pluralLabel} from CLR Core',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Colors.white,
@@ -99,7 +107,8 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Adding $plural to the app is done by adding them from "Core", our central online ${plural.endsWith('s') ? plural.substring(0, plural.length - 1) : plural} database.',
+                      widget.description ??
+                          'Add $plural by searching CLR Core, our central online catalog.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
@@ -142,7 +151,7 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
                 ),
               ),
             ],
-          ),
+          )),
         ),
       ),
     );
