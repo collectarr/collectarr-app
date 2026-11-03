@@ -398,15 +398,6 @@ abstract final class LibraryPageShellPresenter {
                       .hasCollectionValuePickList
                   ? state._dialogCoordinator.showGradePickListEditorFlow
                   : null,
-          onTransferFieldData: state._hasLibraryEntriesInProjection(projection)
-              ? () =>
-                  state._dialogCoordinator.showTransferFieldDataFlow(projection)
-              : null,
-          onReassignIndex: state.widget.type.toolbarActionAvailability
-                      .allows(LibraryToolbarActionId.reassignIndex) &&
-                  state._hasLibraryEntriesInProjection(projection)
-              ? () => state._dialogCoordinator.reassignIndexFlow(projection)
-              : null,
           onShareCollection: projection.filteredItems.isNotEmpty
               ? () => state._sharingCoordinator.shareCollectionFlow(projection)
               : null,

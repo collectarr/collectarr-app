@@ -335,91 +335,6 @@ void main() {
     expect(booksSecondary.onReadingQueue, isNull);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
-  testWidgets('toolbar gates reassign-index action by type capability', (
-    tester,
-  ) async {
-    final searchController = TextEditingController();
-    addTearDown(searchController.dispose);
-    tester.view.physicalSize = const Size(1800, 900);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: Scaffold(
-            body: LibraryToolbar(
-              type: const MusicRegistration(),
-              searchController: searchController,
-              viewState: musicKindViewProfile.defaults(),
-              counts: const LibraryToolbarCounts(),
-              onAdd: () {},
-              onScan: () {},
-              onSearchChanged: (_) {},
-              onEditColumns: () {},
-              onSortChanged: (_) {},
-              onSidebarVisibilityChanged: (_) {},
-              onViewModeChanged: (_) {},
-              onDetailsLayoutChanged: (_) {},
-              onCoverSizeChanged: (_) {},
-              selectedBucket: null,
-              onClearBucket: () {},
-              onRefreshMetadata: () {},
-              quickView: null,
-              onQuickViewSelected: (_) {},
-              hasActiveFilters: false,
-              onClearFilters: () {},
-              onReassignIndex: () {},
-            ),
-          ),
-        ),
-      ),
-    );
-
-    final movieSecondary = tester.widget<LibraryDesktopSecondaryToolbar>(
-      find.byType(LibraryDesktopSecondaryToolbar),
-    );
-    expect(movieSecondary.onReassignIndex, isNull);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: Scaffold(
-            body: LibraryToolbar(
-              type: const MusicRegistration(),
-              searchController: searchController,
-              viewState: musicKindViewProfile.defaults(),
-              counts: const LibraryToolbarCounts(),
-              onAdd: () {},
-              onScan: () {},
-              onSearchChanged: (_) {},
-              onEditColumns: () {},
-              onSortChanged: (_) {},
-              onSidebarVisibilityChanged: (_) {},
-              onViewModeChanged: (_) {},
-              onDetailsLayoutChanged: (_) {},
-              onCoverSizeChanged: (_) {},
-              selectedBucket: null,
-              onClearBucket: () {},
-              onRefreshMetadata: () {},
-              quickView: null,
-              onQuickViewSelected: (_) {},
-              hasActiveFilters: false,
-              onClearFilters: () {},
-              onReassignIndex: () {},
-            ),
-          ),
-        ),
-      ),
-    );
-
-    final comicsSecondary = tester.widget<LibraryDesktopSecondaryToolbar>(
-      find.byType(LibraryDesktopSecondaryToolbar),
-    );
-    expect(comicsSecondary.onReassignIndex, isNull);
-  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
-
   testWidgets('toolbar can hide desktop secondary band explicitly',
       (tester) async {
     final searchController = TextEditingController();
@@ -634,7 +549,6 @@ void main() {
                 onClearFilters: () {},
                 onScanCover: () {},
                 onReadingQueue: () {},
-                onReassignIndex: () {},
               ),
             ),
           ),
@@ -660,14 +574,6 @@ void main() {
             ? isNotNull
             : isNull,
         reason: 'reading-queue gate mismatch for ${type.kind.apiValue}',
-      );
-      expect(
-        secondary.onReassignIndex,
-        type.toolbarActionAvailability
-                .allows(LibraryToolbarActionId.reassignIndex)
-            ? isNotNull
-            : isNull,
-        reason: 'reassign-index gate mismatch for ${type.kind.apiValue}',
       );
     }
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));

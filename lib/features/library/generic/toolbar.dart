@@ -98,8 +98,6 @@ class LibraryToolbar extends StatelessWidget {
     this.onReadingQueue,
     this.onEditConditionPickList,
     this.onEditGradePickList,
-    this.onTransferFieldData,
-    this.onReassignIndex,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.extraUtilityActions = const [],
@@ -188,8 +186,6 @@ class LibraryToolbar extends StatelessWidget {
         onReadingQueue = actions.onReadingQueue,
         onEditConditionPickList = actions.onEditConditionPickList,
         onEditGradePickList = actions.onEditGradePickList,
-        onTransferFieldData = actions.onTransferFieldData,
-        onReassignIndex = actions.onReassignIndex,
         onShareCollection = actions.onShareCollection,
         onCompareMetadataWithServer = actions.onCompareMetadataWithServer,
         extraUtilityActions = actions.extraUtilityActions,
@@ -272,8 +268,6 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onReadingQueue;
   final VoidCallback? onEditConditionPickList;
   final VoidCallback? onEditGradePickList;
-  final VoidCallback? onTransferFieldData;
-  final VoidCallback? onReassignIndex;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraUtilityActions;
@@ -295,10 +289,6 @@ class LibraryToolbar extends StatelessWidget {
     final effectiveReadingQueue = type.toolbarActionAvailability
             .allows(LibraryToolbarActionId.readingQueue)
         ? onReadingQueue
-        : null;
-    final effectiveReassignIndex = type.toolbarActionAvailability
-            .allows(LibraryToolbarActionId.reassignIndex)
-        ? onReassignIndex
         : null;
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: targetAccent),
@@ -451,8 +441,6 @@ class LibraryToolbar extends StatelessWidget {
                       onReadingQueue: effectiveReadingQueue,
                       onEditConditionPickList: onEditConditionPickList,
                       onEditGradePickList: onEditGradePickList,
-                      onTransferFieldData: onTransferFieldData,
-                      onReassignIndex: effectiveReassignIndex,
                       onShareCollection: onShareCollection,
                       onCompareMetadataWithServer: onCompareMetadataWithServer,
                       extraActions: extraUtilityActions,

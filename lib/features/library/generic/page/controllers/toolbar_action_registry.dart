@@ -289,15 +289,6 @@ class LibraryToolbarActionRegistry {
           actionContext.adminActions.onShowConditionPickListEditorFlow,
       onEditGradePickList:
           actionContext.adminActions.onShowGradePickListEditorFlow,
-      onTransferFieldData: projection == null
-          ? null
-          : () =>
-              actionContext.collectionActions.onTransferFieldData(projection),
-      onReassignIndex: projection == null ||
-              !registration.toolbarActionAvailability
-                  .allows(LibraryToolbarActionId.reassignIndex)
-          ? null
-          : () => actionContext.collectionActions.onReassignIndex(projection),
       onShareCollection: projection != null &&
               projection.filteredItems.isNotEmpty
           ? () => actionContext.collectionActions.onShareCollection(projection)
