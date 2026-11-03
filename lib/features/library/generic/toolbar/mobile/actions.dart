@@ -11,7 +11,7 @@ class LibraryMobileToolbarActions extends StatelessWidget {
   final Color background;
   final Color foreground;
   final List<Widget> actions;
-  final String countLabel;
+  final String? countLabel;
   @override
   Widget build(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -28,12 +28,13 @@ class LibraryMobileToolbarActions extends StatelessWidget {
                   child: Row(
                       key: const Key('library.mobile-controls'),
                       children: actions))),
-          Padding(
-              key: const Key('library.mobile-count'),
-              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-              child: Text(countLabel,
-                  style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w700))),
+          if (countLabel != null)
+            Padding(
+                key: const Key('library.mobile-count'),
+                padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                child: Text(countLabel!,
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w700))),
         ],
       );
 }

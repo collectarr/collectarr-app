@@ -339,6 +339,11 @@ abstract final class LibraryPageShellPresenter {
           type: state.widget.type,
           viewState: viewState,
           counts: projection.counts,
+          showMobileFolderRoot: appPresentationPlatform.isNativeMobile &&
+              viewState.isSidebarVisible &&
+              state._session.facets.selectedBucket == null &&
+              trimmedSearchQuery.isEmpty &&
+              workspaceOverride == null,
           onEditColumns: state._dialogCoordinator.showColumnChooserFlow,
           columnFavoritePresets: state._columnFavoritePresets,
           activeColumnFavoriteLabel: state._activeColumnFavoriteLabel,

@@ -42,6 +42,7 @@ class _LibraryMobileFolderChooserState
     final label = widget.folderLabel.toLowerCase();
     final countLabel =
         namedCount == 1 || label.endsWith('s') ? label : '${label}s';
+    final searchLabel = label.endsWith('s') ? label : '${label}s';
     return Material(
       color: palette.panel,
       child: Column(
@@ -52,9 +53,9 @@ class _LibraryMobileFolderChooserState
             child: TextField(
               key: const Key('library.mobile-folder-search'),
               onChanged: (value) => setState(() => query = value),
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.search),
-                hintText: 'Search folders',
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: 'Search $searchLabel...',
                 isDense: true,
               ),
             ),

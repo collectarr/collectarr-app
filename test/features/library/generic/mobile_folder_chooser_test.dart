@@ -23,6 +23,7 @@ void main() {
     ));
     expect(find.byKey(const Key('library.mobile-folder-list')), findsOneWidget);
     expect(find.text('1 series'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Search series...'), findsOneWidget);
     await tester.enterText(
         find.byKey(const Key('library.mobile-folder-search')), 'bat');
     await tester.pump();
