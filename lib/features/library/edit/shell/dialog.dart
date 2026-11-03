@@ -395,7 +395,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       accent: widget.accent,
       mobileSystemBarColor: widget.type.identity.mobileChromeDark,
       isBusy: _isSaving,
-      icon: AppIcons.edit,
+      icon: AppIcons.inlineEdit,
       title: title,
       badges: const <Widget>[],
       tabController: _tabController,

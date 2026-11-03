@@ -16,6 +16,7 @@
 
 ### Features
 - Vertical cards match CLZ dimensions and margins across kinds, aligning covers to the top without dead space, retaining series titles on slabbed comics and separating card layouts.
+- Edit dialog headers use the shared edit pen icon matching the list view and toolbar actions.
 - The dark mobile sidebar uses the same darker background as the reference navigation.
 - Mobile editor actions adapt to the available space, tabs have larger touch targets, and dynamic tab changes update the header.
 - Mobile Add remembers the selected method per library, offers a reset action, and adapts the method picker to larger text.
