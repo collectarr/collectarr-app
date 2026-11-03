@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
+import 'package:collectarr_app/features/library/generic/sort_preset_store.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
@@ -10,6 +11,59 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  testWidgets('native sort lists only saved favorites with edit and delete',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final store = LibrarySortPresetStore(const MusicRegistration());
+    await store.savePreset(
+      id: 'custom-title',
+      label: 'My title order',
+      rules: const [LibrarySortRule(column: 'music.title', ascending: true)],
+    );
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showLibrarySortDialog(
+              context: context,
+              type: const MusicRegistration(),
+              currentRules: const [
+                LibrarySortRule(column: 'music.title', ascending: true),
+              ],
+            ),
+            child: const Text('Open'),
+          ),
+        ),
+      ),
+    ));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(find.text('My title order'), findsOneWidget);
+    expect(find.text('Latest release'), findsNothing);
+    expect(find.byTooltip('Edit My title order'), findsOneWidget);
+    await tester.tap(find.byTooltip('Edit My title order'));
+    await tester.pumpAndSettle();
+    expect(find.text('Select Sort Fields'), findsOneWidget);
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    expect(find.text('My title order'), findsOneWidget);
+    await tester.tap(find.byTooltip('Delete My title order'));
+    await tester.pumpAndSettle();
+    expect(find.text('My title order'), findsNothing);
+    expect(await store.read(), isEmpty);
+    await tester.tap(find.byTooltip('Save sort favorite'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).last, 'New favorite');
+    await tester.tap(find.text('Save').last);
+    await tester.pumpAndSettle();
+    expect(find.text('New favorite'), findsOneWidget);
+    expect((await store.read()).single.label, 'New favorite');
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
   testWidgets('native sort opens as a page and returns the chosen order',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
