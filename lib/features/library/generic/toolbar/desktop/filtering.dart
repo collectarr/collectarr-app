@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/toolbar/alphabet_row.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/alphabet_options.dart';
 import 'package:collectarr_app/features/library/config/search_target.dart';
