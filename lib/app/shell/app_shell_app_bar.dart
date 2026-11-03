@@ -77,6 +77,7 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
       title: appPresentationPlatform.isNativeMobile
           ? MediaLibraryKindMenu(
               types: types,
+              activeKind: type.kind,
               registry: defaultLibraryKindRegistry,
               onSelected: onKindSelected,
               trigger: AppShellBrand(
@@ -124,6 +125,7 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
         if (!appPresentationPlatform.isNativeMobile)
           MediaLibraryKindMenu(
             types: types,
+            activeKind: type.kind,
             registry: defaultLibraryKindRegistry,
             onSelected: onKindSelected,
           ),

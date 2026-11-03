@@ -1,10 +1,12 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/home/kind_menu.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/gestures.dart';
 
 CatalogMediaType _type(String kind, String plural) =>
     CatalogMediaType(kind: kind, singularLabel: plural, pluralLabel: plural);
@@ -23,6 +25,7 @@ void main() {
           MediaLibraryKindMenu(
             types: [_type('game', 'Games'), _type('music', 'Albums')],
             registry: defaultLibraryKindRegistry,
+            activeKind: CatalogMediaKind.music,
             onSelected: (_) {},
           ),
           const SizedBox(width: 84),
@@ -69,6 +72,7 @@ void main() {
             _type('music', 'Albums'),
           ],
           registry: defaultLibraryKindRegistry,
+          activeKind: CatalogMediaKind.gameToy,
           onSelected: (type) => selected = type,
         ),
       ),
@@ -85,6 +89,24 @@ void main() {
         findsNothing);
     expect(find.text('CLR Games'), findsOneWidget);
     expect(find.text('CLR Music'), findsOneWidget);
+
+    const normal = ColorFilter.mode(Colors.transparent, BlendMode.dst);
+    ColorFilter filterFor(String kind) => tester
+        .widget<ColorFiltered>(find.byKey(ValueKey('library-kind-icon-$kind')))
+        .colorFilter;
+    expect(filterFor('game'), normal);
+    expect(filterFor('music'), isNot(normal));
+    expect(tester.widget<Text>(find.text('CLR Music')).style!.fontWeight,
+        FontWeight.w400);
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    await mouse.moveTo(tester.getCenter(find.text('CLR Music')));
+    await tester.pumpAndSettle();
+    expect(filterFor('music'), normal);
+    await mouse.moveTo(const Offset(0, 700));
+    await tester.pumpAndSettle();
+    expect(filterFor('music'), isNot(normal));
+    await mouse.removePointer();
 
     await tester.tap(find.text('CLR Games'));
     await tester.pumpAndSettle();
