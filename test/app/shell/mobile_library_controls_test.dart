@@ -43,7 +43,7 @@ void main() {
       await pumpUntilSettled(tester);
       final row = find.byKey(const Key('library.mobile-controls'));
       expect(row, findsOneWidget);
-      expect(find.text('0 comics'), findsOneWidget);
+      expect(find.byKey(const Key('library.mobile-count')), findsNothing);
       expect(find.byTooltip('Group By'), findsOneWidget);
       expect(find.byTooltip('Library tools'), findsOneWidget);
       final material = tester.widget<Material>(
@@ -96,6 +96,7 @@ void main() {
       await tester.tap(find.text('[All Comics]'));
       await pumpUntilSettled(tester);
       expect(find.byKey(const Key('library.mobile-folder-list')), findsNothing);
+      expect(find.text('0 comics'), findsOneWidget);
       expect(find.byTooltip('Back to folders'), findsOneWidget);
       expect(find.text('No results found...'), findsNothing);
       await tester.tap(find.byTooltip('Back to folders'));

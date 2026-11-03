@@ -85,11 +85,13 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onSpacingChanged,
     this.totalSelectableCount = 0,
     this.showBottomBorder = true,
+    this.showMobileFolderRoot = false,
   });
 
   final double? currentSpacing;
   final ValueChanged<double>? onSpacingChanged;
   final LibraryKindRegistration type;
+  final bool showMobileFolderRoot;
   final LibraryWorkspaceViewState viewState;
   final LibraryToolbarCounts counts;
   final VoidCallback onEditColumns;
@@ -428,8 +430,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
               onCompareMetadataWithServer: onCompareMetadataWithServer,
               extraActions: extraActions),
         ],
-        countLabel:
-            '${counts.shown}${counts.shown == counts.total ? '' : ' / ${counts.total}'} ${type.identity.countLabel(counts.shown).toLowerCase()}',
+        countLabel: showMobileFolderRoot
+            ? null
+            : '${counts.shown}${counts.shown == counts.total ? '' : ' / ${counts.total}'} ${type.identity.countLabel(counts.shown).toLowerCase()}',
       );
     });
   }
