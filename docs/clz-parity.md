@@ -68,7 +68,7 @@ Keep these when matching the reference visually.
 | Game valuation | Core Region (US/EU) chooses which PriceCharting prices CLZ fetches | No price fetching (PriceCharting's terms), so no Core Region; the PriceCharting ID already names the NTSC or PAL release and opens its page |
 | Comic valuation | CovrPrice values and CovrPrice export | No CovrPrice: it is paid and has no public API, so value stays the user's own My Value |
 | Cover images | Covers are links to CLZ's own image servers | Covers from other sites are downloaded once and kept with the entry (scaled to 600 px wide at most) and travel with Sync; only Core covers stay links, cached locally. The web app cannot read other sites' images (no CORS), so it keeps their links until a native client syncs the covers |
-| Fonts | Proprietary Gilroy | Bundled OFL Plus Jakarta Sans; a user-supplied local font can be loaded |
+| Fonts | Desktop Gilroy; Android system sans-serif with League Spartan and Open Sans on comic slab labels | Bundled OFL Plus Jakarta Sans for UI text and the matching OFL slab fonts; a user-supplied local UI font can be loaded |
 | Sort titles | Filled in by CLZ Core | Core derives them for new Music items and corrected titles; the app applies the same rule to local Add, Edit and imports |
 | Header account | Always signed in to CLZ | Shows "account's music" only while signed in; personal sync uses a separate endpoint and key, and its header action stays hidden until these are configured |
 | My Account | Blue account sidebar and an external account portal | Neutral sidebar matching the main navigation; a local overview across libraries, sync status, activity and account settings. Logout clears the session while keeping local collections |
@@ -216,10 +216,15 @@ both as installed 1.5.0 and as the current branch's debug build in the separate
 The differences below are present in the branch build. Core search results,
 series issues and the selection preview were also inspected read-only in CLZ.
 No reference records were created or saved; populated collection density and
-the runtime assignment of font families to controls remain unverified. The
-installed CLZ 11.3.3 APK embeds League Spartan ExtraBold (800) and Open Sans
-Regular (400). These files were inspected in temporary storage only; Collectarr
-continues to use its FOSS font and local user-supplied fonts.
+runtime font overrides outside the inspected layouts remain unverified. The
+installed CLZ 11.3.3 APK embeds static League Spartan ExtraBold (800) and Open
+Sans Regular (400). Its compiled card/list layouts assign Spartan to the slab
+grade and Open Sans to the grading-company text; the other inspected layouts
+do not refer to either bundled face. Collectarr sources the OFL variable
+families from [Google Fonts League Spartan](https://github.com/google/fonts/tree/main/ofl/leaguespartan)
+and [Open Sans](https://github.com/google/fonts/tree/main/ofl/opensans), with
+their licences in `assets/fonts`, and selects weights 800 and 400 respectively.
+The CLZ APK's font files were inspected in temporary storage only.
 
 | Priority | Area | Difference |
 | --- | --- | --- |
@@ -227,7 +232,7 @@ continues to use its FOSS font and local user-supplied fonts.
 | P2 | Scanner presentation | The library header camera opens the shared live-camera sheet with manual barcode entry. CLZ overlays the camera directly on the library with scanning corners. Align the native camera presentation while preserving manual entry; real barcode decoding still needs a physical-code check |
 | P3 | Library surfaces and empty state | Collectarr retains the desktop canvas gradient and a filled blue onboarding card; CLZ uses a flat dark canvas with centred teal text. Compare the light skin before adapting native surfaces |
 | P2 | Populated folder navigation | Compare CLZ's favourite presets and multi-folder bucket navigation against Collectarr with populated collections; the separate bucket chooser has not yet been checked against equivalent data |
-| P3 | Android typography | Compare CLZ's runtime use of League Spartan ExtraBold and Open Sans Regular against Collectarr's text metrics and density with equivalent populated screens; load any alternative font from a user-supplied local file |
+| P3 | Android typography | Compare Android system sans-serif text metrics and density with Collectarr's Plus Jakarta Sans on equivalent populated screens; runtime font changes outside the inspected layouts remain unverified |
 | P3 | Mobile sort options | Compare the available sort rows, their order and direction defaults with CLZ for every kind using equivalent populated collections; Collectarr also offers Advanced sorting for multi-field rules |
 | P2 | Comics mobile Edit controls | Collectarr groups editable year/month/day parts and a calendar in one outlined date control to preserve partial dates; CLZ shows one formatted date string. Compare a populated CLZ Edit record and align the date text, barcode camera, picker and segmented controls without losing partial dates or existing values |
 | P3 | Comics mobile Value and Key | Compare populated Value, Key and Images against CLZ Edit. CLZ's CovrPrice and eBay actions depend on external services, while Collectarr currently shows only the editable value; Signed By and Key Category still use single-value controls (see Comics Value differences) |

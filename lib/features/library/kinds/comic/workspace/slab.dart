@@ -65,6 +65,8 @@ LinearGradient comicSlabLabelGradient(ComicSlabLabel label) =>
 double _slabScale(double width) => (width / 340).clamp(0.12, 1.0);
 
 const _slabBorder = Color(0xffc2d8e6);
+const _slabGradeFont = 'League Spartan';
+const _slabCompanyFont = 'Open Sans';
 
 /// A slabbed comic's cover in its case: the slab label with the grade,
 /// grading company and the user's Custom Label image above the cover, and
@@ -159,6 +161,7 @@ class _SlabLabel extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.clip,
                 style: TextStyle(
+                    fontFamily: _slabCompanyFont,
                     fontSize: 46 * scale,
                     height: 1,
                     fontWeight: FontWeight.w400,
@@ -242,6 +245,7 @@ class _SlabGrade extends StatelessWidget {
             transform: Matrix4.diagonal3Values(widthFactor, 1.15, 1),
             child: Text(text,
                 style: TextStyle(
+                    fontFamily: _slabGradeFont,
                     fontSize: 40 * scale,
                     height: 1,
                     fontWeight: FontWeight.w800,
