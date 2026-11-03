@@ -42,10 +42,15 @@ class AppLibrarySearchBar extends StatelessWidget {
           ),
           backgroundColor: libraryAccentChromeFallbackColor(accent),
           foregroundColor: Colors.white,
-          flexibleSpace: LibraryAccentChrome(
-              accent: accent,
-              animationDuration:
-                  animationsEnabled ? kAppAnimNormal : Duration.zero),
+          flexibleSpace: Stack(fit: StackFit.expand, children: [
+            LibraryAccentChrome(
+                accent: accent,
+                animationDuration:
+                    animationsEnabled ? kAppAnimNormal : Duration.zero),
+            NativeStatusBarBackground(
+                color:
+                    searchBackground ?? Color.lerp(accent, Colors.black, .32)!),
+          ]),
           surfaceTintColor: Colors.transparent,
           leadingWidth: 80,
           leading: Align(

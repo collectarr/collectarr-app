@@ -41,6 +41,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     this.footerContent,
     this.footerOverride,
     this.mobilePrimaryAction,
+    this.mobileSystemBarColor,
     this.isBusy = false,
     required this.onClose,
     required this.onCancel,
@@ -65,6 +66,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
 
   final GlobalKey<FormState> formKey;
   final Color accent;
+  final Color? mobileSystemBarColor;
   final IconData icon;
   final String title;
   final List<Widget> badges;
@@ -312,6 +314,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                   ? LibraryMobileEditorScaffold(
                       title: widget.title,
                       accent: widget.accent,
+                      systemBarColor: widget.mobileSystemBarColor,
                       isBusy: widget.isBusy,
                       onBack: widget.onCancel,
                       onSave: widget.onSave,

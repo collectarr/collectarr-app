@@ -133,6 +133,7 @@ class _ComicItemEditDialogState extends State<ComicItemEditDialog> {
       title: comicEditHeaderTitle(_media),
       mediaKind: widget.request.type.kind.apiValue,
       accent: widget.request.accent,
+      mobileSystemBarColor: widget.request.type.identity.mobileChromeDark,
       inlineCollectionStatus: native,
       tabOrderKey: native
           ? 'library_edit_tabs_comic_mobile'

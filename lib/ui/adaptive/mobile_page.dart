@@ -116,6 +116,10 @@ class MobilePageHeader extends StatelessWidget implements PreferredSizeWidget {
             palette: appPalette(context),
           ),
           backgroundColor: color,
+          flexibleSpace: Stack(children: [
+            NativeStatusBarBackground(
+                color: systemBarColor ?? Color.lerp(color, Colors.black, .32)!)
+          ]),
           foregroundColor: Colors.white,
           titleTextStyle: Theme.of(context)
               .textTheme

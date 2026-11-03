@@ -20,3 +20,18 @@ SystemUiOverlayStyle nativeSystemUiStyle({
         palette.isDark ? Brightness.light : Brightness.dark,
   );
 }
+
+/// Paints the status inset when Android draws system bars edge to edge.
+class NativeStatusBarBackground extends StatelessWidget {
+  const NativeStatusBarBackground({super.key, required this.color});
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        height: MediaQuery.paddingOf(context).top,
+        child: ColoredBox(color: color),
+      );
+}

@@ -393,6 +393,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           : LibraryEntryStatusStrip(
               draft: LibraryEntryEditScope.maybeOf(context)!),
       accent: widget.accent,
+      mobileSystemBarColor: widget.type.identity.mobileChromeDark,
       isBusy: _isSaving,
       icon: AppIcons.edit,
       title: title,

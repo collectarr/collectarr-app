@@ -42,10 +42,12 @@ class LibraryMobileEditorScaffold extends StatefulWidget {
     this.primaryAction,
     this.tabs,
     this.footer,
+    this.systemBarColor,
   });
 
   final String title;
   final Color accent;
+  final Color? systemBarColor;
   final VoidCallback onBack;
   final VoidCallback? onSave;
   final VoidCallback? onDelete;
@@ -116,6 +118,7 @@ class _LibraryMobileEditorScaffoldState
           key: const Key('library.mobile-editor'),
           title: title,
           headerColor: accent,
+          systemBarColor: widget.systemBarColor,
           backgroundColor: appPalette(context).surfaceBright,
           onBack: onBack,
           canGoBack: !isBusy,
