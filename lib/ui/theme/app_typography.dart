@@ -1,9 +1,14 @@
 import 'package:collectarr_app/core/fonts/local_font_controller.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// The requested local face; appFontFamily resolves the current engine alias.
 const kAppFontFamily = 'Gilroy';
-String get appFontFamily => LocalFontController.instance.activeFamily;
+String get appFontFamily => appPresentationPlatform.isNativeMobile &&
+        defaultTargetPlatform == TargetPlatform.android
+    ? 'Roboto'
+    : LocalFontController.instance.activeFamily;
 const kAppFontFamilyFallback = ['Plus Jakarta Sans'];
 const kAppBodyFontSize = 14.0;
 const kAppCaptionFontSize = 13.0;
@@ -21,7 +26,9 @@ FontWeight get appTitleBoldFontWeight =>
     appTitleBoldFontWeightFor(LocalFontController.instance);
 
 FontWeight appTitleBoldFontWeightFor(LocalFontController fonts) =>
-    fonts.isGilroyActive && fonts.faces.containsKey(800)
+    appFontFamily != 'Roboto' &&
+            fonts.isGilroyActive &&
+            fonts.faces.containsKey(800)
         ? kAppExtraBoldFontWeight
         : kAppBoldFontWeight;
 

@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('Android uses the system text face', (tester) async {
+    expect(appFontFamily, 'Roboto');
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
   test('tooltips use the active font family alongside form controls', () {
     final theme = buildLibraryTheme();
 

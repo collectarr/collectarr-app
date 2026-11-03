@@ -14,6 +14,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Android uses the system Roboto font for native screens while desktop and web keep their existing font selection.
 - Desktop navigation moves Collectarr Account into the sidebar, with the same sign-in, account and logout flow as mobile.
 - Comic slab grades and grading-company text use distributable League Spartan and Open Sans variable fonts on mobile, desktop and web.
 - The navigation drawer shows the Collectarr logo and installed version and closes by tapping outside or swiping on mobile.
