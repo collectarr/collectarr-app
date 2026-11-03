@@ -115,10 +115,7 @@ void main() {
       router.go('/libraries?kind=music');
       await pumpUntilSettled(tester);
       expect(find.text('CLR MUSIC'), findsOneWidget);
-      final kindIcon =
-          tester.widget<Icon>(find.byKey(const Key('app.kind-icon')));
-      expect(kindIcon.icon, Icons.music_note);
-      expect(kindIcon.color, Colors.white);
+      expect(find.byKey(const Key('app.kind-icon')), findsNothing);
 
       await tester.tap(find.byKey(const Key('nav.library-kind-picker')));
       await pumpUntilSettled(tester);
