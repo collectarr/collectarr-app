@@ -381,7 +381,8 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
       if (releaseDate != null) releaseDate.year.toString(),
     ].join(' ');
     final preferences = ref.watch(uiPreferencesProvider);
-    final ebayUri = preferences.ebayToolbar &&
+    final ebayUri = (preferences.ebayToolbar ||
+                (mobileBottomBar && preferences.ebayNextToCover)) &&
             preferences.allowsEbayLinks(item.source.isWishlisted)
         ? buildEbaySearchUri(
             query: ebayQuery,
