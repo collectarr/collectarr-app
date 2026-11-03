@@ -101,7 +101,7 @@ void main() {
     expect(tester.widget<Text>(find.text('CLR Music')).style!.fontWeight,
         FontWeight.w400);
     expect(tester.widget<Text>(find.text('CLR Music')).style!.color,
-        const Color(0xFF888888));
+        const Color(0xFF757575));
     final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
     await mouse.addPointer(location: Offset.zero);
     await mouse.moveTo(tester.getCenter(find.text('CLR Music')));
@@ -113,7 +113,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(filterFor('music'), isNot(normal));
     expect(tester.widget<Text>(find.text('CLR Music')).style!.color,
-        const Color(0xFF888888));
+        const Color(0xFF757575));
     await mouse.removePointer();
 
     await tester.tap(find.text('CLR Games'));
