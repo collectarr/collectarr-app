@@ -1,18 +1,23 @@
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
 
 // Shared paint for the folder panel and the collection browsing surface.
 Color libraryWorkspaceBackgroundColor(BuildContext context) =>
-    appPalette(context).panel;
+    appPresentationPlatform.isNativeMobile && appPalette(context).isDark
+        ? const Color(0xFF303030)
+        : appPalette(context).panel;
 
 // Behind covers, cards and flow. Lists use the skin's content surface;
 // Shelves get their background from the shelf style.
 Color libraryViewBackgroundColor(BuildContext context) =>
-    appPalette(context).isDark
-        ? const Color(0xFF131313)
-        : appPalette(context).canvas;
+    appPresentationPlatform.isNativeMobile && appPalette(context).isDark
+        ? const Color(0xFF303030)
+        : appPalette(context).isDark
+            ? const Color(0xFF131313)
+            : appPalette(context).canvas;
 
 // Toolbars, pane headers and draggers stay dark in both themes; wrap their
 // controls in AppDarkChrome.
@@ -20,6 +25,16 @@ Color libraryWorkspaceToolbarColor(BuildContext context) => kAppToolbar;
 
 Color libraryWorkspacePaneDividerColor(BuildContext context) =>
     const Color(0xff262626);
+
+Color libraryMobileToolbarButtonColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xFF50636A)
+        : appPalette(context).panelRaised;
+
+Color libraryMobileFolderButtonColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xFF71868E)
+        : appPalette(context).panelRaised;
 
 Border libraryWorkspaceToolbarBorder(BuildContext context) => Border(
       top: const BorderSide(color: kAppDivider),

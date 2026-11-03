@@ -235,7 +235,7 @@ class _LibraryGroupModeMenuButtonState
               child: appPresentationPlatform.isNativeMobile
                   ? Ink(
                       decoration: BoxDecoration(
-                        color: appPalette(context).panelRaised,
+                        color: libraryMobileFolderButtonColor(context),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: child,

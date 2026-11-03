@@ -381,54 +381,74 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
             ))
           else
             const Spacer(),
-          IconButton(
-              key: const Key('library.mobile-views'),
-              tooltip: 'Views and cover size',
-              icon: const Icon(Icons.grid_view),
-              onPressed: () => showViewAndOrganizeSheet(
-                    context: context,
-                    currentViewMode: viewState.viewMode,
-                    onViewModeChanged: onViewModeChanged,
-                    currentDetailsLayout: viewState.detailsLayout,
-                    onDetailsLayoutChanged: onDetailsLayoutChanged,
-                    currentCoverSize: viewState.coverSize,
-                    minCoverSize:
-                        libraryViewProfileForKind(type.kind).minCoverSize,
-                    maxCoverSize:
-                        libraryViewProfileForKind(type.kind).maxCoverSize,
-                    onCoverSizeChanged: onCoverSizeChanged,
-                    currentSpacing: currentSpacing,
-                    onSpacingChanged: onSpacingChanged,
-                    onOpenColumnChooser: onEditColumns,
-                    onOpenSortDialog: onEditSort,
-                  )),
-          if (onEditSort != null)
-            IconButton(
-                key: const Key('library.mobile-sort'),
-                tooltip: 'Change Sorting',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: IconButton(
+                key: const Key('library.mobile-views'),
+                tooltip: 'Views and cover size',
                 style: IconButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    minimumSize: const Size.square(48)),
-                icon: const Icon(Icons.sort_by_alpha),
-                onPressed: onEditSort),
-          LibraryToolsButton(
-              type: type,
-              counts: counts,
-              selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
-              quickView: quickView,
-              hasActiveFilters: hasActiveFilters,
-              onQuickViewSelected: onQuickViewSelected,
-              onClearFilters: onClearFilters,
-              onRandomPick: onRandomPick,
-              shelfState: shelfState,
-              onSmartLists: onSmartLists,
-              onFolders: onFolders,
-              onReadingQueue: onReadingQueue,
-              onEditConditionPickList: onEditConditionPickList,
-              onEditGradePickList: onEditGradePickList,
-              onShareCollection: onShareCollection,
-              onCompareMetadataWithServer: onCompareMetadataWithServer,
-              extraActions: extraActions),
+                    backgroundColor: libraryMobileToolbarButtonColor(context),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5))),
+                icon: const Icon(Icons.grid_view),
+                onPressed: () => showViewAndOrganizeSheet(
+                      context: context,
+                      currentViewMode: viewState.viewMode,
+                      onViewModeChanged: onViewModeChanged,
+                      currentDetailsLayout: viewState.detailsLayout,
+                      onDetailsLayoutChanged: onDetailsLayoutChanged,
+                      currentCoverSize: viewState.coverSize,
+                      minCoverSize:
+                          libraryViewProfileForKind(type.kind).minCoverSize,
+                      maxCoverSize:
+                          libraryViewProfileForKind(type.kind).maxCoverSize,
+                      onCoverSizeChanged: onCoverSizeChanged,
+                      currentSpacing: currentSpacing,
+                      onSpacingChanged: onSpacingChanged,
+                      onOpenColumnChooser: onEditColumns,
+                      onOpenSortDialog: onEditSort,
+                    )),
+          ),
+          if (onEditSort != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: IconButton(
+                  key: const Key('library.mobile-sort'),
+                  tooltip: 'Change Sorting',
+                  style: IconButton.styleFrom(
+                      backgroundColor: libraryMobileToolbarButtonColor(context),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
+                      minimumSize: const Size.square(48)),
+                  icon: const Icon(Icons.sort_by_alpha),
+                  onPressed: onEditSort),
+            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                  color: libraryMobileToolbarButtonColor(context),
+                  borderRadius: BorderRadius.circular(5)),
+              child: LibraryToolsButton(
+                  type: type,
+                  counts: counts,
+                  selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
+                  quickView: quickView,
+                  hasActiveFilters: hasActiveFilters,
+                  onQuickViewSelected: onQuickViewSelected,
+                  onClearFilters: onClearFilters,
+                  onRandomPick: onRandomPick,
+                  shelfState: shelfState,
+                  onSmartLists: onSmartLists,
+                  onFolders: onFolders,
+                  onReadingQueue: onReadingQueue,
+                  onEditConditionPickList: onEditConditionPickList,
+                  onEditGradePickList: onEditGradePickList,
+                  onShareCollection: onShareCollection,
+                  onCompareMetadataWithServer: onCompareMetadataWithServer,
+                  extraActions: extraActions),
+            ),
+          ),
         ],
         countLabel: showMobileFolderRoot
             ? null
