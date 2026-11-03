@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/state.dart';
 import 'package:collectarr_app/features/library/inspector/personal_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/profile.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
