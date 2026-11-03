@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/library/collections/dialog.dart';
 import 'package:collectarr_app/features/library/collections/repository.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
+import 'package:collectarr_app/features/library/generic/sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
@@ -60,7 +61,7 @@ void main() {
   }
 
   testWidgets(
-      'native sort favorites and advanced fields use shared rules for every active kind',
+      'native saved sort favorites and advanced fields use shared rules for every active kind',
       (tester) async {
     setUpTestAppPreferences();
     tester.view.physicalSize = const Size(390, 900);
@@ -70,6 +71,11 @@ void main() {
     for (final type in collectarrKindRegistrationsList) {
       final favorites = librarySortFavoritesForType(type);
       if (favorites.isEmpty) continue;
+      final savedLabel = 'Saved ${favorites.first.label}';
+      await LibrarySortPresetStore(type).savePreset(
+          id: 'test-${type.kind.name}',
+          label: savedLabel,
+          rules: favorites.first.rules);
       List<LibrarySortRule>? result;
       await tester.pumpWidget(MaterialApp(
           home: Builder(
@@ -97,7 +103,7 @@ void main() {
           favorites.first.rules.map((r) => r.column));
       await tester.tap(find.text('Open sort'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(favorites.first.label).last);
+      await tester.tap(find.text(savedLabel));
       await tester.pumpAndSettle();
       expect(result?.length, favorites.first.rules.length);
       expect(tester.takeException(), isNull);

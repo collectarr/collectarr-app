@@ -93,6 +93,7 @@
 - Board Game, Book, Movie, Music, Comics and Games configuration, entry payload, catalog lookup, editor, inspector, stats and action files are named by their job inside their kind's folders, as the other kind files already were.
 
 ### CI & Build
+- Android and iOS sort regression checks cover saved favorites across every active kind.
 - Mobile navigation smoke checks now cover the header without a kind icon.
 - Test names identify their behavior within feature folders, making failures easier to locate.
 - Local Core development uses the single `collectarr` Docker suite.
