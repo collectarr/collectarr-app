@@ -431,12 +431,6 @@ class UiPreferencesController extends Notifier<UiPreferences> {
   Future<void> setShowCoverTitles(bool show) =>
       _update((s) => s.copyWith(showCoverTitles: show));
 
-  Future<void> setCardCoverWidth(double width) =>
-      _update((s) => s.copyWith(cardCoverWidth: width));
-
-  Future<void> setSidebarRowPadding(double padding) =>
-      _update((s) => s.copyWith(sidebarRowPadding: padding));
-
   Future<void> setShowInspectorBackdrop(bool value) =>
       _update((s) => s.copyWith(showInspectorBackdrop: value));
 

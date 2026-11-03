@@ -225,7 +225,7 @@ void main() {
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
-      'settings page appearance renders sliders with gridSpacing 24.0 without throwing',
+      'covers settings hides removed controls and retains saved layout values',
       (tester) async {
     SharedPreferences.setMockInitialValues({
       UiPreferencesStore.gridSpacingKey: 24.0,
@@ -252,9 +252,21 @@ void main() {
 
     expect(tester.takeException(), isNull);
     await _openSettingsTab(tester, 'Covers & layout');
-    expect(find.text('Grid spacing'), findsOneWidget);
-    final sliderFinder = find.byType(Slider).first;
-    expect(tester.widget<Slider>(sliderFinder).value, 24.0);
+    expect(find.text('Show titles in grid'), findsOneWidget);
+    for (final label in [
+      'Flat covers',
+      'Grid spacing',
+      'Card cover width',
+      'Sidebar row padding'
+    ]) {
+      expect(find.text(label), findsNothing);
+    }
+    final container =
+        ProviderScope.containerOf(tester.element(find.byType(SettingsPage)));
+    final preferences = container.read(uiPreferencesProvider);
+    expect(preferences.gridSpacing, 24.0);
+    expect(preferences.cardCoverWidth, 120.0);
+    expect(preferences.sidebarRowPadding, 8.0);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('settings page warns that web sync can be browser-blocked',

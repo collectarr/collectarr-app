@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/app_slider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/settings/settings_layout.dart';
 
@@ -420,68 +419,6 @@ class _SettingsAppearanceSectionState
                 onChanged: (value) => ref
                     .read(uiPreferencesProvider.notifier)
                     .setShowCoverTitles(value),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.space_bar),
-                title: const Text('Grid spacing'),
-                subtitle: AppSlider(
-                  value: uiPreferences.gridSpacing.clamp(4.0, 24.0),
-                  min: 4,
-                  max: 24,
-                  divisions: 20,
-                  label:
-                      '${uiPreferences.gridSpacing.clamp(4.0, 24.0).round()} px',
-                  onChanged: (value) => ref
-                      .read(uiPreferencesProvider.notifier)
-                      .setGridSpacing(value.roundToDouble()),
-                ),
-              ),
-              const Divider(height: 24),
-              Text('Card view',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.photo_size_select_large),
-                title: const Text('Card cover width'),
-                subtitle: AppSlider(
-                  value: uiPreferences.cardCoverWidth.clamp(60.0, 120.0),
-                  min: 60,
-                  max: 120,
-                  divisions: 12,
-                  label:
-                      '${uiPreferences.cardCoverWidth.clamp(60.0, 120.0).round()} px',
-                  onChanged: (value) => ref
-                      .read(uiPreferencesProvider.notifier)
-                      .setCardCoverWidth(value.roundToDouble()),
-                ),
-              ),
-              const Divider(height: 24),
-              Text('Layout',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.density_small),
-                title: const Text('Sidebar row padding'),
-                subtitle: AppSlider(
-                  value: uiPreferences.sidebarRowPadding.clamp(0.0, 8.0),
-                  min: 0,
-                  max: 8,
-                  divisions: 8,
-                  label:
-                      '${uiPreferences.sidebarRowPadding.clamp(0.0, 8.0).round()} px',
-                  onChanged: (value) => ref
-                      .read(uiPreferencesProvider.notifier)
-                      .setSidebarRowPadding(value.roundToDouble()),
-                ),
               ),
               const SizedBox(height: 8),
               Align(

@@ -59,6 +59,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Covers & layout settings no longer show the grid spacing, card cover width or sidebar row padding controls.
 - Covers consistently use their default shadow; the Flat covers setting has been removed.
 - The library Tools menu no longer repeats Pre-fill Settings, Transfer Field Data and Re-assign Index Values from the sidebar.
 - Closing or restarting the interface during an update check no longer triggers a background state error.
