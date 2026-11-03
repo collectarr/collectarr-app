@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';
 import 'app_library_search_bar.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/adaptive/native_system_chrome.dart';
@@ -100,6 +101,10 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
           accent: accent,
           animationDuration: animationsEnabled ? kAppAnimNormal : Duration.zero,
         ),
+        if (appPresentationPlatform.isNativeMobile)
+          NativeStatusBarBackground(
+              color: type.identity.mobileChromeDark ??
+                  Color.lerp(accent, Colors.black, .32)!),
         if (!appPresentationPlatform.isNativeMobile)
           Center(child: _AccountLibraryLabel(kindTitle: type.identity.title)),
       ]),
@@ -123,12 +128,33 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
               style: toolbarIconStyle,
               icon: const Icon(Icons.filter_list, color: Colors.white),
               onSelected: search.setStatus,
+              color: const Color(0xff2e2e2e),
+              surfaceTintColor: Colors.transparent,
+              shape: const RoundedRectangleBorder(),
+              padding: EdgeInsets.zero,
               itemBuilder: (_) => [
                     for (final status in LibraryCollectionStatusScope.values)
-                      CheckedPopupMenuItem(
-                          value: status,
-                          checked: status == search.status,
-                          child: Text(status.label))
+                      PopupMenuItem(
+                        value: status,
+                        height: 64,
+                        child: Row(children: [
+                          if (status == LibraryCollectionStatusScope.all)
+                            const SizedBox(
+                                width: 32,
+                                child: Icon(Icons.filter_list,
+                                    color: Colors.white))
+                          else
+                            LibraryCollectionStatusIcon(
+                                collectionStatus: status, size: 32),
+                          const SizedBox(width: 14),
+                          Expanded(
+                              child: Text(
+                                  status == LibraryCollectionStatusScope.all
+                                      ? 'All ${type.identity.pluralLabel}'
+                                      : status.label,
+                                  style: const TextStyle(color: Colors.white))),
+                        ]),
+                      )
                   ]),
         ],
         if (nativeSearch)

@@ -44,6 +44,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     this.maxDialogWidth,
     this.insetPadding,
     this.mediaKind,
+    this.mobileSystemBarColor,
     this.vocabularyAccumulator,
     required this.tabOrderKey,
     this.extraTabs = const [],
@@ -56,6 +57,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final TDraft draft;
   final String title;
   final Color accent;
+  final Color? mobileSystemBarColor;
   final List<Widget> badges;
   final FutureOr<void> Function(TDraft draft) onSave;
   final VoidCallback onCancel;
@@ -225,6 +227,7 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: widget.accent,
+      mobileSystemBarColor: widget.mobileSystemBarColor,
       icon: AppIcons.edit,
       title: widget.title,
       badges: widget.badges,

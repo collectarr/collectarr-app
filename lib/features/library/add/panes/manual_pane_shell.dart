@@ -214,6 +214,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
     return LibraryEditDialogScaffold(
       formKey: _formKey,
       accent: request.accent,
+      mobileSystemBarColor: request.type.identity.mobileChromeDark,
       icon: request.type.identity.icon,
       title: headerTitle,
       badges: badges,

@@ -20,8 +20,12 @@ const Color kEditChartBar = kAppAccentLight;
 AppThemePalette libraryEditPalette(AppThemePalette palette) => palette.isDark
     ? palette.copyWith(
         panel: const Color(0xFF262626),
-        panelRaised: const Color(0xFF383838),
-        surfaceBright: const Color(0xFF383838),
+        panelRaised: appPresentationPlatform.isNativeMobile
+            ? const Color(0xFF303030)
+            : const Color(0xFF383838),
+        surfaceBright: appPresentationPlatform.isNativeMobile
+            ? const Color(0xFF303030)
+            : const Color(0xFF383838),
         surface: const Color(0xFF444444),
         field: const Color(0xFF444444),
         toolbar: const Color(0xFF383838),
