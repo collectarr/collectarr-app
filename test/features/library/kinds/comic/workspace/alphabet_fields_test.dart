@@ -27,17 +27,15 @@ LibraryProjectionItem _comic(String id, ComicCatalogItem comic) =>
     );
 
 void main() {
-  test('letters pick series past a leading article, then titles', () {
+  test('letters pick series past a leading article', () {
     final items = [
       _comic('1',
           const ComicCatalogItem(title: 'Zebra', seriesTitle: 'The Art of X')),
       _comic('2', const ComicCatalogItem(title: 'Apple', seriesTitle: 'Zoo')),
     ];
     expect(
-        comicAlphabetFields.map((field) => field.label), ['Series', 'Title']);
+        comicAlphabetFields.map((field) => field.label), ['Series']);
     expect(libraryItemsForLetter(items, comicAlphabetFields.first, 'A'),
         [items.first]);
-    expect(libraryItemsForLetter(items, comicAlphabetFields.last, 'A'),
-        [items.last]);
   });
 }

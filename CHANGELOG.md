@@ -15,6 +15,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- In Comics, the alphabet bar filters exclusively by Series name, omitting the options gear since cards only display series.
 - Vertical cards match CLZ dimensions and margins across kinds, aligning covers to the top without dead space, retaining series titles on slabbed comics and separating card layouts.
 - Edit dialog headers use the shared edit pen icon matching the list view and toolbar actions.
 - The dark mobile sidebar uses the same darker background as the reference navigation.

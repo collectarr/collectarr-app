@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart'
 /// leading article ("The Art of Witch Hat Atelier" under A).
 const comicAlphabetFields = [
   LibraryAlphabetField(id: 'series', label: 'Series', values: _series),
-  LibraryAlphabetField.title,
 ];
 
 Iterable<String> _series(LibraryProjectionView item) {
