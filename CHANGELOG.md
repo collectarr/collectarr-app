@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Docs
-- The Android parity guide tracks the remaining sort, typography, empty-state and populated inspector differences after the mobile comparison.
+- The Android parity guide records the remaining sort defaults, font metrics, empty states and populated inspector and Action-menu differences.
 - The parity guide distinguishes CLZ web's slab fonts from its general interface font.
 - The Android parity guide records the font families embedded in the CLZ reference and the remaining typography comparison.
 - The testing guide explains native viewport coverage, isolated Android review builds and remaining platform checks.

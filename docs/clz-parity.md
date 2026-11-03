@@ -234,15 +234,16 @@ bundled slab fonts successfully.
 | --- | --- | --- |
 | P2 | Add Comics remaining parity | NCBD still depends on a release-calendar source in Core (see Comics NCBD). CLZ has a favourite-series star in the selected-series header; Collectarr needs a series watch-list model before matching it. Validate camera/barcode flows on-device and compare populated results against equivalent Core data, including long issue/variant labels, larger system text, loading and error states |
 | P2 | Scanner presentation | The library header camera opens the shared live-camera sheet with manual barcode entry. CLZ overlays the camera directly on the library with scanning corners. Align the native camera presentation while preserving manual entry; real barcode decoding still needs a physical-code check |
-| P3 | Library surfaces and empty state | Collectarr retains the desktop canvas gradient and a filled blue onboarding card; CLZ uses a flat dark canvas with centred teal text. Compare the light skin before adapting native surfaces |
+| P3 | Library empty state and light skin | Compare the native empty-library onboarding card and light skin with CLZ |
 | P2 | Populated folder navigation | Compare CLZ's favourite presets and multi-folder bucket navigation against Collectarr with equivalent populated collections; only the single-field Series list, folder entry and Back flow have been checked |
-| P3 | Android typography | Compare Android system sans-serif text metrics and density with Collectarr's Plus Jakarta Sans on equivalent populated screens; runtime font changes outside the inspected layouts remain unverified |
-| P3 | Mobile sort options | Compare the available sort rows, their order and direction defaults with CLZ for every kind using equivalent populated collections; Collectarr also offers Advanced sorting for multi-field rules |
+| P3 | Android typography | Compare Roboto text sizes and weights against CLZ on equivalent populated screens and larger system text; only the sparse Comics folder and detail screens have been inspected after the system-font switch |
+| P3 | Mobile sort options | Compare sort-field order and direction defaults with CLZ for every kind using equivalent populated collections |
+| P2 | Mobile inspector content and actions | The sparse CLZ Comics detail shows My Rating and Read It under Personal, while Collectarr also shows Index and Added/Modified Date. CLZ's Action panel is wider, has right-aligned icons and includes Update Key Info, Update Values and Relink Core variant; Collectarr's shared menu has other local actions. Compare populated details, cover imagery and previous/next behavior, then decide which extra fields and action flows need a compact mobile section |
 | P2 | Comics mobile Edit controls | Collectarr groups editable year/month/day parts and a calendar in one outlined date control to preserve partial dates; CLZ shows one formatted date string. Compare a populated CLZ Edit record and align the date text, barcode camera, picker and segmented controls without losing partial dates or existing values |
 | P3 | Comics mobile Value and Key | Compare populated Value, Key and Images against CLZ Edit. CLZ's CovrPrice and eBay actions depend on external services, while Collectarr currently shows only the editable value; Signed By and Key Category still use single-value controls (see Comics Value differences) |
 
-Still to compare: populated cards/list/covers, series folders and counts, item
-details and previous/next navigation, selection and bulk actions, every editor
+Still to compare: populated cards/list/covers, series folders and counts,
+populated item details and previous/next navigation, selection and bulk actions, every editor
 tab with the keyboard, populated search parity against the same Core data,
 camera/barcode flows, landscape, gesture navigation, larger system text and light appearance.
 
