@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/workspace/table/row.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/card.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
@@ -223,8 +224,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1));
   });
 
-  testWidgets(
-      'slabbed headlined cards omit the top title so slab fills the space',
+  testWidgets('slabbed headlined cards keep the top title and render the slab',
       (tester) async {
     await tester.pumpWidget(ProviderScope(
       overrides: [
@@ -246,8 +246,41 @@ void main() {
       ),
     ));
     await tester.pumpAndSettle();
-    expect(find.text('Batman'), findsNothing);
+    expect(find.text('Batman'), findsOneWidget);
     expect(find.byType(ComicSlab), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
+  testWidgets('vertical cards align cover to top and omit top headline',
+      (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        localItemImageProvider
+            .overrideWith((ref, request) => Stream.value(null))
+      ],
+      child: MaterialApp(
+        theme: buildAppShellTheme(palette: kDefaultAppThemePalette),
+        home: Scaffold(
+            body: SizedBox(
+          width: 158,
+          height: 280,
+          child: LibraryWorkspaceCard(
+              item: _item(),
+              selected: false,
+              onTap: () {},
+              cardLayout: LibraryCardLayout.vertical),
+        )),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('Album'), findsOneWidget);
+    final titlePos = tester.getTopLeft(find.text('Album'));
+    expect(titlePos.dy, greaterThan(200));
+    final interactiveCover = tester
+        .widget<LibraryInteractiveCover>(find.byType(LibraryInteractiveCover));
+    expect(interactiveCover.alignment, Alignment.topCenter);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 1));

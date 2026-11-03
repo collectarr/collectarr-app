@@ -383,8 +383,16 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
         : palette.isDark
             ? kLibraryCardDetailIdle
             : palette.textMuted;
-    final hasCoverOverlay = presentation.coverOverlayBuilder != null;
-    final showTitle = headlined && widget.showHeadline && !hasCoverOverlay;
+    final isHeadlined = headlined;
+    Widget buildCover({required Alignment alignment}) => _buildCover(
+          context: context,
+          coverCacheWidth: coverCacheWidth,
+          presentation: presentation,
+          fit: BoxFit.contain,
+          alignment: alignment,
+          borderRadius: 0,
+        );
+
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -401,8 +409,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                   color: Colors.transparent,
                   child: InkWell(
                     mouseCursor: WidgetStateMouseCursor.clickable,
-                    // See the horizontal card: never fade a hover to
-                    // transparent, which paints black.
                     hoverColor: selected || checked
                         ? background
                         : palette.surfaceBright,
@@ -415,108 +421,28 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                       children: [
                         Padding(
                           padding: EdgeInsets.zero,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (showTitle)
-                                _HeadlinedCardTitle(
-                                    text: presentation.headline ??
-                                        item.dto.primaryLabel,
-                                    color: titleColor),
-                              Expanded(
-                                child: Padding(
-                                  padding: headlined
-                                      ? const EdgeInsets.all(5)
-                                      : const EdgeInsets.fromLTRB(5, 5, 5, 0),
-                                  child: Stack(
-                                    fit: StackFit.expand,
-                                    children: [
-                                      _buildCover(
-                                        context: context,
-                                        coverCacheWidth: coverCacheWidth,
-                                        presentation: presentation,
-                                        fit: BoxFit.contain,
-                                        borderRadius: 0,
-                                      ),
-                                      // Bottom left over the cover, as in
-                                      // the reference's Vertical Cards.
-                                      Positioned(
-                                          left: 5,
-                                          bottom: 5,
-                                          child: LibraryItemStatusBadge(
-                                              item: item,
-                                              selected: selected,
-                                              style:
-                                                  LibraryCollectionStatusMarkStyle
-                                                      .cover,
-                                              width: 29,
-                                              height: 27)),
-                                      if (customFieldBadges.isNotEmpty)
-                                        Text(customFieldBadges.join(' | '),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: selected
-                                                    ? Colors.white
-                                                    : mutedColor)),
-                                    ],
-                                  ),
+                          child: isHeadlined
+                              ? _HeadlinedVerticalCardBody(
+                                  item: item,
+                                  presentation: presentation,
+                                  showHeadline: widget.showHeadline,
+                                  selected: selected,
+                                  titleColor: titleColor,
+                                  detailColor: detailColor,
+                                  mutedColor: mutedColor,
+                                  customFieldBadges: customFieldBadges,
+                                  buildCover: buildCover,
+                                )
+                              : _StandardVerticalCardBody(
+                                  item: item,
+                                  presentation: presentation,
+                                  selected: selected,
+                                  titleColor: titleColor,
+                                  detailColor: detailColor,
+                                  mutedColor: mutedColor,
+                                  customFieldBadges: customFieldBadges,
+                                  buildCover: buildCover,
                                 ),
-                              ),
-                              if (headlined)
-                                _HeadlinedCardFooter(
-                                    presentation: presentation,
-                                    numberColor: titleColor,
-                                    dateColor: detailColor,
-                                    pillColor: selected
-                                        ? Colors.white
-                                        : palette.utilityAction)
-                              else
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(5, 0, 5, 5),
-                                  child: SizedBox(
-                                      height: 57,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                              child: Text(item.dto.primaryLabel,
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                      color: titleColor,
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      height: 1.4286))),
-                                          Row(children: [
-                                            Expanded(
-                                                child: Text(
-                                                    presentation.seriesTitle ??
-                                                        '',
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: detailColor))),
-                                            if (presentation.releaseDate !=
-                                                null)
-                                              Text(
-                                                  '${presentation.releaseDate!.year}',
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: detailColor)),
-                                          ]),
-                                        ],
-                                      )),
-                                ),
-                            ],
-                          ),
                         ),
                         if (_hovered ||
                             checked ||
@@ -564,6 +490,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     required LibraryCardPresentation presentation,
     required BoxFit fit,
     required double borderRadius,
+    Alignment alignment = Alignment.center,
     bool intrinsicSize = false,
   }) {
     // Intrinsic covers size to the image's own aspect ratio within the
@@ -579,6 +506,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                 libraryViewProfileForKind(item.source.mediaKind)
                     .coverGridHeightFactor,
             fit: fit,
+            alignment: alignment,
             borderRadius: borderRadius,
           )
         : LibraryInteractiveCover(
@@ -592,6 +520,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                     .coverGridHeightFactor,
             accentColor: accentColor,
             fit: fit,
+            alignment: alignment,
             borderRadius: borderRadius,
             enableFullscreen: false,
             enableSecondaryControl: false,
@@ -609,27 +538,230 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
   }
 }
 
-/// The reference's comic-card headline: two centred 13 px bold lines.
+class _HeadlinedVerticalCardBody extends StatelessWidget {
+  const _HeadlinedVerticalCardBody({
+    required this.item,
+    required this.presentation,
+    required this.showHeadline,
+    required this.selected,
+    required this.titleColor,
+    required this.detailColor,
+    required this.mutedColor,
+    required this.customFieldBadges,
+    required this.buildCover,
+  });
+
+  final LibraryProjectionView item;
+  final LibraryCardPresentation presentation;
+  final bool showHeadline;
+  final bool selected;
+  final Color titleColor;
+  final Color detailColor;
+  final Color mutedColor;
+  final List<String> customFieldBadges;
+  final Widget Function({required Alignment alignment}) buildCover;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (showHeadline)
+          _HeadlinedCardTitle(
+            text: presentation.headline ?? item.dto.primaryLabel,
+            color: titleColor,
+          ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(5),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                buildCover(alignment: Alignment.topCenter),
+                Positioned(
+                  left: 5,
+                  bottom: 5,
+                  child: LibraryItemStatusBadge(
+                    item: item,
+                    selected: selected,
+                    style: LibraryCollectionStatusMarkStyle.cover,
+                    width: 29,
+                    height: 27,
+                  ),
+                ),
+                if (customFieldBadges.isNotEmpty)
+                  Text(
+                    customFieldBadges.join(' | '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: selected ? Colors.white : mutedColor,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        _HeadlinedCardFooter(
+          presentation: presentation,
+          numberColor: titleColor,
+          dateColor: detailColor,
+          pillColor: selected ? Colors.white : palette.utilityAction,
+        ),
+      ],
+    );
+  }
+}
+
+class _StandardVerticalCardBody extends StatelessWidget {
+  const _StandardVerticalCardBody({
+    required this.item,
+    required this.presentation,
+    required this.selected,
+    required this.titleColor,
+    required this.detailColor,
+    required this.mutedColor,
+    required this.customFieldBadges,
+    required this.buildCover,
+  });
+
+  final LibraryProjectionView item;
+  final LibraryCardPresentation presentation;
+  final bool selected;
+  final Color titleColor;
+  final Color detailColor;
+  final Color mutedColor;
+  final List<String> customFieldBadges;
+  final Widget Function({required Alignment alignment}) buildCover;
+
+  @override
+  Widget build(BuildContext context) {
+    final subtitle = presentation.format ??
+        item.dto.secondaryLabel ??
+        presentation.seriesTitle ??
+        (presentation.contextFacts.isNotEmpty
+            ? presentation.contextFacts.first
+            : null);
+    final releaseYear = presentation.releaseDate != null
+        ? '${presentation.releaseDate!.year}'
+        : presentation.suggestionDetail;
+    final trailingText = presentation.valueLabel ?? releaseYear;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                buildCover(alignment: Alignment.topCenter),
+                Positioned(
+                  left: 5,
+                  bottom: 5,
+                  child: LibraryItemStatusBadge(
+                    item: item,
+                    selected: selected,
+                    style: LibraryCollectionStatusMarkStyle.cover,
+                    width: 29,
+                    height: 27,
+                  ),
+                ),
+                if (customFieldBadges.isNotEmpty)
+                  Text(
+                    customFieldBadges.join(' | '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: selected ? Colors.white : mutedColor,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
+          child: SizedBox(
+            height: 57,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    item.dto.primaryLabel,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: titleColor,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      height: 1.25,
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    if (subtitle != null && subtitle.isNotEmpty)
+                      Expanded(
+                        child: Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: presentation.format != null
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                            color: detailColor,
+                          ),
+                        ),
+                      ),
+                    if (trailingText != null && trailingText.isNotEmpty)
+                      Text(
+                        trailingText,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: detailColor,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _HeadlinedCardTitle extends StatelessWidget {
   const _HeadlinedCardTitle({required this.text, required this.color});
   final String text;
   final Color color;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-      height: kLibraryHeadlinedCardTitleHeight,
-      width: double.infinity,
-      child: Padding(
-          padding: const EdgeInsets.fromLTRB(5, 3, 5, 0),
-          child: Text(text,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                  color: color,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  height: 18.5714 / 13))));
+  Widget build(BuildContext context) => ConstrainedBox(
+      constraints: const BoxConstraints(
+          minHeight: 22, maxHeight: kLibraryHeadlinedCardTitleHeight),
+      child: SizedBox(
+          width: double.infinity,
+          child: Padding(
+              padding: const EdgeInsets.fromLTRB(5, 3, 5, 0),
+              child: Text(text,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: color,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      height: 18.5714 / 13)))));
 }
 
 /// A large number with the date at the right, then an outlined pill row.
