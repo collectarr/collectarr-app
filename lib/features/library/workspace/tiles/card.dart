@@ -383,6 +383,8 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
         : palette.isDark
             ? kLibraryCardDetailIdle
             : palette.textMuted;
+    final hasCoverOverlay = presentation.coverOverlayBuilder != null;
+    final showTitle = headlined && widget.showHeadline && !hasCoverOverlay;
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -416,7 +418,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (headlined && widget.showHeadline)
+                              if (showTitle)
                                 _HeadlinedCardTitle(
                                     text: presentation.headline ??
                                         item.dto.primaryLabel,
@@ -618,7 +620,7 @@ class _HeadlinedCardTitle extends StatelessWidget {
       height: kLibraryHeadlinedCardTitleHeight,
       width: double.infinity,
       child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 3, 22, 0),
+          padding: const EdgeInsets.fromLTRB(5, 3, 5, 0),
           child: Text(text,
               textAlign: TextAlign.center,
               maxLines: 2,

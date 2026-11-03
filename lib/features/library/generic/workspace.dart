@@ -180,8 +180,8 @@ class LibraryWorkspace extends ConsumerWidget {
     final horizontalCoverWidth =
         math.max(60.0, uiPrefs.cardCoverWidth * horizontalScale);
     final standardVerticalTileWidth =
-        ((viewState.coverSize + 54) * density.cardScaleFactor)
-            .clamp(160.0, 244.0)
+        ((viewState.coverSize + 10) * density.cardScaleFactor)
+            .clamp(120.0, 244.0)
             .toDouble();
     final cardFooterHeight =
         items.any((item) => item.customFieldBadges.isNotEmpty) ? 80.0 : 62.0;
@@ -196,7 +196,8 @@ class LibraryWorkspace extends ConsumerWidget {
                 viewProfile.coverGridHeightFactor +
             10 +
             kLibraryHeadlinedCardFooterHeight
-        : standardVerticalTileWidth * viewProfile.coverGridHeightFactor +
+        : (standardVerticalTileWidth - 10) * viewProfile.coverGridHeightFactor +
+            10 +
             cardFooterHeight;
     final coverFocusedTileWidth =
         ((viewState.coverSize + 56) * density.cardScaleFactor)
@@ -287,8 +288,9 @@ class LibraryWorkspace extends ConsumerWidget {
             selectedColor: appPalette(context).utilityAction,
             accentColor: accent,
             mutedTextColor: palette.textMuted,
-            coverWidth:
-                usesCoverFocusedCards ? viewState.coverSize : cardCoverWidth,
+            coverWidth: usesCoverFocusedCards || headlinedCards
+                ? viewState.coverSize
+                : cardCoverWidth,
             cardLayout: headlinedCards
                 ? LibraryCardLayout.headlined
                 : LibraryCardLayout.vertical,
