@@ -22,13 +22,12 @@ const kAppExtraBoldFontWeight = FontWeight.w800;
 /// outlines so 14 px bold matches the reference, which Flutter paints
 /// lighter; at title sizes that gap closes, and ExtraBold matches the
 /// reference's Gilroy Bold (measured on the 18 px editor title).
-FontWeight get appTitleBoldFontWeight =>
-    appTitleBoldFontWeightFor(LocalFontController.instance);
+FontWeight get appTitleBoldFontWeight => appFontFamily == 'Roboto'
+    ? kAppBoldFontWeight
+    : appTitleBoldFontWeightFor(LocalFontController.instance);
 
 FontWeight appTitleBoldFontWeightFor(LocalFontController fonts) =>
-    appFontFamily != 'Roboto' &&
-            fonts.isGilroyActive &&
-            fonts.faces.containsKey(800)
+    fonts.isGilroyActive && fonts.faces.containsKey(800)
         ? kAppExtraBoldFontWeight
         : kAppBoldFontWeight;
 
