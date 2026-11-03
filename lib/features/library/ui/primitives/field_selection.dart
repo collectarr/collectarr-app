@@ -25,7 +25,8 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
       required this.child,
       required this.onSave,
       this.confirmLabel = 'Save',
-      this.headerAction});
+      this.headerAction,
+      this.onBack});
   final String title;
   final IconData icon;
   final Color accent;
@@ -33,6 +34,7 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
   final VoidCallback? onSave;
   final String confirmLabel;
   final Widget? headerAction;
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +62,7 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
                   title: title,
                   headerColor: accent,
                   backgroundColor: pickListSurface(context),
-                  onBack: () => Navigator.of(context).pop(),
+                  onBack: onBack ?? () => Navigator.of(context).pop(),
                   actions: [
                     if (headerAction != null) headerAction!,
                     TextButton(

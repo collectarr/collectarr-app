@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/ui/primitives/field_selection.dart';
 import 'package:collectarr_app/features/library/generic/folder_reorder_list.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -111,19 +112,18 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
       return MobilePage(
         title: 'Select Sort Order',
         headerColor: widget.type.identity.accent,
-        backgroundColor: appPalette(context).panel,
+        backgroundColor: libraryWorkspaceBackgroundColor(context),
         onBack: () => Navigator.of(context).pop(),
-        actions: widget.onManageFavorites == null
-            ? null
-            : [
-                IconButton(
-                    tooltip: 'Manage sorting favorites',
-                    onPressed: () async {
-                      await widget.onManageFavorites!();
-                      if (mounted) await _loadPresets();
-                    },
-                    icon: const Icon(Icons.settings_outlined)),
-              ],
+        actions: [
+          IconButton(
+              tooltip: 'Save sort favorite',
+              onPressed: () {
+                _editingPresetId = null;
+                _presetNameController.clear();
+                _nameFavorite();
+              },
+              icon: const Icon(Icons.add)),
+        ],
         body: ListView(children: [
           Container(
             color: widget.type.identity.accent.withValues(alpha: 0.2),
@@ -150,9 +150,26 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
               ),
             ),
           ),
-          for (final preset in _combinedPresets)
+          for (final preset in _savedPresets)
             ListTile(
+              key: ValueKey('sort.favorite.${preset.id}'),
               title: Text(preset.label),
+              subtitle: Text(_sortRuleSummary(widget.type, preset.rules)),
+              trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                IconButton(
+                    tooltip: 'Edit ${preset.label}',
+                    onPressed: () {
+                      _applyPreset(preset);
+                      setState(() => _advancedMobile = true);
+                    },
+                    icon: const Icon(Icons.edit_outlined)),
+                IconButton(
+                    tooltip: 'Delete ${preset.label}',
+                    onPressed: preset.id == null
+                        ? null
+                        : () => _deletePreset(preset.id!),
+                    icon: const Icon(Icons.delete_outline)),
+              ]),
               onTap: () {
                 _applyPreset(preset);
                 _saveAndClose();
@@ -173,47 +190,58 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
         accent: widget.type.identity.accent,
         confirmLabel: widget.confirmLabel,
         onSave: _saveAndClose,
+        onBack: appPresentationPlatform.isNativeMobile &&
+                widget.showFavorites &&
+                _advancedMobile
+            ? () => setState(() => _advancedMobile = false)
+            : null,
         headerAction: !widget.showFavorites
             ? null
-            : PopupMenuButton<LibrarySortPreset>(
-                popUpAnimationStyle: AnimationStyle.noAnimation,
-                tooltip: 'Sorting favorites',
-                // The header is accent-coloured in both skins.
-                style:
-                    IconButton.styleFrom(backgroundColor: Colors.transparent),
-                icon: const Icon(AppIcons.settings,
-                    color: Colors.white, size: 16),
-                enabled: !_loadingPresets,
-                onSelected: _applyPreset,
-                itemBuilder: (context) => [
-                      PopupMenuItem(
-                          enabled: false,
-                          child: TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                _nameFavorite();
-                              },
-                              child: const Text('Save favorite'))),
-                      for (final preset in _combinedPresets)
-                        PopupMenuItem(
-                            value: preset,
-                            child: Row(children: [
-                              Expanded(
-                                  child: Tooltip(
-                                      message: _sortRuleSummary(
-                                          widget.type, preset.rules),
-                                      child: Text(preset.label))),
-                              if (preset.isSaved)
-                                IconButton(
-                                    tooltip: 'Delete favorite',
-                                    icon: const Icon(Icons.delete_outline,
-                                        size: 16),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      _deletePreset(preset.id!);
-                                    }),
-                            ])),
-                    ]),
+            : appPresentationPlatform.isNativeMobile
+                ? IconButton(
+                    tooltip: 'Save sort favorite',
+                    onPressed: _nameFavorite,
+                    icon: const Icon(Icons.bookmark_add_outlined,
+                        color: Colors.white))
+                : PopupMenuButton<LibrarySortPreset>(
+                    popUpAnimationStyle: AnimationStyle.noAnimation,
+                    tooltip: 'Sorting favorites',
+                    // The header is accent-coloured in both skins.
+                    style: IconButton.styleFrom(
+                        backgroundColor: Colors.transparent),
+                    icon: const Icon(AppIcons.settings,
+                        color: Colors.white, size: 16),
+                    enabled: !_loadingPresets,
+                    onSelected: _applyPreset,
+                    itemBuilder: (context) => [
+                          PopupMenuItem(
+                              enabled: false,
+                              child: TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    _nameFavorite();
+                                  },
+                                  child: const Text('Save favorite'))),
+                          for (final preset in _combinedPresets)
+                            PopupMenuItem(
+                                value: preset,
+                                child: Row(children: [
+                                  Expanded(
+                                      child: Tooltip(
+                                          message: _sortRuleSummary(
+                                              widget.type, preset.rules),
+                                          child: Text(preset.label))),
+                                  if (preset.isSaved)
+                                    IconButton(
+                                        tooltip: 'Delete favorite',
+                                        icon: const Icon(Icons.delete_outline,
+                                            size: 16),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          _deletePreset(preset.id!);
+                                        }),
+                                ])),
+                        ]),
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           if (widget.description == null)
