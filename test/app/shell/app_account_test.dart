@@ -61,7 +61,10 @@ void main() {
       final router = container.read(appRouterProvider);
       router.go('/libraries?kind=game');
       await pumpUntilSettled(tester);
-      await tester.tap(find.byKey(const Key('app.account')));
+      expect(find.byKey(const Key('app.account')), findsNothing);
+      await tester.tap(find.byKey(const Key('app.open-navigation')));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.byKey(const Key('drawer.account')));
       await pumpUntilSettled(tester);
       final drawer =
           tester.widget<Drawer>(find.byKey(const Key('account.drawer')));
@@ -75,7 +78,9 @@ void main() {
       expect(find.text('Library totals on this device'), findsOneWidget);
       expect(find.text('Hardware'), findsOneWidget);
       expect(find.text('7'), findsOneWidget);
-      await tester.tap(find.byKey(const Key('app.account')));
+      await tester.tap(find.byKey(const Key('app.open-navigation')));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.byKey(const Key('drawer.account')));
       await pumpUntilSettled(tester);
       await tester.tap(find.text('Logout'));
       await pumpUntilSettled(tester);

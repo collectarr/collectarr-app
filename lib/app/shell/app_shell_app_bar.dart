@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/generic/mobile_search_controller
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_shell_brand.dart';
-import 'app_account_button.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 
 import 'package:collectarr_app/features/library/home/kind_menu.dart';
@@ -113,11 +112,6 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
         if (!appPresentationPlatform.isNativeMobile)
           SyncActionButton(style: toolbarIconStyle),
         AppUpdateHeaderButton(style: toolbarIconStyle, kind: type.kind),
-        if (!appPresentationPlatform.isNativeMobile)
-          AppAccountButton(
-              style: toolbarIconStyle,
-              kind: type.kind.apiValue,
-              animationsEnabled: animationsEnabled),
         if (nativeSearch) ...[
           IconButton(
               tooltip: 'Select ${type.identity.pluralLabel.toLowerCase()}',
