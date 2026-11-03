@@ -15,6 +15,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Mobile library headers open the kind picker from the title and show selection only for populated item lists.
 - Mobile Comics Add Manually follows the same field layout and tab groups as Edit.
 - Mobile editors use darker surfaces and kind-coloured status bars, and the collection status menu shows coloured icons.
 - Native item details place Action and Edit at the bottom, retain the shared action menu including eBay, show CLZ-sized comic covers without empty title space, fall back to the library title and present detail fields in one column.

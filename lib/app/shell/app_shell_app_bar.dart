@@ -74,13 +74,25 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
         ),
       ),
       titleSpacing: 2,
-      title: AppShellBrand(
-        icon: type.identity.icon,
-        kindTitle: type.identity.title,
-        iconKey: const Key('app.kind-icon'),
-        titleKey: const Key('app.brand-title'),
-        showIcon: !appPresentationPlatform.isNativeMobile,
-      ),
+      title: appPresentationPlatform.isNativeMobile
+          ? MediaLibraryKindMenu(
+              types: types,
+              registry: defaultLibraryKindRegistry,
+              onSelected: onKindSelected,
+              trigger: AppShellBrand(
+                icon: type.identity.icon,
+                kindTitle: type.identity.title,
+                iconKey: const Key('app.kind-icon'),
+                titleKey: const Key('app.brand-title'),
+                showIcon: false,
+              ),
+            )
+          : AppShellBrand(
+              icon: type.identity.icon,
+              kindTitle: type.identity.title,
+              iconKey: const Key('app.kind-icon'),
+              titleKey: const Key('app.brand-title'),
+            ),
       systemOverlayStyle: appPresentationPlatform.isNativeMobile
           ? nativeSystemUiStyle(
               accent: accent,
@@ -109,20 +121,27 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
           Center(child: _AccountLibraryLabel(kindTitle: type.identity.title)),
       ]),
       actions: [
-        MediaLibraryKindMenu(
-          types: types,
-          registry: defaultLibraryKindRegistry,
-          onSelected: onKindSelected,
-        ),
+        if (!appPresentationPlatform.isNativeMobile)
+          MediaLibraryKindMenu(
+            types: types,
+            registry: defaultLibraryKindRegistry,
+            onSelected: onKindSelected,
+          ),
         if (!appPresentationPlatform.isNativeMobile)
           SyncActionButton(style: toolbarIconStyle),
         AppUpdateHeaderButton(style: toolbarIconStyle, kind: type.kind),
         if (nativeSearch) ...[
-          IconButton(
-              tooltip: 'Select ${type.identity.pluralLabel.toLowerCase()}',
-              style: toolbarIconStyle,
-              onPressed: search!.toggleSelection,
-              icon: const Icon(Icons.library_add_check_outlined)),
+          ValueListenableBuilder<bool>(
+            valueListenable: search!.selectionAvailable,
+            builder: (context, available, _) => available
+                ? IconButton(
+                    tooltip:
+                        'Select ${type.identity.pluralLabel.toLowerCase()}',
+                    style: toolbarIconStyle,
+                    onPressed: search.toggleSelection,
+                    icon: const Icon(Icons.library_add_check))
+                : const SizedBox.shrink(),
+          ),
           PopupMenuButton<LibraryCollectionStatusScope>(
               tooltip: 'Collection status',
               style: toolbarIconStyle,

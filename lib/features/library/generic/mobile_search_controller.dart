@@ -8,6 +8,7 @@ class MobileLibrarySearchController extends Notifier<bool> {
   final String kind;
   late final TextEditingController textController;
   late final FocusNode focusNode;
+  final selectionAvailable = ValueNotifier<bool>(false);
   Object? _owner;
   ValueChanged<String>? _onChanged;
   ValueChanged<String>? _onSubmitted;
@@ -22,6 +23,7 @@ class MobileLibrarySearchController extends Notifier<bool> {
     textController = TextEditingController();
     focusNode = FocusNode();
     ref.onDispose(focusNode.dispose);
+    ref.onDispose(selectionAvailable.dispose);
     ref.onDispose(textController.dispose);
     return false;
   }
@@ -56,6 +58,7 @@ class MobileLibrarySearchController extends Notifier<bool> {
     _readStatus = null;
     Future.microtask(() {
       if (ref.mounted && _owner == null) {
+        selectionAvailable.value = false;
         textController.clear();
         state = false;
       }

@@ -139,6 +139,19 @@ abstract final class LibraryPageShellPresenter {
     }
     final searchState = state._searchControllerOps.state;
     final trimmedSearchQuery = searchState.query.trim();
+    final showFolderRoot = viewState.isSidebarVisible &&
+        state._session.facets.selectedBucket == null &&
+        trimmedSearchQuery.isEmpty &&
+        workspaceOverride == null;
+    final canSelect =
+        !showFolderRoot && state._visibleItems(projection).isNotEmpty;
+    final mobileSearch = state._mobileSearch;
+    if (mobileSearch != null &&
+        mobileSearch.selectionAvailable.value != canSelect) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (state.mounted) mobileSearch.selectionAvailable.value = canSelect;
+      });
+    }
     final bucketStatusSummary =
         state._bucketStatusSummaryForProjection(projection);
     final kind = state.widget.type.kind.apiValue;
@@ -339,11 +352,8 @@ abstract final class LibraryPageShellPresenter {
           type: state.widget.type,
           viewState: viewState,
           counts: projection.counts,
-          showMobileFolderRoot: appPresentationPlatform.isNativeMobile &&
-              viewState.isSidebarVisible &&
-              state._session.facets.selectedBucket == null &&
-              trimmedSearchQuery.isEmpty &&
-              workspaceOverride == null,
+          showMobileFolderRoot:
+              appPresentationPlatform.isNativeMobile && showFolderRoot,
           onEditColumns: state._dialogCoordinator.showColumnChooserFlow,
           columnFavoritePresets: state._columnFavoritePresets,
           activeColumnFavoriteLabel: state._activeColumnFavoriteLabel,

@@ -20,6 +20,7 @@ class AppShellBrand extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (showIcon) ...[
             Icon(icon, key: iconKey, size: 22, color: Colors.white),
@@ -38,7 +39,6 @@ class AppShellBrand extends StatelessWidget {
                     fontFamily: appFontFamily,
                     color: Colors.white,
                     fontSize: 22,
-                    height: 1,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0,
                   ),
