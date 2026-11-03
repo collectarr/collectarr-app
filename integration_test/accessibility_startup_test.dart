@@ -95,7 +95,7 @@ void main() {
       await tester.ensureVisible(covers);
       await tester.tap(covers);
       await pumpUntilSettled(tester);
-      expect(find.text('Grid spacing'), findsOneWidget);
+      expect(find.text('Show titles in grid'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
       await pumpUntilSettled(tester);
