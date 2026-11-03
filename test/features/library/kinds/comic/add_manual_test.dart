@@ -172,5 +172,5 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 100));
-  });
+  }, variant: const TargetPlatformVariant({TargetPlatform.windows}));
 }

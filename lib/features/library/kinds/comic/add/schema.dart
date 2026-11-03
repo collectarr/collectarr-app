@@ -2,6 +2,7 @@ import 'dart:async';
 import '../forms/catalog_form_layout.dart';
 
 import 'package:collectarr_app/features/library/forms/schema.dart';
+import 'package:collectarr_app/features/library/ui/primitives/form_controls.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
@@ -21,6 +22,7 @@ LibraryFormSchema<ComicAddManualDraft> comicAddSchemaFor({
   FutureOr<void> Function()? onManageSeriesGroup,
   FutureOr<void> Function()? onManagePhysicalFormat,
   bool includeTitle = false,
+  bool mobile = false,
 }) =>
     LibraryFormSchema<ComicAddManualDraft>(
       title: (_) => 'Manual comic issue',
@@ -32,14 +34,16 @@ LibraryFormSchema<ComicAddManualDraft> comicAddSchemaFor({
           LibraryFormSectionSpec<ComicAddManualDraft>(
             id: 'issue',
             label: 'Issue',
-            columns: fieldIds?.contains('comic.series') == true
-                ? comicMainColumns
-                : fieldIds?.contains('catalog_title') == true
-                    ? comicDetailsColumns('catalog_title')
-                    : const [],
+            columns: mobile
+                ? comicMobileMainColumns
+                : fieldIds?.contains('comic.series') == true
+                    ? comicMainColumns
+                    : fieldIds?.contains('catalog_title') == true
+                        ? comicDetailsColumns('catalog_title')
+                        : const [],
             fields: [
               LibraryTextFieldSpec<ComicAddManualDraft>(
-                  id: 'catalog_title',
+                  id: mobile ? 'title' : 'catalog_title',
                   label: 'Title',
                   value: (draft) => draft.catalogTitle,
                   setValue: (draft, value) => draft.catalogTitle = value),
@@ -58,6 +62,17 @@ LibraryFormSchema<ComicAddManualDraft> comicAddSchemaFor({
                   onManagePublisher: onManagePublisher,
                   onManageImprint: onManageImprint,
                   onManageSeriesGroup: onManageSeriesGroup),
+              if (mobile)
+                LibraryCustomFieldSpec<ComicAddManualDraft>(
+                  id: 'comic.plot',
+                  label: 'Plot',
+                  builder: (context, draft) => LibraryTextFormControl(
+                    initialValue: draft.values.description,
+                    minLines: 4,
+                    maxLines: 8,
+                    onChanged: (value) => draft.values.description = value,
+                  ),
+                ),
             ],
           ),
         ],

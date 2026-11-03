@@ -10,10 +10,12 @@ class ComicAddPersonalTab extends StatelessWidget {
       {super.key,
       required this.request,
       required this.entry,
-      required this.valueTab});
+      required this.valueTab,
+      this.keyTab = false});
   final LibraryAddManualPaneRequest request;
   final ComicEntryEditDraft entry;
   final bool valueTab;
+  final bool keyTab;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,7 @@ class ComicAddPersonalTab extends StatelessWidget {
         personal: draft.personal,
         entry: entry,
         valueTab: valueTab,
+        keyTab: keyTab,
         commonFields: fields,
         update: (value) =>
             request.onKindDraftChanged?.call(draft.copyWith(personal: value)),
