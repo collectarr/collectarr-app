@@ -63,9 +63,8 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
         method: MobileAddMethod.search,
         icon: Icons.search,
         primaryText: 'by typing',
-        secondaryText: plural == 'comics'
-            ? 'series / issue'
-            : widget.searchLabel.toLowerCase().replaceAll('search by ', ''),
+        secondaryText:
+            widget.searchLabel.toLowerCase().replaceAll('search by ', ''),
       ),
     ];
 
@@ -126,14 +125,26 @@ class _MobileAddMethodPickerState extends State<_MobileAddMethodPicker> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Row(
-                      children: [
+                    LayoutBuilder(builder: (context, constraints) {
+                      final stacked = constraints.maxWidth < 240 ||
+                          MediaQuery.textScalerOf(context).scale(1) > 1.4;
+                      if (stacked) {
+                        return Column(children: [
+                          for (var i = 0; i < choices.length; i++) ...[
+                            if (i > 0) const SizedBox(height: 8),
+                            SizedBox(
+                                width: double.infinity,
+                                child: _cardChoice(choices[i])),
+                          ],
+                        ]);
+                      }
+                      return Row(children: [
                         for (var i = 0; i < choices.length; i++) ...[
                           if (i > 0) const SizedBox(width: 8),
                           Expanded(child: _cardChoice(choices[i])),
                         ],
-                      ],
-                    ),
+                      ]);
+                    }),
                     const SizedBox(height: 8),
                     CheckboxListTile(
                       contentPadding: EdgeInsets.zero,
