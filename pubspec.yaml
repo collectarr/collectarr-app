@@ -65,7 +65,15 @@ flutter:
     - assets/flags/
     - web/icons/Icon-maskable-192.png
     - assets/fonts/PlusJakartaSans-OFL.txt
+    - assets/fonts/LeagueSpartan-OFL.txt
+    - assets/fonts/OpenSans-OFL.txt
   fonts:
+    - family: League Spartan
+      fonts:
+        - asset: assets/fonts/LeagueSpartan[wght].ttf
+    - family: Open Sans
+      fonts:
+        - asset: assets/fonts/OpenSans[wdth,wght].ttf
     - family: Plus Jakarta Sans
       fonts:
         - asset: assets/fonts/PlusJakartaSans-Regular.ttf

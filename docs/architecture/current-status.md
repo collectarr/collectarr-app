@@ -70,9 +70,10 @@ sharing publishes explicit snapshots through Sync. See
 
 Kind accents mark library identity. Shared blue marks utility actions, input
 focus, item/folder selection, settings labels and links. Collection status
-colors are fixed. Fonts: bundled OFL Plus Jakarta Sans, optionally a
-user-supplied local font (see [local font loading](local-font-loading.md));
-Gilroy is never bundled.
+colors are fixed. Fonts: bundled OFL Plus Jakarta Sans for UI text and variable
+League Spartan and Open Sans for comic slab labels, optionally a user-supplied
+local UI font (see [local font loading](local-font-loading.md)); Gilroy is never
+bundled.
 
 Async action hosts share busy, repeat-submit and error handling across action
 menus, semantic inspector actions, and standalone tracking/listening controls.

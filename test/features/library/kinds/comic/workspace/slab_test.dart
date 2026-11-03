@@ -69,7 +69,8 @@ void main() {
         isNull);
   });
 
-  testWidgets('the slab prints the grade box only for a grade', (tester) async {
+  testWidgets('the slab prints grades with the reference fonts',
+      (tester) async {
     await _pumpSlab(
         tester,
         const ComicSlab(
@@ -79,6 +80,14 @@ void main() {
     expect(find.text('NG'), findsOneWidget);
     expect(find.text('CBCS'), findsOneWidget);
     expect(tester.widget<Text>(find.text('NG')).style?.color, Colors.black);
+    expect(tester.widget<Text>(find.text('NG')).style?.fontFamily,
+        'League Spartan');
+    expect(tester.widget<Text>(find.text('NG')).style?.fontWeight,
+        FontWeight.w800);
+    expect(
+        tester.widget<Text>(find.text('CBCS')).style?.fontFamily, 'Open Sans');
+    expect(tester.widget<Text>(find.text('CBCS')).style?.fontWeight,
+        FontWeight.w400);
 
     await _pumpSlab(tester,
         const ComicSlab(gradingCompany: 'PGX', child: SizedBox.expand()));
@@ -88,7 +97,9 @@ void main() {
             of: find.byType(ComicSlab), matching: find.byType(Transform)),
         findsNothing);
     expect(tester.takeException(), isNull);
-  });
+  },
+      variant: TargetPlatformVariant(
+          {TargetPlatform.android, TargetPlatform.windows}));
 
   testWidgets('the slab shows the image loaded for its Custom Label',
       (tester) async {
