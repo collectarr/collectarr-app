@@ -12,6 +12,31 @@ void desktopTestWidgets(String description, WidgetTesterCallback callback) =>
         variant: TargetPlatformVariant({TargetPlatform.windows}));
 
 void main() {
+  testWidgets('native selected folder shows Back and its name', (tester) async {
+    var backCount = 0;
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Align(
+          alignment: Alignment.topLeft,
+          child: LibraryGroupModeMenuButton(
+            type: const MusicRegistration(),
+            folderPreset: LibraryFolderPreset.single('music.artist'),
+            selectedBucket: 'Coltrane',
+            accent: Colors.orange,
+            icon: Icons.folder,
+            onChanged: (_) {},
+            onClearBucket: () => backCount++,
+          ),
+        ),
+      ),
+    ));
+    expect(find.text('Coltrane'), findsOneWidget);
+    await tester.tap(find.byTooltip('Back to folders'));
+    await tester.pump();
+    expect(backCount, 1);
+    expect(find.text('Select Folder Field:'), findsNothing);
+  }, variant: TargetPlatformVariant({TargetPlatform.android}));
+
   testWidgets('native folder selector is a searchable page', (tester) async {
     LibraryFolderPreset? selected;
     await tester.pumpWidget(MaterialApp(

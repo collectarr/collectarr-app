@@ -91,6 +91,17 @@ void main() {
       expect(find.text('Folders...'), findsOneWidget);
       Navigator.of(tester.element(find.text('Folders...'))).pop();
       await pumpUntilSettled(tester);
+      expect(
+          find.byKey(const Key('library.mobile-folder-list')), findsOneWidget);
+      await tester.tap(find.text('[All Comics]'));
+      await pumpUntilSettled(tester);
+      expect(find.byKey(const Key('library.mobile-folder-list')), findsNothing);
+      expect(find.byTooltip('Back to folders'), findsOneWidget);
+      expect(find.text('No results found...'), findsNothing);
+      await tester.tap(find.byTooltip('Back to folders'));
+      await pumpUntilSettled(tester);
+      expect(
+          find.byKey(const Key('library.mobile-folder-list')), findsOneWidget);
       expect(tester.takeException(), isNull);
       await disposeTestApp(tester);
     }, variant: TargetPlatformVariant.only(TargetPlatform.android));

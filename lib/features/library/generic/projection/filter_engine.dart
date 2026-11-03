@@ -72,7 +72,10 @@ class LibraryFilterEngine {
     String? selectedBucket,
     LibraryProjectionIndex? index,
   ) {
-    if (selectedBucket == null) return true;
+    if (selectedBucket == null ||
+        selectedBucket == genericAllBucketLabel(type)) {
+      return true;
+    }
     return groupingEngine
         .bucketsForItem(item, type, groupId, index: index)
         .contains(selectedBucket);

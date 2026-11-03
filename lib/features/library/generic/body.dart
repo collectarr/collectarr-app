@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/config/media_presentation_models
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
+import 'package:collectarr_app/features/library/generic/mobile_folder_chooser.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/search_target.dart';
 import 'package:collectarr_app/features/library/workspace/layout/alpha_jump_bar.dart';
@@ -338,7 +339,9 @@ class LibraryBody extends StatelessWidget {
                 selectedIds: selectedItemIds,
                 groupMode: groupMode,
                 groupPresentation: groupPresentation,
-                selectedBucket: selectedBucket,
+                selectedBucket: selectedBucket == genericAllBucketLabel(type)
+                    ? null
+                    : selectedBucket,
                 onBucketChanged: onBucketChanged,
                 accent: accent,
                 hasActiveFilter: hasActiveFilter,
@@ -436,31 +439,6 @@ class LibraryBody extends StatelessWidget {
                     ),
                   Expanded(child: desktopToolbarBand!),
                 ]),
-              if (appPresentationPlatform.isNativeMobile &&
-                  !canShowSidebar &&
-                  projection.buckets.length > 1)
-                PopupMenuButton<String>(
-                    tooltip: 'Choose folder',
-                    onSelected: (bucket) => onBucketChanged(
-                        bucket == genericAllBucketLabel(type) ? null : bucket),
-                    itemBuilder: (_) => [
-                          for (final bucket in projection.buckets)
-                            PopupMenuItem(
-                                value: bucket.title,
-                                height: 48,
-                                child:
-                                    Text('${bucket.title} (${bucket.count})'))
-                        ],
-                    child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 12),
-                        child: Row(children: [
-                          const Icon(Icons.folder_open_outlined, size: 24),
-                          const SizedBox(width: 8),
-                          Expanded(
-                              child: Text(selectedBucket ?? 'Choose folder')),
-                          const Icon(Icons.expand_more)
-                        ]))),
               if (quickView != null ||
                   filterSelection.hasActiveFilters ||
                   activeSmartListName != null)
@@ -509,15 +487,27 @@ class LibraryBody extends StatelessWidget {
                   onLetterSelected: onLetterSelected!,
                 ),
               Expanded(
-                child: workspaceOverride == null
-                    ? workspace
-                    : IndexedStack(
-                        index: 1,
-                        children: [
-                          workspace,
-                          workspaceOverride!,
-                        ],
-                      ),
+                child: appPresentationPlatform.isNativeMobile &&
+                        viewState.isSidebarVisible &&
+                        selectedBucket == null &&
+                        selectedId == null &&
+                        (searchQuery == null || searchQuery!.trim().isEmpty) &&
+                        workspaceOverride == null
+                    ? LibraryMobileFolderChooser(
+                        buckets: projection.buckets,
+                        folderLabel: genericGroupModeLabel(groupMode, type),
+                        allBucketLabel: genericAllBucketLabel(type),
+                        onSelected: onBucketChanged,
+                      )
+                    : workspaceOverride == null
+                        ? workspace
+                        : IndexedStack(
+                            index: 1,
+                            children: [
+                              workspace,
+                              workspaceOverride!,
+                            ],
+                          ),
               ),
             ],
           );

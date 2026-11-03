@@ -366,6 +366,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
               key: const Key('library.mobile-folder'),
               type: type,
               folderPreset: folderPreset,
+              selectedBucket: selectedBucket,
               accent: type.identity.accent,
               icon: Icons.folder_outlined,
               onChanged: onGroupModeChanged!,
