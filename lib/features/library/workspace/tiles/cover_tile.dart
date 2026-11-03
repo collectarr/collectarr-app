@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/ui/chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/density_scope.dart';
-import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:collectarr_app/ui/app_press_tap.dart';
@@ -13,9 +12,8 @@ import 'package:collectarr_app/features/library/ui/primitives/collection_status_
 import 'package:collectarr_app/features/library/workspace/tiles/item_status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LibraryCoverTile extends ConsumerStatefulWidget {
+class LibraryCoverTile extends StatefulWidget {
   const LibraryCoverTile({
     required this.item,
     required this.active,
@@ -54,10 +52,10 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
   final Color mutedTextColor;
 
   @override
-  ConsumerState<LibraryCoverTile> createState() => _LibraryCoverTileState();
+  State<LibraryCoverTile> createState() => _LibraryCoverTileState();
 }
 
-class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
+class _LibraryCoverTileState extends State<LibraryCoverTile> {
   bool _hovered = false;
 
   @override
@@ -72,9 +70,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final selected = widget.selected;
     final density = LibraryDensityScope.maybeOf(context)?.density ??
         LibraryDensity.comfortable;
-    final uiPrefs = ref.watch(uiPreferencesProvider);
     final palette = appPalette(context);
-    final flat = uiPrefs.flatCovers;
     final resolvedSelectedColor = widget.selectedColor == kAppSelection
         ? libraryWorkspaceSelectionBackground(context)
         : widget.selectedColor;
@@ -106,9 +102,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                 )
               : null,
           // The reference draws covers bare, with only a 3 px black shadow.
-          boxShadow: flat
-              ? null
-              : const [BoxShadow(color: Colors.black, blurRadius: 3)],
+          boxShadow: const [BoxShadow(color: Colors.black, blurRadius: 3)],
         ),
         child: AppPressTap(
             onTap: widget.onTap,

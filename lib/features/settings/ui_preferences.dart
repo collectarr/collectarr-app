@@ -26,7 +26,6 @@ class UiPreferences {
     this.animationsEnabled = true,
     this.disableLibrarySwitchAnimation = false,
     this.disableLibraryCoverPrewarm = false,
-    this.flatCovers = false,
     this.gridSpacing = 10.0,
     this.showCoverTitles = true,
     this.cardCoverWidth = 92.0,
@@ -63,9 +62,6 @@ class UiPreferences {
   final bool animationsEnabled;
   final bool disableLibrarySwitchAnimation;
   final bool disableLibraryCoverPrewarm;
-
-  /// Remove shadows and borders from cover tiles for a flatter look.
-  final bool flatCovers;
 
   /// Spacing between grid tiles in pixels (4–24).
   final double gridSpacing;
@@ -127,7 +123,6 @@ class UiPreferences {
     bool? animationsEnabled,
     bool? disableLibrarySwitchAnimation,
     bool? disableLibraryCoverPrewarm,
-    bool? flatCovers,
     double? gridSpacing,
     bool? showCoverTitles,
     double? cardCoverWidth,
@@ -166,7 +161,6 @@ class UiPreferences {
           disableLibrarySwitchAnimation ?? this.disableLibrarySwitchAnimation,
       disableLibraryCoverPrewarm:
           disableLibraryCoverPrewarm ?? this.disableLibraryCoverPrewarm,
-      flatCovers: flatCovers ?? this.flatCovers,
       gridSpacing: gridSpacing ?? this.gridSpacing,
       showCoverTitles: showCoverTitles ?? this.showCoverTitles,
       cardCoverWidth: cardCoverWidth ?? this.cardCoverWidth,
@@ -222,7 +216,6 @@ class UiPreferencesStore {
       '$_prefix.disable_library_switch_animation';
   static const disableLibraryCoverPrewarmKey =
       '$_prefix.disable_library_cover_prewarm';
-  static const flatCoversKey = '$_prefix.flat_covers';
   static const gridSpacingKey = '$_prefix.grid_spacing';
   static const showCoverTitlesKey = '$_prefix.show_cover_titles';
   static const cardCoverWidthKey = '$_prefix.card_cover_width';
@@ -284,7 +277,6 @@ class UiPreferencesStore {
           prefs.getBool(disableLibrarySwitchAnimationKey) ?? false,
       disableLibraryCoverPrewarm:
           prefs.getBool(disableLibraryCoverPrewarmKey) ?? false,
-      flatCovers: prefs.getBool(flatCoversKey) ?? false,
       gridSpacing: prefs.getDouble(gridSpacingKey) ?? 10.0,
       showCoverTitles: prefs.getBool(showCoverTitlesKey) ?? true,
       cardCoverWidth: prefs.getDouble(cardCoverWidthKey) ?? 92.0,
@@ -399,7 +391,6 @@ class UiPreferencesStore {
     await prefs.setString(
         ebaySearchFilterKey, preferences.ebaySearchFilter.name);
     await prefs.setString(ebayRegionKey, preferences.ebayRegion.name);
-    await prefs.setBool(flatCoversKey, preferences.flatCovers);
     await prefs.setDouble(gridSpacingKey, preferences.gridSpacing);
     await prefs.setBool(showCoverTitlesKey, preferences.showCoverTitles);
     await prefs.setDouble(cardCoverWidthKey, preferences.cardCoverWidth);
@@ -433,9 +424,6 @@ class UiPreferencesController extends Notifier<UiPreferences> {
 
   Future<void> setAnimationsEnabled(bool enabled) =>
       _update((s) => s.copyWith(animationsEnabled: enabled));
-
-  Future<void> setFlatCovers(bool flat) =>
-      _update((s) => s.copyWith(flatCovers: flat));
 
   Future<void> setGridSpacing(double spacing) =>
       _update((s) => s.copyWith(gridSpacing: spacing));
