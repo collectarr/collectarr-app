@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/item_confirmation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -352,12 +353,48 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final template =
         detailsPanelPalette(context, preferences.detailsPanelTemplate)
             .copyWith(accent: widget.accent);
+    final mobileDetail =
+        widget.fullscreen && appPresentationPlatform.isNativeMobile;
+    final toolbar = InspectorUnifiedToolbar(
+      item: selected,
+      contentMaxWidth: widget.fullscreen ? 960 : null,
+      includeLayoutControl:
+          !widget.fullscreen || widget.onDetailsLayoutChanged != null,
+      mobileBottomBar: mobileDetail,
+      accent: widget.accent,
+      onEdit: entityActions.onEdit,
+      onShare: entityActions.onShare,
+      onMoveToCollection: activeLibraryEntry == null || widget.db == null
+          ? null
+          : () => _moveToCollection(activeLibraryEntry),
+      onUnlinkFromCore: entityActions.onUnlinkFromCore,
+      onLinkToCore: activeLibraryEntry != null &&
+              activeLibraryEntry.sourceCatalogRef == null
+          ? () => Navigator.of(context).push(MaterialPageRoute<void>(
+                builder: (context) => LibraryLinkItemsPage(
+                  type: widget.type,
+                  entries: [selected.source],
+                ),
+              ))
+          : null,
+      onSubmitToCore: activeLibraryEntry != null &&
+              activeLibraryEntry.sourceCatalogRef == null &&
+              widget.db != null
+          ? () => unawaited(_submitToCore(activeLibraryEntry))
+          : null,
+      onDuplicate: entityActions.onDuplicate,
+      onToggleEntry: entityActions.onToggleEntry,
+      onLoan: entityActions.onLoan,
+      onRefreshMetadata: entityActions.onRefreshMetadata,
+      onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
+      detailsLayout: widget.detailsLayout,
+    );
     return Theme(
       data: buildLibraryTheme(palette: template),
       child: Builder(
           builder: (context) => ColoredBox(
                 color: widget.fullscreen
-                    ? appManagementCanvasColor(context)
+                    ? libraryWorkspaceBackgroundColor(context)
                     : preferences.detailsPanelTemplate ==
                             DetailsPanelTemplate.blue
                         ? template.panel
@@ -385,41 +422,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                       ]);
                     },
                     child: Column(children: [
-                      InspectorUnifiedToolbar(
-                        item: selected,
-                        contentMaxWidth: widget.fullscreen ? 960 : null,
-                        includeLayoutControl: !widget.fullscreen ||
-                            widget.onDetailsLayoutChanged != null,
-                        accent: widget.accent,
-                        onEdit: entityActions.onEdit,
-                        onShare: entityActions.onShare,
-                        onMoveToCollection:
-                            activeLibraryEntry == null || widget.db == null
-                                ? null
-                                : () => _moveToCollection(activeLibraryEntry),
-                        onUnlinkFromCore: entityActions.onUnlinkFromCore,
-                        onLinkToCore: activeLibraryEntry != null &&
-                                activeLibraryEntry.sourceCatalogRef == null
-                            ? () => Navigator.of(context)
-                                    .push(MaterialPageRoute<void>(
-                                  builder: (context) => LibraryLinkItemsPage(
-                                    type: widget.type,
-                                    entries: [selected.source],
-                                  ),
-                                ))
-                            : null,
-                        onSubmitToCore: activeLibraryEntry != null &&
-                                activeLibraryEntry.sourceCatalogRef == null &&
-                                widget.db != null
-                            ? () => unawaited(_submitToCore(activeLibraryEntry))
-                            : null,
-                        onDuplicate: entityActions.onDuplicate,
-                        onToggleEntry: entityActions.onToggleEntry,
-                        onLoan: entityActions.onLoan,
-                        onRefreshMetadata: entityActions.onRefreshMetadata,
-                        onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
-                        detailsLayout: widget.detailsLayout,
-                      ),
+                      if (!mobileDetail) toolbar,
                       Expanded(
                           child: Align(
                               alignment: Alignment.topCenter,
@@ -509,6 +512,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                                               ],
                                             ),
                                           ]))))),
+                      if (mobileDetail) toolbar,
                     ])),
               )),
     );

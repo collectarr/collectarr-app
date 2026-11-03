@@ -6,6 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('native detail fields stay in one column on wide devices',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: Scaffold(
+        body: SizedBox(
+          width: 800,
+          child: LibraryDetailFieldTable(fields: [
+            LibraryDetailField(label: 'Read', value: 'Yes'),
+            LibraryDetailField(label: 'Index', value: '1'),
+          ]),
+        ),
+      ),
+    ));
+    expect(find.byKey(const ValueKey('library-detail-field-table-1')),
+        findsOneWidget);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
   testWidgets('detail field table wraps to one column when narrow',
       (tester) async {
     await tester.pumpWidget(
@@ -37,7 +54,7 @@ void main() {
     expect(find.text('Value'), findsOneWidget);
   });
 
-  testWidgets('detail field table wraps to two columns when wider',
+  testWidgets('desktop detail field table uses multiple columns when wider',
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -66,5 +83,5 @@ void main() {
         findsOneWidget);
     expect(find.text('Field'), findsOneWidget);
     expect(find.text('Value'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 }
