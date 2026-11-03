@@ -22,6 +22,13 @@ import 'package:collectarr_app/features/library/workspace/table/row.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/card.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/slab.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/gestures.dart';
@@ -117,6 +124,39 @@ Widget _host(
   );
 }
 
+LibraryProjectionItem _comicItem({bool isSlabbed = false}) {
+  final entry = ComicLibraryEntry(
+    id: const LibraryEntryId('comic-1'),
+    updatedAt: DateTime.utc(2026, 10, 10),
+    personal: ComicPersonalData(
+      details: ComicEntryDetails(
+        rawOrSlabbed: isSlabbed ? 'Slabbed' : 'Raw',
+        gradingCompany: 'CGC',
+      ),
+      grade: '9.8',
+    ),
+    metadata: const ComicCatalogItem(
+      title: 'Issue 1',
+      seriesTitle: 'Batman',
+      issueNumber: '1',
+    ),
+  );
+  final summary = ComicLibraryEntryProjection.toSummary(entry);
+  return LibraryProjectionItem.fromShelf(
+    LibraryWorkspaceContext(
+      item: WorkspaceItem(
+        target: EntryTargetRef(summary.ref),
+        entrySummary: summary,
+        libraryEntryDispatch: OpaqueLibraryEntryDispatch(
+            ref: summary.ref, kind: CatalogMediaKind.comic, value: entry),
+        kindPresentationData: ComicWorkspaceData(comic: entry.metadata),
+      ),
+      personal: const PersonalOverlay(),
+    ),
+    const ComicRegistration(),
+  );
+}
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -146,6 +186,68 @@ void main() {
     expect(headline, findsOneWidget);
     expect(tester.widget<Text>(headline).textAlign, TextAlign.center);
     expect(tester.getTopLeft(headline).dy, lessThan(10));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
+  testWidgets('raw headlined cards keep the top title with 5 px side padding',
+      (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        localItemImageProvider
+            .overrideWith((ref, request) => Stream.value(null))
+      ],
+      child: MaterialApp(
+        theme: buildAppShellTheme(palette: kDefaultAppThemePalette),
+        home: Scaffold(
+            body: SizedBox(
+          width: 158,
+          height: 320,
+          child: LibraryWorkspaceCard(
+              item: _comicItem(isSlabbed: false),
+              selected: false,
+              onTap: () {},
+              cardLayout: LibraryCardLayout.headlined),
+        )),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    final headline = find.text('Batman');
+    expect(headline, findsOneWidget);
+    final padding = tester.widget<Padding>(
+        find.ancestor(of: headline, matching: find.byType(Padding)).first);
+    expect(padding.padding, const EdgeInsets.fromLTRB(5, 3, 5, 0));
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+  });
+
+  testWidgets(
+      'slabbed headlined cards omit the top title so slab fills the space',
+      (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        localItemImageProvider
+            .overrideWith((ref, request) => Stream.value(null))
+      ],
+      child: MaterialApp(
+        theme: buildAppShellTheme(palette: kDefaultAppThemePalette),
+        home: Scaffold(
+            body: SizedBox(
+          width: 158,
+          height: 320,
+          child: LibraryWorkspaceCard(
+              item: _comicItem(isSlabbed: true),
+              selected: false,
+              onTap: () {},
+              cardLayout: LibraryCardLayout.headlined),
+        )),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('Batman'), findsNothing);
+    expect(find.byType(ComicSlab), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 1));
