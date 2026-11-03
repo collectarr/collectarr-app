@@ -411,18 +411,6 @@ class _SettingsAppearanceSectionState
               const SizedBox(height: 4),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.grid_view_sharp),
-                title: const Text('Flat covers'),
-                subtitle: const Text(
-                  'Remove the shadow from cover tiles.',
-                ),
-                value: uiPreferences.flatCovers,
-                onChanged: (value) => ref
-                    .read(uiPreferencesProvider.notifier)
-                    .setFlatCovers(value),
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
                 secondary: const Icon(Icons.title),
                 title: const Text('Show titles in grid'),
                 subtitle: const Text(
