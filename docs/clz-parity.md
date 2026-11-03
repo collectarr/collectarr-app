@@ -215,8 +215,11 @@ both as installed 1.5.0 and as the current branch's debug build in the separate
 `com.example.collectarr_app.qolreview` package, labelled Collectarr Review.
 The differences below are present in the branch build. Core search results,
 series issues and the selection preview were also inspected read-only in CLZ.
-No reference records were created or saved; exact font weights and populated
-collection density remain unverified.
+No reference records were created or saved; populated collection density and
+the runtime assignment of font families to controls remain unverified. The
+installed CLZ 11.3.3 APK embeds League Spartan ExtraBold (800) and Open Sans
+Regular (400). These files were inspected in temporary storage only; Collectarr
+continues to use its FOSS font and local user-supplied fonts.
 
 | Priority | Area | Difference |
 | --- | --- | --- |
@@ -224,6 +227,7 @@ collection density remain unverified.
 | P2 | Scanner presentation | The library header camera opens the shared live-camera sheet with manual barcode entry. CLZ overlays the camera directly on the library with scanning corners. Align the native camera presentation while preserving manual entry; real barcode decoding still needs a physical-code check |
 | P3 | Library surfaces and empty state | Collectarr retains the desktop canvas gradient and a filled blue onboarding card; CLZ uses a flat dark canvas with centred teal text. Compare the light skin before adapting native surfaces |
 | P2 | Populated folder navigation | Compare CLZ's favourite presets and multi-folder bucket navigation against Collectarr with populated collections; the separate bucket chooser has not yet been checked against equivalent data |
+| P3 | Android typography | Compare CLZ's runtime use of League Spartan ExtraBold and Open Sans Regular against Collectarr's text metrics and density with equivalent populated screens; load any alternative font from a user-supplied local file |
 | P3 | Mobile sort options | Compare the available sort rows, their order and direction defaults with CLZ for every kind using equivalent populated collections; Collectarr also offers Advanced sorting for multi-field rules |
 | P2 | Comics mobile Edit controls | Collectarr groups editable year/month/day parts and a calendar in one outlined date control to preserve partial dates; CLZ shows one formatted date string. Compare a populated CLZ Edit record and align the date text, barcode camera, picker and segmented controls without losing partial dates or existing values |
 | P3 | Comics mobile Value and Key | Compare populated Value, Key and Images against CLZ Edit. CLZ's CovrPrice and eBay actions depend on external services, while Collectarr currently shows only the editable value; Signed By and Key Category still use single-value controls (see Comics Value differences) |
