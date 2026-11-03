@@ -4,7 +4,6 @@ import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/library/collections/family.dart';
 import 'package:collectarr_app/features/library/config/kind_style.dart';
-import 'package:collectarr_app/ui/app_chrome.dart';
 import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 
@@ -14,6 +13,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'app_navigation_model.dart';
 
@@ -139,30 +139,9 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                 key: const Key('drawer.header'),
                 color: Colors.transparent,
                 child: SizedBox(
-                  height: appPresentationPlatform.isNativeMobile
-                      ? 76
-                      : drawerHeaderHeight,
+                  height: appPresentationPlatform.isNativeMobile ? 76 : 64,
                   width: double.infinity,
-                  child: Row(children: [
-                    SizedBox(
-                      width: 44,
-                      child: IconButton(
-                        tooltip: 'Close navigation',
-                        style: appChromeIconButtonStyle(context),
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(AppIcons.menu,
-                            size: 19, color: Colors.white),
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    Expanded(
-                        child: AppShellBrand(
-                      icon: widget.type.identity.icon,
-                      kindTitle: widget.type.identity.title,
-                      iconKey: const Key('drawer.kind-icon'),
-                      titleKey: const Key('drawer.brand-title'),
-                    )),
-                  ]),
+                  child: _DrawerBrandHeader(type: widget.type),
                 ),
               ),
             ),
@@ -300,6 +279,65 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
       ),
     );
   }
+}
+
+class _DrawerBrandHeader extends StatefulWidget {
+  const _DrawerBrandHeader({required this.type});
+
+  final LibraryKindRegistration type;
+
+  @override
+  State<_DrawerBrandHeader> createState() => _DrawerBrandHeaderState();
+}
+
+class _DrawerBrandHeaderState extends State<_DrawerBrandHeader> {
+  late final Future<String> _version = PackageInfo.fromPlatform().then(
+    (info) => info.version.trim(),
+  );
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(10, 5, 8, 5),
+        child: Row(children: [
+          Image.asset(
+            AppIcons.appLogoPng,
+            key: const Key('drawer.app-logo'),
+            width: 38,
+            height: 38,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: AppShellBrand(
+                      icon: widget.type.identity.icon,
+                      kindTitle: widget.type.identity.title,
+                      iconKey: const Key('drawer.kind-icon'),
+                      titleKey: const Key('drawer.brand-title'),
+                      showIcon: false,
+                    ),
+                  ),
+                ),
+                FutureBuilder<String>(
+                  future: _version,
+                  builder: (context, snapshot) => Text(
+                    snapshot.hasData && snapshot.data!.isNotEmpty
+                        ? 'v${snapshot.data}'
+                        : '',
+                    key: const Key('drawer.version'),
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(color: Colors.white, fontSize: 11),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ]),
+      );
 }
 
 class _DrawerSectionLabel extends StatelessWidget {

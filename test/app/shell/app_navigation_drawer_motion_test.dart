@@ -79,7 +79,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
     final header = find.byKey(const Key('drawer.header'));
     expect(tester.getTopLeft(header).dx, 0);
-    await tester.tap(find.byTooltip('Close navigation'));
+    expect(find.byTooltip('Close navigation'), findsNothing);
+    await tester.tapAt(const Offset(650, 300));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(tester.getTopLeft(header).dx, closeTo(-160, 1));
