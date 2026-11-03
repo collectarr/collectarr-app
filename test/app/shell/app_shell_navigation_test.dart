@@ -297,6 +297,12 @@ void main() {
       // Navigate to Settings
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
+      await tester.scrollUntilVisible(find.text('Settings'), 250,
+          scrollable: find
+              .descendant(
+                  of: find.byType(AppNavigationDrawer),
+                  matching: find.byType(Scrollable))
+              .first);
       await tester.tap(find.text('Settings'));
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);

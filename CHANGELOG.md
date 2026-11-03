@@ -15,6 +15,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- The mobile sidebar has larger touch rows and icons, matching the compact CLZ navigation style.
 - The sidebar and sign-in logo has transparent corners.
 - Mobile library headers open the kind picker from the title and show selection only for populated item lists.
 - Mobile Comics Add Manually follows the same field layout and tab groups as Edit.

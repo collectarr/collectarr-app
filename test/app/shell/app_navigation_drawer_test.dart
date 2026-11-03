@@ -144,7 +144,7 @@ void main() {
     await tester.pump();
     await tester.pumpAndSettle();
     expect(find.text('Backup / Restore'), findsOneWidget);
-  });
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('the link entry names the active library items', (tester) async {
     tester.view.physicalSize = const Size(1280, 1200);
