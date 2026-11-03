@@ -63,7 +63,7 @@ flutter:
     - assets/publisher_logos/
     - assets/import_logos/
     - assets/flags/
-    - web/icons/Icon-maskable-192.png
+    - web/icons/Icon-192.png
     - assets/fonts/PlusJakartaSans-OFL.txt
     - assets/fonts/LeagueSpartan-OFL.txt
     - assets/fonts/OpenSans-OFL.txt
