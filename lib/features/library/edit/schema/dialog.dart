@@ -228,7 +228,7 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
       formKey: _formKey,
       accent: widget.accent,
       mobileSystemBarColor: widget.mobileSystemBarColor,
-      icon: AppIcons.edit,
+      icon: AppIcons.inlineEdit,
       title: widget.title,
       badges: widget.badges,
       footerContent: entry == null || widget.inlineCollectionStatus
