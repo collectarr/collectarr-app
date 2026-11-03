@@ -76,25 +76,29 @@ class ComicInspectorHeader extends StatelessWidget {
     ].join(' - ');
     final keyReason = entry?.personal.details.keyReason?.trim() ?? '';
     final onFilter = request.onFilterByValue;
+    final mobile = appPresentationPlatform.isNativeMobile;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
+      padding: mobile
+          ? const EdgeInsets.fromLTRB(24, 6, 14, 4)
+          : const EdgeInsets.fromLTRB(14, 12, 14, 4),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Expanded(
-            child: _FilterText(
-              value: heading,
-              filterValue: series.isEmpty ? null : series,
-              onFilter: onFilter,
-              style: TextStyle(
-                  fontSize: 24,
-                  height: 27 / 24,
-                  fontWeight: kAppBoldFontWeight,
-                  color: palette.detailHeading),
+        if (heading.isNotEmpty || issue.isNotEmpty)
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(
+              child: _FilterText(
+                value: heading,
+                filterValue: series.isEmpty ? null : series,
+                onFilter: onFilter,
+                style: TextStyle(
+                    fontSize: 24,
+                    height: 27 / 24,
+                    fontWeight: kAppBoldFontWeight,
+                    color: palette.detailHeading),
+              ),
             ),
-          ),
-          if (issue.isNotEmpty) _IssueBadge('#$issue'),
-        ]),
+            if (issue.isNotEmpty) _IssueBadge('#$issue'),
+          ]),
         if (subtitle.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 4),
@@ -124,15 +128,18 @@ class ComicInspectorHeader extends StatelessWidget {
               ),
             ]),
           ),
-        const SizedBox(height: 10),
+        if (heading.isNotEmpty ||
+            issue.isNotEmpty ||
+            subtitle.isNotEmpty ||
+            keyReason.isNotEmpty)
+          const SizedBox(height: 10),
         LayoutBuilder(builder: (context, constraints) {
-          final mobile = appPresentationPlatform.isNativeMobile;
           final cover = _ComicCover(
               title: heading,
               comic: comic,
               entry: entry,
               width:
-                  mobile ? (constraints.maxWidth - 58).clamp(0.0, 280.0) : 140);
+                  mobile ? (constraints.maxWidth - 58).clamp(0.0, 250.0) : 140);
           final facts = _ComicFacts(
               comic: comic,
               entry: entry,
@@ -338,7 +345,8 @@ class _ComicFacts extends ConsumerWidget {
                     pill: pill, color: palette.textPrimary)),
           ),
       if (ref.watch(uiPreferencesProvider) case final preferences
-          when preferences.ebayNextToCover &&
+          when !appPresentationPlatform.isNativeMobile &&
+              preferences.ebayNextToCover &&
               preferences.allowsEbayLinks(isWishlisted))
         Padding(
           padding: const EdgeInsets.only(top: 8),

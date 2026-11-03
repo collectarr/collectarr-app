@@ -15,7 +15,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
-- Native item details place Action and Edit at the bottom, retain the shared action menu, show larger comic covers and present detail fields in one column.
+- Native item details place Action and Edit at the bottom, retain the shared action menu including eBay, show CLZ-sized comic covers without empty title space and present detail fields in one column.
 - Native library folder lists, item grids, search fields and toolbar controls use the CLZ-style dark surface and distinct button backgrounds.
 - Android uses system Roboto with native title weights while desktop and web keep their existing font selection.
 - Desktop navigation moves Collectarr Account into the sidebar, with the same sign-in, account and logout flow as mobile.

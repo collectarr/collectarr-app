@@ -73,7 +73,9 @@ abstract final class _LibraryDetailPresenter {
           return Scaffold(
               appBar: appPresentationPlatform.isNativeMobile
                   ? MobilePageHeader(
-                      title: loaded.source.title,
+                      title: loaded.source.title.trim().isEmpty
+                          ? 'CLR ${state.widget.type.identity.title}'
+                          : loaded.source.title,
                       onBack: back,
                       color: state.widget.accent,
                       actions: [
