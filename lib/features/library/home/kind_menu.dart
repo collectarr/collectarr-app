@@ -244,7 +244,9 @@ class _KindMenuItemState extends State<_KindMenuItem> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                          color: const Color(0xFF333333),
+                          color: colorEnabled
+                              ? const Color(0xFF333333)
+                              : const Color(0xFF888888),
                           fontFamily: appFontFamily,
                           fontFamilyFallback: kAppFontFamilyFallback,
                           fontSize: 16,

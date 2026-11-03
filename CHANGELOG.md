@@ -25,7 +25,7 @@
 - Mobile Add remembers the selected method per library, offers a reset action, and adapts the method picker to larger text.
 - The mobile sidebar has larger touch rows and icons, matching the compact CLZ navigation style.
 - The sidebar and sign-in logo has transparent corners.
-- The kind picker uses lighter labels and mutes inactive icons until hover or focus; mobile headers open it from the title and show selection only for populated item lists.
+- The kind picker uses lighter labels and mutes inactive icons and text until hover or focus; mobile headers open it from the title and show selection only for populated item lists.
 - Mobile Comics Add Manually follows the same field layout and tab groups as Edit.
 - Mobile editors use darker surfaces and kind-coloured status bars, and the collection status menu shows coloured icons.
 - Native item details place Action and Edit at the bottom, retain the shared action menu including eBay, show CLZ-sized comic covers without empty title space, fall back to the library title and present detail fields in one column.
