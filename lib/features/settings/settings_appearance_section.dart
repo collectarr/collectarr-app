@@ -143,8 +143,7 @@ class _SettingsAppearanceSectionState
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           // The reference's languages with their flags; Collectarr is
-          // English-only so far, so the others are listed but disabled. The
-          // time zone follows the device.
+          // English-only so far, so the others are listed but disabled.
           SettingsGroup(
             legend: 'Application Language',
             child: SettingsSelect<AppLanguage>(
@@ -161,11 +160,24 @@ class _SettingsAppearanceSectionState
           SettingsGroup(
             legend: 'Time zone',
             child: SettingsSelect<String>(
-                value: kTimeZones.contains(preferences.formats.timeZone)
-                    ? preferences.formats.timeZone
-                    : kTimeZones.first,
-                values: kTimeZones,
-                labelOf: (value) => value,
+                value: preferences.formats.timeZone,
+                values: [
+                  deviceTimeZone,
+                  if (preferences.formats.timeZone != deviceTimeZone &&
+                      !kTimeZones.contains(preferences.formats.timeZone))
+                    preferences.formats.timeZone,
+                  for (var i = 0; i < kTimeZones.length; i++) ...[
+                    if (i == 0 ||
+                        kTimeZones[i].split('/').first !=
+                            kTimeZones[i - 1].split('/').first)
+                      '@${kTimeZones[i].split('/').first}',
+                    kTimeZones[i],
+                  ],
+                ],
+                labelOf: (value) => value.startsWith('@')
+                    ? value.substring(1)
+                    : timeZoneLabel(value),
+                isOptionEnabled: (value) => !value.startsWith('@'),
                 onChanged: (tz) => controller
                     .setFormats(preferences.formats.copyWith(timeZone: tz))),
           ),

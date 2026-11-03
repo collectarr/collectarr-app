@@ -313,7 +313,7 @@ class UiPreferencesStore {
         currency: prefs.getString(defaultCurrencyKey) ?? 'USD',
         currencyDisplay: _named(CurrencyDisplay.values,
             prefs.getString(currencyDisplayKey), CurrencyDisplay.regional),
-        timeZone: prefs.getString(timeZoneKey) ?? 'UTC',
+        timeZone: prefs.getString(timeZoneKey) ?? deviceTimeZone,
       ),
       showEbayLinks: prefs.getBool(showEbayLinksKey) ?? true,
       ebayWishlistOnly: prefs.getBool(ebayWishlistOnlyKey) ?? false,

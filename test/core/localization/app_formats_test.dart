@@ -1,8 +1,40 @@
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:timezone/data/latest_all.dart' as tzdata;
+import 'package:timezone/timezone.dart' as tz;
 
 void main() {
+  test('time zones format instants with historical daylight saving changes',
+      () {
+    const bucharest = AppFormats(timeZone: 'Europe/Bucharest');
+    expect(bucharest.formatDateTime(DateTime.utc(2026, 1, 1, 23, 30)),
+        'Jan 02, 2026 01:30:00');
+    expect(bucharest.formatDateTime(DateTime.utc(2026, 7, 1, 23, 30)),
+        'Jul 02, 2026 02:30:00');
+    expect(
+        const AppFormats(timeZone: 'America/New_York')
+            .formatDateTime(DateTime.utc(2026, 7, 1, 12)),
+        'Jul 01, 2026 08:00:00');
+    final instant = DateTime.utc(2026, 1, 1, 12);
+    expect(const AppFormats().formatDateTime(instant),
+        AppFormats(timeZone: 'invalid').formatDateTime(instant));
+  });
+
+  test('time zone entries match the reference labels and order', () {
+    tzdata.initializeTimeZones();
+    for (final zone in kTimeZones) {
+      expect(() => tz.getLocation(zone), returnsNormally, reason: zone);
+    }
+    expect(kTimeZones.length, 395);
+    expect(kTimeZones.first, 'Africa/Abidjan');
+    expect(kTimeZones.last, 'Pacific/Wallis');
+    expect(kTimeZones, contains('Asia/Choibalsan'));
+    expect(timeZoneLabel(deviceTimeZone), 'Device time zone');
+    expect(timeZoneLabel('Africa/Dar_es_Salaam'), 'Dar es Salaam');
+    expect(timeZoneLabel('America/Argentina/Buenos_Aires'),
+        'Argentina/Buenos Aires');
+  });
   test('dates follow the chosen display format', () {
     final day = DateTime(2026, 8, 31);
     expect(const AppFormats().formatDate(day), 'Aug 31, 2026');

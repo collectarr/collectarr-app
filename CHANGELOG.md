@@ -16,7 +16,7 @@
 
 ### Features
 - Settings groups general preferences and enabled library kinds under Customization, with Games, Hardware and Toys together and Typography last.
-- Settings Localization exposes a full selectable list of standard IANA time zones matching CLZ.
+- Settings Localization offers the device time zone and CLZ-style region and city choices, applying the selected zone to shared date-and-time displays.
 - In Comics, the alphabet bar filters exclusively by Series name, omitting the options gear since cards only display series.
 - Vertical cards match CLZ dimensions and margins across kinds, aligning covers to the top without dead space, retaining series titles on slabbed comics and separating card layouts.
 - Edit dialog headers use the shared edit pen icon matching the list view and toolbar actions.
