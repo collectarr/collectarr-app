@@ -91,11 +91,12 @@ void main() {
               .first);
       await tester.tap(find.text('Settings'));
       await pumpUntilSettled(tester);
-      final covers = find.widgetWithText(Tab, 'Covers & layout');
-      await tester.ensureVisible(covers);
-      await tester.tap(covers);
-      await pumpUntilSettled(tester);
-      expect(find.text('Show titles in grid'), findsOneWidget);
+      if (appPresentationPlatform.isNativeMobile) {
+        await tester.tap(find.widgetWithText(ListTile, 'Customization'));
+        await pumpUntilSettled(tester);
+      }
+      expect(find.widgetWithText(Tab, 'General'), findsOneWidget);
+      expect(find.text('Application Skin'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
       await pumpUntilSettled(tester);

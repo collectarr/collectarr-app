@@ -60,13 +60,25 @@ void main() {
           find.byKey(const ValueKey('settings.kind.tab.comic'),
               skipOffstage: false),
           findsNothing);
-      final music = find.byKey(const ValueKey('settings.kind.tab.music'));
       if (platform != TargetPlatform.windows) {
-        await tester.scrollUntilVisible(music, 300,
-            scrollable: find.byType(Scrollable).first);
-      } else {
-        await tester.ensureVisible(music);
+        await tester.tap(find.widgetWithText(ListTile, 'Customization'));
+        await tester.pumpAndSettle();
       }
+      final games = find.byKey(const ValueKey('settings.kind.tab.games'));
+      expect(games, findsOneWidget);
+      expect(find.byKey(const ValueKey('settings.kind.tab.game_hardware')),
+          findsNothing);
+      expect(find.byKey(const ValueKey('settings.kind.tab.game_toy')),
+          findsNothing);
+      await tester.ensureVisible(games);
+      await tester.tap(games);
+      await tester.pumpAndSettle();
+      for (final kind in ['game', 'game_hardware', 'game_toy']) {
+        expect(
+            find.byKey(ValueKey('settings.kind.layout.$kind')), findsOneWidget);
+      }
+      final music = find.byKey(const ValueKey('settings.kind.tab.music'));
+      await tester.ensureVisible(music);
       await tester.tap(music);
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('settings.kind.layout.music')),
@@ -138,12 +150,6 @@ void main() {
             preferences.getString(mobileAddDefaultMethodKey('music')), isNull);
         expect(
             preferences.getString(mobileAddDefaultMethodKey('game')), 'search');
-        expect(
-            GoRouterState.of(tester.element(
-                    find.byKey(const ValueKey('settings.kind.layout.music'))))
-                .uri
-                .queryParameters['settingsKind'],
-            'music');
         await tester.tap(find.byKey(const Key('settings.back')));
         await tester.pumpAndSettle();
         expect(find.byKey(const ValueKey('settings.kind.layout.music')),
@@ -152,6 +158,11 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byKey(const ValueKey('settings.kind.layout.music')),
             findsOneWidget);
+        router.go('/settings?kind=game&section=customization');
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(music);
+        await tester.tap(music);
+        await tester.pumpAndSettle();
       }
       final container =
           ProviderScope.containerOf(tester.element(find.byType(SettingsPage)));
@@ -162,6 +173,18 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('settings.kind.layout.music')),
           findsOneWidget);
+      await tester.ensureVisible(games);
+      await tester.tap(games);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('settings.kind.layout.game')),
+          findsNothing);
+      expect(find.byKey(const ValueKey('settings.kind.layout.game_hardware')),
+          findsOneWidget);
+      expect(find.byKey(const ValueKey('settings.kind.layout.game_toy')),
+          findsOneWidget);
+      await tester.ensureVisible(music);
+      await tester.tap(music);
+      await tester.pumpAndSettle();
       await prefs
           .setStringList('collectarr.library_nav.hidden', ['comic', 'music']);
       await container.read(libraryNavPreferencesProvider.notifier).load();
@@ -180,12 +203,7 @@ void main() {
           .evaluate()
           .isEmpty) {
         final restored = find.byKey(const ValueKey('settings.kind.tab.music'));
-        if (platform != TargetPlatform.windows) {
-          await tester.scrollUntilVisible(restored, 300,
-              scrollable: find.byType(Scrollable).first);
-        } else {
-          await tester.ensureVisible(restored);
-        }
+        await tester.ensureVisible(restored);
         await tester.tap(restored);
         await tester.pumpAndSettle();
       }

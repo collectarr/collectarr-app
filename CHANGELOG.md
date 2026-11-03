@@ -15,7 +15,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
-- Settings offers pages for each enabled library kind, including its layout, Core, pre-fill, custom field tab and mobile Add preferences, alongside shared preferences.
+- Settings groups general preferences and enabled library kinds under Customization, with Games, Hardware and Toys together and Typography last.
 - Settings Localization exposes a full selectable list of standard IANA time zones matching CLZ.
 - In Comics, the alphabet bar filters exclusively by Series name, omitting the options gear since cards only display series.
 - Vertical cards match CLZ dimensions and margins across kinds, aligning covers to the top without dead space, retaining series titles on slabbed comics and separating card layouts.
@@ -50,7 +50,7 @@
 - On mobile, the top-right search button opens library search inside the header, with a barcode camera on the left and a clear button only when text is entered. Selection and status controls live in the header; account access moves to the sidebar.
 - Native mobile Add starts with a centered CLR Core chooser with three clear blue actions and CLZ-matched Comics guidance, then opens a full-screen page with compact tabs and search, a series guide, full-width results and bordered issue covers with a separate manual-add action; desktop and web keep their dialogs.
 - An optional command-line helper downloads platform logos marked public domain on Wikimedia Commons into a folder for local import; it never changes collection data.
-- Load your own platform icons from Settings > Appearance; SVG and raster images replace the built-in platform marks throughout the app and stay separate from Comics Custom Label images.
+- Load your own platform icons from Settings > Customization; SVG and raster images replace the built-in platform marks throughout the app and stay separate from Comics Custom Label images.
 - A comic's Custom Label can show an image on its slab and beside the field, as in CLZ: load one from your own files for a label, or load many at once from files named after their labels, whose names then join the Custom Label list. Collectarr ships no label images.
 - The Comics details panel shows the publisher's logo instead of its name, as CLZ does, for Marvel, DC, Image, Dark Horse, IDW, Viz Media, Kodansha, Shueisha, Tokyopop, Archie, Dynamite, Valiant, Vertigo, Fantagraphics and Panini.
 - The details panel shows CLZ's spinner over "Loading..." until the selected item's custom fields, images and cover are loaded, instead of filling in piece by piece.
@@ -59,6 +59,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Settings no longer shows the unused Show titles in grid option or the empty Covers & layout tab.
 - Covers & layout settings no longer show the grid spacing, card cover width or sidebar row padding controls.
 - Covers consistently use their default shadow; the Flat covers setting has been removed.
 - The library Tools menu no longer repeats Pre-fill Settings, Transfer Field Data and Re-assign Index Values from the sidebar.

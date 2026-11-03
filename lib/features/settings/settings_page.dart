@@ -83,11 +83,11 @@ final _metadataProposalHistoryProvider =
   return const MetadataProposalStore().read();
 });
 
-// Appearance holds the reference Settings page, so it comes first and opens
+// Customization holds the reference Settings page, so it comes first and opens
 // by default; connection and data tabs are Collectarr additions.
 enum SettingsSection {
   // Font Awesome glyphs, as everywhere else in the app chrome.
-  appearance('Appearance', AppIcons.palette),
+  customization('Customization', AppIcons.palette),
   connection('Connection', AppIcons.plug),
   proposals('Proposals', AppIcons.clipboardCheck),
   data('Data', AppIcons.database),
@@ -133,14 +133,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   List<Map<String, dynamic>> _syncDevices = const [];
   ConnectionSettings? _lastSyncedSettings;
   Timer? _connectionSaveDebounce;
-  SettingsSection _selectedSection = SettingsSection.appearance;
-  String? _selectedKindTab;
+  SettingsSection _selectedSection = SettingsSection.customization;
 
   @override
   void initState() {
     super.initState();
-    _selectedSection = widget.initialSection ?? SettingsSection.appearance;
-    _selectedKindTab = widget.initialKind;
+    _selectedSection = widget.initialKind != null
+        ? SettingsSection.customization
+        : widget.initialSection ?? SettingsSection.customization;
   }
 
   @override
@@ -149,10 +149,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (oldWidget.initialSection != widget.initialSection &&
         widget.initialSection != null) {
       _selectedSection = widget.initialSection!;
-      _selectedKindTab = null;
     }
-    if (oldWidget.initialKind != widget.initialKind) {
-      _selectedKindTab = widget.initialKind;
+    if (oldWidget.initialKind != widget.initialKind &&
+        widget.initialKind != null) {
+      _selectedSection = SettingsSection.customization;
     }
   }
 
@@ -186,8 +186,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         : kinds
             .where((type) => type.kind.apiValue == widget.initialKind)
             .firstOrNull;
-    final selectedKindTabIndex =
-        kinds.indexWhere((kind) => kind.kind.apiValue == _selectedKindTab);
+    final kindGroups = settingsKindGroups(kinds);
     _syncTextControllers(settings);
 
     final windowClass = AppWindowClass.of(context);
@@ -198,44 +197,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         settings: settings,
         sync: sync,
         metadataProposalHistory: metadataProposalHistory,
+        kindGroups: kindGroups,
       );
     }
 
     if (appPresentationPlatform.isNativeMobile || windowClass.isCompact) {
-      if (kindSection != null) {
-        return Theme(
-          data: _settingsTheme(context),
-          child: Scaffold(
-            backgroundColor: appManagementCanvasColor(context),
-            appBar: AppPageHeader(
-              icon: kindSection.identity.icon,
-              leading: AppPageBackButton(
-                  key: const Key('settings.back'),
-                  onPressed: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.go(AppRoutes.forKind(
-                          AppRoutes.settings,
-                          GoRouterState.of(context)
-                                  .uri
-                                  .queryParameters['kind'] ??
-                              ref.read(selectedLibraryKindProvider)));
-                    }
-                  }),
-              title: Text('${kindSection.identity.title} settings'),
-            ),
-            body: SafeArea(
-                top: false,
-                child: AppManagementContent(
-                    child: SettingsKindSection(
-                        key: ValueKey(
-                            'settings.kind.${kindSection.kind.apiValue}'),
-                        type: kindSection))),
-          ),
-        );
-      }
-      final section = widget.initialSection;
+      final section = kindSection != null
+          ? SettingsSection.customization
+          : widget.initialSection;
       if (section != null) {
         return Theme(
           data: _settingsTheme(context),
@@ -275,28 +244,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           body: AppManagementContent(
               child: ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: SettingsSection.values.length + kinds.length,
+            itemCount: SettingsSection.values.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final routeKind =
                   GoRouterState.of(context).uri.queryParameters['kind'] ??
                       LibraryAccentScope.maybeOf(context)?.kind ??
                       ref.read(selectedLibraryKindProvider);
-              if (index >= SettingsSection.values.length) {
-                final kind = kinds[index - SettingsSection.values.length];
-                return ListTile(
-                  key: ValueKey('settings.kind.tab.${kind.kind.apiValue}'),
-                  leading: Icon(kind.identity.icon, color: accent),
-                  title: Text(kind.identity.title,
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
-                  trailing: const Icon(Icons.chevron_right, size: 20),
-                  onTap: () => context
-                      .push(Uri(path: AppRoutes.settings, queryParameters: {
-                    'kind': routeKind,
-                    'settingsKind': kind.kind.apiValue,
-                  }).toString()),
-                );
-              }
               final section = SettingsSection.values[index];
               return ListTile(
                 leading: Icon(section.icon, color: accent),
@@ -318,12 +272,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return Theme(
       data: _settingsTheme(context),
       child: DefaultTabController(
-        key: ValueKey(
-            '${_selectedSection.name}:${widget.initialKind}:${kinds.map((kind) => kind.kind.apiValue).join(',')}'),
-        initialIndex: selectedKindTabIndex < 0
-            ? SettingsSection.values.indexOf(_selectedSection)
-            : SettingsSection.values.length + selectedKindTabIndex,
-        length: SettingsSection.values.length + kinds.length,
+        key: ValueKey('${_selectedSection.name}:${widget.initialKind}'),
+        initialIndex: SettingsSection.values.indexOf(_selectedSection),
+        length: SettingsSection.values.length,
         child: Scaffold(
           backgroundColor: appManagementCanvasColor(context),
           appBar: AppPageHeader(
@@ -331,17 +282,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               leading: _buildBackButton(context),
               title: const Text('Settings'),
               bottom: TabBar(
-                onTap: (index) {
-                  if (index < SettingsSection.values.length) {
-                    _selectedSection = SettingsSection.values[index];
-                    _selectedKindTab = null;
-                  } else {
-                    _selectedKindTab =
-                        kinds[index - SettingsSection.values.length]
-                            .kind
-                            .apiValue;
-                  }
-                },
+                onTap: (index) =>
+                    _selectedSection = SettingsSection.values[index],
                 isScrollable: true,
                 tabAlignment: TabAlignment.center,
                 labelColor: appPalette(context).textPrimary,
@@ -353,32 +295,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         child: Row(mainAxisSize: MainAxisSize.min, children: [
                           Icon(s.icon, size: 16),
                           const SizedBox(width: 6),
-                          Text(s.title)
+                          Text(s.title),
                         ])))
-                    .followedBy([
-                  for (final kind in kinds)
-                    Tab(
-                        key:
-                            ValueKey('settings.kind.tab.${kind.kind.apiValue}'),
-                        height: 36,
-                        child: Row(mainAxisSize: MainAxisSize.min, children: [
-                          Icon(kind.identity.icon, size: 16),
-                          const SizedBox(width: 6),
-                          Text(kind.identity.title),
-                        ])),
-                ]).toList(),
+                    .toList(),
               )),
           // Room for the reference 958 px page plus its 16 px margins.
           body: AppManagementContent(
               maxWidth: 990,
               child: TabBarView(
-                children: [
-                  ...SettingsSection.values.map(buildSection),
-                  for (final kind in kinds)
-                    SettingsKindSection(
-                        key: ValueKey('settings.kind.${kind.kind.apiValue}'),
-                        type: kind),
-                ],
+                children: SettingsSection.values.map(buildSection).toList(),
               )),
         ),
       ),
@@ -407,12 +332,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     required ConnectionSettings settings,
     required SyncState sync,
     required AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
+    required List<SettingsKindGroup> kindGroups,
   }) {
     switch (section) {
       case SettingsSection.connection:
         return _buildConnectionSection(settings, sync);
-      case SettingsSection.appearance:
-        return const SettingsAppearanceSection();
+      case SettingsSection.customization:
+        return SettingsAppearanceSection(
+            groups: kindGroups, initialKind: widget.initialKind);
       case SettingsSection.proposals:
         return _buildProposalsSection(metadataProposalHistory);
       case SettingsSection.data:

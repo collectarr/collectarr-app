@@ -27,7 +27,6 @@ class UiPreferences {
     this.disableLibrarySwitchAnimation = false,
     this.disableLibraryCoverPrewarm = false,
     this.gridSpacing = 10.0,
-    this.showCoverTitles = true,
     this.cardCoverWidth = 92.0,
     this.sidebarRowPadding = 4.0,
     this.showInspectorBackdrop = true,
@@ -65,9 +64,6 @@ class UiPreferences {
 
   /// Spacing between grid tiles in pixels (4–24).
   final double gridSpacing;
-
-  /// Show title text below covers in grid view.
-  final bool showCoverTitles;
 
   /// Cover width in card view (60–120).
   final double cardCoverWidth;
@@ -124,7 +120,6 @@ class UiPreferences {
     bool? disableLibrarySwitchAnimation,
     bool? disableLibraryCoverPrewarm,
     double? gridSpacing,
-    bool? showCoverTitles,
     double? cardCoverWidth,
     double? sidebarRowPadding,
     bool? showInspectorBackdrop,
@@ -162,7 +157,6 @@ class UiPreferences {
       disableLibraryCoverPrewarm:
           disableLibraryCoverPrewarm ?? this.disableLibraryCoverPrewarm,
       gridSpacing: gridSpacing ?? this.gridSpacing,
-      showCoverTitles: showCoverTitles ?? this.showCoverTitles,
       cardCoverWidth: cardCoverWidth ?? this.cardCoverWidth,
       sidebarRowPadding: sidebarRowPadding ?? this.sidebarRowPadding,
       showInspectorBackdrop:
@@ -217,7 +211,6 @@ class UiPreferencesStore {
   static const disableLibraryCoverPrewarmKey =
       '$_prefix.disable_library_cover_prewarm';
   static const gridSpacingKey = '$_prefix.grid_spacing';
-  static const showCoverTitlesKey = '$_prefix.show_cover_titles';
   static const cardCoverWidthKey = '$_prefix.card_cover_width';
   static const sidebarRowPaddingKey = '$_prefix.sidebar_row_padding';
 
@@ -278,7 +271,6 @@ class UiPreferencesStore {
       disableLibraryCoverPrewarm:
           prefs.getBool(disableLibraryCoverPrewarmKey) ?? false,
       gridSpacing: prefs.getDouble(gridSpacingKey) ?? 10.0,
-      showCoverTitles: prefs.getBool(showCoverTitlesKey) ?? true,
       cardCoverWidth: prefs.getDouble(cardCoverWidthKey) ?? 92.0,
       sidebarRowPadding: prefs.getDouble(sidebarRowPaddingKey) ?? 4.0,
       showInspectorBackdrop: prefs.getBool(showInspectorBackdropKey) ?? true,
@@ -392,7 +384,6 @@ class UiPreferencesStore {
         ebaySearchFilterKey, preferences.ebaySearchFilter.name);
     await prefs.setString(ebayRegionKey, preferences.ebayRegion.name);
     await prefs.setDouble(gridSpacingKey, preferences.gridSpacing);
-    await prefs.setBool(showCoverTitlesKey, preferences.showCoverTitles);
     await prefs.setDouble(cardCoverWidthKey, preferences.cardCoverWidth);
     await prefs.setDouble(sidebarRowPaddingKey, preferences.sidebarRowPadding);
   }
@@ -427,9 +418,6 @@ class UiPreferencesController extends Notifier<UiPreferences> {
 
   Future<void> setGridSpacing(double spacing) =>
       _update((s) => s.copyWith(gridSpacing: spacing));
-
-  Future<void> setShowCoverTitles(bool show) =>
-      _update((s) => s.copyWith(showCoverTitles: show));
 
   Future<void> setShowInspectorBackdrop(bool value) =>
       _update((s) => s.copyWith(showInspectorBackdrop: value));

@@ -37,7 +37,7 @@ void main() {
       final router =
           ProviderScope.containerOf(tester.element(find.byType(AppShell)))
               .read(appRouterProvider);
-      router.go('/settings?kind=comic&section=appearance');
+      router.go('/settings?kind=comic&section=customization');
       await pumpUntilSettled(tester);
       expect(find.text('Application Skin'), findsOneWidget);
       await tester.tap(find.byType(AppPageBackButton));
@@ -45,11 +45,11 @@ void main() {
       expect(
           router.routeInformationProvider.value.uri.queryParameters['section'],
           isNull);
-      await tester.tap(find.widgetWithText(ListTile, 'Appearance'));
+      await tester.tap(find.widgetWithText(ListTile, 'Customization'));
       await pumpUntilSettled(tester);
       expect(
           router.routeInformationProvider.value.uri.queryParameters['section'],
-          'appearance');
+          'customization');
       router.pop();
       await pumpUntilSettled(tester);
       expect(find.widgetWithText(ListTile, 'Account'), findsOneWidget);

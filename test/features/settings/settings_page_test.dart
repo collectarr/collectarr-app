@@ -51,7 +51,7 @@ void main() {
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Connection'), findsOneWidget);
     expect(find.text('Libraries'), findsNothing);
-    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('Customization'), findsOneWidget);
     expect(find.text('Data'), findsOneWidget);
     expect(find.text('Account'), findsOneWidget);
     await _scrollToText(tester, 'Metadata server');
@@ -68,10 +68,10 @@ void main() {
     expect(find.text('Apply pairing code'), findsOneWidget);
     expect(find.text('Reset connection defaults'), findsOneWidget);
 
-    await _openSettingsTab(tester, 'Appearance');
-    expect(find.text('Appearance'), findsWidgets);
+    await _openSettingsTab(tester, 'Customization');
+    expect(find.widgetWithText(Tab, 'General'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
-    expect(find.text('Reset appearance defaults'), findsOneWidget);
+    expect(find.text('Reset customization defaults'), findsOneWidget);
 
     await _openSettingsTab(tester, 'Data');
     expect(find.text('Local backup'), findsOneWidget);
@@ -121,7 +121,7 @@ void main() {
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Connection'), findsOneWidget);
     expect(find.text('Libraries'), findsNothing);
-    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('Customization'), findsOneWidget);
     expect(find.text('Proposals'), findsOneWidget);
     expect(find.text('Data'), findsOneWidget);
     expect(find.text('Account'), findsOneWidget);
@@ -138,8 +138,8 @@ void main() {
     await tester.tap(find.text('Back'));
     await pumpUntilSettled(tester);
 
-    // Tap into Appearance
-    await tester.tap(find.text('Appearance'));
+    // Tap into Customization
+    await tester.tap(find.text('Customization'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Application Skin'), findsOneWidget);
@@ -177,7 +177,7 @@ void main() {
     expect(find.text('Metadata server'), findsOneWidget);
 
     // Switch section via left pane
-    await tester.tap(find.text('Appearance'));
+    await tester.tap(find.text('Customization'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Application Skin'), findsOneWidget);
@@ -206,7 +206,7 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    await _openSettingsTab(tester, 'Appearance');
+    await _openSettingsTab(tester, 'Customization');
     final animationTile = find.widgetWithText(SettingsCheck, 'Animations');
     expect(animationTile, findsOneWidget);
     expect(tester.widget<SettingsCheck>(animationTile).value, isTrue);
@@ -225,7 +225,7 @@ void main() {
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets(
-      'covers settings hides removed controls and retains saved layout values',
+      'customization omits removed cover controls and retains saved layout values',
       (tester) async {
     SharedPreferences.setMockInitialValues({
       UiPreferencesStore.gridSpacingKey: 24.0,
@@ -244,15 +244,16 @@ void main() {
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           theme: ThemeData(platform: TargetPlatform.windows),
-          home: const SettingsPage(initialSection: SettingsSection.appearance),
+          home:
+              const SettingsPage(initialSection: SettingsSection.customization),
         ),
       ),
     );
     await pumpUntilSettled(tester);
 
     expect(tester.takeException(), isNull);
-    await _openSettingsTab(tester, 'Covers & layout');
-    expect(find.text('Show titles in grid'), findsOneWidget);
+    expect(find.text('Covers & layout'), findsNothing);
+    expect(find.text('Show titles in grid'), findsNothing);
     for (final label in [
       'Flat covers',
       'Grid spacing',
@@ -267,6 +268,8 @@ void main() {
     expect(preferences.gridSpacing, 24.0);
     expect(preferences.cardCoverWidth, 120.0);
     expect(preferences.sidebarRowPadding, 8.0);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
   testWidgets('settings page warns that web sync can be browser-blocked',
