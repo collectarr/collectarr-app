@@ -490,7 +490,6 @@ class LibraryBody extends StatelessWidget {
                 child: appPresentationPlatform.isNativeMobile &&
                         viewState.isSidebarVisible &&
                         selectedBucket == null &&
-                        selectedId == null &&
                         (searchQuery == null || searchQuery!.trim().isEmpty) &&
                         workspaceOverride == null
                     ? LibraryMobileFolderChooser(
