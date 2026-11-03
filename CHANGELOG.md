@@ -15,6 +15,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- The dark mobile sidebar uses the same darker background as the reference navigation.
 - Mobile editor actions adapt to the available space, tabs have larger touch targets, and dynamic tab changes update the header.
 - Mobile Add remembers the selected method per library, offers a reset action, and adapts the method picker to larger text.
 - The mobile sidebar has larger touch rows and icons, matching the compact CLZ navigation style.

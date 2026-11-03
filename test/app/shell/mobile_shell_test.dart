@@ -46,6 +46,8 @@ void main() {
         await tester.tap(find.byKey(const Key('app.open-navigation')));
         await pumpUntilSettled(tester);
         expect(find.byKey(const Key('drawer.account')), findsOneWidget);
+        expect(tester.widget<Drawer>(find.byType(Drawer)).backgroundColor,
+            const Color(0xff303030));
         await tester.tap(find.text('Activity'));
         await pumpUntilSettled(tester);
         expect(
