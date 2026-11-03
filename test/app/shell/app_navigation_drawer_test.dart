@@ -4,9 +4,18 @@ import 'package:collectarr_app/app/shell/app_navigation_drawer.dart';
 import 'package:collectarr_app/app/shell/app_navigation_model.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  setUp(() => PackageInfo.setMockInitialValues(
+        appName: 'Collectarr',
+        packageName: 'org.collectarr.app',
+        version: '1.5.0',
+        buildNumber: '42',
+        buildSignature: 'fixture',
+      ));
+
   testWidgets('app shell drawer renders semantic icons, headers, and dividers',
       (tester) async {
     tester.view.physicalSize = const Size(1280, 1400);
@@ -41,15 +50,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('CLR MUSIC'), findsOneWidget);
-    final kindIcon =
-        tester.widget<Icon>(find.byKey(const Key('drawer.kind-icon')));
-    expect(
-        kindIcon.icon,
-        defaultLibraryKindRegistry
-            .require(CatalogMediaKind.music)
-            .identity
-            .icon);
-    expect(kindIcon.color, Colors.white);
+    final logo = tester.widget<Image>(find.byKey(const Key('drawer.app-logo')));
+    expect((logo.image as AssetImage).assetName, AppIcons.appLogoPng);
+    expect(find.byKey(const Key('drawer.kind-icon')), findsNothing);
+    expect(find.byTooltip('Close navigation'), findsNothing);
+    expect(find.text('v1.5.0'), findsOneWidget);
 
     // Verify headers exist
     expect(find.text('Collection'), findsOneWidget);
