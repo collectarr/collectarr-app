@@ -149,8 +149,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  if (appPresentationPlatform.isNativeMobile &&
-                      widget.onOpenAccount != null)
+                  if (widget.onOpenAccount != null)
                     _MobileAccountSection(onOpen: () {
                       Navigator.of(context).pop();
                       WidgetsBinding.instance.addPostFrameCallback(
