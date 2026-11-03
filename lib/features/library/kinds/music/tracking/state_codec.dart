@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/tracking/storage_codec.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:drift/drift.dart';
 
-import 'music_tracking_state.dart';
+import 'state.dart';
 
 /// Music-entry lifecycle tracking mapping. Track/disc state remains in the
 /// Music vertical and is not inferred by the sync host.

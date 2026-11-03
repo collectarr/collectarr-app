@@ -17,5 +17,5 @@ export 'integrations/catalog/lookup.dart';
 export 'integrations/collection_csv/music_collection_csv_projection.dart';
 export 'entries/music_entry_contributor.dart';
 export 'page.dart';
-export 'tracking/music_tracking_state_codec.dart';
+export 'tracking/state_codec.dart';
 export 'vocabulary/music_vocabularies.dart';

@@ -37,7 +37,7 @@ export 'package:collectarr_app/features/library/kinds/music/entries/create_paylo
 export 'package:collectarr_app/features/library/kinds/music/entries/update_payload.dart';
 export 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 export 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
-export 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
+export 'package:collectarr_app/features/library/kinds/music/tracking/profile.dart';
 export 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 export 'package:collectarr_app/features/library/kinds/music/workspace/entry_schema.dart';
 export 'package:collectarr_app/features/library/kinds/music/workspace/catalog_schema.dart';
