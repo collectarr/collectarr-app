@@ -260,6 +260,7 @@ class UiPreferencesStore {
   static const dateEntryOrderKey = '$_prefix.date_entry_order';
   static const numberFormatKey = '$_prefix.number_format';
   static const defaultCurrencyKey = '$_prefix.default_currency';
+  static const timeZoneKey = '$_prefix.time_zone';
   static const currencyDisplayKey = '$_prefix.currency_display';
 
   static const showEbayLinksKey = '$_prefix.show_ebay_links';
@@ -328,6 +329,7 @@ class UiPreferencesStore {
         currency: prefs.getString(defaultCurrencyKey) ?? 'USD',
         currencyDisplay: _named(CurrencyDisplay.values,
             prefs.getString(currencyDisplayKey), CurrencyDisplay.regional),
+        timeZone: prefs.getString(timeZoneKey) ?? 'UTC',
       ),
       showEbayLinks: prefs.getBool(showEbayLinksKey) ?? true,
       ebayWishlistOnly: prefs.getBool(ebayWishlistOnlyKey) ?? false,
@@ -388,6 +390,7 @@ class UiPreferencesStore {
     await prefs.setString(numberFormatKey, formats.number.name);
     await prefs.setString(defaultCurrencyKey, formats.currency);
     await prefs.setString(currencyDisplayKey, formats.currencyDisplay.name);
+    await prefs.setString(timeZoneKey, formats.timeZone);
     await prefs.setBool(showEbayLinksKey, preferences.showEbayLinks);
     await prefs.setBool(ebayWishlistOnlyKey, preferences.ebayWishlistOnly);
     await prefs.setBool(ebayToolbarKey, preferences.ebayToolbar);

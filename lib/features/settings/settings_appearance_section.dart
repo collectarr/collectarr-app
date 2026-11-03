@@ -155,10 +155,13 @@ class _SettingsAppearanceSectionState
           SettingsGroup(
             legend: 'Time zone',
             child: SettingsSelect<String>(
-                value: 'Device time zone',
-                values: const ['Device time zone'],
+                value: kTimeZones.contains(preferences.formats.timeZone)
+                    ? preferences.formats.timeZone
+                    : kTimeZones.first,
+                values: kTimeZones,
                 labelOf: (value) => value,
-                onChanged: null),
+                onChanged: (tz) => controller.setFormats(
+                    preferences.formats.copyWith(timeZone: tz))),
           ),
           SettingsGroupPair(
             left: SettingsGroup(
