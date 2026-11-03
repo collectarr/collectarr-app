@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/layout/bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/schema/group_values.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:flutter/material.dart';
 
 /// Folder list shown before entering a native mobile library bucket.
@@ -44,7 +45,7 @@ class _LibraryMobileFolderChooserState
         namedCount == 1 || label.endsWith('s') ? label : '${label}s';
     final searchLabel = label.endsWith('s') ? label : '${label}s';
     return Material(
-      color: palette.panel,
+      color: libraryWorkspaceBackgroundColor(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -57,6 +58,11 @@ class _LibraryMobileFolderChooserState
                 prefixIcon: const Icon(Icons.search),
                 hintText: 'Search $searchLabel...',
                 isDense: true,
+                filled: false,
+                fillColor: Colors.transparent,
+                border: const UnderlineInputBorder(),
+                enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: palette.divider)),
               ),
             ),
           ),
@@ -78,7 +84,13 @@ class _LibraryMobileFolderChooserState
                   key: Key('library.mobile-folder-${bucket.title}'),
                   leading: const Icon(Icons.folder_outlined),
                   title: Text(bucket.title),
-                  trailing: Text('${bucket.count}'),
+                  trailing: CircleAvatar(
+                    radius: 12,
+                    backgroundColor: palette.textMuted.withValues(alpha: .65),
+                    child: Text('${bucket.count}',
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 13)),
+                  ),
                   onTap: () => widget.onSelected(bucket.title),
                 );
               },
