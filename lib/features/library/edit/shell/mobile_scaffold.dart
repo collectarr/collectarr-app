@@ -110,6 +110,8 @@ class _LibraryMobileEditorScaffoldState
 
     final viewport = MediaQuery.sizeOf(context);
     final isTablet = viewport.width >= 720;
+    final compactActions =
+        viewport.width < 600 || MediaQuery.textScalerOf(context).scale(1) > 1.3;
 
     final page = ValueListenableBuilder<Widget?>(
       valueListenable: _headerTabs,
@@ -123,23 +125,23 @@ class _LibraryMobileEditorScaffoldState
           onBack: onBack,
           canGoBack: !isBusy,
           actions: [
-            if (onDelete != null)
+            if (!compactActions && onDelete != null)
               IconButton(
                 tooltip: 'Remove',
                 icon: const Icon(Icons.delete_outline),
                 onPressed: isBusy ? null : onDelete,
               ),
-            if (primaryAction == null || onPrevious != null)
+            if (!compactActions && onPrevious != null)
               IconButton(
                 tooltip: 'Previous item',
                 icon: const Icon(Icons.chevron_left),
-                onPressed: (isBusy || onPrevious == null) ? null : onPrevious,
+                onPressed: isBusy ? null : onPrevious,
               ),
-            if (primaryAction == null || onNext != null)
+            if (!compactActions && onNext != null)
               IconButton(
                 tooltip: 'Next item',
                 icon: const Icon(Icons.chevron_right),
-                onPressed: (isBusy || onNext == null) ? null : onNext,
+                onPressed: isBusy ? null : onNext,
               ),
             if (footer != null)
               IconButton(
@@ -177,23 +179,27 @@ class _LibraryMobileEditorScaffoldState
                         ),
                       ),
               ),
-            if (onPropose != null || onPrevious != null || onNext != null)
+            if (onPropose != null ||
+                (compactActions &&
+                    (onDelete != null || onPrevious != null || onNext != null)))
               PopupMenuButton<VoidCallback>(
                 tooltip: 'More editor actions',
                 enabled: !isBusy,
                 onSelected: (action) => action(),
                 itemBuilder: (_) => [
+                  if (compactActions && onDelete != null)
+                    PopupMenuItem(value: onDelete, child: const Text('Remove')),
                   if (onPropose != null)
                     PopupMenuItem(
                       value: onPropose,
                       child: const Text('Propose to Core'),
                     ),
-                  if (onPrevious != null)
+                  if (compactActions && onPrevious != null)
                     PopupMenuItem(
                       value: onPrevious,
                       child: const Text('Previous item'),
                     ),
-                  if (onNext != null)
+                  if (compactActions && onNext != null)
                     PopupMenuItem(
                       value: onNext,
                       child: const Text('Next item'),
