@@ -52,6 +52,7 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
     super.key,
     required this.type,
     required this.folderPreset,
+    this.selectedBucket,
     required this.accent,
     required this.icon,
     required this.onChanged,
@@ -66,6 +67,7 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
 
   final LibraryKindRegistration type;
   final LibraryFolderPreset? folderPreset;
+  final String? selectedBucket;
   final Color accent;
   final IconData icon;
   final ValueChanged<LibraryFolderPreset> onChanged;
@@ -152,9 +154,22 @@ class _LibraryGroupModeMenuButtonState
             ? 'Group By'
             : genericFolderPresetLabel(widget.folderPreset!, widget.type);
         final triggerColor = appPalette(context).textPrimary;
+        final nativeFolderOpen = appPresentationPlatform.isNativeMobile &&
+            widget.selectedBucket != null;
+        final folderName = widget.selectedBucket == '[None]'
+            ? 'No $label'
+            : widget.selectedBucket?.startsWith('[') == true &&
+                    widget.selectedBucket?.endsWith(']') == true
+                ? widget.selectedBucket!
+                    .substring(1, widget.selectedBucket!.length - 1)
+                : widget.selectedBucket ?? label;
         final child = appPresentationPlatform.isNativeMobile
             ? MobileToolbarTrigger(
-                icon: Icons.folder_outlined, label: label, chevron: true)
+                icon: nativeFolderOpen
+                    ? Icons.arrow_back_ios_new
+                    : Icons.folder_outlined,
+                label: nativeFolderOpen ? folderName : label,
+                chevron: !nativeFolderOpen)
             : widget.iconOnly
                 ? LibraryToolbarCompactDropdownTrigger(icon: widget.icon)
                 : Container(
@@ -191,8 +206,8 @@ class _LibraryGroupModeMenuButtonState
                     ),
                   );
 
-        return Tooltip(
-          message: 'Group By',
+        final trigger = Tooltip(
+          message: nativeFolderOpen ? 'Back to folders' : 'Group By',
           child: OverlayPortal.overlayChildLayoutBuilder(
             controller: _menuController,
             overlayLocation: OverlayChildLocation.rootOverlay,
@@ -201,6 +216,10 @@ class _LibraryGroupModeMenuButtonState
               mouseCursor: WidgetStateMouseCursor.clickable,
               onTap: () {
                 if (appPresentationPlatform.isNativeMobile) {
+                  if (nativeFolderOpen) {
+                    widget.onClearBucket?.call();
+                    return;
+                  }
                   unawaited(_openNativeSelector(widget.availableModes ??
                       libraryGroupModesForType(widget.type)));
                   return;
@@ -211,14 +230,23 @@ class _LibraryGroupModeMenuButtonState
                   _menuController.show();
                 }
               },
-              borderRadius: kLibraryToolbarHoverRadius,
+              borderRadius: BorderRadius.circular(5),
               hoverColor: libraryToolbarControlHover(context),
               child: appPresentationPlatform.isNativeMobile
-                  ? child
+                  ? Ink(
+                      decoration: BoxDecoration(
+                        color: appPalette(context).panelRaised,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: child,
+                    )
                   : LibraryToolbarHoverSurface(child: child),
             ),
           ),
         );
+        return appPresentationPlatform.isNativeMobile
+            ? Align(alignment: Alignment.centerLeft, child: trigger)
+            : trigger;
       },
     );
   }

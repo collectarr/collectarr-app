@@ -54,9 +54,10 @@ abstract final class _LibraryScopeControllerOps {
 
   static void setSelectedBucket(GenericLibraryPageState state, String? bucket) {
     final currentMode = state._activeGroupMode;
-    final childMode = bucket == null
-        ? null
-        : state._activeFolderPreset.nextModeAfter(currentMode);
+    final childMode =
+        bucket == null || bucket == genericAllBucketLabel(state.widget.type)
+            ? null
+            : state._activeFolderPreset.nextModeAfter(currentMode);
     final canDrilldown = libraryAllowsGroupDrilldown(
       currentMode: currentMode,
       childMode: childMode,

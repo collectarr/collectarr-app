@@ -73,7 +73,9 @@ extension _PageSidebarHooks on GenericLibraryPageState {
   bool get _hasActiveFilter =>
       _searchControllerOps.state.query.trim().isNotEmpty ||
       _session.facets.linkedMetadataFilter != null ||
-      _session.facets.selectedBucket != null ||
+      (_session.facets.selectedBucket != null &&
+          _session.facets.selectedBucket !=
+              genericAllBucketLabel(widget.type)) ||
       _session.facets.selectedLetter != null ||
       _session.facets.collectionStatusScope != kDefaultCollectionStatusScope ||
       _session.facets.quickView != null ||
