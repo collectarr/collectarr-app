@@ -12,6 +12,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Native mobile headers omit the kind icon and use darker Android system bars that follow the library colour.
 - Native mobile Pre-fill Settings opens as a full-height page on mobile and tablet matching CLZ's layout, with kind-specific titles, an Always show toggle, and Clear All and Save actions.
 - Native mobile editors match CLZ's header with direct delete, previous, next navigation and a DONE action, extend full height on tablets, use border-embedded floating labels with rectangular transparent fields, and align Comics Value and Personal tabs.
 - Native mobile shell replaces the persistent rail and navigation bar with full-viewport collection tabs at the bottom, styles the Add from Core method picker as three horizontal option tiles matching CLZ, provides tablet split-pane series and issues browsing, and matches mobile page transitions with desktop forwards fading.

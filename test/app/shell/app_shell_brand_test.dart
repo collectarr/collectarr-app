@@ -27,6 +27,19 @@ void main() {
         expect(find.text(label), findsNothing);
       }
       expect(find.text('CLR MUSIC'), findsOneWidget);
+      if (platform == TargetPlatform.android ||
+          platform == TargetPlatform.iOS) {
+        await tester.pumpWidget(const MaterialApp(
+            home: Scaffold(
+                body: AppShellBrand(
+                    icon: AppIcons.user,
+                    kindTitle: 'Music',
+                    iconKey: Key('brand.icon'),
+                    titleKey: Key('brand.title'),
+                    showIcon: false))));
+        expect(find.byKey(const Key('brand.icon')), findsNothing);
+        expect(find.text('CLR MUSIC'), findsOneWidget);
+      }
       expect(tester.takeException(), isNull);
     }, variant: TargetPlatformVariant({platform}));
   }

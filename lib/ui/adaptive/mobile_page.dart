@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:collectarr_app/ui/adaptive/native_system_chrome.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 
 /// A native mobile page with one header and slots shared by library workflows.
 class MobilePage extends StatelessWidget {
@@ -16,6 +18,7 @@ class MobilePage extends StatelessWidget {
       this.contextBar,
       this.contextBarBottomPadding = 6,
       this.footer,
+      this.systemBarColor,
       this.overlay});
 
   final String? title;
@@ -31,37 +34,50 @@ class MobilePage extends StatelessWidget {
   final Widget? footer;
   final Widget? overlay;
 
+  /// Optional kind-specific dark color for the system status bar.
+  final Color? systemBarColor;
+
   @override
-  Widget build(BuildContext context) => IconButtonTheme(
-      data: IconButtonThemeData(
-          style: IconButton.styleFrom(backgroundColor: Colors.transparent)),
-      child: Scaffold(
-        backgroundColor: backgroundColor,
-        appBar: MobilePageHeader(
-            title: title,
-            titleWidget: titleWidget,
-            onBack: onBack,
-            color: headerColor,
-            canGoBack: canGoBack,
-            actions: actions),
-        body: SafeArea(
-            top: false,
-            child: Stack(children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                if (contextBar != null)
-                  DecoratedBox(
-                    decoration: BoxDecoration(color: headerColor),
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: contextBarBottomPadding),
-                      child: contextBar!,
-                    ),
-                  ),
-                Expanded(child: body),
-                if (footer != null) footer!,
-              ]),
-              if (overlay != null) Positioned.fill(child: overlay!),
-            ])),
-      ));
+  Widget build(BuildContext context) => AnnotatedRegion<SystemUiOverlayStyle>(
+      value: nativeSystemUiStyle(
+        accent: headerColor,
+        darkAccent: systemBarColor,
+        palette: appPalette(context),
+      ),
+      child: IconButtonTheme(
+          data: IconButtonThemeData(
+              style: IconButton.styleFrom(backgroundColor: Colors.transparent)),
+          child: Scaffold(
+            backgroundColor: backgroundColor,
+            appBar: MobilePageHeader(
+                title: title,
+                titleWidget: titleWidget,
+                onBack: onBack,
+                color: headerColor,
+                systemBarColor: systemBarColor,
+                canGoBack: canGoBack,
+                actions: actions),
+            body: SafeArea(
+                top: false,
+                child: Stack(children: [
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (contextBar != null)
+                          DecoratedBox(
+                            decoration: BoxDecoration(color: headerColor),
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                  bottom: contextBarBottomPadding),
+                              child: contextBar!,
+                            ),
+                          ),
+                        Expanded(child: body),
+                        if (footer != null) footer!,
+                      ]),
+                  if (overlay != null) Positioned.fill(child: overlay!),
+                ])),
+          )));
 }
 
 /// Header styling is scoped to native chrome, so desktop button fills and
@@ -73,12 +89,14 @@ class MobilePageHeader extends StatelessWidget implements PreferredSizeWidget {
       this.titleWidget,
       required this.onBack,
       required this.color,
+      this.systemBarColor,
       this.actions,
       this.canGoBack = true});
   final String? title;
   final Widget? titleWidget;
   final VoidCallback onBack;
   final Color color;
+  final Color? systemBarColor;
   final List<Widget>? actions;
   final bool canGoBack;
   @override
@@ -92,7 +110,11 @@ class MobilePageHeader extends StatelessWidget implements PreferredSizeWidget {
           disabledForegroundColor: Colors.white38,
         )),
         child: AppBar(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
+          systemOverlayStyle: nativeSystemUiStyle(
+            accent: color,
+            darkAccent: systemBarColor,
+            palette: appPalette(context),
+          ),
           backgroundColor: color,
           foregroundColor: Colors.white,
           titleTextStyle: Theme.of(context)

@@ -1,6 +1,7 @@
 import 'shell/mobile_shell.dart';
 import 'shell/desktop_shell.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/ui/adaptive/native_system_chrome.dart';
 import 'shell/app_account_button.dart';
 import 'package:collectarr_app/features/settings/backups/automatic_backup_controller.dart';
 import 'dart:async';
@@ -180,7 +181,15 @@ class _AppShellState extends ConsumerState<AppShell> {
         accent: accent,
         animationsEnabled: uiPreferences.animationsEnabled,
         child: appPresentationPlatform.isNativeMobile
-            ? MobileShell(appBar: appBar, body: body)
+            ? MobileShell(
+                appBar: appBar,
+                body: body,
+                systemUiStyle: nativeSystemUiStyle(
+                  accent: accent,
+                  darkAccent: activeType.identity.mobileChromeDark,
+                  palette: appPalette(context),
+                ),
+              )
             : DesktopShell(appBar: appBar, body: body));
     if (mediaQuery == null) {
       return shell;
