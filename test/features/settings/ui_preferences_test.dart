@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/settings/ebay_search_preferences.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +9,12 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     const store = UiPreferencesStore();
     final defaults = await store.read();
+    expect(defaults.formats.timeZone, deviceTimeZone);
+    await store.write(defaults.copyWith(
+        formats: defaults.formats.copyWith(timeZone: 'Europe/Bucharest')));
+    expect((await store.read()).formats.timeZone, 'Europe/Bucharest');
+    await store.write(defaults);
+    expect((await store.read()).formats.timeZone, deviceTimeZone);
     expect(defaults.showInspectorBackdrop, isTrue);
     expect(defaults.showInspectorBackCover, isTrue);
     final edited = defaults.copyWith(

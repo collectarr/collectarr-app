@@ -42,6 +42,7 @@ dependencies:
   flutter_svg: ^2.3.0
   country_iso: ^1.0.0
   font_awesome_flutter: ^11.0.0
+  timezone: ^0.11.2
 
 dev_dependencies:
   flutter_test:

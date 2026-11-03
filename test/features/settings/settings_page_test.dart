@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/settings/settings_reference_controls.dar
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
@@ -14,6 +15,7 @@ import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
 
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -185,6 +187,60 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+
+  testWidgets('time zone menu groups cities and saves the device or city',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = defaultTargetPlatform == TargetPlatform.windows
+        ? const Size(1100, 1200)
+        : const Size(390, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+      child: MaterialApp(
+        theme: ThemeData(platform: TargetPlatform.windows),
+        home: const SettingsPage(initialSection: SettingsSection.customization),
+      ),
+    ));
+    await pumpUntilSettled(tester);
+    final timeZoneGroup = find.ancestor(
+        of: find.text('Time zone'), matching: find.byType(SettingsGroup));
+    final select = find.descendant(
+        of: timeZoneGroup, matching: find.byType(SettingsSelect<String>));
+    await tester.ensureVisible(select);
+    await tester.tap(select);
+    await tester.pumpAndSettle();
+    expect(find.text('Africa'), findsOneWidget);
+    expect(
+        tester
+            .widget<MenuItemButton>(
+                find.widgetWithText(MenuItemButton, 'Africa'))
+            .onPressed,
+        isNull);
+    await tester.tap(find.text('Abidjan').last);
+    await tester.pumpAndSettle();
+    final container =
+        ProviderScope.containerOf(tester.element(find.byType(SettingsPage)));
+    expect(container.read(uiPreferencesProvider).formats.timeZone,
+        'Africa/Abidjan');
+    await tester.tap(select);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Device time zone').last);
+    await tester.pumpAndSettle();
+    expect(
+        container.read(uiPreferencesProvider).formats.timeZone, deviceTimeZone);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  },
+      variant: TargetPlatformVariant({
+        TargetPlatform.windows,
+        TargetPlatform.android,
+        TargetPlatform.iOS
+      }));
 
   testWidgets('settings page persists animation preference', (tester) async {
     SharedPreferences.setMockInitialValues({});
