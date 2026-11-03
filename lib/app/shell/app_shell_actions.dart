@@ -170,7 +170,7 @@ class AppShellActions {
             context: context, accent: accent, kind: type.kind);
         return;
       case DrawerAction.settings:
-        _goToSettingsSection(SettingsSection.appearance, type.kind);
+        _goToSettingsSection(SettingsSection.customization, type.kind);
         return;
       case DrawerAction.calendar:
         context.openPage(

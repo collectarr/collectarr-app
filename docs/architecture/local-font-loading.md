@@ -39,7 +39,7 @@ glyph tables remain byte-for-byte unchanged.
 Restart the application after changing this registration policy; hot reload
 does not replace fonts already registered with the engine.
 
-Settings → Appearance → Typography provides:
+Settings → Customization → Typography provides:
 
 - Enable/disable local Gilroy, with immediate theme updates.
 - Use installed Gilroy: desktop discovery or a user-triggered browser request.

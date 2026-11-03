@@ -15,10 +15,15 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/settings/settings_layout.dart';
+import 'package:collectarr_app/features/settings/settings_kind_section.dart';
 
-/// Settings > Appearance: the reference Settings page and cover options.
+/// Shared and kind-specific customization settings.
 class SettingsAppearanceSection extends ConsumerStatefulWidget {
-  const SettingsAppearanceSection({super.key});
+  const SettingsAppearanceSection(
+      {super.key, required this.groups, this.initialKind});
+
+  final List<SettingsKindGroup> groups;
+  final String? initialKind;
 
   @override
   ConsumerState<SettingsAppearanceSection> createState() =>
@@ -27,6 +32,28 @@ class SettingsAppearanceSection extends ConsumerStatefulWidget {
 
 class _SettingsAppearanceSectionState
     extends ConsumerState<SettingsAppearanceSection> {
+  String? _selectedTab;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectInitialKind();
+  }
+
+  @override
+  void didUpdateWidget(covariant SettingsAppearanceSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialKind != widget.initialKind) _selectInitialKind();
+  }
+
+  void _selectInitialKind() {
+    _selectedTab = widget.groups
+        .where((group) =>
+            group.types.any((type) => type.kind.apiValue == widget.initialKind))
+        .firstOrNull
+        ?.id;
+  }
+
   @override
   Widget build(BuildContext context) =>
       _buildAppearanceSection(ref.watch(uiPreferencesProvider));
@@ -38,7 +65,7 @@ class _SettingsAppearanceSectionState
     // right.
     final customization = SettingsPanel(
         icon: Icons.palette_outlined,
-        title: 'Customization',
+        title: 'General',
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           SettingsGroupPair(
@@ -354,17 +381,38 @@ class _SettingsAppearanceSectionState
             ),
           ),
         ]));
+    final selectedGroup =
+        widget.groups.indexWhere((group) => group.id == _selectedTab);
+    final initialIndex = _selectedTab == '@typography'
+        ? widget.groups.length + 1
+        : selectedGroup < 0
+            ? 0
+            : selectedGroup + 1;
     return DefaultTabController(
-      length: 3,
+      key: ValueKey(
+          'customization:${widget.initialKind}:${widget.groups.map((group) => '${group.id}:${group.types.map((type) => type.kind.apiValue).join(',')}').join('|')}'),
+      initialIndex: initialIndex,
+      length: widget.groups.length + 2,
       child: Column(children: [
-        const TabBar(
-            isScrollable: true,
-            tabAlignment: TabAlignment.center,
-            tabs: [
-              Tab(text: 'Customization'),
-              Tab(text: 'Covers & layout'),
-              Tab(text: 'Typography'),
-            ]),
+        TabBar(
+          isScrollable: true,
+          tabAlignment: TabAlignment.center,
+          onTap: (index) {
+            _selectedTab = index == 0
+                ? null
+                : index == widget.groups.length + 1
+                    ? '@typography'
+                    : widget.groups[index - 1].id;
+          },
+          tabs: [
+            const Tab(text: 'General'),
+            for (final group in widget.groups)
+              Tab(
+                  key: ValueKey('settings.kind.tab.${group.id}'),
+                  text: group.title),
+            const Tab(text: 'Typography'),
+          ],
+        ),
         Expanded(
             child: TabBarView(children: [
           SettingsTabBody.columns(
@@ -378,10 +426,12 @@ class _SettingsAppearanceSectionState
                   child: PlatformIconsSettingsPanel()),
             ],
             footer: SettingsResetAction(
-                label: 'Reset appearance defaults',
+                label: 'Reset customization defaults',
                 onReset: _resetAppearanceDefaults),
           ),
-          _buildCoverAppearanceSection(preferences),
+          for (final group in widget.groups)
+            SettingsKindSection(
+                key: ValueKey('settings.kind.${group.id}'), types: group.types),
           const SettingsTabBody(twoColumns: true, children: [
             SettingsPanel(
                 icon: Icons.text_fields_outlined,
@@ -393,53 +443,10 @@ class _SettingsAppearanceSectionState
     );
   }
 
-  Widget _buildCoverAppearanceSection(UiPreferences uiPreferences) {
-    return SettingsTabBody(
-      children: [
-        SettingsPanel(
-          icon: Icons.motion_photos_auto_outlined,
-          title: 'Appearance',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Cover grid',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.title),
-                title: const Text('Show titles in grid'),
-                subtitle: const Text(
-                  'Show title text below covers in grid view.',
-                ),
-                value: uiPreferences.showCoverTitles,
-                onChanged: (value) => ref
-                    .read(uiPreferencesProvider.notifier)
-                    .setShowCoverTitles(value),
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: _resetAppearanceDefaults,
-                  icon: const Icon(Icons.restart_alt),
-                  label: const Text('Reset appearance defaults'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Future<void> _resetAppearanceDefaults() async {
     await ref.read(uiPreferencesProvider.notifier).resetDefaults();
     if (mounted) {
-      showSettingsToast('Appearance defaults restored',
+      showSettingsToast('Customization defaults restored',
           tone: AppToastTone.success);
     }
   }
