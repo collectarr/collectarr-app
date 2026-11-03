@@ -8,19 +8,23 @@ class AppShellBrand extends StatelessWidget {
     required this.kindTitle,
     required this.iconKey,
     required this.titleKey,
+    this.showIcon = true,
   });
 
   final IconData icon;
   final String kindTitle;
   final Key iconKey;
   final Key titleKey;
+  final bool showIcon;
 
   @override
   Widget build(BuildContext context) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, key: iconKey, size: 22, color: Colors.white),
-          const SizedBox(width: 7),
+          if (showIcon) ...[
+            Icon(icon, key: iconKey, size: 22, color: Colors.white),
+            const SizedBox(width: 7),
+          ],
           Flexible(
             child: FittedBox(
                 fit: BoxFit.scaleDown,

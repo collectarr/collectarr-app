@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'app_library_search_bar.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/ui/adaptive/native_system_chrome.dart';
 import 'package:collectarr_app/features/library/generic/mobile_search_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -78,7 +79,15 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
         kindTitle: type.identity.title,
         iconKey: const Key('app.kind-icon'),
         titleKey: const Key('app.brand-title'),
+        showIcon: !appPresentationPlatform.isNativeMobile,
       ),
+      systemOverlayStyle: appPresentationPlatform.isNativeMobile
+          ? nativeSystemUiStyle(
+              accent: accent,
+              darkAccent: type.identity.mobileChromeDark,
+              palette: appPalette(context),
+            )
+          : null,
       backgroundColor: libraryAccentChromeFallbackColor(accent),
       foregroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,

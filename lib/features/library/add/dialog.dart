@@ -1159,6 +1159,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         pluralLabel: widget.type.identity.pluralLabel,
         singularLabel: widget.type.identity.singularLabel,
         accent: accent,
+        systemBarColor: widget.type.identity.mobileChromeDark,
         themeData: dialogTheme,
         contextBar: contextBar,
         body: body,

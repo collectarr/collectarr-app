@@ -11,6 +11,7 @@ class LibraryAddMobilePage extends StatelessWidget {
     required this.pluralLabel,
     required this.singularLabel,
     required this.accent,
+    this.systemBarColor,
     required this.themeData,
     required this.contextBar,
     required this.body,
@@ -25,6 +26,7 @@ class LibraryAddMobilePage extends StatelessWidget {
   final String pluralLabel;
   final String singularLabel;
   final Color accent;
+  final Color? systemBarColor;
   final ThemeData themeData;
   final Widget contextBar;
   final Widget body;
@@ -50,6 +52,7 @@ class LibraryAddMobilePage extends StatelessWidget {
           ),
           onBack: onBack,
           headerColor: accent,
+          systemBarColor: systemBarColor,
           backgroundColor: palette.panel,
           contextBarBottomPadding: 0,
           actions: [
