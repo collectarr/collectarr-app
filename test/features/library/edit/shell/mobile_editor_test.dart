@@ -69,9 +69,13 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Done'));
       await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('More editor actions'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Next item'));
+      if (find.byTooltip('Next item').evaluate().isNotEmpty) {
+        await tester.tap(find.byTooltip('Next item'));
+      } else {
+        await tester.tap(find.byTooltip('More editor actions'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Next item'));
+      }
       await tester.pumpAndSettle();
       expect(harnessKey.currentState!.nextCount, 1);
       expect(tester.takeException(), isNull);

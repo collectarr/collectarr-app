@@ -191,35 +191,37 @@ class MobileTabStrip<T> extends StatelessWidget {
                     Semantics(
                       selected: tab.value == selected,
                       button: true,
-                      child: Material(
-                        color: tab.value == selected
-                            ? activeColor
-                            : Colors.transparent,
+                      child: InkWell(
                         borderRadius: BorderRadius.circular(6),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(6),
-                          onTap: () => onSelected(tab.value),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight: compact ? 32 : 40,
-                              minWidth: compact ? 48 : 64,
-                            ),
-                            child: Padding(
+                        onTap: () => onSelected(tab.value),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: 48,
+                            minWidth: compact ? 48 : 64,
+                          ),
+                          child: Center(
+                            child: Container(
+                              constraints:
+                                  BoxConstraints(minHeight: compact ? 32 : 40),
                               padding: EdgeInsets.symmetric(
-                                horizontal: compact ? 12 : 14,
+                                  horizontal: compact ? 12 : 14),
+                              decoration: BoxDecoration(
+                                color: tab.value == selected
+                                    ? activeColor
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(6),
                               ),
                               child: Center(
-                                child: Text(
-                                  tab.label,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: compact ? 13 : 14,
-                                    fontWeight: tab.value == selected
-                                        ? FontWeight.w600
-                                        : FontWeight.w400,
-                                  ),
+                                  child: Text(
+                                tab.label,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: compact ? 13 : 14,
+                                  fontWeight: tab.value == selected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
                                 ),
-                              ),
+                              )),
                             ),
                           ),
                         ),

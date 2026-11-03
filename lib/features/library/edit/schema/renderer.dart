@@ -159,7 +159,7 @@ class EditSchemaRendererState<TModel, TDraft>
   /// never paints the default order before the saved one.
   late bool _tabOrderReady;
   late int _selectedTabIndex;
-  int? _lastPushedTabIndex;
+  List<Object?>? _lastPushedTabs;
   String? _selectedTabId;
   final _localVocabularyAccumulator = LibraryVocabularyEditAccumulator();
   bool _isSaving = false;
@@ -522,10 +522,21 @@ class EditSchemaRendererState<TModel, TDraft>
       final headerTabsScope =
           LibraryMobileEditorHeaderTabsScope.maybeOf(context);
       if (headerTabsScope != null) {
-        if (_lastPushedTabIndex != selectedIndex) {
-          _lastPushedTabIndex = selectedIndex;
+        final signature = <Object?>[
+          headerTabsScope,
+          selectedIndex,
+          widget.tabAccent ?? Theme.of(context).colorScheme.primary,
+          for (var index = 0; index < tabIndexes.length; index++) ...[
+            _tabIdForVisibleIndex(tabIndexes, index),
+            _tabForSourceIndex(tabIndexes[index]).label,
+          ],
+        ];
+        if (!listEquals(_lastPushedTabs, signature)) {
+          _lastPushedTabs = signature;
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) headerTabsScope.value = tabStrip;
+            if (mounted && identical(_lastPushedTabs, signature)) {
+              headerTabsScope.value = tabStrip;
+            }
           });
         }
         return const SizedBox.shrink();
