@@ -19,6 +19,7 @@ class LibraryKindIdentity {
     this.mobileChromeDark,
     this.mobileToolbarDark,
     this.mobileToolbarLight,
+    this.mobileCorePickerDescription,
     required this.preferencePrefix,
     this.routeSegments = const [],
     required this.mediaFamily,
@@ -52,6 +53,7 @@ class LibraryKindIdentity {
   final Color? mobileChromeDark;
   final Color? mobileToolbarDark;
   final Color? mobileToolbarLight;
+  final String? mobileCorePickerDescription;
   Color get accent => appPresentationPlatform.isNativeMobile
       ? mobileAccent ?? _accent
       : _accent;

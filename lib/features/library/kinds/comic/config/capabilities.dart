@@ -41,6 +41,8 @@ final comicKindIdentity = const LibraryKindIdentity(
   mobileChromeDark: Color(0xFF00577F),
   mobileToolbarDark: Color(0xFF28454D),
   mobileToolbarLight: Color(0xFFD8E8EE),
+  mobileCorePickerDescription:
+      'Adding comics to the app is done by searching our CLR Core central online comic database, either by cover, barcode or series / issue.',
   preferencePrefix: 'comics',
   routeSegments: ['comics', 'comic'],
   mediaFamily: 'print',

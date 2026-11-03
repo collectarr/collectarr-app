@@ -229,6 +229,17 @@ void main() {
       await tester.tap(find.text('Open Add'));
       await pumpUntilSettled(tester);
       expect(find.byKey(const Key('add.method-picker')), findsOneWidget);
+      final pickerTitle = find.text('Add Comics from CLR Core');
+      expect(pickerTitle, findsOneWidget);
+      expect(
+        find.text(
+            'Adding comics to the app is done by searching our CLR Core central online comic database, either by cover, barcode or series / issue.'),
+        findsOneWidget,
+      );
+      final pickerHeader = tester.widget<Container>(
+        find.ancestor(of: pickerTitle, matching: find.byType(Container)).first,
+      );
+      expect(pickerHeader.color, const Color(0xFF00577F));
       await tester
           .ensureVisible(find.byKey(const ValueKey('add.method.search')));
       await tester.tap(find.byKey(const ValueKey('add.method.search')));
