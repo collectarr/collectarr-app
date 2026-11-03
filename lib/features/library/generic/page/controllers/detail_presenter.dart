@@ -74,7 +74,7 @@ abstract final class _LibraryDetailPresenter {
               appBar: appPresentationPlatform.isNativeMobile
                   ? MobilePageHeader(
                       title: loaded.source.title.trim().isEmpty
-                          ? 'CLR ${state.widget.type.identity.title}'
+                          ? 'CLR ${state.widget.type.identity.title.toUpperCase()}'
                           : loaded.source.title,
                       onBack: back,
                       color: state.widget.accent,
