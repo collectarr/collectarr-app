@@ -246,7 +246,7 @@ class _KindMenuItemState extends State<_KindMenuItem> {
                       style: TextStyle(
                           color: colorEnabled
                               ? const Color(0xFF333333)
-                              : const Color(0xFF888888),
+                              : const Color(0xFF757575),
                           fontFamily: appFontFamily,
                           fontFamilyFallback: kAppFontFamilyFallback,
                           fontSize: 16,
