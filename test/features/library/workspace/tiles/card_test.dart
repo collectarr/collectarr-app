@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/providers/local_cover_image_p
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/domain/target_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
@@ -146,6 +147,8 @@ LibraryProjectionItem _comicItem({bool isSlabbed = false}) {
       title: 'Issue 1',
       seriesTitle: 'Batman',
       issueNumber: '1',
+      variant: 'A',
+      releaseDateParts: PartialDate(year: 2025, month: 1, day: 2),
     ),
   );
   final summary = ComicLibraryEntryProjection.toSummary(entry);
@@ -294,6 +297,43 @@ void main() {
       }
     }, variant: TargetPlatformVariant({TargetPlatform.android}));
   }
+
+  testWidgets(
+      'comic horizontal cards place issue and date right and grade below the title',
+      (tester) async {
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        localItemImageProvider
+            .overrideWith((ref, request) => Stream.value(null))
+      ],
+      child: MaterialApp(
+          home: Scaffold(
+              body: Center(
+                  child: SizedBox(
+        width: 400,
+        height: 100,
+        child: LibraryWorkspaceCard(
+            item: _comicItem(), selected: false, onTap: () {}),
+      )))),
+    ));
+    await tester.pumpAndSettle();
+    final title = find.text('Batman');
+    final number = find.text('#1A');
+    final date = find.textContaining('2025');
+    final grade = find.byType(LibraryOutlinedPill);
+    expect(title, findsOneWidget);
+    expect(number, findsOneWidget);
+    expect(date, findsOneWidget);
+    expect(grade, findsOneWidget);
+    expect(find.text('9.8'), findsOneWidget);
+    expect(
+        tester.getTopLeft(number).dx, greaterThan(tester.getTopLeft(title).dx));
+    expect(
+        tester.getTopLeft(date).dy, greaterThan(tester.getTopLeft(number).dy));
+    expect(
+        tester.getTopLeft(grade).dy, greaterThan(tester.getTopLeft(title).dy));
+    expect(tester.getTopLeft(grade).dx, lessThan(tester.getTopLeft(number).dx));
+  });
 
   testWidgets('headlined cards put the headline above the cover',
       (tester) async {
