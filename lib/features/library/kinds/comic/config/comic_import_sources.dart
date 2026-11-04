@@ -89,6 +89,7 @@ final comicKindImport = LibraryKindImportCapability(
     LibraryImportSourceDefinition(
         id: 'comiccollector',
         title: 'Comic Collector',
+        assetLogoPath: 'assets/import_logos/comic-collector.png',
         importer: ComicCollectorImporter(),
         fallbackIcon: Icons.desktop_windows,
         fileExtensions: ['xml'],
@@ -105,6 +106,9 @@ final comicKindImport = LibraryKindImportCapability(
     LibraryImportSourceDefinition(
         id: 'clz_comic_web',
         title: 'CLZ Comics Web',
+        assetLogoPath: 'assets/import_logos/clz-comics.svg',
+        isSvg: true,
+        svgMonochrome: false,
         importer: ClzComicWebImporter(),
         fallbackIcon: Icons.cloud_download_outlined,
         fileExtensions: ['xml'],
@@ -118,5 +122,24 @@ final comicKindImport = LibraryKindImportCapability(
           'Upload the saved XML file below:',
         ],
         filePrompt: 'Upload your CLZ Comics Web XML file:'),
+    LibraryImportSourceDefinition(
+        id: 'comic_collector_live',
+        title: 'Comic Collector Live',
+        assetLogoPath: 'assets/import_logos/comic-collector-live.png',
+        fallbackIcon: Icons.library_books_outlined,
+        sourceType: LibraryImportSourceType.unavailable,
+        fileExtensions: ['csv'],
+        description:
+            'Export your Comic Collector Live collection to a CSV file before importing it.'),
+    LibraryImportSourceDefinition(
+        id: 'comic_collector_fields',
+        title: 'Import User Defined Fields from Comic Collector',
+        pageTitle: 'Import User Defined Fields from Comic Collector',
+        sectionTitle: 'Other imports',
+        assetLogoPath: 'assets/import_logos/comic-collector.png',
+        fallbackIcon: Icons.desktop_windows,
+        sourceType: LibraryImportSourceType.unavailable,
+        description:
+            'Transfer user-defined fields from a Comic Collector XML export to existing comics.'),
   ],
 );

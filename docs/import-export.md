@@ -87,8 +87,8 @@ US `m/d/yyyy` dates, credits and characters in `mainsection`). No Comic
 Collector comics sample is published; the desktop shape follows the Collectorz
 Book Collector sample in KDE Tellico's tests and the records of a real CLZ
 Comics Web export. Comic Collector Live CSV and Comic Collector user-defined
-fields are not advertised until a sample export is available; a Comic
-Collector Live CSV can be mapped through Import a Text or CSV file.
+fields are shown as unavailable placeholders until sample exports are verified;
+a Comic Collector Live CSV can be mapped through Import a Text or CSV file.
 
 A 2026-10-16 search found no published schema, DTD or sample file for any of
 them; their vendors document only how to export:

@@ -46,9 +46,51 @@ void main() {
       ]);
       expect(sources.last.sectionTitle, 'Other imports');
     });
+
+    test('comics lists available imports and unavailable source placeholders',
+        () {
+      final sources = libraryImportForKind(CatalogMediaKind.comic).sources;
+      expect(sources.map((source) => source.id), [
+        'text',
+        'comiccollector',
+        'clz_comic_web',
+        'comic_collector_live',
+        'comic_collector_fields',
+      ]);
+      expect(sources.last.sectionTitle, 'Other imports');
+    });
   });
 
   group('LibraryImportDataPage Widget', () {
+    testWidgets('comics placeholders do not accept unverified exports',
+        (tester) async {
+      tester.view.physicalSize = const Size(1280, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final type = defaultLibraryKindRegistry.require(CatalogMediaKind.comic);
+      await tester.pumpWidget(ProviderScope(
+          child: MaterialApp(
+              home: LibraryImportDataPage(
+                  type: type, allShelfEntries: const []))));
+      await tester.pumpAndSettle();
+      expect(find.text('Other imports'), findsOneWidget);
+      expect(find.text('Comic Collector Live'), findsOneWidget);
+      await tester
+          .tap(find.byKey(const Key('import_source_comic_collector_live')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('This import is not available yet'),
+          findsOneWidget);
+      expect(find.byKey(const Key('import_file_picker_btn')), findsNothing);
+      expect(find.byKey(const Key('import_guided.submit')), findsNothing);
+      await tester.tap(find.byKey(const Key('import_data.back')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('import_source_clz_comic_web')));
+      await tester.pumpAndSettle();
+      expect(find.text('Upload your CLZ Comics Web XML file:'), findsOneWidget);
+      expect(find.byKey(const Key('import_file_picker_btn')), findsOneWidget);
+    });
+
     testWidgets('games placeholders explain unavailable imports',
         (tester) async {
       tester.view.physicalSize = const Size(1280, 1400);

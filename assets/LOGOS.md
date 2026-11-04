@@ -21,7 +21,7 @@ Except for the import-source marks listed below, use a known free license for
 new logos. Sources and platforms without a logo here (Xbox, Nintendo and
 Windows have none in Simple Icons) use a generic icon.
 
-## Games import source marks
+## Games and Comics import source marks
 
 The following marks are displayed only to identify the application or service
 whose export is being imported. They were requested for this purpose and are
@@ -34,6 +34,9 @@ and logos remain the property of their respective owners.
 | `import_logos/game-collector.png` | [Game Collector](https://app-assets.clz.com/static/images/logos/game/logo-desktop.png) |
 | `import_logos/clz-games.svg` | [CLZ Games](https://app-assets.clz.com/static/images/logos/game/clz-games-icon.svg) |
 | `import_logos/pricecharting.png` | [PriceCharting](https://app-assets.clz.com/static/images/logos/import/pricecharting.png) |
+| `import_logos/comic-collector.png` | [Comic Collector](https://app-assets.clz.com/static/images/logos/comic/logo-desktop.png) |
+| `import_logos/clz-comics.svg` | [CLZ Comics](https://app-assets.clz.com/static/images/logos/comic/clz-comics-icon.svg) |
+| `import_logos/comic-collector-live.png` | [Comic Collector Live](https://app-assets.clz.com/static/images/logos/import/ccl.png) |
 
 ## Publisher logos
 
