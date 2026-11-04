@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 enum LibraryImportSourceType {
   csvTxt,
   guidedFile,
+  unavailable,
 }
 
 class KindMappableField {
@@ -25,9 +26,12 @@ class LibraryImportSourceDefinition {
     required this.id,
     required this.title,
     this.subtitle,
+    this.sectionTitle,
+    this.pageTitle,
     this.assetLogoPath,
     this.fallbackIcon = Icons.insert_drive_file_outlined,
     this.isSvg = false,
+    this.svgMonochrome = true,
     this.sourceType = LibraryImportSourceType.guidedFile,
     this.fileExtensions = const ['xml'],
     this.description = '',
@@ -41,9 +45,18 @@ class LibraryImportSourceDefinition {
   final String id;
   final String title;
   final String? subtitle;
+
+  /// Optional heading shown before this source in the picker.
+  final String? sectionTitle;
+
+  /// An optional full heading for a source whose title is already an action.
+  final String? pageTitle;
   final String? assetLogoPath;
   final IconData fallbackIcon;
   final bool isSvg;
+
+  /// Whether an SVG should be tinted to the current text color.
+  final bool svgMonochrome;
   final LibraryImportSourceType sourceType;
   final List<String> fileExtensions;
   final String description;

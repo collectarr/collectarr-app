@@ -97,7 +97,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
         ? 'Import Data'
         : source.sourceType == LibraryImportSourceType.csvTxt
             ? 'Import from CSV / TXT File'
-            : 'Import from ${source.title}';
+            : source.pageTitle ?? 'Import from ${source.title}';
     return AppManagementPageScaffold(
         icon: AppIcons.importData,
         title: title,
@@ -115,6 +115,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                     _buildSuccessBanner(),
                     const SizedBox(height: 16)
                   ] else if (source != null &&
+                      source.sourceType !=
+                          LibraryImportSourceType.unavailable &&
                       !_warningDismissed &&
                       _collectionCount > 0) ...[
                     _buildAttentionBanner(appPalette(context)),

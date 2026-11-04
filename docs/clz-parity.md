@@ -251,6 +251,7 @@ camera/barcode flows, landscape, gesture navigation, larger system text and ligh
 
 | Priority | Area | Difference |
 | --- | --- | --- |
+| P2 | Import sources | Delicious Library, Game Collector, PriceCharting and Game Collector user-defined fields appear as unavailable placeholders until verified exports are available; CLZ supports those imports |
 | P3 | Add Games platform filter | CLZ shows the chosen platform's logo and short name beside the title field (Windows logo, "PC") and remembers it; Collectarr shows "All" with no logo. The CLZ region bar (All, US, EU, AU, JP, Other) is dimmed until a game is chosen; Collectarr's is lit from the start |
 | P2 | Platform vocabulary | CLZ offers about 225 platforms with short names (Wii, PSP, SNES, Genesis / Mega Drive, Nintendo Switch 2); Collectarr's Pick Platform uses its 27 built-in names (Nintendo Wii, PlayStation Portable, ...). Renaming them changes stored entry values and needs an ordered migration, so it is an owner decision |
 | P2 | Pick lists | CLZ: Audience Rating, Condition, Developer, Format, Genre, Image Type, Loaned To, Location, Owner, Platform, Publisher, Purchase Store, Region, Series, Storage Device, Sub Type, Tag. The unused Age Rating and "Edition / Format" lists were removed (2026-10-23). Collectarr still adds Sold To (its own Sold fields) and has no Image Type list for My Images |

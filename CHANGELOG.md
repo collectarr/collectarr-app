@@ -15,6 +15,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Games import lists the reference sources in order, with clear placeholders for formats awaiting verified exports.
 - Settings groups general preferences and enabled library kinds under Customization, with Games, Hardware and Toys together and Typography last.
 - Settings Localization offers the device time zone and CLZ-style region and city choices, applying the selected zone to shared date-and-time displays.
 - In Comics, the alphabet bar filters exclusively by Series name, omitting the options gear since cards only display series.

@@ -17,9 +17,23 @@ external service or an item's platform and is not affiliated with or
 endorsed by these companies. Simple Icons drawings are single-color; the app
 tints them.
 
-Do not add logos copied from CLZ or files without a known license. Sources
-and platforms without a logo here (Xbox, Nintendo and Windows have none in
-Simple Icons) use a generic icon.
+Except for the import-source marks listed below, use a known free license for
+new logos. Sources and platforms without a logo here (Xbox, Nintendo and
+Windows have none in Simple Icons) use a generic icon.
+
+## Games import source marks
+
+The following marks are displayed only to identify the application or service
+whose export is being imported. They were requested for this purpose and are
+hosted by CLZ; a redistribution license has not been established. Their names
+and logos remain the property of their respective owners.
+
+| File | Source |
+| --- | --- |
+| `import_logos/delicious-library.png` | [Delicious Library](https://app-assets.clz.com/static/images/logos/import/delicious.png) |
+| `import_logos/game-collector.png` | [Game Collector](https://app-assets.clz.com/static/images/logos/game/logo-desktop.png) |
+| `import_logos/clz-games.svg` | [CLZ Games](https://app-assets.clz.com/static/images/logos/game/clz-games-icon.svg) |
+| `import_logos/pricecharting.png` | [PriceCharting](https://app-assets.clz.com/static/images/logos/import/pricecharting.png) |
 
 ## Publisher logos
 

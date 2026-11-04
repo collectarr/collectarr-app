@@ -33,9 +33,50 @@ void main() {
         expect(() => libraryImportForKind(kind), throwsArgumentError);
       }
     });
+
+    test('games import sources follow the reference order', () {
+      final sources = libraryImportForKind(CatalogMediaKind.game).sources;
+      expect(sources.map((source) => source.id), [
+        'text',
+        'delicious',
+        'game_collector',
+        'clz_game_web',
+        'pricecharting',
+        'game_collector_fields',
+      ]);
+      expect(sources.last.sectionTitle, 'Other imports');
+    });
   });
 
   group('LibraryImportDataPage Widget', () {
+    testWidgets('games placeholders explain unavailable imports',
+        (tester) async {
+      tester.view.physicalSize = const Size(1280, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final type = defaultLibraryKindRegistry.require(CatalogMediaKind.game);
+      await tester.pumpWidget(ProviderScope(
+          child: MaterialApp(
+              home: LibraryImportDataPage(
+                  type: type, allShelfEntries: const []))));
+      await tester.pumpAndSettle();
+      expect(find.text('Other imports'), findsOneWidget);
+      expect(find.text('PriceCharting'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('import_source_delicious')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('This import is not available yet'),
+          findsOneWidget);
+      expect(find.byKey(const Key('import_file_picker_btn')), findsNothing);
+      expect(find.byKey(const Key('import_guided.submit')), findsNothing);
+      await tester.tap(find.byKey(const Key('import_data.back')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('import_source_clz_game_web')));
+      await tester.pumpAndSettle();
+      expect(find.text('Upload your CLZ Games Web XML file:'), findsOneWidget);
+      expect(find.byKey(const Key('import_file_picker_btn')), findsOneWidget);
+    });
+
     testWidgets('renders only verified import sources with parsers',
         (tester) async {
       tester.view.physicalSize = const Size(1280, 1400);
