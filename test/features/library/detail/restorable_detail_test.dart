@@ -27,6 +27,69 @@ import '../../../support/fixtures/music_fixtures.dart';
 import '../../../support/fixtures/test_constants.dart';
 
 void main() {
+  testWidgets('mobile selection toggles multiple covers across their surfaces',
+      (tester) async {
+    setUpTestAppPreferences();
+    tester.view.physicalSize = const Size(390, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(() => tester.runAsync(db.close));
+    final repository = MusicEntryRepository(db);
+    await tester.runAsync(() async {
+      await repository.upsert(musicLibraryEntryFixture(
+          id: 'selection-one',
+          metadata: musicAlbumFixture(title: 'Offline One')));
+      await repository.upsert(musicLibraryEntryFixture(
+          id: 'selection-two',
+          metadata: musicAlbumFixture(title: 'Offline Two')));
+    });
+    await tester.pumpWidget(testApp(overrides: testAppOverrides(database: db)));
+    await pumpUntilSettled(tester);
+    final container =
+        ProviderScope.containerOf(tester.element(find.byType(AppShell)));
+    container.read(appRouterProvider).go('/libraries?kind=music&q=Offline');
+    await pumpUntilSettled(tester);
+    expect(find.byType(LibraryCoverTile), findsNWidgets(2));
+    await tester.tap(find.byIcon(Icons.library_add_check));
+    await pumpUntilSettled(tester);
+    expect(
+        tester.widget<LibraryBody>(find.byType(LibraryBody)).selectionEnabled,
+        isTrue);
+    final covers = find.byType(LibraryCoverTile);
+    await tester.tapAt(tester.getTopLeft(covers.at(0)) + const Offset(20, 20));
+    await pumpUntilSettled(tester);
+    expect(
+        tester
+            .widget<LibraryBody>(find.byType(LibraryBody))
+            .selectedItemIds
+            .length,
+        1);
+    await tester
+        .tapAt(tester.getBottomRight(covers.at(1)) - const Offset(8, 8));
+    await pumpUntilSettled(tester);
+    expect(
+        tester
+            .widget<LibraryBody>(find.byType(LibraryBody))
+            .selectedItemIds
+            .length,
+        2);
+    expect(find.byType(LibraryDetailPage), findsNothing);
+    await tester.tapAt(tester.getCenter(covers.at(0)));
+    await pumpUntilSettled(tester);
+    expect(
+        tester
+            .widget<LibraryBody>(find.byType(LibraryBody))
+            .selectedItemIds
+            .length,
+        1);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 1));
+  },
+      variant:
+          TargetPlatformVariant({TargetPlatform.android, TargetPlatform.iOS}));
+
   test('stable locations distinguish catalog and entry namespaces', () {
     for (final target in <LibraryTargetRef>[
       const CatalogTargetRef(

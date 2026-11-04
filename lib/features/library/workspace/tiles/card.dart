@@ -340,6 +340,17 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                   palette.utilityAction.withValues(alpha: .35)),
                         ),
                       ),
+                    if (appPresentationPlatform.isNativeMobile &&
+                        selectionMode &&
+                        onSelectionToggleTap != null)
+                      Positioned.fill(
+                        child: AppPressClaim(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: onSelectionToggleTap,
+                          ),
+                        ),
+                      ),
                     if (showSelectionToggle)
                       Positioned(
                           left: 0,
@@ -462,6 +473,17 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                               child: ColoredBox(
                                   color: palette.utilityAction
                                       .withValues(alpha: .35)),
+                            ),
+                          ),
+                        if (appPresentationPlatform.isNativeMobile &&
+                            selectionMode &&
+                            onSelectionToggleTap != null)
+                          Positioned.fill(
+                            child: AppPressClaim(
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: onSelectionToggleTap,
+                              ),
                             ),
                           ),
                         if (showSelectionToggle)

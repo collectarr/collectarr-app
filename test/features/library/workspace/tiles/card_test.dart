@@ -281,6 +281,16 @@ void main() {
             find.byType(LibraryTileSelectionToggle));
         expect(checked.selected, isTrue);
         expect(opened, openedBeforeSelection);
+        final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        await mouse.addPointer(location: bounds.center);
+        await mouse.down(bounds.center);
+        await mouse.moveBy(const Offset(1, 1));
+        await mouse.up();
+        await tester.pumpAndSettle();
+        expect(selection.value.itemIds, isEmpty);
+        expect(selection.value.enabled, isTrue);
+        expect(opened, openedBeforeSelection);
+        await mouse.removePointer();
       }
     }, variant: TargetPlatformVariant({TargetPlatform.android}));
   }
