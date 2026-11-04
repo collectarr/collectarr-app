@@ -184,22 +184,18 @@ class LibraryWorkspace extends ConsumerWidget {
         ((viewState.coverSize + 10) * density.cardScaleFactor)
             .clamp(120.0, 244.0)
             .toDouble();
-    final cardFooterHeight =
-        items.any((item) => item.customFieldBadges.isNotEmpty) ? 80.0 : 62.0;
-    final headlinedCards = cardLayout == LibraryWorkspaceCardLayout.headlined;
-    final showsHeadline = headlinedCards &&
+    final cardFooterHeight = viewProfile.cardFooterHeight ??
+        (items.any((item) => item.customFieldBadges.isNotEmpty) ? 80.0 : 62.0);
+    final showsHeadline = viewProfile.cardHeaderHeight > 0 &&
         !(groupMode == viewProfile.seriesGroupMode &&
             selectedBucket != null &&
             selectedBucket != libraryEmptyGroupLabel);
-    final standardVerticalTileHeight = headlinedCards
-        ? (showsHeadline ? kLibraryHeadlinedCardTitleHeight : 0) +
-            (standardVerticalTileWidth - 10) *
-                viewProfile.coverGridHeightFactor +
-            10 +
-            kLibraryHeadlinedCardFooterHeight
-        : (standardVerticalTileWidth - 10) * viewProfile.coverGridHeightFactor +
-            10 +
-            cardFooterHeight;
+    final standardVerticalTileHeight = (showsHeadline
+            ? viewProfile.cardHeaderHeight
+            : 0) +
+        (standardVerticalTileWidth - 10) * viewProfile.coverGridHeightFactor +
+        10 +
+        cardFooterHeight;
     final coverFocusedTileWidth =
         ((viewState.coverSize + 56) * density.cardScaleFactor)
             .clamp(164.0, 248.0)
@@ -283,12 +279,10 @@ class LibraryWorkspace extends ConsumerWidget {
             selectedColor: appPalette(context).utilityAction,
             accentColor: accent,
             mutedTextColor: palette.textMuted,
-            coverWidth: usesCoverFocusedCards || headlinedCards
+            coverWidth: usesCoverFocusedCards || viewProfile.cardUsesCoverSize
                 ? viewState.coverSize
                 : cardCoverWidth,
-            cardLayout: headlinedCards
-                ? LibraryCardLayout.headlined
-                : LibraryCardLayout.vertical,
+            cardLayout: LibraryCardLayout.vertical,
             showHeadline: showsHeadline,
             selectionMode: selectionEnabled,
             onSelectionToggleTap: () => onToggleSelectionItem(item.target.id),

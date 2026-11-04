@@ -107,6 +107,7 @@
 - The web app leaves zoom to the browser, so its zoom shortcuts and Ctrl + wheel change the browser's zoom instead of adding an app zoom that read 100 % on an already zoomed page.
 
 ### Refactors
+- Library card layouts can evolve per kind while sharing selection and other card interactions.
 - Music playback tracking keeps its existing progress and storage behavior.
 - Native Add pages and browse layouts are independent from desktop dialogs while sharing the same search and selection behavior.
 - Add presentation values are centralized, and the mobile issue grid can evolve without changing the desktop Add layout.

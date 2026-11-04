@@ -16,10 +16,6 @@ import 'package:flutter/material.dart';
 enum LibraryCardLayout {
   vertical,
   horizontal,
-
-  /// A vertical card with the headline above the cover (see
-  /// [LibraryCardPresentation.headline]).
-  headlined,
 }
 
 class LibraryWorkspaceCard extends StatefulWidget {
@@ -56,8 +52,7 @@ class LibraryWorkspaceCard extends StatefulWidget {
   final double coverWidth;
   final LibraryCardLayout cardLayout;
 
-  /// Whether a headlined card shows its headline; off when the chosen folder
-  /// already names it.
+  /// Whether a kind-owned card body shows its optional heading.
   final bool showHeadline;
   final bool selectionMode;
   final bool checked;
@@ -100,8 +95,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     final kind = item.source.mediaKind;
     final registration = libraryKindRegistrationForKind(kind);
     // Resolve the kind-supplied card presentation (or fall back to default).
-    final headlined = cardLayout == LibraryCardLayout.headlined;
-    final coverFocused = cardLayout == LibraryCardLayout.vertical || headlined;
+    final coverFocused = cardLayout == LibraryCardLayout.vertical;
     final presentation =
         libraryPresentationForKind(registration.kind).buildCardPresentation(
       item,
@@ -120,7 +114,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
             mutedColor: resolvedMutedTextColor,
             coverCacheWidth: coverCacheWidth,
             presentation: presentation,
-            headlined: headlined,
           ));
     }
     return MouseRegion(
@@ -154,6 +147,29 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
         : checked
             ? kLibraryCheckedItemBackground
             : palette.panelRaised;
+    final customBody = presentation.horizontalBodyBuilder?.call(
+      context,
+      LibraryCardBodyData(
+        item: item,
+        presentation: presentation,
+        selected: selected,
+        showHeadline: widget.showHeadline,
+        titleColor: selected ? selectedTitleColor : palette.itemTitle,
+        detailColor: selected ? Colors.white : palette.textMuted,
+        mutedColor: mutedColor,
+        customFieldBadges: customFieldBadges,
+        coverWidth: coverWidth,
+        buildCover: ({required alignment}) => _buildCover(
+          context: context,
+          coverCacheWidth: coverCacheWidth,
+          presentation: presentation,
+          fit: BoxFit.contain,
+          borderRadius: 0,
+          alignment: alignment,
+          intrinsicSize: true,
+        ),
+      ),
+    );
     return RepaintBoundary(
         child: AnimatedContainer(
       duration: kAppAnimFast,
@@ -177,171 +193,163 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                   child: Stack(children: [
                     Padding(
                         padding: const EdgeInsets.all(4),
-                        child: Row(children: [
-                          ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: coverWidth),
-                              child: _buildCover(
-                                  context: context,
-                                  coverCacheWidth: coverCacheWidth,
-                                  presentation: presentation,
-                                  fit: BoxFit.contain,
-                                  borderRadius: 0,
-                                  intrinsicSize: true)),
-                          const SizedBox(width: 5),
-                          Expanded(
-                              child: presentation.splitHorizontalMetadata
-                                  ? _SplitMetadataHorizontalBody(
-                                      item: item,
+                        child: customBody ??
+                            Row(children: [
+                              ConstrainedBox(
+                                  constraints:
+                                      BoxConstraints(maxWidth: coverWidth),
+                                  child: _buildCover(
+                                      context: context,
+                                      coverCacheWidth: coverCacheWidth,
                                       presentation: presentation,
-                                      selected: selected,
-                                    )
-                                  : Stack(children: [
-                                      // Title, series and badges may exceed a short
-                                      // card; they clip rather than overflow.
-                                      Positioned.fill(
-                                          bottom: 26,
-                                          child: ClipRect(
-                                              child: OverflowBox(
-                                                  alignment: Alignment.topLeft,
-                                                  maxHeight: double.infinity,
-                                                  child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
+                                      fit: BoxFit.contain,
+                                      borderRadius: 0,
+                                      intrinsicSize: true)),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                  child: Stack(children: [
+                                // Title, series and badges may exceed a short
+                                // card; they clip rather than overflow.
+                                Positioned.fill(
+                                    bottom: 26,
+                                    child: ClipRect(
+                                        child: OverflowBox(
+                                            alignment: Alignment.topLeft,
+                                            maxHeight: double.infinity,
+                                            child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
                                                               .start,
                                                       children: [
-                                                        Row(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Expanded(
-                                                                  child: Text(
-                                                                      item.dto
-                                                                          .primaryLabel,
-                                                                      maxLines:
-                                                                          2,
-                                                                      overflow:
-                                                                          TextOverflow
-                                                                              .ellipsis,
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              16,
-                                                                          fontWeight: FontWeight
-                                                                              .w400,
-                                                                          height:
-                                                                              1.15,
-                                                                          color: selected
-                                                                              ? Colors.white
-                                                                              : palette.itemTitle))),
-                                                              if (presentation
-                                                                  .compactBadges
-                                                                  .isNotEmpty)
-                                                                Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .only(
-                                                                        left:
-                                                                            6),
-                                                                    child: Column(
-                                                                        crossAxisAlignment:
-                                                                            CrossAxisAlignment.end,
-                                                                        children: [
-                                                                          for (final badge
-                                                                              in presentation.compactBadges)
-                                                                            Row(mainAxisSize: MainAxisSize.min, children: [
-                                                                              if (badge.icon != null) ...[
-                                                                                Icon(badge.icon, size: 12, color: selected ? Colors.white : palette.textPrimary),
-                                                                                const SizedBox(width: 2),
-                                                                              ],
-                                                                              Text(badge.label, style: TextStyle(fontSize: 12, fontWeight: badge.icon == null ? FontWeight.w400 : FontWeight.w700, color: selected ? Colors.white : palette.textPrimary)),
-                                                                            ]),
-                                                                        ])),
-                                                            ]),
+                                                        Expanded(
+                                                            child: Text(
+                                                                item.dto
+                                                                    .primaryLabel,
+                                                                maxLines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        16,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400,
+                                                                    height:
+                                                                        1.15,
+                                                                    color: selected
+                                                                        ? Colors
+                                                                            .white
+                                                                        : palette
+                                                                            .itemTitle))),
                                                         if (presentation
-                                                                .detailLine
-                                                                ?.isNotEmpty ==
-                                                            true)
+                                                            .compactBadges
+                                                            .isNotEmpty)
                                                           Padding(
                                                               padding:
                                                                   const EdgeInsets
                                                                       .only(
-                                                                      top: 14),
-                                                              child: Text(
-                                                                  presentation
-                                                                      .detailLine!,
-                                                                  maxLines: 1,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      color: selected
-                                                                          ? Colors
-                                                                              .white
-                                                                          : palette
-                                                                              .textMuted))),
-                                                        if (presentation
-                                                                .seriesTitle
-                                                                ?.isNotEmpty ==
-                                                            true)
-                                                          Text(
-                                                              presentation
-                                                                  .seriesTitle!,
-                                                              maxLines: 1,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              style: TextStyle(
-                                                                  fontSize: 14,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  color: selected
-                                                                      ? Colors
-                                                                          .white
-                                                                      : palette
-                                                                          .textPrimary)),
-                                                        if (customFieldBadges
-                                                            .isNotEmpty)
-                                                          Text(
-                                                              customFieldBadges
-                                                                  .join(' | '),
-                                                              maxLines: 1,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  color: selected
-                                                                      ? Colors
-                                                                          .white
-                                                                      : palette
-                                                                          .textMuted)),
-                                                      ])))),
-                                      Positioned(
-                                          left: 0,
-                                          right: 0,
-                                          bottom: 0,
-                                          child: LibraryCardFooter(
-                                              label: [
-                                                presentation.format,
-                                                presentation.releaseDate?.year
-                                                    .toString()
-                                              ]
-                                                  .whereType<String>()
-                                                  .join(' \u2013 '),
-                                              value: presentation.valueLabel,
-                                              status: LibraryItemStatusBadge(
-                                                  item: item,
-                                                  selected: selected,
-                                                  style:
-                                                      LibraryCollectionStatusMarkStyle
-                                                          .pill),
-                                              selected: selected)),
-                                    ])),
-                        ])),
+                                                                      left: 6),
+                                                              child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .end,
+                                                                  children: [
+                                                                    for (final badge
+                                                                        in presentation
+                                                                            .compactBadges)
+                                                                      Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          children: [
+                                                                            if (badge.icon !=
+                                                                                null) ...[
+                                                                              Icon(badge.icon, size: 12, color: selected ? Colors.white : palette.textPrimary),
+                                                                              const SizedBox(width: 2),
+                                                                            ],
+                                                                            Text(badge.label,
+                                                                                style: TextStyle(fontSize: 12, fontWeight: badge.icon == null ? FontWeight.w400 : FontWeight.w700, color: selected ? Colors.white : palette.textPrimary)),
+                                                                          ]),
+                                                                  ])),
+                                                      ]),
+                                                  if (presentation.detailLine
+                                                          ?.isNotEmpty ==
+                                                      true)
+                                                    Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 14),
+                                                        child: Text(
+                                                            presentation
+                                                                .detailLine!,
+                                                            maxLines: 1,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: TextStyle(
+                                                                fontSize: 14,
+                                                                color: selected
+                                                                    ? Colors
+                                                                        .white
+                                                                    : palette
+                                                                        .textMuted))),
+                                                  if (presentation.seriesTitle
+                                                          ?.isNotEmpty ==
+                                                      true)
+                                                    Text(
+                                                        presentation
+                                                            .seriesTitle!,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                            color: selected
+                                                                ? Colors.white
+                                                                : palette
+                                                                    .textPrimary)),
+                                                  if (customFieldBadges
+                                                      .isNotEmpty)
+                                                    Text(
+                                                        customFieldBadges
+                                                            .join(' | '),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: selected
+                                                                ? Colors.white
+                                                                : palette
+                                                                    .textMuted)),
+                                                ])))),
+                                Positioned(
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    child: LibraryCardFooter(
+                                        label: [
+                                          presentation.format,
+                                          presentation.releaseDate?.year
+                                              .toString()
+                                        ].whereType<String>().join(' \u2013 '),
+                                        value: presentation.valueLabel,
+                                        status: LibraryItemStatusBadge(
+                                            item: item,
+                                            selected: selected,
+                                            style:
+                                                LibraryCollectionStatusMarkStyle
+                                                    .pill),
+                                        selected: selected)),
+                              ])),
+                            ])),
                     if (appPresentationPlatform.isNativeMobile && checked)
                       Positioned.fill(
                         child: IgnorePointer(
@@ -396,7 +404,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     required Color mutedColor,
     required int? coverCacheWidth,
     required LibraryCardPresentation presentation,
-    required bool headlined,
   }) {
     final palette = appPalette(context);
     final background = selected
@@ -416,7 +423,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
         : palette.isDark
             ? kLibraryCardDetailIdle
             : palette.textMuted;
-    final isHeadlined = headlined;
     Widget buildCover({required Alignment alignment}) => _buildCover(
           context: context,
           coverCacheWidth: coverCacheWidth,
@@ -454,8 +460,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                       children: [
                         Padding(
                           padding: EdgeInsets.zero,
-                          child: isHeadlined
-                              ? _HeadlinedVerticalCardBody(
+                          child: presentation.verticalBodyBuilder?.call(
+                                context,
+                                LibraryCardBodyData(
                                   item: item,
                                   presentation: presentation,
                                   showHeadline: widget.showHeadline,
@@ -464,18 +471,20 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                   detailColor: detailColor,
                                   mutedColor: mutedColor,
                                   customFieldBadges: customFieldBadges,
-                                  buildCover: buildCover,
-                                )
-                              : _StandardVerticalCardBody(
-                                  item: item,
-                                  presentation: presentation,
-                                  selected: selected,
-                                  titleColor: titleColor,
-                                  detailColor: detailColor,
-                                  mutedColor: mutedColor,
-                                  customFieldBadges: customFieldBadges,
+                                  coverWidth: coverWidth,
                                   buildCover: buildCover,
                                 ),
+                              ) ??
+                              _StandardVerticalCardBody(
+                                item: item,
+                                presentation: presentation,
+                                selected: selected,
+                                titleColor: titleColor,
+                                detailColor: detailColor,
+                                mutedColor: mutedColor,
+                                customFieldBadges: customFieldBadges,
+                                buildCover: buildCover,
+                              ),
                         ),
                         if (appPresentationPlatform.isNativeMobile && checked)
                           Positioned.fill(
@@ -585,169 +594,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     if (pixelRatio <= 0) return null;
     final rawWidth = coverWidth * pixelRatio;
     return ((rawWidth / 64).ceil() * 64).toInt();
-  }
-}
-
-class _SplitMetadataHorizontalBody extends StatelessWidget {
-  const _SplitMetadataHorizontalBody({
-    required this.item,
-    required this.presentation,
-    required this.selected,
-  });
-
-  final LibraryProjectionView item;
-  final LibraryCardPresentation presentation;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final foreground = selected ? Colors.white : palette.textPrimary;
-    return Stack(children: [
-      Positioned(
-        top: 0,
-        left: 0,
-        right: 58,
-        child: Text(presentation.headline ?? item.dto.primaryLabel,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-                color: selected ? Colors.white : palette.itemTitle,
-                fontSize: 14,
-                fontWeight: FontWeight.w700)),
-      ),
-      if (presentation.numberLabel case final number?)
-        Positioned(
-          top: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-            decoration: BoxDecoration(
-              color: palette.utilityAction,
-              borderRadius: BorderRadius.circular(3),
-            ),
-            child: Text(number,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700)),
-          ),
-        ),
-      if (presentation.detailLine case final date?)
-        Positioned(
-          right: 0,
-          top: 28,
-          child: Text(date, style: TextStyle(color: foreground, fontSize: 12)),
-        ),
-      if (presentation.outlinedPill != null ||
-          presentation.compactBadges.isNotEmpty)
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 32,
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            if (presentation.outlinedPill case final pill?)
-              Flexible(
-                  child: LibraryOutlinedPill(
-                      pill: pill,
-                      color: selected ? Colors.white : palette.utilityAction)),
-            for (final badge in presentation.compactBadges)
-              if (badge.icon case final icon?)
-                Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: Tooltip(
-                      message: badge.label,
-                      child: Icon(icon, size: 16, color: foreground)),
-                ),
-          ]),
-        ),
-      Positioned(
-        right: 0,
-        bottom: 0,
-        child: LibraryItemStatusBadge(
-          item: item,
-          selected: selected,
-          style: LibraryCollectionStatusMarkStyle.pill,
-        ),
-      ),
-    ]);
-  }
-}
-
-class _HeadlinedVerticalCardBody extends StatelessWidget {
-  const _HeadlinedVerticalCardBody({
-    required this.item,
-    required this.presentation,
-    required this.showHeadline,
-    required this.selected,
-    required this.titleColor,
-    required this.detailColor,
-    required this.mutedColor,
-    required this.customFieldBadges,
-    required this.buildCover,
-  });
-
-  final LibraryProjectionView item;
-  final LibraryCardPresentation presentation;
-  final bool showHeadline;
-  final bool selected;
-  final Color titleColor;
-  final Color detailColor;
-  final Color mutedColor;
-  final List<String> customFieldBadges;
-  final Widget Function({required Alignment alignment}) buildCover;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (showHeadline)
-          _HeadlinedCardTitle(
-            text: presentation.headline ?? item.dto.primaryLabel,
-            color: titleColor,
-          ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                buildCover(alignment: Alignment.topCenter),
-                Positioned(
-                  left: 5,
-                  bottom: 5,
-                  child: LibraryItemStatusBadge(
-                    item: item,
-                    selected: selected,
-                    style: LibraryCollectionStatusMarkStyle.cover,
-                    width: 29,
-                    height: 27,
-                  ),
-                ),
-                if (customFieldBadges.isNotEmpty)
-                  Text(
-                    customFieldBadges.join(' | '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: selected ? Colors.white : mutedColor,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-        _HeadlinedCardFooter(
-          presentation: presentation,
-          numberColor: titleColor,
-          dateColor: detailColor,
-          pillColor: selected ? Colors.white : palette.utilityAction,
-        ),
-      ],
-    );
   }
 }
 
@@ -873,139 +719,5 @@ class _StandardVerticalCardBody extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-class _HeadlinedCardTitle extends StatelessWidget {
-  const _HeadlinedCardTitle({required this.text, required this.color});
-  final String text;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => ConstrainedBox(
-      constraints: const BoxConstraints(
-          minHeight: 22, maxHeight: kLibraryHeadlinedCardTitleHeight),
-      child: SizedBox(
-          width: double.infinity,
-          child: Padding(
-              padding: const EdgeInsets.fromLTRB(5, 3, 5, 0),
-              child: Text(text,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      color: color,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      height: 18.5714 / 13)))));
-}
-
-/// A large number with the date at the right, then an outlined pill row.
-class _HeadlinedCardFooter extends StatelessWidget {
-  const _HeadlinedCardFooter(
-      {required this.presentation,
-      required this.numberColor,
-      required this.dateColor,
-      required this.pillColor});
-  final LibraryCardPresentation presentation;
-  final Color numberColor;
-  final Color dateColor;
-  final Color pillColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final pill = presentation.outlinedPill;
-    return SizedBox(
-        height: kLibraryHeadlinedCardFooterHeight,
-        child: Padding(
-            padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              SizedBox(
-                  height: 24,
-                  child: Row(children: [
-                    Expanded(
-                        child: Text(presentation.numberLabel ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                color: numberColor,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                height: 24 / 18))),
-                    if (presentation.detailLine case final date?)
-                      Text(date,
-                          style: TextStyle(
-                              color: dateColor,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400)),
-                  ])),
-              if (pill != null)
-                Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: LibraryOutlinedPill(pill: pill, color: pillColor)),
-            ])));
-  }
-}
-
-/// A [LibraryCardPill] outlined in [color]: the lead segment, on its own
-/// fill when it has one, then the value.
-class LibraryOutlinedPill extends StatelessWidget {
-  const LibraryOutlinedPill(
-      {required this.pill, required this.color, super.key});
-  final LibraryCardPill pill;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    Widget segment(String text, IconData? icon, Color color) =>
-        Row(mainAxisSize: MainAxisSize.min, children: [
-          if (icon != null) ...[
-            Icon(icon, size: 15, color: color),
-            const SizedBox(width: 4),
-          ],
-          Flexible(
-              child: Text(text,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      color: color,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      height: 20 / 14))),
-        ]);
-    final lead = pill.lead;
-    final value = pill.value;
-    final leadBackground = pill.leadBackground;
-    return Container(
-        height: 22,
-        decoration: BoxDecoration(
-            border: Border.all(color: color),
-            borderRadius: BorderRadius.circular(5)),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (lead != null)
-            Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                decoration: leadBackground == null
-                    ? null
-                    : BoxDecoration(
-                        gradient: leadBackground,
-                        borderRadius: value == null
-                            ? BorderRadius.circular(4)
-                            : const BorderRadius.horizontal(
-                                left: Radius.circular(4))),
-                alignment: Alignment.center,
-                child: segment(
-                    lead,
-                    pill.leadIcon,
-                    leadBackground == null
-                        ? color
-                        : Colors.black.withValues(alpha: .7))),
-          if (value != null)
-            Flexible(
-                child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: segment(value, pill.valueIcon, color))),
-        ]));
   }
 }
