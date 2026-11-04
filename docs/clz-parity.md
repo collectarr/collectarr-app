@@ -57,6 +57,7 @@ Keep these when matching the reference visually.
 | Area | CLZ | Collectarr |
 | --- | --- | --- |
 | Data ownership | Cloud account is the source of truth | Offline-first local library; Core catalog and Sync are optional and self-hostable |
+| CSV import formats | Comma or semicolon delimiters and quoted fields | Also accepts tab and space delimiters and unquoted fields |
 | Format | One album-level Format pick list | Format is derived from discs; each disc has a format family with format-aware fields (vinyl weight/RPM/side matrices only where they apply) |
 | Recording | Album-level Recording Date | Recording data lives on discs, with explicit disc values taking precedence |
 | Credits | Separate People and Classical tabs | One Credits tab with album/disc scope, stable contributor IDs and role vocabularies |
@@ -106,9 +107,6 @@ Keep these when matching the reference visually.
 
 - Status marks keep white glyphs where the reference's Covers CSS leaves Wish
   List and For Sale glyphs black.
-- Import source logos stay generic icons: the reference's Comic Collector, CLZ
-  and CCL logos are proprietary and not in Simple Icons. CovrPrice import is
-  left out (see Deliberate improvements).
 - The details panel shows a publisher logo only for the publishers whose logo
   is public domain on Wikimedia Commons (`assets/LOGOS.md`); the rest show
   their name. CLZ's own publisher images are never copied.
@@ -202,7 +200,7 @@ weights (see [local font loading](architecture/local-font-loading.md)).
 | P2 | Add Comics Series tab | The reference shows a publisher logo where Collectarr writes the publisher, and a 90 % translucent dialog body |
 | P2 | Value tab | CLZ: Signed by is a list of people (Name and Sort Name) added with a + beside the label and Key Category is a multi-value tag field with a list button. Collectarr: Signed by is one text box and Key Category a single pick list; both need a schema migration |
 | P3 | Main menu | The reference's Key Info > Update Key Info is only a selection action in Collectarr |
-| P3 | Import sources | Comic Collector Live CSV and Comic Collector user-defined fields need sample exports; Comic Collector XML is built from the Collectorz desktop shape and unverified against a real comics export |
+| P3 | Import sources | Comic Collector Live CSV and Comic Collector user-defined fields are unavailable placeholders until sample exports are verified; Comic Collector XML is built from the Collectorz desktop shape and unverified against a real comics export |
 | P3 | Export to XML | Decide whether to also write the CLZ layout; Import Comics reads CLZ's file |
 | P3 | Vertical Cards | A sort saved before Series then Issue became the default stays |
 | P3 | Editor | Full visual comparison of the eleven tabs and the Key selector, every pick list, complete browser save/reload, XML and image import, and end-to-end import and editor validation remain release gates |
