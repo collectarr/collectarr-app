@@ -23,6 +23,10 @@ class SettingsKindGroup {
   final String id;
   final String title;
   final List<LibraryKindRegistration> types;
+
+  LibraryKindRegistration get primaryType =>
+      types.where((type) => type.identity.isTopLevel).firstOrNull ??
+      types.first;
 }
 
 List<SettingsKindGroup> settingsKindGroups(

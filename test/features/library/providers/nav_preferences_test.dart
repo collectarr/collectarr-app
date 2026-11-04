@@ -4,6 +4,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  test('family visibility follows its top-level module', () {
+    const partial =
+        LibraryNavPreferences(hiddenKinds: {'game_hardware', 'game_toy'});
+    expect(partial.isVisible('game'), isTrue);
+    expect(partial.isVisible('game_hardware'), isTrue);
+    expect(partial.isVisible('game_toy'), isTrue);
+    const disabled = LibraryNavPreferences(hiddenKinds: {'game'});
+    expect(disabled.isHidden('game'), isTrue);
+    expect(disabled.isHidden('game_hardware'), isTrue);
+    expect(disabled.isHidden('game_toy'), isTrue);
+  });
+
+  test('the last active module cannot be disabled through a child kind',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(libraryNavPreferencesProvider);
+    final controller = container.read(libraryNavPreferencesProvider.notifier);
+    await controller.load();
+    const kinds = ['music', 'game', 'game_hardware', 'game_toy'];
+    await controller.setKindVisible('music', false, availableKinds: kinds);
+    await controller.setKindVisible('game_hardware', false,
+        availableKinds: kinds);
+    final state = container.read(libraryNavPreferencesProvider);
+    expect(state.isHidden('music'), isTrue);
+    expect(state.isVisible('game'), isTrue);
+    expect(state.isVisible('game_hardware'), isTrue);
+    expect(state.isVisible('game_toy'), isTrue);
+  });
   test(
       'at least one available kind remains enabled and hidden kinds can be restored',
       () async {
