@@ -30,19 +30,11 @@ LibraryCardPresentation buildComicCardPresentation(
     );
   }
 
-  if (libraryEntry?.personal.grade?.trim().isNotEmpty == true) {
-    badges.add(
-      LibraryCardBadge(
-        icon: Icons.workspace_premium,
-        label: 'Grade ${libraryEntry!.personal.grade!.trim()}',
-      ),
-    );
-  }
-
   final personal = libraryEntry?.personal;
   final slabbed = comicDetails?.isSlabbed == true;
 
   return LibraryCardPresentation(
+    splitHorizontalMetadata: true,
     itemNumber: comicDto?.itemNumber,
     variant: comicDto?.variant,
     releaseDate: comicDto?.releaseDate,
@@ -99,7 +91,12 @@ LibraryCardPill? comicGradeAndValuePill({
   required bool slabbed,
   required String? labelType,
 }) {
-  final code = comicGradeCode(grade);
+  final rawGrade = grade?.trim();
+  final code = comicGradeCode(grade) ??
+      (rawGrade != null &&
+              comicGrades.any((option) => option.split(' ').first == rawGrade)
+          ? rawGrade
+          : null);
   if (code == null && valueCents == null) return null;
   return LibraryCardPill(
     lead: code ?? '–',

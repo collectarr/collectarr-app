@@ -24,6 +24,7 @@ class LibraryCardPresentation {
     this.headline,
     this.numberLabel,
     this.outlinedPill,
+    this.splitHorizontalMetadata = false,
   });
 
   /// Kind-entry values projected for the shared card chrome. The card host
@@ -70,6 +71,9 @@ class LibraryCardPresentation {
   /// Headlined cards: an outlined pill under the number, such as a grade
   /// and value.
   final LibraryCardPill? outlinedPill;
+
+  /// Use the issue-style horizontal card with trailing number and date.
+  final bool splitHorizontalMetadata;
 }
 
 /// An outlined pill of a lead segment, such as a grade, and a value.

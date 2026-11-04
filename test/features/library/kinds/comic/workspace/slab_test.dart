@@ -49,6 +49,16 @@ void main() {
         comicSlabLabelGradient(comicSlabLabel('Signature Series')));
     expect(slabbed.valueIcon, Icons.person);
 
+    expect(
+        comicGradeAndValuePill(
+                grade: '9.8',
+                valueCents: null,
+                currency: null,
+                slabbed: false,
+                labelType: null)!
+            .lead,
+        '9.8');
+
     final raw = comicGradeAndValuePill(
         grade: null,
         valueCents: 150000,
