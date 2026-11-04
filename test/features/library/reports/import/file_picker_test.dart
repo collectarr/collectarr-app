@@ -25,4 +25,22 @@ void main() {
     expect(() => decodeImportFile(Uint8List.fromList([0xc3])),
         throwsFormatException);
   });
+
+  test('chunked web decoding preserves characters across byte boundaries',
+      () async {
+    const text = 'A\u015e\u97f3\ud83c\udfb5';
+    final utf8Bytes =
+        Uint8List.fromList([0xef, 0xbb, 0xbf, ...utf8.encode(text)]);
+    expect(await decodeImportFileChunked(utf8Bytes, chunkSize: 1), text);
+    for (final endian in [Endian.little, Endian.big]) {
+      final bytes = Uint8List(2 + text.codeUnits.length * 2);
+      final data = ByteData.sublistView(bytes)..setUint16(0, 0xfeff, endian);
+      for (var i = 0; i < text.codeUnits.length; i++) {
+        data.setUint16(2 + i * 2, text.codeUnits[i], endian);
+      }
+      expect(await decodeImportFileChunked(bytes, chunkSize: 3), text);
+    }
+    expect(decodeImportFileChunked(Uint8List.fromList([0xff, 0xfe, 0x41])),
+        throwsFormatException);
+  });
 }

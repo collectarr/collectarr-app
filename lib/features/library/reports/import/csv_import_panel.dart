@@ -81,6 +81,16 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
               ImportFilePickerBar(
                 selectedFileName: _selectedFileName,
                 onPick: _isImporting ? null : _pickCsvFile,
+                onReset: _isImporting
+                    ? null
+                    : () => setState(() {
+                          _selectedFileName = null;
+                          _csvRawContent = null;
+                          _parsedRows = [];
+                          _csvHeaders = [];
+                          _columnMappings = {};
+                          _statusMessage = null;
+                        }),
               ),
               const SizedBox(height: 16),
 
@@ -379,13 +389,21 @@ class _CsvImportPanelState extends State<CsvImportPanel> {
       final file = await widget
           .filePicker(label: 'CSV or Text', extensions: ['csv', 'txt']);
       if (file == null || !mounted) return;
-      _selectedFileName = file.name;
-      _csvRawContent = file.content;
+      setState(() {
+        _selectedFileName = file.name;
+        _csvRawContent = null;
+        _parsedRows = [];
+        _csvHeaders = [];
+        _columnMappings = {};
+      });
       await runWithProgressDialog(
           context: context,
           title: 'Reading file',
           message: 'Parsing ${file.name}...',
-          task: () async => _reparseCsv());
+          task: () async {
+            _csvRawContent = await file.readContent();
+            _reparseCsv();
+          });
       if (mounted) setState(() {});
     } catch (error) {
       if (mounted) {

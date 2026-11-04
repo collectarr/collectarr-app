@@ -1,11 +1,20 @@
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
+import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
 import 'package:collectarr_app/features/library/config/import_capability.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_progress_dialog.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'file_picker.dart';
+
+List<CollectionImportRow> _parseImport((LibraryGuidedImporter, String) input) =>
+    input.$1.parse(input.$2);
+
+Future<List<CollectionImportRow>> parseGuidedImport(
+        LibraryGuidedImporter importer, String content) =>
+    compute(_parseImport, (importer, content));
 
 class GuidedImportPanel extends StatefulWidget {
   const GuidedImportPanel(
@@ -14,7 +23,8 @@ class GuidedImportPanel extends StatefulWidget {
       required this.pluralLabel,
       required this.onImport,
       required this.onComplete,
-      required this.filePicker});
+      required this.filePicker,
+      this.parse = parseGuidedImport});
   final LibraryImportSourceDefinition source;
   final String pluralLabel;
 
@@ -23,6 +33,8 @@ class GuidedImportPanel extends StatefulWidget {
       void Function(double fraction) onProgress) onImport;
   final ValueChanged<int> onComplete;
   final ImportFilePicker filePicker;
+  final Future<List<CollectionImportRow>> Function(
+      LibraryGuidedImporter importer, String content) parse;
   @override
   State<GuidedImportPanel> createState() => _GuidedImportPanelState();
 }
@@ -31,36 +43,35 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
   String? _filename;
   String? _content;
   String? _error;
+  bool _reading = false;
   bool _importing = false;
   Future<void> _pick() async {
-    final file = await widget.filePicker(
-        label: widget.source.title, extensions: widget.source.fileExtensions);
-    if (file == null || !mounted) return;
-    setState(() {
-      _filename = file.name;
-      _content = file.content;
-      _error = null;
-    });
+    try {
+      final file = await widget.filePicker(
+          label: widget.source.title, extensions: widget.source.fileExtensions);
+      if (file == null || !mounted) return;
+      setState(() {
+        _filename = file.name;
+        _content = null;
+        _error = null;
+        _reading = true;
+      });
+      final content = await runWithProgressDialog(
+          context: context,
+          title: 'Reading file',
+          message: 'Reading ${file.name}...',
+          task: file.readContent);
+      if (mounted) setState(() => _content = content);
+    } catch (error) {
+      if (mounted) setState(() => _error = 'Error reading file: $error');
+    } finally {
+      if (mounted) setState(() => _reading = false);
+    }
   }
 
   Future<void> _import() async {
     final content = _content;
     if (content == null || _importing) return;
-    final List<CollectionImportRow> rows;
-    try {
-      final importer = widget.source.importer;
-      if (importer == null) {
-        throw const FormatException('No importer registered for this source.');
-      }
-      rows = importer.parse(content);
-      if (rows.isEmpty) {
-        throw const FormatException(
-            '0 records parsed. This export has no supported records.');
-      }
-    } catch (error) {
-      setState(() => _error = error.toString());
-      return;
-    }
     setState(() {
       _importing = true;
       _error = null;
@@ -70,10 +81,22 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
           context: context,
           title: 'Import',
           message: 'Importing your ${widget.pluralLabel.toLowerCase()}...',
-          task: (report) => widget.onImport(
-              rows,
-              (fraction) =>
-                  report(fraction, fraction >= 1 ? 'Finishing...' : null)));
+          task: (report) async {
+            final importer = widget.source.importer;
+            if (importer == null) {
+              throw const FormatException(
+                  'No importer registered for this source.');
+            }
+            final rows = await widget.parse(importer, content);
+            if (rows.isEmpty) {
+              throw const FormatException(
+                  '0 records parsed. This export has no supported records.');
+            }
+            return widget.onImport(
+                rows,
+                (fraction) =>
+                    report(fraction, fraction >= 1 ? 'Finishing...' : null));
+          });
       if (!mounted) return;
       setState(() {
         _importing = false;
@@ -125,7 +148,15 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
                   fontSize: 22, height: 1.1, fontWeight: FontWeight.w700)),
           const SizedBox(height: 10),
           ImportFilePickerBar(
-              selectedFileName: _filename, onPick: _importing ? null : _pick),
+              selectedFileName: _filename,
+              onPick: _importing || _reading ? null : _pick,
+              onReset: _importing || _reading
+                  ? null
+                  : () => setState(() {
+                        _filename = null;
+                        _content = null;
+                        _error = null;
+                      })),
           const SizedBox(height: 20),
           if (_error != null) ...[
             ImportReviewPanel(title: 'Import needs attention', items: [
@@ -146,8 +177,9 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
                       key: const Key('import_guided.submit'),
                       style: dialogActionButtonStyle(context,
                           primary: true, width: 240),
-                      onPressed:
-                          _content == null || _importing ? null : _import,
+                      onPressed: _content == null || _importing || _reading
+                          ? null
+                          : _import,
                       child: _importing
                           ? const SizedBox.square(
                               dimension: 18,
