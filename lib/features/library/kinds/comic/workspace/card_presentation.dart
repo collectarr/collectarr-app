@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/card_presentatio
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/grading_options.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/slab.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/card_body.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:flutter/material.dart';
 
@@ -32,9 +33,33 @@ LibraryCardPresentation buildComicCardPresentation(
 
   final personal = libraryEntry?.personal;
   final slabbed = comicDetails?.isSlabbed == true;
+  final fields = ComicCardFields(
+    headline: comicDto?.seriesTitle ?? comicDto?.title,
+    numberLabel: switch ('${comicDto?.itemNumber ?? ''}'
+        '${comicDto?.variant ?? ''}') {
+      '' => null,
+      final number => '#$number',
+    },
+    date: switch (AppFormats.current.formatPartialDate(
+        comicDto?.comic.releaseDateParts ?? comicDto?.comic.coverDateParts)) {
+      '' => null,
+      final date => date,
+    },
+    pill: personal == null
+        ? null
+        : comicGradeAndValuePill(
+            grade: personal.grade,
+            valueCents: personal.marketValueCents,
+            currency: personal.currency,
+            slabbed: slabbed,
+            labelType: comicDetails?.labelType),
+  );
 
   return LibraryCardPresentation(
-    splitHorizontalMetadata: true,
+    horizontalBodyBuilder: (context, data) =>
+        buildComicHorizontalCardBody(context, data, fields),
+    verticalBodyBuilder: (context, data) =>
+        buildComicVerticalCardBody(context, data, fields),
     itemNumber: comicDto?.itemNumber,
     variant: comicDto?.variant,
     releaseDate: comicDto?.releaseDate,
@@ -57,27 +82,6 @@ LibraryCardPresentation buildComicCardPresentation(
             )
         : null,
     compactBadges: badges,
-    // The reference card: series above the cover, "#2A" and the release
-    // date under it, and the grade and value in an outlined pill.
-    headline: comicDto?.seriesTitle ?? comicDto?.title,
-    numberLabel: switch ('${comicDto?.itemNumber ?? ''}'
-        '${comicDto?.variant ?? ''}') {
-      '' => null,
-      final number => '#$number',
-    },
-    detailLine: switch (AppFormats.current.formatPartialDate(
-        comicDto?.comic.releaseDateParts ?? comicDto?.comic.coverDateParts)) {
-      '' => null,
-      final date => date,
-    },
-    outlinedPill: personal == null
-        ? null
-        : comicGradeAndValuePill(
-            grade: personal.grade,
-            valueCents: personal.marketValueCents,
-            currency: personal.currency,
-            slabbed: slabbed,
-            labelType: comicDetails?.labelType),
   );
 }
 

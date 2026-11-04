@@ -34,10 +34,6 @@ typedef LibrarySortColumnDirectionResolver = bool Function(
 enum LibraryWorkspaceCardLayout {
   standard,
   coverFocused,
-
-  /// A headline above the cover, a large number and a date under it, and an
-  /// outlined pill row, as the reference's comic cards.
-  headlined,
 }
 
 class LibraryWorkspaceViewProfile {
@@ -58,6 +54,9 @@ class LibraryWorkspaceViewProfile {
     this.defaultSortAscending = true,
     this.hideDetailsWhenSelectionEmpty = false,
     this.cardLayout = LibraryWorkspaceCardLayout.standard,
+    this.cardHeaderHeight = 0,
+    this.cardFooterHeight,
+    this.cardUsesCoverSize = false,
     this.seriesGroupMode,
     this.sortAscendingForColumn,
   });
@@ -78,6 +77,9 @@ class LibraryWorkspaceViewProfile {
   final bool defaultSortAscending;
   final bool hideDetailsWhenSelectionEmpty;
   final LibraryWorkspaceCardLayout cardLayout;
+  final double cardHeaderHeight;
+  final double? cardFooterHeight;
+  final bool cardUsesCoverSize;
 
   /// The group that collects the kind's series. As in the reference, its
   /// folders show a cover, and choosing one drops the card headline that

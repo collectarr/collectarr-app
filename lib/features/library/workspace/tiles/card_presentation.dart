@@ -1,4 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+
+typedef LibraryCardBodyBuilder = Widget Function(
+    BuildContext context, LibraryCardBodyData data);
+
+/// Shared card mechanics supplied to an optional kind-owned body renderer.
+/// The renderer owns the complete body; the workspace retains the surrounding
+/// selection, pointer handling and hover controls. [buildCover] preserves the
+/// workspace's image loading and kind-specific cover overlay.
+class LibraryCardBodyData {
+  const LibraryCardBodyData({
+    required this.item,
+    required this.presentation,
+    required this.selected,
+    required this.showHeadline,
+    required this.titleColor,
+    required this.detailColor,
+    required this.mutedColor,
+    required this.customFieldBadges,
+    required this.coverWidth,
+    required this.buildCover,
+  });
+
+  final LibraryProjectionView item;
+  final LibraryCardPresentation presentation;
+  final bool selected;
+  final bool showHeadline;
+  final Color titleColor;
+  final Color detailColor;
+  final Color mutedColor;
+  final List<String> customFieldBadges;
+  final double coverWidth;
+  final Widget Function({required Alignment alignment}) buildCover;
+}
 
 /// Describes how a specific kind should render a card.
 ///
@@ -21,10 +55,8 @@ class LibraryCardPresentation {
     this.compactBadges = const [],
     this.detailLine,
     this.valueLabel,
-    this.headline,
-    this.numberLabel,
-    this.outlinedPill,
-    this.splitHorizontalMetadata = false,
+    this.horizontalBodyBuilder,
+    this.verticalBodyBuilder,
   });
 
   /// Kind-entry values projected for the shared card chrome. The card host
@@ -62,18 +94,10 @@ class LibraryCardPresentation {
   /// Value pill in the bottom-right corner, such as "CIB | \$ 17.58".
   final String? valueLabel;
 
-  /// Headlined cards: the line above the cover, such as a series title.
-  final String? headline;
-
-  /// Headlined cards: the large label under the cover, such as "#2A".
-  final String? numberLabel;
-
-  /// Headlined cards: an outlined pill under the number, such as a grade
-  /// and value.
-  final LibraryCardPill? outlinedPill;
-
-  /// Use the issue-style horizontal card with trailing number and date.
-  final bool splitHorizontalMetadata;
+  /// Optional complete kind-owned bodies; each orientation falls back to the
+  /// shared renderer independently when its builder is absent.
+  final LibraryCardBodyBuilder? horizontalBodyBuilder;
+  final LibraryCardBodyBuilder? verticalBodyBuilder;
 }
 
 /// An outlined pill of a lead segment, such as a grade, and a value.

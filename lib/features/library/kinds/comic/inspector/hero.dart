@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/ui/primitives/collection_status_
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
-import 'package:collectarr_app/features/library/workspace/tiles/card.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/outlined_pill.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/app_formatted_text.dart';

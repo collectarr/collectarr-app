@@ -29,6 +29,7 @@ import 'package:collectarr_app/features/library/workspace/table/row.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/card.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/outlined_pill.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
@@ -335,6 +336,48 @@ void main() {
     expect(tester.getTopLeft(grade).dx, lessThan(tester.getTopLeft(number).dx));
   });
 
+  for (final layout in [
+    LibraryCardLayout.horizontal,
+    LibraryCardLayout.vertical
+  ]) {
+    testWidgets('comic $layout retains the shared mobile selection gesture',
+        (tester) async {
+      var selections = 0;
+      var opened = 0;
+      await tester.pumpWidget(ProviderScope(
+        overrides: [
+          localItemImageProvider
+              .overrideWith((ref, request) => Stream.value(null))
+        ],
+        child: MaterialApp(
+            home: Scaffold(
+                body: Center(
+                    child: SizedBox(
+          width: 300,
+          height: 300,
+          child: LibraryWorkspaceCard(
+            item: _comicItem(),
+            selected: false,
+            cardLayout: layout,
+            selectionMode: true,
+            onTap: () => opened++,
+            onSelectionToggleTap: () => selections++,
+          ),
+        )))),
+      ));
+      await tester.pumpAndSettle();
+      final card = find.byType(LibraryWorkspaceCard);
+      await tester.tapAt(tester.getTopRight(card) + const Offset(-10, 10));
+      await tester.pumpAndSettle();
+      await tester.tapAt(tester.getBottomRight(card) - const Offset(10, 10));
+      await tester.pumpAndSettle();
+      expect(selections, 2);
+      expect(opened, 0);
+    },
+        variant: TargetPlatformVariant(
+            {TargetPlatform.android, TargetPlatform.iOS}));
+  }
+
   testWidgets('headlined cards put the headline above the cover',
       (tester) async {
     await tester.pumpWidget(ProviderScope(
@@ -349,15 +392,15 @@ void main() {
           width: 158,
           height: 320,
           child: LibraryWorkspaceCard(
-              item: _item(),
+              item: _comicItem(),
               selected: false,
               onTap: () {},
-              cardLayout: LibraryCardLayout.headlined),
+              cardLayout: LibraryCardLayout.vertical),
         )),
       ),
     ));
     await tester.pumpAndSettle();
-    final headline = find.text('Album');
+    final headline = find.text('Batman');
     expect(headline, findsOneWidget);
     expect(tester.widget<Text>(headline).textAlign, TextAlign.center);
     expect(tester.getTopLeft(headline).dy, lessThan(10));
@@ -383,7 +426,7 @@ void main() {
               item: _comicItem(isSlabbed: false),
               selected: false,
               onTap: () {},
-              cardLayout: LibraryCardLayout.headlined),
+              cardLayout: LibraryCardLayout.vertical),
         )),
       ),
     ));
@@ -415,7 +458,7 @@ void main() {
               item: _comicItem(isSlabbed: true),
               selected: false,
               onTap: () {},
-              cardLayout: LibraryCardLayout.headlined),
+              cardLayout: LibraryCardLayout.vertical),
         )),
       ),
     ));
@@ -474,16 +517,16 @@ void main() {
           width: 158,
           height: 280,
           child: LibraryWorkspaceCard(
-              item: _item(),
+              item: _comicItem(),
               selected: false,
               onTap: () {},
-              cardLayout: LibraryCardLayout.headlined,
+              cardLayout: LibraryCardLayout.vertical,
               showHeadline: false),
         )),
       ),
     ));
     await tester.pumpAndSettle();
-    expect(find.text('Album'), findsNothing);
+    expect(find.text('Batman'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 1));

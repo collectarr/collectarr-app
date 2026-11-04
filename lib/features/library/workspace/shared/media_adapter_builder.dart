@@ -15,6 +15,9 @@ LibraryWorkspaceViewProfile standardMediaWorkspaceViewProfile(
   LibraryDetailsLayout defaultDetailsLayout = LibraryDetailsLayout.bottom,
   double? defaultDetailsWidth,
   LibraryWorkspaceCardLayout? cardLayout,
+  double cardHeaderHeight = 0,
+  double? cardFooterHeight,
+  bool cardUsesCoverSize = false,
   String? seriesGroupMode,
 }) {
   // The policy is width / height; layout needs height / width.
@@ -29,6 +32,9 @@ LibraryWorkspaceViewProfile standardMediaWorkspaceViewProfile(
         (uiPolicy.coverAspectRatio == 1.0
             ? LibraryWorkspaceCardLayout.coverFocused
             : LibraryWorkspaceCardLayout.standard),
+    cardHeaderHeight: cardHeaderHeight,
+    cardFooterHeight: cardFooterHeight,
+    cardUsesCoverSize: cardUsesCoverSize,
     seriesGroupMode: seriesGroupMode,
     presetConfig: (preset) => standardMediaViewPresetConfig(
       kind,

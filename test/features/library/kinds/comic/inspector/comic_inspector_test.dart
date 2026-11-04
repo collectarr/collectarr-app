@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_story_a
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/slab.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/card.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/outlined_pill.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';

@@ -3,7 +3,7 @@ import '../comic_module_dependencies.dart';
 import 'configuration.dart';
 import '../data/comic_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/workspace/shared/media_adapter_builder.dart';
-import 'package:collectarr_app/features/library/workspace/entry/view_state.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/card_geometry.dart';
 import 'package:collectarr_app/features/library/workspace/config/view_enums.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
@@ -16,7 +16,9 @@ final comicKindTrackingProfile = comicTrackingProfile;
 final comicKindViewProfile = standardMediaWorkspaceViewProfile(
   CatalogMediaKind.comic,
   comicKindUiPolicy,
-  cardLayout: LibraryWorkspaceCardLayout.headlined,
+  cardHeaderHeight: comicCardTitleHeight,
+  cardFooterHeight: comicCardFooterHeight,
+  cardUsesCoverSize: true,
   seriesGroupMode: ComicGroupIds.series.value,
   // The reference shows the details beside the comics, as in Music.
   defaultDetailsLayout: LibraryDetailsLayout.right,
