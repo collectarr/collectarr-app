@@ -15,6 +15,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- General settings can enable or disable library kinds, hiding disabled kinds from the picker and their settings tabs.
 - Comics import shows its source marks and placeholders for Comic Collector Live and user-defined fields.
 - Games import lists the reference sources in order, with clear placeholders for formats awaiting verified exports.
 - Settings groups general preferences and enabled library kinds under Customization, with Games, Hardware and Toys together and Typography last.

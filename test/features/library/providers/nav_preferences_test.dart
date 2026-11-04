@@ -1,8 +1,31 @@
 import 'package:collectarr_app/features/library/providers/nav_preferences.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  test(
+      'at least one available kind remains enabled and hidden kinds can be restored',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(libraryNavPreferencesProvider);
+    final controller = container.read(libraryNavPreferencesProvider.notifier);
+    await controller.load();
+    await controller
+        .setKindVisible('comic', false, availableKinds: ['comic', 'music']);
+    await controller
+        .setKindVisible('music', false, availableKinds: ['comic', 'music']);
+    expect(container.read(libraryNavPreferencesProvider).isVisible('music'),
+        isTrue);
+    await controller
+        .setKindVisible('comic', true, availableKinds: ['comic', 'music']);
+    expect(container.read(libraryNavPreferencesProvider).isVisible('comic'),
+        isTrue);
+    expect(
+        (await const LibraryNavPreferencesStore().read()).hiddenKinds, isEmpty);
+  });
   test('orders visible library kinds with unknown kinds appended', () {
     final preferences = LibraryNavPreferences(
       order: const ['games', 'comic'],
