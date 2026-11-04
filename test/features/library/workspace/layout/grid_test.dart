@@ -247,7 +247,7 @@ void main() {
     await tester.pump();
 
     expect(selected, {'one', 'two'});
-  });
+  }, variant: TargetPlatformVariant({TargetPlatform.windows}));
 
   testWidgets('workspace grid adds to existing selection when ctrl-dragging',
       (tester) async {
@@ -287,7 +287,7 @@ void main() {
     await tester.pump();
 
     expect(selected, {'one', 'two', 'four'});
-  });
+  }, variant: TargetPlatformVariant({TargetPlatform.windows}));
 
   testWidgets('workspace grid ignores secondary-button drag selection',
       (tester) async {

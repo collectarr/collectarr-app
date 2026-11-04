@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:collectarr_app/features/library/workspace/layout/reveal.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -185,7 +186,8 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>>
             : SizedBox(height: nestedGridHeight, child: grid);
         // The grid keeps one parent whether or not box selection is on:
         // reparenting it would recreate every tile and reload every cover.
-        final boxSelection = widget.selectionEnabled &&
+        final boxSelection = !appPresentationPlatform.isNativeMobile &&
+            widget.selectionEnabled &&
             widget.itemIdOf != null &&
             widget.onSelectionChanged != null;
         final selectionLayer = Listener(

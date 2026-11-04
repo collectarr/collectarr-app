@@ -134,7 +134,11 @@ abstract final class LibraryPageShellPresenter {
             state._session.selection.selectedId == firstVisibleId) {
           return;
         }
-        state._activateItem(firstVisibleId);
+        if (state._session.selection.value.enabled) {
+          state._selectItem(firstVisibleId);
+        } else {
+          state._activateItem(firstVisibleId);
+        }
       });
     }
     final searchState = state._searchControllerOps.state;
@@ -158,7 +162,8 @@ abstract final class LibraryPageShellPresenter {
     final selectedId = state._session.selection.selectedId;
     if (selectedId != null) {
       _lastSelectedItemByKind[kind] = selectedId;
-    } else if (state._session.selection.value.itemIds.isEmpty &&
+    } else if (!state._session.selection.value.enabled &&
+        state._session.selection.value.itemIds.isEmpty &&
         projection.filteredItems.isNotEmpty) {
       // Like the reference app, the details panel always shows an album:
       // the last one selected in this session, otherwise the first visible.
@@ -171,6 +176,7 @@ abstract final class LibraryPageShellPresenter {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!state.mounted ||
             state._session.selection.selectedId != null ||
+            state._session.selection.value.enabled ||
             state._session.selection.value.itemIds.isNotEmpty) {
           return;
         }

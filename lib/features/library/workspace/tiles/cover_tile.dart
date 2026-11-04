@@ -176,6 +176,17 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
                             ),
                           ),
                         ),
+                        if (mobile &&
+                            widget.selectionMode &&
+                            widget.onSelectionToggleTap != null)
+                          Positioned.fill(
+                            child: AppPressClaim(
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: widget.onSelectionToggleTap,
+                              ),
+                            ),
+                          ),
                         if (showSelectionToggle)
                           Positioned(
                             left: 5,
