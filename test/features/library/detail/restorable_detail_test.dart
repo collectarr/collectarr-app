@@ -124,7 +124,7 @@ void main() {
       await pumpUntilSettled(tester);
       final tile = find.byType(LibraryCoverTile).first;
       expect(find.byType(LibraryCompactBucketBar), findsNothing);
-      await tester.longPress(tile);
+      await tester.tap(find.byIcon(Icons.library_add_check));
       await pumpUntilSettled(tester);
       expect(
           tester.widget<LibraryBody>(find.byType(LibraryBody)).selectionEnabled,
@@ -132,6 +132,16 @@ void main() {
       expect(
           router.routeInformationProvider.value.uri.path, AppRoutes.libraries);
       await tester.tap(tile);
+      await pumpUntilSettled(tester);
+      expect(
+          tester.widget<LibraryBody>(find.byType(LibraryBody)).selectionEnabled,
+          isTrue);
+      await tester.tap(tile);
+      await pumpUntilSettled(tester);
+      expect(
+          tester.widget<LibraryBody>(find.byType(LibraryBody)).selectionEnabled,
+          isTrue);
+      await tester.tap(find.byIcon(Icons.library_add_check));
       await pumpUntilSettled(tester);
       expect(
           tester.widget<LibraryBody>(find.byType(LibraryBody)).selectionEnabled,

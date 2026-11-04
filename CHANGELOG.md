@@ -45,7 +45,7 @@
 - Every active library kind has an Add Manually shortcut in the navigation drawer, including Games, Hardware and Toys.
 - Native Settings sections restore from their URLs with consistent Back navigation; collection management uses a full-screen touch list, and sorting opens its saved favorites and advanced editor.
 - Native Add Manually and Edit use full-screen forms with persistent actions and draft validation; Comics Edit groups catalog fields in Main, collection details in Personal, grading and key details in separate tabs, and images together, with compact text tabs and touch-sized labelled inputs.
-- Native libraries keep folder navigation available beside the tablet rail, open items in full-screen details and support long-press selection; detail links restore local and cached catalog items without the original page.
+- Native libraries keep folder navigation available beside the tablet rail, open items in full-screen details and select covers and cards by tapping anywhere after enabling selection; detail links restore local and cached catalog items without the original page.
 - Native mobile uses Library, Activity, Calendar and More navigation, with a tablet rail and a touch-sized collection picker above the library.
 - Native mobile libraries use one touch-sized folder/view/sort/tools row and one item count; all six views, cover size, spacing and details options share one panel.
 - Native mobile Comics uses its Android teal palette and shared blue utility actions; desktop and web retain their existing colours.

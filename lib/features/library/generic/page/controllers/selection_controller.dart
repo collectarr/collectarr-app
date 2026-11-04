@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/generic/page/session.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/layout/alpha_jump_bar.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:flutter/material.dart';
 
 final class LibraryPageSelectionController {
@@ -56,8 +57,11 @@ final class LibraryPageSelectionController {
   /// Ticks or unticks [id] for a bulk action. As in the reference, the active
   /// item and the details panel stay where they are.
   void toggleSelectionItem(String id) {
+    final mobile = appPresentationPlatform.isNativeMobile;
+    if (mobile && !selection.value.enabled) return;
     mutateState(() {
       selection.value = selection.value.toggle(id);
+      if (mobile) selection.value = selection.value.setEnabled(true);
       selection.anchorId = id;
     });
   }

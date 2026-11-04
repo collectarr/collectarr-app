@@ -107,7 +107,8 @@ class LibraryWorkspace extends ConsumerWidget {
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final int? initialCrossAxisCount;
 
-  bool _isActive(LibraryProjectionItem item) => item.target.id == selectedId;
+  bool _isActive(LibraryProjectionItem item) =>
+      !appPresentationPlatform.isNativeMobile && item.target.id == selectedId;
 
   bool _isSelectionSelected(LibraryProjectionItem item) =>
       selectedIds.contains(item.target.id);
@@ -237,9 +238,6 @@ class LibraryWorkspace extends ConsumerWidget {
             onDoubleTap: appPresentationPlatform.isNativeMobile
                 ? null
                 : () => onOpenItem(item),
-            onLongPress: appPresentationPlatform.isNativeMobile
-                ? () => onToggleSelectionItem(item.target.id)
-                : null,
             onEditTap: () => onEditItem(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
@@ -279,9 +277,6 @@ class LibraryWorkspace extends ConsumerWidget {
             onDoubleTap: appPresentationPlatform.isNativeMobile
                 ? null
                 : () => onOpenItem(item),
-            onLongPress: appPresentationPlatform.isNativeMobile
-                ? () => onToggleSelectionItem(item.target.id)
-                : null,
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -332,10 +327,8 @@ class LibraryWorkspace extends ConsumerWidget {
           onTap: (item) => _selectionTap(item)(),
           onToggleSelectionItem: (item) =>
               onToggleSelectionItem(item.target.id),
-          onDoubleTap: onOpenItem,
-          onLongPress: appPresentationPlatform.isNativeMobile
-              ? (item) => onToggleSelectionItem(item.target.id)
-              : null,
+          onDoubleTap:
+              appPresentationPlatform.isNativeMobile ? null : onOpenItem,
           onSecondaryTapUp: onItemContextMenu == null
               ? null
               : (item, d) => onItemContextMenu!(item, d.globalPosition),
@@ -368,7 +361,6 @@ class LibraryWorkspace extends ConsumerWidget {
         selectedIds: selectedIds,
         selectionMode: selectionEnabled,
         onItemTap: onOpenItem,
-        onItemLongPress: (item) => onToggleSelectionItem(item.target.id),
         onItemSelect: (item, _) => onToggleSelectionItem(item.target.id),
         coverBuilder: (context, item, width, height) => LibraryInteractiveCover(
           title: item.dto.primaryLabel,
@@ -664,9 +656,6 @@ class LibraryWorkspace extends ConsumerWidget {
               onDoubleTap: appPresentationPlatform.isNativeMobile
                   ? null
                   : () => onOpenItem(item),
-              onLongPress: appPresentationPlatform.isNativeMobile
-                  ? () => onToggleSelectionItem(item.target.id)
-                  : null,
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
