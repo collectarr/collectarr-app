@@ -39,7 +39,7 @@ class LibraryShelfView<T> extends ConsumerStatefulWidget {
   final bool selectionEnabled;
   final void Function(T item) onTap;
   final void Function(T item) onToggleSelectionItem;
-  final void Function(T item) onDoubleTap;
+  final void Function(T item)? onDoubleTap;
   final void Function(T item)? onLongPress;
   final void Function(T item, TapUpDetails details)? onSecondaryTapUp;
   final Color accent;
@@ -195,7 +195,7 @@ class _ShelfRow<T> extends StatelessWidget {
   final bool selectionEnabled;
   final void Function(T item) onTap;
   final void Function(T item) onToggleSelectionItem;
-  final void Function(T item) onDoubleTap;
+  final void Function(T item)? onDoubleTap;
   final void Function(T item)? onLongPress;
   final void Function(T item, TapUpDetails details)? onSecondaryTapUp;
   final Color accent;
@@ -301,7 +301,7 @@ class _ShelfRow<T> extends StatelessWidget {
             selectionMode: selectionEnabled,
             onTap: () => onTap(item),
             onSelectionToggleTap: () => onToggleSelectionItem(item),
-            onDoubleTap: () => onDoubleTap(item),
+            onDoubleTap: onDoubleTap == null ? null : () => onDoubleTap!(item),
             onLongPress: onLongPress == null ? null : () => onLongPress!(item),
             onSecondaryTapUp: onSecondaryTapUp != null
                 ? (d) => onSecondaryTapUp!(item, d)

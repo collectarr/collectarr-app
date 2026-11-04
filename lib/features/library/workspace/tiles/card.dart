@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_press_tap.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/item_status_badge.dart';
 import 'package:flutter/material.dart';
 
@@ -82,6 +83,11 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
   LibraryCardLayout get cardLayout => widget.cardLayout;
   bool get selectionMode => widget.selectionMode;
   bool get checked => widget.checked;
+  bool get showSelectionToggle => appPresentationPlatform.isNativeMobile
+      ? selectionMode
+      : _hovered || checked || libraryShowsUntickedBoxes(selectionMode);
+  bool get showEditButton =>
+      !appPresentationPlatform.isNativeMobile && _hovered && onEditTap != null;
   VoidCallback? get onSelectionToggleTap => widget.onSelectionToggleTap;
   VoidCallback? get onEditTap => widget.onEditTap;
   List<String> get customFieldBadges => widget.customFieldBadges;
@@ -326,9 +332,15 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                     selected: selected)),
                           ])),
                         ])),
-                    if (_hovered ||
-                        checked ||
-                        libraryShowsUntickedBoxes(selectionMode))
+                    if (appPresentationPlatform.isNativeMobile && checked)
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: ColoredBox(
+                              color:
+                                  palette.utilityAction.withValues(alpha: .35)),
+                        ),
+                      ),
+                    if (showSelectionToggle)
                       Positioned(
                           left: 0,
                           bottom: 0,
@@ -339,7 +351,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                   accentColor: palette.utilityAction,
                                   integrated: true,
                                   highlighted: selected))),
-                    if (_hovered && onEditTap != null)
+                    if (showEditButton)
                       Positioned(
                           right: 5,
                           top: 5,
@@ -444,9 +456,15 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                   buildCover: buildCover,
                                 ),
                         ),
-                        if (_hovered ||
-                            checked ||
-                            libraryShowsUntickedBoxes(selectionMode))
+                        if (appPresentationPlatform.isNativeMobile && checked)
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: ColoredBox(
+                                  color: palette.utilityAction
+                                      .withValues(alpha: .35)),
+                            ),
+                          ),
+                        if (showSelectionToggle)
                           Positioned(
                             left: 0,
                             top: 0,
@@ -460,7 +478,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                               ),
                             ),
                           ),
-                        if (_hovered && onEditTap != null)
+                        if (showEditButton)
                           Positioned(
                             top: 4,
                             right: 5,

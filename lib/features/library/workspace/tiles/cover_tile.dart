@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/ui/density_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:collectarr_app/ui/app_press_tap.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/item_status_badge.dart';
 import 'package:flutter/material.dart';
@@ -77,9 +78,13 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
     final resolvedSelectionColor = widget.selectionColor == kAppHighlight
         ? palette.utilityAction
         : widget.selectionColor;
-    final showSelectionToggle =
-        selected || _hovered || libraryShowsUntickedBoxes(widget.selectionMode);
-    final showEditButton = _hovered && widget.onEditTap != null;
+    final mobile = appPresentationPlatform.isNativeMobile;
+    final showSelectionToggle = mobile
+        ? widget.selectionMode
+        : selected ||
+            _hovered ||
+            libraryShowsUntickedBoxes(widget.selectionMode);
+    final showEditButton = !mobile && _hovered && widget.onEditTap != null;
     const selectedBorderWidth = 5.0;
     final targetCacheWidth = _targetCacheWidth(context);
     final badgeInset = switch (density) {
@@ -163,10 +168,12 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
                         Positioned(
                           right: 5,
                           bottom: badgeInset,
-                          child: LibraryItemStatusBadge(
-                            item: item,
-                            selected: selected,
-                            style: LibraryCollectionStatusMarkStyle.cover,
+                          child: IgnorePointer(
+                            child: LibraryItemStatusBadge(
+                              item: item,
+                              selected: selected,
+                              style: LibraryCollectionStatusMarkStyle.cover,
+                            ),
                           ),
                         ),
                         if (showSelectionToggle)
@@ -228,23 +235,37 @@ class LibraryTileSelectionToggle extends StatelessWidget {
   final bool highlighted;
 
   @override
-  Widget build(BuildContext context) => Container(
-        width: integrated ? 30 : 24,
+  Widget build(BuildContext context) {
+    if (appPresentationPlatform.isNativeMobile) {
+      return Container(
+        width: 24,
         height: 24,
-        // The reference's tick box stays light grey with a dark ticked square;
-        // only an unticked box on the active card takes the blue.
         decoration: BoxDecoration(
-          color:
-              highlighted && !selected ? accentColor : const Color(0xffdddddd),
-          borderRadius:
-              integrated ? BorderRadius.zero : BorderRadius.circular(4),
+          color: selected ? accentColor : const Color(0x99000000),
+          border: Border.all(color: Colors.white, width: 2),
+          borderRadius: BorderRadius.circular(3),
         ),
-        child: Icon(selected ? Icons.check_box : Icons.check_box_outline_blank,
-            size: 16,
-            color: highlighted && !selected
-                ? Colors.white
-                : const Color(0xff444444)),
+        child: selected
+            ? const Icon(Icons.check, size: 18, color: Colors.white)
+            : null,
       );
+    }
+    return Container(
+      width: integrated ? 30 : 24,
+      height: 24,
+      // The reference's tick box stays light grey with a dark ticked square;
+      // only an unticked box on the active card takes the blue.
+      decoration: BoxDecoration(
+        color: highlighted && !selected ? accentColor : const Color(0xffdddddd),
+        borderRadius: integrated ? BorderRadius.zero : BorderRadius.circular(4),
+      ),
+      child: Icon(selected ? Icons.check_box : Icons.check_box_outline_blank,
+          size: 16,
+          color: highlighted && !selected
+              ? Colors.white
+              : const Color(0xff444444)),
+    );
+  }
 }
 
 class LibraryTileSelectionToggleButton extends StatelessWidget {

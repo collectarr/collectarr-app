@@ -240,7 +240,8 @@ bundled slab fonts successfully.
 | P2 | Comics mobile Edit controls | Collectarr groups editable year/month/day parts and a calendar in one outlined date control to preserve partial dates; CLZ shows one formatted date string. Compare a populated CLZ Edit record and align the date text, barcode camera, picker and segmented controls without losing partial dates or existing values |
 | P3 | Comics mobile Value and Key | Compare populated Value, Key and Images against CLZ Edit. CLZ's CovrPrice and eBay actions depend on external services, while Collectarr currently shows only the editable value; Signed By and Key Category still use single-value controls (see Comics Value differences) |
 
-Still to compare: populated cards/list/covers, series folders and counts,
+Still to compare: selection checkbox appearance against the current Android app;
+populated cards/list/covers, series folders and counts,
 populated item details and previous/next navigation, selection and bulk actions, every editor
 tab with the keyboard, populated search parity against the same Core data,
 camera/barcode flows, landscape, gesture navigation, larger system text and light appearance.

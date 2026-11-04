@@ -8,6 +8,12 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/domain/target_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/workspace.dart';
+import 'package:collectarr_app/features/library/generic/page/controllers/selection_controller.dart';
+import 'package:collectarr_app/features/library/generic/page/session.dart';
+import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_tile.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
@@ -160,6 +166,124 @@ LibraryProjectionItem _comicItem({bool isSlabbed = false}) {
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  for (final mode in [
+    LibraryViewMode.grid,
+    LibraryViewMode.card,
+    LibraryViewMode.horizontalCards,
+    LibraryViewMode.shelves,
+    LibraryViewMode.list
+  ]) {
+    testWidgets(
+        'mobile $mode opens normally and selects only in selection mode',
+        (tester) async {
+      final item = _item();
+      final selection = LibraryPageSelectionSession();
+      var opened = 0;
+      await tester.pumpWidget(ProviderScope(
+        overrides: [
+          localItemImageProvider
+              .overrideWith((ref, request) => Stream.value(null))
+        ],
+        child: MaterialApp(
+            home: Scaffold(body: StatefulBuilder(builder: (context, setState) {
+          final controller = LibraryPageSelectionController(
+            selection: selection,
+            facets: LibraryPageFacetSession(),
+            isMounted: () => true,
+            mutateState: (fn) => setState(fn),
+            hasItemDrilldown: () => false,
+            drilldownRootItemId: () => null,
+            closeItemDrilldown: () {},
+            hydrateSelectedItem: (_) async {},
+            removeVisibleSelection: (_) {},
+          );
+          return Column(children: [
+            TextButton(
+                onPressed: () => setState(() => selection.value =
+                    selection.value.setEnabled(!selection.value.enabled)),
+                child: const Text('Selection mode')),
+            Expanded(
+                child: LibraryWorkspace(
+              type: const MusicRegistration(),
+              items: [item],
+              viewState: libraryViewProfileForKind(CatalogMediaKind.music)
+                  .defaults()
+                  .copyWith(viewMode: mode),
+              selectedId: item.target.id,
+              selectedAnchorId: null,
+              selectionEnabled: selection.value.enabled,
+              selectedIds: selection.value.itemIds,
+              groupMode: '',
+              groupPresentation: LibraryGroupPresentation.inlineHeaders,
+              selectedBucket: null,
+              onBucketChanged: (_) {},
+              collapsedGroupBuckets: const {},
+              onGroupBucketCollapsedToggled: (_) {},
+              accent: Colors.blue,
+              hasActiveFilter: false,
+              onClearFilters: () {},
+              onApplySelection: (_, __) {},
+              onActivateItem: (_) {},
+              onToggleSelectionItem: controller.toggleSelectionItem,
+              onOpenItem: (_) => opened++,
+              onEditItem: (_) {},
+              onSortChanged: (_) {},
+              onColumnWidthChanged: (_, __) {},
+            )),
+          ]);
+        }))),
+      ));
+      await tester.pumpAndSettle();
+      final target =
+          mode == LibraryViewMode.grid || mode == LibraryViewMode.shelves
+              ? find.byType(LibraryCoverTile)
+              : mode == LibraryViewMode.list
+                  ? find.text('Album')
+                  : find.byType(LibraryWorkspaceCard);
+      if (mode == LibraryViewMode.grid || mode == LibraryViewMode.shelves) {
+        expect(tester.widget<LibraryCoverTile>(target).active, isFalse);
+      } else if (mode != LibraryViewMode.list) {
+        expect(tester.widget<LibraryWorkspaceCard>(target).selected, isFalse);
+      }
+      await tester.tap(target);
+      await tester.pumpAndSettle();
+      expect(opened, 1);
+      expect(selection.value.enabled, isFalse);
+      await tester.longPress(target);
+      await tester.pumpAndSettle();
+      expect(selection.value.enabled, isFalse);
+      final openedBeforeSelection = opened;
+      await tester.tap(find.text('Selection mode'));
+      await tester.pumpAndSettle();
+      final bounds = tester.getRect(target);
+      await tester.tapAt(mode == LibraryViewMode.list
+          ? bounds.center
+          : bounds.topRight + const Offset(-8, 8));
+      await tester.pumpAndSettle();
+      expect(selection.value.itemIds, {item.target.id});
+      expect(opened, openedBeforeSelection);
+      await tester.tapAt(mode == LibraryViewMode.list
+          ? bounds.center
+          : bounds.bottomRight + const Offset(-8, -8));
+      await tester.pumpAndSettle();
+      expect(selection.value.itemIds, isEmpty);
+      expect(selection.value.enabled, isTrue);
+      expect(opened, openedBeforeSelection);
+      if (mode != LibraryViewMode.list) {
+        final unchecked = tester.widget<LibraryTileSelectionToggle>(
+            find.byType(LibraryTileSelectionToggle));
+        expect(unchecked.selected, isFalse);
+        await tester.tap(find.byType(LibraryTileSelectionToggleButton));
+        await tester.pumpAndSettle();
+        expect(selection.value.itemIds, {item.target.id});
+        final checked = tester.widget<LibraryTileSelectionToggle>(
+            find.byType(LibraryTileSelectionToggle));
+        expect(checked.selected, isTrue);
+        expect(opened, openedBeforeSelection);
+      }
+    }, variant: TargetPlatformVariant({TargetPlatform.android}));
+  }
 
   testWidgets('headlined cards put the headline above the cover',
       (tester) async {
