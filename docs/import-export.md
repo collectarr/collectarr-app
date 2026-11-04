@@ -14,8 +14,8 @@ external product ID.
 | Delicious Library 2 | XML property list with Music dictionaries |
 | Text / CSV | User-mapped columns, with an explicit Title mapping |
 
-Choose a file, then press Import: the file is read and imported in one step,
-as in CLZ, with no parsed-record preview. Invalid, empty or truncated exports
+Choose a file, then press Import: the records are imported without a
+parsed-record preview. Invalid, empty or truncated exports
 report a diagnostic and save nothing. There is no generic XML title
 scanner and no invented fallback album.
 
@@ -74,6 +74,12 @@ advertised until an actual export fixture and parser contract are verified.
 Delicious delimited TXT is also not accepted. A generic parser is not
 substituted for these formats. Unreleased Books/Movies import sources have
 not been reintroduced.
+
+The Games import picker shows Delicious Library TXT, Game Collector XML,
+PriceCharting TXT/CSV and Game Collector user-defined fields as unavailable
+placeholders. Their instructions are visible, but file selection and importing
+stay disabled until representative exports and parser contracts are verified.
+The mapped CSV importer and CLZ Games Web XML importer remain available.
 
 Comics accepts CLZ Comics Web XML (`collectorz/data/comicinfo/comiclist/comic`)
 and Comic Collector desktop XML (`comicinfo/comiclist/comic`, numeric `id`,

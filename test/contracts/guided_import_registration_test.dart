@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('every advertised guided source owns an importer and fixture manifest',
+  test('every available guided source owns an importer and fixture manifest',
       () {
     final manifest = jsonDecode(
             File('test/fixtures/imports/manifest.json').readAsStringSync())
@@ -15,6 +15,10 @@ void main() {
       expect(capability.sources.map((s) => s.id).toSet().length,
           capability.sources.length);
       for (final source in capability.sources) {
+        if (source.sourceType == LibraryImportSourceType.unavailable) {
+          expect(source.importer, isNull, reason: source.title);
+          continue;
+        }
         if (source.sourceType == LibraryImportSourceType.csvTxt) {
           expect(capability.mappedCsvImporter, isNotNull);
           continue;

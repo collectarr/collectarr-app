@@ -128,7 +128,7 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
         padding: const EdgeInsets.all(10),
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text('Import from ${source.title}',
+          Text(source.pageTitle ?? 'Import from ${source.title}',
               style: const TextStyle(
                   fontSize: 30, height: 1.1, fontWeight: FontWeight.w700)),
           const SizedBox(height: 10),
@@ -142,52 +142,59 @@ class _GuidedImportPanelState extends State<GuidedImportPanel> {
                 padding: const EdgeInsets.only(left: 24),
                 child: Text('${i + 1}. ${source.instructions[i]}',
                     style: const TextStyle(fontSize: 14, height: 20 / 14))),
-          const SizedBox(height: 16),
-          Text(source.filePrompt,
-              style: const TextStyle(
-                  fontSize: 22, height: 1.1, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 10),
-          ImportFilePickerBar(
-              selectedFileName: _filename,
-              onPick: _importing || _reading ? null : _pick,
-              onReset: _importing || _reading
-                  ? null
-                  : () => setState(() {
-                        _filename = null;
-                        _content = null;
-                        _error = null;
-                      })),
-          const SizedBox(height: 20),
-          if (_error != null) ...[
-            ImportReviewPanel(title: 'Import needs attention', items: [
-              ImportReviewItem(
-                  title: 'Unsupported / invalid export',
-                  description: _error!,
-                  trailingLabel: '0 records saved',
-                  severity: ImportReviewSeverity.error)
-            ]),
-            const SizedBox(height: 14)
+          if (source.sourceType == LibraryImportSourceType.unavailable) ...[
+            const SizedBox(height: 16),
+            const Text(
+                'This import is not available yet. A verified export is needed before it can be enabled.'),
+          ] else ...[
+            const SizedBox(height: 16),
+            Text(source.filePrompt,
+                style: const TextStyle(
+                    fontSize: 22, height: 1.1, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 10),
+            ImportFilePickerBar(
+                selectedFileName: _filename,
+                onPick: _importing || _reading ? null : _pick,
+                onReset: _importing || _reading
+                    ? null
+                    : () => setState(() {
+                          _filename = null;
+                          _content = null;
+                          _error = null;
+                        })),
+            const SizedBox(height: 20),
+            if (_error != null) ...[
+              ImportReviewPanel(title: 'Import needs attention', items: [
+                ImportReviewItem(
+                    title: 'Unsupported / invalid export',
+                    description: _error!,
+                    trailingLabel: '0 records saved',
+                    severity: ImportReviewSeverity.error)
+              ]),
+              const SizedBox(height: 14)
+            ],
+            Align(
+                alignment: Alignment.centerRight,
+                child: SizedBox(
+                    width: 240,
+                    height: 32,
+                    child: FilledButton(
+                        key: const Key('import_guided.submit'),
+                        style: dialogActionButtonStyle(context,
+                            primary: true, width: 240),
+                        onPressed: _content == null || _importing || _reading
+                            ? null
+                            : _import,
+                        child: _importing
+                            ? const SizedBox.square(
+                                dimension: 18,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2))
+                            : const Text('Import',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400))))),
           ],
-          Align(
-              alignment: Alignment.centerRight,
-              child: SizedBox(
-                  width: 240,
-                  height: 32,
-                  child: FilledButton(
-                      key: const Key('import_guided.submit'),
-                      style: dialogActionButtonStyle(context,
-                          primary: true, width: 240),
-                      onPressed: _content == null || _importing || _reading
-                          ? null
-                          : _import,
-                      child: _importing
-                          ? const SizedBox.square(
-                              dimension: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Text('Import',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400))))),
         ]));
   }
 }

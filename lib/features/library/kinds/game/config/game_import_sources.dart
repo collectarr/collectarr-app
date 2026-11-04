@@ -206,21 +206,74 @@ final gameKindImport = LibraryKindImportCapability(
     mappedCsvImporter: const GameMappedCsvImporter(),
     sources: const [
       LibraryImportSourceDefinition(
-          id: 'clz_game_web',
-          title: 'CLZ Games Web (Games)',
-          importer: ClzGameWebImporter(),
-          fileExtensions: ['xml'],
-          description: 'Import one Games collection from CLZ Games Web.',
-          instructions: [
-            'Open the Games collection in CLZ Games Web.',
-            'Choose Import / Export > Export to XML.',
-            'Generate and download the XML file, then upload it here.'
-          ],
-          filePrompt: 'Upload the CLZ Games XML export:'),
-      LibraryImportSourceDefinition(
           id: 'text',
           title: 'Import a Text or CSV file',
           fallbackIcon: Icons.description_outlined,
           sourceType: LibraryImportSourceType.csvTxt,
           fileExtensions: ['csv', 'txt']),
+      LibraryImportSourceDefinition(
+          id: 'delicious',
+          title: 'Delicious Library',
+          assetLogoPath: 'assets/import_logos/delicious-library.png',
+          fallbackIcon: Icons.local_library_outlined,
+          sourceType: LibraryImportSourceType.unavailable,
+          fileExtensions: ['txt'],
+          description:
+              'Export your Delicious Library collection as a delimited text file before importing it.',
+          instructions: [
+            'In Delicious Library, choose File > Export To > Another Application.',
+            'Select Delimited Text, include all export fields and choose Entire Library.',
+            'Use commas for fields and multiple values, enable Unicode, and export the file.'
+          ]),
+      LibraryImportSourceDefinition(
+          id: 'game_collector',
+          title: 'Game Collector',
+          assetLogoPath: 'assets/import_logos/game-collector.png',
+          fallbackIcon: Icons.album_outlined,
+          sourceType: LibraryImportSourceType.unavailable,
+          description:
+              'Export your games to XML from Game Collector before importing them.',
+          instructions: [
+            'In Game Collector, choose File > Export to > XML.',
+            'Choose a destination and select All Games.',
+            'Export the XML file.'
+          ]),
+      LibraryImportSourceDefinition(
+          id: 'clz_game_web',
+          title: 'CLZ Games Web',
+          assetLogoPath: 'assets/import_logos/clz-games.svg',
+          isSvg: true,
+          svgMonochrome: false,
+          fallbackIcon: Icons.cloud_outlined,
+          importer: ClzGameWebImporter(),
+          fileExtensions: ['xml'],
+          description:
+              'To import your games from CLZ Games Web, first export your collection to an XML file.\n\nHere\'s what to do:',
+          instructions: [
+            'Sign in to CLZ Games Web.',
+            'Open the menu and select Export to XML.',
+            'Confirm the export to create the XML file.',
+            'Download the XML file.',
+            'Upload the downloaded XML file below.'
+          ],
+          filePrompt: 'Upload your CLZ Games Web XML file:'),
+      LibraryImportSourceDefinition(
+          id: 'pricecharting',
+          title: 'PriceCharting',
+          assetLogoPath: 'assets/import_logos/pricecharting.png',
+          fallbackIcon: Icons.show_chart,
+          sourceType: LibraryImportSourceType.unavailable,
+          fileExtensions: ['txt', 'csv'],
+          description:
+              'Export your PriceCharting collection as a text file before importing it.'),
+      LibraryImportSourceDefinition(
+          id: 'game_collector_fields',
+          title: 'Import User Defined Fields from Game Collector',
+          assetLogoPath: 'assets/import_logos/game-collector.png',
+          pageTitle: 'Import User Defined Fields from Game Collector',
+          sectionTitle: 'Other imports',
+          fallbackIcon: Icons.album_outlined,
+          sourceType: LibraryImportSourceType.unavailable,
+          description:
+              'Transfer user-defined fields from a Game Collector XML export to existing games.'),
     ]);

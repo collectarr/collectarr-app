@@ -38,8 +38,19 @@ class ImportSourcePicker extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 15),
-              for (final source in sources) ...[
-                _buildSourceCard(palette, source),
+              for (var index = 0; index < sources.length; index++) ...[
+                if (sources[index].sectionTitle != null &&
+                    (index == 0 ||
+                        sources[index - 1].sectionTitle !=
+                            sources[index].sectionTitle)) ...[
+                  Text(sources[index].sectionTitle!,
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: palette.textPrimary)),
+                  const SizedBox(height: 12),
+                ],
+                _buildSourceCard(palette, sources[index]),
                 const SizedBox(height: 30),
               ],
             ],
@@ -80,14 +91,22 @@ class ImportSourcePicker extends StatelessWidget {
                     _buildSourceLogo(source, 45, palette.textPrimary),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(
-                        source.title,
-                        style: TextStyle(
-                          fontSize: 18,
-                          height: 1.1,
-                          fontWeight: FontWeight.w700,
-                          color: palette.textPrimary,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(source.title,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  height: 1.1,
+                                  fontWeight: FontWeight.w700,
+                                  color: palette.textPrimary)),
+                          if (source.sourceType ==
+                              LibraryImportSourceType.unavailable)
+                            Text('Not available yet',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: palette.textSecondary)),
+                        ],
                       ),
                     ),
                   ],
@@ -107,13 +126,14 @@ class ImportSourcePicker extends StatelessWidget {
   ) {
     if (source.assetLogoPath != null) {
       if (source.isSvg) {
-        // SVG logos are single-color Simple Icons, drawn in the text color.
         return SvgPicture.asset(
           source.assetLogoPath!,
           width: size,
           height: size,
           fit: BoxFit.contain,
-          colorFilter: ColorFilter.mode(ink, BlendMode.srcIn),
+          colorFilter: source.svgMonochrome
+              ? ColorFilter.mode(ink, BlendMode.srcIn)
+              : null,
         );
       } else {
         return Image.asset(
