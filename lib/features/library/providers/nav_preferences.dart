@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -51,7 +52,7 @@ class LibraryNavPreferences {
     return ordered;
   }
 
-  bool isHidden(String kind) => hiddenKinds.contains(_normalizeKind(kind));
+  bool isHidden(String kind) => hiddenKinds.contains(_moduleKind(kind));
 
   bool isVisible(String kind) => !isHidden(kind);
 }
@@ -159,10 +160,13 @@ class LibraryNavPreferencesController extends Notifier<LibraryNavPreferences> {
 
   Future<void> setKindVisible(String kind, bool visible,
       {required Iterable<String> availableKinds}) async {
-    final normalized = _normalizeKind(kind);
-    final available = availableKinds.map(_normalizeKind).toSet();
+    final normalized = _moduleKind(kind);
+    final available = availableKinds.map(_moduleKind).toSet();
     if (!available.contains(normalized)) return;
-    final hidden = Set<String>.of(state.hiddenKinds);
+    final hidden = {
+      for (final item in state.hiddenKinds)
+        if (_moduleKind(item) == _normalizeKind(item)) _normalizeKind(item),
+    };
     if (visible) {
       hidden.remove(normalized);
     } else {
@@ -191,3 +195,21 @@ int? cachedLibraryAccentHexForKind(CatalogMediaKind kind) {
 }
 
 String _normalizeKind(String kind) => kind.trim().toLowerCase();
+
+/// Kinds in one collection family share their top-level module's visibility.
+String _moduleKind(String kind) {
+  final normalized = _normalizeKind(kind);
+  final registry = defaultLibraryKindRegistry;
+  final family = registry
+      .tryGet(catalogMediaKindFromValue(normalized))
+      ?.identity
+      .collectionFamily;
+  if (family == null) return normalized;
+  for (final registration in registry.allKinds) {
+    if (registration.identity.collectionFamily == family &&
+        registration.identity.isTopLevel) {
+      return registration.kind.apiValue;
+    }
+  }
+  return normalized;
+}

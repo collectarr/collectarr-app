@@ -51,6 +51,43 @@ void main() {
         await tester.tap(find.widgetWithText(ListTile, 'Customization'));
         await tester.pumpAndSettle();
       }
+      final games =
+          find.byKey(const ValueKey('settings.library.enabled.games'));
+      expect(games, findsOneWidget);
+      expect(
+          find.byKey(const ValueKey('settings.library.enabled.game_hardware')),
+          findsNothing);
+      expect(find.byKey(const ValueKey('settings.library.enabled.game_toy')),
+          findsNothing);
+      await tester.ensureVisible(games);
+      await tester.tap(games);
+      await tester.pumpAndSettle();
+      final appContainer = ProviderScope.containerOf(tester.element(games));
+      var modulePrefs = appContainer.read(libraryNavPreferencesProvider);
+      for (final kind in ['game', 'game_hardware', 'game_toy']) {
+        expect(modulePrefs.isVisible(kind), isFalse);
+        expect(
+            selectableLibraryHomeTypes(fallbackMediaCatalog, modulePrefs)
+                .map((type) => type.kind),
+            isNot(contains(kind)));
+      }
+      expect(
+          find.byKey(const ValueKey('settings.kind.tab.games'),
+              skipOffstage: false),
+          findsNothing);
+      expect((await const LibraryNavPreferencesStore().read()).isHidden('game'),
+          isTrue);
+      await tester.ensureVisible(games);
+      await tester.tap(games);
+      await tester.pumpAndSettle();
+      modulePrefs = appContainer.read(libraryNavPreferencesProvider);
+      for (final kind in ['game', 'game_hardware', 'game_toy']) {
+        expect(modulePrefs.isVisible(kind), isTrue);
+      }
+      expect(
+          find.byKey(const ValueKey('settings.kind.tab.games'),
+              skipOffstage: false),
+          findsOneWidget);
       final toggle =
           find.byKey(const ValueKey('settings.library.enabled.comic'));
       await tester.ensureVisible(toggle);
@@ -239,18 +276,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('settings.kind.layout.music')),
           findsOneWidget);
-      await tester.ensureVisible(games);
-      await tester.tap(games);
-      await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('settings.kind.layout.game')),
+      expect(
+          find.byKey(const ValueKey('settings.kind.tab.games'),
+              skipOffstage: false),
           findsNothing);
-      expect(find.byKey(const ValueKey('settings.kind.layout.game_hardware')),
-          findsOneWidget);
-      expect(find.byKey(const ValueKey('settings.kind.layout.game_toy')),
-          findsOneWidget);
-      await tester.ensureVisible(music);
-      await tester.tap(music);
-      await tester.pumpAndSettle();
       await prefs
           .setStringList('collectarr.library_nav.hidden', ['comic', 'music']);
       await container.read(libraryNavPreferencesProvider.notifier).load();

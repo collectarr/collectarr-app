@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/settings/settings_kind_section.dart';
 import 'package:collectarr_app/features/library/home/catalog.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/nav_preferences.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
 
 /// Shared and kind-specific customization settings.
 class SettingsAppearanceSection extends ConsumerStatefulWidget {
@@ -67,8 +68,15 @@ class _SettingsAppearanceSectionState
     final catalog =
         ref.watch(mediaCatalogProvider).value ?? fallbackMediaCatalog;
     final availableKinds = orderedLibraryHomeTypes(catalog, navPreferences);
-    final visibleCount = availableKinds
-        .where((type) => navPreferences.isVisible(type.kind))
+    final modules = settingsKindGroups([
+      for (final type in availableKinds)
+        if (defaultLibraryKindRegistry.tryGet(type.mediaKind)
+            case final registration?)
+          registration,
+    ]);
+    final visibleCount = modules
+        .where((group) =>
+            navPreferences.isVisible(group.primaryType.kind.apiValue))
         .length;
     // The reference Settings page: Customization, Localization, Behaviour
     // and Sorting on the left; Auto Capitalization and eBay links on the
@@ -148,19 +156,20 @@ class _SettingsAppearanceSectionState
               onChanged: controller.setAnimationsEnabled),
           const SizedBox(height: 10),
           const SettingsLegend('Enabled libraries'),
-          for (final type in availableKinds)
+          for (final group in modules)
             SettingsCheck(
-              key: ValueKey('settings.library.enabled.${type.kind}'),
-              label: type.pluralLabel,
-              value: navPreferences.isVisible(type.kind),
-              onChanged:
-                  navPreferences.isVisible(type.kind) && visibleCount <= 1
-                      ? null
-                      : (visible) => ref
-                          .read(libraryNavPreferencesProvider.notifier)
-                          .setKindVisible(type.kind, visible,
-                              availableKinds:
-                                  availableKinds.map((item) => item.kind)),
+              key: ValueKey('settings.library.enabled.${group.id}'),
+              label: group.title,
+              value: navPreferences.isVisible(group.primaryType.kind.apiValue),
+              onChanged: navPreferences
+                          .isVisible(group.primaryType.kind.apiValue) &&
+                      visibleCount <= 1
+                  ? null
+                  : (visible) => ref
+                      .read(libraryNavPreferencesProvider.notifier)
+                      .setKindVisible(group.primaryType.kind.apiValue, visible,
+                          availableKinds:
+                              availableKinds.map((item) => item.kind)),
             ),
           Text('Keep at least one library enabled.',
               style: TextStyle(
