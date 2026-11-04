@@ -61,6 +61,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- The browser tab icon uses the same clean edges as the desktop app icon.
 - Importing shows progress while files are read and lets you reset a selected file.
 - Settings no longer shows the unused Show titles in grid option or the empty Covers & layout tab.
 - Covers & layout settings no longer show the grid spacing, card cover width or sidebar row padding controls.
