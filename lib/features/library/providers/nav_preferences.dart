@@ -137,6 +137,7 @@ final libraryNavPreferencesProvider =
 
 class LibraryNavPreferencesController extends Notifier<LibraryNavPreferences> {
   final LibraryNavPreferencesStore _store = const LibraryNavPreferencesStore();
+  int _revision = 0;
 
   @override
   LibraryNavPreferences build() {
@@ -145,7 +146,10 @@ class LibraryNavPreferencesController extends Notifier<LibraryNavPreferences> {
   }
 
   Future<void> load() async {
-    state = await _store.read();
+    final revision = _revision;
+    final loaded = await _store.read();
+    if (revision != _revision) return;
+    state = loaded;
     _cachedLibraryAccentHexByKind = state.accentHexByKind;
   }
 
@@ -153,11 +157,27 @@ class LibraryNavPreferencesController extends Notifier<LibraryNavPreferences> {
     await _save(state.copyWith(collapsed: !state.collapsed));
   }
 
+  Future<void> setKindVisible(String kind, bool visible,
+      {required Iterable<String> availableKinds}) async {
+    final normalized = _normalizeKind(kind);
+    final available = availableKinds.map(_normalizeKind).toSet();
+    if (!available.contains(normalized)) return;
+    final hidden = Set<String>.of(state.hiddenKinds);
+    if (visible) {
+      hidden.remove(normalized);
+    } else {
+      if (available.where((item) => !hidden.contains(item)).length <= 1) return;
+      hidden.add(normalized);
+    }
+    await _save(state.copyWith(hiddenKinds: hidden));
+  }
+
   Future<void> reset() async {
     await _save(const LibraryNavPreferences());
   }
 
   Future<void> _save(LibraryNavPreferences preferences) async {
+    _revision++;
     state = preferences;
     _cachedLibraryAccentHexByKind = preferences.accentHexByKind;
     await _store.write(preferences);

@@ -16,6 +16,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/settings/settings_layout.dart';
 import 'package:collectarr_app/features/settings/settings_kind_section.dart';
+import 'package:collectarr_app/features/library/home/catalog.dart';
+import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/library/providers/nav_preferences.dart';
 
 /// Shared and kind-specific customization settings.
 class SettingsAppearanceSection extends ConsumerStatefulWidget {
@@ -60,6 +63,13 @@ class _SettingsAppearanceSectionState
 
   Widget _buildAppearanceSection(UiPreferences preferences) {
     final controller = ref.read(uiPreferencesProvider.notifier);
+    final navPreferences = ref.watch(libraryNavPreferencesProvider);
+    final catalog =
+        ref.watch(mediaCatalogProvider).value ?? fallbackMediaCatalog;
+    final availableKinds = orderedLibraryHomeTypes(catalog, navPreferences);
+    final visibleCount = availableKinds
+        .where((type) => navPreferences.isVisible(type.kind))
+        .length;
     // The reference Settings page: Customization, Localization, Behaviour
     // and Sorting on the left; Auto Capitalization and eBay links on the
     // right.
@@ -136,6 +146,25 @@ class _SettingsAppearanceSectionState
               label: 'Animations',
               value: preferences.animationsEnabled,
               onChanged: controller.setAnimationsEnabled),
+          const SizedBox(height: 10),
+          const SettingsLegend('Enabled libraries'),
+          for (final type in availableKinds)
+            SettingsCheck(
+              key: ValueKey('settings.library.enabled.${type.kind}'),
+              label: type.pluralLabel,
+              value: navPreferences.isVisible(type.kind),
+              onChanged:
+                  navPreferences.isVisible(type.kind) && visibleCount <= 1
+                      ? null
+                      : (visible) => ref
+                          .read(libraryNavPreferencesProvider.notifier)
+                          .setKindVisible(type.kind, visible,
+                              availableKinds:
+                                  availableKinds.map((item) => item.kind)),
+            ),
+          Text('Keep at least one library enabled.',
+              style: TextStyle(
+                  fontSize: 12, color: appPalette(context).textMuted)),
         ]));
     final localization = SettingsPanel(
         icon: Icons.language,

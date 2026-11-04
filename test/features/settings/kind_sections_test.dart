@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/nav_preferences.dart';
+import 'package:collectarr_app/features/library/home/catalog.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
@@ -21,6 +22,71 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  for (final platform in [TargetPlatform.windows, TargetPlatform.android]) {
+    testWidgets('enabled libraries can be hidden and restored on $platform',
+        (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      tester.view.physicalSize = platform == TargetPlatform.windows
+          ? const Size(1400, 1000)
+          : const Size(390, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final db = LocalDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final router = GoRouter(initialLocation: '/settings', routes: [
+        GoRoute(
+            path: '/settings',
+            builder: (_, state) => SettingsPage(
+                initialSection: settingsSectionFromRouteValue(
+                    state.uri.queryParameters['section']))),
+      ]);
+      addTearDown(router.dispose);
+      await tester.pumpWidget(ProviderScope(overrides: [
+        localDatabaseProvider.overrideWithValue(db),
+        mediaCatalogProvider.overrideWith((ref) async => fallbackMediaCatalog),
+      ], child: MaterialApp.router(routerConfig: router)));
+      await tester.pumpAndSettle();
+      if (platform != TargetPlatform.windows) {
+        await tester.tap(find.widgetWithText(ListTile, 'Customization'));
+        await tester.pumpAndSettle();
+      }
+      final toggle =
+          find.byKey(const ValueKey('settings.library.enabled.comic'));
+      await tester.ensureVisible(toggle);
+      await tester.tap(toggle);
+      await tester.pumpAndSettle();
+      final container = ProviderScope.containerOf(tester.element(toggle));
+      var preferences = container.read(libraryNavPreferencesProvider);
+      expect(preferences.isVisible('comic'), isFalse);
+      expect(
+          selectableLibraryHomeTypes(fallbackMediaCatalog, preferences)
+              .map((type) => type.kind),
+          isNot(contains('comic')));
+      expect(
+          find.byKey(const ValueKey('settings.kind.tab.comic'),
+              skipOffstage: false),
+          findsNothing);
+      expect(
+          (await const LibraryNavPreferencesStore().read()).isHidden('comic'),
+          isTrue);
+      await tester.ensureVisible(toggle);
+      await tester.tap(toggle);
+      await tester.pumpAndSettle();
+      preferences = container.read(libraryNavPreferencesProvider);
+      expect(preferences.isVisible('comic'), isTrue);
+      expect(
+          find.byKey(const ValueKey('settings.kind.tab.comic'),
+              skipOffstage: false),
+          findsOneWidget);
+      expect(
+          (await const LibraryNavPreferencesStore().read()).isVisible('comic'),
+          isTrue);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 1));
+    }, variant: TargetPlatformVariant({platform}));
+  }
+
   for (final platform in [
     TargetPlatform.windows,
     TargetPlatform.android,
