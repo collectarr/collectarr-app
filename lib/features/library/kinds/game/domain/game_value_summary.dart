@@ -20,10 +20,11 @@ String? gameValueSummary(GamePersonalData personal) {
       .where((option) => option.$1 == completeness)
       .firstOrNull
       ?.$2;
-  return [
+  final summary = [
     if (tier != null) tier,
     if (value != null)
       AppFormats.current
           .formatMoney(value, personal.currency ?? AppFormats.current.currency),
   ].join(' | ');
+  return summary.isEmpty ? null : summary;
 }

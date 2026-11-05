@@ -32,25 +32,34 @@ class LibraryCardFooter extends StatelessWidget {
           ConstrainedBox(
               constraints:
                   BoxConstraints(maxWidth: (constraints.maxWidth - 33) * 0.60),
-              child: Tooltip(
-                  message: value!,
-                  child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 1),
-                      decoration: BoxDecoration(
-                          color: const Color(0xFF2AA4CC),
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Text(value!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white))))),
+              child: LibraryCardValuePill(value!)),
         ],
         const SizedBox(width: 6),
         status,
       ]);
     });
   }
+}
+
+/// A card's value, as a small filled pill.
+class LibraryCardValuePill extends StatelessWidget {
+  const LibraryCardValuePill(this.value, {super.key});
+
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+      message: value,
+      child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+          decoration: BoxDecoration(
+              color: const Color(0xFF2AA4CC),
+              borderRadius: BorderRadius.circular(10)),
+          child: Text(value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white))));
 }

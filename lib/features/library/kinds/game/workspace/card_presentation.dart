@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_value_sum
 import 'package:collectarr_app/features/library/kinds/game/workspace/dto.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
 
+import 'card_bodies.dart';
+
 /// Reference card: title, release date, platform at the bottom and the
 /// completeness and value pill.
 LibraryCardPresentation buildGameCardPresentation(
@@ -34,18 +36,8 @@ LibraryCardPresentation buildGameCardPresentation(
             ? '#${gameDto?.itemNumber}'
             : null),
     shelfBodyBuilder: buildStandardShelfContent,
-    horizontalBodyBuilder: buildStandardHorizontalCardBody,
-    verticalBodyBuilder: buildStandardVerticalCardBody,
-    verticalSubtitle: gameDto?.platform ??
-        item.dto.secondaryLabel ??
-        [gameDto?.platform, gameDto?.publisher]
-            .whereType<String>()
-            .where((s) => s.trim().isNotEmpty)
-            .firstOrNull,
-    verticalSubtitleEmphasized: gameDto?.platform != null,
-    verticalTrailing:
-        (entry == null ? null : gameValueSummary(entry.personal)) ??
-            parts?.year?.toString(),
+    horizontalBodyBuilder: buildGameHorizontalCardBody,
+    verticalBodyBuilder: buildGameVerticalCardBody,
     flowSubtitle: libraryFlowSubtitle([
       if (gameDto?.itemNumber?.trim().isNotEmpty ?? false)
         '#${gameDto?.itemNumber}',

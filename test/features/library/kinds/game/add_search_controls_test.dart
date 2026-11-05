@@ -3,6 +3,9 @@ import 'package:collectarr_app/features/library/add/models/advanced_filter.dart'
 import 'package:collectarr_app/features/library/add/models/search_context.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/contribution.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/search_controls.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -102,5 +105,18 @@ void main() {
         gameAddCandidateMatchesPlatform(
             game('PlayStation 4'), LibraryAddSearchContext(query: 'brick')),
         isTrue);
+  });
+
+  test('a completeness with no known tier and no value shows no summary', () {
+    expect(
+      gameValueSummary(const GamePersonalData(
+          details: GameEntryDetails(completeness: 'Complete'))),
+      isNull,
+    );
+    expect(
+      gameValueSummary(const GamePersonalData(
+          details: GameEntryDetails(completeness: 'cib'))),
+      'CIB',
+    );
   });
 }
