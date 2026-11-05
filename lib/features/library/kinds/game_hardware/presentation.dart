@@ -47,6 +47,12 @@ final class GameHardwarePresentationBuilder
     final dto = item.dto as GameHardwareWorkspaceDto;
     final personal = dto.entry?.personal;
     return LibraryCardPresentation(
+        verticalSubtitle: dto.metadata.platform ??
+            item.dto.secondaryLabel ??
+            dto.metadata.seriesTitle,
+        verticalSubtitleEmphasized: dto.metadata.platform != null,
+        verticalTrailing:
+            personal == null ? null : gameHardwareValueSummary(personal),
         flowSubtitle: libraryFlowSubtitle([dto.metadata.platform]),
         detailLine: dto.metadata.releaseDateParts?.isoString,
         seriesTitle: dto.metadata.seriesTitle,

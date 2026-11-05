@@ -11,6 +11,15 @@ LibraryCardPresentation buildMovieCardPresentation(
   final movieDto =
       item.dto is MovieWorkspaceDto ? item.dto as MovieWorkspaceDto : null;
   return LibraryCardPresentation(
+    verticalSubtitle: movieDto?.format ??
+        item.dto.secondaryLabel ??
+        movieDto?.seriesTitle ??
+        [movieDto?.studio ?? movieDto?.publisher]
+            .whereType<String>()
+            .where((s) => s.trim().isNotEmpty)
+            .firstOrNull,
+    verticalSubtitleEmphasized: movieDto?.format != null,
+    verticalTrailing: movieDto?.releaseDate?.year.toString(),
     flowSubtitle: libraryFlowSubtitle([
       if (movieDto?.itemNumber?.trim().isNotEmpty ?? false)
         '#${movieDto?.itemNumber}',

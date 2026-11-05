@@ -32,6 +32,15 @@ class BoardGameLibraryMediaPresentationBuilder
         ? item.dto as BoardGameWorkspaceDto
         : null;
     return LibraryCardPresentation(
+      verticalSubtitle: dto?.format ??
+          item.dto.secondaryLabel ??
+          dto?.seriesTitle ??
+          [dto?.publisher]
+              .whereType<String>()
+              .where((s) => s.trim().isNotEmpty)
+              .firstOrNull,
+      verticalSubtitleEmphasized: dto?.format != null,
+      verticalTrailing: dto?.releaseDate?.year.toString(),
       flowSubtitle: libraryFlowSubtitle([
         if (dto?.itemNumber?.trim().isNotEmpty ?? false) '#${dto?.itemNumber}',
         dto?.format,
