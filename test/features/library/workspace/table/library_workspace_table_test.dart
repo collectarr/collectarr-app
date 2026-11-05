@@ -1,4 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/library/ui/primitives/selection_mark.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
@@ -26,6 +28,48 @@ DecoratedBox _rowDecorationForText(WidgetTester tester, String text) {
 }
 
 void main() {
+  testWidgets('list checkboxes keep outlined blue and active white marks',
+      (tester) async {
+    String? toggled;
+    var activated = false;
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: LibraryWorkspaceTable<String>(
+      entries: const ['active', 'checked', 'idle'],
+      columns: const ['title'],
+      sortColumn: 'title',
+      sortAscending: true,
+      columnWidthFor: (_) => 150,
+      defaultColumnWidthFor: (_) => 150,
+      columnSortFor: (id) => id,
+      columnLabelFor: (id) => id,
+      columnIsNumeric: (_) => false,
+      cellBuilder: (entry, _) => Text(entry),
+      isSelected: (entry) => entry == 'active',
+      showCheckbox: true,
+      showHeaderCheckbox: false,
+      isEntryChecked: (entry) => entry != 'idle',
+      onToggleEntryCheck: (entry) => toggled = entry,
+      onEntryTap: (_) => activated = true,
+      onSortChanged: (_) {},
+      onColumnWidthChanged: (_, width) {},
+    ))));
+    final marks = tester
+        .widgetList<LibrarySelectionMark>(find.byType(LibrarySelectionMark))
+        .toList();
+    expect(marks, hasLength(3));
+    expect(marks.every((mark) => mark.outlined), isTrue);
+    expect(marks.map((mark) => mark.checked), [true, true, false]);
+    expect(marks.first.foregroundColor, Colors.white);
+    final context = tester.element(find.text('idle'));
+    expect(marks[1].foregroundColor, appPalette(context).utilityAction);
+    expect(marks[2].foregroundColor, marks[1].foregroundColor);
+    await tester.tap(find.byType(LibrarySelectionMark).at(1));
+    await tester.pump();
+    expect(toggled, 'checked');
+    expect(activated, isFalse);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+
   testWidgets('headers keep their order and resize handles fit content',
       (tester) async {
     String? fitted;

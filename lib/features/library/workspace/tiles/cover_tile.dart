@@ -11,6 +11,7 @@ import 'package:collectarr_app/ui/app_click_target.dart';
 import 'package:collectarr_app/ui/app_press_tap.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';
+import 'package:collectarr_app/features/library/ui/primitives/selection_mark.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/item_status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -256,18 +257,22 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
 bool libraryShowsUntickedBoxes(bool selectionMode) =>
     selectionMode && !RendererBinding.instance.mouseTracker.mouseIsConnected;
 
+enum LibraryTileSelectionSurface { cover, verticalCard, horizontalCard }
+
 class LibraryTileSelectionToggle extends StatelessWidget {
   const LibraryTileSelectionToggle({
     super.key,
     required this.selected,
     required this.accentColor,
-    this.integrated = false,
+    this.surface = LibraryTileSelectionSurface.cover,
+    this.backgroundColor,
     this.highlighted = false,
   });
 
   final bool selected;
   final Color accentColor;
-  final bool integrated;
+  final LibraryTileSelectionSurface surface;
+  final Color? backgroundColor;
   final bool highlighted;
 
   @override
@@ -286,20 +291,26 @@ class LibraryTileSelectionToggle extends StatelessWidget {
             : null,
       );
     }
+    final integrated = surface != LibraryTileSelectionSurface.cover;
+    final background = integrated
+        ? backgroundColor ?? appPalette(context).panelRaised
+        : const Color(0xffdddddd);
+    final foreground = surface == LibraryTileSelectionSurface.horizontalCard ||
+            (integrated && (highlighted || selected))
+        ? Colors.white
+        : const Color(0xff444444);
     return Container(
       width: integrated ? 30 : 24,
       height: 24,
-      // The reference's tick box stays light grey with a dark ticked square;
-      // only an unticked box on the active card takes the blue.
       decoration: BoxDecoration(
-        color: highlighted && !selected ? accentColor : const Color(0xffdddddd),
+        color: background,
         borderRadius: integrated ? BorderRadius.zero : BorderRadius.circular(4),
       ),
-      child: Icon(selected ? Icons.check_box : Icons.check_box_outline_blank,
-          size: 16,
-          color: highlighted && !selected
-              ? Colors.white
-              : const Color(0xff444444)),
+      child: Center(
+          child: LibrarySelectionMark(
+              checked: selected,
+              foregroundColor: foreground,
+              cutoutColor: background)),
     );
   }
 }
