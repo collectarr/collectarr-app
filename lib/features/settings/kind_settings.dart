@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum KindSettingScope { globalOnly, kindOverridable, kindOnly }
@@ -167,71 +166,5 @@ class KindSettingsStore {
         .setString(key, values.encode())) {
       throw StateError('Could not save library settings');
     }
-  }
-}
-
-final kindSettingsProvider =
-    AsyncNotifierProvider<KindSettingsController, KindSettingsValues>(
-        KindSettingsController.new);
-
-class KindSettingsController extends AsyncNotifier<KindSettingsValues> {
-  Future<void> _pending = Future.value();
-  @override
-  Future<KindSettingsValues> build() => KindSettingsStore().read();
-
-  Future<void> _update(KindSettingsValues Function(KindSettingsValues) change) {
-    final task = _pending.then((_) async {
-      final previous = await future;
-      final next = change(previous);
-      await KindSettingsStore().write(next);
-      state = AsyncData(next);
-    });
-    _pending = task.then((_) {}, onError: (Object error, StackTrace stack) {});
-    return task;
-  }
-
-  Future<void> setShared<T>(KindSetting<T> setting, T value) {
-    if (setting.scope == KindSettingScope.kindOnly) {
-      throw ArgumentError('Kind-only setting');
-    }
-    setting.checked(value);
-    return _update((s) => KindSettingsValues(
-        shared: {...s.shared, setting.id: value}, kinds: s.kinds));
-  }
-
-  Future<void> setOverride<T>(
-      KindSetting<T> setting, CatalogMediaKind kind, T value) {
-    if (setting.scope == KindSettingScope.globalOnly) {
-      throw ArgumentError('Global setting');
-    }
-    setting.checked(value);
-    return _update((s) => KindSettingsValues(shared: s.shared, kinds: {
-          ...s.kinds,
-          kind.apiValue: {...?s.kinds[kind.apiValue], setting.id: value}
-        }));
-  }
-
-  Future<void> reset(KindSetting<Object?> setting, CatalogMediaKind kind) =>
-      _update((s) {
-        final values = {...?s.kinds[kind.apiValue]}..remove(setting.id);
-        return KindSettingsValues(
-            shared: s.shared, kinds: {...s.kinds, kind.apiValue: values});
-      });
-  Future<void> apply<T>(
-      KindSetting<T> setting,
-      T value,
-      Map<CatalogMediaKind, LibraryKindSettingsContribution>
-          compatibleEnabledKinds) {
-    if (setting.scope != KindSettingScope.kindOverridable) {
-      throw ArgumentError('Setting does not support Apply to all');
-    }
-    setting.checked(value);
-    return _update((s) => KindSettingsValues(shared: s.shared, kinds: {
-          ...s.kinds,
-          for (final kind in compatibleEnabledKinds.keys.where((kind) =>
-              compatibleEnabledKinds[kind]!.find(setting.id)?.scope ==
-              KindSettingScope.kindOverridable))
-            kind.apiValue: {...?s.kinds[kind.apiValue], setting.id: value},
-        }));
   }
 }

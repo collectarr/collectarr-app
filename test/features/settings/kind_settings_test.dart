@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/kind_settings_provider.dart';
 import 'dart:convert';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/settings/kind_settings.dart';
@@ -136,6 +137,34 @@ void main() {
             .resolve(values, trailerVideosSetting, CatalogMediaKind.game)
             .value,
         true);
+  });
+  test('invalid persisted setting types are exposed as loading errors',
+      () async {
+    final raw = jsonEncode({
+      'version': 1,
+      'shared': {trailerVideosSetting.id: 'wrong type'},
+      'kinds': {}
+    });
+    SharedPreferences.setMockInitialValues({KindSettingsStore.key: raw});
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await expectLater(
+        container.read(kindSettingsProvider.future), throwsFormatException);
+    expect(
+        (await SharedPreferences.getInstance())
+            .getString(KindSettingsStore.key),
+        raw);
+  });
+  test('unsupported overrides are rejected before persistence', () async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await container.read(kindSettingsProvider.future);
+    expect(
+        () => container
+            .read(kindSettingsProvider.notifier)
+            .setOverride(trailerVideosSetting, CatalogMediaKind.music, false),
+        throwsArgumentError);
+    expect((await KindSettingsStore().read()).kinds, isEmpty);
   });
   test('future storage versions fail without changing persisted data',
       () async {
