@@ -88,6 +88,15 @@ jobs:
         with:
           flutter-version: '3.47.7'
       - run: flutter pub get --enforce-lockfile
+      - name: Compare library view goldens on their Windows baseline host
+        run: flutter test test/features/library/workspace/tiles/content_golden_test.dart --reporter expanded
+      - name: Save golden comparison failures
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: library-golden-failures-windows
+          path: test/features/library/workspace/tiles/failures/*.png
+          if-no-files-found: ignore
       - name: Verify native Windows font selection
         run: flutter test integration_test/font_rendering_test.dart -d windows
 

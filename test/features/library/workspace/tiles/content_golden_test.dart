@@ -1,3 +1,6 @@
+@TestOn('windows')
+library;
+
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 
