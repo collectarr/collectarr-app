@@ -193,6 +193,35 @@ class LibrarySelectionControls extends StatelessWidget {
           : control;
     }
 
+    Widget menuContent(ResolvedLibrarySelectionAction action) {
+      final content = onAccent
+          ? Row(children: [
+              Icon(action.action.icon,
+                  size: 15,
+                  color: onAccent
+                      ? Colors.white.withValues(alpha: action.enabled ? 1 : .38)
+                      : null),
+              const SizedBox(width: 8),
+              Expanded(
+                  child: Text(action.action.label,
+                      style: onAccent
+                          ? TextStyle(
+                              fontSize: 13,
+                              color: Colors.white
+                                  .withValues(alpha: action.enabled ? 1 : .38))
+                          : null))
+            ])
+          : Material(
+              type: MaterialType.transparency,
+              child: ListTile(
+                  leading: Icon(action.action.icon),
+                  title: Text(action.action.label),
+                  dense: true));
+      return !action.enabled && action.action.unavailableMessage != null
+          ? Tooltip(message: action.action.unavailableMessage!, child: content)
+          : content;
+    }
+
     final more = PopupMenuButton<ResolvedLibrarySelectionAction>(
       key: const ValueKey('library-selection-more-button'),
       tooltip: 'More selection actions',
@@ -215,36 +244,18 @@ class LibrarySelectionControls extends StatelessWidget {
         if (context.mounted) _invoke(context, action);
       }),
       itemBuilder: (_) => [
-        for (final action in overflow)
+        for (var index = 0; index < overflow.length; index++) ...[
+          if (index > 0 &&
+              overflow[index].action.category !=
+                  overflow[index - 1].action.category)
+            PopupMenuDivider(height: onAccent ? 7 : 16),
           PopupMenuItem(
-            value: action,
-            enabled: action.enabled,
+            value: overflow[index],
+            enabled: overflow[index].enabled,
             height: onAccent ? 28 : 48,
-            child: onAccent
-                ? Row(children: [
-                    Icon(action.action.icon,
-                        size: 15,
-                        color: onAccent
-                            ? Colors.white
-                                .withValues(alpha: action.enabled ? 1 : .38)
-                            : null),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        child: Text(action.action.label,
-                            style: onAccent
-                                ? TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.white.withValues(
-                                        alpha: action.enabled ? 1 : .38))
-                                : null))
-                  ])
-                : Material(
-                    type: MaterialType.transparency,
-                    child: ListTile(
-                        leading: Icon(action.action.icon),
-                        title: Text(action.action.label),
-                        dense: true)),
-          )
+            child: menuContent(overflow[index]),
+          ),
+        ],
       ],
     );
     if (onAccent) {

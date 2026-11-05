@@ -21,6 +21,7 @@ const comicSelectionActions = <LibrarySelectionAction>[
 ];
 const _keys = LibrarySelectionAction(
     id: 'comic.keys',
+    category: 'Core',
     label: 'Update Key Info',
     icon: AppIcons.key,
     command: _keysCommand,
