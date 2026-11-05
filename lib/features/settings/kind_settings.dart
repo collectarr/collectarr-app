@@ -54,8 +54,9 @@ class LibraryKindSettingsContribution {
   final List<KindSetting<Object?>> settings;
   KindSettingResolution<T> resolve<T>(KindSettingsValues values,
       KindSetting<T> setting, CatalogMediaKind kind) {
-    if (find(setting.id) == null)
+    if (find(setting.id) == null) {
       return const KindSettingResolution.unavailable();
+    }
     return KindSettingResolution.available(values.resolve(setting, kind: kind));
   }
 
