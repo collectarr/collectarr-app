@@ -213,6 +213,55 @@ void main() {
     expect(tapped, isTrue);
   });
 
+  testWidgets('box selection ignores click jitter until a drag starts',
+      (tester) async {
+    final changes = <Set<String>>[];
+    await tester.pumpWidget(MaterialApp(
+      home: SizedBox(
+        width: 250,
+        height: 240,
+        child: LibraryWorkspaceGrid<String>(
+          items: const ['one', 'two', 'three', 'four'],
+          maxCrossAxisExtent: 120,
+          mainAxisExtent: 100,
+          selectionEnabled: true,
+          selectedIds: const {'four'},
+          itemIdOf: (item) => item,
+          onSelectionChanged: changes.add,
+          emptyBuilder: (_) => const Text('No items'),
+          itemBuilder: (_, item) => Text(item),
+        ),
+      ),
+    ));
+    final start =
+        tester.getTopLeft(find.byType(GridView)) + const Offset(16, 16);
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    addTearDown(mouse.removePointer);
+    await mouse.addPointer(location: start);
+    await mouse.down(start);
+    await mouse.moveTo(start + const Offset(2, 2));
+    await mouse.up();
+    await tester.pump();
+    expect(changes, isEmpty);
+
+    await mouse.down(start);
+    await mouse.moveTo(start + const Offset(2, 2));
+    expect(changes, isEmpty);
+    await mouse.moveTo(start + const Offset(200, 60));
+    expect(changes, [
+      {'one', 'two'}
+    ]);
+    // Crossing the threshold starts a drag that continues back near the origin.
+    await mouse.moveTo(start + const Offset(2, 2));
+    expect(changes.last, {'one'});
+    await mouse.cancel();
+    await mouse.down(start);
+    await mouse.moveTo(start + const Offset(2, 2));
+    await mouse.up();
+    await tester.pump();
+    expect(changes, hasLength(2));
+  }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+
   testWidgets('workspace grid supports drag box selection without modifiers',
       (tester) async {
     Set<String> selected = const {};
