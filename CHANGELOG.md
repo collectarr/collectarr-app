@@ -63,6 +63,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Checked covers and shelf items keep the selection tint on the cover without adding blue side bands; the active item's frame remains distinct.
 - Selection checkboxes use distinct cover, card and list styles, with matching contrast and filled or outlined marks for each view.
 - Rapid item selection preserves checked items instead of opening details on double-click or replacing the selection after slight mouse movements.
 - Desktop cover and card selection commits checkbox clicks on press and lets you select or deselect anywhere on an item while selection mode is active.
