@@ -17,6 +17,7 @@ final gameToyKindIdentity = const LibraryKindIdentity(
     mediaFamily: 'game',
     isTopLevel: false,
     collectionFamily: 'games',
+    showSelectionValueUpdate: true,
     hasTrailers: true,
     defaultCollectionName: 'Toys');
 final gameToyKindPresentation = gameToyLibraryMediaPresentation;

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
 enum _BulkAction {
-  printToPdf,
   exportCsvTxt,
   exportXml,
   duplicate,
@@ -120,12 +119,18 @@ class LibrarySelectionControls extends StatelessWidget {
     this.onAccent = false,
     this.accent,
     this.mergeLabel,
+    this.showValueUpdate = false,
+    this.showKeyInfo = false,
+    this.supportsMerge = false,
   });
 
   final LibrarySelectionCallbacks callbacks;
   final bool onAccent;
   final Color? accent;
   final String? mergeLabel;
+  final bool showValueUpdate;
+  final bool showKeyInfo;
+  final bool supportsMerge;
 
   void _dispatchAfterMenuClose(VoidCallback action) {
     WidgetsBinding.instance.addPostFrameCallback((_) => action());
@@ -196,7 +201,10 @@ class LibrarySelectionControls extends StatelessWidget {
         icon: iconWidget,
         label: Text(label),
         style: baseStyle.copyWith(
-          foregroundColor: WidgetStatePropertyAll(effectiveFg),
+          foregroundColor: WidgetStateProperty.resolveWith((states) =>
+              states.contains(WidgetState.disabled)
+                  ? effectiveFg.withValues(alpha: 0.45)
+                  : effectiveFg),
           backgroundColor: WidgetStatePropertyAll(effectiveBg),
           side: WidgetStatePropertyAll(effectiveBorder),
         ),
@@ -208,36 +216,35 @@ class LibrarySelectionControls extends StatelessWidget {
       IconData? icon,
       required String label,
       required bool enabled,
+      String? unavailableMessage,
     }) {
       final contentColor =
           enabled ? Colors.white : Colors.white.withValues(alpha: 0.38);
+      final content = Row(
+        children: [
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: Center(child: Icon(icon, size: 15, color: contentColor)),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(label,
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: contentColor)),
+          ),
+        ],
+      );
       return PopupMenuItem<_BulkAction>(
         value: value,
         enabled: enabled,
         height: 28,
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: Center(
-                child: Icon(icon, size: 15, color: contentColor),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: contentColor,
-                ),
-              ),
-            ),
-          ],
-        ),
+        child: !enabled && unavailableMessage != null
+            ? Tooltip(message: unavailableMessage, child: content)
+            : content,
       );
     }
 
@@ -305,7 +312,6 @@ class LibrarySelectionControls extends StatelessWidget {
             : const Icon(Icons.more_horiz, size: 18),
         onSelected: (action) {
           final callback = switch (action) {
-            _BulkAction.printToPdf => callbacks.onPrintToPdf,
             _BulkAction.exportCsvTxt => callbacks.onExportCsvTxt,
             _BulkAction.exportXml => callbacks.onExportXml,
             _BulkAction.duplicate => callbacks.onBulkDuplicate,
@@ -322,12 +328,6 @@ class LibrarySelectionControls extends StatelessWidget {
         },
         itemBuilder: (context) => onAccent
             ? [
-                accentMenuItem(
-                  value: _BulkAction.printToPdf,
-                  icon: AppIcons.print,
-                  label: 'Print to PDF',
-                  enabled: callbacks.onPrintToPdf != null,
-                ),
                 accentMenuItem(
                   value: _BulkAction.exportCsvTxt,
                   icon: AppIcons.exportCsv,
@@ -347,12 +347,13 @@ class LibrarySelectionControls extends StatelessWidget {
                   label: 'Duplicate',
                   enabled: callbacks.onBulkDuplicate != null,
                 ),
-                accentMenuItem(
-                  value: _BulkAction.mergeAlbums,
-                  icon: AppIcons.merge,
-                  label: mergeLabel ?? 'Merge Albums',
-                  enabled: callbacks.onMerge != null,
-                ),
+                if (supportsMerge)
+                  accentMenuItem(
+                    value: _BulkAction.mergeAlbums,
+                    icon: AppIcons.merge,
+                    label: mergeLabel ?? 'Merge Albums',
+                    enabled: callbacks.onMerge != null,
+                  ),
                 accentMenuItem(
                   value: _BulkAction.loan,
                   icon: AppIcons.loans,
@@ -372,6 +373,14 @@ class LibrarySelectionControls extends StatelessWidget {
                   enabled: callbacks.onMoveToCollection != null,
                 ),
                 const PopupMenuDivider(height: 7),
+                if (showKeyInfo)
+                  accentMenuItem(
+                    value: _BulkAction.updateKeyInfo,
+                    icon: AppIcons.key,
+                    label: 'Update Key Info',
+                    enabled: callbacks.onBulkUpdateKeyInfo != null,
+                    unavailableMessage: 'Key info updates are not available',
+                  ),
                 accentMenuItem(
                   value: _BulkAction.updateFromCore,
                   icon: AppIcons.updateFromCore,
@@ -445,40 +454,45 @@ class LibrarySelectionControls extends StatelessWidget {
     );
 
     if (onAccent) {
-      Widget iconAction({
-        required String tooltip,
-        required IconData icon,
-        required VoidCallback? onPressed,
-      }) =>
-          Tooltip(
-            message: tooltip,
-            child: TextButton(
-              onPressed: onPressed,
-              style: baseStyle.copyWith(
-                minimumSize: const WidgetStatePropertyAll(Size(28, 30)),
-                padding: const WidgetStatePropertyAll(
-                    EdgeInsets.symmetric(horizontal: 6)),
-                foregroundColor: WidgetStatePropertyAll(onPressed == null
-                    ? Colors.white.withValues(alpha: 0.45)
-                    : Colors.white),
-              ),
-              child: Icon(icon, size: 14),
-            ),
-          );
       return Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          iconAction(
-            tooltip: 'Edit',
-            icon: AppIcons.edit,
+          actionButton(
+            label: 'Edit',
+            icon: AppIcons.inlineEdit,
             onPressed: callbacks.onBulkEdit,
           ),
-          iconAction(
-            tooltip: 'Remove',
+          actionButton(
+            label: 'Remove',
             icon: AppIcons.delete,
             onPressed: callbacks.onBulkRemove,
           ),
+          LibrarySelectionToolbarDivider(
+            dividerLeft: dividerLeft,
+            dividerRight: dividerRight,
+          ),
+          actionButton(
+            label: 'Print to PDF',
+            icon: AppIcons.print,
+            onPressed: callbacks.onPrintToPdf,
+          ),
+          if (showValueUpdate) ...[
+            LibrarySelectionToolbarDivider(
+              dividerLeft: dividerLeft,
+              dividerRight: dividerRight,
+            ),
+            Tooltip(
+              message: callbacks.onBulkUpdateValues == null
+                  ? 'Automatic value updates are not available'
+                  : 'Update values',
+              child: actionButton(
+                label: 'Update values',
+                icon: Icons.payments_outlined,
+                onPressed: callbacks.onBulkUpdateValues,
+              ),
+            ),
+          ],
           LibrarySelectionToolbarDivider(
             dividerLeft: dividerLeft,
             dividerRight: dividerRight,

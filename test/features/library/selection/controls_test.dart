@@ -64,6 +64,7 @@ void main() {
                       height: 32,
                       child: LibrarySelectionControls(
                           onAccent: true,
+                          supportsMerge: true,
                           accent: Colors.orange,
                           callbacks: (
                             onClearSelection: () {},

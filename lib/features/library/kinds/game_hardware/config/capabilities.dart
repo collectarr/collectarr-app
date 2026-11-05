@@ -17,6 +17,7 @@ final gameHardwareKindIdentity = const LibraryKindIdentity(
     mediaFamily: 'game',
     isTopLevel: false,
     collectionFamily: 'games',
+    showSelectionValueUpdate: true,
     hasTrailers: true,
     defaultCollectionName: 'Hardware');
 final gameHardwareKindPresentation = gameHardwareLibraryMediaPresentation;

@@ -5,6 +5,111 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  for (final label in ['Comics', 'Games']) {
+    testWidgets('$label selection band dispatches its labelled actions',
+        (tester) async {
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final calls = <String>[];
+      final callbacks = (
+        onClearSelection: () => calls.add('cancel'),
+        onSelectAll: () => calls.add('all'),
+        onBulkEdit: () => calls.add('edit'),
+        onPrintToPdf: () => calls.add('print'),
+        onExportCsvTxt: null,
+        onExportXml: null,
+        onMerge: null,
+        onBulkDuplicate: null,
+        onBulkLoan: null,
+        onTransferFieldData: null,
+        onBulkUpdateValues: null,
+        onBulkUpdateKeyInfo: null,
+        onBulkMoveToEntry: null,
+        onBulkMoveToWishlist: null,
+        onMoveToCollection: null,
+        onBulkRemove: () => calls.add('remove'),
+        onBulkRefreshMetadata: null,
+      );
+      await tester.pumpWidget(MaterialApp(
+          home: Scaffold(
+              body: LibrarySelectionToolbarBand(
+                  selectedCount: 2,
+                  totalSelectableCount: 8,
+                  callbacks: callbacks,
+                  itemPluralLabel: label,
+                  showValueUpdate: true,
+                  showKeyInfo: label == 'Comics'))));
+      expect(find.text('Update values'), findsOneWidget);
+      expect(
+          tester
+              .widget<TextButton>(
+                  find.widgetWithText(TextButton, 'Update values'))
+              .onPressed,
+          isNull);
+      for (final action in [
+        'Cancel',
+        'All',
+        'Edit',
+        'Remove',
+        'Print to PDF'
+      ]) {
+        await tester.tap(find.text(action));
+        await tester.pump();
+      }
+      expect(calls, ['cancel', 'all', 'edit', 'remove', 'print']);
+      await tester.tap(find.byTooltip('More selection actions'));
+      await tester.pumpAndSettle();
+      expect(find.text('Print to PDF'), findsOneWidget);
+      expect(find.text('Merge $label'), findsNothing);
+      expect(find.text('Update Key Info'),
+          label == 'Comics' ? findsOneWidget : findsNothing);
+      expect(find.text('Export for CovrPrice'), findsNothing);
+    });
+  }
+
+  testWidgets('selection actions remain reachable on a narrow toolbar',
+      (tester) async {
+    tester.view.physicalSize = const Size(390, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    var printed = false;
+    final callbacks = (
+      onClearSelection: () {},
+      onSelectAll: () {},
+      onBulkEdit: null,
+      onPrintToPdf: () => printed = true,
+      onExportCsvTxt: null,
+      onExportXml: null,
+      onMerge: null,
+      onBulkDuplicate: null,
+      onBulkLoan: null,
+      onTransferFieldData: null,
+      onBulkUpdateValues: null,
+      onBulkUpdateKeyInfo: null,
+      onBulkMoveToEntry: null,
+      onBulkMoveToWishlist: null,
+      onMoveToCollection: null,
+      onBulkRemove: null,
+      onBulkRefreshMetadata: null,
+    );
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: LibrarySelectionToolbarBand(
+                selectedCount: 1,
+                totalSelectableCount: 3,
+                callbacks: callbacks))));
+    final edit = find.widgetWithText(TextButton, 'Edit');
+    expect(tester.widget<TextButton>(edit).onPressed, isNull);
+    await tester.ensureVisible(find.text('Print to PDF'));
+    await tester.tap(find.text('Print to PDF'));
+    await tester.pump();
+    expect(printed, isTrue);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('toolbar divider line renders a divider', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
@@ -46,26 +151,28 @@ void main() {
             selectedCount: 3,
             totalSelectableCount: 12,
             callbacks: callbacks,
+            supportsMerge: true,
           ),
         ),
       ),
     );
 
-    // Icon-only Cancel, Edit and Remove, as in the reference.
+    // Primary actions remain visible and labelled in the selection band.
     expect(find.byTooltip('Cancel'), findsOneWidget);
+    expect(find.text('Cancel'), findsOneWidget);
     expect(find.text('All'), findsOneWidget);
-    expect(find.text('3 of 12'), findsOneWidget);
-    expect(find.byTooltip('Edit'), findsOneWidget);
-    expect(find.byTooltip('Remove'), findsOneWidget);
-    expect(find.text('Print to PDF'), findsNothing);
+    expect(find.text('3 of 12 selected'), findsOneWidget);
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Remove'), findsOneWidget);
+    expect(find.text('Print to PDF'), findsOneWidget);
     expect(find.text('Duplicate'), findsNothing);
     expect(find.text('Loan'), findsNothing);
     expect(find.text('Move to entry'), findsNothing);
     expect(find.text('Move to wishlist'), findsNothing);
     expect(find.text('Update values'), findsNothing);
 
-    // Full-height dividers: one after Cancel and one before More.
-    expect(find.byType(LibrarySelectionToolbarDivider), findsNWidgets(2));
+    // Full-height dividers separate Cancel, Print and More.
+    expect(find.byType(LibrarySelectionToolbarDivider), findsNWidgets(3));
 
     final bandDecoratedBox = tester.widget<DecoratedBox>(
       find
@@ -354,13 +461,14 @@ void main() {
 
     expect(find.byTooltip('Cancel'), findsOneWidget);
     expect(find.text('All'), findsOneWidget);
-    expect(find.byTooltip('Edit'), findsOneWidget);
-    expect(find.byTooltip('Remove'), findsOneWidget);
-    expect(find.text('5 of 20'), findsOneWidget);
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Remove'), findsOneWidget);
+    expect(find.text('Print to PDF'), findsOneWidget);
+    expect(find.text('5 of 20 selected'), findsOneWidget);
 
     final cancelPos = tester.getTopLeft(find.byTooltip('Cancel'));
-    final editPos = tester.getTopLeft(find.byTooltip('Edit'));
-    final countPos = tester.getTopLeft(find.text('5 of 20'));
+    final editPos = tester.getTopLeft(find.text('Edit'));
+    final countPos = tester.getTopLeft(find.text('5 of 20 selected'));
 
     // Cancel is at the left, Edit is in the middle, Count is on the right
     expect(cancelPos.dx < editPos.dx, isTrue);

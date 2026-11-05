@@ -14,6 +14,9 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
     this.accent,
     this.itemPluralLabel,
     this.showBottomBorder = true,
+    this.showValueUpdate = false,
+    this.showKeyInfo = false,
+    this.supportsMerge = false,
   });
 
   final int selectedCount;
@@ -22,6 +25,9 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
   final Color? accent;
   final String? itemPluralLabel;
   final bool showBottomBorder;
+  final bool showValueUpdate;
+  final bool showKeyInfo;
+  final bool supportsMerge;
 
   @override
   Widget build(BuildContext context) {
@@ -83,14 +89,15 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
                 children: [
                   Tooltip(
                     message: 'Cancel',
-                    child: TextButton(
+                    child: TextButton.icon(
                       onPressed: callbacks.onClearSelection,
                       style: actionButtonStyle,
-                      child: const Icon(
+                      icon: const Icon(
                         AppIcons.close,
                         size: 13,
                         color: Colors.white,
                       ),
+                      label: const Text('Cancel'),
                     ),
                   ),
                   LibrarySelectionToolbarDivider(
@@ -120,6 +127,9 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
                 onAccent: true,
                 accent: effectiveAccent,
                 mergeLabel: mergeLabel,
+                showValueUpdate: showValueUpdate,
+                showKeyInfo: showKeyInfo,
+                supportsMerge: supportsMerge,
               );
 
               final rightCountPill = DecoratedBox(
@@ -133,7 +143,7 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
                     vertical: 3,
                   ),
                   child: Text(
-                    '$selectedCount of $totalSelectableCount',
+                    '$selectedCount of $totalSelectableCount selected',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 14,

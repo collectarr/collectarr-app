@@ -163,6 +163,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         callbacks: selectionCallbacks!,
         accent: type.identity.accent,
         itemPluralLabel: type.identity.pluralLabel,
+        showValueUpdate: type.identity.showSelectionValueUpdate,
+        showKeyInfo: type.identity.showSelectionKeyInfo,
+        supportsMerge:
+            libraryEntryPolicyForKind(type.kind).mergeEntries != null,
         showBottomBorder: showBottomBorder,
       );
     }
