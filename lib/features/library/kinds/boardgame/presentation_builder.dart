@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_fields.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -32,6 +33,8 @@ class BoardGameLibraryMediaPresentationBuilder
         ? item.dto as BoardGameWorkspaceDto
         : null;
     return LibraryCardPresentation(
+      horizontalBodyBuilder: buildStandardHorizontalCardBody,
+      verticalBodyBuilder: buildStandardVerticalCardBody,
       verticalSubtitle: dto?.format ??
           item.dto.secondaryLabel ??
           dto?.seriesTitle ??

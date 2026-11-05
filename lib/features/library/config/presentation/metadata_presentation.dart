@@ -236,7 +236,7 @@ abstract class LibraryMediaPresentationBuilder {
     LibraryProjectionView item, {
     bool coverFocused = false,
   }) {
-    return const LibraryCardPresentation();
+    throw UnsupportedError('A kind must provide its item presentation.');
   }
 
   List<Widget> buildInspectorSections({

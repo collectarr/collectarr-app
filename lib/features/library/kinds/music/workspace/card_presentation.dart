@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -19,6 +20,8 @@ LibraryCardPresentation buildMusicCardPresentation(
   final duration = musicCardDuration(item);
 
   return LibraryCardPresentation(
+    horizontalBodyBuilder: buildStandardHorizontalCardBody,
+    verticalBodyBuilder: buildStandardVerticalCardBody,
     verticalSubtitle: music?.facts.formatSummary ??
         item.dto.secondaryLabel ??
         musicCardArtist(item),

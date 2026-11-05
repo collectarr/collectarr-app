@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'inspector/sections.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
@@ -45,6 +46,8 @@ final class GameToyPresentationBuilder extends LibraryMediaPresentationBuilder {
     final dto = item.dto as GameToyWorkspaceDto;
     final personal = dto.entry?.personal;
     return LibraryCardPresentation(
+        horizontalBodyBuilder: buildStandardHorizontalCardBody,
+        verticalBodyBuilder: buildStandardVerticalCardBody,
         verticalSubtitle: dto.metadata.toyType ??
             item.dto.secondaryLabel ??
             dto.metadata.seriesTitle,
