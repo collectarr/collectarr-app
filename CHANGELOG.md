@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Docs
+- The asset guide documents ignored local icon folders and loading their images through Games and Comics settings.
 - The Android parity guide records the remaining sort defaults, font metrics, empty states and populated inspector and Action-menu differences.
 - The parity guide distinguishes CLZ web's slab fonts from its general interface font.
 - The Android parity guide records the font families embedded in the CLZ reference and the remaining typography comparison.

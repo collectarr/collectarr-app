@@ -51,5 +51,5 @@ sqlite3_temp.dat
 test_output.txt
 clz_*.png
 
-# Private local images (never commit)
+# Private local images and downloaded reference icons (never commit or bundle)
 /local-assets/

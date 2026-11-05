@@ -17,6 +17,19 @@ external service or an item's platform and is not affiliated with or
 endorsed by these companies. Simple Icons drawings are single-color; the app
 tints them.
 
+## Local image overrides
+
+Optional local icon downloads belong in `local-assets/CLZ/` at the repository
+root. Git ignores `local-assets/`; these files are not bundled app assets.
+
+- `comics-custom-labels/`: Custom Label images for Comics.
+- `games-platform-icons/`: platform images for Games.
+
+Each folder's `index.csv` maps the displayed names to the original filenames.
+Load images through Settings > Customization > Comics > Custom label icons or
+Games > Platform icons. The file's name must match the label or platform value;
+use the index when renaming downloaded originals for bulk loading.
+
 Except for the import-source marks listed below, use a known free license for
 new logos. Sources and platforms without a logo here (Xbox, Nintendo and
 Windows have none in Simple Icons) use a generic icon.
