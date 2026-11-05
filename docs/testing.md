@@ -29,6 +29,24 @@ need their own isolated fixture if they exercise unreleased tables. Mixed tests
 must be separated by ownership rather than hidden by blanket exclusions.
 Selected complete directories are compacted to respect Windows CLI limits.
 
+## Library view screenshot comparisons
+
+The 30 reference images in `workspace/tiles/goldens` use the Windows Flutter
+renderer. Run comparisons and regenerate references on Windows with the Flutter
+version pinned in `.github/workflows/tests.yml`:
+
+```sh
+flutter test test/features/library/workspace/tiles/content_golden_test.dart
+flutter test test/features/library/workspace/tiles/content_golden_test.dart --update-goldens
+```
+
+The test file requires a Windows host. Its Windows and Android presentation
+variants choose UI behavior; they do not change the host's font rasterizer or
+graphics engine. Comparing these images on Linux produces rendering differences
+even with the same Flutter version. CI runs all 30 comparisons in its existing
+Windows job and retains image differences on failure. Linux still runs shared
+correctness, contracts, architecture checks and native integration flows.
+
 ## Measure workspace performance separately
 
 ```sh

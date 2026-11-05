@@ -127,6 +127,7 @@
 - Board Game, Book, Movie, Music, Comics and Games configuration, entry payload, catalog lookup, editor, inspector, stats and action files are named by their job inside their kind's folders, as the other kind files already were.
 
 ### CI & Build
+- Library screenshot comparisons run on the same Windows renderer as their reference images, with image differences retained when CI fails.
 - Project verification checks pass with the current Dart formatter and analyzer.
 - Mobile tab touch areas are covered by accessibility regression checks.
 - Desktop integration checks follow sidebar account navigation and the configured Add confirmation.
