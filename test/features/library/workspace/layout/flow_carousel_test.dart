@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_persona
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/slab.dart';
-import 'package:collectarr_app/features/library/workspace/entry/context.dart';
 import 'package:collectarr_app/features/library/workspace/entry/item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';

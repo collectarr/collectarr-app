@@ -119,6 +119,7 @@
 - Board Game, Book, Movie, Music, Comics and Games configuration, entry payload, catalog lookup, editor, inspector, stats and action files are named by their job inside their kind's folders, as the other kind files already were.
 
 ### CI & Build
+- Project verification checks pass with the current Dart formatter and analyzer.
 - Mobile tab touch areas are covered by accessibility regression checks.
 - Desktop integration checks follow sidebar account navigation and the configured Add confirmation.
 - Android and iOS sort regression checks cover saved favorites across every active kind.
