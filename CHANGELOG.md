@@ -109,6 +109,7 @@
 - The web app leaves zoom to the browser, so its zoom shortcuts and Ctrl + wheel change the browser's zoom instead of adding an app zoom that read 100 % on an already zoomed page.
 
 ### Refactors
+- Library kinds define the details displayed on vertical cards.
 - Flow browsing keeps single-item navigation independent of bulk selection and lets each library define its item details.
 - Library card layouts can evolve per kind while sharing selection and other card interactions.
 - Music playback tracking keeps its existing progress and storage behavior.

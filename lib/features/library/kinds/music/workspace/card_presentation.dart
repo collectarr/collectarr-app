@@ -19,6 +19,12 @@ LibraryCardPresentation buildMusicCardPresentation(
   final duration = musicCardDuration(item);
 
   return LibraryCardPresentation(
+    verticalSubtitle: music?.facts.formatSummary ??
+        item.dto.secondaryLabel ??
+        musicCardArtist(item),
+    verticalSubtitleEmphasized: music?.facts.formatSummary != null,
+    verticalTrailing: music?.music.releaseDate?.year.toString() ??
+        music?.music.releaseDateParts?.year?.toString(),
     flowSubtitle: libraryFlowSubtitle([
       music?.facts.formatSummary,
       music?.music.releaseDate?.year.toString()

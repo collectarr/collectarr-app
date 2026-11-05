@@ -23,6 +23,16 @@ LibraryCardPresentation buildGameCardPresentation(
     _ => parts.isoString,
   };
   return LibraryCardPresentation(
+    verticalSubtitle: gameDto?.platform ??
+        item.dto.secondaryLabel ??
+        [gameDto?.platform, gameDto?.publisher]
+            .whereType<String>()
+            .where((s) => s.trim().isNotEmpty)
+            .firstOrNull,
+    verticalSubtitleEmphasized: gameDto?.platform != null,
+    verticalTrailing:
+        (entry == null ? null : gameValueSummary(entry.personal)) ??
+            parts?.year?.toString(),
     flowSubtitle: libraryFlowSubtitle([
       if (gameDto?.itemNumber?.trim().isNotEmpty ?? false)
         '#${gameDto?.itemNumber}',

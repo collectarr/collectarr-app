@@ -56,6 +56,9 @@ class LibraryCardPresentation {
     this.detailLine,
     this.valueLabel,
     this.flowSubtitle,
+    this.verticalSubtitle,
+    this.verticalSubtitleEmphasized = false,
+    this.verticalTrailing,
     this.horizontalBodyBuilder,
     this.verticalBodyBuilder,
   });
@@ -97,6 +100,11 @@ class LibraryCardPresentation {
 
   /// The kind-resolved metadata line used beneath a Flow cover.
   final String? flowSubtitle;
+
+  /// Explicit content slots for the shared vertical card template.
+  final String? verticalSubtitle;
+  final bool verticalSubtitleEmphasized;
+  final String? verticalTrailing;
 
   /// Optional complete kind-owned bodies; each orientation falls back to the
   /// shared renderer independently when its builder is absent.

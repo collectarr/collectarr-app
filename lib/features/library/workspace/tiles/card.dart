@@ -622,16 +622,8 @@ class _StandardVerticalCardBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final subtitle = presentation.format ??
-        item.dto.secondaryLabel ??
-        presentation.seriesTitle ??
-        (presentation.contextFacts.isNotEmpty
-            ? presentation.contextFacts.first
-            : null);
-    final releaseYear = presentation.releaseDate != null
-        ? '${presentation.releaseDate!.year}'
-        : presentation.suggestionDetail;
-    final trailingText = presentation.valueLabel ?? releaseYear;
+    final subtitle = presentation.verticalSubtitle;
+    final trailingText = presentation.verticalTrailing;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -698,7 +690,7 @@ class _StandardVerticalCardBody extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: presentation.format != null
+                            fontWeight: presentation.verticalSubtitleEmphasized
                                 ? FontWeight.w600
                                 : FontWeight.normal,
                             color: detailColor,
