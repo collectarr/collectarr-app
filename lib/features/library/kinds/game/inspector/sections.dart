@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_value_sum
 import 'package:collectarr_app/features/library/kinds/game/edit/market_links.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/data.dart';
-import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/platform_tile.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart'
     show libraryCollectionStatusFromValue;
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
@@ -142,61 +142,75 @@ class _GameInspectorHeader extends StatelessWidget {
             ),
         ]),
         const SizedBox(height: 8),
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 210, maxHeight: 300),
-          child: LibraryCoverImage(
-            title: title,
-            mediaKind: CatalogMediaKind.game,
-            imageUrl: metadata?.coverImageUrl,
-            libraryEntryRef: entry == null
-                ? null
-                : LibraryEntryRef(kind: CatalogMediaKind.game, id: entry.id),
-            fallbackAspectRatio: 0.7,
-            borderRadius: 0,
-          ),
-        ),
-        if (platform.isNotEmpty || year != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Wrap(
-                spacing: 4,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  if (platform.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: PlatformIcon(platform,
-                          size: 24, color: palette.textPrimary),
-                    ),
-                  if (platform.isNotEmpty)
-                    link(platform, weight: kAppBoldFontWeight),
-                  if (year != null) link('($year)', weight: kAppBoldFontWeight),
-                ]),
-          ),
-        if (publishers.isNotEmpty) ...[
-          label('Publisher'),
-          for (final name in publishers) link(name),
-        ],
-        if (developers.isNotEmpty) ...[
-          label('Developer'),
-          for (final name in developers) link(name),
-        ],
-        if (summary.isNotEmpty || genres.isNotEmpty) const SizedBox(height: 18),
-        if (summary.isNotEmpty)
-          Text(summary,
-              style: TextStyle(fontSize: 14, color: palette.textPrimary)),
-        if (genres.isNotEmpty)
-          Wrap(spacing: 4, children: [
-            for (final (index, genre) in genres.indexed) ...[
-              if (index > 0)
-                Text('|', style: TextStyle(color: palette.textMuted)),
-              link(genre, size: 14),
+        // Details sit beside the cover once both fit, as in the reference.
+        LayoutBuilder(builder: (context, constraints) {
+          final cover = ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 210, maxHeight: 300),
+            child: LibraryCoverImage(
+              title: title,
+              mediaKind: CatalogMediaKind.game,
+              imageUrl: metadata?.coverImageUrl,
+              libraryEntryRef: entry == null
+                  ? null
+                  : LibraryEntryRef(kind: CatalogMediaKind.game, id: entry.id),
+              fallbackAspectRatio: 0.7,
+              borderRadius: 0,
+            ),
+          );
+          final details =
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (platform.isNotEmpty || year != null)
+              Wrap(
+                  spacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    if (platform.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: GamePlatformTile(platform, size: 30),
+                      ),
+                    if (platform.isNotEmpty)
+                      link(platform, weight: kAppBoldFontWeight),
+                    if (year != null)
+                      link('($year)', weight: kAppBoldFontWeight),
+                  ]),
+            if (publishers.isNotEmpty) ...[
+              label('Publisher'),
+              for (final name in publishers) link(name),
             ],
-          ]),
-        if (entry != null) _GameValueBadge(entry: entry),
-        _GameEbayLink(
-            query: [title, if (platform.isNotEmpty) platform].join(' '),
-            isWishlisted: inspector.item.source.isWishlisted),
+            if (developers.isNotEmpty) ...[
+              label('Developer'),
+              for (final name in developers) link(name),
+            ],
+            if (summary.isNotEmpty || genres.isNotEmpty)
+              const SizedBox(height: 18),
+            if (summary.isNotEmpty)
+              Text(summary,
+                  style: TextStyle(fontSize: 14, color: palette.textPrimary)),
+            if (genres.isNotEmpty)
+              Wrap(spacing: 4, children: [
+                for (final (index, genre) in genres.indexed) ...[
+                  if (index > 0)
+                    Text('|', style: TextStyle(color: palette.textMuted)),
+                  link(genre, size: 14),
+                ],
+              ]),
+            if (entry != null) _GameValueBadge(entry: entry),
+            _GameEbayLink(
+                query: [title, if (platform.isNotEmpty) platform].join(' '),
+                isWishlisted: inspector.item.source.isWishlisted),
+          ]);
+          if (constraints.maxWidth < 440) {
+            return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [cover, const SizedBox(height: 12), details]);
+          }
+          return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            cover,
+            const SizedBox(width: 14),
+            Expanded(child: details),
+          ]);
+        }),
       ]),
     );
   }
