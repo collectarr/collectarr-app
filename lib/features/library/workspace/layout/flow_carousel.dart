@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/selection/state.dart';
 import 'package:collectarr_app/features/library/config/entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
@@ -23,15 +22,10 @@ class LibraryFlowCarousel extends StatefulWidget {
     super.key,
     required this.items,
     required this.selectedId,
-    required this.selectedAnchorId,
-    required this.selectedIds,
     required this.accent,
     required this.emptyBuilder,
     this.coverAspectRatio = 2 / 3,
-    this.selectionEnabled = true,
-    required this.onApplySelection,
     required this.onActivateItem,
-    required this.onToggleSelectionItem,
     required this.onOpenItem,
     this.onEditItem,
     this.onItemContextMenu,
@@ -39,17 +33,12 @@ class LibraryFlowCarousel extends StatefulWidget {
 
   final List<LibraryProjectionItem> items;
   final String? selectedId;
-  final String? selectedAnchorId;
-  final Set<String> selectedIds;
   final Color accent;
   final WidgetBuilder emptyBuilder;
 
   /// Cover width / height of the kind, kept by every card.
   final double coverAspectRatio;
-  final bool selectionEnabled;
-  final void Function(Set<String> ids, String focusedId) onApplySelection;
   final ValueChanged<String> onActivateItem;
-  final ValueChanged<String> onToggleSelectionItem;
   final ValueChanged<LibraryProjectionItem> onOpenItem;
   final ValueChanged<LibraryProjectionItem>? onEditItem;
   final LibraryFlowItemContextMenuCallback? onItemContextMenu;
@@ -80,8 +69,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
   void didUpdateWidget(covariant LibraryFlowCarousel oldWidget) {
     super.didUpdateWidget(oldWidget);
     final nextIndex = _resolvedIndex();
-    if (nextIndex != _currentIndex &&
-        (!widget.selectionEnabled || widget.selectedIds.isEmpty)) {
+    if (nextIndex != _currentIndex) {
       _currentIndex = nextIndex;
       if (_controller.hasClients) {
         _controller.animateToPage(
@@ -137,11 +125,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                 padEnds: true,
                                 onPageChanged: (index) {
                                   setState(() => _currentIndex = index);
-                                  if (!widget.selectionEnabled ||
-                                      widget.selectedIds.isEmpty) {
-                                    widget.onActivateItem(
-                                        widget.items[index].target.id);
-                                  }
+                                  widget.onActivateItem(
+                                      widget.items[index].target.id);
                                 },
                                 itemBuilder: (context, index) {
                                   final item = widget.items[index];
@@ -174,20 +159,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                         accent: widget.accent,
                                         coverAspectRatio:
                                             widget.coverAspectRatio,
-                                        selected: widget.selectionEnabled &&
-                                            widget.selectedIds
-                                                .contains(item.target.id),
-                                        selectionMode:
-                                            widget.selectionEnabled &&
-                                                widget.selectedIds.isNotEmpty,
                                         focused: index == _currentIndex,
                                         onTap: () => _handleTap(item, index),
-                                        onSelectionToggleTap: widget
-                                                .selectionEnabled
-                                            ? () =>
-                                                widget.onToggleSelectionItem(
-                                                    item.target.id)
-                                            : null,
                                         onDoubleTap: () =>
                                             widget.onOpenItem(item),
                                         onEditTap: widget.onEditItem == null
@@ -395,36 +368,6 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
       }
       return;
     }
-    if (!widget.selectionEnabled) {
-      widget.onActivateItem(item.target.id);
-      if (index != _currentIndex) {
-        _animateToPage(index);
-      }
-      return;
-    }
-    final isRangeSelection = _isRangeSelectionModifierPressed();
-    final isToggleSelection = _isToggleSelectionModifierPressed();
-    if (isRangeSelection) {
-      final anchorId =
-          widget.selectedAnchorId ?? widget.selectedId ?? item.target.id;
-      final orderedIds = [
-        for (final candidate in widget.items) candidate.target.id
-      ];
-      final rangeIds = selectionRangeItemIds(
-        orderedIds,
-        anchorId: anchorId,
-        targetId: item.target.id,
-      );
-      widget.onApplySelection(
-        isToggleSelection ? {...widget.selectedIds, ...rangeIds} : rangeIds,
-        item.target.id,
-      );
-      return;
-    }
-    if (isToggleSelection) {
-      widget.onToggleSelectionItem(item.target.id);
-      return;
-    }
     widget.onActivateItem(item.target.id);
     if (index != _currentIndex) {
       _animateToPage(index);
@@ -584,11 +527,8 @@ class _FlowCarouselCard extends StatefulWidget {
     required this.item,
     required this.accent,
     required this.coverAspectRatio,
-    required this.selected,
-    required this.selectionMode,
     required this.focused,
     required this.onTap,
-    this.onSelectionToggleTap,
     this.onEditTap,
     this.onDoubleTap,
     this.onSecondaryTapUp,
@@ -597,11 +537,8 @@ class _FlowCarouselCard extends StatefulWidget {
   final LibraryProjectionItem item;
   final Color accent;
   final double coverAspectRatio;
-  final bool selected;
-  final bool selectionMode;
   final bool focused;
   final VoidCallback onTap;
-  final VoidCallback? onSelectionToggleTap;
   final VoidCallback? onEditTap;
   final VoidCallback? onDoubleTap;
   final GestureTapUpCallback? onSecondaryTapUp;
@@ -633,8 +570,6 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
             palette.cardBackground,
           )
         : palette.panel;
-    final showSelectionToggle = widget.onSelectionToggleTap != null &&
-        (widget.selectionMode || widget.selected || _hovered);
     final showEditButton = _hovered && widget.onEditTap != null;
     // The card hugs a cover of the kind's aspect ratio, as tall as the stage
     // allows beneath it the title and subtitle, so the cover never gets bars.
@@ -670,12 +605,10 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                 color: cardColor,
                 borderRadius: kAppRadiusLarge,
                 border: Border.all(
-                  color: widget.selected
-                      ? palette.utilityAction
-                      : widget.focused
-                          ? widget.accent.withValues(alpha: 0.55)
-                          : palette.cardBorder,
-                  width: widget.selected ? 2.2 : 1.1,
+                  color: widget.focused
+                      ? widget.accent.withValues(alpha: 0.55)
+                      : palette.cardBorder,
+                  width: 1.1,
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -717,18 +650,6 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                               icon: Icons.edit_outlined,
                               tooltip: 'Edit item',
                               onTap: widget.onEditTap!,
-                            ),
-                          ),
-                        if (showSelectionToggle)
-                          Positioned(
-                            left: 8,
-                            bottom: 8,
-                            child: LibraryTileSelectionToggleButton(
-                              onTap: widget.onSelectionToggleTap,
-                              child: LibraryTileSelectionToggle(
-                                selected: widget.selected,
-                                accentColor: palette.utilityAction,
-                              ),
                             ),
                           ),
                       ],
@@ -912,13 +833,4 @@ class _FlowNavButton extends StatelessWidget {
       ),
     );
   }
-}
-
-bool _isRangeSelectionModifierPressed() {
-  return HardwareKeyboard.instance.isShiftPressed;
-}
-
-bool _isToggleSelectionModifierPressed() {
-  final keyboard = HardwareKeyboard.instance;
-  return keyboard.isControlPressed || keyboard.isMetaPressed;
 }
