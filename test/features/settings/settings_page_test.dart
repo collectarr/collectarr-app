@@ -152,6 +152,13 @@ void main() {
     await tester.tap(games);
     await pumpUntilSettled(tester);
     expect(find.text('Platform icons'), findsOneWidget);
+    expect(find.text('Custom label icons'), findsNothing);
+    final comics = find.byKey(const ValueKey('settings.kind.tab.comic'));
+    await tester.ensureVisible(comics);
+    await tester.tap(comics);
+    await pumpUntilSettled(tester);
+    expect(find.text('Custom label icons'), findsOneWidget);
+    expect(find.text('Platform icons'), findsNothing);
     // Let Drift finish cancelling the platform-image watch before teardown.
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
