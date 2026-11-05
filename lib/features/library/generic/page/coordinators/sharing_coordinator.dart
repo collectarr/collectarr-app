@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/selection/context.dart';
 import 'package:collectarr_app/features/library/reports/export_xml_flow.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/context.dart';
@@ -11,29 +13,42 @@ class LibraryPageSharingCoordinator {
 
   final LibraryPageCoordinatorContext _page;
 
-  void exportSelectedCsvTxtFlow(LibraryProjection? projection) {
+  Future<void> exportSelectedCsvTxtFlow(LibraryProjection? projection) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
-    exportCollectionCsvTxt(
+    final selected = LibrarySelectionContext.fromItems(
+        projection.filteredItems, _page.selection.itemIds);
+    final kind = selected.requireHomogeneous('This report');
+    final type = libraryKindRegistrationForKind(kind);
+
+    await exportCollectionCsvTxt(
       context: _page.context,
-      title: _page.type.identity.title,
-      items: projection.filteredItems,
-      type: _page.type,
-      allItems: projection.allItems,
+      title: type.identity.title,
+      items: projection.filteredItems
+          .where((item) => item.source.mediaKind == kind)
+          .toList(growable: false),
+      type: type,
+      allItems: projection.allItems
+          .where((item) => item.source.mediaKind == kind)
+          .toList(growable: false),
       selectedItemIds: _page.selection.itemIds,
     );
   }
 
-  void exportSelectedXmlFlow(LibraryProjection? projection) {
-    if (projection == null) return;
+  Future<void> exportSelectedXmlFlow(LibraryProjection? projection) async {
+    if (projection == null || _page.selection.itemIds.isEmpty) return;
+    final selected = LibrarySelectionContext.fromItems(
+        projection.filteredItems, _page.selection.itemIds);
+    final kind = selected.requireHomogeneous('This report');
+    final type = libraryKindRegistrationForKind(kind);
+
+    selected.requireEvery(
+        'Export XML', (entry) => entry.libraryEntryRef != null);
     final entries = [
-      for (final item in projection.allItems)
-        if (_page.selection.itemIds.contains(item.target.id) &&
-            item.source.libraryEntryRef != null)
-          item.source.libraryEntryRef!
+      for (final entry in selected.entries) entry.libraryEntryRef!
     ];
-    exportLibraryEntriesXml(
+    await exportLibraryEntriesXml(
         context: _page.context,
-        type: _page.type,
+        type: type,
         database: _page.ref.read(localDatabaseProvider),
         entries: entries);
   }

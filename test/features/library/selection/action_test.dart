@@ -28,7 +28,9 @@ void main() {
             action.action.id == 'music.merge' ||
             action.action.id == 'comic.keys'),
         false);
-    expect(actions.singleWhere((action) => action.action.id == 'edit').enabled,
+    expect(actions.any((action) => action.action.id == 'edit'), false);
+    expect(
+        actions.singleWhere((action) => action.action.id == 'remove').enabled,
         true);
   });
   test('invocation rechecks current targets before running a stale action',

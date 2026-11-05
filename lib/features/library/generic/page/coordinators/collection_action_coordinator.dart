@@ -1,8 +1,8 @@
+import 'package:collectarr_app/features/library/selection/context.dart';
 import 'package:collectarr_app/features/library/ui/item_confirmation.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 // ignore_for_file: use_build_context_synchronously
 import 'dart:async';
-import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/collections/repository.dart';
 import 'package:collectarr_app/features/library/collections/dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -216,9 +216,12 @@ class LibraryPageCollectionActionCoordinator {
 
   Future<void> bulkEditFlow(LibraryProjection? projection) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
+    final initial =
+        selectedShelfEntries(projection.filteredItems, _page.selection.itemIds);
+    final kind = LibrarySelectionContext(initial).requireHomogeneous('Edit');
     final selection = await _page.showBulkEditDialog(
       _page.context,
-      type: _page.type,
+      type: libraryKindRegistrationForKind(kind),
       selectedCount: _page.selection.selectedCount,
     );
     if (selection == null || !_page.mounted) return;
@@ -226,6 +229,8 @@ class LibraryPageCollectionActionCoordinator {
       projection.filteredItems,
       _page.selection.itemIds,
     );
+    LibrarySelectionContext(entries)
+        .requireEvery('Edit', (entry) => entry.mediaKind == kind);
     await _page
         .bulkActions()
         .editSelected(entries: entries, selection: selection);
@@ -234,28 +239,25 @@ class LibraryPageCollectionActionCoordinator {
   }
 
   bool canMergeSelection(LibraryProjection? projection) {
-    if (projection == null ||
-        libraryEntryPolicyForKind(_page.type.kind).mergeEntries == null) {
-      return false;
-    }
-    final selected = projection.filteredItems
-        .where((item) => _page.selection.itemIds.contains(item.target.id))
-        .toList();
-    return selected.length >= 2 &&
-        selected.every((item) => item.source.libraryEntryRef != null);
+    if (projection == null) return false;
+    final selected = LibrarySelectionContext.fromItems(
+        projection.filteredItems, _page.selection.itemIds);
+    final kind = selected.homogeneousKind;
+    return kind != null &&
+        libraryEntryPolicyForKind(kind).mergeEntries != null &&
+        selected.entries.length >= 2 &&
+        selected.every((entry) => entry.libraryEntryRef != null);
   }
 
   Future<void> mergeSelectionFlow(LibraryProjection? projection) async {
     if (!canMergeSelection(projection)) return;
-    final refs = [
-      for (final item in projection!.filteredItems)
-        if (_page.selection.itemIds.contains(item.target.id))
-          item.source.libraryEntryRef!
-    ];
+    final selected = LibrarySelectionContext.fromItems(
+        projection!.filteredItems, _page.selection.itemIds);
+    final kind = selected.requireHomogeneous('Merge');
+    final refs = [for (final entry in selected.entries) entry.libraryEntryRef!];
     try {
-      final kept =
-          await libraryEntryPolicyForKind(_page.type.kind).mergeEntries!(
-              _page.context, _page.ref.read(localDatabaseProvider), refs);
+      final kept = await libraryEntryPolicyForKind(kind).mergeEntries!(
+          _page.context, _page.ref.read(localDatabaseProvider), refs);
       if (kept == null || !_page.mounted) return;
       _page.rebuild(() {
         _page.clearSelection();
@@ -276,11 +278,13 @@ class LibraryPageCollectionActionCoordinator {
       projection.filteredItems,
       _page.selection.itemIds,
     );
+    final kind =
+        LibrarySelectionContext(entries).requireHomogeneous('Move to entry');
     final prefill = await PrefillDefaults.load();
     await _page.bulkActions().moveSelectedToEntry(
           entries,
           defaultCondition:
-              libraryEditPresentationForKind(_page.type.kind).defaultCondition,
+              libraryEditPresentationForKind(kind).defaultCondition,
           defaultLocationId: prefill.locationId,
           defaultTags: prefill.tags,
         );
@@ -296,20 +300,21 @@ class LibraryPageCollectionActionCoordinator {
 
   Future<void> _moveToCollection(
       LibraryProjection projection, Set<String> selectedIds) async {
-    final refs = projection.filteredItems
-        .where((item) => selectedIds.contains(item.target.id))
-        .map((item) => item.source.libraryEntryRef)
-        .whereType<LibraryEntryRef>()
-        .toList(growable: false);
-    if (refs.isEmpty) return;
+    final selection = LibrarySelectionContext.fromItems(
+        projection.filteredItems, selectedIds);
+    final kind = selection.requireHomogeneous('Move to collection');
+    selection.requireEvery(
+        'Move to collection', (entry) => entry.libraryEntryRef != null);
+    final refs = [
+      for (final entry in selection.entries) entry.libraryEntryRef!
+    ];
     final db = _page.ref.read(localDatabaseProvider);
-    final collections = await LibraryCollectionRepository(db)
-        .watch(_page.type.kind.apiValue)
-        .first;
+    final collections =
+        await LibraryCollectionRepository(db).watch(kind.apiValue).first;
     if (!_page.mounted) return;
     final destination = await chooseLibraryCollection(_page.context,
         db: db,
-        kind: _page.type.kind.apiValue,
+        kind: kind.apiValue,
         excluding: activeLibraryCollectionId(collections));
     if (destination == null || !_page.mounted) return;
     await LibraryCollectionRepository(db).move(refs, destination);

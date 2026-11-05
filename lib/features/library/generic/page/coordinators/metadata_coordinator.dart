@@ -1,4 +1,5 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
+import 'package:collectarr_app/features/library/kind_registry.dart';
+import 'package:collectarr_app/features/library/selection/context.dart';
 // ignore_for_file: use_build_context_synchronously
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
@@ -59,9 +60,12 @@ class LibraryPageMetadataCoordinator {
         if (_page.selection.itemIds.contains(item.target.id)) item,
     ];
     if (selectedEntries.isEmpty) return;
+    final kind = LibrarySelectionContext.fromItems(
+            projection.filteredItems, _page.selection.itemIds)
+        .requireHomogeneous('Update from Core');
     final result = await showLibraryMetadataRefreshDialog(
       context: _page.context,
-      type: _page.type,
+      type: libraryKindRegistrationForKind(kind),
       accent: _page.accent,
       allEntries: selectedEntries,
       shownEntries: selectedEntries,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/selection/context.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/sort_favorites_provider.dart';
 import 'dart:async';
@@ -428,17 +429,26 @@ class LibraryPageDialogCoordinator {
     LibraryProjection? projection,
   ) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
+    final selected = projection.filteredItems
+        .where((item) => _page.selection.itemIds.contains(item.target.id))
+        .toList(growable: false);
+    final selection =
+        LibrarySelectionContext.fromItems(selected, _page.selection.itemIds);
+    final kind = selection.requireHomogeneous('Transfer Field Data');
+    selection.requireEvery(
+        'Transfer Field Data',
+        (entry) =>
+            TransferableLibraryEntry.fromWorkspaceContext(entry) != null);
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final customFieldCache = await _page.ref.read(
-      libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
+      libraryCustomFieldCacheProvider(kind.apiValue).future,
     );
     final items = <TransferableLibraryEntry>{
-      for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.target.id))
-          if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
-              case final entry?)
-            entry,
+      for (final item in selected)
+        if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+            case final entry?)
+          entry,
     }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
@@ -449,15 +459,17 @@ class LibraryPageDialogCoordinator {
     final result = await showTransferFieldDataDialog(
       context: context,
       db: db,
-      type: _page.type,
+      type: libraryKindRegistrationForKind(kind),
       allItems: [
-        for (final item in projection.allItems)
+        for (final item in projection.allItems
+            .where((item) => item.source.mediaKind == kind))
           if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
               case final entry?)
             entry
       ],
       currentItems: [
-        for (final item in projection.filteredItems)
+        for (final item in projection.filteredItems
+            .where((item) => item.source.mediaKind == kind))
           if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
               case final entry?)
             entry
@@ -470,7 +482,7 @@ class LibraryPageDialogCoordinator {
     if (result != null && _page.mounted && context.mounted) {
       _page.ref.invalidate(shelfProvider);
       _page.ref.invalidate(
-        libraryCustomFieldCacheProvider(_page.type.kind.apiValue),
+        libraryCustomFieldCacheProvider(kind.apiValue),
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -487,6 +499,14 @@ class LibraryPageDialogCoordinator {
     LibraryProjection? projection,
   ) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
+    LibrarySelectionContext.fromItems(
+            projection.filteredItems, _page.selection.itemIds)
+        .requireEvery(
+            'Loan',
+            (entry) =>
+                entry.libraryEntrySummary != null &&
+                !_page.activeLoanLibraryEntryIds
+                    .contains(entry.libraryEntryRef));
     final context = _page.context;
     final entries = <LoanAddEntry>[];
     for (final item in projection.filteredItems) {

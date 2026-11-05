@@ -631,13 +631,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   LibrarySelectionContext _selectedTargets(LibraryProjection? projection) {
-    final ids = _session.selection.value.itemIds;
-    final entries = [
-      for (final item in projection?.filteredItems ?? <LibraryProjectionItem>[])
-        if (ids.contains(item.target.id)) item.source
-    ];
-    return LibrarySelectionContext(entries,
-        complete: entries.length == ids.length);
+    return LibrarySelectionContext.fromItems(
+        projection?.filteredItems ?? <LibraryProjectionItem>[],
+        _session.selection.value.itemIds);
   }
 
   bool _hasLibraryEntriesInSelection(LibraryProjection? projection) =>

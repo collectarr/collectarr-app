@@ -31,6 +31,7 @@ class LibraryBulkActions {
     required List<LibraryWorkspaceContext> entries,
     required LibraryBulkEditSelection selection,
   }) async {
+    LibrarySelectionContext(entries).requireHomogeneous('Edit');
     LibrarySelectionContext(entries)
         .requireEvery('Edit', (entry) => entry.libraryEntrySummary != null);
     final entryEntries = entries;
@@ -72,6 +73,7 @@ class LibraryBulkActions {
     String? defaultReadStatus,
     List<String>? defaultTags,
   }) async {
+    LibrarySelectionContext(entries).requireHomogeneous('Move to entry');
     LibrarySelectionContext(entries).requireEvery(
         'Move to entry', (entry) => entry.libraryEntrySummary == null);
     final commands = <AddLibraryEntryCommand>[];
@@ -226,8 +228,8 @@ List<LibraryWorkspaceContext> selectedShelfEntries(
   List<LibraryProjectionItem> visibleItems,
   Set<String> selectedItemIds,
 ) {
-  return [
-    for (final item in visibleItems)
-      if (selectedItemIds.contains(item.source.itemId)) item.source,
-  ];
+  final selected =
+      LibrarySelectionContext.fromItems(visibleItems, selectedItemIds);
+  selected.requireEvery('This action', (entry) => true);
+  return selected.entries;
 }
