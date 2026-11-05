@@ -258,7 +258,9 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
     if (pixelRatio <= 0.0) {
       return (widget.coverSize * 2).round().clamp(128, 768);
     }
-    final rawWidth = widget.coverSize * pixelRatio;
+    // Keep fine cover text and artwork above thumbnail resolution, then let
+    // the high-quality paint filter downsample once to the displayed size.
+    final rawWidth = widget.coverSize * pixelRatio * 2;
     return ((rawWidth / 64).ceil() * 64).toInt();
   }
 }
