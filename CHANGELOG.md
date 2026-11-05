@@ -111,7 +111,7 @@
 - The web app leaves zoom to the browser, so its zoom shortcuts and Ctrl + wheel change the browser's zoom instead of adding an app zoom that read 100 % on an already zoomed page.
 
 ### Refactors
-- Selection menus follow each library's declared actions consistently on desktop and mobile, with grouped menus, unavailable-action explanations and validation when actions are executed.
+- Selection menus share the same kind-specific actions, groups and availability explanations on desktop and mobile, and validate every selected item before execution.
 - Library kinds choose their Cover, Card, Flow and Shelf layouts, sharing cover loading, status, navigation and selection behavior.
 - Flow browsing keeps single-item navigation independent of bulk selection and lets each library define its item details.
 - Library card layouts can evolve per kind while sharing selection and other card interactions.

@@ -454,7 +454,7 @@ abstract final class LibraryPageShellPresenter {
               : state._selectionActionsForProjection(projection),
           selectionCallbacks: viewState.viewMode == LibraryViewMode.cardFlow
               ? null
-              : selectionCallbacksForProjection(state, projection),
+              : state._selectionStateCallbacksForProjection(projection),
           selectedCount: viewState.viewMode == LibraryViewMode.cardFlow
               ? 0
               : state._session.selection.value.selectedCount,
@@ -464,7 +464,7 @@ abstract final class LibraryPageShellPresenter {
     );
   }
 
-  static LibrarySelectionCallbacks selectionCallbacksForProjection(
+  static LibrarySelectionCommands selectionCommandsForProjection(
     GenericLibraryPageState state,
     LibraryProjection? projection,
   ) {

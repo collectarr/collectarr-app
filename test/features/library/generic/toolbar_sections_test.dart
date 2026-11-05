@@ -39,7 +39,7 @@ void main() {
               body: LibrarySelectionToolbarBand(
         selectedCount: 2,
         totalSelectableCount: 8,
-        callbacks: callbacks,
+        callbacks: testSelectionStateCallbacks(callbacks),
         actions: testSelectionActions(callbacks,
             kind: label == 'Comics'
                 ? CatalogMediaKind.comic
@@ -104,7 +104,7 @@ void main() {
             body: LibrarySelectionToolbarBand(
                 selectedCount: 1,
                 totalSelectableCount: 3,
-                callbacks: callbacks,
+                callbacks: testSelectionStateCallbacks(callbacks),
                 actions: testSelectionActions(callbacks)))));
     final edit = find.widgetWithText(TextButton, 'Edit');
     expect(tester.widget<TextButton>(edit).onPressed, isNull);
@@ -155,7 +155,7 @@ void main() {
           body: LibrarySelectionToolbarBand(
             selectedCount: 3,
             totalSelectableCount: 12,
-            callbacks: callbacks,
+            callbacks: testSelectionStateCallbacks(callbacks),
             actions: testSelectionActions(callbacks),
           ),
         ),
@@ -462,7 +462,7 @@ void main() {
           body: LibrarySelectionToolbarBand(
             selectedCount: 5,
             totalSelectableCount: 20,
-            callbacks: callbacks,
+            callbacks: testSelectionStateCallbacks(callbacks),
             actions: testSelectionActions(callbacks),
           ),
         ),

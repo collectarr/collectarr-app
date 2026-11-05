@@ -266,7 +266,7 @@ class LibraryToolbar extends StatelessWidget {
   final bool selectionEnabled;
   final int selectedCount;
   final int totalSelectableCount;
-  final LibrarySelectionCallbacks? selectionCallbacks;
+  final LibrarySelectionStateCallbacks? selectionCallbacks;
   final List<ResolvedLibrarySelectionAction> selectionActions;
   final VoidCallback? onSmartLists;
   final VoidCallback? onFolders;

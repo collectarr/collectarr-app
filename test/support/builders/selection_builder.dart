@@ -7,7 +7,7 @@ import 'library_entry_builder.dart';
 import 'workspace_item_builder.dart';
 
 List<ResolvedLibrarySelectionAction> testSelectionActions(
-        LibrarySelectionCallbacks commands,
+        LibrarySelectionCommands commands,
         {CatalogMediaKind kind = CatalogMediaKind.music,
         bool owned = true}) =>
     resolveLibrarySelectionActions(
@@ -29,7 +29,7 @@ List<ResolvedLibrarySelectionAction> testSelectionActions(
           libraryToolbarForKind(kind)?.selectionActions ?? const [],
     );
 
-LibrarySelectionCallbacks testSelectionCommands(
+LibrarySelectionCommands testSelectionCommands(
         {LibrarySelectionCommand? edit,
         LibrarySelectionCommand? remove,
         LibrarySelectionCommand? merge}) =>
@@ -51,4 +51,11 @@ LibrarySelectionCallbacks testSelectionCommands(
       onMoveToCollection: null,
       onBulkRemove: remove,
       onBulkRefreshMetadata: null,
+    );
+
+LibrarySelectionStateCallbacks testSelectionStateCallbacks(
+        LibrarySelectionCommands commands) =>
+    (
+      onClearSelection: commands.onClearSelection,
+      onSelectAll: commands.onSelectAll
     );

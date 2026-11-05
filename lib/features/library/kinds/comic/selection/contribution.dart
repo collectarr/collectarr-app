@@ -29,5 +29,5 @@ const _keys = LibrarySelectionAction(
     scopes: {LibrarySelectionTargetScope.entry},
     unavailableMessage: 'Key info updates are not available',
     order: 115);
-LibrarySelectionCommand? _keysCommand(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _keysCommand(LibrarySelectionCommands commands) =>
     commands.onBulkUpdateKeyInfo;
