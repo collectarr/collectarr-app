@@ -146,6 +146,11 @@ void main() {
 
     expect(find.text('Application Skin'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
+    expect(find.text('Platform icons'), findsNothing);
+    final games = find.byKey(const ValueKey('settings.kind.tab.games'));
+    await tester.ensureVisible(games);
+    await tester.tap(games);
+    await pumpUntilSettled(tester);
     expect(find.text('Platform icons'), findsOneWidget);
     // Let Drift finish cancelling the platform-image watch before teardown.
     await tester.pumpWidget(const SizedBox.shrink());

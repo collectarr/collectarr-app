@@ -8,7 +8,6 @@ import 'ebay_search_preferences.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/settings/local_font_settings_panel.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/features/settings/platform_icons_settings_panel.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
@@ -468,10 +467,6 @@ class _SettingsAppearanceSectionState
             right: [
               autoCap,
               ebay,
-              const SettingsPanel(
-                  icon: Icons.sports_esports_outlined,
-                  title: 'Platform icons',
-                  child: PlatformIconsSettingsPanel()),
             ],
             footer: SettingsResetAction(
                 label: 'Reset customization defaults',

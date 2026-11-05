@@ -1,6 +1,6 @@
 // Downloads public-domain platform logos from Wikimedia Commons into a
 // folder of your choice, each named after its platform, ready for
-// Settings > Appearance > Platform icons > Load icons from files.
+// Settings > Customization > Games > Platform icons > Load icons from files.
 //
 //   dart run tool/download_platform_logos.dart <output folder>
 //

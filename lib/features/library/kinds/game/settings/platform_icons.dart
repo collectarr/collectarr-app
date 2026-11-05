@@ -1,9 +1,17 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:collectarr_app/features/settings/settings_reference_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+Widget buildGamePlatformIconsSettings(
+        BuildContext context, CatalogMediaKind kind) =>
+    const Padding(
+        padding: EdgeInsets.only(top: 14),
+        child: SettingsGroup(
+            legend: 'Platform icons', child: PlatformIconsSettingsPanel()));
 
 /// Platform icons the user loads from their own files, each named after its
 /// platform ("Nintendo Switch.svg"). Collectarr ships only free logos; a

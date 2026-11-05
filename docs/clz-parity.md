@@ -91,7 +91,7 @@ Keep these when matching the reference visually.
 
 ### Deliberate Games behavior
 
-- Platform icons are CC0 Simple Icons logos where one exists (PlayStation with its generation, PSP, Vita, Steam, Steam Deck, Sega, Atari, Apple, Linux, Android) and Collectarr glyphs otherwise (Xbox, Nintendo, PC). Users can replace them with their own SVG or raster files in Settings > Customization > Platform icons. CLZ's own platform images are never copied; see `assets/LOGOS.md`.
+- Platform icons are CC0 Simple Icons logos where one exists (PlayStation with its generation, PSP, Vita, Steam, Steam Deck, Sega, Atari, Apple, Linux, Android) and Collectarr glyphs otherwise (Xbox, Nintendo, PC). Users can replace them with their own SVG or raster files in Settings > Customization > Games > Platform icons. CLZ's own platform images are never copied; see `assets/LOGOS.md`.
 - Games, Hardware and Toys expose only their own fields. CLZ also shows generic Games columns and Toy folders across inventory types; Collectarr keeps Toy classification exclusively in Toys.
 - Without a recorded amount for a newly chosen completeness tier, preserve the
   manually entered value. A locked value also survives tier changes. Choosing
@@ -123,7 +123,7 @@ Keep these when matching the reference visually.
 
 For optional local artwork, run
 `dart run tool/download_platform_logos.dart <output folder>`, then load the
-files from Settings > Customization > Platform icons. The helper skips files
+files from Settings > Customization > Games > Platform icons. The helper skips files
 unless Commons marks them public domain, excludes Windows and Xbox, and
 never opens a collection database. Keep downloaded artwork outside the
 repository or in the ignored `local-assets/` directory. Public-domain

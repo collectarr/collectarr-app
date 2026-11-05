@@ -167,6 +167,7 @@ void main() {
         await tester.tap(find.widgetWithText(ListTile, 'Customization'));
         await tester.pumpAndSettle();
       }
+      expect(find.text('Platform icons'), findsNothing);
       final games = find.byKey(const ValueKey('settings.kind.tab.games'));
       expect(games, findsOneWidget);
       expect(find.byKey(const ValueKey('settings.kind.tab.game_hardware')),
@@ -176,6 +177,8 @@ void main() {
       await tester.ensureVisible(games);
       await tester.tap(games);
       await tester.pumpAndSettle();
+      expect(find.text('Platform icons'), findsOneWidget);
+      expect(find.text('Load icons from files...'), findsOneWidget);
       for (final kind in ['game', 'game_hardware', 'game_toy']) {
         expect(
             find.byKey(ValueKey('settings.kind.layout.$kind')), findsOneWidget);
@@ -184,6 +187,7 @@ void main() {
       await tester.ensureVisible(music);
       await tester.tap(music);
       await tester.pumpAndSettle();
+      expect(find.text('Platform icons'), findsNothing);
       expect(find.byKey(const ValueKey('settings.kind.layout.music')),
           findsOneWidget);
       expect(find.text('Add/Update from Core settings'), findsOneWidget);
