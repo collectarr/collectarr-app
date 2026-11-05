@@ -35,4 +35,34 @@ void main() {
     expect(picked, 'b');
     expect(find.text('Alpha'), findsNothing);
   });
+
+  testWidgets('option text starts at the field value and groups are indented',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        theme: buildLibraryTheme(),
+        home: Scaffold(
+            body: Align(
+                alignment: Alignment.topLeft,
+                child: SizedBox(
+                    width: 200,
+                    child: AppSelect<String>(
+                        value: 'c',
+                        decoration: const InputDecoration(
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 7)),
+                        options: const [
+                          ('g', 'Group'),
+                          ('c', 'City'),
+                          ('o', 'Other'),
+                        ],
+                        isOptionEnabled: (value) => value != 'g',
+                        onChanged: (_) {}))))));
+    final fieldText = tester.getTopLeft(find.text('City')).dx;
+    await tester.tap(find.text('City'));
+    await tester.pumpAndSettle();
+    final group = tester.getTopLeft(find.text('Group')).dx;
+    final city = tester.getTopLeft(find.text('City').last).dx;
+    expect(group, fieldText);
+    expect(city - group, 20);
+  });
 }

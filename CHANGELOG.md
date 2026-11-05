@@ -64,6 +64,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Select lists use the same text style and left edge as the selected value, and entries under a group label are indented, as in the Time zone list.
 - Covers and Shelves retain finer image detail by decoding higher-resolution artwork before scaling it to the displayed size.
 - Checked covers and shelf items keep the selection tint on the cover without adding blue side bands; the active item's frame remains distinct.
 - Selection checkboxes use distinct cover, card and list styles, with matching contrast and filled or outlined marks for each view.

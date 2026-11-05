@@ -77,6 +77,26 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
             fontWeight: FontWeight.w400,
             height: 20 / 14);
     final enabled = widget.onChanged != null;
+    final contentPadding =
+        widget.decoration.contentPadding?.resolve(Directionality.of(context));
+    // Filled and outlined fields set the value 4 px in from the content
+    // padding (Flutter's input gap); the list text follows the value.
+    final decoration = widget.decoration;
+    final theme = Theme.of(context).inputDecorationTheme;
+    final boxed = (decoration.filled ?? theme.filled) ||
+        (decoration.border ?? theme.border)?.isOutline == true;
+    final valueInset = (contentPadding?.left ?? 7) + (boxed ? 4 : 0);
+    // Options listed after a disabled one sit under it as a group and are
+    // indented, as the reference indents entries below a group label.
+    final grouped = <T>{};
+    var inGroup = false;
+    for (final (option, _) in widget.options) {
+      if (!(widget.isOptionEnabled?.call(option) ?? true)) {
+        inGroup = true;
+      } else if (inGroup) {
+        grouped.add(option);
+      }
+    }
     final menuColor =
         palette.isDark ? const Color(0xFF444444) : palette.surface;
     final outline = palette.isDark ? const Color(0xFF666666) : palette.divider;
@@ -106,8 +126,11 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
                 maximumSize: WidgetStatePropertyAll(Size(width, _rowHeight)),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 visualDensity: VisualDensity.compact,
-                padding: const WidgetStatePropertyAll(
-                    EdgeInsets.symmetric(horizontal: 7)),
+                // The text lines up with the field's value, which sits at the
+                // decoration's left padding.
+                padding: WidgetStatePropertyAll(EdgeInsets.only(
+                    left: valueInset + (grouped.contains(option) ? 20 : 0),
+                    right: valueInset)),
                 shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
                 foregroundColor: WidgetStateProperty.resolveWith((states) =>
                     states.contains(WidgetState.disabled)
@@ -126,7 +149,7 @@ class _AppSelectState<T> extends State<AppSelect<T>> {
                   : null,
               child: Align(
                   alignment: Alignment.centerLeft,
-                  child: _optionContent(option, label)),
+                  child: _optionContent(option, label, style: textStyle)),
             ),
         ],
         child: MouseRegion(
