@@ -251,11 +251,11 @@ camera/barcode flows, landscape, gesture navigation, larger system text and ligh
 | Priority | Area | Difference |
 | --- | --- | --- |
 | P2 | Import sources | Delicious Library, Game Collector, PriceCharting and Game Collector user-defined fields appear as unavailable placeholders until verified exports are available; CLZ supports those imports |
-| P3 | Add Games platform filter | CLZ shows the chosen platform's logo and short name beside the title field (Windows logo, "PC") and remembers it; Collectarr shows "All" with no logo. The CLZ region bar (All, US, EU, AU, JP, Other) is dimmed until a game is chosen; Collectarr's is lit from the start |
+| P3 | Add Games collection filter | CLZ's In Collection lists matches at once; Core does not know the local collection, so Collectarr filters the loaded pages and offers Load more instead of fetching a whole platform |
+| P3 | Vertical card value | At the smallest card size a long currency label such as "US$" shortens the value pill; CLZ's default cards are wider |
 | P2 | Platform vocabulary | CLZ offers about 225 platforms with short names (Wii, PSP, SNES, Genesis / Mega Drive, Nintendo Switch 2); Collectarr's Pick Platform uses its 27 built-in names (Nintendo Wii, PlayStation Portable, ...). Renaming them changes stored entry values and needs an ordered migration, so it is an owner decision |
 | P2 | Pick lists | CLZ: Audience Rating, Condition, Developer, Format, Genre, Image Type, Loaned To, Location, Owner, Platform, Publisher, Purchase Store, Region, Series, Storage Device, Sub Type, Tag. The unused Age Rating and "Edition / Format" lists were removed (2026-10-23). Collectarr still adds Sold To (its own Sold fields) and has no Image Type list for My Images |
 | P3 | Column chooser gaps | Games has no Back Cover image, Description, eBay, Core GameID/MediaID or Toy NFCID columns. Collectarr keeps its Status, Wishlist, Franchise and Box/Manual Only value columns |
-| P3 | Details and value | CLZ shows "Find sold listings on eBay" under the value box; Collectarr shows "Search eBay" at the end of the panel. The value itself now reads like CLZ's ("$ 17.58") |
 
 ## Not yet compared live
 
@@ -265,7 +265,7 @@ flows and Windows native rendering. Pick Lists opens the Artist list directly
 instead of an empty selector. Opening a menu does not establish its save
 behavior.
 
-- Games: every sort/group combination with populated records, every Personal
+- Games: Add Games Title results beside CLZ's in one session, every sort/group combination with populated records, every Personal
   pick-list save path, native file selection in Covers, trailer playback.
 - Comics: a comic with every field filled in the details panel, rows for
   unlinked comics in Link Comics, and Submit to Core's wording. The reference

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Docs
+- The CLZ parity guide lists the remaining differences of Add Games' Platform tab and game cards.
 - The asset guide documents ignored local icon folders and loading their images through Games and Comics settings.
 - The Android parity guide records the remaining sort defaults, font metrics, empty states and populated inspector and Action-menu differences.
 - The parity guide distinguishes CLZ web's slab fonts from its general interface font.
