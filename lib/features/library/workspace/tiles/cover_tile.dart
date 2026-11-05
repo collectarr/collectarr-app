@@ -1,3 +1,4 @@
+import 'card_presentation.dart';
 import 'package:collectarr_app/features/library/config/entry_helpers.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
@@ -14,9 +15,12 @@ import 'package:collectarr_app/features/library/workspace/tiles/item_status_badg
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+enum LibraryCoverSurface { grid, shelf }
+
 class LibraryCoverTile extends StatefulWidget {
   const LibraryCoverTile({
     required this.item,
+    this.surface = LibraryCoverSurface.grid,
     required this.active,
     required this.selected,
     required this.selectionMode,
@@ -36,6 +40,7 @@ class LibraryCoverTile extends StatefulWidget {
   });
 
   final LibraryProjectionView item;
+  final LibraryCoverSurface surface;
   final bool active;
   final bool selected;
   final bool selectionMode;
@@ -127,31 +132,52 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
                           onDoubleTap: widget.onDoubleTap,
                           onLongPress: widget.onLongPress,
                           onSecondaryTapUp: widget.onSecondaryTapUp,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Opacity(
-                                  opacity: selected ? .5 : 1,
-                                  child: wrapCover(LibraryInteractiveCover(
-                                    title: dto.primaryLabel,
-                                    mediaKind: item.source.mediaKind,
-                                    itemNumber: presentation.itemNumber,
-                                    imageUrl: dto.imageUrl,
-                                    libraryEntryRef:
-                                        item.source.libraryEntryRef,
-                                    targetCacheWidth: targetCacheWidth,
-                                    fallbackAspectRatio:
-                                        widget.fallbackCoverAspectRatio,
-                                    accentColor: widget.accentColor,
-                                    fit: BoxFit.contain,
-                                    enableFullscreen: false,
-                                    enableSecondaryControl: false,
-                                    showFrame: false,
-                                  )),
-                                ),
+                          child: Opacity(
+                            opacity: selected ? .5 : 1,
+                            child: LibraryItemContent(
+                              view: widget.surface == LibraryCoverSurface.grid
+                                  ? LibraryItemContentView.cover
+                                  : LibraryItemContentView.shelf,
+                              data: LibraryCardBodyData(
+                                item: item,
+                                presentation: presentation,
+                                selected: selected,
+                                active: widget.active,
+                                showHeadline: true,
+                                titleColor: palette.itemTitle,
+                                detailColor: palette.textMuted,
+                                mutedColor: palette.textMuted,
+                                customFieldBadges: item.customFieldBadges,
+                                coverWidth: widget.coverSize,
+                                pillStatus: LibraryItemStatusBadge(
+                                    item: item,
+                                    selected: selected,
+                                    style:
+                                        LibraryCollectionStatusMarkStyle.pill),
+                                coverStatus: LibraryItemStatusBadge(
+                                    item: item,
+                                    selected: selected,
+                                    style:
+                                        LibraryCollectionStatusMarkStyle.cover),
+                                buildCover: ({required alignment}) =>
+                                    wrapCover(LibraryInteractiveCover(
+                                  title: dto.primaryLabel,
+                                  mediaKind: item.source.mediaKind,
+                                  itemNumber: presentation.itemNumber,
+                                  imageUrl: dto.imageUrl,
+                                  libraryEntryRef: item.source.libraryEntryRef,
+                                  targetCacheWidth: targetCacheWidth,
+                                  fallbackAspectRatio:
+                                      widget.fallbackCoverAspectRatio,
+                                  accentColor: widget.accentColor,
+                                  fit: BoxFit.contain,
+                                  alignment: alignment,
+                                  enableFullscreen: false,
+                                  enableSecondaryControl: false,
+                                  showFrame: false,
+                                )),
                               ),
-                            ],
+                            ),
                           ),
                         ),
                         if (showEditButton)

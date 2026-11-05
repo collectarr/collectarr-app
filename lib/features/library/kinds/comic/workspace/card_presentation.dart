@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/dto.dart';
@@ -56,6 +57,21 @@ LibraryCardPresentation buildComicCardPresentation(
   );
 
   return LibraryCardPresentation(
+    coverBodyBuilder: buildStandardCoverContent,
+    flowBodyBuilder: buildStandardFlowContent,
+    flowFooterBuilder: (context, data) => buildStandardFlowFooter(context, data,
+        title: item.dto.primaryLabel,
+        meta: libraryFlowSubtitle([
+          comicDto?.seriesTitle,
+          comicDto?.artist,
+          comicDto?.publisher,
+          libraryFlowDate(comicDto?.releaseDate),
+          comicDto?.format
+        ]),
+        numberLabel: (comicDto?.itemNumber?.trim().isNotEmpty ?? false)
+            ? '#${comicDto?.itemNumber}'
+            : null),
+    shelfBodyBuilder: buildStandardShelfContent,
     flowSubtitle: libraryFlowSubtitle([
       if (comicDto?.itemNumber?.trim().isNotEmpty ?? false)
         '#${comicDto?.itemNumber}',

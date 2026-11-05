@@ -27,3 +27,7 @@ flutter test test/domain
 The preferred shape is an explicit call such as
 `runMediaPersistenceContract(ComicPersistenceFixture())`, not a dynamic loop
 over runtime kind objects.
+
+Item content contracts include a synthetic presentation contribution that replaces all five view bodies and the Flow footer through the existing registration seam. Selection contracts cover mixed-kind intersections, stale target validation and asynchronous failures. Settings contracts cover scopes, inheritance, explicit false/null, reset, disabled modules, migration/reload and invalid stored values.
+
+`test/features/library/workspace/tiles/content_golden_test.dart` exercises Music, Games and Comics in Cover, vertical/horizontal cards, Flow and Shelf on Windows and Android widget targets. Each fixture includes isolated catalog, owned and wishlist states, missing images, selection and long labels; Comics includes a slabbed cover. The 30 reference PNGs were compared byte-for-byte against the pre-separation implementation in a temporary checkout. Golden tests use deterministic Flutter test typography; physical-device font rasterization is outside this pixel comparison. Source assertions separately verify labels, grade fonts, selection behavior and item-bound cover fallbacks.

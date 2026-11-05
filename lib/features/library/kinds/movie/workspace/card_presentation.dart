@@ -12,6 +12,20 @@ LibraryCardPresentation buildMovieCardPresentation(
   final movieDto =
       item.dto is MovieWorkspaceDto ? item.dto as MovieWorkspaceDto : null;
   return LibraryCardPresentation(
+    coverBodyBuilder: buildStandardCoverContent,
+    flowBodyBuilder: buildStandardFlowContent,
+    flowFooterBuilder: (context, data) => buildStandardFlowFooter(context, data,
+        title: item.dto.primaryLabel,
+        meta: libraryFlowSubtitle([
+          movieDto?.seriesTitle,
+          movieDto?.studio ?? movieDto?.publisher,
+          libraryFlowDate(movieDto?.releaseDate),
+          movieDto?.format
+        ]),
+        numberLabel: (movieDto?.itemNumber?.trim().isNotEmpty ?? false)
+            ? '#${movieDto?.itemNumber}'
+            : null),
+    shelfBodyBuilder: buildStandardShelfContent,
     horizontalBodyBuilder: buildStandardHorizontalCardBody,
     verticalBodyBuilder: buildStandardVerticalCardBody,
     verticalSubtitle: movieDto?.format ??

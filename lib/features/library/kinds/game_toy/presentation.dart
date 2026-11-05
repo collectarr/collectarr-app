@@ -1,12 +1,10 @@
-import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
+import 'workspace/card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
-import 'inspector/sections.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
 import 'workspace/dto.dart';
 
 final class GameToyPresentationBuilder extends LibraryMediaPresentationBuilder {
@@ -39,32 +37,10 @@ final class GameToyPresentationBuilder extends LibraryMediaPresentationBuilder {
         LibraryDetailField(label: 'Subtype', value: value),
     ], sections: const {});
   }
-
-  @override
-  LibraryCardPresentation buildCardPresentation(LibraryProjectionView item,
-      {bool coverFocused = false}) {
-    final dto = item.dto as GameToyWorkspaceDto;
-    final personal = dto.entry?.personal;
-    return LibraryCardPresentation(
-        horizontalBodyBuilder: buildStandardHorizontalCardBody,
-        verticalBodyBuilder: buildStandardVerticalCardBody,
-        verticalSubtitle: dto.metadata.toyType ??
-            item.dto.secondaryLabel ??
-            dto.metadata.seriesTitle,
-        verticalSubtitleEmphasized: dto.metadata.toyType != null,
-        verticalTrailing:
-            personal == null ? null : gameToyValueSummary(personal),
-        flowSubtitle: libraryFlowSubtitle([dto.metadata.toyType]),
-        detailLine: dto.metadata.releaseDateParts?.isoString,
-        seriesTitle: dto.metadata.seriesTitle,
-        format: dto.metadata.toyType,
-        valueLabel: personal == null ? null : gameToyValueSummary(personal),
-        synopsis: dto.metadata.description,
-        identifierCode: dto.metadata.barcode);
-  }
 }
 
 final gameToyLibraryMediaPresentation = LibraryMediaPresentation(
+    cardPresentationBuilder: buildGameToyCardPresentation,
     searchFieldLabels: const LibraryMediaSearchFieldLabels(
         queryHint: 'Enter title...',
         libraryHint: 'Search Toys...',

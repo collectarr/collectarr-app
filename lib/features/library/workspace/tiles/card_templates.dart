@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -255,3 +256,131 @@ class _StandardVerticalCardBody extends StatelessWidget {
     );
   }
 }
+
+Widget buildStandardCoverContent(
+        BuildContext context, LibraryCardBodyData data) =>
+    data.buildCover(alignment: Alignment.center);
+Widget buildStandardShelfContent(
+        BuildContext context, LibraryCardBodyData data) =>
+    data.buildCover(alignment: Alignment.center);
+
+Widget buildStandardFlowContent(
+    BuildContext context, LibraryCardBodyData data) {
+  final title = data.item.dto.primaryLabel;
+  final subtitle = data.presentation.flowSubtitle ?? '';
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      data.buildCover(alignment: Alignment.center),
+      const SizedBox(height: 14),
+      Text(
+        title,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w900,
+              color: kLibraryCardTitleColor,
+              height: 1.2,
+            ),
+      ),
+      if (subtitle.isNotEmpty) ...[
+        const SizedBox(height: 6),
+        Text(
+          subtitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: appPalette(context).textMuted,
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+      ],
+    ],
+  );
+}
+
+Widget buildStandardFlowFooter(BuildContext context, LibraryFlowFooterData data,
+    {required String title, required String meta, String? numberLabel}) {
+  final palette = appPalette(context);
+  return DecoratedBox(
+    decoration: BoxDecoration(
+      color: palette.panel,
+      borderRadius: kAppRadiusLarge,
+      border: Border.all(color: palette.cardBorder),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${data.index + 1} / ${data.total}',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: data.accent,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.6,
+                          ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      title,
+                      key: const ValueKey('flow-carousel-footer-title'),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: kLibraryCardTitleColor,
+                            fontWeight: FontWeight.w900,
+                          ),
+                    ),
+                    if (meta.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        meta,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: appPalette(context).textMuted,
+                            ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (numberLabel != null && numberLabel.trim().isNotEmpty)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: data.accent.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(999),
+                    border:
+                        Border.all(color: data.accent.withValues(alpha: 0.35)),
+                  ),
+                  child: Text(
+                    numberLabel,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: palette.textPrimary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+String? libraryFlowDate(DateTime? date) => date == null
+    ? null
+    : '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_fields.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -14,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/dto.da
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
 
 class BoardGameLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
@@ -23,45 +21,6 @@ class BoardGameLibraryMediaPresentationBuilder
   });
 
   final LibraryMetadataLabels metadataLabels;
-
-  @override
-  LibraryCardPresentation buildCardPresentation(
-    LibraryProjectionView item, {
-    bool coverFocused = false,
-  }) {
-    final dto = item.dto is BoardGameWorkspaceDto
-        ? item.dto as BoardGameWorkspaceDto
-        : null;
-    return LibraryCardPresentation(
-      horizontalBodyBuilder: buildStandardHorizontalCardBody,
-      verticalBodyBuilder: buildStandardVerticalCardBody,
-      verticalSubtitle: dto?.format ??
-          item.dto.secondaryLabel ??
-          dto?.seriesTitle ??
-          [dto?.publisher]
-              .whereType<String>()
-              .where((s) => s.trim().isNotEmpty)
-              .firstOrNull,
-      verticalSubtitleEmphasized: dto?.format != null,
-      verticalTrailing: dto?.releaseDate?.year.toString(),
-      flowSubtitle: libraryFlowSubtitle([
-        if (dto?.itemNumber?.trim().isNotEmpty ?? false) '#${dto?.itemNumber}',
-        dto?.format,
-        dto?.releaseDate?.year.toString()
-      ]),
-      itemNumber: dto?.itemNumber,
-      variant: dto?.variant,
-      releaseDate: dto?.releaseDate,
-      format: dto?.format,
-      synopsis: dto?.synopsis,
-      seriesTitle: dto?.seriesTitle,
-      identifierCode: dto?.identifierCode,
-      currency: dto?.currency,
-      contextFacts: [
-        dto?.publisher,
-      ].whereType<String>().where((value) => value.trim().isNotEmpty).toList(),
-    );
-  }
 
   @override
   String? buildAddPreviewItemNumber({

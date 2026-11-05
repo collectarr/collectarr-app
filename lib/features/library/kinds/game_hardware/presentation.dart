@@ -1,13 +1,11 @@
-import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
+import 'workspace/card_presentation.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
-import 'inspector/sections.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/details/models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
 import 'workspace/dto.dart';
 
 final class GameHardwarePresentationBuilder
@@ -41,33 +39,10 @@ final class GameHardwarePresentationBuilder
         LibraryDetailField(label: 'Hardware Type', value: value),
     ], sections: const {});
   }
-
-  @override
-  LibraryCardPresentation buildCardPresentation(LibraryProjectionView item,
-      {bool coverFocused = false}) {
-    final dto = item.dto as GameHardwareWorkspaceDto;
-    final personal = dto.entry?.personal;
-    return LibraryCardPresentation(
-        horizontalBodyBuilder: buildStandardHorizontalCardBody,
-        verticalBodyBuilder: buildStandardVerticalCardBody,
-        verticalSubtitle: dto.metadata.platform ??
-            item.dto.secondaryLabel ??
-            dto.metadata.seriesTitle,
-        verticalSubtitleEmphasized: dto.metadata.platform != null,
-        verticalTrailing:
-            personal == null ? null : gameHardwareValueSummary(personal),
-        flowSubtitle: libraryFlowSubtitle([dto.metadata.platform]),
-        detailLine: dto.metadata.releaseDateParts?.isoString,
-        seriesTitle: dto.metadata.seriesTitle,
-        format: dto.metadata.platform,
-        valueLabel:
-            personal == null ? null : gameHardwareValueSummary(personal),
-        synopsis: dto.metadata.description,
-        identifierCode: dto.metadata.barcode);
-  }
 }
 
 final gameHardwareLibraryMediaPresentation = LibraryMediaPresentation(
+    cardPresentationBuilder: buildGameHardwareCardPresentation,
     searchFieldLabels: const LibraryMediaSearchFieldLabels(
         queryHint: 'Enter title...',
         libraryHint: 'Search Hardware...',

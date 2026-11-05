@@ -28,7 +28,7 @@ class LibraryMediaPresentation {
     required this.groupLabels,
     required this.builder,
     required this.bucketLabelBuilder,
-    this.cardPresentationBuilder,
+    required this.cardPresentationBuilder,
     this.quickViewMatcher,
     this.compactBucketIcon = Icons.folder,
     this.previewLabels = const LibraryMediaPreviewLabels(),
@@ -51,7 +51,7 @@ class LibraryMediaPresentation {
   final LibraryPresentationLabels groupLabels;
   final LibraryMediaPresentationBuilder builder;
   final LibraryBucketLabelBuilder bucketLabelBuilder;
-  final LibraryCardPresentationBuilder? cardPresentationBuilder;
+  final LibraryCardPresentationBuilder cardPresentationBuilder;
   final LibraryQuickViewMatcher? quickViewMatcher;
   final IconData compactBucketIcon;
   final LibraryMediaPreviewLabels previewLabels;
@@ -79,14 +79,6 @@ class LibraryMediaPresentation {
     LibraryProjectionView item, {
     required bool coverFocused,
   }) {
-    final custom = cardPresentationBuilder?.call(
-      item,
-      coverFocused: coverFocused,
-    );
-    return custom ??
-        builder.buildCardPresentation(
-          item,
-          coverFocused: coverFocused,
-        );
+    return cardPresentationBuilder(item, coverFocused: coverFocused);
   }
 }

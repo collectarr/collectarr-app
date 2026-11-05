@@ -24,6 +24,16 @@ LibraryCardPresentation buildGameCardPresentation(
     _ => parts.isoString,
   };
   return LibraryCardPresentation(
+    coverBodyBuilder: buildStandardCoverContent,
+    flowBodyBuilder: buildStandardFlowContent,
+    flowFooterBuilder: (context, data) => buildStandardFlowFooter(context, data,
+        title: item.dto.primaryLabel,
+        meta: libraryFlowSubtitle(
+            [gameDto?.platform, gameDto?.publisher, gameDto?.platform]),
+        numberLabel: (gameDto?.itemNumber?.trim().isNotEmpty ?? false)
+            ? '#${gameDto?.itemNumber}'
+            : null),
+    shelfBodyBuilder: buildStandardShelfContent,
     horizontalBodyBuilder: buildStandardHorizontalCardBody,
     verticalBodyBuilder: buildStandardVerticalCardBody,
     verticalSubtitle: gameDto?.platform ??

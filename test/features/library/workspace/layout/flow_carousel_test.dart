@@ -150,6 +150,8 @@ void main() {
       await tester.pump();
       final cover = tester.getSize(find.byType(LibraryInteractiveCover).first);
       expect(cover.width / cover.height, closeTo(ratio, 0.01));
+      expect(
+          find.text('Unknown artist  \u00b7  Unknown artist'), findsOneWidget);
     });
   }
 }

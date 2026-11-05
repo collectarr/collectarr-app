@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/config/kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/config/entry_field_metadata.dart';
 import 'package:collectarr_app/features/library/config/facet_types.dart';
-import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/presentation/filter_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -384,7 +383,6 @@ void main() {
   test('all toolbar filters declare filterable field metadata', () {
     final fieldIds = fields.map((field) => field.id).toSet();
     final definitions = <LibraryFilterDefinition<Object?>>[
-      ...genericLibraryFilterDefinitions,
       ...boardGamesLibraryFilterDefinitions,
       ...bookLibraryFilterDefinitions,
       ...comicLibraryFilterDefinitions,
