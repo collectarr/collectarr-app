@@ -44,6 +44,11 @@ class BookLibraryMediaPresentationBuilder
     final dto =
         item.dto is BookWorkspaceDto ? item.dto as BookWorkspaceDto : null;
     return LibraryCardPresentation(
+      flowSubtitle: libraryFlowSubtitle([
+        if (dto?.itemNumber?.trim().isNotEmpty ?? false) '#${dto?.itemNumber}',
+        dto?.format,
+        dto?.releaseDate?.year.toString()
+      ]),
       itemNumber: dto?.itemNumber,
       variant: dto?.variant,
       releaseDate: dto?.releaseDate,

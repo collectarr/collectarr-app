@@ -23,6 +23,11 @@ LibraryCardPresentation buildGameCardPresentation(
     _ => parts.isoString,
   };
   return LibraryCardPresentation(
+    flowSubtitle: libraryFlowSubtitle([
+      if (gameDto?.itemNumber?.trim().isNotEmpty ?? false)
+        '#${gameDto?.itemNumber}',
+      gameDto?.platform
+    ]),
     itemNumber: gameDto?.itemNumber,
     variant: gameDto?.variant,
     detailLine: detailLine,

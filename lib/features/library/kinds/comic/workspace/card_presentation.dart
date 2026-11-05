@@ -56,6 +56,12 @@ LibraryCardPresentation buildComicCardPresentation(
   );
 
   return LibraryCardPresentation(
+    flowSubtitle: libraryFlowSubtitle([
+      if (comicDto?.itemNumber?.trim().isNotEmpty ?? false)
+        '#${comicDto?.itemNumber}',
+      comicDto?.format,
+      comicDto?.releaseDate?.year.toString()
+    ]),
     horizontalBodyBuilder: (context, data) =>
         buildComicHorizontalCardBody(context, data, fields),
     verticalBodyBuilder: (context, data) =>

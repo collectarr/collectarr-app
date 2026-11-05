@@ -55,6 +55,7 @@ class LibraryCardPresentation {
     this.compactBadges = const [],
     this.detailLine,
     this.valueLabel,
+    this.flowSubtitle,
     this.horizontalBodyBuilder,
     this.verticalBodyBuilder,
   });
@@ -94,6 +95,9 @@ class LibraryCardPresentation {
   /// Value pill in the bottom-right corner, such as "CIB | \$ 17.58".
   final String? valueLabel;
 
+  /// The kind-resolved metadata line used beneath a Flow cover.
+  final String? flowSubtitle;
+
   /// Optional complete kind-owned bodies; each orientation falls back to the
   /// shared renderer independently when its builder is absent.
   final LibraryCardBodyBuilder? horizontalBodyBuilder;
@@ -127,3 +131,9 @@ class LibraryCardBadge {
   final IconData? icon;
   final String label;
 }
+
+/// Joins already resolved Flow labels without assigning meaning to any field.
+String libraryFlowSubtitle(Iterable<String?> labels) => labels
+    .whereType<String>()
+    .where((label) => label.trim().isNotEmpty)
+    .join('  ?  ');

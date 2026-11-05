@@ -45,6 +45,7 @@ final class GameToyPresentationBuilder extends LibraryMediaPresentationBuilder {
     final dto = item.dto as GameToyWorkspaceDto;
     final personal = dto.entry?.personal;
     return LibraryCardPresentation(
+        flowSubtitle: libraryFlowSubtitle([dto.metadata.toyType]),
         detailLine: dto.metadata.releaseDateParts?.isoString,
         seriesTitle: dto.metadata.seriesTitle,
         format: dto.metadata.toyType,
