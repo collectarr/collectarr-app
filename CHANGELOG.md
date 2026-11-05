@@ -65,6 +65,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- The extra Search eBay button at the end of the details is off by default, as in CLZ; it can be turned on in Settings.
 - Game details place the cover beside its facts when the panel is wide enough, as CLZ does.
 - Game cards show the platform logo and value in the same places as CLZ, and no longer show an empty blue pill or value box when a game has no value.
 - Add Games shows the region segments only on the Title tab, as CLZ does.

@@ -51,7 +51,7 @@ class UiPreferences {
     this.ebayWishlistOnly = false,
     this.ebayToolbar = true,
     this.ebayNextToCover = true,
-    this.ebayLinksSection = true,
+    this.ebayLinksSection = false,
     this.ebaySearchFilter = EbaySearchFilter.automatic,
     this.ebayRegion = EbayRegion.defaultRegion,
     this.isLoaded = false,
@@ -310,7 +310,7 @@ class UiPreferencesStore {
       ebayWishlistOnly: prefs.getBool(ebayWishlistOnlyKey) ?? false,
       ebayToolbar: prefs.getBool(ebayToolbarKey) ?? true,
       ebayNextToCover: prefs.getBool(ebayNextToCoverKey) ?? true,
-      ebayLinksSection: prefs.getBool(ebayLinksSectionKey) ?? true,
+      ebayLinksSection: prefs.getBool(ebayLinksSectionKey) ?? false,
       ebaySearchFilter: EbaySearchFilter.values
               .where(
                   (value) => value.name == prefs.getString(ebaySearchFilterKey))
