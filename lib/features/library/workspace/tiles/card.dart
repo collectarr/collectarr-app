@@ -211,16 +211,13 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                   palette.utilityAction.withValues(alpha: .35)),
                         ),
                       ),
-                    if (appPresentationPlatform.isNativeMobile &&
-                        selectionMode &&
-                        onSelectionToggleTap != null)
+                    if (selectionMode && onSelectionToggleTap != null)
                       Positioned.fill(
-                        child: AppPressClaim(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: onSelectionToggleTap,
-                          ),
-                        ),
+                        child: LibraryTileSelectionTapArea(
+                            onTap: appPresentationPlatform.isNativeMobile
+                                ? onSelectionToggleTap!
+                                : onTap,
+                            child: const SizedBox.expand()),
                       ),
                     if (showSelectionToggle)
                       Positioned(
@@ -342,16 +339,13 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                                       .withValues(alpha: .35)),
                             ),
                           ),
-                        if (appPresentationPlatform.isNativeMobile &&
-                            selectionMode &&
-                            onSelectionToggleTap != null)
+                        if (selectionMode && onSelectionToggleTap != null)
                           Positioned.fill(
-                            child: AppPressClaim(
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: onSelectionToggleTap,
-                              ),
-                            ),
+                            child: LibraryTileSelectionTapArea(
+                                onTap: appPresentationPlatform.isNativeMobile
+                                    ? onSelectionToggleTap!
+                                    : onTap,
+                                child: const SizedBox.expand()),
                           ),
                         if (showSelectionToggle)
                           Positioned(

@@ -63,6 +63,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Desktop cover and card selection commits checkbox clicks on press and lets you select or deselect anywhere on an item while selection mode is active.
 - Bulk operations reject incompatible selections and restrict kind-specific dialogs to one kind before changing items, and missing catalog data no longer removes wishlist items during Move to entry.
 - Missing covers show the item's library icon even when another library is selected.
 - The selection toolbar labels its main actions and provides direct access to Print to PDF.

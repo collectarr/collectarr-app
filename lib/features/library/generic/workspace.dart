@@ -145,6 +145,10 @@ class LibraryWorkspace extends ConsumerWidget {
         onToggleSelectionItem(item.target.id);
         return;
       }
+      if (selectionEnabled) {
+        onToggleSelectionItem(item.target.id);
+        return;
+      }
       if (_isActive(item) && !selectionEnabled) {
         return;
       }

@@ -41,6 +41,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/slab.dart'
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,15 +51,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 const _selected = Color(0xff2a7fd4);
 const _probe = Key('probe');
 
-LibraryProjectionItem _item({String? collectionStatus}) {
+LibraryProjectionItem _item(
+    {String? collectionStatus, String id = 'a', String title = 'Album'}) {
   final entry = MusicLibraryEntry(
-    id: const LibraryEntryId('a'),
+    id: LibraryEntryId(id),
     sourceCatalogRef:
-        const CatalogItemRef(kind: CatalogMediaKind.music, id: 'catalog-a'),
+        CatalogItemRef(kind: CatalogMediaKind.music, id: 'catalog-$id'),
     updatedAt: DateTime.utc(2026, 10, 10),
     personal:
         MusicPersonalData(indexNumber: 1, collectionStatus: collectionStatus),
-    metadata: MusicAlbum(title: 'Album'),
+    metadata: MusicAlbum(title: title),
   );
   final summary = MusicLibraryEntryProjection.toSummary(entry);
   return LibraryProjectionItem.fromShelf(
@@ -170,6 +172,145 @@ LibraryProjectionItem _comicItem({bool isSlabbed = false}) {
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  for (final mode in [
+    LibraryViewMode.grid,
+    LibraryViewMode.card,
+    LibraryViewMode.horizontalCards,
+    LibraryViewMode.shelves
+  ]) {
+    testWidgets(
+        'desktop $mode keeps checkbox presses and selects across the whole next item',
+        (tester) async {
+      tester.view.physicalSize = const Size(1200, 850);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final items = [_item(), _item(id: 'b', title: 'Second album')];
+      final selection = LibraryPageSelectionSession();
+      addTearDown(() => selection.hydrationDebounce?.cancel());
+      var activated = 0;
+      var opened = 0;
+      var ranges = 0;
+      await tester.pumpWidget(ProviderScope(
+          overrides: [
+            localItemImageProvider
+                .overrideWith((ref, request) => Stream.value(null))
+          ],
+          child: MaterialApp(home:
+              Scaffold(body: StatefulBuilder(builder: (context, setState) {
+            final controller = LibraryPageSelectionController(
+                selection: selection,
+                facets: LibraryPageFacetSession(),
+                isMounted: () => true,
+                mutateState: (fn) => setState(fn),
+                hasItemDrilldown: () => false,
+                drilldownRootItemId: () => null,
+                closeItemDrilldown: () {},
+                hydrateSelectedItem: (_) async {},
+                removeVisibleSelection: (_) {});
+            return LibraryWorkspace(
+                type: const MusicRegistration(),
+                items: items,
+                viewState: libraryViewProfileForKind(CatalogMediaKind.music)
+                    .defaults()
+                    .copyWith(viewMode: mode),
+                selectedId: selection.selectedId,
+                selectedAnchorId: selection.anchorId,
+                selectionEnabled: selection.value.enabled,
+                selectedIds: selection.value.itemIds,
+                groupMode: '',
+                groupPresentation: LibraryGroupPresentation.inlineHeaders,
+                selectedBucket: null,
+                onBucketChanged: (_) {},
+                collapsedGroupBuckets: const {},
+                onGroupBucketCollapsedToggled: (_) {},
+                accent: Colors.blue,
+                hasActiveFilter: false,
+                onClearFilters: () {},
+                onApplySelection: (ids, focused) {
+                  ranges++;
+                  controller.applySelection(ids, focused);
+                },
+                onActivateItem: (id) {
+                  activated++;
+                  controller.activateItem(id);
+                },
+                onToggleSelectionItem: controller.toggleSelectionItem,
+                onOpenItem: (_) => opened++,
+                onEditItem: (_) {},
+                onSortChanged: (_) {},
+                onColumnWidthChanged: (_, width) {});
+          })))));
+      await tester.pumpAndSettle();
+      final target =
+          mode == LibraryViewMode.grid || mode == LibraryViewMode.shelves
+              ? find.byType(LibraryCoverTile)
+              : find.byType(LibraryWorkspaceCard);
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      addTearDown(mouse.removePointer);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(target.first));
+      await tester.pump();
+      await mouse.down(tester.getCenter(target.first));
+      await mouse.up();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(selection.value.enabled, false);
+      expect(activated, 1);
+      final checkbox = find.descendant(
+          of: target.first,
+          matching: find.byType(LibraryTileSelectionToggleButton));
+      await mouse.moveTo(tester.getCenter(checkbox));
+      await mouse.down(tester.getCenter(checkbox));
+      await tester.pump();
+      expect(selection.value.itemIds, {items.first.target.id});
+      await mouse.moveTo(
+          tester.getRect(target.first).topRight + const Offset(-50, 50));
+      await tester.pump();
+      await mouse.up();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(selection.value.itemIds, {items.first.target.id});
+      expect(activated, 1);
+      await mouse.moveTo(tester.getCenter(target.at(1)));
+      await mouse.down(tester.getCenter(target.at(1)));
+      await tester.pump();
+      expect(
+          selection.value.itemIds, items.map((item) => item.target.id).toSet());
+      await mouse.moveTo(
+          tester.getRect(target.at(1)).bottomRight + const Offset(-40, -40));
+      await mouse.up();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+          selection.value.itemIds, items.map((item) => item.target.id).toSet());
+      expect(activated, 1);
+      expect(opened, 0);
+      expect(selection.selectedId, items.first.target.id);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await mouse.moveTo(tester.getCenter(target.first));
+      await mouse.down(tester.getCenter(target.first));
+      await mouse.up();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(ranges, 1);
+      expect(
+          selection.value.itemIds, items.map((item) => item.target.id).toSet());
+      await mouse.moveTo(tester.getCenter(target.at(1)));
+      await mouse.down(tester.getCenter(target.at(1)));
+      await mouse.up();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(selection.value.itemIds, {items.first.target.id});
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await mouse.down(tester.getCenter(target.at(1)));
+      await mouse.up();
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+          selection.value.itemIds, items.map((item) => item.target.id).toSet());
+      expect(activated, 1);
+      expect(opened, 0);
+      expect(tester.takeException(), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+  }
 
   for (final mode in [
     LibraryViewMode.grid,
