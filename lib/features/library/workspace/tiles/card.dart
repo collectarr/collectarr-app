@@ -228,7 +228,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                               child: LibraryTileSelectionToggle(
                                   selected: checked,
                                   accentColor: palette.utilityAction,
-                                  integrated: true,
+                                  surface: LibraryTileSelectionSurface
+                                      .horizontalCard,
+                                  backgroundColor: background,
                                   highlighted: selected))),
                     if (showEditButton)
                       Positioned(
@@ -356,7 +358,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                               child: LibraryTileSelectionToggle(
                                 selected: checked,
                                 accentColor: palette.utilityAction,
-                                integrated: true,
+                                surface:
+                                    LibraryTileSelectionSurface.verticalCard,
+                                backgroundColor: background,
                                 highlighted: selected,
                               ),
                             ),

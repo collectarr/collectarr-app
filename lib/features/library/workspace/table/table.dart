@@ -1,4 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/features/library/ui/primitives/selection_mark.dart';
 import 'package:flutter/gestures.dart';
 import 'package:collectarr_app/features/library/workspace/table/row.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
@@ -660,6 +662,20 @@ class _LibraryTableCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = checked || indeterminate;
+    if (!appPresentationPlatform.isNativeMobile) {
+      return AppPressClaim(
+          child: InkWell(
+              onTap: onTap,
+              child: SizedBox(
+                  width: 15,
+                  height: 15,
+                  child: Center(
+                      child: LibrarySelectionMark(
+                          checked: checked,
+                          indeterminate: indeterminate,
+                          outlined: true,
+                          foregroundColor: outlineColor)))));
+    }
     return AppPressClaim(
         child: InkWell(
       onTap: onTap,
