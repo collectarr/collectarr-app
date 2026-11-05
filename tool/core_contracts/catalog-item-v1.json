@@ -2,12 +2,12 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "73e0433199d6d368bc7e3b3adebf0a2e4c9b2e71",
+  "coreCommit": "unknown",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form"
   },
-  "generatedAt": "2026-10-29T21:24:37.102841Z",
+  "generatedAt": "2026-11-05T21:34:26.111484Z",
   "kinds": {
     "comic": {
       "additionalProperties": false,
@@ -169,7 +169,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Cover Date"
         },
         "cover_image_url": {
           "anyOf": [
@@ -190,7 +191,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Cover Price"
         },
         "creators": {
           "anyOf": [
@@ -283,7 +285,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Currency"
         },
         "description": {
           "anyOf": [
@@ -466,18 +469,8 @@
             {
               "type": "null"
             }
-          ]
-        },
-        "item_number": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
           ],
-          "title": "Item number"
+          "title": "Issue No."
         },
         "key_comic": {
           "anyOf": [
@@ -487,7 +480,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Key"
         },
         "key_events": {
           "anyOf": [
@@ -536,7 +530,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Key Reason"
         },
         "language": {
           "anyOf": [
@@ -675,11 +670,39 @@
         },
         "release_date_parts": {
           "anyOf": [
-            {},
+            {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "day": {
+                      "maximum": 31,
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "month": {
+                      "maximum": 12,
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              ]
+            },
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Release Date"
         },
         "release_status": {
           "anyOf": [
@@ -923,7 +946,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Variant"
         },
         "variant_description": {
           "anyOf": [
@@ -933,18 +957,8 @@
             {
               "type": "null"
             }
-          ]
-        },
-        "variant_name": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
           ],
-          "title": "Primary variant"
+          "title": "Variant Description"
         },
         "volume_name": {
           "anyOf": [
@@ -974,7 +988,8 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Volume start year"
         }
       },
       "required": [

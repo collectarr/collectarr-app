@@ -805,6 +805,96 @@
     {
       "editable": true,
       "input": "text",
+      "key": "issue_number",
+      "kind": "comic",
+      "label": "Issue No.",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant",
+      "kind": "comic",
+      "label": "Variant",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "variant_description",
+      "kind": "comic",
+      "label": "Variant Description",
+      "section": "item",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "volume_start_year",
+      "kind": "comic",
+      "label": "Volume start year",
+      "section": "item",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "cover_date",
+      "kind": "comic",
+      "label": "Cover Date",
+      "section": "publishing",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "date",
+      "key": "release_date_parts",
+      "kind": "comic",
+      "label": "Release Date",
+      "section": "publishing",
+      "valueType": "partial_date"
+    },
+    {
+      "editable": true,
+      "input": "number",
+      "key": "cover_price_cents",
+      "kind": "comic",
+      "label": "Cover Price",
+      "section": "publishing",
+      "valueType": "integer"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "currency",
+      "kind": "comic",
+      "label": "Currency",
+      "section": "publishing",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "key_comic",
+      "kind": "comic",
+      "label": "Key",
+      "section": "artwork",
+      "valueType": "boolean"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "key_reason",
+      "kind": "comic",
+      "label": "Key Reason",
+      "section": "artwork",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
       "key": "publication_age",
       "kind": "comic",
       "label": "Age",
@@ -1247,15 +1337,6 @@
       "editable": true,
       "input": "text",
       "key": "item_number",
-      "kind": "comic",
-      "label": "Item number",
-      "section": "item",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
-      "input": "text",
-      "key": "item_number",
       "kind": "game",
       "label": "Item number",
       "section": "item",
@@ -1519,15 +1600,6 @@
       "key": "barcode",
       "kind": "music",
       "label": "Barcode",
-      "section": "publishing",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
-      "input": "text",
-      "key": "variant_name",
-      "kind": "comic",
-      "label": "Primary variant",
       "section": "publishing",
       "valueType": "string"
     },
@@ -2099,5 +2171,5 @@
       "valueType": "link_list"
     }
   ],
-  "generatedAt": "2026-10-29T21:24:37.102841Z"
+  "generatedAt": "2026-11-05T21:34:26.111484Z"
 }

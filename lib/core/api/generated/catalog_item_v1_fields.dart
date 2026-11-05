@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
 // Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: 72cf4b157da1a8a9ec830e86a075cf3ad8ea7373c2c8c0e4eadae957a8fed66b
+// Contract SHA-256: d8a3e32ffa86a5d5d1e3866f9e3370beecd3cba9c51e85729a522644ece59163
 const catalogItemV1SchemaVersion = 1;
 const catalogItemV1ContractVersion = '1.0.0';
 
@@ -22,23 +22,22 @@ const Map<String, List<CatalogItemV1Field>> catalogItemV1FieldsByKind = {
     CatalogItemV1Field('catalog_number', title: 'Catalog number'),
     CatalogItemV1Field('characters', title: 'Characters'),
     CatalogItemV1Field('country', title: 'Country'),
-    CatalogItemV1Field('cover_date'),
+    CatalogItemV1Field('cover_date', title: 'Cover Date'),
     CatalogItemV1Field('cover_image_url', title: 'Cover URL'),
-    CatalogItemV1Field('cover_price_cents'),
+    CatalogItemV1Field('cover_price_cents', title: 'Cover Price'),
     CatalogItemV1Field('creators', title: 'Creators'),
     CatalogItemV1Field('crossover', title: 'Crossover'),
-    CatalogItemV1Field('currency'),
+    CatalogItemV1Field('currency', title: 'Currency'),
     CatalogItemV1Field('description'),
     CatalogItemV1Field('edition_title', title: 'Edition title'),
     CatalogItemV1Field('external_links', title: 'External links'),
     CatalogItemV1Field('genres', title: 'Genres'),
     CatalogItemV1Field('identifiers', title: 'Identifiers'),
     CatalogItemV1Field('imprint', title: 'Imprint'),
-    CatalogItemV1Field('issue_number'),
-    CatalogItemV1Field('item_number', title: 'Item number'),
-    CatalogItemV1Field('key_comic'),
+    CatalogItemV1Field('issue_number', title: 'Issue No.'),
+    CatalogItemV1Field('key_comic', title: 'Key'),
     CatalogItemV1Field('key_events', title: 'Key Events'),
-    CatalogItemV1Field('key_reason'),
+    CatalogItemV1Field('key_reason', title: 'Key Reason'),
     CatalogItemV1Field('language', title: 'Language'),
     CatalogItemV1Field('localized_title', title: 'Localized title'),
     CatalogItemV1Field('original_title', title: 'Original title'),
@@ -49,7 +48,7 @@ const Map<String, List<CatalogItemV1Field>> catalogItemV1FieldsByKind = {
     CatalogItemV1Field('publication_age', title: 'Age'),
     CatalogItemV1Field('publisher', title: 'Publisher'),
     CatalogItemV1Field('release_date', title: 'Release date'),
-    CatalogItemV1Field('release_date_parts'),
+    CatalogItemV1Field('release_date_parts', title: 'Release Date'),
     CatalogItemV1Field('release_status', title: 'Release status'),
     CatalogItemV1Field('search_aliases', title: 'Search aliases'),
     CatalogItemV1Field('series_group', title: 'Series group'),
@@ -62,12 +61,11 @@ const Map<String, List<CatalogItemV1Field>> catalogItemV1FieldsByKind = {
     CatalogItemV1Field('thumbnail_image_url', title: 'Thumbnail URL'),
     CatalogItemV1Field('title', title: 'Title'),
     CatalogItemV1Field('title_extension', title: 'Title extension'),
-    CatalogItemV1Field('variant'),
-    CatalogItemV1Field('variant_description'),
-    CatalogItemV1Field('variant_name', title: 'Primary variant'),
+    CatalogItemV1Field('variant', title: 'Variant'),
+    CatalogItemV1Field('variant_description', title: 'Variant Description'),
     CatalogItemV1Field('volume_name'),
     CatalogItemV1Field('volume_number'),
-    CatalogItemV1Field('volume_start_year'),
+    CatalogItemV1Field('volume_start_year', title: 'Volume start year'),
   ],
   'game': [
     CatalogItemV1Field('age_rating', title: 'Age rating'),
