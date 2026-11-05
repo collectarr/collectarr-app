@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
@@ -558,7 +559,6 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
     final palette = appPalette(context);
     final title = dto.primaryLabel;
     final itemNumber = presentation.itemNumber;
-    final subtitle = presentation.flowSubtitle ?? '';
     final cardColor = widget.focused
         ? Color.alphaBlend(
             widget.accent.withValues(alpha: 0.12),
@@ -616,10 +616,22 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                   ),
                 ],
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AspectRatio(
+              child: LibraryItemContent(
+                view: LibraryItemContentView.flow,
+                data: LibraryCardBodyData(
+                  item: widget.item,
+                  presentation: presentation,
+                  selected: false,
+                  active: widget.focused,
+                  showHeadline: true,
+                  titleColor: palette.itemTitle,
+                  detailColor: palette.textMuted,
+                  mutedColor: palette.textMuted,
+                  customFieldBadges: widget.item.customFieldBadges,
+                  coverWidth: constraints.maxWidth,
+                  pillStatus: const SizedBox.shrink(),
+                  coverStatus: const SizedBox.shrink(),
+                  buildCover: ({required alignment}) => AspectRatio(
                     aspectRatio: widget.coverAspectRatio,
                     child: Stack(
                       children: [
@@ -635,6 +647,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                                   widget.item.source.libraryEntryRef,
                               accentColor: widget.accent,
                               enableFullscreen: false,
+                              alignment: alignment,
                               enableSecondaryControl: false,
                               enableHoverCue: false,
                             )),
@@ -653,32 +666,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  Text(
-                    title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: kLibraryCardTitleColor,
-                          height: 1.2,
-                        ),
-                  ),
-                  if (subtitle.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: appPalette(context).textMuted,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                  ],
-                ],
+                ),
               ),
             ),
           ),
@@ -688,119 +676,20 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
   }
 }
 
-class _FlowCarouselFooter extends StatefulWidget {
-  const _FlowCarouselFooter({
-    required this.item,
-    required this.index,
-    required this.total,
-    required this.accent,
-  });
-
+class _FlowCarouselFooter extends StatelessWidget {
+  const _FlowCarouselFooter(
+      {required this.item,
+      required this.index,
+      required this.total,
+      required this.accent});
   final LibraryProjectionItem item;
   final int index;
   final int total;
   final Color accent;
-
   @override
-  State<_FlowCarouselFooter> createState() => _FlowCarouselFooterState();
-}
-
-class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
-  @override
-  Widget build(BuildContext context) {
-    final dto = widget.item.dto;
-    final presentation = libraryCardPresentationForEntry(widget.item);
-    final palette = appPalette(context);
-    final releaseDate = presentation.releaseDate;
-    final formatLabel = presentation.format;
-    final meta = [
-      presentation.seriesTitle,
-      ...presentation.contextFacts,
-      if (releaseDate != null)
-        '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
-      if (formatLabel != null) formatLabel,
-    ].whereType<String>().join('  ·  ');
-
-    final itemNumber = presentation.itemNumber;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        borderRadius: kAppRadiusLarge,
-        border: Border.all(color: palette.cardBorder),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${widget.index + 1} / ${widget.total}',
-                        style:
-                            Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: widget.accent,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.6,
-                                ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        dto.primaryLabel,
-                        key: const ValueKey('flow-carousel-footer-title'),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: kLibraryCardTitleColor,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                      ),
-                      if (meta.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          meta,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: appPalette(context).textMuted,
-                                  ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (itemNumber != null && itemNumber.trim().isNotEmpty)
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: widget.accent.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                          color: widget.accent.withValues(alpha: 0.35)),
-                    ),
-                    child: Text(
-                      '#$itemNumber',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: palette.textPrimary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      libraryCardPresentationForEntry(item).flowFooterBuilder(context,
+          LibraryFlowFooterData(index: index, total: total, accent: accent));
 }
 
 class _FlowNavButton extends StatelessWidget {

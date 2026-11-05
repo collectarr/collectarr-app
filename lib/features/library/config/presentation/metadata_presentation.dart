@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/metadata/widgets.dart';
 import 'package:collectarr_app/features/library/workspace/config/target_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/link_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
 import 'package:collectarr_app/features/library/config/group_mode_category_models.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:flutter/material.dart';
@@ -231,13 +230,6 @@ abstract class LibraryMediaPresentationBuilder {
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   });
-
-  LibraryCardPresentation buildCardPresentation(
-    LibraryProjectionView item, {
-    bool coverFocused = false,
-  }) {
-    throw UnsupportedError('A kind must provide its item presentation.');
-  }
 
   List<Widget> buildInspectorSections({
     required BuildContext context,

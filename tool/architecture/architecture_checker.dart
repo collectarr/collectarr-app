@@ -583,8 +583,34 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
         (node.operator.lexeme == '==' || node.operator.lexeme == '!=')) {
       final left = node.leftOperand.toSource();
       final right = node.rightOperand.toSource();
+      const kindNames = {
+        'comic',
+        'comics',
+        'book',
+        'books',
+        'game',
+        'games',
+        'game_hardware',
+        'game_toy',
+        'boardgame',
+        'movie',
+        'movies',
+        'music'
+      };
+      bool isKindName(Expression expression) =>
+          expression is StringLiteral &&
+          kindNames.contains(expression.stringValue?.toLowerCase());
+      final sharedKindSurface = relativePath
+              .startsWith('lib/features/library/workspace/tiles/') ||
+          relativePath.startsWith('lib/features/library/workspace/layout/') ||
+          relativePath.startsWith('lib/features/library/selection/') ||
+          relativePath.startsWith('lib/features/library/generic/toolbar') ||
+          relativePath.startsWith('lib/features/settings/');
       if (left.contains('CatalogMediaKind.') ||
-          right.contains('CatalogMediaKind.')) {
+          right.contains('CatalogMediaKind.') ||
+          (sharedKindSurface &&
+              (isKindName(node.leftOperand) ||
+                  isKindName(node.rightOperand)))) {
         final line = lineInfo.getLocation(node.offset).lineNumber;
         violations.add(
           'TK005 $relativePath:$line: Forbidden CatalogMediaKind comparison in generic boundary code',
@@ -1073,7 +1099,11 @@ void _checkKindModuleLayout(String repoRoot, List<String> violations) {
 
   const sharedSemanticUiFiles = {
     'lib/features/library/workspace/tiles/card.dart',
-    'lib/features/library/workspace/tiles/library_card_flow_tile.dart',
+    'lib/features/library/workspace/tiles/cover_tile.dart',
+    'lib/features/library/workspace/tiles/card_templates.dart',
+    'lib/features/library/selection/controls.dart',
+    'lib/features/settings/settings_kind_section.dart',
+    'lib/features/settings/kind_settings_controls.dart',
     'lib/features/library/workspace/layout/flow_carousel.dart',
     'lib/features/library/detail/title_metadata_section.dart',
   };

@@ -1,3 +1,4 @@
+import 'workspace/card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
@@ -121,6 +122,7 @@ String bookLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final bookLibraryMediaPresentation = LibraryMediaPresentation(
+  cardPresentationBuilder: buildBookCardPresentation,
   sortFavorites: [
     LibrarySortFavorite(
         id: 'title_asc',

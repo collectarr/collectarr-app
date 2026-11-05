@@ -13,6 +13,7 @@ class LibraryCardBodyData {
     required this.item,
     required this.presentation,
     required this.selected,
+    this.active = false,
     required this.showHeadline,
     required this.titleColor,
     required this.detailColor,
@@ -29,6 +30,7 @@ class LibraryCardBodyData {
   final LibraryProjectionView item;
   final LibraryCardPresentation presentation;
   final bool selected;
+  final bool active;
   final bool showHeadline;
   final Color titleColor;
   final Color detailColor;
@@ -65,6 +67,10 @@ class LibraryCardPresentation {
     this.verticalTrailing,
     required this.horizontalBodyBuilder,
     required this.verticalBodyBuilder,
+    required this.coverBodyBuilder,
+    required this.flowBodyBuilder,
+    required this.flowFooterBuilder,
+    required this.shelfBodyBuilder,
   });
 
   /// Kind-entry values projected for the shared card chrome. The card host
@@ -113,6 +119,10 @@ class LibraryCardPresentation {
   /// Complete kind-owned bodies, including explicitly selected shared templates.
   final LibraryCardBodyBuilder horizontalBodyBuilder;
   final LibraryCardBodyBuilder verticalBodyBuilder;
+  final LibraryCardBodyBuilder coverBodyBuilder;
+  final LibraryCardBodyBuilder flowBodyBuilder;
+  final LibraryFlowFooterBuilder flowFooterBuilder;
+  final LibraryCardBodyBuilder shelfBodyBuilder;
 }
 
 /// An outlined pill of a lead segment, such as a grade, and a value.
@@ -147,4 +157,37 @@ class LibraryCardBadge {
 String libraryFlowSubtitle(Iterable<String?> labels) => labels
     .whereType<String>()
     .where((label) => label.trim().isNotEmpty)
-    .join('  ?  ');
+    .join('  \u00b7  ');
+
+enum LibraryItemContentView { cover, verticalCard, horizontalCard, flow, shelf }
+
+/// Structural dispatch only: every content builder is supplied by the kind.
+class LibraryItemContent extends StatelessWidget {
+  const LibraryItemContent({super.key, required this.view, required this.data});
+  final LibraryItemContentView view;
+  final LibraryCardBodyData data;
+  @override
+  Widget build(BuildContext context) => switch (view) {
+        LibraryItemContentView.cover =>
+          data.presentation.coverBodyBuilder(context, data),
+        LibraryItemContentView.verticalCard =>
+          data.presentation.verticalBodyBuilder(context, data),
+        LibraryItemContentView.horizontalCard =>
+          data.presentation.horizontalBodyBuilder(context, data),
+        LibraryItemContentView.flow =>
+          data.presentation.flowBodyBuilder(context, data),
+        LibraryItemContentView.shelf =>
+          data.presentation.shelfBodyBuilder(context, data),
+      };
+}
+
+class LibraryFlowFooterData {
+  const LibraryFlowFooterData(
+      {required this.index, required this.total, required this.accent});
+  final int index;
+  final int total;
+  final Color accent;
+}
+
+typedef LibraryFlowFooterBuilder = Widget Function(
+    BuildContext context, LibraryFlowFooterData data);

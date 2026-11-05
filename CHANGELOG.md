@@ -64,7 +64,7 @@
 
 ### Fixes
 - Bulk operations reject incompatible selections before changing items, and missing catalog data no longer removes wishlist items during Move to entry.
-- Missing covers show the item?s library icon even when another library is selected.
+- Missing covers show the item's library icon even when another library is selected.
 - The selection toolbar labels its main actions and provides direct access to Print to PDF.
 - The browser tab icon uses the same clean edges as the desktop app icon.
 - Importing shows progress while files are read and lets you reset a selected file.
@@ -111,8 +111,8 @@
 - The web app leaves zoom to the browser, so its zoom shortcuts and Ctrl + wheel change the browser's zoom instead of adding an app zoom that read 100 % on an already zoomed page.
 
 ### Refactors
-- Selection menus follow each library?s declared actions consistently on desktop and mobile, with validation when actions are executed.
-- Library kinds choose their horizontal and vertical card layouts, sharing cover loading, status and selection behavior.
+- Selection menus follow each library's declared actions consistently on desktop and mobile, with validation when actions are executed.
+- Library kinds choose their Cover, Card, Flow and Shelf layouts, sharing cover loading, status, navigation and selection behavior.
 - Flow browsing keeps single-item navigation independent of bulk selection and lets each library define its item details.
 - Library card layouts can evolve per kind while sharing selection and other card interactions.
 - Music playback tracking keeps its existing progress and storage behavior.

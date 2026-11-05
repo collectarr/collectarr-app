@@ -295,6 +295,7 @@ class _ShelfRow<T> extends StatelessWidget {
           width: bookW,
           height: bookHeight,
           child: LibraryCoverTile(
+            surface: LibraryCoverSurface.shelf,
             item: entry,
             active: active,
             selected: selected,

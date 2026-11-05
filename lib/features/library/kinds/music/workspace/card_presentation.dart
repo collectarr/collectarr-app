@@ -20,6 +20,19 @@ LibraryCardPresentation buildMusicCardPresentation(
   final duration = musicCardDuration(item);
 
   return LibraryCardPresentation(
+    coverBodyBuilder: buildStandardCoverContent,
+    flowBodyBuilder: buildStandardFlowContent,
+    flowFooterBuilder: (context, data) => buildStandardFlowFooter(context, data,
+        title: item.dto.primaryLabel,
+        meta: libraryFlowSubtitle([
+          musicCardArtist(item),
+          musicCardArtist(item),
+          music?.music.publisher,
+          libraryFlowDate(music?.music.releaseDate),
+          music?.facts.formatSummary
+        ]),
+        numberLabel: null),
+    shelfBodyBuilder: buildStandardShelfContent,
     horizontalBodyBuilder: buildStandardHorizontalCardBody,
     verticalBodyBuilder: buildStandardVerticalCardBody,
     verticalSubtitle: music?.facts.formatSummary ??

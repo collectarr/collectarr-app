@@ -67,11 +67,11 @@ Related evidence:
 - [flattened Catalog Item baseline](flattened-catalog-baseline.md)
 - [Music field inventory](music-catalog-field-inventory.md)
 
-### Card composition
+### Item view composition
 
-`LibraryCardPresentation` requires horizontal and vertical body builders. Each kind chooses its own renderer or explicitly selects a reusable layout from `card_templates.dart`. `LibraryWorkspaceCard` only hosts the chosen body and the shared pointer, hover, selection and edit controls; it has no fallback card layout. Comics owns its distinct card bodies in its workspace folder.
+`LibraryCardPresentation` requires Cover/Grid, horizontal card, vertical card, Flow and Shelf body builders, plus a Flow footer builder. `LibraryMediaPresentation` remains the single registration seam; no additional registry is introduced. `LibraryItemContent` dispatches the selected view to its required kind-owned renderer. Each kind chooses its own renderer or explicitly selects a reusable layout from `card_templates.dart`. `LibraryWorkspaceCard` only hosts the chosen body and the shared pointer, hover, selection and edit controls; it has no fallback card layout. Comics owns its distinct card bodies in its workspace folder.
 
-The host supplies cover loading and decorative wrapping through `buildCover`, plus the resolved pill and cover status widgets. Kind renderers position these slots without interpreting collection status or duplicating status logic. Flow, grid and shelf composition still need the same explicit renderer boundary; their existing presentation projections are not a complete implementation of that separation.
+The host supplies cover loading and decorative wrapping through `buildCover`, plus the resolved pill and cover status widgets. Kind renderers position these slots without interpreting collection status or duplicating status logic. Cover and Shelf share image mechanics and keep status/selection overlays in their host. Flow supplies its prepared cover/edit slot to the kind-owned body and delegates footer composition and metadata ordering to the kind. The body context carries item-specific active state and display inputs; it never queries the globally selected kind. Flow has no selection state or selection callbacks.
 
 ### Kind settings
 
@@ -91,6 +91,6 @@ Existing per-kind layout, custom field display and default Add method keys remai
 
 Each kind declares its bulk actions in `selection/contribution.dart`, registered through the existing `LibraryKindToolbarModule.selectionActions`. Contributions implement the existing typed `UiAction` contract with stable IDs, labels, icons, placement, ordering, category, supported target scopes and homogeneous-selection requirements. Shared action descriptors bind the existing bulk services; kind-only commands and labels remain in kind folders. Music declares Merge Albums and Comics declares Update Key Info. Single-item `LibraryTargetActionCapability` is a separate contract.
 
-The page coordinator resolves one list of actions. Mixed-kind selections use the intersection of supported IDs, and every selected target must meet each declaration?s scope and enabled conditions. A resolved action obtains a fresh selection and command context before invoking its handler. Async command errors propagate to the shared renderer?s error display. Primary controls and More render the same resolved list on desktop and native mobile; Flow supplies no bulk action list or selection callbacks.
+The page coordinator resolves one list of actions. Mixed-kind selections use the intersection of supported IDs, and every selected target must meet each declaration's scope and enabled conditions. A resolved action obtains a fresh selection and command context before invoking its handler. Async command errors propagate to the shared renderer's error display. Primary controls and More render the same resolved list on desktop and native mobile; Flow supplies no bulk action list or selection callbacks.
 
 `selection/commands.dart` contains the shared service command bindings, independently of UI. `selection/controls.dart` only renders resolved actions. It contains no fixed action enum, kind-name comparisons or domain labels. The former unused compact selection bar is removed; native selection uses the common toolbar band.

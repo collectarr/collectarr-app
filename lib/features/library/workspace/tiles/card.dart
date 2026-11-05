@@ -155,14 +155,15 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
         : checked
             ? kLibraryCheckedItemBackground
             : palette.panelRaised;
-    final customBody = presentation.horizontalBodyBuilder(
-      context,
-      LibraryCardBodyData(
+    final body = LibraryItemContent(
+      view: LibraryItemContentView.horizontalCard,
+      data: LibraryCardBodyData(
         pillStatus: _statusBadge(LibraryCollectionStatusMarkStyle.pill),
         coverStatus: _statusBadge(LibraryCollectionStatusMarkStyle.cover),
         item: item,
         presentation: presentation,
         selected: selected,
+        active: selected,
         showHeadline: widget.showHeadline,
         titleColor: selected ? selectedTitleColor : palette.itemTitle,
         detailColor: selected ? Colors.white : palette.textMuted,
@@ -201,8 +202,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                       selected || checked ? background : palette.surfaceBright,
                   highlightColor: Colors.transparent,
                   child: Stack(children: [
-                    Padding(
-                        padding: const EdgeInsets.all(4), child: customBody),
+                    Padding(padding: const EdgeInsets.all(4), child: body),
                     if (appPresentationPlatform.isNativeMobile && checked)
                       Positioned.fill(
                         child: IgnorePointer(
@@ -313,9 +313,9 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                       children: [
                         Padding(
                           padding: EdgeInsets.zero,
-                          child: presentation.verticalBodyBuilder(
-                            context,
-                            LibraryCardBodyData(
+                          child: LibraryItemContent(
+                            view: LibraryItemContentView.verticalCard,
+                            data: LibraryCardBodyData(
                               pillStatus: _statusBadge(
                                   LibraryCollectionStatusMarkStyle.pill),
                               coverStatus: _statusBadge(
@@ -324,6 +324,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
                               presentation: presentation,
                               showHeadline: widget.showHeadline,
                               selected: selected,
+                              active: selected,
                               titleColor: titleColor,
                               detailColor: detailColor,
                               mutedColor: mutedColor,
