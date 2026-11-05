@@ -144,6 +144,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   /// The result group whose variants are shown, and the search it belongs to.
   String? _selectedGroupKey;
 
+  /// Width of the grouped results' list, set by dragging its divider.
+  double _groupListWidth = LibraryAddResultGrouping.listWidth;
+
   /// The group a picked suggestion opens once its search has run.
   String? _pendingGroupKey;
   int _selectedGroupSearch = 0;
@@ -1034,7 +1037,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     ? LibraryAddBrowseGroupList.width
                     : grouping == null
                         ? null
-                        : LibraryAddResultGrouping.listWidth,
+                        : _groupListWidth,
             searchRowBeside: isMobilePhone
                 ? null
                 : browseMode
@@ -1101,6 +1104,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               searched: state.search.coreSearchGeneration > 0,
               selectedGroupKey: _selectedGroupKey,
               onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
+              groupListWidth: _groupListWidth,
+              onGroupListResize: (width) => setState(() => _groupListWidth =
+                  width.clamp(LibraryAddResultGrouping.minListWidth, 720.0)),
+              showVariantFacet: state.mode == LibraryAddDialogMode.search,
               coverBlocks: browseMode && browse?.coverBlock != null
                   ? LibraryAddCoverBlockView(
                       block: browse!.coverBlock!,

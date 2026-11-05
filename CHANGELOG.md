@@ -16,6 +16,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Add dialogs with grouped results, such as Add Games, let you drag the divider between the list and the editions to resize it.
 - Library settings support shared defaults, independent kind overrides, reset and apply to compatible enabled libraries; trailer preferences preserve existing choices on upgrade and report invalid saved values without rewriting them.
 - General settings can enable or disable library modules, hiding disabled modules from the picker and their settings tabs; Games includes Hardware and Toys.
 - Comics import shows its source marks and placeholders for Comic Collector Live and user-defined fields.
@@ -64,6 +65,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Add Games shows the region segments only on the Title tab, as CLZ does.
 - Select lists use the same text style and left edge as the selected value, and entries under a group label are indented, as in the Time zone list.
 - Covers and Shelves retain finer image detail by decoding higher-resolution artwork before scaling it to the displayed size.
 - Checked covers and shelf items keep the selection tint on the cover without adding blue side bands; the active item's frame remains distinct.

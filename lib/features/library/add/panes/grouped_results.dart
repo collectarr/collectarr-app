@@ -98,6 +98,9 @@ class LibraryAddGroupedResults extends StatefulWidget {
     required this.list,
     required this.footer,
     this.variantControls,
+    this.groupListWidth = LibraryAddResultGrouping.listWidth,
+    this.onGroupListResize,
+    this.showVariantFacet = true,
   });
 
   final LibraryAddResultGrouping grouping;
@@ -117,6 +120,12 @@ class LibraryAddGroupedResults extends StatefulWidget {
   /// Kind filters above the variants.
   final Widget? variantControls;
 
+  final double groupListWidth;
+  final ValueChanged<double>? onGroupListResize;
+
+  /// Whether the variant facet is shown; the reference has it only on Title.
+  final bool showVariantFacet;
+
   @override
   State<LibraryAddGroupedResults> createState() =>
       _LibraryAddGroupedResultsState();
@@ -129,7 +138,7 @@ class _LibraryAddGroupedResultsState extends State<LibraryAddGroupedResults> {
   @override
   Widget build(BuildContext context) {
     final grouping = widget.grouping;
-    final facet = grouping.variantFacet;
+    final facet = widget.showVariantFacet ? grouping.variantFacet : null;
     final selected = widget.groups
         .where((group) => group.key == widget.selectedGroupKey)
         .firstOrNull;
@@ -229,6 +238,8 @@ class _LibraryAddGroupedResultsState extends State<LibraryAddGroupedResults> {
           : LibraryAddDesktopGroupedResultsLayout(
               groupList: groupList,
               variantList: variantList,
+              listWidth: widget.groupListWidth,
+              onResize: widget.onGroupListResize,
             ),
     );
   }

@@ -84,6 +84,7 @@ class LibraryAddResultGrouping {
   final LibraryAddVariantFacet? variantFacet;
 
   static const listWidth = 460.0;
+  static const minListWidth = 240.0;
   static const dialogWidth = 1200.0;
 }
 

@@ -38,6 +38,9 @@ class LibraryAddSearchPane extends StatelessWidget {
     this.headerTrailing,
     this.selectedGroupKey,
     this.onSelectGroup,
+    this.groupListWidth = LibraryAddResultGrouping.listWidth,
+    this.onGroupListResize,
+    this.showVariantFacet = true,
     this.onAddManually,
     this.coverBlocks,
   });
@@ -80,6 +83,14 @@ class LibraryAddSearchPane extends StatelessWidget {
   /// The group whose variants are shown, for kinds that group results.
   final String? selectedGroupKey;
   final ValueChanged<String>? onSelectGroup;
+
+  /// The grouped list's width and its resize callback, for kinds whose
+  /// results can be split by dragging the divider.
+  final double groupListWidth;
+  final ValueChanged<double>? onGroupListResize;
+
+  /// Whether the grouping's variant facet (Games' regions) is shown.
+  final bool showVariantFacet;
 
   @override
   Widget build(BuildContext context) {
@@ -142,6 +153,9 @@ class LibraryAddSearchPane extends StatelessWidget {
           selectedResultId: selectedResultId,
           entryCatalogRefs: entryCatalogRefs,
           onSelectGroup: (key) => onSelectGroup?.call(key),
+          groupListWidth: groupListWidth,
+          onGroupListResize: onGroupListResize,
+          showVariantFacet: showVariantFacet,
           onSelectResult: onSelectResult,
           caption: showCaption
               ? _LibraryAddResultsCaption(
