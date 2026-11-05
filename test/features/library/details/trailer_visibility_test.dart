@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/kind_settings_provider.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/details/trailer_visibility.dart';
 import 'package:collectarr_app/features/settings/kind_settings.dart';

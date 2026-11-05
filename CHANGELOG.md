@@ -15,7 +15,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
-- Library settings support shared defaults, independent kind overrides, reset and apply to compatible enabled libraries; trailer preferences preserve existing choices on upgrade.
+- Library settings support shared defaults, independent kind overrides, reset and apply to compatible enabled libraries; trailer preferences preserve existing choices on upgrade and report invalid saved values without rewriting them.
 - General settings can enable or disable library modules, hiding disabled modules from the picker and their settings tabs; Games includes Hardware and Toys.
 - Comics import shows its source marks and placeholders for Comic Collector Live and user-defined fields.
 - Games import lists the reference sources in order, with clear placeholders for formats awaiting verified exports.
