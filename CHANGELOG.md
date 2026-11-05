@@ -16,6 +16,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Game details show a trailer's thumbnail with a play mark, and the Personal table lists purchase, condition, quantity, owner, tags and notes.
 - Add dialogs with grouped results, such as Add Games, let you drag the divider between the list and the editions to resize it.
 - Library settings support shared defaults, independent kind overrides, reset and apply to compatible enabled libraries; trailer preferences preserve existing choices on upgrade and report invalid saved values without rewriting them.
 - General settings can enable or disable library modules, hiding disabled modules from the picker and their settings tabs; Games includes Hardware and Toys.

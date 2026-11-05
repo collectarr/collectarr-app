@@ -63,7 +63,11 @@ List<Widget> buildGameInspectorSections(
     if (trailers.isNotEmpty)
       LibraryTrailerVisibility(
           kind: CatalogMediaKind.game,
-          child: section('Trailer', _GameLinkList(trailers))),
+          child: section(
+              'Trailer',
+              Wrap(spacing: 10, runSpacing: 10, children: [
+                for (final trailer in trailers) _GameTrailer(trailer),
+              ]))),
     if (links.isNotEmpty) section('Links', _GameLinkList(links)),
     if (entry != null) section('Personal', _GamePersonalTable(entry: entry)),
   ];
@@ -308,15 +312,28 @@ class _GamePersonalTable extends StatelessWidget {
   Widget build(BuildContext context) {
     final personal = entry.personal;
     final details = personal.details;
+    final currency = personal.currency ?? AppFormats.current.currency;
+    final purchased = [
+      if (personal.purchaseDateParts?.isoString case final date?)
+        date
+      else if (personal.purchaseDate case final date?)
+        AppFormats.current.formatDate(date),
+      if (personal.pricePaidCents case final paid?)
+        'For ${AppFormats.current.formatMoney(paid, currency)}',
+    ].join(' ');
+    bool has(String? value) => value?.trim().isNotEmpty == true;
     final rows = <(String, String)>[
-      (
-        'Value',
-        personal.marketValueCents == null
-            ? '-'
-            : AppFormats.current.formatMoney(personal.marketValueCents,
-                personal.currency ?? AppFormats.current.currency)
-      ),
-      ('Index', personal.indexNumber?.toString() ?? '-'),
+      if (purchased.isNotEmpty) ('Purchased', purchased),
+      if (has(personal.purchaseStore))
+        ('Purchase Store', personal.purchaseStore!),
+      if (personal.marketValueCents case final value?)
+        ('Value', AppFormats.current.formatMoney(value, currency)),
+      if (has(personal.condition)) ('Condition', personal.condition!),
+      if (personal.quantity != 1) ('Quantity', '${personal.quantity}'),
+      ('Index', personal.indexNumber?.toString() ?? ''),
+      if (has(personal.ownerLabel)) ('Owner', personal.ownerLabel!),
+      if (personal.tags.isNotEmpty) ('Tags', personal.tags.join(', ')),
+      if (has(personal.personalNotes)) ('Notes', personal.personalNotes!),
       // The reference marks completion with a check or a cross.
       ('Completed', details.completed == true ? '✓' : '✕'),
       if (details.completedDate?.isoString case final date?)
@@ -330,13 +347,65 @@ class _GamePersonalTable extends StatelessWidget {
         ('Added Date', AppFormats.current.formatDateTime(created)),
       ('Modified Date', AppFormats.current.formatDateTime(entry.updatedAt)),
     ];
-    return LibraryDetailFieldTable(
-      minCellWidth: 320,
-      labelWidth: 132,
-      showHeader: false,
-      fields: [
-        for (final row in rows) LibraryDetailField(label: row.$1, value: row.$2)
-      ],
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 325),
+        child: LibraryDetailFieldTable(
+          minCellWidth: 320,
+          labelWidth: 102,
+          showHeader: false,
+          fields: [
+            for (final row in rows)
+              LibraryDetailField(label: row.$1, value: row.$2)
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A trailer's thumbnail with a play mark, opening the video.
+class _GameTrailer extends StatelessWidget {
+  const _GameTrailer(this.link);
+
+  final GameCatalogLink link;
+
+  /// The thumbnail YouTube publishes for a video, null for other sites.
+  String? get _thumbnail {
+    final uri = Uri.tryParse(link.url);
+    if (uri == null) return null;
+    final id = uri.host.endsWith('youtu.be')
+        ? uri.pathSegments.firstOrNull
+        : uri.host.endsWith('youtube.com')
+            ? uri.queryParameters['v']
+            : null;
+    return id == null ? null : 'https://img.youtube.com/vi/$id/hqdefault.jpg';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final thumbnail = _thumbnail;
+    if (thumbnail == null) return _GameLinkList([link]);
+    return InkWell(
+      mouseCursor: WidgetStateMouseCursor.clickable,
+      onTap: () => launchUrl(Uri.parse(link.url)),
+      child: SizedBox(
+        width: 240,
+        height: 135,
+        child: Stack(fit: StackFit.expand, children: [
+          LibraryCoverImage(
+            title: link.title ?? 'Trailer',
+            mediaKind: CatalogMediaKind.game,
+            imageUrl: thumbnail,
+            fallbackAspectRatio: 16 / 9,
+            borderRadius: 0,
+            fit: BoxFit.cover,
+          ),
+          const Center(
+              child: Icon(Icons.play_arrow, size: 40, color: Colors.white)),
+        ]),
+      ),
     );
   }
 }
