@@ -1,3 +1,4 @@
+import 'context.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -30,10 +31,10 @@ class LibraryBulkActions {
     required List<LibraryWorkspaceContext> entries,
     required LibraryBulkEditSelection selection,
   }) async {
-    final entryEntries = [
-      for (final entry in entries)
-        if (entry.libraryEntrySummary != null) entry,
-    ];
+    LibrarySelectionContext(entries)
+        .requireEvery('Edit', (entry) => entry.libraryEntrySummary != null);
+    final entryEntries = entries;
+    final commands = <LibraryEntryUpdateRequest>[];
     for (var index = 0; index < entryEntries.length; index++) {
       final entry = entryEntries[index];
       final libraryEntry = entry.libraryEntrySummary!;
@@ -48,7 +49,12 @@ class LibraryBulkActions {
         locationId: selection.locationId,
         tags: selection.tags,
       );
-      await coordinator.updateLibraryEntry(updateCmd, syncTracking: false);
+      commands.add(updateCmd);
+    }
+    for (var index = 0; index < entryEntries.length; index++) {
+      final libraryEntry = entryEntries[index].libraryEntrySummary!;
+      await coordinator.updateLibraryEntry(commands[index],
+          syncTracking: false);
       if (selection.rating != null || selection.readStatus != null) {
         await trackingMutations.syncEntryTrackingState(
           libraryEntry.ref,
@@ -66,22 +72,10 @@ class LibraryBulkActions {
     String? defaultReadStatus,
     List<String>? defaultTags,
   }) async {
-    final entriesToOwn = [
-      for (final entry in entries)
-        if (entry.libraryEntrySummary == null) entry,
-    ];
-    final wishlistedEntries = [
-      for (final entry in entries)
-        if (entry.isWishlisted && entry.libraryEntrySummary == null) entry,
-    ];
-    for (var index = 0; index < wishlistedEntries.length; index++) {
-      await wishlistMutations.removeFromWishlist(
-        wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
-        catalogRef: wishlistedEntries[index].wishlistItem?.catalogRef,
-      );
-    }
-    for (var index = 0; index < entriesToOwn.length; index++) {
-      final entry = entriesToOwn[index];
+    LibrarySelectionContext(entries).requireEvery(
+        'Move to entry', (entry) => entry.libraryEntrySummary == null);
+    final commands = <AddLibraryEntryCommand>[];
+    for (final entry in entries) {
       final resolvedKind = entry.mediaKind;
       final common = LibraryAddCommonDraft(
         condition: defaultCondition,
@@ -90,7 +84,9 @@ class LibraryBulkActions {
       );
       final catalogRef =
           entry.target.catalogItemRef ?? entry.wishlistCatalogRef;
-      if (catalogRef == null || resolvedKind == CatalogMediaKind.unknown) {
+      if (catalogRef == null ||
+          resolvedKind == CatalogMediaKind.unknown ||
+          catalogRef.kind != resolvedKind) {
         throw StateError(
           'Cannot add selected item without a typed catalog kind: '
           '${entry.itemId}',
@@ -111,16 +107,26 @@ class LibraryBulkActions {
           readStatus: defaultReadStatus,
         ),
       );
-      await coordinator.addLibraryEntry(addCmd);
+      commands.add(addCmd);
+    }
+    for (final command in commands) {
+      await coordinator.addLibraryEntry(command);
     }
   }
 
   Future<void> moveSelectedToWishlist(
       List<LibraryWorkspaceContext> entries) async {
+    LibrarySelectionContext(entries).requireEvery(
+        'Move to wishlist',
+        (entry) =>
+            !entry.isWishlisted &&
+            (entry.libraryEntrySummary?.sourceCatalogRef ??
+                    entry.target.catalogItemRef) !=
+                null);
     for (var index = 0; index < entries.length; index++) {
       final entry = entries[index];
       final catalogItemRef = entry.libraryEntrySummary?.sourceCatalogRef ??
-          entry.wishlistItem?.catalogRef;
+          entry.target.catalogItemRef;
       if (catalogItemRef == null) {
         throw StateError(
           'Cannot move selected item to wishlist without a catalog reference: '
@@ -142,10 +148,9 @@ class LibraryBulkActions {
   }
 
   Future<int> duplicateSelected(List<LibraryWorkspaceContext> entries) async {
-    final entryEntries = [
-      for (final entry in entries)
-        if (entry.libraryEntrySummary != null) entry,
-    ];
+    LibrarySelectionContext(entries).requireEvery(
+        'Duplicate', (entry) => entry.libraryEntrySummary != null);
+    final entryEntries = entries;
     for (var index = 0; index < entryEntries.length; index++) {
       final entry = entryEntries[index];
       final sourceRef = entry.libraryEntrySummary!.ref;
@@ -176,6 +181,12 @@ class LibraryBulkActions {
     List<LibraryWorkspaceContext> entries, {
     void Function(double fraction)? onProgress,
   }) async {
+    LibrarySelectionContext(entries).requireEvery(
+        'Remove',
+        (entry) =>
+            entry.libraryEntrySummary != null ||
+            entry.isWishlisted ||
+            entry.trackingSummary != null);
     final entryEntries = [
       for (final entry in entries)
         if (entry.libraryEntrySummary != null) entry,

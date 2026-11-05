@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/selection/context.dart';
 import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/library/detail/item_provider.dart';
@@ -609,74 +610,39 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     );
   }
 
-  bool _hasLibraryEntriesInSelection(LibraryProjection? projection) {
-    if (projection == null || _session.selection.value.itemIds.isEmpty) {
-      return false;
-    }
-    return projection.filteredItems.any(
-      (item) =>
-          _session.selection.value.itemIds.contains(item.target.id) &&
-          item.source.libraryEntryRef != null,
-    );
+  LibrarySelectionContext _selectedTargets(LibraryProjection? projection) {
+    final ids = _session.selection.value.itemIds;
+    final entries = [
+      for (final item in projection?.filteredItems ?? <LibraryProjectionItem>[])
+        if (ids.contains(item.target.id)) item.source
+    ];
+    return LibrarySelectionContext(entries,
+        complete: entries.length == ids.length);
   }
 
-  bool _hasSelectedItemsInSelection(LibraryProjection? projection) {
-    if (projection == null || _session.selection.value.itemIds.isEmpty) {
-      return false;
-    }
-    return projection.filteredItems.any(
-      (item) => _session.selection.value.itemIds.contains(item.target.id),
-    );
-  }
-
-  bool _hasLoanableLibraryEntriesInSelection(LibraryProjection? projection) {
-    if (projection == null || _session.selection.value.itemIds.isEmpty) {
-      return false;
-    }
-    return projection.filteredItems.any(
-      (item) =>
-          _session.selection.value.itemIds.contains(item.target.id) &&
-          item.source.libraryEntryRef != null &&
-          !_activeLoanLibraryEntryIds.contains(item.source.libraryEntryRef),
-    );
-  }
-
-  bool _hasMoveToEntryEligibleItemsInSelection(LibraryProjection? projection) {
-    if (projection == null || _session.selection.value.itemIds.isEmpty) {
-      return false;
-    }
-    return projection.filteredItems.any(
-      (item) =>
-          _session.selection.value.itemIds.contains(item.target.id) &&
-          !item.source.isEntry,
-    );
-  }
-
+  bool _hasLibraryEntriesInSelection(LibraryProjection? projection) =>
+      _selectedTargets(projection)
+          .every((entry) => entry.libraryEntryRef != null);
+  bool _hasSelectedItemsInSelection(LibraryProjection? projection) =>
+      _selectedTargets(projection).every((entry) => true);
+  bool _hasLoanableLibraryEntriesInSelection(LibraryProjection? projection) =>
+      _selectedTargets(projection).every((entry) =>
+          entry.libraryEntryRef != null &&
+          !_activeLoanLibraryEntryIds.contains(entry.libraryEntryRef));
+  bool _hasMoveToEntryEligibleItemsInSelection(LibraryProjection? projection) =>
+      _selectedTargets(projection).every((entry) => !entry.isEntry);
   bool _hasMoveToWishlistEligibleItemsInSelection(
-    LibraryProjection? projection,
-  ) {
-    if (projection == null || _session.selection.value.itemIds.isEmpty) {
-      return false;
-    }
-    return projection.filteredItems.any(
-      (item) =>
-          _session.selection.value.itemIds.contains(item.target.id) &&
-          !item.source.isWishlisted,
-    );
-  }
-
-  bool _hasRemovableItemsInSelection(LibraryProjection? projection) {
-    if (projection == null || _session.selection.value.itemIds.isEmpty) {
-      return false;
-    }
-    return projection.filteredItems.any(
-      (item) =>
-          _session.selection.value.itemIds.contains(item.target.id) &&
-          (item.source.libraryEntryRef != null ||
-              item.source.isWishlisted ||
-              item.source.isTracked),
-    );
-  }
+          LibraryProjection? projection) =>
+      _selectedTargets(projection).every((entry) =>
+          !entry.isWishlisted &&
+          (entry.libraryEntrySummary?.sourceCatalogRef ??
+                  entry.target.catalogItemRef) !=
+              null);
+  bool _hasRemovableItemsInSelection(LibraryProjection? projection) =>
+      _selectedTargets(projection).every((entry) =>
+          entry.libraryEntryRef != null ||
+          entry.isWishlisted ||
+          entry.isTracked);
 
   LibraryBucketStatusSummary? _bucketStatusSummaryForProjection(
     LibraryProjection projection,
