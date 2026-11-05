@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 typedef LibraryCardBodyBuilder = Widget Function(
     BuildContext context, LibraryCardBodyData data);
 
-/// Shared card mechanics supplied to an optional kind-owned body renderer.
+/// Shared card mechanics supplied to a kind-owned body renderer.
 /// The renderer owns the complete body; the workspace retains the surrounding
 /// selection, pointer handling and hover controls. [buildCover] preserves the
 /// workspace's image loading and kind-specific cover overlay.
@@ -20,8 +20,12 @@ class LibraryCardBodyData {
     required this.customFieldBadges,
     required this.coverWidth,
     required this.buildCover,
+    required this.pillStatus,
+    required this.coverStatus,
   });
 
+  final Widget pillStatus;
+  final Widget coverStatus;
   final LibraryProjectionView item;
   final LibraryCardPresentation presentation;
   final bool selected;
@@ -59,8 +63,8 @@ class LibraryCardPresentation {
     this.verticalSubtitle,
     this.verticalSubtitleEmphasized = false,
     this.verticalTrailing,
-    this.horizontalBodyBuilder,
-    this.verticalBodyBuilder,
+    required this.horizontalBodyBuilder,
+    required this.verticalBodyBuilder,
   });
 
   /// Kind-entry values projected for the shared card chrome. The card host
@@ -106,10 +110,9 @@ class LibraryCardPresentation {
   final bool verticalSubtitleEmphasized;
   final String? verticalTrailing;
 
-  /// Optional complete kind-owned bodies; each orientation falls back to the
-  /// shared renderer independently when its builder is absent.
-  final LibraryCardBodyBuilder? horizontalBodyBuilder;
-  final LibraryCardBodyBuilder? verticalBodyBuilder;
+  /// Complete kind-owned bodies, including explicitly selected shared templates.
+  final LibraryCardBodyBuilder horizontalBodyBuilder;
+  final LibraryCardBodyBuilder verticalBodyBuilder;
 }
 
 /// An outlined pill of a lead segment, such as a grade, and a value.

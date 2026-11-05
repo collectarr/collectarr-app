@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/dto.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
@@ -11,6 +12,8 @@ LibraryCardPresentation buildMovieCardPresentation(
   final movieDto =
       item.dto is MovieWorkspaceDto ? item.dto as MovieWorkspaceDto : null;
   return LibraryCardPresentation(
+    horizontalBodyBuilder: buildStandardHorizontalCardBody,
+    verticalBodyBuilder: buildStandardVerticalCardBody,
     verticalSubtitle: movieDto?.format ??
         item.dto.secondaryLabel ??
         movieDto?.seriesTitle ??

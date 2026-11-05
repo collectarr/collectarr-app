@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/duplicate_presentation.dart';
@@ -44,6 +45,8 @@ class BookLibraryMediaPresentationBuilder
     final dto =
         item.dto is BookWorkspaceDto ? item.dto as BookWorkspaceDto : null;
     return LibraryCardPresentation(
+      horizontalBodyBuilder: buildStandardHorizontalCardBody,
+      verticalBodyBuilder: buildStandardVerticalCardBody,
       verticalSubtitle: dto?.format ??
           item.dto.secondaryLabel ??
           dto?.seriesTitle ??

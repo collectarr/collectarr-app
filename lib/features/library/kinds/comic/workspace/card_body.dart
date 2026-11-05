@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/ui/primitives/collection_status_icon.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/card_geometry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/card_presentation.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/item_status_badge.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/outlined_pill.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 
@@ -27,6 +25,7 @@ Widget buildComicHorizontalCardBody(BuildContext context,
       Expanded(
         child: _SplitMetadataHorizontalBody(
             item: data.item,
+            status: data.pillStatus,
             presentation: data.presentation,
             selected: data.selected,
             fields: fields),
@@ -37,6 +36,7 @@ Widget buildComicVerticalCardBody(BuildContext context,
         LibraryCardBodyData data, ComicCardFields fields) =>
     _HeadlinedVerticalCardBody(
         item: data.item,
+        status: data.coverStatus,
         showHeadline: data.showHeadline,
         selected: data.selected,
         titleColor: data.titleColor,
@@ -49,11 +49,13 @@ Widget buildComicVerticalCardBody(BuildContext context,
 class _SplitMetadataHorizontalBody extends StatelessWidget {
   const _SplitMetadataHorizontalBody({
     required this.item,
+    required this.status,
     required this.presentation,
     required this.selected,
     required this.fields,
   });
 
+  final Widget status;
   final LibraryProjectionView item;
   final LibraryCardPresentation presentation;
   final bool selected;
@@ -123,11 +125,7 @@ class _SplitMetadataHorizontalBody extends StatelessWidget {
       Positioned(
         right: 0,
         bottom: 0,
-        child: LibraryItemStatusBadge(
-          item: item,
-          selected: selected,
-          style: LibraryCollectionStatusMarkStyle.pill,
-        ),
+        child: status,
       ),
     ]);
   }
@@ -136,6 +134,7 @@ class _SplitMetadataHorizontalBody extends StatelessWidget {
 class _HeadlinedVerticalCardBody extends StatelessWidget {
   const _HeadlinedVerticalCardBody({
     required this.item,
+    required this.status,
     required this.showHeadline,
     required this.selected,
     required this.titleColor,
@@ -146,6 +145,7 @@ class _HeadlinedVerticalCardBody extends StatelessWidget {
     required this.fields,
   });
 
+  final Widget status;
   final LibraryProjectionView item;
   final bool showHeadline;
   final bool selected;
@@ -177,13 +177,7 @@ class _HeadlinedVerticalCardBody extends StatelessWidget {
                 Positioned(
                   left: 5,
                   bottom: 5,
-                  child: LibraryItemStatusBadge(
-                    item: item,
-                    selected: selected,
-                    style: LibraryCollectionStatusMarkStyle.cover,
-                    width: 29,
-                    height: 27,
-                  ),
+                  child: status,
                 ),
                 if (customFieldBadges.isNotEmpty)
                   Text(

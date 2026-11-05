@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'inspector/sections.dart';
@@ -47,6 +48,8 @@ final class GameHardwarePresentationBuilder
     final dto = item.dto as GameHardwareWorkspaceDto;
     final personal = dto.entry?.personal;
     return LibraryCardPresentation(
+        horizontalBodyBuilder: buildStandardHorizontalCardBody,
+        verticalBodyBuilder: buildStandardVerticalCardBody,
         verticalSubtitle: dto.metadata.platform ??
             item.dto.secondaryLabel ??
             dto.metadata.seriesTitle,

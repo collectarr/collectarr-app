@@ -66,3 +66,9 @@ Related evidence:
 - [current architecture status](current-status.md)
 - [flattened Catalog Item baseline](flattened-catalog-baseline.md)
 - [Music field inventory](music-catalog-field-inventory.md)
+
+### Card composition
+
+`LibraryCardPresentation` requires horizontal and vertical body builders. Each kind chooses its own renderer or explicitly selects a reusable layout from `card_templates.dart`. `LibraryWorkspaceCard` only hosts the chosen body and the shared pointer, hover, selection and edit controls; it has no fallback card layout. Comics owns its distinct card bodies in its workspace folder.
+
+The host supplies cover loading and decorative wrapping through `buildCover`, plus the resolved pill and cover status widgets. Kind renderers position these slots without interpreting collection status or duplicating status logic. Flow, grid and shelf composition still need the same explicit renderer boundary; their existing presentation projections are not a complete implementation of that separation.

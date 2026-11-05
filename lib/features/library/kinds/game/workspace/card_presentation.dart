@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card_templates.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
@@ -23,6 +24,8 @@ LibraryCardPresentation buildGameCardPresentation(
     _ => parts.isoString,
   };
   return LibraryCardPresentation(
+    horizontalBodyBuilder: buildStandardHorizontalCardBody,
+    verticalBodyBuilder: buildStandardVerticalCardBody,
     verticalSubtitle: gameDto?.platform ??
         item.dto.secondaryLabel ??
         [gameDto?.platform, gameDto?.publisher]
