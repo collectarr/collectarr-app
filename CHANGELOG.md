@@ -21,7 +21,7 @@
 - Settings groups general preferences and enabled library kinds under Customization, with Games, Hardware and Toys together and Typography last.
 - Settings Localization offers the device time zone and CLZ-style region and city choices, applying the selected zone to shared date-and-time displays.
 - In Comics, the alphabet bar filters exclusively by Series name, omitting the options gear since cards only display series.
-- Comic cards show issue numbers, dates and grades in the appropriate positions, while vertical cards match CLZ dimensions and margins across kinds and retain series titles on slabbed comics.
+- Comic cards show issue numbers, dates and grades in the appropriate positions, while vertical cards match CLZ dimensions and margins across kinds, retain series titles on slabbed comics, and Flow displays slab labels.
 - Edit dialog headers use the shared edit pen icon matching the list view and toolbar actions.
 - The dark mobile sidebar uses the same darker background as the reference navigation.
 - Mobile editor actions adapt to the available space, tabs have larger touch targets, and dynamic tab changes update the header.

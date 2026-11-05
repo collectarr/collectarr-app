@@ -572,6 +572,8 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
           )
         : palette.panel;
     final showEditButton = _hovered && widget.onEditTap != null;
+    final wrapCover =
+        presentation.coverOverlayBuilder ?? (Widget cover) => cover;
     // The card hugs a cover of the kind's aspect ratio, as tall as the stage
     // allows beneath it the title and subtitle, so the cover never gets bars.
     return LayoutBuilder(
@@ -630,7 +632,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                         Positioned.fill(
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(18),
-                            child: LibraryInteractiveCover(
+                            child: wrapCover(LibraryInteractiveCover(
                               title: title,
                               mediaKind: widget.item.source.mediaKind,
                               itemNumber: itemNumber,
@@ -641,7 +643,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                               enableFullscreen: false,
                               enableSecondaryControl: false,
                               enableHoverCue: false,
-                            ),
+                            )),
                           ),
                         ),
                         if (showEditButton)
