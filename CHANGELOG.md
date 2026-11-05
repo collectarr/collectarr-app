@@ -63,7 +63,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
-- Bulk operations reject incompatible selections before changing items, and missing catalog data no longer removes wishlist items during Move to entry.
+- Bulk operations reject incompatible selections and restrict kind-specific dialogs to one kind before changing items, and missing catalog data no longer removes wishlist items during Move to entry.
 - Missing covers show the item's library icon even when another library is selected.
 - The selection toolbar labels its main actions and provides direct access to Print to PDF.
 - The browser tab icon uses the same clean edges as the desktop app icon.

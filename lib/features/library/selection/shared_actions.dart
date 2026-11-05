@@ -6,6 +6,7 @@ import 'commands.dart';
 
 const selectionEdit = LibrarySelectionAction(
     id: 'edit',
+    homogeneousOnly: true,
     label: 'Edit',
     icon: AppIcons.inlineEdit,
     command: _edit,
@@ -27,6 +28,7 @@ LibrarySelectionCommand? _remove(LibrarySelectionCommands commands) =>
 
 const selectionPrint = LibrarySelectionAction(
     id: 'print',
+    homogeneousOnly: true,
     label: 'Print to PDF',
     icon: AppIcons.print,
     command: _print,
@@ -37,6 +39,7 @@ LibrarySelectionCommand? _print(LibrarySelectionCommands commands) =>
 
 const selectionValues = LibrarySelectionAction(
     id: 'values',
+    homogeneousOnly: true,
     label: 'Update values',
     icon: Icons.payments_outlined,
     command: _values,
@@ -49,6 +52,7 @@ LibrarySelectionCommand? _values(LibrarySelectionCommands commands) =>
 
 const selectionCsv = LibrarySelectionAction(
     id: 'csv',
+    homogeneousOnly: true,
     category: 'Export',
     label: 'Export to CSV / TXT',
     icon: AppIcons.exportCsv,
@@ -60,6 +64,7 @@ LibrarySelectionCommand? _csv(LibrarySelectionCommands commands) =>
 
 const selectionXml = LibrarySelectionAction(
     id: 'xml',
+    homogeneousOnly: true,
     category: 'Export',
     label: 'Export to XML',
     icon: AppIcons.exportXml,
@@ -94,6 +99,7 @@ LibrarySelectionCommand? _loan(LibrarySelectionCommands commands) =>
 
 const selectionTransfer = LibrarySelectionAction(
     id: 'transfer',
+    homogeneousOnly: true,
     label: 'Transfer Field Data',
     icon: AppIcons.transferFieldData,
     command: _transfer,
@@ -105,6 +111,7 @@ LibrarySelectionCommand? _transfer(LibrarySelectionCommands commands) =>
 
 const selectionMoveCollection = LibrarySelectionAction(
     id: 'moveCollection',
+    homogeneousOnly: true,
     label: 'Move to other collection',
     icon: AppIcons.searchAll,
     command: _moveCollection,
@@ -116,6 +123,7 @@ LibrarySelectionCommand? _moveCollection(LibrarySelectionCommands commands) =>
 
 const selectionMoveEntry = LibrarySelectionAction(
     id: 'moveEntry',
+    homogeneousOnly: true,
     label: 'Move to entry',
     icon: Icons.inventory_2_outlined,
     command: _moveEntry,
@@ -144,6 +152,7 @@ LibrarySelectionCommand? _moveWishlist(LibrarySelectionCommands commands) =>
 
 const selectionCore = LibrarySelectionAction(
     id: 'core',
+    homogeneousOnly: true,
     category: 'Core',
     label: 'Update from Core',
     icon: AppIcons.updateFromCore,

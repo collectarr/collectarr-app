@@ -1,3 +1,7 @@
+import 'package:collectarr_app/features/library/workspace/tiles/card.dart';
+import 'package:collectarr_app/features/library/selection/bulk_edit_dialog.dart';
+import 'package:collectarr_app/features/library/ui/primitives/selection_fields.dart';
+import 'package:flutter/gestures.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_tile.dart';
 import 'dart:io';
@@ -18,7 +22,8 @@ import '../test/support/fixtures/test_constants.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('personal edit persists across database close and app reload',
+  testWidgets(
+      'personal edit survives reload and selection bulk edit saves tags',
       (tester) async {
     setUpTestAppPreferences();
     tester.view.physicalSize = appPresentationPlatform.isNativeMobile
@@ -90,6 +95,38 @@ void main() {
         testApp(overrides: testAppOverrides(database: database, api: api)));
     await pumpUntilSettled(tester);
     expect(find.text('Native Personal Album'), findsWidgets);
+    if (!appPresentationPlatform.isNativeMobile) {
+      final covers = find.byType(LibraryCoverTile);
+      final tile = covers.evaluate().isNotEmpty
+          ? covers.first
+          : find.byType(LibraryWorkspaceCard).first;
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      addTearDown(mouse.removePointer);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(tile));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.descendant(
+          of: tile, matching: find.byType(LibraryTileSelectionToggleButton)));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.widgetWithText(TextButton, 'Edit').first);
+      await pumpUntilSettled(tester);
+      expect(find.byType(LibraryBulkEditDialog), findsOneWidget);
+      final tags = tester
+          .widgetList<LibraryMultiVocabularyField>(
+              find.byType(LibraryMultiVocabularyField))
+          .singleWhere((field) => field.label == 'Tags');
+      tags.controller.value = ['native-bulk-tag'];
+      await tester.pump();
+      await tester.tap(find.text('Apply').last);
+      await pumpUntilSettled(tester);
+      expect(find.byType(LibraryBulkEditDialog), findsNothing);
+      expect(
+          (await MusicEntryRepository(database).listActive())
+              .single
+              .personal
+              .tags,
+          contains('native-bulk-tag'));
+    }
     expect(tester.takeException(), isNull);
     await disposeTestApp(tester);
   });

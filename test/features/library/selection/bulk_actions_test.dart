@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
@@ -146,6 +147,15 @@ void main() {
         throwsA(incompatible));
     await expectLater(
         actions().moveSelectedToEntry(entries), throwsA(incompatible));
+  });
+  test('duplicate visible IDs cannot conceal a missing selected target', () {
+    final item = LibraryProjectionItem.fromShelf(
+        testLibraryWorkspaceSource(itemId: 'duplicate', kind: 'music'),
+        const MusicRegistration());
+    final selection = LibrarySelectionContext.fromItems(
+        [item, item], {'duplicate', 'missing'});
+    expect(selection.complete, false);
+    expect(selection.every((entry) => true), false);
   });
   test('mixed kinds and incomplete snapshots are explicit', () {
     final entries = [
