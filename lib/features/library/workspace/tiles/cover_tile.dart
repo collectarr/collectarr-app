@@ -203,16 +203,14 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
                             ),
                           ),
                         ),
-                        if (mobile &&
-                            widget.selectionMode &&
+                        if (widget.selectionMode &&
                             widget.onSelectionToggleTap != null)
                           Positioned.fill(
-                            child: AppPressClaim(
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: widget.onSelectionToggleTap,
-                              ),
-                            ),
+                            child: LibraryTileSelectionTapArea(
+                                onTap: mobile
+                                    ? widget.onSelectionToggleTap!
+                                    : widget.onTap,
+                                child: const SizedBox.expand()),
                           ),
                         if (showSelectionToggle)
                           Positioned(
@@ -306,6 +304,23 @@ class LibraryTileSelectionToggle extends StatelessWidget {
   }
 }
 
+/// Claims nested selection gestures and commits mouse selection on press.
+class LibraryTileSelectionTapArea extends StatelessWidget {
+  const LibraryTileSelectionTapArea(
+      {super.key, required this.onTap, required this.child});
+  final VoidCallback onTap;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => AppPressClaim(
+          child: AppPressTap(
+        onTap: onTap,
+        builder: (context, onReleaseTap) => GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onReleaseTap,
+            child: child),
+      ));
+}
+
 class LibraryTileSelectionToggleButton extends StatelessWidget {
   const LibraryTileSelectionToggleButton({
     super.key,
@@ -325,15 +340,9 @@ class LibraryTileSelectionToggleButton extends StatelessWidget {
       color: Colors.transparent,
       child: Semantics(
         button: true,
-        child: AppPressClaim(
-            child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: child,
-          ),
-        )),
+        child: LibraryTileSelectionTapArea(
+            onTap: onTap!,
+            child: MouseRegion(cursor: SystemMouseCursors.click, child: child)),
       ),
     );
   }
