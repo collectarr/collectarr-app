@@ -48,6 +48,8 @@ final comicKindIdentity = const LibraryKindIdentity(
   preferencePrefix: 'comics',
   routeSegments: ['comics', 'comic'],
   mediaFamily: 'print',
+  showSelectionValueUpdate: true,
+  showSelectionKeyInfo: true,
   toolbarActions: [
     ...kDefaultLibraryToolbarActions,
     LibraryToolbarActionId.readingQueue,

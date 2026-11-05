@@ -199,7 +199,7 @@ weights (see [local font loading](architecture/local-font-loading.md)).
 | P2 | Main screen layout | The details cover is about 95 px wide against the reference's 165 px, the "Cover:" date is missing, and Creators, Characters and Details are not three side-by-side columns |
 | P2 | Add Comics Series tab | The reference shows a publisher logo where Collectarr writes the publisher, and a 90 % translucent dialog body |
 | P2 | Value tab | CLZ: Signed by is a list of people (Name and Sort Name) added with a + beside the label and Key Category is a multi-value tag field with a list button. Collectarr: Signed by is one text box and Key Category a single pick list; both need a schema migration |
-| P3 | Main menu | The reference's Key Info > Update Key Info is only a selection action in Collectarr |
+| P3 | Bulk Key Info | Comics selection shows Update Key Info, but it is unavailable until a key-only Core refresh is implemented; the main menu also lacks that action |
 | P3 | Import sources | Comic Collector Live CSV and Comic Collector user-defined fields are unavailable placeholders until sample exports are verified; Comic Collector XML is built from the Collectorz desktop shape and unverified against a real comics export |
 | P3 | Export to XML | Decide whether to also write the CLZ layout; Import Comics reads CLZ's file |
 | P3 | Vertical Cards | A sort saved before Series then Issue became the default stays |

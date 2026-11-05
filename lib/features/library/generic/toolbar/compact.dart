@@ -352,6 +352,10 @@ class LibraryCompactToolbarContent extends StatelessWidget {
             callbacks: selectionCallbacks!,
             accent: accent,
             itemPluralLabel: type.identity.pluralLabel,
+            showValueUpdate: type.identity.showSelectionValueUpdate,
+            showKeyInfo: type.identity.showSelectionKeyInfo,
+            supportsMerge:
+                libraryEntryPolicyForKind(type.kind).mergeEntries != null,
             showBottomBorder: !showChromeRow,
           ),
         ],

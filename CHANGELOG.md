@@ -62,6 +62,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- The selection toolbar labels its main actions and provides direct access to Print to PDF.
 - The browser tab icon uses the same clean edges as the desktop app icon.
 - Importing shows progress while files are read and lets you reset a selected file.
 - Settings no longer shows the unused Show titles in grid option or the empty Covers & layout tab.

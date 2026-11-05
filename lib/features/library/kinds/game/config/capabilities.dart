@@ -41,6 +41,7 @@ final gameKindIdentity = const LibraryKindIdentity(
   routeSegments: ['games', 'game'],
   mediaFamily: 'game',
   collectionFamily: 'games',
+  showSelectionValueUpdate: true,
   hasTrailers: true,
   defaultCollectionName: 'Games',
 );
