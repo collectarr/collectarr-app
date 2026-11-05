@@ -10,4 +10,3 @@ String? gameToyValueSummary(GameToyPersonalData personal) {
   ];
   return values.isEmpty ? null : values.join(' | ');
 }
-
