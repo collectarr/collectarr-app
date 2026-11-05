@@ -10,4 +10,3 @@ String? gameHardwareValueSummary(GameHardwarePersonalData personal) {
   ];
   return values.isEmpty ? null : values.join(' | ');
 }
-
