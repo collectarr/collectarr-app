@@ -173,6 +173,77 @@ LibraryProjectionItem _comicItem({bool isSlabbed = false}) {
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  for (final surface in LibraryCoverSurface.values) {
+    testWidgets('$surface tints checked covers without colouring side gaps',
+        (tester) async {
+      const canvasColor = Colors.black;
+      final item = _item();
+      for (final active in [false, true]) {
+        for (final checked in [false, true]) {
+          await tester.pumpWidget(ProviderScope(
+              overrides: [
+                localItemImageProvider
+                    .overrideWith((ref, request) => Stream.value(null))
+              ],
+              child: MaterialApp(
+                  theme: buildAppShellTheme(palette: kDefaultAppThemePalette),
+                  home: Scaffold(
+                      backgroundColor: canvasColor,
+                      body: RepaintBoundary(
+                          key: _probe,
+                          child: ColoredBox(
+                              color: canvasColor,
+                              child: SizedBox(
+                                  width: 200,
+                                  height: 180,
+                                  child: LibraryCoverTile(
+                                      surface: surface,
+                                      item: item,
+                                      active: active,
+                                      selected: checked,
+                                      selectionMode: true,
+                                      selectedColor: _selected,
+                                      fallbackCoverAspectRatio: 1 / 3,
+                                      onTap: () {},
+                                      onSelectionToggleTap: () {}))))))));
+          await tester.pumpAndSettle();
+          final boundary =
+              tester.renderObject<RenderRepaintBoundary>(find.byKey(_probe));
+          final pixels = (await tester.runAsync(() async {
+            final image = await boundary.toImage();
+            try {
+              return await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+            } finally {
+              image.dispose();
+            }
+          }))!;
+          Color pixel(int x, int y) {
+            final offset = (y * 200 + x) * 4;
+            return Color.fromARGB(
+                pixels.getUint8(offset + 3),
+                pixels.getUint8(offset),
+                pixels.getUint8(offset + 1),
+                pixels.getUint8(offset + 2));
+          }
+
+          expect(pixel(10, 90), active ? _selected : canvasColor,
+              reason:
+                  'Only an active cover may fill the cell beside the image');
+          final palette =
+              appPalette(tester.element(find.byType(LibraryCoverTile)));
+          final expectedCover = checked
+              ? Color.alphaBlend(
+                  _selected.withValues(alpha: .5), palette.panelRaised)
+              : palette.panelRaised;
+          final paintedCover = pixel(80, 45);
+          expect(paintedCover.r, closeTo(expectedCover.r, 1 / 255));
+          expect(paintedCover.g, closeTo(expectedCover.g, 1 / 255));
+          expect(paintedCover.b, closeTo(expectedCover.b, 1 / 255));
+        }
+      }
+    }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+  }
+
   for (final mode in [
     LibraryViewMode.grid,
     LibraryViewMode.card,

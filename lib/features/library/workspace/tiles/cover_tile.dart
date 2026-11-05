@@ -102,10 +102,10 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
     return RepaintBoundary(
       child: Container(
         clipBehavior: Clip.antiAlias,
-        // As in the reference, the active item has the blue frame and a ticked
-        // one shows its cover at half opacity over the blue.
+        // Only the active item fills and frames the whole cell. Desktop bulk
+        // selection tints the painted cover, leaving letterboxing transparent.
         decoration: BoxDecoration(
-          color: selected || active ? resolvedSelectedColor : null,
+          color: active || (mobile && selected) ? resolvedSelectedColor : null,
           border: active
               ? Border.all(
                   color: palette.utilityAction,
@@ -133,8 +133,8 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
                           onDoubleTap: widget.onDoubleTap,
                           onLongPress: widget.onLongPress,
                           onSecondaryTapUp: widget.onSecondaryTapUp,
-                          child: Opacity(
-                            opacity: selected ? .5 : 1,
+                          child: _highlightCover(
+                            color: resolvedSelectedColor,
                             child: LibraryItemContent(
                               view: widget.surface == LibraryCoverSurface.grid
                                   ? LibraryItemContentView.cover
@@ -231,6 +231,18 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
                 )),
       ),
     );
+  }
+
+  Widget _highlightCover({required Color color, required Widget child}) {
+    if (appPresentationPlatform.isNativeMobile) {
+      return Opacity(opacity: widget.selected ? .5 : 1, child: child);
+    }
+    // srcATop preserves the cover's alpha, so transparent side gaps stay clear.
+    return ColorFiltered(
+        colorFilter: ColorFilter.mode(
+            color.withValues(alpha: widget.selected ? .5 : 0),
+            BlendMode.srcATop),
+        child: child);
   }
 
   void _setHovered(bool value) {
