@@ -143,7 +143,7 @@ void main() {
     final raw = jsonEncode({
       'version': 1,
       'shared': {trailerVideosSetting.id: 'wrong type'},
-      'kinds': {}
+      'kinds': <String, Object?>{}
     });
     SharedPreferences.setMockInitialValues({KindSettingsStore.key: raw});
     final container = ProviderContainer();
