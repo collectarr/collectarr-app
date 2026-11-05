@@ -558,13 +558,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
     final palette = appPalette(context);
     final title = dto.primaryLabel;
     final itemNumber = presentation.itemNumber;
-    final format = presentation.format;
-    final releaseDate = presentation.releaseDate;
-    final subtitle = [
-      if (itemNumber != null && itemNumber.trim().isNotEmpty) '#$itemNumber',
-      if (format != null && format.trim().isNotEmpty) format,
-      if (releaseDate != null) releaseDate.year.toString(),
-    ].join('  ·  ');
+    final subtitle = presentation.flowSubtitle ?? '';
     final cardColor = widget.focused
         ? Color.alphaBlend(
             widget.accent.withValues(alpha: 0.12),

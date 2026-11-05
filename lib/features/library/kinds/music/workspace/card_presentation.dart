@@ -19,6 +19,10 @@ LibraryCardPresentation buildMusicCardPresentation(
   final duration = musicCardDuration(item);
 
   return LibraryCardPresentation(
+    flowSubtitle: libraryFlowSubtitle([
+      music?.facts.formatSummary,
+      music?.music.releaseDate?.year.toString()
+    ]),
     seriesTitle: musicCardArtist(item),
     identifierCode: music?.music.barcode,
     releaseDate: music?.music.releaseDate,

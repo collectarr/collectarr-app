@@ -42,7 +42,8 @@ void main() {
             ComicEntryDetails(rawOrSlabbed: 'Slabbed', gradingCompany: 'CGC'),
         grade: '9.8 Near Mint/Mint',
       ),
-      metadata: const ComicCatalogItem(title: 'Issue 1', seriesTitle: 'Batman'),
+      metadata: const ComicCatalogItem(
+          title: 'Issue 1', seriesTitle: 'Batman', issueNumber: '42'),
     );
     final summary = ComicLibraryEntryProjection.toSummary(entry);
     final item = LibraryProjectionItem.fromShelf(
@@ -77,6 +78,14 @@ void main() {
     await tester.pump();
     expect(find.byType(ComicSlab), findsOneWidget);
     expect(find.text('9.8'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate((widget) =>
+          widget is Text &&
+          widget.data == '#42' &&
+          widget.textAlign == TextAlign.center &&
+          widget.maxLines == 1),
+      findsOneWidget,
+    );
     expect(find.byType(LibraryTileSelectionToggle), findsNothing);
   });
 

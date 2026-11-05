@@ -11,6 +11,12 @@ LibraryCardPresentation buildMovieCardPresentation(
   final movieDto =
       item.dto is MovieWorkspaceDto ? item.dto as MovieWorkspaceDto : null;
   return LibraryCardPresentation(
+    flowSubtitle: libraryFlowSubtitle([
+      if (movieDto?.itemNumber?.trim().isNotEmpty ?? false)
+        '#${movieDto?.itemNumber}',
+      movieDto?.format,
+      movieDto?.releaseDate?.year.toString()
+    ]),
     itemNumber: movieDto?.itemNumber,
     variant: movieDto?.variant,
     releaseDate: movieDto?.releaseDate,
