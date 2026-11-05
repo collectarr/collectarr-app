@@ -49,6 +49,7 @@ LibrarySelectionCommand? _values(LibrarySelectionCallbacks commands) =>
 
 const selectionCsv = LibrarySelectionAction(
     id: 'csv',
+    category: 'Export',
     label: 'Export to CSV / TXT',
     icon: AppIcons.exportCsv,
     command: _csv,
@@ -59,6 +60,7 @@ LibrarySelectionCommand? _csv(LibrarySelectionCallbacks commands) =>
 
 const selectionXml = LibrarySelectionAction(
     id: 'xml',
+    category: 'Export',
     label: 'Export to XML',
     icon: AppIcons.exportXml,
     command: _xml,
@@ -142,6 +144,7 @@ LibrarySelectionCommand? _moveWishlist(LibrarySelectionCallbacks commands) =>
 
 const selectionCore = LibrarySelectionAction(
     id: 'core',
+    category: 'Core',
     label: 'Update from Core',
     icon: AppIcons.updateFromCore,
     command: _core,
