@@ -128,7 +128,7 @@ class LibraryPageToolbarController {
             : _s._selectionActionsForProjection(projection),
         selectionCallbacks: viewState.viewMode == LibraryViewMode.cardFlow
             ? null
-            : _s._selectionCallbacksForProjection(projection),
+            : _s._selectionStateCallbacksForProjection(projection),
         selectionEnabled: _s._session.selection.value.enabled &&
             viewState.viewMode != LibraryViewMode.cardFlow,
         selectedCount: viewState.viewMode == LibraryViewMode.cardFlow

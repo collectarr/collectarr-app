@@ -80,7 +80,7 @@ class LibraryToolbarState {
   final LibraryGroupPresentation? groupPresentation;
   final List<String>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
-  final LibrarySelectionCallbacks? selectionCallbacks;
+  final LibrarySelectionStateCallbacks? selectionCallbacks;
   final List<ResolvedLibrarySelectionAction> selectionActions;
   final bool selectionEnabled;
   final int selectedCount;

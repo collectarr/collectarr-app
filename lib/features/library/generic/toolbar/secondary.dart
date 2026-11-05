@@ -139,7 +139,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
   final ValueChanged<LibraryGroupPresentation>? onGroupPresentationChanged;
-  final LibrarySelectionCallbacks? selectionCallbacks;
+  final LibrarySelectionStateCallbacks? selectionCallbacks;
   final List<ResolvedLibrarySelectionAction> selectionActions;
   final int selectedCount;
   final int totalSelectableCount;

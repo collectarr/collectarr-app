@@ -456,15 +456,24 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       resolveLibrarySelectionActions(
         current: () => LibrarySelectionActionContext(
             selection: _selectedTargets(projection),
-            commands: _selectionCallbacksForProjection(projection)),
+            commands: _selectionCommandsForProjection(projection)),
         contributions: (kind) =>
             libraryToolbarForKind(kind)?.selectionActions ?? const [],
       );
 
-  LibrarySelectionCallbacks _selectionCallbacksForProjection(
+  LibrarySelectionStateCallbacks _selectionStateCallbacksForProjection(
+      LibraryProjection? projection) {
+    final commands = _selectionCommandsForProjection(projection);
+    return (
+      onClearSelection: commands.onClearSelection,
+      onSelectAll: commands.onSelectAll
+    );
+  }
+
+  LibrarySelectionCommands _selectionCommandsForProjection(
     LibraryProjection? projection,
   ) {
-    return LibraryPageShellPresenter.selectionCallbacksForProjection(
+    return LibraryPageShellPresenter.selectionCommandsForProjection(
       this,
       projection,
     );

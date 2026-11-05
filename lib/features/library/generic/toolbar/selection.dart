@@ -20,7 +20,7 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
 
   final int selectedCount;
   final int totalSelectableCount;
-  final LibrarySelectionCallbacks callbacks;
+  final LibrarySelectionStateCallbacks callbacks;
   final Color? accent;
   final List<ResolvedLibrarySelectionAction> actions;
   final bool showBottomBorder;

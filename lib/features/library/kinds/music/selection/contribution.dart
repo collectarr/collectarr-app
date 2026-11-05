@@ -27,7 +27,7 @@ const _merge = LibrarySelectionAction(
     enabled: _canMerge,
     scopes: {LibrarySelectionTargetScope.entry},
     order: 65);
-LibrarySelectionCommand? _mergeCommand(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _mergeCommand(LibrarySelectionCommands commands) =>
     commands.onMerge;
 
 bool _canMerge(LibrarySelectionActionContext context) =>

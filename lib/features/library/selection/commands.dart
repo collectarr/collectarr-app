@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 typedef LibrarySelectionCommand = FutureOr<void> Function();
 
-typedef LibrarySelectionCallbacks = ({
+typedef LibrarySelectionCommands = ({
   VoidCallback onClearSelection,
   VoidCallback onSelectAll,
   LibrarySelectionCommand? onBulkEdit,
@@ -21,4 +21,10 @@ typedef LibrarySelectionCallbacks = ({
   LibrarySelectionCommand? onMoveToCollection,
   LibrarySelectionCommand? onBulkRemove,
   LibrarySelectionCommand? onBulkRefreshMetadata,
+});
+
+/// The only selection callbacks consumed by toolbar layout widgets.
+typedef LibrarySelectionStateCallbacks = ({
+  VoidCallback onClearSelection,
+  VoidCallback onSelectAll
 });

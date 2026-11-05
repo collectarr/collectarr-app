@@ -144,7 +144,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final String? selectedLetter;
   final LibraryAlphabetOptions? alphabetOptions;
   final ValueChanged<String?>? onLetterSelected;
-  final LibrarySelectionCallbacks? selectionCallbacks;
+  final LibrarySelectionStateCallbacks? selectionCallbacks;
   final List<ResolvedLibrarySelectionAction> selectionActions;
   final int selectedCount;
   final int totalSelectableCount;

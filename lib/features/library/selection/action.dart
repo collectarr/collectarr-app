@@ -11,7 +11,7 @@ class LibrarySelectionActionContext {
   const LibrarySelectionActionContext(
       {required this.selection, required this.commands});
   final LibrarySelectionContext selection;
-  final LibrarySelectionCallbacks commands;
+  final LibrarySelectionCommands commands;
 }
 
 /// Contribution contract for bulk operations; distinct from single-item actions.
@@ -46,7 +46,7 @@ class LibrarySelectionAction
   final bool homogeneousOnly;
   final Set<LibrarySelectionTargetScope> scopes;
   final String? unavailableMessage;
-  final LibrarySelectionCommand? Function(LibrarySelectionCallbacks) command;
+  final LibrarySelectionCommand? Function(LibrarySelectionCommands) command;
   final bool Function(LibrarySelectionActionContext)? enabled;
   @override
   bool isVisible(LibrarySelectionActionContext context) =>

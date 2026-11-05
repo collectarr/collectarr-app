@@ -12,7 +12,7 @@ const selectionEdit = LibrarySelectionAction(
     placement: UiActionPlacement.toolbar,
     order: 0,
     scopes: {LibrarySelectionTargetScope.entry});
-LibrarySelectionCommand? _edit(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _edit(LibrarySelectionCommands commands) =>
     commands.onBulkEdit;
 
 const selectionRemove = LibrarySelectionAction(
@@ -22,7 +22,7 @@ const selectionRemove = LibrarySelectionAction(
     command: _remove,
     placement: UiActionPlacement.toolbar,
     order: 10);
-LibrarySelectionCommand? _remove(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _remove(LibrarySelectionCommands commands) =>
     commands.onBulkRemove;
 
 const selectionPrint = LibrarySelectionAction(
@@ -32,7 +32,7 @@ const selectionPrint = LibrarySelectionAction(
     command: _print,
     placement: UiActionPlacement.toolbar,
     order: 20);
-LibrarySelectionCommand? _print(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _print(LibrarySelectionCommands commands) =>
     commands.onPrintToPdf;
 
 const selectionValues = LibrarySelectionAction(
@@ -44,7 +44,7 @@ const selectionValues = LibrarySelectionAction(
     order: 30,
     scopes: {LibrarySelectionTargetScope.entry},
     unavailableMessage: 'Automatic value updates are not available');
-LibrarySelectionCommand? _values(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _values(LibrarySelectionCommands commands) =>
     commands.onBulkUpdateValues;
 
 const selectionCsv = LibrarySelectionAction(
@@ -55,7 +55,7 @@ const selectionCsv = LibrarySelectionAction(
     command: _csv,
     placement: UiActionPlacement.bulkMenu,
     order: 40);
-LibrarySelectionCommand? _csv(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _csv(LibrarySelectionCommands commands) =>
     commands.onExportCsvTxt;
 
 const selectionXml = LibrarySelectionAction(
@@ -67,7 +67,7 @@ const selectionXml = LibrarySelectionAction(
     placement: UiActionPlacement.bulkMenu,
     order: 50,
     scopes: {LibrarySelectionTargetScope.entry});
-LibrarySelectionCommand? _xml(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _xml(LibrarySelectionCommands commands) =>
     commands.onExportXml;
 
 const selectionDuplicate = LibrarySelectionAction(
@@ -78,7 +78,7 @@ const selectionDuplicate = LibrarySelectionAction(
     placement: UiActionPlacement.secondary,
     order: 60,
     scopes: {LibrarySelectionTargetScope.entry});
-LibrarySelectionCommand? _duplicate(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _duplicate(LibrarySelectionCommands commands) =>
     commands.onBulkDuplicate;
 
 const selectionLoan = LibrarySelectionAction(
@@ -89,7 +89,7 @@ const selectionLoan = LibrarySelectionAction(
     placement: UiActionPlacement.secondary,
     order: 70,
     scopes: {LibrarySelectionTargetScope.entry});
-LibrarySelectionCommand? _loan(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _loan(LibrarySelectionCommands commands) =>
     commands.onBulkLoan;
 
 const selectionTransfer = LibrarySelectionAction(
@@ -100,7 +100,7 @@ const selectionTransfer = LibrarySelectionAction(
     placement: UiActionPlacement.bulkMenu,
     order: 80,
     scopes: {LibrarySelectionTargetScope.entry});
-LibrarySelectionCommand? _transfer(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _transfer(LibrarySelectionCommands commands) =>
     commands.onTransferFieldData;
 
 const selectionMoveCollection = LibrarySelectionAction(
@@ -111,7 +111,7 @@ const selectionMoveCollection = LibrarySelectionAction(
     placement: UiActionPlacement.bulkMenu,
     order: 90,
     scopes: {LibrarySelectionTargetScope.entry});
-LibrarySelectionCommand? _moveCollection(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _moveCollection(LibrarySelectionCommands commands) =>
     commands.onMoveToCollection;
 
 const selectionMoveEntry = LibrarySelectionAction(
@@ -125,7 +125,7 @@ const selectionMoveEntry = LibrarySelectionAction(
       LibrarySelectionTargetScope.catalog,
       LibrarySelectionTargetScope.wishlist
     });
-LibrarySelectionCommand? _moveEntry(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _moveEntry(LibrarySelectionCommands commands) =>
     commands.onBulkMoveToEntry;
 
 const selectionMoveWishlist = LibrarySelectionAction(
@@ -139,7 +139,7 @@ const selectionMoveWishlist = LibrarySelectionAction(
       LibrarySelectionTargetScope.catalog,
       LibrarySelectionTargetScope.entry
     });
-LibrarySelectionCommand? _moveWishlist(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _moveWishlist(LibrarySelectionCommands commands) =>
     commands.onBulkMoveToWishlist;
 
 const selectionCore = LibrarySelectionAction(
@@ -150,5 +150,5 @@ const selectionCore = LibrarySelectionAction(
     command: _core,
     placement: UiActionPlacement.bulkMenu,
     order: 120);
-LibrarySelectionCommand? _core(LibrarySelectionCallbacks commands) =>
+LibrarySelectionCommand? _core(LibrarySelectionCommands commands) =>
     commands.onBulkRefreshMetadata;
