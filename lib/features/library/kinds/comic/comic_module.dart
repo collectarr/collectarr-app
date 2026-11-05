@@ -20,3 +20,4 @@ export 'tracking/comic_tracking_unit_codec.dart';
 export 'integrations/serial/comic_serial_authority_contributor.dart';
 export 'vocabulary/comic_vocabularies.dart';
 export 'settings/contribution.dart';
+export 'selection/contribution.dart';

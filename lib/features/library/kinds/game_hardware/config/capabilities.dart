@@ -1,3 +1,5 @@
+import '../selection/contribution.dart';
+import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
 import '../stats/game_hardware_stats_capability.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'configuration.dart';
@@ -17,13 +19,13 @@ final gameHardwareKindIdentity = const LibraryKindIdentity(
     mediaFamily: 'game',
     isTopLevel: false,
     collectionFamily: 'games',
-    showSelectionValueUpdate: true,
     hasTrailers: true,
     defaultCollectionName: 'Hardware');
 final gameHardwareKindPresentation = gameHardwareLibraryMediaPresentation;
 final gameHardwareKindPhysicalMediaFormats = const <PhysicalMediaFormat>[];
 final gameHardwareKindUiPolicy = const LibraryUiPolicy(coverAspectRatio: 0.7);
-final gameHardwareKindToolbar = null;
+const gameHardwareKindToolbar =
+    LibraryKindToolbarModule(selectionActions: gameHardwareSelectionActions);
 final gameHardwareKindSearchTargetOptions = const <LibrarySearchTarget>[];
 final gameHardwareKindTrackingProfile =
     const MediaTrackingProfile(name: 'Hardware', options: []);

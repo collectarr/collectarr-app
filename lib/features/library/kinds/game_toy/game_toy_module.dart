@@ -13,3 +13,4 @@ export 'page.dart';
 export 'vocabulary/game_toy_vocabularies.dart';
 export 'config/game_toy_import_sources.dart';
 export 'settings/contribution.dart';
+export 'selection/contribution.dart';

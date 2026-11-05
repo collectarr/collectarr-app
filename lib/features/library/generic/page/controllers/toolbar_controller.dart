@@ -123,6 +123,9 @@ class LibraryPageToolbarController {
         groupPresentation: _s._activeGroupPresentation,
         availableGroupModes: _s._scopeAvailableGroupModes,
         pinnedFolderPresets: _s._session.preferences.pinnedFolderPresets,
+        selectionActions: viewState.viewMode == LibraryViewMode.cardFlow
+            ? const []
+            : _s._selectionActionsForProjection(projection),
         selectionCallbacks: viewState.viewMode == LibraryViewMode.cardFlow
             ? null
             : _s._selectionCallbacksForProjection(projection),

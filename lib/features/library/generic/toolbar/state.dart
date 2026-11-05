@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/selection/commands.dart';
+import 'package:collectarr_app/features/library/selection/action.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/alphabet_options.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/media_presentation_models.dart';
@@ -7,7 +9,6 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/search.dart';
 import 'package:collectarr_app/features/library/workspace/entry/view_state.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
-import 'package:collectarr_app/features/library/selection/controls.dart';
 import 'package:flutter/material.dart';
 
 class LibraryToolbarState {
@@ -43,6 +44,7 @@ class LibraryToolbarState {
     this.availableGroupModes,
     this.pinnedFolderPresets = const <LibraryFolderPreset>[],
     this.selectionCallbacks,
+    this.selectionActions = const [],
     this.selectionEnabled = false,
     this.selectedCount = 0,
     this.totalSelectableCount = 0,
@@ -79,6 +81,7 @@ class LibraryToolbarState {
   final List<String>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final LibrarySelectionCallbacks? selectionCallbacks;
+  final List<ResolvedLibrarySelectionAction> selectionActions;
   final bool selectionEnabled;
   final int selectedCount;
   final int totalSelectableCount;

@@ -1,3 +1,5 @@
+import '../selection/contribution.dart';
+import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../movie_module_dependencies.dart';
 import 'configuration.dart';
@@ -56,7 +58,8 @@ final movieKindTrackingProfile = movieTrackingProfile;
 
 final LibraryRelationCapability? movieKindRelations = null;
 
-final movieKindToolbar = null;
+const movieKindToolbar =
+    LibraryKindToolbarModule(selectionActions: movieSelectionActions);
 
 final movieKindSearchTargetOptions = const <LibrarySearchTarget>[];
 

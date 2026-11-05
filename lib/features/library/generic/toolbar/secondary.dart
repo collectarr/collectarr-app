@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/selection/commands.dart';
+import 'package:collectarr_app/features/library/selection/action.dart';
 import 'selection.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
@@ -8,7 +10,6 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
-import 'package:collectarr_app/features/library/selection/controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/shelf_style_dropdown.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/chrome.dart';
@@ -80,6 +81,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onGroupModeChanged,
     this.onGroupPresentationChanged,
     this.selectionCallbacks,
+    this.selectionActions = const [],
     this.selectedCount = 0,
     this.currentSpacing,
     this.onSpacingChanged,
@@ -138,6 +140,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
   final ValueChanged<LibraryGroupPresentation>? onGroupPresentationChanged;
   final LibrarySelectionCallbacks? selectionCallbacks;
+  final List<ResolvedLibrarySelectionAction> selectionActions;
   final int selectedCount;
   final int totalSelectableCount;
   final bool showBottomBorder;
@@ -162,11 +165,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         totalSelectableCount: totalSelectableCount,
         callbacks: selectionCallbacks!,
         accent: type.identity.accent,
-        itemPluralLabel: type.identity.pluralLabel,
-        showValueUpdate: type.identity.showSelectionValueUpdate,
-        showKeyInfo: type.identity.showSelectionKeyInfo,
-        supportsMerge:
-            libraryEntryPolicyForKind(type.kind).mergeEntries != null,
+        actions: selectionActions,
         showBottomBorder: showBottomBorder,
       );
     }

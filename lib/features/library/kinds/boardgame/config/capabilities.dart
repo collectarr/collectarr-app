@@ -1,3 +1,5 @@
+import '../selection/contribution.dart';
+import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../boardgame_module_dependencies.dart';
 import 'configuration.dart';
@@ -21,7 +23,8 @@ final LibraryValueCapability? boardGameKindValue = null;
 
 final LibraryRelationCapability? boardGameKindRelations = null;
 
-final boardGameKindToolbar = null;
+const boardGameKindToolbar =
+    LibraryKindToolbarModule(selectionActions: boardGameSelectionActions);
 
 final boardGameKindSearchTargetOptions = const <LibrarySearchTarget>[];
 

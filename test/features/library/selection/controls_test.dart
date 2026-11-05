@@ -1,3 +1,4 @@
+import '../../../support/builders/selection_builder.dart';
 import 'package:collectarr_app/features/library/selection/controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,7 +13,7 @@ void main() {
         home: Scaffold(
           body: LibrarySelectionControls(
             key: testKey,
-            callbacks: (
+            actions: testSelectionActions((
               onClearSelection: () {},
               onSelectAll: () {},
               onBulkEdit: () {},
@@ -37,7 +38,7 @@ void main() {
                 );
               },
               onBulkRefreshMetadata: () {},
-            ),
+            )),
           ),
         ),
       ),
@@ -64,9 +65,8 @@ void main() {
                       height: 32,
                       child: LibrarySelectionControls(
                           onAccent: true,
-                          supportsMerge: true,
                           accent: Colors.orange,
-                          callbacks: (
+                          actions: testSelectionActions((
                             onClearSelection: () {},
                             onSelectAll: () {},
                             onBulkEdit: null,
@@ -89,7 +89,7 @@ void main() {
                             onMoveToCollection: null,
                             onBulkRemove: null,
                             onBulkRefreshMetadata: null,
-                          ))),
+                          )))),
                 ])))));
     final item = find.ancestor(
         of: find.text('Merge Albums'),

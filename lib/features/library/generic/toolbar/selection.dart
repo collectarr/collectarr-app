@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/selection/commands.dart';
+import 'package:collectarr_app/features/library/selection/action.dart';
 import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/features/library/selection/controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/chrome.dart';
@@ -11,23 +13,17 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
     required this.selectedCount,
     required this.totalSelectableCount,
     required this.callbacks,
+    required this.actions,
     this.accent,
-    this.itemPluralLabel,
     this.showBottomBorder = true,
-    this.showValueUpdate = false,
-    this.showKeyInfo = false,
-    this.supportsMerge = false,
   });
 
   final int selectedCount;
   final int totalSelectableCount;
   final LibrarySelectionCallbacks callbacks;
   final Color? accent;
-  final String? itemPluralLabel;
+  final List<ResolvedLibrarySelectionAction> actions;
   final bool showBottomBorder;
-  final bool showValueUpdate;
-  final bool showKeyInfo;
-  final bool supportsMerge;
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +59,6 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
 
     final isAllSelected =
         selectedCount == totalSelectableCount && totalSelectableCount > 0;
-
-    final mergeLabel =
-        itemPluralLabel != null && itemPluralLabel!.toLowerCase() == 'music'
-            ? 'Merge Albums'
-            : 'Merge ${itemPluralLabel ?? 'Albums'}';
 
     return AnimatedLibraryChrome(
       accent: effectiveAccent,
@@ -123,13 +114,9 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
               );
 
               final centerActions = LibrarySelectionControls(
-                callbacks: callbacks,
+                actions: actions,
                 onAccent: true,
                 accent: effectiveAccent,
-                mergeLabel: mergeLabel,
-                showValueUpdate: showValueUpdate,
-                showKeyInfo: showKeyInfo,
-                supportsMerge: supportsMerge,
               );
 
               final rightCountPill = DecoratedBox(

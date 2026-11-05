@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/selection/commands.dart';
+import 'package:collectarr_app/features/library/selection/action.dart';
 import 'package:collectarr_app/features/library/selection/context.dart';
 import 'package:collectarr_app/ui/adaptive/mobile_page.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
@@ -55,7 +57,6 @@ import 'package:collectarr_app/features/library/generic/page/coordinators/sharin
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_history.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/selection/controls.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
@@ -449,6 +450,16 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return items.where((item) => !item.isDeleted).toList(growable: false);
   }
+
+  List<ResolvedLibrarySelectionAction> _selectionActionsForProjection(
+          LibraryProjection? projection) =>
+      resolveLibrarySelectionActions(
+        current: () => LibrarySelectionActionContext(
+            selection: _selectedTargets(projection),
+            commands: _selectionCallbacksForProjection(projection)),
+        contributions: (kind) =>
+            libraryToolbarForKind(kind)?.selectionActions ?? const [],
+      );
 
   LibrarySelectionCallbacks _selectionCallbacksForProjection(
     LibraryProjection? projection,

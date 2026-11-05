@@ -86,3 +86,11 @@ Existing per-kind layout, custom field display and default Add method keys remai
 ### Bulk command validation
 
 `LibrarySelectionContext` represents a complete target snapshot. Eligibility requires every selected target to qualify; empty or incomplete snapshots are ineligible. Entry-only edit and duplicate commands validate the entire set before execution. Edit commands and Add-from-wishlist commands are prepared for all selected targets before mutations begin. Add uses the existing per-entry transaction to create the copy and update wishlist state, rather than removing wishlist items in a preliminary pass. Unsupported targets are rejected explicitly. Existing per-item execution and failure semantics remain in place; these commands do not promise a cross-kind transaction.
+
+### Kind-contributed selection actions
+
+Each kind declares its bulk actions in `selection/contribution.dart`, registered through the existing `LibraryKindToolbarModule.selectionActions`. Contributions implement the existing typed `UiAction` contract with stable IDs, labels, icons, placement, ordering, category, supported target scopes and homogeneous-selection requirements. Shared action descriptors bind the existing bulk services; kind-only commands and labels remain in kind folders. Music declares Merge Albums and Comics declares Update Key Info. Single-item `LibraryTargetActionCapability` is a separate contract.
+
+The page coordinator resolves one list of actions. Mixed-kind selections use the intersection of supported IDs, and every selected target must meet each declaration?s scope and enabled conditions. A resolved action obtains a fresh selection and command context before invoking its handler. Async command errors propagate to the shared renderer?s error display. Primary controls and More render the same resolved list on desktop and native mobile; Flow supplies no bulk action list or selection callbacks.
+
+`selection/commands.dart` contains the shared service command bindings, independently of UI. `selection/controls.dart` only renders resolved actions. It contains no fixed action enum, kind-name comparisons or domain labels. The former unused compact selection bar is removed; native selection uses the common toolbar band.

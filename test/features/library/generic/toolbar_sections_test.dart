@@ -1,3 +1,5 @@
+import '../../../support/builders/selection_builder.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/sections.dart';
 import 'package:collectarr_app/features/library/selection/controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/utility_menu.dart';
@@ -35,12 +37,14 @@ void main() {
       await tester.pumpWidget(MaterialApp(
           home: Scaffold(
               body: LibrarySelectionToolbarBand(
-                  selectedCount: 2,
-                  totalSelectableCount: 8,
-                  callbacks: callbacks,
-                  itemPluralLabel: label,
-                  showValueUpdate: true,
-                  showKeyInfo: label == 'Comics'))));
+        selectedCount: 2,
+        totalSelectableCount: 8,
+        callbacks: callbacks,
+        actions: testSelectionActions(callbacks,
+            kind: label == 'Comics'
+                ? CatalogMediaKind.comic
+                : CatalogMediaKind.game),
+      ))));
       expect(find.text('Update values'), findsOneWidget);
       expect(
           tester
@@ -100,7 +104,8 @@ void main() {
             body: LibrarySelectionToolbarBand(
                 selectedCount: 1,
                 totalSelectableCount: 3,
-                callbacks: callbacks))));
+                callbacks: callbacks,
+                actions: testSelectionActions(callbacks)))));
     final edit = find.widgetWithText(TextButton, 'Edit');
     expect(tester.widget<TextButton>(edit).onPressed, isNull);
     await tester.ensureVisible(find.text('Print to PDF'));
@@ -151,7 +156,7 @@ void main() {
             selectedCount: 3,
             totalSelectableCount: 12,
             callbacks: callbacks,
-            supportsMerge: true,
+            actions: testSelectionActions(callbacks),
           ),
         ),
       ),
@@ -230,7 +235,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: LibrarySelectionControls(callbacks: callbacks),
+          body: LibrarySelectionControls(
+              actions: testSelectionActions(callbacks,
+                  kind: CatalogMediaKind.comic)),
         ),
       ),
     );
@@ -306,7 +313,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: LibrarySelectionControls(callbacks: callbacks),
+          body: LibrarySelectionControls(
+              actions: testSelectionActions(callbacks,
+                  kind: CatalogMediaKind.comic, owned: false)),
         ),
       ),
     );
@@ -454,6 +463,7 @@ void main() {
             selectedCount: 5,
             totalSelectableCount: 20,
             callbacks: callbacks,
+            actions: testSelectionActions(callbacks),
           ),
         ),
       ),

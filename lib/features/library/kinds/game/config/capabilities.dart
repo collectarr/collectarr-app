@@ -1,3 +1,5 @@
+import '../selection/contribution.dart';
+import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../game_module_dependencies.dart';
 import 'configuration.dart';
@@ -17,7 +19,8 @@ final LibraryRelationCapability? gameKindRelations = null;
 
 final LibraryValueCapability? gameKindValue = null;
 
-final gameKindToolbar = null;
+const gameKindToolbar =
+    LibraryKindToolbarModule(selectionActions: gameSelectionActions);
 
 final gameKindSearchTargetOptions = const <LibrarySearchTarget>[];
 
@@ -41,7 +44,6 @@ final gameKindIdentity = const LibraryKindIdentity(
   routeSegments: ['games', 'game'],
   mediaFamily: 'game',
   collectionFamily: 'games',
-  showSelectionValueUpdate: true,
   hasTrailers: true,
   defaultCollectionName: 'Games',
 );

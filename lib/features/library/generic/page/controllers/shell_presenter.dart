@@ -449,6 +449,9 @@ abstract final class LibraryPageShellPresenter {
           onGroupModeChanged: state._setFolderPreset,
           groupPresentation: state._activeGroupPresentation,
           onGroupPresentationChanged: state._setGroupPresentation,
+          selectionActions: viewState.viewMode == LibraryViewMode.cardFlow
+              ? const []
+              : state._selectionActionsForProjection(projection),
           selectionCallbacks: viewState.viewMode == LibraryViewMode.cardFlow
               ? null
               : selectionCallbacksForProjection(state, projection),

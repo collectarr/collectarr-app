@@ -1,39 +1,8 @@
+import 'action.dart';
+import 'package:collectarr_app/features/library/actions/ui_action.dart';
 import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
-
-enum _BulkAction {
-  exportCsvTxt,
-  exportXml,
-  duplicate,
-  mergeAlbums,
-  loan,
-  transferFieldData,
-  moveToCollection,
-  updateKeyInfo,
-  updateFromCore,
-}
-
-typedef LibrarySelectionCallbacks = ({
-  VoidCallback onClearSelection,
-  VoidCallback onSelectAll,
-  VoidCallback? onBulkEdit,
-  VoidCallback? onPrintToPdf,
-  VoidCallback? onExportCsvTxt,
-  VoidCallback? onExportXml,
-  VoidCallback? onMerge,
-  VoidCallback? onBulkDuplicate,
-  VoidCallback? onBulkLoan,
-  VoidCallback? onTransferFieldData,
-  VoidCallback? onBulkUpdateValues,
-  VoidCallback? onBulkUpdateKeyInfo,
-  VoidCallback? onBulkMoveToEntry,
-  VoidCallback? onBulkMoveToWishlist,
-  VoidCallback? onMoveToCollection,
-  VoidCallback? onBulkRemove,
-  VoidCallback? onBulkRefreshMetadata,
-});
 
 class LibrarySelectionToolbarDivider extends StatelessWidget {
   const LibrarySelectionToolbarDivider({
@@ -113,27 +82,22 @@ class LibrarySelectionMoreIcon extends StatelessWidget {
 }
 
 class LibrarySelectionControls extends StatelessWidget {
-  const LibrarySelectionControls({
-    super.key,
-    required this.callbacks,
-    this.onAccent = false,
-    this.accent,
-    this.mergeLabel,
-    this.showValueUpdate = false,
-    this.showKeyInfo = false,
-    this.supportsMerge = false,
-  });
-
-  final LibrarySelectionCallbacks callbacks;
+  const LibrarySelectionControls(
+      {super.key, required this.actions, this.onAccent = false, this.accent});
+  final List<ResolvedLibrarySelectionAction> actions;
   final bool onAccent;
   final Color? accent;
-  final String? mergeLabel;
-  final bool showValueUpdate;
-  final bool showKeyInfo;
-  final bool supportsMerge;
 
-  void _dispatchAfterMenuClose(VoidCallback action) {
-    WidgetsBinding.instance.addPostFrameCallback((_) => action());
+  Future<void> _invoke(
+      BuildContext context, ResolvedLibrarySelectionAction action) async {
+    try {
+      await action.invoke();
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.maybeOf(context)
+            ?.showSnackBar(SnackBar(content: Text('$error')));
+      }
+    }
   }
 
   @override
@@ -211,351 +175,103 @@ class LibrarySelectionControls extends StatelessWidget {
       );
     }
 
-    PopupMenuItem<_BulkAction> accentMenuItem({
-      required _BulkAction value,
-      IconData? icon,
-      required String label,
-      required bool enabled,
-      String? unavailableMessage,
-    }) {
-      final contentColor =
-          enabled ? Colors.white : Colors.white.withValues(alpha: 0.38);
-      final content = Row(
-        children: [
-          SizedBox(
-            width: 20,
-            height: 20,
-            child: Center(child: Icon(icon, size: 15, color: contentColor)),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(label,
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: contentColor)),
-          ),
-        ],
-      );
-      return PopupMenuItem<_BulkAction>(
-        value: value,
-        enabled: enabled,
-        height: 28,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: !enabled && unavailableMessage != null
-            ? Tooltip(message: unavailableMessage, child: content)
-            : content,
-      );
+    final primary = actions
+        .where((action) =>
+            action.action.placement == UiActionPlacement.toolbar ||
+            (!onAccent &&
+                action.action.placement == UiActionPlacement.secondary))
+        .toList();
+    final overflow =
+        actions.where((action) => !primary.contains(action)).toList();
+    Widget button(ResolvedLibrarySelectionAction action) {
+      final control = actionButton(
+          onPressed: action.enabled ? () => _invoke(context, action) : null,
+          icon: action.action.icon,
+          label: action.action.label);
+      return !action.enabled && action.action.unavailableMessage != null
+          ? Tooltip(message: action.action.unavailableMessage!, child: control)
+          : control;
     }
 
-    final moreMenuButton = Theme(
-      data: Theme.of(context).copyWith(
-        dividerColor: const Color(0xFF4F4F4F),
-      ),
-      child: PopupMenuButton<_BulkAction>(
-        popUpAnimationStyle: AnimationStyle.noAnimation,
-        key: const ValueKey('library-selection-more-button'),
-        tooltip: 'More selection actions',
-        position: onAccent ? PopupMenuPosition.under : PopupMenuPosition.over,
-        color: onAccent
-            ? const Color(0xFF333333)
-            : librarySelectionToolbarSecondaryAction(context),
-        surfaceTintColor: Colors.transparent,
-        elevation: onAccent ? 6 : 8,
-        menuPadding: onAccent
-            ? const EdgeInsets.symmetric(vertical: 4)
-            : EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(onAccent ? 2 : 6),
-          side: BorderSide(
-            color: onAccent
-                ? const Color(0xFF4F4F4F)
-                : librarySelectionToolbarBorder(context)
-                    .withValues(alpha: 0.86),
-          ),
-        ),
-        style: ButtonStyle(
-          visualDensity: VisualDensity.compact,
-          foregroundColor: WidgetStatePropertyAll(
-            onAccent ? Colors.white : palette.textPrimary,
-          ),
-          backgroundColor: WidgetStatePropertyAll(
-            onAccent
-                ? Colors.transparent
-                : librarySelectionToolbarSecondaryAction(context),
-          ),
-          overlayColor: onAccent
-              ? WidgetStatePropertyAll(Colors.white.withValues(alpha: 0.15))
-              : null,
-          padding: WidgetStatePropertyAll(
-            onAccent
-                ? const EdgeInsets.symmetric(horizontal: 6, vertical: 0)
-                : const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          ),
-          minimumSize:
-              onAccent ? const WidgetStatePropertyAll(Size.zero) : null,
-          tapTargetSize: onAccent ? MaterialTapTargetSize.shrinkWrap : null,
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(onAccent ? 4 : 6),
-              side: onAccent
-                  ? BorderSide.none
-                  : BorderSide(
-                      color: librarySelectionToolbarBorder(context)
-                          .withValues(alpha: 0.86),
-                    ),
-            ),
-          ),
-        ),
-        icon: onAccent
-            ? const LibrarySelectionMoreIcon(color: Colors.white)
-            : const Icon(Icons.more_horiz, size: 18),
-        onSelected: (action) {
-          final callback = switch (action) {
-            _BulkAction.exportCsvTxt => callbacks.onExportCsvTxt,
-            _BulkAction.exportXml => callbacks.onExportXml,
-            _BulkAction.duplicate => callbacks.onBulkDuplicate,
-            _BulkAction.mergeAlbums => callbacks.onMerge,
-            _BulkAction.loan => callbacks.onBulkLoan,
-            _BulkAction.transferFieldData => callbacks.onTransferFieldData,
-            _BulkAction.moveToCollection => callbacks.onMoveToCollection,
-            _BulkAction.updateKeyInfo => callbacks.onBulkUpdateKeyInfo,
-            _BulkAction.updateFromCore => callbacks.onBulkRefreshMetadata,
-          };
-          if (callback != null) {
-            _dispatchAfterMenuClose(callback);
-          }
-        },
-        itemBuilder: (context) => onAccent
-            ? [
-                accentMenuItem(
-                  value: _BulkAction.exportCsvTxt,
-                  icon: AppIcons.exportCsv,
-                  label: 'Export to CSV / TXT',
-                  enabled: callbacks.onExportCsvTxt != null,
-                ),
-                accentMenuItem(
-                  value: _BulkAction.exportXml,
-                  icon: AppIcons.exportXml,
-                  label: 'Export to XML',
-                  enabled: callbacks.onExportXml != null,
-                ),
-                const PopupMenuDivider(height: 7),
-                accentMenuItem(
-                  value: _BulkAction.duplicate,
-                  icon: AppIcons.duplicates,
-                  label: 'Duplicate',
-                  enabled: callbacks.onBulkDuplicate != null,
-                ),
-                if (supportsMerge)
-                  accentMenuItem(
-                    value: _BulkAction.mergeAlbums,
-                    icon: AppIcons.merge,
-                    label: mergeLabel ?? 'Merge Albums',
-                    enabled: callbacks.onMerge != null,
-                  ),
-                accentMenuItem(
-                  value: _BulkAction.loan,
-                  icon: AppIcons.loans,
-                  label: 'Loan',
-                  enabled: callbacks.onBulkLoan != null,
-                ),
-                accentMenuItem(
-                  value: _BulkAction.transferFieldData,
-                  icon: AppIcons.transferFieldData,
-                  label: 'Transfer Field Data',
-                  enabled: callbacks.onTransferFieldData != null,
-                ),
-                accentMenuItem(
-                  value: _BulkAction.moveToCollection,
-                  icon: AppIcons.searchAll,
-                  label: 'Move to other collection',
-                  enabled: callbacks.onMoveToCollection != null,
-                ),
-                const PopupMenuDivider(height: 7),
-                if (showKeyInfo)
-                  accentMenuItem(
-                    value: _BulkAction.updateKeyInfo,
-                    icon: AppIcons.key,
-                    label: 'Update Key Info',
-                    enabled: callbacks.onBulkUpdateKeyInfo != null,
-                    unavailableMessage: 'Key info updates are not available',
-                  ),
-                accentMenuItem(
-                  value: _BulkAction.updateFromCore,
-                  icon: AppIcons.updateFromCore,
-                  label: 'Update from Core',
-                  enabled: callbacks.onBulkRefreshMetadata != null,
-                ),
-              ]
-            : [
-                PopupMenuItem(
-                  value: _BulkAction.exportCsvTxt,
-                  enabled: callbacks.onExportCsvTxt != null,
-                  child: const Material(
+    final more = PopupMenuButton<ResolvedLibrarySelectionAction>(
+      key: const ValueKey('library-selection-more-button'),
+      tooltip: 'More selection actions',
+      constraints: const BoxConstraints(minWidth: 260, maxWidth: 340),
+      popUpAnimationStyle: AnimationStyle.noAnimation,
+      position: onAccent ? PopupMenuPosition.under : PopupMenuPosition.over,
+      color: onAccent
+          ? const Color(0xFF333333)
+          : librarySelectionToolbarSecondaryAction(context),
+      surfaceTintColor: Colors.transparent,
+      style: ButtonStyle(
+          padding:
+              const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 6)),
+          minimumSize: const WidgetStatePropertyAll(Size.zero),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+      icon: onAccent
+          ? const LibrarySelectionMoreIcon()
+          : const Icon(Icons.more_horiz, size: 18),
+      onSelected: (action) => WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) _invoke(context, action);
+      }),
+      itemBuilder: (_) => [
+        for (final action in overflow)
+          PopupMenuItem(
+            value: action,
+            enabled: action.enabled,
+            height: onAccent ? 28 : 48,
+            child: onAccent
+                ? Row(children: [
+                    Icon(action.action.icon,
+                        size: 15,
+                        color: onAccent
+                            ? Colors.white
+                                .withValues(alpha: action.enabled ? 1 : .38)
+                            : null),
+                    const SizedBox(width: 8),
+                    Expanded(
+                        child: Text(action.action.label,
+                            style: onAccent
+                                ? TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.white.withValues(
+                                        alpha: action.enabled ? 1 : .38))
+                                : null))
+                  ])
+                : Material(
                     type: MaterialType.transparency,
                     child: ListTile(
-                      leading: Icon(Icons.table_view_outlined),
-                      title: Text('Export to CSV / TXT'),
-                      dense: true,
-                    ),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _BulkAction.exportXml,
-                  enabled: callbacks.onExportXml != null,
-                  child: const Material(
-                    type: MaterialType.transparency,
-                    child: ListTile(
-                      leading: Icon(Icons.data_object_outlined),
-                      title: Text('Export to XML'),
-                      dense: true,
-                    ),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _BulkAction.transferFieldData,
-                  enabled: callbacks.onTransferFieldData != null,
-                  child: const Material(
-                    type: MaterialType.transparency,
-                    child: ListTile(
-                      leading: Icon(Icons.swap_horiz),
-                      title: Text('Transfer Field Data'),
-                      dense: true,
-                    ),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _BulkAction.updateKeyInfo,
-                  enabled: callbacks.onBulkUpdateKeyInfo != null,
-                  child: const Material(
-                    type: MaterialType.transparency,
-                    child: ListTile(
-                      leading: Icon(Icons.key_outlined),
-                      title: Text('Update Key Info'),
-                      dense: true,
-                    ),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _BulkAction.updateFromCore,
-                  enabled: callbacks.onBulkRefreshMetadata != null,
-                  child: const Material(
-                    type: MaterialType.transparency,
-                    child: ListTile(
-                      leading: Icon(Icons.sync),
-                      title: Text('Update from Core'),
-                      dense: true,
-                    ),
-                  ),
-                ),
-              ],
-      ),
-    );
-
-    if (onAccent) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          actionButton(
-            label: 'Edit',
-            icon: AppIcons.inlineEdit,
-            onPressed: callbacks.onBulkEdit,
-          ),
-          actionButton(
-            label: 'Remove',
-            icon: AppIcons.delete,
-            onPressed: callbacks.onBulkRemove,
-          ),
-          LibrarySelectionToolbarDivider(
-            dividerLeft: dividerLeft,
-            dividerRight: dividerRight,
-          ),
-          actionButton(
-            label: 'Print to PDF',
-            icon: AppIcons.print,
-            onPressed: callbacks.onPrintToPdf,
-          ),
-          if (showValueUpdate) ...[
-            LibrarySelectionToolbarDivider(
-              dividerLeft: dividerLeft,
-              dividerRight: dividerRight,
-            ),
-            Tooltip(
-              message: callbacks.onBulkUpdateValues == null
-                  ? 'Automatic value updates are not available'
-                  : 'Update values',
-              child: actionButton(
-                label: 'Update values',
-                icon: Icons.payments_outlined,
-                onPressed: callbacks.onBulkUpdateValues,
-              ),
-            ),
-          ],
-          LibrarySelectionToolbarDivider(
-            dividerLeft: dividerLeft,
-            dividerRight: dividerRight,
-          ),
-          moreMenuButton,
-        ],
-      );
-    }
-
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        actionButton(
-          onPressed: callbacks.onBulkEdit,
-          icon: Icons.edit_outlined,
-          label: 'Edit',
-        ),
-        actionButton(
-          onPressed: callbacks.onBulkRemove,
-          icon: Icons.delete_outline,
-          label: 'Remove',
-          foregroundColor: Theme.of(context).colorScheme.error,
-          backgroundColor: Theme.of(context)
-              .colorScheme
-              .errorContainer
-              .withValues(alpha: 0.34),
-          borderColor:
-              Theme.of(context).colorScheme.error.withValues(alpha: 0.52),
-        ),
-        actionButton(
-          onPressed: callbacks.onBulkDuplicate,
-          icon: Icons.copy_all_outlined,
-          label: 'Duplicate',
-        ),
-        actionButton(
-          onPressed: callbacks.onBulkLoan,
-          icon: Icons.handshake_outlined,
-          label: 'Loan',
-        ),
-        actionButton(
-          onPressed: callbacks.onBulkMoveToEntry,
-          icon: Icons.inventory_2_outlined,
-          label: 'Move to entry',
-        ),
-        actionButton(
-          onPressed: callbacks.onBulkMoveToWishlist,
-          icon: Icons.star_border,
-          label: 'Move to wishlist',
-        ),
-        actionButton(
-          onPressed: callbacks.onPrintToPdf,
-          icon: Icons.picture_as_pdf_outlined,
-          label: 'Print to PDF',
-        ),
-        actionButton(
-          onPressed: callbacks.onBulkUpdateValues,
-          icon: Icons.price_change_outlined,
-          label: 'Update values',
-        ),
-        moreMenuButton,
+                        leading: Icon(action.action.icon),
+                        title: Text(action.action.label),
+                        dense: true)),
+          )
       ],
     );
+    if (onAccent) {
+      return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var index = 0; index < primary.length; index++) ...[
+              if (index > 1)
+                LibrarySelectionToolbarDivider(
+                    dividerLeft: dividerLeft, dividerRight: dividerRight),
+              button(primary[index]),
+            ],
+            if (overflow.isNotEmpty) ...[
+              LibrarySelectionToolbarDivider(
+                  dividerLeft: dividerLeft, dividerRight: dividerRight),
+              more
+            ],
+          ]);
+    }
+    return Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          for (final action in primary) button(action),
+          if (overflow.isNotEmpty) more
+        ]);
   }
 }
