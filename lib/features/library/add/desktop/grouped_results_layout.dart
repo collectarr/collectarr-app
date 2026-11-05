@@ -44,11 +44,35 @@ class LibraryAddDesktopGroupedResultsLayout extends StatelessWidget {
                   : (details) => onResize!(width + details.delta.dx),
               child: ColoredBox(
                 color: libraryAddPaneDivider(context),
-                child: const SizedBox(width: 6),
+                child: SizedBox(
+                  width: 6,
+                  child: onResize == null
+                      ? null
+                      : const Center(child: _DividerGrip()),
+                ),
               ),
             ),
           ),
           Expanded(child: variantList),
+        ],
+      );
+}
+
+/// The dots that mark the divider as draggable.
+class _DividerGrip extends StatelessWidget {
+  const _DividerGrip();
+
+  @override
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < 4; i++)
+            Container(
+              width: 2,
+              height: 2,
+              margin: const EdgeInsets.symmetric(vertical: 1.5),
+              color: Colors.white,
+            ),
         ],
       );
 }

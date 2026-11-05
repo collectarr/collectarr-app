@@ -76,7 +76,19 @@ class LibraryAddPresentationTokens {
   Color searchBackground(AppThemePalette palette) => searchOnCanvas
       ? palette.canvas
       : palette.isDark
-          ? const Color(0xff595e67)
+          ? const Color(0xf2595e67)
+          : palette.panel;
+
+  /// Behind the panels; clear where [searchBackground] lets the library show
+  /// through, as in the reference.
+  Color? dialogSurface(AppThemePalette palette) =>
+      !searchOnCanvas && palette.isDark ? Colors.transparent : null;
+
+  /// The row around the search field and the band beside it.
+  Color searchRowBackground(AppThemePalette palette) => searchOnCanvas
+      ? palette.canvas
+      : palette.isDark
+          ? const Color(0xff666666)
           : palette.panel;
 
   double confirmHorizontalInset(BoxConstraints constraints, Size? fixed) {

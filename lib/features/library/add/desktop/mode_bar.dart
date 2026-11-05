@@ -172,7 +172,7 @@ extension _DesktopAddModeBar on _LibraryAddModeBarState {
               : null,
         ),
         _besideSearchRow(ColoredBox(
-          color: libraryAddSearchBackground(context),
+          color: libraryAddSearchRowBackground(context),
           child: Padding(
             padding: const EdgeInsets.all(5),
             child: Column(

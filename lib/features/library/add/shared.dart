@@ -89,6 +89,11 @@ Color libraryAddSearchBackground(BuildContext context) {
   return LibraryAddPresentationTokens.current.searchBackground(palette);
 }
 
+/// The row around the search field and the band beside it.
+Color libraryAddSearchRowBackground(BuildContext context) =>
+    LibraryAddPresentationTokens.current
+        .searchRowBackground(appPalette(context));
+
 /// Results caption and row background.
 Color libraryAddResultsBackground(BuildContext context) {
   final palette = appPalette(context);

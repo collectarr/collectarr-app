@@ -145,7 +145,10 @@ class LibraryAddSearchPane extends StatelessWidget {
     if (grouping != null) {
       final groups = libraryAddResultGroups(results, grouping);
       return ColoredBox(
-        color: libraryAddResultsBackground(context),
+        // Empty, the translucent panels show the library behind the dialog.
+        color: results.isEmpty
+            ? Colors.transparent
+            : libraryAddResultsBackground(context),
         child: LibraryAddGroupedResults(
           grouping: grouping,
           groups: groups,

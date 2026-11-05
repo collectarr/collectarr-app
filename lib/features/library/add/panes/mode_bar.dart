@@ -494,7 +494,12 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
             color: appPalette(context).canvas,
             child: const SizedBox(width: 6),
           ),
-          Expanded(child: beside),
+          Expanded(
+            child: ColoredBox(
+              color: libraryAddSearchRowBackground(context),
+              child: beside,
+            ),
+          ),
         ],
       ),
     );

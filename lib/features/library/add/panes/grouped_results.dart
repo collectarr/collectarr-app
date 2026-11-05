@@ -195,6 +195,7 @@ class _LibraryAddGroupedResultsState extends State<LibraryAddGroupedResults> {
                     facet: facet,
                     selected: segment,
                     available: selected == null ? null : available,
+                    dimmed: selected == null,
                     onSelected: (value) => setState(() => _segment = value),
                   ),
                 if (widget.variantControls case final controls?) controls,
@@ -252,6 +253,7 @@ class _FacetSegments extends StatelessWidget {
     required this.facet,
     required this.selected,
     required this.available,
+    this.dimmed = false,
     required this.onSelected,
   });
 
@@ -261,6 +263,9 @@ class _FacetSegments extends StatelessWidget {
   /// Segment values with variants, null while no group is chosen.
   final Set<String?>? available;
   final ValueChanged<String?> onSelected;
+
+  /// Nothing is chosen yet to narrow, as in the reference.
+  final bool dimmed;
 
   @override
   Widget build(BuildContext context) {
@@ -273,16 +278,17 @@ class _FacetSegments extends StatelessWidget {
     ];
     final last = segments.length - 1;
     final available = this.available;
-    return Row(
+    final row = Row(
       key: const ValueKey('library-add-variant-facet'),
       mainAxisSize: MainAxisSize.min,
       children: [
         for (final (index, segment) in segments.indexed)
           Builder(builder: (context) {
-            final chosen = segment.value == selected;
-            final enabled = segment.value == null ||
-                available == null ||
-                available.contains(segment.value);
+            final chosen = !dimmed && segment.value == selected;
+            final enabled = !dimmed &&
+                (segment.value == null ||
+                    available == null ||
+                    available.contains(segment.value));
             return Material(
               key: ValueKey('library-add-facet-${segment.value ?? 'all'}'),
               color: chosen
@@ -324,6 +330,7 @@ class _FacetSegments extends StatelessWidget {
           }),
       ],
     );
+    return dimmed ? Opacity(opacity: 0.4, child: row) : row;
   }
 }
 

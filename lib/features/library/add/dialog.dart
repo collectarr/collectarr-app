@@ -5,6 +5,7 @@ import 'mobile/page.dart';
 import 'mobile/browse_layout.dart';
 import 'desktop/browse_layout.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/features/library/add/presentation_tokens.dart';
 import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
@@ -1196,6 +1197,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             : LibraryAddResultGrouping.dialogWidth;
     return LibraryDialogScaffold(
       accent: accent,
+      surfaceColor: LibraryAddPresentationTokens.current.dialogSurface(palette),
       themeData: dialogTheme,
       width: _dialogWidth ?? defaultDialogWidth,
       height: _dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight,
