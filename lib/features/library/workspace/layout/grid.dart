@@ -203,15 +203,18 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>>
             _dragBaseSelection = _selectionIsAdditive
                 ? Set<String>.from(widget.selectedIds)
                 : const {};
-            _selectionRectNotifier.value = Rect.fromPoints(
-              event.localPosition,
-              event.localPosition,
-            );
+            _selectionRectNotifier.value = null;
           },
           onPointerMove: (event) {
             final start = _dragStart;
             final onSelectionChanged = widget.onSelectionChanged;
             if (start == null || onSelectionChanged == null) {
+              return;
+            }
+            // Small movements during a click must not replace card selection.
+            // Once dragging starts, keep updating even when returning to start.
+            if (_selectionRectNotifier.value == null &&
+                (event.localPosition - start).distance <= kTouchSlop) {
               return;
             }
             final rect = Rect.fromPoints(start, event.localPosition);

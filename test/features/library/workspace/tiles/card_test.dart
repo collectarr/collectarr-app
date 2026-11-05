@@ -237,6 +237,8 @@ void main() {
                   controller.activateItem(id);
                 },
                 onToggleSelectionItem: controller.toggleSelectionItem,
+                onBoxSelectionChanged: (ids) => controller.applySelection(
+                    ids, selection.selectedId ?? items.first.target.id),
                 onOpenItem: (_) => opened++,
                 onEditItem: (_) {},
                 onSortChanged: (_) {},
@@ -276,8 +278,7 @@ void main() {
       await tester.pump();
       expect(
           selection.value.itemIds, items.map((item) => item.target.id).toSet());
-      await mouse.moveTo(
-          tester.getRect(target.at(1)).bottomRight + const Offset(-40, -40));
+      await mouse.moveTo(tester.getCenter(target.at(1)) + const Offset(2, 2));
       await mouse.up();
       await tester.pump(const Duration(milliseconds: 400));
       expect(
@@ -308,6 +309,26 @@ void main() {
           selection.value.itemIds, items.map((item) => item.target.id).toSet());
       expect(activated, 1);
       expect(opened, 0);
+      // Normal rapid clicks include small movements while the button is down.
+      for (var click = 0; click < 4; click++) {
+        final center = tester.getCenter(target.at(1));
+        final clickMouse =
+            await tester.createGesture(kind: PointerDeviceKind.mouse);
+        await clickMouse.moveTo(center);
+        await clickMouse.down(center);
+        await tester.pump(const Duration(milliseconds: 16));
+        await clickMouse.moveTo(center + const Offset(2, 2));
+        await clickMouse.up();
+        await tester.pump(const Duration(milliseconds: 40));
+        expect(
+            selection.value.itemIds,
+            click.isEven
+                ? {items.first.target.id}
+                : items.map((item) => item.target.id).toSet());
+        expect(selection.value.enabled, isTrue);
+        expect(activated, 1);
+        expect(opened, 0);
+      }
       expect(tester.takeException(), isNull);
     }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
   }

@@ -235,9 +235,10 @@ class LibraryWorkspace extends ConsumerWidget {
             selectionMode: selectionEnabled,
             onTap: _selectionTap(item),
             onSelectionToggleTap: () => onToggleSelectionItem(item.target.id),
-            onDoubleTap: appPresentationPlatform.isNativeMobile
-                ? null
-                : () => onOpenItem(item),
+            onDoubleTap:
+                selectionEnabled || appPresentationPlatform.isNativeMobile
+                    ? null
+                    : () => onOpenItem(item),
             onEditTap: () => onEditItem(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
@@ -274,9 +275,10 @@ class LibraryWorkspace extends ConsumerWidget {
             selected: _isActive(item),
             checked: _isSelectionSelected(item),
             onTap: _selectionTap(item),
-            onDoubleTap: appPresentationPlatform.isNativeMobile
-                ? null
-                : () => onOpenItem(item),
+            onDoubleTap:
+                selectionEnabled || appPresentationPlatform.isNativeMobile
+                    ? null
+                    : () => onOpenItem(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -321,7 +323,9 @@ class LibraryWorkspace extends ConsumerWidget {
           onToggleSelectionItem: (item) =>
               onToggleSelectionItem(item.target.id),
           onDoubleTap:
-              appPresentationPlatform.isNativeMobile ? null : onOpenItem,
+              selectionEnabled || appPresentationPlatform.isNativeMobile
+                  ? null
+                  : onOpenItem,
           onSecondaryTapUp: onItemContextMenu == null
               ? null
               : (item, d) => onItemContextMenu!(item, d.globalPosition),
@@ -509,7 +513,7 @@ class LibraryWorkspace extends ConsumerWidget {
                     cellBuilder: (entry, column) => _tableCell(entry, column),
                     isSelected: _isActive,
                     onEntryTap: (item) => _selectionTap(item)(),
-                    onEntryDoubleTap: onOpenItem,
+                    onEntryDoubleTap: selectionEnabled ? null : onOpenItem,
                     onEntrySecondaryTapUp: onItemContextMenu == null
                         ? null
                         : (item, details) =>
@@ -647,9 +651,10 @@ class LibraryWorkspace extends ConsumerWidget {
               selected: _isActive(item),
               checked: _isSelectionSelected(item),
               onTap: _selectionTap(item),
-              onDoubleTap: appPresentationPlatform.isNativeMobile
-                  ? null
-                  : () => onOpenItem(item),
+              onDoubleTap:
+                  selectionEnabled || appPresentationPlatform.isNativeMobile
+                      ? null
+                      : () => onOpenItem(item),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),
