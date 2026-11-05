@@ -6,12 +6,55 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/data.dart'
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/flow_carousel.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_tile.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../../../support/builders/workspace_item_builder.dart';
 
 void main() {
+  testWidgets('flow only focuses an item even when control-clicked or hovered',
+      (tester) async {
+    tester.view.physicalSize = const Size(1200, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
+    final activated = <String>[];
+    await tester.pumpWidget(ProviderScope(
+      child: MaterialApp(
+        home: Scaffold(
+          body: LibraryFlowCarousel(
+            items: _items(),
+            selectedId: null,
+            accent: Colors.red,
+            emptyBuilder: (_) => const SizedBox.shrink(),
+            onActivateItem: activated.add,
+            onOpenItem: (_) {},
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    final cover = find.byType(LibraryInteractiveCover).first;
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: tester.getCenter(cover));
+    await tester.pump();
+    expect(find.byType(LibraryTileSelectionToggle), findsNothing);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.tap(find.text('Album a').first);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(activated, ['catalog-a']);
+    expect(find.byType(LibraryTileSelectionToggle), findsNothing);
+    await mouse.removePointer();
+    debugDefaultTargetPlatformOverride = null;
+  });
+
   for (final ratio in [0.7, 1.0]) {
     testWidgets('flow covers keep the $ratio aspect ratio without bars',
         (tester) async {
@@ -26,14 +69,10 @@ void main() {
                   body: LibraryFlowCarousel(
         items: items,
         selectedId: null,
-        selectedAnchorId: null,
-        selectedIds: const {},
         accent: Colors.red,
         emptyBuilder: (_) => const SizedBox.shrink(),
         coverAspectRatio: ratio,
-        onApplySelection: (_, __) {},
         onActivateItem: (_) {},
-        onToggleSelectionItem: (_) {},
         onOpenItem: (_) {},
       )))));
       await tester.pump();
