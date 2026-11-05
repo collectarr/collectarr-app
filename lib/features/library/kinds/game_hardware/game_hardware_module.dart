@@ -12,3 +12,4 @@ export 'entries/game_hardware_entry_contributor.dart';
 export 'page.dart';
 export 'vocabulary/game_hardware_vocabularies.dart';
 export 'config/game_hardware_import_sources.dart';
+export 'settings/contribution.dart';

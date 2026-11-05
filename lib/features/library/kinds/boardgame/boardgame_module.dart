@@ -14,3 +14,4 @@ export 'page.dart';
 export 'tracking/boardgame_tracking_state_codec.dart';
 export 'data/boardgame_play_session_providers.dart';
 export 'vocabulary/boardgame_vocabularies.dart';
+export 'settings/contribution.dart';

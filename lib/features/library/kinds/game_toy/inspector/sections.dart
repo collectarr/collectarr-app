@@ -150,6 +150,7 @@ List<Widget> buildGameToyInspectorSections(
                   fontSize: 14, color: appPalette(context).textPrimary))),
     if (metadata.links.any((link) => link.isTrailerLink))
       LibraryTrailerVisibility(
+          kind: CatalogMediaKind.gameToy,
           child: section('Trailer',
               links(metadata.links.where((link) => link.isTrailerLink)))),
     if (metadata.links.any((link) => link.isExternalLink))

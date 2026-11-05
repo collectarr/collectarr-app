@@ -173,6 +173,7 @@ List<Widget> buildGameHardwareInspectorSections(
                   fontSize: 14, color: appPalette(context).textPrimary))),
     if (metadata.links.any((link) => link.isTrailerLink))
       LibraryTrailerVisibility(
+          kind: CatalogMediaKind.gameHardware,
           child: section('Trailer',
               links(metadata.links.where((link) => link.isTrailerLink)))),
     if (metadata.links.any((link) => link.isExternalLink))

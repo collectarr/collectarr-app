@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/kind_settings.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/target_vocabulary.dart';
@@ -138,3 +139,15 @@ final Map<CatalogMediaKind, LibraryFacetModule> collectarrKindFacetModules = {
   CatalogMediaKind.movie: movieLibraryFacetModule,
   CatalogMediaKind.music: musicLibraryFacetModule,
 };
+
+final collectarrKindSettings = releasedKindContributions(<CatalogMediaKind,
+    LibraryKindSettingsContribution>{
+  CatalogMediaKind.boardgame: boardGameKindSettings,
+  CatalogMediaKind.book: bookKindSettings,
+  CatalogMediaKind.comic: comicKindSettings,
+  CatalogMediaKind.game: gameKindSettings,
+  CatalogMediaKind.gameHardware: gameHardwareKindSettings,
+  CatalogMediaKind.gameToy: gameToyKindSettings,
+  CatalogMediaKind.movie: movieKindSettings,
+  CatalogMediaKind.music: musicKindSettings,
+});
