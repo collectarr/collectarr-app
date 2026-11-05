@@ -353,6 +353,7 @@ class LibraryWorkspace extends ConsumerWidget {
         onItemSelect: (item, _) => onToggleSelectionItem(item.target.id),
         coverBuilder: (context, item, width, height) => LibraryInteractiveCover(
           title: item.dto.primaryLabel,
+          mediaKind: item.source.mediaKind,
           imageUrl: item.dto.imageUrl,
           libraryEntryRef: item.source.libraryEntryRef,
           enableFullscreen: false,

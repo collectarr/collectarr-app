@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -17,6 +19,36 @@ Future<void> _pump(WidgetTester tester, Widget app) =>
     tester.pumpWidget(ProviderScope(child: app));
 
 void main() {
+  testWidgets('missing covers use their own kinds, not the selected library',
+      (tester) async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(selectedLibraryKindProvider.notifier).select('movie');
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: const MaterialApp(
+        home: Scaffold(
+          body: Row(children: [
+            SizedBox(
+                width: 100,
+                height: 150,
+                child: LibraryCoverImage(
+                    title: 'Comic', mediaKind: CatalogMediaKind.comic)),
+            SizedBox(
+                width: 100,
+                height: 150,
+                child: LibraryInteractiveCover(
+                    title: 'Album', mediaKind: CatalogMediaKind.music)),
+          ]),
+        ),
+      ),
+    ));
+    await tester.pump();
+    expect(find.byIcon(AppIcons.bookOpen), findsOneWidget);
+    expect(find.byIcon(AppIcons.compactDisc), findsOneWidget);
+    expect(find.byIcon(AppIcons.film), findsNothing);
+  });
+
   testWidgets('narrow interactive covers keep the hover cue compact', (
     tester,
   ) async {
@@ -127,13 +159,14 @@ void main() {
           height: 170,
           child: LibraryCoverImage(
             title: 'The Amazing Spider-Man, Vol. 4',
+            mediaKind: CatalogMediaKind.comic,
             itemNumber: '15A',
           ),
         ),
       ),
     );
 
-    expect(find.byIcon(AppIcons.compactDisc), findsOneWidget);
+    expect(find.byIcon(AppIcons.bookOpen), findsOneWidget);
     expect(find.textContaining('Spider-Man'), findsNothing);
     expect(find.text('#15A'), findsOneWidget);
   });

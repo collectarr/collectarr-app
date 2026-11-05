@@ -195,6 +195,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                           aspectRatio: coverAspectRatio,
                           child: LibraryInteractiveCover(
                             title: title,
+                            mediaKind: selectedItem.summary.kind,
                             itemNumber: itemNumber,
                             imageUrl: coverUrl,
                             accentColor: accent,

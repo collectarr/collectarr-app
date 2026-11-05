@@ -135,6 +135,7 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
                                   opacity: selected ? .5 : 1,
                                   child: wrapCover(LibraryInteractiveCover(
                                     title: dto.primaryLabel,
+                                    mediaKind: item.source.mediaKind,
                                     itemNumber: presentation.itemNumber,
                                     imageUrl: dto.imageUrl,
                                     libraryEntryRef:

@@ -130,6 +130,7 @@ class _CanonicalItemSummary extends StatelessWidget {
               height: 118,
               child: LibraryCoverImage(
                 title: item.title,
+                mediaKind: catalogMediaKindFromValue(item.kind),
                 itemNumber: item.itemNumber,
                 imageUrl: item.displayCoverUrl,
               ),
@@ -346,6 +347,7 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
                       aspectRatio: 2 / 3,
                       child: LibraryCoverImage(
                         title: item.title,
+                        mediaKind: catalogMediaKindFromValue(item.kind),
                         itemNumber: item.itemNumber,
                         imageUrl: item.displayCoverUrl,
                       ),
@@ -355,6 +357,7 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
                       aspectRatio: 2 / 3,
                       child: LibraryCoverImage(
                         title: item.title,
+                        mediaKind: catalogMediaKindFromValue(item.kind),
                         itemNumber: item.itemNumber,
                       ),
                     ),

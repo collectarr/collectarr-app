@@ -423,6 +423,7 @@ class _FlowBackdrop extends StatelessWidget {
                   opacity: 0.34,
                   child: LibraryCoverImage(
                     title: item.dto.primaryLabel,
+                    mediaKind: item.source.mediaKind,
                     itemNumber:
                         libraryCardPresentationForEntry(item).itemNumber,
                     imageUrl: item.dto.imageUrl,
@@ -631,6 +632,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                             borderRadius: BorderRadius.circular(18),
                             child: LibraryInteractiveCover(
                               title: title,
+                              mediaKind: widget.item.source.mediaKind,
                               itemNumber: itemNumber,
                               imageUrl: dto.imageUrl,
                               libraryEntryRef:

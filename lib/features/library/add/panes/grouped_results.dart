@@ -360,6 +360,7 @@ class _GroupRow extends StatelessWidget {
                 height: 70,
                 child: LibraryCoverImage(
                   title: item.summary.primaryLabel,
+                  mediaKind: item.summary.kind,
                   imageUrl: item.summary.imageUrl,
                   fallbackAspectRatio: 52 / 70,
                   borderRadius: 0,
@@ -470,6 +471,7 @@ class _VariantTile extends StatelessWidget {
                     height: 232,
                     child: LibraryCoverImage(
                       title: item.summary.primaryLabel,
+                      mediaKind: item.summary.kind,
                       imageUrl: item.summary.imageUrl,
                       fallbackAspectRatio: 164 / 232,
                       borderRadius: 0,

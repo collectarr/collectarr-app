@@ -66,6 +66,7 @@ Widget buildComicAddPreviewPane(
                     height: appPresentationPlatform.isNativeMobile ? 160 : 210,
                     child: LibraryInteractiveCover(
                       title: item.summary.primaryLabel,
+                      mediaKind: item.summary.kind,
                       imageUrl: fields.coverImageUrl,
                       accentColor: request.accent,
                       fallbackAspectRatio: 137 / 210,

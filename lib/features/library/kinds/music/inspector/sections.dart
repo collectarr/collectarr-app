@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/actions/async_action_host.dart';
 import 'package:collectarr_app/features/library/generic/projection/search_index.dart';
 import 'package:collectarr_app/features/library/edit/fields/value_fields.dart';
@@ -1014,6 +1015,7 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
         aspectRatio: 1.0,
         child: LibraryInteractiveCover(
           title: widget.title,
+          mediaKind: CatalogMediaKind.music,
           imageUrl: back ? widget.item.backCoverImageUrl : widget.imageUrl,
           localBytes: back ? _back : _front,
           fallbackAspectRatio: 1.0,

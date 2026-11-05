@@ -207,6 +207,7 @@ class _LoanAddPageState extends State<LoanAddPage> {
                     width: 76,
                     child: LibraryCoverImage(
                         title: entry.title,
+                        mediaKind: entry.ref.kind,
                         imageUrl: entry.imageUrl,
                         fallbackAspectRatio: 1,
                         borderRadius: 0)),

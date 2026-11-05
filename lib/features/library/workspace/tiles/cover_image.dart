@@ -8,7 +8,6 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
-import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/library_square_close_button.dart';
@@ -19,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class LibraryCoverImage extends ConsumerWidget {
   const LibraryCoverImage({
     required this.title,
+    this.mediaKind,
     this.itemNumber,
     this.imageUrl,
     this.localBytes,
@@ -35,6 +35,7 @@ class LibraryCoverImage extends ConsumerWidget {
   });
 
   final String title;
+  final CatalogMediaKind? mediaKind;
   final String? itemNumber;
   final String? imageUrl;
   final Uint8List? localBytes;
@@ -88,6 +89,9 @@ class LibraryCoverImage extends ConsumerWidget {
         ? Align(
             alignment: alignment,
             child: LibraryGeneratedCover(
+              kind: libraryEntryRef?.kind ??
+                  mediaKind ??
+                  CatalogMediaKind.unknown,
               itemNumber: itemNumber,
               borderRadius: borderRadius,
               aspectRatio: fallbackAspectRatio,
@@ -334,6 +338,7 @@ class _CoverLoadingShell extends StatelessWidget {
 class LibraryInteractiveCover extends StatefulWidget {
   const LibraryInteractiveCover({
     required this.title,
+    this.mediaKind,
     this.itemNumber,
     this.imageUrl,
     this.localBytes,
@@ -355,6 +360,7 @@ class LibraryInteractiveCover extends StatefulWidget {
   });
 
   final String title;
+  final CatalogMediaKind? mediaKind;
   final String? itemNumber;
   final String? imageUrl;
   final Uint8List? localBytes;
@@ -533,6 +539,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                 borderRadius: BorderRadius.circular(7),
                                 child: LibraryCoverImage(
                                   title: widget.title,
+                                  mediaKind: widget.mediaKind,
                                   itemNumber: widget.itemNumber,
                                   imageUrl: imageUrl,
                                   localBytes: localBytes,
@@ -738,6 +745,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                 _wrapFrame(
                   LibraryCoverImage(
                     title: widget.title,
+                    mediaKind: widget.mediaKind,
                     itemNumber: widget.itemNumber,
                     imageUrl: _activeImageUrl,
                     localBytes: _activeLocalBytes,
@@ -891,11 +899,12 @@ class _CoverFrame extends StatelessWidget {
   }
 }
 
-/// The dark tile standing in for a missing cover: the active kind's icon,
+/// The dark tile standing in for a missing cover: the item's kind icon,
 /// plus the item number top left, clear of the tick box and status marks
 /// along the bottom.
-class LibraryGeneratedCover extends ConsumerWidget {
+class LibraryGeneratedCover extends StatelessWidget {
   const LibraryGeneratedCover({
+    required this.kind,
     this.itemNumber,
     this.borderRadius = 4,
     this.aspectRatio = 2 / 3,
@@ -903,17 +912,19 @@ class LibraryGeneratedCover extends ConsumerWidget {
     super.key,
   });
 
+  final CatalogMediaKind kind;
   final String? itemNumber;
   final double borderRadius;
   final double aspectRatio;
   final BoxFit fit;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final kind =
-        catalogMediaKindFromValue(ref.watch(selectedLibraryKindProvider));
-    final icon =
-        defaultLibraryKindRegistry.require(kind).identity.coverPlaceholderIcon;
+  Widget build(BuildContext context) {
+    final icon = defaultLibraryKindRegistry
+            .tryGet(kind)
+            ?.identity
+            .coverPlaceholderIcon ??
+        Icons.image_outlined;
     final palette = appPalette(context);
     final cover = ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
