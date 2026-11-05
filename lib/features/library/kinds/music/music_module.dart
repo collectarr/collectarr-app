@@ -19,3 +19,4 @@ export 'entries/music_entry_contributor.dart';
 export 'page.dart';
 export 'tracking/state_codec.dart';
 export 'vocabulary/music_vocabularies.dart';
+export 'settings/contribution.dart';

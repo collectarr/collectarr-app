@@ -62,6 +62,7 @@ List<Widget> buildGameInspectorSections(
               style: const TextStyle(fontSize: 14, height: 18 / 14))),
     if (trailers.isNotEmpty)
       LibraryTrailerVisibility(
+          kind: CatalogMediaKind.game,
           child: section('Trailer', _GameLinkList(trailers))),
     if (links.isNotEmpty) section('Links', _GameLinkList(links)),
     if (entry != null) section('Personal', _GamePersonalTable(entry: entry)),

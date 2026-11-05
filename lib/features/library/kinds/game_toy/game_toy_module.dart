@@ -12,3 +12,4 @@ export 'entries/game_toy_entry_contributor.dart';
 export 'page.dart';
 export 'vocabulary/game_toy_vocabularies.dart';
 export 'config/game_toy_import_sources.dart';
+export 'settings/contribution.dart';
