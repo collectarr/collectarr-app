@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/selection/commands.dart';
+import 'package:collectarr_app/features/library/selection/action.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_dark_chrome.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/alphabet_options.dart';
@@ -14,7 +16,6 @@ import 'package:collectarr_app/features/library/config/media_presentation_models
 import 'package:collectarr_app/features/library/config/toolbar_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/search_target.dart';
-import 'package:collectarr_app/features/library/selection/controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/utility_menu.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
@@ -93,6 +94,7 @@ class LibraryToolbar extends StatelessWidget {
     this.selectedCount = 0,
     this.totalSelectableCount = 0,
     this.selectionCallbacks,
+    this.selectionActions = const [],
     this.shelfState,
     this.onSmartLists,
     this.onFolders,
@@ -181,6 +183,7 @@ class LibraryToolbar extends StatelessWidget {
         selectedCount = state.selectedCount,
         totalSelectableCount = state.totalSelectableCount,
         selectionCallbacks = state.selectionCallbacks,
+        selectionActions = state.selectionActions,
         shelfState = state.shelfState,
         onSmartLists = actions.onSmartLists,
         onFolders = actions.onFolders,
@@ -264,6 +267,7 @@ class LibraryToolbar extends StatelessWidget {
   final int selectedCount;
   final int totalSelectableCount;
   final LibrarySelectionCallbacks? selectionCallbacks;
+  final List<ResolvedLibrarySelectionAction> selectionActions;
   final VoidCallback? onSmartLists;
   final VoidCallback? onFolders;
   final VoidCallback? onReadingQueue;
@@ -367,6 +371,7 @@ class LibraryToolbar extends StatelessWidget {
                   alphabetOptions: alphabetOptions,
                   onLetterSelected: onLetterSelected,
                   selectionCallbacks: selectionCallbacks,
+                  selectionActions: selectionActions,
                   selectedCount: selectedCount,
                   totalSelectableCount: totalSelectableCount,
                   groupPresentation: groupPresentation,
@@ -455,6 +460,7 @@ class LibraryToolbar extends StatelessWidget {
                       onGroupModeChanged: onGroupModeChanged,
                       onGroupPresentationChanged: onGroupPresentationChanged,
                       selectionCallbacks: selectionCallbacks,
+                      selectionActions: selectionActions,
                       selectedCount: selectedCount,
                       totalSelectableCount: totalSelectableCount,
                       showBottomBorder: false,

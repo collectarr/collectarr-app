@@ -1,3 +1,5 @@
+import '../selection/contribution.dart';
+import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../book_module_dependencies.dart';
 import 'configuration.dart';
@@ -29,7 +31,8 @@ final LibraryValueCapability? bookKindValue = null;
 
 final LibraryRelationCapability? bookKindRelations = null;
 
-final bookKindToolbar = null;
+const bookKindToolbar =
+    LibraryKindToolbarModule(selectionActions: bookSelectionActions);
 
 final bookKindSearchTargetOptions = const <LibrarySearchTarget>[];
 

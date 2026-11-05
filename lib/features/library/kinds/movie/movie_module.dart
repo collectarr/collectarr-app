@@ -14,3 +14,4 @@ export 'page.dart';
 export 'tracking/movie_tracking_state_codec.dart';
 export 'vocabulary/movie_vocabularies.dart';
 export 'settings/contribution.dart';
+export 'selection/contribution.dart';

@@ -1,3 +1,5 @@
+import '../selection/contribution.dart';
+import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../actions/merge_albums.dart';
 import '../music_module_dependencies.dart';
@@ -85,7 +87,8 @@ final LibraryRelationCapability? musicKindRelations = null;
 
 final LibraryValueCapability? musicKindValue = null;
 
-final musicKindToolbar = null;
+const musicKindToolbar =
+    LibraryKindToolbarModule(selectionActions: musicSelectionActions);
 
 final musicKindUiPolicy = const LibraryUiPolicy(
   coverAspectRatio: 1.0,

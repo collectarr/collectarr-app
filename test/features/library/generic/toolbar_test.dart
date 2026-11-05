@@ -1,3 +1,4 @@
+import '../../../support/builders/selection_builder.dart';
 import 'package:collectarr_app/features/library/config/toolbar_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -510,6 +511,82 @@ void main() {
     );
     expect(selectionBand.showBottomBorder, isFalse);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+
+  testWidgets('native selection uses the common resolved action host',
+      (tester) async {
+    var edited = false;
+    final searchController = TextEditingController();
+    addTearDown(searchController.dispose);
+    tester.view.physicalSize = const Size(390, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: LibraryToolbar(
+              type: const MusicRegistration(),
+              searchController: searchController,
+              viewState: musicKindViewProfile.defaults(),
+              counts: const LibraryToolbarCounts(),
+              onAdd: () {},
+              onScan: () {},
+              onSearchChanged: (_) {},
+              onEditColumns: () {},
+              onSortChanged: (_) {},
+              onSidebarVisibilityChanged: (_) {},
+              onViewModeChanged: (_) {},
+              onDetailsLayoutChanged: (_) {},
+              onCoverSizeChanged: (_) {},
+              selectedBucket: null,
+              onClearBucket: () {},
+              onRefreshMetadata: () {},
+              quickView: null,
+              onQuickViewSelected: (_) {},
+              hasActiveFilters: false,
+              onClearFilters: () {},
+              onCollectionStatusScopeChanged: (_) {},
+              selectionCallbacks: (
+                onClearSelection: () {},
+                onSelectAll: () {},
+                onBulkEdit: () {},
+                onPrintToPdf: () {},
+                onExportCsvTxt: () {},
+                onBulkDuplicate: () {},
+                onBulkLoan: () {},
+                onTransferFieldData: () {},
+                onBulkUpdateValues: null,
+                onBulkUpdateKeyInfo: null,
+                onBulkMoveToEntry: null,
+                onBulkMoveToWishlist: null,
+                onExportXml: null,
+                onMerge: null,
+                onMoveToCollection: null,
+                onBulkRemove: () {},
+                onBulkRefreshMetadata: () {},
+              ),
+              selectionActions: testSelectionActions(testSelectionCommands(
+                  edit: () => edited = true, remove: () {})),
+              selectedCount: 2,
+              totalSelectableCount: 5,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(LibrarySelectionToolbarBand), findsOneWidget);
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Remove'), findsOneWidget);
+    await tester.tap(find.text('Edit'));
+    await tester.pump();
+    expect(edited, true);
+    expect(tester.takeException(), isNull);
+  },
+      variant:
+          TargetPlatformVariant({TargetPlatform.android, TargetPlatform.iOS}));
 
   testWidgets('toolbar capability gates stay consistent across all kinds',
       (tester) async {

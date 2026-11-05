@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/selection/commands.dart';
+import 'package:collectarr_app/features/library/selection/action.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/alphabet_row.dart';
 import 'selection.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
@@ -8,7 +10,6 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
-import 'package:collectarr_app/features/library/selection/controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/utility_menu.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
@@ -76,6 +77,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.alphabetOptions,
     this.onLetterSelected,
     this.selectionCallbacks,
+    this.selectionActions = const [],
     this.selectedCount = 0,
     this.totalSelectableCount = 0,
     this.searchTarget = LibrarySearchTarget.all,
@@ -143,6 +145,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final LibraryAlphabetOptions? alphabetOptions;
   final ValueChanged<String?>? onLetterSelected;
   final LibrarySelectionCallbacks? selectionCallbacks;
+  final List<ResolvedLibrarySelectionAction> selectionActions;
   final int selectedCount;
   final int totalSelectableCount;
   final LibrarySearchTarget searchTarget;
@@ -162,6 +165,12 @@ class LibraryCompactToolbarContent extends StatelessWidget {
 
     if (appPresentationPlatform.isNativeMobile) {
       return Column(mainAxisSize: MainAxisSize.min, children: [
+        if (selectionCallbacks != null && selectedCount > 0)
+          LibrarySelectionToolbarBand(
+              selectedCount: selectedCount,
+              totalSelectableCount: totalSelectableCount,
+              callbacks: selectionCallbacks!,
+              actions: selectionActions),
         if (searchActive &&
             searchTargetOptions.isNotEmpty &&
             onSearchTargetChanged != null)
@@ -351,11 +360,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
             totalSelectableCount: totalSelectableCount,
             callbacks: selectionCallbacks!,
             accent: accent,
-            itemPluralLabel: type.identity.pluralLabel,
-            showValueUpdate: type.identity.showSelectionValueUpdate,
-            showKeyInfo: type.identity.showSelectionKeyInfo,
-            supportsMerge:
-                libraryEntryPolicyForKind(type.kind).mergeEntries != null,
+            actions: selectionActions,
             showBottomBorder: !showChromeRow,
           ),
         ],

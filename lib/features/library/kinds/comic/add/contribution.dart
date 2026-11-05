@@ -1,3 +1,4 @@
+import '../selection/contribution.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import '../comic_module_dependencies.dart';
@@ -127,6 +128,7 @@ final comicKindAdd = StandardLibraryAddCapability<ComicAddDraft>(
 );
 
 final comicKindToolbar = LibraryKindToolbarModule(
+  selectionActions: comicSelectionActions,
   actions: [
     ComicJumpToIssueAction(),
   ],

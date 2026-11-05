@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/selection/action.dart';
 import 'package:collectarr_app/features/library/config/toolbar_config.dart';
 import 'package:collectarr_app/features/library/actions/ui_action.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -16,10 +17,12 @@ typedef LibraryMissingItemsReport = Future<void> Function({
 final class LibraryKindToolbarModule {
   const LibraryKindToolbarModule({
     this.actions = const [],
+    this.selectionActions = const [],
     this.missingReport,
   });
 
   final List<UiAction<LibraryToolbarActionContext>> actions;
+  final List<LibrarySelectionAction> selectionActions;
 
   /// Offered in the main menu's Tools section as "Missing ...", as the
   /// reference Comics menu offers Missing Comics.

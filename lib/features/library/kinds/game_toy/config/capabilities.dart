@@ -1,3 +1,5 @@
+import '../selection/contribution.dart';
+import 'package:collectarr_app/features/library/config/kind_toolbar_module.dart';
 import '../stats/game_toy_stats_capability.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'configuration.dart';
@@ -17,13 +19,13 @@ final gameToyKindIdentity = const LibraryKindIdentity(
     mediaFamily: 'game',
     isTopLevel: false,
     collectionFamily: 'games',
-    showSelectionValueUpdate: true,
     hasTrailers: true,
     defaultCollectionName: 'Toys');
 final gameToyKindPresentation = gameToyLibraryMediaPresentation;
 final gameToyKindPhysicalMediaFormats = const <PhysicalMediaFormat>[];
 final gameToyKindUiPolicy = const LibraryUiPolicy(coverAspectRatio: 0.7);
-final gameToyKindToolbar = null;
+const gameToyKindToolbar =
+    LibraryKindToolbarModule(selectionActions: gameToySelectionActions);
 final gameToyKindSearchTargetOptions = const <LibrarySearchTarget>[];
 final gameToyKindTrackingProfile =
     const MediaTrackingProfile(name: 'Toys', options: []);

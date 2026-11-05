@@ -35,8 +35,6 @@ class LibraryKindIdentity {
     this.collectionFamily,
     this.defaultCollectionName = 'Main Collection',
     this.hasTrailers = false,
-    this.showSelectionValueUpdate = false,
-    this.showSelectionKeyInfo = false,
   }) : _accent = accent;
 
   final CatalogMediaKind kind;
@@ -75,8 +73,6 @@ class LibraryKindIdentity {
   /// Items carry trailer links shown in the details panel, which Settings
   /// can hide.
   final bool hasTrailers;
-  final bool showSelectionValueUpdate;
-  final bool showSelectionKeyInfo;
 
   String countLabel(int count) => count == 1 ? singularLabel : pluralLabel;
   String preferenceKey(String suffix) => '$preferencePrefix.$suffix';
