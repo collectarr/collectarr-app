@@ -5,12 +5,16 @@ final class LibraryAddSearchContext {
     this.query = '',
     this.identifierCode = '',
     this.codeQuery = '',
+    this.isListing = false,
     Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilters = const {},
   }) : advancedFilters = Map.unmodifiable(advancedFilters);
 
   final String query;
   final String identifierCode;
   final String codeQuery;
+
+  /// The search fills a listing tab, whose scope alone is enough input.
+  final bool isListing;
   final Map<LibraryAddFilterId, LibraryAddFilterValue> advancedFilters;
 
   LibraryAddFilterValue? valueFor(LibraryAddFilterId id) => advancedFilters[id];

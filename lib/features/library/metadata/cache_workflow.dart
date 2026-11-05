@@ -64,6 +64,8 @@ Future<LibraryMetadataSearchPage> searchAndCacheLibraryMetadataPage({
     limit: input.limit,
     offset: input.offset,
     fieldFilters: input.fieldFilters,
+    includeTotal: input.includeTotal,
+    onePerTitle: input.onePerTitle,
     cancelToken: cancelToken,
   );
   await catalog.upsertTransports(

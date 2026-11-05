@@ -272,4 +272,80 @@ void main() {
     await tester.tap(find.text('Search for "brick knight"'));
     expect(searched, isTrue);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
+
+  group('the Platform listing', () {
+    Widget listing(
+      List<CatalogSearchCandidate> results, {
+      required VoidCallback onLoadMore,
+      bool loadsOnScroll = true,
+      ValueChanged<String>? onSelect,
+      ValueChanged<String>? onCheck,
+    }) =>
+        ProviderScope(
+          overrides: _noLoadedIcons,
+          child: MaterialApp(
+            home: Scaffold(
+              body: LibraryAddSearchPane(
+                type: const GameRegistration(),
+                isBusy: false,
+                error: null,
+                accent: Colors.red,
+                results: results,
+                isListing: true,
+                totalResults: 27105,
+                hasMoreResults: true,
+                listingLoadsOnScroll: loadsOnScroll,
+                onLoadMoreResults: onLoadMore,
+                selectedResultId: null,
+                checkedResultIds: const {},
+                entryCatalogRefs: const {},
+                resultPolicy:
+                    LibraryAddResultPolicy(grouping: gameAddResultGrouping),
+                resultPolicyState: const LibraryAddResultPolicyState(),
+                onResultPolicyOptionChanged: (_, __) {},
+                onSelectResult: onSelect ?? (_) {},
+                onToggleResultCheck: onCheck ?? (_) {},
+                searched: true,
+              ),
+            ),
+          ),
+        );
+
+    testWidgets('shows the total and one row per item, loading more nearby',
+        (tester) async {
+      var loads = 0;
+      String? selected;
+      String? checked;
+      await tester.pumpWidget(listing(
+        [_game('a', 'Amber Quest', 'PC')],
+        onLoadMore: () => loads++,
+        onSelect: (id) => selected = id,
+        onCheck: (id) => checked = id,
+      ));
+      await tester.pump();
+
+      expect(find.text('27105 Results'), findsOneWidget);
+      expect(find.text('Amber Quest'), findsOneWidget);
+      expect(loads, greaterThan(0));
+
+      await tester.tap(find.text('Amber Quest'));
+      expect(selected, isNotNull);
+      await tester.tap(find.byType(LibraryAddResultCheckbox));
+      expect(checked, selected);
+    });
+
+    testWidgets('leaves further pages to the button when told not to scroll',
+        (tester) async {
+      var loads = 0;
+      await tester.pumpWidget(listing(
+        [_game('a', 'Amber Quest', 'PC')],
+        onLoadMore: () => loads++,
+        loadsOnScroll: false,
+      ));
+      await tester.pump();
+
+      expect(loads, 0);
+      expect(find.byType(LibraryAddSearchResultsFooter), findsOneWidget);
+    });
+  });
 }

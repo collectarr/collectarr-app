@@ -17,12 +17,14 @@ class LibraryAddCoreSearchResult {
     required this.rawItemCount,
     this.nextOffset,
     this.hasMore = false,
+    this.total,
   });
 
   final List<CatalogSearchCandidate> items;
   final int rawItemCount;
   final int? nextOffset;
   final bool hasMore;
+  final int? total;
 }
 
 Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
@@ -55,6 +57,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
     rawItemCount: page.items.length,
     nextOffset: page.nextOffset,
     hasMore: page.hasMore,
+    total: page.total,
   );
 }
 

@@ -5,7 +5,9 @@ import 'mobile/page.dart';
 import 'mobile/browse_layout.dart';
 import 'desktop/browse_layout.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
+import 'package:collectarr_app/features/library/add/panes/choice_menu.dart';
 import 'package:collectarr_app/features/library/add/presentation_tokens.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/entries/store.dart';
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
@@ -127,6 +129,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   List<String> _purchaseStoreOptions = const [];
   List<CustomFieldDefinition> _manualCustomFieldDefinitions = const [];
 
+  Timer? _listingFilterTimer;
+  LibraryAddOwnership _listingOwnership = LibraryAddOwnership.all;
   double? _dialogWidth;
   double? _dialogHeight;
   LibraryAddBlockLayout _blockLayout = LibraryAddBlockLayout.grid;
@@ -135,6 +139,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   /// Browse groups the library already holds entries of, and the entry
   /// count they were read for.
   Set<String> _ownedGroupKeys = const {};
+  Set<String> _ownedListingKeys = const {};
+  String? _rememberedListingScope;
+  bool _listingScopeLoaded = false;
   int? _ownedGroupsEntryCount;
 
   /// Groups suggested while typing in the browse field, for [_browseTyped].
@@ -194,6 +201,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _closeDialog();
       });
     }
+    unawaited(_loadListingScope());
     _manualCustomFieldDefinitions =
         List<CustomFieldDefinition>.of(widget.customFieldDefinitions);
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
@@ -366,6 +374,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _manualDraft.dispose();
     _queryController.dispose();
     _identifierController.dispose();
+    _listingFilterTimer?.cancel();
     _codeQueryController.dispose();
     _browseDebounce?.cancel();
     _browseQueryController.dispose();
@@ -806,8 +815,69 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     await _controller.lookupIdentifier(identifierCode: scanned.value);
   }
 
+  LibraryAddListingTab? get _listingTab =>
+      libraryAddForKind(widget.type.kind).search.input.codeSearchTab?.listing;
+
   void _selectAddMode(LibraryAddDialogMode mode) {
+    final listing = _listingTab;
+    final crossesListing = listing != null &&
+        (_controller.state.mode == LibraryAddDialogMode.code) !=
+            (mode == LibraryAddDialogMode.code);
     _controller.setMode(mode);
+    if (!crossesListing) return;
+    _listingFilterTimer?.cancel();
+    _codeQueryController.clear();
+    _controller.updateCodeQuery('');
+    _controller.clearSearchResults();
+    if (mode != LibraryAddDialogMode.code) return;
+    final scope =
+        _controller.state.search.advancedFilters[listing.scopeFilterId];
+    if (scope == null || !scope.hasValue) {
+      _controller.updateAdvancedFilter(listing.scopeFilterId,
+          LibraryAddOptionFilterValue(listing.defaultScope));
+    }
+    _controller.executeSearch();
+  }
+
+  String get _listingScopeKey =>
+      'library_add.listing_scope.${_listingTab!.scopeFilterId.value}';
+
+  /// Starts on the scope chosen last time, on the Title tab as well.
+  Future<void> _loadListingScope() async {
+    final listing = _listingTab;
+    if (listing == null) return;
+    final preferences = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    final scope = preferences.getString(_listingScopeKey);
+    _rememberedListingScope = scope;
+    _listingScopeLoaded = true;
+    if (scope != null) {
+      _controller.updateAdvancedFilter(
+          listing.scopeFilterId, LibraryAddOptionFilterValue(scope));
+    }
+  }
+
+  void _rememberListingScope() {
+    final listing = _listingTab;
+    if (listing == null || !_listingScopeLoaded) return;
+    final filter =
+        _controller.state.search.advancedFilters[listing.scopeFilterId];
+    final scope =
+        filter != null && filter.hasValue ? filter.displayValue : null;
+    if (scope == _rememberedListingScope) return;
+    _rememberedListingScope = scope;
+    unawaited(SharedPreferences.getInstance().then((preferences) =>
+        scope == null
+            ? preferences.remove(_listingScopeKey)
+            : preferences.setString(_listingScopeKey, scope)));
+  }
+
+  void _filterListing(String text) {
+    _listingFilterTimer?.cancel();
+    _listingFilterTimer = Timer(const Duration(milliseconds: 300), () {
+      _controller.updateCodeQuery(text);
+      _controller.executeSearch();
+    });
   }
 
   String? _textOrNull(String value) {
@@ -831,11 +901,21 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
     final isWideLayout = libraryUiPolicyForKind(widget.type.kind).wideDialog;
     final resultPolicy = libraryAddForKind(widget.type.kind).resultPolicy;
-    final visibleCore = state.visibleCoreResults(
-      resultPolicy,
-      isEntryCatalogItem: (item) =>
-          entryByCatalogRef.containsKey(item.reference),
-    );
+    final listing =
+        state.mode == LibraryAddDialogMode.code ? _listingTab : null;
+    bool ownsListingRow(CatalogSearchCandidate item) =>
+        entryByCatalogRef.containsKey(item.reference) ||
+        _ownedListingKeys.contains(listing!.ownedKey(item));
+    final visibleCore = [
+      for (final item in state.visibleCoreResults(
+        resultPolicy,
+        isEntryCatalogItem: (item) =>
+            entryByCatalogRef.containsKey(item.reference),
+      ))
+        if (listing == null || _listingOwnership.includes(ownsListingRow(item)))
+          item,
+    ];
+    _rememberListingScope();
     final selectedItem = state.selectedItem;
     final checkedCoreCount = state.search.results
         .where((item) =>
@@ -910,7 +990,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         : null;
     final queryTrailing = addCapability.search.presentation.queryTrailingBuilder
         ?.call(context, modeBarRequest);
-    final grouping = resultPolicy.grouping;
+    final grouping = listing == null ? resultPolicy.grouping : null;
     if (_selectedGroupSearch != state.search.coreSearchGeneration) {
       _selectedGroupSearch = state.search.coreSearchGeneration;
       _selectedGroupKey = _pendingGroupKey;
@@ -1032,6 +1112,15 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             onCoverTabChanged: (selected) =>
                 setState(() => _mobileCoverSelected = selected),
             showMobileInput: !browseMode || openedGroup == null || !isPhone,
+            listingScope: listing?.scopeBuilder.call(context, modeBarRequest),
+            listingOwnership: listing == null
+                ? null
+                : _LibraryAddOwnershipMenu(
+                    value: _listingOwnership,
+                    onChanged: (value) =>
+                        setState(() => _listingOwnership = value),
+                  ),
+            onListingFilterChanged: _filterListing,
             searchRowWidth: isMobilePhone
                 ? null
                 : browseMode
@@ -1087,9 +1176,21 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                               state.commonDraft.collectionStatus))
                   .color,
               results: visibleCore,
+              isListing: listing != null,
+              listingSearch: state.search.coreSearchGeneration,
+              listingLoadsOnScroll:
+                  _listingOwnership != LibraryAddOwnership.inCollection,
+              totalResults: _listingOwnership == LibraryAddOwnership.all
+                  ? state.search.totalResults
+                  : null,
               selectedResultId: state.selection.selectedResultId,
               checkedResultIds: state.selection.checkedResultIds,
-              entryCatalogRefs: entryByCatalogRef.keys.toSet(),
+              entryCatalogRefs: listing == null
+                  ? entryByCatalogRef.keys.toSet()
+                  : {
+                      for (final item in visibleCore)
+                        if (ownsListingRow(item)) item.reference,
+                    },
               coreMatchSummary: (item) => addCapability.search.presentation
                   .coreMatchSummary(item, searchContext),
               resultPolicy: resultPolicy,
@@ -1190,11 +1291,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         },
       );
     }
-    final defaultDialogWidth = browseMode
-        ? LibraryAddDialogLayout.browseDialogWidth
-        : grouping == null
-            ? LibraryAddDialogLayout.defaultDialogWidth
-            : LibraryAddResultGrouping.dialogWidth;
+    final defaultDialogWidth = listing != null
+        ? LibraryAddListingTab.dialogWidth
+        : browseMode
+            ? LibraryAddDialogLayout.browseDialogWidth
+            : grouping == null
+                ? LibraryAddDialogLayout.defaultDialogWidth
+                : LibraryAddResultGrouping.dialogWidth;
     return LibraryDialogScaffold(
       accent: accent,
       surfaceColor: LibraryAddPresentationTokens.current.dialogSurface(palette),
@@ -1260,14 +1363,23 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Future<void> _loadOwnedGroups() async {
     final keyOf =
         libraryAddForKind(widget.type.kind).search.browse?.ownedGroupKey;
-    if (keyOf == null) return;
+    final listingKeyOf = _listingTab?.entryOwnedKey;
+    if (keyOf == null && listingKeyOf == null) return;
     final entries = await LibraryEntryStore(ref.read(localDatabaseProvider))
         .list(kind: widget.type.kind);
     if (!mounted) return;
-    setState(() => _ownedGroupKeys = {
+    setState(() {
+      _ownedGroupKeys = {
+        if (keyOf != null)
           for (final entry in entries)
             if (keyOf(entry) case final key?) key,
-        });
+      };
+      _ownedListingKeys = {
+        if (listingKeyOf != null)
+          for (final entry in entries)
+            if (listingKeyOf(entry) case final key?) key,
+      };
+    });
   }
 
   /// The browse tab's groups at the left of what [content] shows.
@@ -1312,3 +1424,41 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 }
 
 /// Core's own explanation of a refused request, else the error itself.
+
+/// The listing's filter on what the collection already holds.
+enum LibraryAddOwnership {
+  all('All'),
+  inCollection('In Collection'),
+  notInCollection('Not in Collection');
+
+  const LibraryAddOwnership(this.label);
+
+  final String label;
+
+  bool includes(bool isEntry) => switch (this) {
+        all => true,
+        inCollection => isEntry,
+        notInCollection => !isEntry,
+      };
+}
+
+class _LibraryAddOwnershipMenu extends StatelessWidget {
+  const _LibraryAddOwnershipMenu(
+      {required this.value, required this.onChanged});
+
+  final LibraryAddOwnership value;
+  final ValueChanged<LibraryAddOwnership> onChanged;
+
+  @override
+  Widget build(BuildContext context) =>
+      LibraryAddChoiceMenu<LibraryAddOwnership>(
+        key: const ValueKey('library-add-listing-ownership'),
+        tooltip: 'Collection',
+        width: double.infinity,
+        height: 34,
+        label: value.label,
+        values: LibraryAddOwnership.values,
+        labelFor: (value) => value.label,
+        onSelected: onChanged,
+      );
+}

@@ -178,11 +178,40 @@ class LibraryAddCodeSearchTab {
     required this.label,
     required this.hintText,
     this.icon,
+    this.listing,
   });
 
   final String label;
   final String hintText;
   final IconData? icon;
+
+  /// Set, the tab lists the catalog under one scope as soon as it opens.
+  final LibraryAddListingTab? listing;
+}
+
+/// A tab listing every catalog item of one scope, such as a platform, a page
+/// at a time; its text field narrows the list as you type.
+class LibraryAddListingTab {
+  const LibraryAddListingTab({
+    required this.scopeFilterId,
+    required this.defaultScope,
+    required this.scopeBuilder,
+    required this.ownedKey,
+    required this.entryOwnedKey,
+  });
+
+  /// The narrow dialog beside the reference's single column.
+  static const dialogWidth = 690.0;
+
+  final LibraryAddFilterId scopeFilterId;
+  final String defaultScope;
+  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)
+      scopeBuilder;
+
+  /// A row lists one edition for its whole title, so an entry of any edition
+  /// counts as owning the row when both produce the same key.
+  final String? Function(CatalogSearchCandidate item) ownedKey;
+  final String? Function(LibraryEntryRecord entry) entryOwnedKey;
 }
 
 class LibraryAddSearchInputCapability {

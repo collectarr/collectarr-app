@@ -161,6 +161,31 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
     }
   }
 
+  /// Forgets the results when a listing tab opens or closes; the two share
+  /// one results list.
+  void clearSearchResults() {
+    _coreSearchCancelToken?.cancel('Results cleared');
+    _coreLoadMoreCancelToken?.cancel('Results cleared');
+    state = state.copyWith(
+      search: state.search.copyWith(
+        results: const [],
+        coreSearchGeneration: state.search.coreSearchGeneration + 1,
+        isSearching: false,
+        isLoadingMoreResults: false,
+        hasMoreResults: false,
+        nextOffset: 0,
+        clearTotalResults: true,
+        clearError: true,
+        clearLoadMoreError: true,
+      ),
+      selection: state.selection.copyWith(
+        clearSelectedResultId: true,
+        checkedResultIds: const {},
+      ),
+      preview: const LibraryAddPreviewState.initial(),
+    );
+  }
+
   Future<void> executeSearch() async {
     _autocompleteTimer?.cancel();
     _suggestionsGeneration++;
@@ -203,6 +228,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         isLoadingMoreResults: false,
         hasMoreResults: false,
         nextOffset: 0,
+        clearTotalResults: true,
         clearError: true,
         clearLoadMoreError: true,
         coreSearchGeneration: searchGeneration,
@@ -245,6 +271,7 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
             isSearching: false,
             nextOffset: searchResult.nextOffset ?? searchResult.rawItemCount,
             hasMoreResults: searchResult.hasMore,
+            totalResults: searchResult.total,
           ),
         );
       }

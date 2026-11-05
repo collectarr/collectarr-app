@@ -13,6 +13,8 @@ final class MetadataSearchQuery {
     this.limit,
     this.offset,
     this.fieldFilters = const {},
+    this.includeTotal = false,
+    this.onePerTitle = false,
   });
 
   final String? query;
@@ -29,6 +31,12 @@ final class MetadataSearchQuery {
   /// Catalog-owned scalar filters; the shared request carries their wire values.
   final Map<String, List<String>> fieldFilters;
 
+  /// Asks Core to count every match, for listings that show a total.
+  final bool includeTotal;
+
+  /// Asks Core for one Catalog Item per title instead of every edition.
+  final bool onePerTitle;
+
   MetadataSearchQuery withOffset(int value) => MetadataSearchQuery(
         query: query,
         kind: kind,
@@ -41,6 +49,8 @@ final class MetadataSearchQuery {
         limit: limit,
         offset: value,
         fieldFilters: fieldFilters,
+        includeTotal: includeTotal,
+        onePerTitle: onePerTitle,
       );
 
   bool get isEmpty {
@@ -67,6 +77,8 @@ final class MetadataSearchQuery {
       if (limit != null) 'limit': limit,
       if (fieldFilters.isNotEmpty) 'field_filters': jsonEncode(fieldFilters),
       if (offset != null) 'offset': offset,
+      if (includeTotal) 'include_total': true,
+      if (onePerTitle) 'one_per_title': true,
     };
   }
 

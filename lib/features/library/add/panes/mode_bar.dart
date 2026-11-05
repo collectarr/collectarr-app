@@ -92,6 +92,9 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.advancedFilterDescriptors,
     this.onCoreDataSettings,
     this.searchRowWidth,
+    this.listingScope,
+    this.listingOwnership,
+    this.onListingFilterChanged,
     this.searchRowBeside,
     this.showMobileInput = true,
     this.onCoverTabChanged,
@@ -155,6 +158,12 @@ class LibraryAddModeBar extends StatefulWidget {
   final ValueChanged<bool>? onCoverTabChanged;
   final bool showMobileInput;
   final double? searchRowWidth;
+
+  /// Set on a listing tab: the row shows these and a filter field that narrows
+  /// the list as you type, with no Search button.
+  final Widget? listingScope;
+  final Widget? listingOwnership;
+  final ValueChanged<String>? onListingFilterChanged;
   final Widget? searchRowBeside;
 
   @override

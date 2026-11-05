@@ -12,6 +12,7 @@ class LibraryAddSearchState {
     this.isSearching = false,
     this.isLoadingMoreResults = false,
     this.hasMoreResults = false,
+    this.totalResults,
     this.nextOffset = 0,
     this.isScanningCover = false,
     this.showAdvancedSearch = false,
@@ -38,6 +39,9 @@ class LibraryAddSearchState {
   final bool isSearching;
   final bool isLoadingMoreResults;
   final bool hasMoreResults;
+
+  /// Every match of a listing, beyond the pages loaded so far.
+  final int? totalResults;
   final int nextOffset;
   final bool isScanningCover;
   final bool showAdvancedSearch;
@@ -70,6 +74,8 @@ class LibraryAddSearchState {
     String? loadMoreError,
     bool clearError = false,
     bool clearLoadMoreError = false,
+    int? totalResults,
+    bool clearTotalResults = false,
     int? coreSearchGeneration,
     LibraryCoverScanResult? coverScanPrefill,
     bool clearCoverScanPrefill = false,
@@ -81,6 +87,8 @@ class LibraryAddSearchState {
       isSearching: isSearching ?? this.isSearching,
       isLoadingMoreResults: isLoadingMoreResults ?? this.isLoadingMoreResults,
       hasMoreResults: hasMoreResults ?? this.hasMoreResults,
+      totalResults:
+          clearTotalResults ? null : (totalResults ?? this.totalResults),
       nextOffset: nextOffset ?? this.nextOffset,
       isScanningCover: isScanningCover ?? this.isScanningCover,
       showAdvancedSearch: showAdvancedSearch ?? this.showAdvancedSearch,

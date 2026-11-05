@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/contracts/result_policy.dart';
+import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +14,15 @@ GameCatalogMetadata _metadata(CatalogSearchCandidate item) =>
 String _platform(CatalogSearchCandidate item) =>
     _metadata(item).platforms.firstOrNull?.trim() ?? '';
 
+/// One game on one platform.
+String gameAddItemGroupKey(CatalogSearchCandidate item) =>
+    '${item.summary.primaryLabel.trim().toLowerCase()}|${_platform(item).toLowerCase()}';
+
 /// As in the reference, a game is listed once per platform and its editions
 /// are picked by cover, captioned with the edition title or barcode and the
 /// release region.
 final gameAddResultGrouping = LibraryAddResultGrouping(
-  groupKey: (item) =>
-      '${item.summary.primaryLabel.trim().toLowerCase()}|${_platform(item).toLowerCase()}',
+  groupKey: gameAddItemGroupKey,
   groupDetail: (context, item) {
     final platform = _platform(item);
     if (platform.isEmpty) return const SizedBox.shrink();
@@ -46,3 +50,13 @@ final gameAddResultGrouping = LibraryAddResultGrouping(
     valueOf: (item) => gameAddRegionFor(_metadata(item).releaseRegion)?.value,
   ),
 );
+
+/// The group a library entry belongs to, as [gameAddResultGrouping] keys a
+/// Core result.
+String? gameAddEntryGroupKey(LibraryEntryRecord entry) {
+  final metadata = GameCatalogMetadata.fromJson(entry.catalogData);
+  final title = metadata.title.trim().toLowerCase();
+  if (title.isEmpty) return null;
+  final platform = metadata.platforms.firstOrNull?.trim().toLowerCase() ?? '';
+  return '$title|$platform';
+}

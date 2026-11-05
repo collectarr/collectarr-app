@@ -16,6 +16,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Add Games' Platform tab lists each game of a platform once as soon as it opens, loads more while you scroll, shows the total, filters as you type, narrows to games in or not in your collection and remembers the platform.
 - Game details show a trailer's thumbnail with a play mark, and the Personal table lists purchase, condition, quantity, owner, tags and notes.
 - Add dialogs with grouped results, such as Add Games, let you drag the divider between the list and the editions to resize it.
 - Library settings support shared defaults, independent kind overrides, reset and apply to compatible enabled libraries; trailer preferences preserve existing choices on upgrade and report invalid saved values without rewriting them.
@@ -66,6 +67,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Add Games asks Core for the chosen platform, so results are no longer cut short by filtering after each page.
 - Add dialogs use CLZ's translucent panels and search row color, and the Add Games region segments stay dimmed until a game is chosen.
 - The extra Search eBay button at the end of the details is off by default, as in CLZ; it can be turned on in Settings.
 - Game details place the cover beside its facts when the panel is wide enough, as CLZ does.

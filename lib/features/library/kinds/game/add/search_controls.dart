@@ -1,8 +1,7 @@
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/search_context.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/platform_tile.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -52,25 +51,49 @@ GameAddRegion? gameAddRegionFor(String? releaseRegion) {
   return GameAddRegion.other;
 }
 
-/// Keeps Core results released on the chosen platform. Core has no platform
-/// filter for games, so the platform narrows the title results here instead
-/// of joining the search text.
-bool gameAddCandidateMatchesPlatform(
-  CatalogSearchCandidate item,
-  LibraryAddSearchContext context,
-) {
-  final wanted = gameAddPlatform(context)?.toLowerCase();
-  if (wanted == null) return true;
-  final metadata = item.kindCapability.mapTransport(
-      (transport) => GameCatalogMetadata.fromJson(transport.kindData));
-  return metadata.platforms
-      .any((platform) => platform.trim().toLowerCase() == wanted);
-}
-
 void _update(
     LibraryAddModeBarRequest request, LibraryAddFilterId id, String value) {
   request.onAdvancedFilterChanged(id, LibraryAddOptionFilterValue(value));
   request.onSearch();
+}
+
+/// The Platform tab's own select: logo, name and chevron, opening Pick Platform.
+Widget buildGameAddListingPlatform(
+  BuildContext context,
+  LibraryAddModeBarRequest request,
+) {
+  final platform =
+      _option(request.advancedFilterState[gameAddPlatformFilterId]) ?? '';
+  final palette = appPalette(context);
+  return InkWell(
+    key: const ValueKey('game-add-listing-platform'),
+    mouseCursor: WidgetStateMouseCursor.clickable,
+    onTap: () async {
+      final chosen = await showGamePlatformPicker(context, selected: platform);
+      if (chosen != null && chosen.isNotEmpty) {
+        _update(request, gameAddPlatformFilterId, chosen);
+      }
+    },
+    child: Container(
+      height: 34,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      color: palette.isDark ? const Color(0xff444444) : palette.field,
+      child: Row(children: [
+        GamePlatformTile(platform),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(platform,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: palette.textPrimary)),
+        ),
+        Icon(AppIcons.chevronDown, size: 12, color: palette.textPrimary),
+      ]),
+    ),
+  );
 }
 
 /// The platform inside the title field, opening Pick Platform, as in the

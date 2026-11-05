@@ -17,6 +17,8 @@ MetadataSearchQuery libraryMetadataSearchQuery(
   int? limit,
   int? offset,
   Map<String, List<String>> fieldFilters = const {},
+  bool includeTotal = false,
+  bool onePerTitle = false,
 }) {
   return MetadataSearchQuery(
     query: query,
@@ -29,6 +31,8 @@ MetadataSearchQuery libraryMetadataSearchQuery(
     limit: limit,
     offset: offset,
     fieldFilters: fieldFilters,
+    includeTotal: includeTotal,
+    onePerTitle: onePerTitle,
   );
 }
 
@@ -68,11 +72,13 @@ final class LibraryMetadataSearchPage {
     required this.items,
     required this.nextOffset,
     required this.hasMore,
+    this.total,
   });
 
   final List<CatalogSearchCandidate> items;
   final int? nextOffset;
   final bool hasMore;
+  final int? total;
 }
 
 Future<LibraryMetadataSearchPage> searchLibraryMetadataPage(
@@ -87,6 +93,8 @@ Future<LibraryMetadataSearchPage> searchLibraryMetadataPage(
   int? limit,
   int? offset,
   Map<String, List<String>> fieldFilters = const {},
+  bool includeTotal = false,
+  bool onePerTitle = false,
   CancelToken? cancelToken,
 }) async {
   final capability = libraryMetadataForKind(kind);
@@ -101,6 +109,8 @@ Future<LibraryMetadataSearchPage> searchLibraryMetadataPage(
     limit: limit,
     offset: offset,
     fieldFilters: fieldFilters,
+    includeTotal: includeTotal,
+    onePerTitle: onePerTitle,
   );
   final requestedOffset = input.offset ?? 0;
   final page = capability.catalogSearchBuilder == null
@@ -123,6 +133,7 @@ Future<LibraryMetadataSearchPage> searchLibraryMetadataPage(
         ? (page.nextOffset ?? requestedOffset + page.items.length)
         : null,
     hasMore: page.hasMore,
+    total: page.total,
   );
 }
 

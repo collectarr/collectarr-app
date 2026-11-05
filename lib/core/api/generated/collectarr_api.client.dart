@@ -62,6 +62,7 @@ class CollectarrApiClient {
       items: page.items.map(_resolveImageUrls).toList(growable: false),
       nextOffset: page.nextOffset,
       hasMore: page.hasMore,
+      total: page.total,
     );
   }
 

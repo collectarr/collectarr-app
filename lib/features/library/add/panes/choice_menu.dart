@@ -10,6 +10,7 @@ class LibraryAddChoiceMenu<T> extends StatelessWidget {
     required this.values,
     required this.labelFor,
     required this.onSelected,
+    this.height = 24,
   });
 
   final String tooltip;
@@ -18,6 +19,7 @@ class LibraryAddChoiceMenu<T> extends StatelessWidget {
   final List<T> values;
   final String Function(T value) labelFor;
   final ValueChanged<T> onSelected;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,7 @@ class LibraryAddChoiceMenu<T> extends StatelessWidget {
       ],
       child: Container(
         width: width,
-        height: 24,
+        height: height,
         padding: const EdgeInsets.only(left: 6, right: 2),
         decoration: BoxDecoration(
           color: palette.isDark ? const Color(0xff383838) : palette.field,

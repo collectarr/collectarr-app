@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/search_context.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/contribution.dart';
@@ -54,16 +53,18 @@ void main() {
         ),
       ),
       isFalse,
-      reason: 'Core cannot list a platform without search text',
+      reason: 'Only the Platform tab lists without search text',
     );
+    expect(
+        input.hasSearchInput(LibraryAddSearchContext(isListing: true)), isTrue);
   });
 
-  test('Add Games keeps the platform out of the Core query', () {
+  test('Add Games sends the platform to Core as a filter', () {
     final core = gameKindAdd.search.core;
 
     final query = core.inputBuilder(
       LibraryAddSearchContext(
-        codeQuery: 'Metroid',
+        query: 'Metroid',
         advancedFilters: {
           gameAddPlatformFilterId:
               const LibraryAddOptionFilterValue('Nintendo Switch'),
@@ -74,6 +75,10 @@ void main() {
 
     expect(query.query, 'Metroid');
     expect(query.barcode, isNull);
+    expect(query.fieldFilters, {
+      'platforms': ['Nintendo Switch'],
+    });
+    expect(query.includeTotal, isFalse);
 
     final barcodeQuery = core.inputBuilder(
       LibraryAddSearchContext(identifierCode: '045496590437'),
@@ -82,29 +87,34 @@ void main() {
     expect(barcodeQuery.barcode, '045496590437');
   });
 
-  test('the chosen platform narrows the results', () {
-    CatalogSearchCandidate game(String platform) =>
-        CatalogSearchCandidate.fromApiJson(json: {
-          'id': '30000000-0000-4000-8000-000000000001',
-          'kind': 'game',
-          'kind_data': {
-            'title': 'Brick Knight',
-            'platforms': [platform],
-          },
-        });
-    final context = LibraryAddSearchContext(
-      query: 'brick',
-      advancedFilters: {
-        gameAddPlatformFilterId: const LibraryAddOptionFilterValue('PC'),
-      },
+  test('the Platform tab filters by its own text and asks for a total', () {
+    final query = gameKindAdd.search.core.inputBuilder(
+      LibraryAddSearchContext(
+        query: 'left over from Title',
+        codeQuery: 'brick',
+        isListing: true,
+        advancedFilters: {
+          gameAddPlatformFilterId: const LibraryAddOptionFilterValue('PC'),
+        },
+      ),
+      limit: 20,
     );
-    expect(gameAddCandidateMatchesPlatform(game('PC'), context), isTrue);
-    expect(gameAddCandidateMatchesPlatform(game('PlayStation 4'), context),
-        isFalse);
-    expect(
-        gameAddCandidateMatchesPlatform(
-            game('PlayStation 4'), LibraryAddSearchContext(query: 'brick')),
-        isTrue);
+
+    expect(query.query, 'brick');
+    expect(query.fieldFilters, {
+      'platforms': ['PC'],
+    });
+    expect(query.includeTotal, isTrue);
+    expect(query.onePerTitle, isTrue);
+    expect(query.toQueryParameters()['include_total'], isTrue);
+    expect(query.toQueryParameters()['one_per_title'], isTrue);
+  });
+
+  test('the Platform tab is a listing scoped by the platform filter', () {
+    final listing = gameKindAdd.search.input.codeSearchTab!.listing!;
+
+    expect(listing.scopeFilterId, gameAddPlatformFilterId);
+    expect(listing.defaultScope, 'PC');
   });
 
   test('a completeness with no known tier and no value shows no summary', () {

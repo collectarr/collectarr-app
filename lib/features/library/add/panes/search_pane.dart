@@ -26,6 +26,10 @@ class LibraryAddSearchPane extends StatelessWidget {
     this.selectionColor,
     required this.results,
     required this.selectedResultId,
+    this.isListing = false,
+    this.listingSearch = 0,
+    this.listingLoadsOnScroll = true,
+    this.totalResults,
     required this.checkedResultIds,
     required this.entryCatalogRefs,
     this.coreMatchSummary,
@@ -56,6 +60,17 @@ class LibraryAddSearchPane extends StatelessWidget {
   final Color? selectionColor;
   final List<CatalogSearchCandidate> results;
   final String? selectedResultId;
+
+  /// Shows the results as a listing tab's single column.
+  final bool isListing;
+
+  /// Which search fills the listing; a new one starts at the top.
+  final int listingSearch;
+
+  /// Off when a local filter could leave pages empty, which would otherwise
+  /// fetch the whole catalog; further pages then load on request.
+  final bool listingLoadsOnScroll;
+  final int? totalResults;
   final Set<String> checkedResultIds;
   final Set<CatalogItemRef> entryCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
@@ -102,6 +117,47 @@ class LibraryAddSearchPane extends StatelessWidget {
                 'Add ${type.identity.singularLabel.toLowerCase()} manually.',
             onTap: onAddManually!)
         : null;
+    if (isListing) {
+      return ColoredBox(
+        color: results.isEmpty
+            ? libraryAddSearchBackground(context)
+            : libraryAddResultsBackground(context),
+        child: Column(children: [
+          if (showCaption)
+            _LibraryAddResultsCaption(
+              count: totalResults ?? results.length,
+              hasMore: totalResults == null && hasMoreResults,
+            ),
+          Expanded(
+            child: isBusy && results.isEmpty
+                ? const LibraryAddSearchingPlaceholder()
+                : results.isEmpty
+                    ? _SearchPaneNoticeStack(error: error)
+                    : _LibraryAddListing(
+                        results: results,
+                        search: listingSearch,
+                        loadsOnScroll: listingLoadsOnScroll,
+                        selectedResultId: selectedResultId,
+                        checkedResultIds: checkedResultIds,
+                        entryCatalogRefs: entryCatalogRefs,
+                        hasMore: hasMoreResults,
+                        isLoadingMore: isLoadingMoreResults,
+                        onLoadMore: onLoadMoreResults,
+                        onSelectResult: onSelectResult,
+                        onToggleResultCheck: onToggleResultCheck,
+                      ),
+          ),
+          if (loadMoreError != null || !listingLoadsOnScroll)
+            LibraryAddSearchResultsFooter(
+              accent: accent,
+              isLoading: isLoadingMoreResults,
+              hasMore: hasMoreResults,
+              error: loadMoreError,
+              onLoadMore: onLoadMoreResults,
+            ),
+        ]),
+      );
+    }
     if (coverBlocks case final view?) {
       final ordered = view.descending ? results.reversed.toList() : results;
       return ColoredBox(
@@ -242,6 +298,171 @@ class LibraryAddSearchPane extends StatelessWidget {
 }
 
 /// The reference's "Not found?" row after the results, opening Add Manually.
+/// One title per row with its checkbox, loading further pages near the end.
+class _LibraryAddListing extends StatefulWidget {
+  const _LibraryAddListing({
+    required this.results,
+    required this.search,
+    required this.loadsOnScroll,
+    required this.selectedResultId,
+    required this.checkedResultIds,
+    required this.entryCatalogRefs,
+    required this.hasMore,
+    required this.isLoadingMore,
+    required this.onLoadMore,
+    required this.onSelectResult,
+    required this.onToggleResultCheck,
+  });
+
+  final List<CatalogSearchCandidate> results;
+  final int search;
+  final bool loadsOnScroll;
+
+  final String? selectedResultId;
+  final Set<String> checkedResultIds;
+  final Set<CatalogItemRef> entryCatalogRefs;
+  final bool hasMore;
+  final bool isLoadingMore;
+  final VoidCallback? onLoadMore;
+  final ValueChanged<String> onSelectResult;
+  final ValueChanged<String> onToggleResultCheck;
+
+  @override
+  State<_LibraryAddListing> createState() => _LibraryAddListingState();
+}
+
+class _LibraryAddListingState extends State<_LibraryAddListing> {
+  static const _rowHeight = 41.0;
+  static const _loadAhead = _rowHeight * 25;
+
+  final _scroll = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_maybeLoadMore);
+    _maybeLoadMoreAfterLayout();
+  }
+
+  @override
+  void didUpdateWidget(_LibraryAddListing oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A filtered page can be too short to scroll.
+    _maybeLoadMoreAfterLayout();
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  void _maybeLoadMoreAfterLayout() =>
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _maybeLoadMore();
+      });
+
+  void _maybeLoadMore() {
+    if (!widget.loadsOnScroll ||
+        !widget.hasMore ||
+        widget.isLoadingMore ||
+        !_scroll.hasClients) {
+      return;
+    }
+    if (_scroll.position.extentAfter < _loadAhead) widget.onLoadMore?.call();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final count = widget.results.length;
+    return Scrollbar(
+      controller: _scroll,
+      thumbVisibility: true,
+      child: ListView.builder(
+        // The confirm sheet rebuilds the pane; keep the row in view.
+        key: PageStorageKey('library-add-listing-${widget.search}'),
+        controller: _scroll,
+        itemExtent: _rowHeight,
+        itemCount: count + (widget.loadsOnScroll && widget.hasMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == count) {
+            return const Center(
+              child: SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2)),
+            );
+          }
+          final item = widget.results[index];
+          final id = item.reference.id;
+          final selected = id == widget.selectedResultId;
+          return Material(
+            color: selected ? palette.utilityAction : Colors.transparent,
+            child: InkWell(
+              key: ValueKey('library-add-listing-row-$id'),
+              mouseCursor: WidgetStateMouseCursor.clickable,
+              onTap: () => widget.onSelectResult(id),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom:
+                        BorderSide(color: libraryAddResultsDivider(context)),
+                  ),
+                ),
+                child: Row(children: [
+                  Container(
+                    width: 36,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        right: BorderSide(
+                            color: libraryAddResultsDivider(context)),
+                      ),
+                    ),
+                    child: LibraryAddResultCheckbox(
+                      checked: widget.checkedResultIds.contains(id),
+                      onPressed: () => widget.onToggleResultCheck(id),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  if (widget.entryCatalogRefs.contains(item.reference)) ...[
+                    Tooltip(
+                      message: 'Already in collection',
+                      child: Container(
+                        key: const ValueKey('library-add-result-in-collection'),
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color:
+                              LibraryCollectionStatusScope.inCollection.color,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                  ],
+                  Expanded(
+                    child: Text(
+                      item.summary.primaryLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: selected ? Colors.white : palette.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 class LibraryAddNotFoundRow extends StatelessWidget {
   const LibraryAddNotFoundRow(
       {super.key, required this.message, required this.onTap});

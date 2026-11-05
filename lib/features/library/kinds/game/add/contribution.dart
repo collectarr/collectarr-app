@@ -62,15 +62,18 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
         label: 'Platform',
         hintText: 'Filter games...',
         icon: AppIcons.viewList,
+        listing: LibraryAddListingTab(
+          scopeFilterId: gameAddPlatformFilterId,
+          defaultScope: 'PC',
+          scopeBuilder: buildGameAddListingPlatform,
+          ownedKey: gameAddItemGroupKey,
+          entryOwnedKey: gameAddEntryGroupKey,
+        ),
       ),
       searchInputPredicate: _gameAddHasSearchInput,
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: _buildGameCoreSearchInput,
-      resultFilter: (items, context) => [
-        for (final item in items)
-          if (gameAddCandidateMatchesPlatform(item, context)) item,
-      ],
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -98,6 +101,7 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
 );
 
 bool _gameAddHasSearchInput(LibraryAddSearchContext context) =>
+    context.isListing ||
     context.query.trim().isNotEmpty ||
     context.identifierCode.trim().isNotEmpty ||
     context.codeQuery.trim().isNotEmpty;
@@ -108,10 +112,16 @@ MetadataSearchQuery _buildGameCoreSearchInput(
 }) {
   return MetadataSearchQuery(
     query: _optionalGameText(
-      buildLibraryAddSearchQuery([context.query, context.codeQuery]),
+      context.isListing ? context.codeQuery : context.query,
     ),
     barcode: _optionalGameText(context.identifierCode),
     limit: limit,
+    fieldFilters: {
+      if (gameAddPlatform(context) case final platform?)
+        'platforms': [platform],
+    },
+    includeTotal: context.isListing,
+    onePerTitle: context.isListing,
   );
 }
 

@@ -152,6 +152,8 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
       query: query ?? state.search.query,
       identifierCode: state.search.identifierCode,
       codeQuery: state.search.codeQuery,
+      isListing: state.mode == LibraryAddDialogMode.code &&
+          _searchCapability.input.codeSearchTab?.listing != null,
       advancedFilters: state.search.advancedFilters,
     );
   }
