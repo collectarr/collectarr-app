@@ -29,6 +29,7 @@ Widget buildGameAddPreview(
             dimension: 210,
             child: LibraryInteractiveCover(
               title: game.title,
+              mediaKind: item.summary.kind,
               imageUrl: item.summary.imageUrl,
               accentColor: request.accent,
               fallbackAspectRatio: 1,

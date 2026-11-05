@@ -30,6 +30,7 @@ List<LibraryColumnDefinition<GameToyKind, GameToyWorkspaceDto, Object?>>
                     height: 32,
                     child: LibraryCoverImage(
                         title: context.dto.metadata.title,
+                        mediaKind: CatalogMediaKind.gameToy,
                         imageUrl: type == 'front_cover'
                             ? context.dto.metadata.coverImageUrl
                             : null,

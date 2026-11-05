@@ -817,6 +817,7 @@ class _SearchResultsGrid extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                               child: LibraryCoverImage(
                                 title: title,
+                                mediaKind: item.summary.kind,
                                 imageUrl: coverUrl,
                               ),
                             ),
@@ -984,6 +985,7 @@ class SearchResultTile extends StatelessWidget {
                   height: 70,
                   child: LibraryCoverImage(
                     title: item.summary.primaryLabel,
+                    mediaKind: item.summary.kind,
                     imageUrl: item.summary.imageUrl,
                     fallbackAspectRatio: 65 / 70,
                     borderRadius: 0,

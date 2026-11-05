@@ -231,6 +231,7 @@ class _ComicCover extends StatelessWidget {
   Widget build(BuildContext context) {
     final cover = LibraryCoverImage(
       title: title,
+      mediaKind: CatalogMediaKind.comic,
       imageUrl: comic?.coverImageUrl,
       libraryEntryRef: entry == null
           ? null

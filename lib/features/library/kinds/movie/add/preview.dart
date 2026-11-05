@@ -47,6 +47,7 @@ class _MovieAddPreviewPane extends StatelessWidget {
                     aspectRatio: 2 / 3,
                     child: LibraryInteractiveCover(
                       title: title,
+                      mediaKind: request.type.kind,
                       itemNumber: itemNumber,
                       imageUrl: coverUrl,
                     ),

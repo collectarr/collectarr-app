@@ -42,6 +42,7 @@ Widget buildMusicAddPreview(
               dimension: 210,
               child: LibraryInteractiveCover(
                 title: album.title,
+                mediaKind: item.summary.kind,
                 imageUrl: item.summary.imageUrl,
                 accentColor: request.accent,
                 fallbackAspectRatio: 1,

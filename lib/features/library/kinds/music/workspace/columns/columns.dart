@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
@@ -47,6 +48,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
                   dimension: 79,
                   child: LibraryCoverImage(
                     title: context.dto.primaryLabel,
+                    mediaKind: CatalogMediaKind.music,
                     imageUrl: imageUrl,
                     fallbackAspectRatio: 1,
                     borderRadius: 0,

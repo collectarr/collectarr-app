@@ -145,6 +145,7 @@ class _GameInspectorHeader extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 210, maxHeight: 300),
           child: LibraryCoverImage(
             title: title,
+            mediaKind: CatalogMediaKind.game,
             imageUrl: metadata?.coverImageUrl,
             libraryEntryRef: entry == null
                 ? null

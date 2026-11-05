@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/item_actions.dart';
 import 'package:collectarr_app/features/library/details/inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/inspector_title_card.dart';
@@ -186,6 +187,7 @@ class _BoardGameInspectorMain extends StatelessWidget {
                 height: 164,
                 child: LibraryInteractiveCover(
                   title: dto.primaryLabel,
+                  mediaKind: CatalogMediaKind.boardgame,
                   itemNumber: adapter?.itemNumber,
                   imageUrl: dto.imageUrl,
                   accentColor: inspector.accent,

@@ -47,6 +47,7 @@ class InspectorBackdrop extends StatelessWidget {
       children: [
         LibraryCoverImage(
           title: dto.primaryLabel,
+          mediaKind: item.source.mediaKind,
           itemNumber: card.itemNumber,
           imageUrl: dto.imageUrl,
           libraryEntryRef: libraryEntryRef,

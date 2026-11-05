@@ -32,6 +32,7 @@ List<
                 height: 32,
                 child: LibraryCoverImage(
                     title: context.dto.metadata.title,
+                    mediaKind: CatalogMediaKind.gameHardware,
                     imageUrl: type == 'front_cover'
                         ? context.dto.metadata.coverImageUrl
                         : null,

@@ -80,6 +80,7 @@ Widget buildGameHardwareInspectorHero(
             constraints: const BoxConstraints(maxWidth: 210, maxHeight: 300),
             child: LibraryCoverImage(
                 title: metadata.title,
+                mediaKind: CatalogMediaKind.gameHardware,
                 imageUrl: metadata.coverImageUrl,
                 libraryEntryRef: entry == null
                     ? null

@@ -159,6 +159,7 @@ class _GridBlock extends StatelessWidget {
                 height: coverHeight ?? LibraryAddCoverBlocks.coverHeight,
                 child: LibraryCoverImage(
                   title: args.item.summary.primaryLabel,
+                  mediaKind: args.item.summary.kind,
                   imageUrl: args.item.summary.imageUrl,
                   borderRadius: 0,
                   fit: BoxFit.cover,
@@ -248,6 +249,7 @@ class _ListBlock extends StatelessWidget {
                 height: 70,
                 child: LibraryCoverImage(
                   title: args.item.summary.primaryLabel,
+                  mediaKind: args.item.summary.kind,
                   imageUrl: args.item.summary.imageUrl,
                   borderRadius: 0,
                   fit: BoxFit.cover,

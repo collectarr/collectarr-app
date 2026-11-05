@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,7 @@ final class AdminCatalogItemList extends StatelessWidget {
                   height: 82,
                   child: LibraryCoverImage(
                     title: item.title,
+                    mediaKind: catalogMediaKindFromValue(item.kind),
                     itemNumber: item.itemNumber,
                     imageUrl: item.displayCoverUrl,
                   ),

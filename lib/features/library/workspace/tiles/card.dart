@@ -557,6 +557,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     final Widget cover = intrinsicSize
         ? LibraryCoverImage(
             title: item.dto.primaryLabel,
+            mediaKind: item.source.mediaKind,
             itemNumber: presentation.itemNumber,
             imageUrl: item.dto.imageUrl,
             libraryEntryRef: item.source.libraryEntryRef,
@@ -570,6 +571,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
           )
         : LibraryInteractiveCover(
             title: item.dto.primaryLabel,
+            mediaKind: item.source.mediaKind,
             itemNumber: presentation.itemNumber,
             imageUrl: item.dto.imageUrl,
             libraryEntryRef: item.source.libraryEntryRef,

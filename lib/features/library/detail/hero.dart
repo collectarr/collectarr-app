@@ -98,6 +98,7 @@ class LibraryDetailHero extends StatelessWidget {
                 width: 140,
                 child: LibraryInteractiveCover(
                   title: dto.primaryLabel,
+                  mediaKind: item.source.mediaKind,
                   itemNumber: presentation.itemNumber,
                   imageUrl: dto.imageUrl,
                   targetCacheWidth: _targetCacheWidth(
