@@ -283,7 +283,8 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
         (isWideDesktop
             ? (viewport.width > 1440 ? 1220.0 : 1140.0)
             : (viewport.width > 1264 ? 1200.0 : viewport.width - 64));
-    final maxHeight = viewport.height > 900 ? 850.0 : viewport.height - 24;
+    // Tabs take only the height they need; a cover may use the whole window.
+    final maxHeight = viewport.height - 24;
     final p = libraryEditPalette(appPalette(context));
     return PopScope<Object?>(
       canPop: false,

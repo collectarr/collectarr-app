@@ -80,6 +80,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Covers fit in the editor without scrolling, on short windows too.
 - Crop / Rotate works in place as in CLZ: drag inside the crop to move it, and Reset leaves without a change.
 - Tags, Owner and Storage Device no longer offer a Sort Name.
 - The date calendar opens under its field at any app zoom.

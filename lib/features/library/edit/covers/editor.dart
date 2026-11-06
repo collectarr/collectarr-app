@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:collectarr_app/features/library/edit/covers/crop_editor.dart';
@@ -17,6 +18,10 @@ final Dio _coverImageClient = Dio(
     responseType: ResponseType.bytes,
   ),
 );
+
+/// The editor's height around a cover: its title, tabs, toolbar and footer.
+const double _editorChrome = 360;
+const double _minPreviewHeight = 200;
 
 /// A local cover image held by one cover panel.
 @immutable
@@ -172,8 +177,15 @@ final class _LibraryCoverEditorState extends State<LibraryCoverEditor> {
     );
   }
 
-  /// The cover across the panel's width.
-  Widget _fitted(Widget image) => FittedBox(child: image);
+  /// The cover across the panel's width, or smaller and centred where the
+  /// window is too short, so the editor fits without scrolling. A very short
+  /// window scrolls rather than shrink the cover further.
+  Widget _fitted(Widget image) => ConstrainedBox(
+        constraints: BoxConstraints(
+            maxHeight: math.max(_minPreviewHeight,
+                MediaQuery.sizeOf(context).height - _editorChrome)),
+        child: FittedBox(child: image),
+      );
 
   /// The reference's 210 x 300 blank cover, centred at the top.
   Widget _placeholder(BuildContext context) {
