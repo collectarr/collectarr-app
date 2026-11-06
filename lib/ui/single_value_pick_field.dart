@@ -55,6 +55,7 @@ class SingleValuePickField extends StatefulWidget
 }
 
 class _SingleValuePickFieldState extends State<SingleValuePickField> {
+  bool _menuOpen = false;
   late final FocusNode _ownedFocusNode;
   FocusNode get _focusNode => widget.focusNode ?? _ownedFocusNode;
   final GlobalKey _fieldAnchorKey = GlobalKey();
@@ -173,6 +174,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                       style: const TextStyle(
                           fontSize: 14, fontWeight: FontWeight.w400))),
           ];
+    setState(() => _menuOpen = true);
     final selected = await showMenu<String>(
       context: context,
       position: geometry.menuPosition,
@@ -189,9 +191,9 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
       items: popupItems,
       popUpAnimationStyle: AnimationStyle.noAnimation,
     );
-    if (!mounted || selected == null) {
-      return;
-    }
+    if (!mounted) return;
+    setState(() => _menuOpen = false);
+    if (selected == null) return;
     _applySelection(selected);
     _focusNode.requestFocus();
   }
@@ -270,12 +272,23 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           border: nativeEditor
               ? const OutlineInputBorder(borderRadius: BorderRadius.zero)
               : null,
-          enabledBorder: nativeEditor
-              ? OutlineInputBorder(
-                  borderRadius: BorderRadius.zero,
-                  borderSide: BorderSide(color: appPalette(context).divider),
-                )
-              : null,
+          // While its menu is open the field reads as focused, like the
+          // reference: a blue frame around the field and its list button.
+          enabledBorder: _menuOpen
+              ? nativeEditor
+                  ? OutlineInputBorder(
+                      borderRadius: BorderRadius.zero,
+                      borderSide: BorderSide(
+                          color: appPalette(context).utilityAction, width: 2),
+                    )
+                  : Theme.of(context).inputDecorationTheme.focusedBorder
+              : nativeEditor
+                  ? OutlineInputBorder(
+                      borderRadius: BorderRadius.zero,
+                      borderSide:
+                          BorderSide(color: appPalette(context).divider),
+                    )
+                  : null,
           focusedBorder: nativeEditor
               ? OutlineInputBorder(
                   borderRadius: BorderRadius.zero,
@@ -312,6 +325,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                 if (hasBrowseAction && !nativeEditor)
                   PickListFieldButton(
                     tooltip: widget.manageTooltip ?? 'Browse ${widget.label}',
+                    highlighted: _menuOpen,
                     onPressed: widget.enabled
                         ? (widget.onManage ??
                             () => _openPickerDialog(normalizedOptions))

@@ -12,6 +12,7 @@ class PickListFieldButton extends StatelessWidget {
     required this.onPressed,
     this.embeddedInField = true,
     this.bottomBorder = false,
+    this.highlighted = false,
     this.icon = AppIcons.viewHorizontalCards,
   });
 
@@ -21,6 +22,9 @@ class PickListFieldButton extends StatelessWidget {
   /// Closes the button off below, for fields that grow past one row while
   /// the button stays on the first, as in the reference.
   final bool bottomBorder;
+
+  /// Sets the button off with a blue rule while the field's menu is open.
+  final bool highlighted;
   final IconData icon;
   final String tooltip;
   final VoidCallback? onPressed;
@@ -46,7 +50,10 @@ class PickListFieldButton extends StatelessWidget {
                     decoration: BoxDecoration(
                         border: embeddedInField
                             ? Border(
-                                left: BorderSide(color: palette.divider),
+                                left: BorderSide(
+                                    color: highlighted
+                                        ? palette.utilityAction
+                                        : palette.divider),
                                 bottom: bottomBorder
                                     ? BorderSide(color: palette.divider)
                                     : BorderSide.none)
