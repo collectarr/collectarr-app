@@ -2,7 +2,6 @@ import '../domain/game_packaging_selection.dart';
 import 'package:collectarr_app/core/localization/app_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/sections/entry_personal_section.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_value_summary.dart';
 import '../domain/game_completeness_selection.dart';
 import '../entries/game_entry_details.dart';
@@ -27,7 +26,6 @@ abstract interface class GameValueBindings {
   bool get valueLocked;
   String? get condition;
   String? get priceChartingId;
-  GameValuationSet? get valuations;
   String get currency;
 
   /// Title and platform searched by the eBay link.
@@ -67,10 +65,6 @@ Map<String, Widget> gameValueFields(GameValueBindings bindings) => {
         builtIns: GameVocabularies.condition.builtIns,
         onChanged: bindings.setCondition,
       ),
-      'valuations': _GameValuationChart(
-          valuations: bindings.valuations,
-          currency: bindings.currency,
-          priceChartingId: bindings.priceChartingId),
       'pricecharting_id': LibraryFormField(
         label: 'PriceCharting ID',
         child: LibraryTextFormControl(
@@ -82,41 +76,36 @@ Map<String, Widget> gameValueFields(GameValueBindings bindings) => {
       ),
     };
 
-/// Reference Value layout: completeness, value, purchase facts on the left;
-/// PriceCharting values on the right.
+/// Value layout: the copy and its value in two columns, over the purchase
+/// facts.
 Widget gameValueLayout(Map<String, Widget> fields, Widget? _) {
   Widget field(String key) => fields[key] ?? const SizedBox.shrink();
-  Widget row(List<(String, int)> keys) => Padding(
+  Widget row(List<String> keys) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          for (final (index, (key, flex)) in keys.indexed) ...[
+          for (final (index, key) in keys.indexed) ...[
             if (index > 0) const SizedBox(width: 14),
-            Expanded(flex: flex, child: field(key)),
+            Expanded(child: field(key)),
           ],
         ]),
       );
-  final left =
-      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-    row([('completeness', 9), ('market_value_cents', 4)]),
-    row([('box_manual', 9), ('ebay_link', 4)]),
-    row([('condition', 1), ('', 1)]),
-    row([('price_paid_cents', 1), ('purchase_store', 1)]),
-    row([('purchase_date', 1), ('', 1)]),
-  ]);
-  final right =
-      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-    field('valuations'),
-    const SizedBox(height: 12),
-    row([('pricecharting_id', 1), ('', 1)]),
-  ]);
-  return LibraryResponsiveFormRow(
-    breakpoint: 900,
-    horizontalGap: 14,
-    verticalGap: 0,
-    stackedMainAxisSize: MainAxisSize.max,
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      LibraryResponsiveFormItem(flex: 69, child: left),
-      LibraryResponsiveFormItem(flex: 48, child: right),
+      row(['completeness', 'market_value_cents']),
+      row(['box_manual', 'ebay_link']),
+      row(['condition', 'pricecharting_id']),
+      LibraryResponsiveFormRow(
+        breakpoint: 560,
+        horizontalGap: 14,
+        verticalGap: 12,
+        children: [
+          LibraryResponsiveFormItem(child: field('price_paid_cents')),
+          LibraryResponsiveFormItem(child: field('purchase_store')),
+          LibraryResponsiveFormItem(child: field('purchase_date')),
+        ],
+      ),
     ],
   );
 }
@@ -168,12 +157,6 @@ final class _EntryDraftValueBindings implements GameValueBindings {
   String? get condition => _text('condition');
   @override
   String? get priceChartingId => _text('game_pricecharting_id');
-  @override
-  GameValuationSet? get valuations => switch (draft.values['game_valuations']) {
-        Map<dynamic, dynamic> value =>
-          GameValuationSet.fromJson(Map<String, dynamic>.from(value)),
-        _ => null,
-      };
   @override
   String get currency =>
       _text('currency')?.toUpperCase() ?? AppFormats.current.currency;
@@ -317,82 +300,5 @@ final class _GameValueField extends StatelessWidget {
         ),
       ),
     ]);
-  }
-}
-
-/// Bar chart of the recorded PriceCharting tiers.
-final class _GameValuationChart extends StatelessWidget {
-  const _GameValuationChart(
-      {required this.valuations,
-      required this.currency,
-      required this.priceChartingId});
-
-  final GameValuationSet? valuations;
-  final String currency;
-  final String? priceChartingId;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final bars = valuations?.chartTiers ?? const <(String, int)>[];
-    final maximum =
-        bars.fold<int>(0, (max, bar) => bar.$2 > max ? bar.$2 : max);
-    return Container(
-      height: 310,
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      decoration: BoxDecoration(
-        border: Border.all(color: palette.divider),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(children: [
-        Text('Values from PriceCharting',
-            style: TextStyle(
-                fontSize: 13,
-                fontWeight: kAppBoldFontWeight,
-                color: palette.textPrimary)),
-        const SizedBox(height: 10),
-        Expanded(
-          child: bars.isEmpty
-              ? Center(
-                  child: Text('No PriceCharting values recorded',
-                      style: TextStyle(color: palette.textMuted)))
-              : Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                  for (final (label, cents) in bars)
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                  AppFormats.current
-                                      .formatMoney(cents, currency),
-                                  style: TextStyle(
-                                      fontSize: 11, color: palette.textMuted)),
-                              const SizedBox(height: 2),
-                              Container(
-                                height:
-                                    maximum == 0 ? 0 : 190 * cents / maximum,
-                                color: const Color(0xFF8ED3EA),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(label,
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 11,
-                                      color: palette.textPrimary)),
-                            ]),
-                      ),
-                    ),
-                ]),
-        ),
-        GamePriceChartingLink(
-          label: 'Check historical values at PriceCharting.com',
-          priceChartingId: priceChartingId,
-          fontSize: 12,
-        ),
-      ]),
-    );
   }
 }

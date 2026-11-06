@@ -66,7 +66,7 @@ Keep these when matching the reference visually.
 | Statistics | One tab per collection | Adds an All Collections tab |
 | Views | List, Vertical/Horizontal Cards, Covers, Shelves | Adds Flow Carousel |
 | Schema changes | Opaque | Versioned contracts and explicit, ordered migrations |
-| Game valuation | Core Region (US/EU) chooses which PriceCharting prices CLZ fetches | No price fetching (PriceCharting's terms), so no Core Region; the PriceCharting ID already names the NTSC or PAL release and opens its page |
+| Game valuation | Core Region (US/EU) chooses which PriceCharting prices CLZ fetches | No price fetching (PriceCharting's terms), so no Core Region and no Values from PriceCharting chart; the PriceCharting ID already names the NTSC or PAL release and opens its page |
 | Comic valuation | CovrPrice values and CovrPrice export | No CovrPrice: it is paid and has no public API, so value stays the user's own My Value |
 | Cover images | Covers are links to CLZ's own image servers | Covers from other sites are downloaded once and kept with the entry (scaled to 600 px wide at most) and travel with Sync; only Core covers stay links, cached locally. The web app cannot read other sites' images (no CORS), so it keeps their links until a native client syncs the covers |
 | Fonts | Desktop/web UI Gilroy; Android UI system sans-serif; comic slab labels use League Spartan and Open Sans on web and Android | Bundled OFL Plus Jakarta Sans for UI text and the matching OFL slab fonts on all platforms; a user-supplied local UI font can be loaded |

@@ -79,6 +79,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Games, Hardware and Toys no longer show the PriceCharting chart on the Value tab, whose fields now use the full width.
 - Keeping this device's version after a sync conflict sends that version, where it sent the other device's.
 - Unresolved sync conflicts are kept until you decide, where the next sync or a restart lost them with the rejected edit.
 - Missing Comics no longer overflows on phones.

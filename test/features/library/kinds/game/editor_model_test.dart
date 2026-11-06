@@ -96,9 +96,6 @@ void main() {
     );
     expect(valuations.amountForCompleteness('cib'), 1758);
     expect(valuations.amountForCompleteness('na'), isNull);
-    expect(valuations.chartTiers.map((tier) => tier.$1),
-        ['Loose', 'Loose + Box', 'CIB', 'New']);
-    expect(valuations.chartTiers[1].$2, 1500);
   });
 
   test('value summary reads as the reference pill', () {

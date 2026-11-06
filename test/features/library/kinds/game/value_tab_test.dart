@@ -172,8 +172,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('Edit links the PriceCharting page and eBay sold listings',
-      (tester) async {
+  testWidgets('Edit links eBay sold listings', (tester) async {
     tester.view.physicalSize = const Size(1400, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -195,14 +194,8 @@ void main() {
       child: MaterialApp(home: Scaffold(body: GameValueTab(draft: draft))),
     ));
     await tester.pumpAndSettle();
-    expect(find.text('Check historical values at PriceCharting.com'),
-        findsOneWidget);
     expect(tester.widget<GameEbaySoldLink>(find.byType(GameEbaySoldLink)).query,
         'Starlight Courier PlayStation 4');
-    draft.set('game_pricecharting_id', null);
-    await tester.pumpAndSettle();
-    expect(find.text('Check historical values at PriceCharting.com'),
-        findsNothing);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }

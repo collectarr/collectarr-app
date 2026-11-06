@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/forms/schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/schema.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/covers_tab.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/personal_form_layout.dart';
@@ -274,8 +273,6 @@ final class _AddValueBindings implements GameValueBindings {
   String? get condition => request.commonDraft?.condition;
   @override
   String? get priceChartingId => draft.details.priceChartingId;
-  @override
-  GameValuationSet? get valuations => draft.details.valuations;
   @override
   String get currency =>
       request.commonDraft?.currency ?? AppFormats.current.currency;

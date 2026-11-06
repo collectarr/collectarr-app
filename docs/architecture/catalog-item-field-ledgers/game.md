@@ -110,8 +110,9 @@ Choosing a completeness level replaces the value with that tier's
 PriceCharting value unless the value is locked; Graded adds no fields.
 
 Collectarr implements this editor and Manual Add as dedicated Game screens
-(`kinds/game/edit/`, `kinds/game/add/`), including the Covers tab. Open:
-PriceCharting refresh (no PriceCharting integration exists).
+(`kinds/game/edit/`, `kinds/game/add/`), including the Covers tab. No
+PriceCharting integration exists, so it has neither the refresh nor the Values
+chart.
 
 Remaining workflow gaps are maintained in
 [CLZ parity](../../clz-parity.md#games). Games completeness now

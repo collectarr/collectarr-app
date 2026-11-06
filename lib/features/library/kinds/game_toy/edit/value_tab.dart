@@ -115,29 +115,23 @@ Widget gameToyValueLayout(Map<String, Widget> fields, Widget? history) {
           Expanded(child: field(key))
         ]
       ]));
-  final left =
-      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-    row(['completeness', 'market_value_cents']),
-    row(['box_manual']),
-    row(['condition', '']),
-    row(['price_paid_cents', 'purchase_store']),
-    row(['purchase_date', ''])
-  ]);
-  final right = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        field('valuations'),
-        const SizedBox(height: 12),
-        field('pricecharting_id')
-      ]);
-  return LibraryResponsiveFormRow(
-    breakpoint: 900,
-    horizontalGap: 14,
-    verticalGap: 0,
-    stackedMainAxisSize: MainAxisSize.max,
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      LibraryResponsiveFormItem(flex: 69, child: left),
-      LibraryResponsiveFormItem(flex: 48, child: right),
+      row(['completeness', 'market_value_cents']),
+      row(['box_manual', '']),
+      row(['condition', 'pricecharting_id']),
+      LibraryResponsiveFormRow(
+        breakpoint: 560,
+        horizontalGap: 14,
+        verticalGap: 12,
+        children: [
+          LibraryResponsiveFormItem(child: field('price_paid_cents')),
+          LibraryResponsiveFormItem(child: field('purchase_store')),
+          LibraryResponsiveFormItem(child: field('purchase_date')),
+        ],
+      ),
     ],
   );
 }

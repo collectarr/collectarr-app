@@ -29,18 +29,6 @@ class GameValuationSet {
         _ => null,
       };
 
-  /// Recorded tiers in the reference chart order.
-  List<(String, int)> get chartTiers => [
-        if (loose case final value?) ('Loose', value.amountCents),
-        if ((loose, boxOnly) case (final loose?, final box?))
-          ('Loose + Box', loose.amountCents + box.amountCents),
-        if ((loose, manualOnly) case (final loose?, final manual?))
-          ('Loose + Manual', loose.amountCents + manual.amountCents),
-        if (cib case final value?) ('CIB', value.amountCents),
-        if (newSealed case final value?) ('New', value.amountCents),
-        if (graded case final value?) ('Graded', value.amountCents),
-      ];
-
   Map<String, dynamic> toJson() => {
         if (loose != null) 'loose': loose!.toJson(),
         if (cib != null) 'cib': cib!.toJson(),
