@@ -288,30 +288,26 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                               tooltip: 'Item Spacing',
                             ),
                           ),
-                        ] else ...[
+                        ] else if (viewState.viewMode.supportsCoverSize) ...[
                           const _LibraryDesktopToolbarSeparator(),
                           const SizedBox(width: 8),
                           _LibraryDesktopToolbarSection(
-                            label: viewState.viewMode.supportsCoverSize
-                                ? 'Covers & Spacing'
-                                : 'Spacing',
+                            label: 'Covers & Spacing',
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                if (viewState.viewMode.supportsCoverSize)
-                                  LibraryCoverSizeSlider(
-                                    viewMode: viewState.viewMode,
-                                    coverSize: viewState.coverSize,
-                                    minCoverSize:
-                                        libraryViewProfileForKind(type.kind)
-                                            .minCoverSize,
-                                    maxCoverSize:
-                                        libraryViewProfileForKind(type.kind)
-                                            .maxCoverSize,
-                                    onChanged: onCoverSizeChanged,
-                                  ),
-                                if (viewState.viewMode.supportsCoverSize)
-                                  const SizedBox(width: 8),
+                                LibraryCoverSizeSlider(
+                                  viewMode: viewState.viewMode,
+                                  coverSize: viewState.coverSize,
+                                  minCoverSize:
+                                      libraryViewProfileForKind(type.kind)
+                                          .minCoverSize,
+                                  maxCoverSize:
+                                      libraryViewProfileForKind(type.kind)
+                                          .maxCoverSize,
+                                  onChanged: onCoverSizeChanged,
+                                ),
+                                const SizedBox(width: 8),
                                 _buildSpacingSlider(
                                   context,
                                   tooltip: 'Item Spacing',
