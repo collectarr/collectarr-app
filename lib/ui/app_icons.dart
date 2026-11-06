@@ -55,7 +55,6 @@ abstract final class AppIcons {
   static const String collectionHardwareSvg =
       'assets/icons/collection-hardware.svg';
   static const String collectionToysSvg = 'assets/icons/collection-toys.svg';
-  static const String librarySwitcherSvg = 'assets/icons/library-switcher.svg';
   static const IconData bookOpen =
       IconData(0xf518, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData bookReader =

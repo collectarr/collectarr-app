@@ -1,14 +1,14 @@
-import 'dart:math' as math;
+import 'dart:math';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/kind_style.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/features/library/home/nav_models.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 
 class MediaLibraryKindMenu extends StatefulWidget {
   const MediaLibraryKindMenu({
@@ -17,14 +17,16 @@ class MediaLibraryKindMenu extends StatefulWidget {
     required this.registry,
     required this.onSelected,
     required this.activeKind,
-    this.trigger,
+    required this.trigger,
   });
 
   final List<CatalogMediaType> types;
   final LibraryKindRegistry registry;
   final ValueChanged<CatalogMediaType> onSelected;
   final CatalogMediaKind activeKind;
-  final Widget? trigger;
+
+  /// What the switcher opens from: the header's library title.
+  final Widget trigger;
 
   @override
   State<MediaLibraryKindMenu> createState() => _MediaLibraryKindMenuState();
@@ -34,8 +36,11 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
   final _anchorKey = GlobalKey();
   final _controller = MenuController();
   final _buttonFocus = FocusNode();
-  double _menuWidth = 145;
-  double _pointerOffset = 72.5;
+  double _menuWidth = _desktopMenuWidth;
+  double _pointerOffset = _desktopMenuWidth / 2;
+  bool _open = false;
+
+  static const _desktopMenuWidth = 240.0;
 
   @override
   void dispose() {
@@ -54,29 +59,27 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
     if (anchor is! RenderBox || overlay is! RenderBox) return;
     final bounds =
         anchor.localToGlobal(Offset.zero, ancestor: overlay) & anchor.size;
-    final rightDistance = overlay.size.width - bounds.center.dx;
-    // Center the panel under its icon where space allows and fill to the edge.
+    final native = appPresentationPlatform.isNativeMobile;
     final width =
-        math.min(overlay.size.width, math.max(145.0, rightDistance * 2));
-    final left = overlay.size.width - width;
+        native ? overlay.size.width : min(overlay.size.width, _desktopMenuWidth);
+    final left = native ? 0.0 : min(bounds.left, overlay.size.width - width);
     setState(() {
       _menuWidth = width;
       _pointerOffset = bounds.center.dx - left;
     });
     // The panel hangs from the header's bottom edge; its pointer rises into
-    // the header under the icon.
+    // the header under the title.
     _controller.open(
-        position: Offset(
-            left - bounds.left,
-            widget.trigger == null
-                ? shellAppBarHeight - 1 - bounds.top
-                : bounds.height));
+        position: Offset(left - bounds.left,
+            native ? bounds.height : shellAppBarHeight - 1 - bounds.top));
+  }
+
+  void _setOpen(bool open) {
+    if (mounted) setState(() => _open = open);
   }
 
   @override
   Widget build(BuildContext context) {
-    // The header's shared circular button, like Sync and Account.
-    final iconButtonStyle = appChromeIconButtonStyle(context);
     return MenuAnchor(
       key: _anchorKey,
       controller: _controller,
@@ -85,6 +88,8 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
       crossAxisUnconstrained: false,
       reservedPadding: EdgeInsets.zero,
       clipBehavior: Clip.none,
+      onOpen: () => _setOpen(true),
+      onClose: () => _setOpen(false),
       style: MenuStyle(
         backgroundColor: const WidgetStatePropertyAll(Colors.white),
         surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -111,23 +116,34 @@ class _MediaLibraryKindMenuState extends State<MediaLibraryKindMenu> {
             onPressed: () => widget.onSelected(type),
           ),
       ],
-      child: widget.trigger != null
-          ? InkWell(
-              key: const Key('nav.library-kind-picker'),
-              focusNode: _buttonFocus,
-              onTap: _toggle,
-              child: widget.trigger,
-            )
-          : IconButton(
-              key: const Key('nav.library-kind-picker'),
-              focusNode: _buttonFocus,
-              tooltip: 'Switch library',
-              style: iconButtonStyle,
-              onPressed: _toggle,
-              icon: SvgPicture.asset(AppIcons.librarySwitcherSvg,
-                  width: 20, height: 20),
-              padding: EdgeInsets.zero,
+      child: Tooltip(
+        message: 'Switch library',
+        child: Material(
+          // Lit while open, like hovering, so the title reads as a button.
+          color: _open
+              ? Colors.white.withValues(alpha: .16)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(4),
+          child: InkWell(
+            key: const Key('nav.library-kind-picker'),
+            focusNode: _buttonFocus,
+            mouseCursor: WidgetStateMouseCursor.clickable,
+            borderRadius: BorderRadius.circular(4),
+            hoverColor: Colors.white.withValues(alpha: .16),
+            focusColor: Colors.white.withValues(alpha: .16),
+            onTap: _toggle,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Flexible(child: widget.trigger),
+                const SizedBox(width: 5),
+                Icon(_open ? Icons.expand_less : Icons.expand_more,
+                    size: 20, color: Colors.white),
+              ]),
             ),
+          ),
+        ),
+      ),
     );
   }
 

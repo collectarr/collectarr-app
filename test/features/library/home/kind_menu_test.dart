@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/home/kind_menu.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
@@ -13,23 +14,25 @@ CatalogMediaType _type(String kind, String plural) =>
 
 void main() {
   for (final width in [390.0, 1200.0]) {
-    testWidgets('switcher fills right edge and points to its icon at $width px',
+    testWidgets('switcher opens under the title and points to it at $width px',
         (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
       tester.view.physicalSize = Size(width, 800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await tester.pumpWidget(MaterialApp(
           home: Scaffold(
-        appBar: AppBar(actions: [
-          MediaLibraryKindMenu(
+        appBar: AppBar(
+          title: MediaLibraryKindMenu(
             types: [_type('game', 'Games'), _type('music', 'Albums')],
             registry: defaultLibraryKindRegistry,
             activeKind: CatalogMediaKind.music,
             onSelected: (_) {},
+            trigger: const Text('CLR MUSIC'),
           ),
-          const SizedBox(width: 84),
-        ]),
+        ),
       )));
       await tester.tap(find.byTooltip('Switch library'));
       await tester.pumpAndSettle();
@@ -39,8 +42,8 @@ void main() {
           w is Material && w.elevation == 6 && w.shape is OutlinedBorder);
       expect(panel, findsOneWidget);
       final bounds = tester.getRect(panel);
-      expect(bounds.right, closeTo(width, .01));
-      expect(bounds.center.dx, closeTo(anchor.center.dx, .01));
+      expect(bounds.left, closeTo(anchor.left, .01));
+      expect(bounds.width, 240);
       // It hangs from the header's bottom edge, as in the reference.
       expect(bounds.top, shellAppBarHeight - 1);
       final shape = tester.widget<Material>(panel).shape!;
@@ -74,6 +77,7 @@ void main() {
           registry: defaultLibraryKindRegistry,
           activeKind: CatalogMediaKind.gameToy,
           onSelected: (type) => selected = type,
+          trigger: const Text('CLR TOYS'),
         ),
       ),
     ));

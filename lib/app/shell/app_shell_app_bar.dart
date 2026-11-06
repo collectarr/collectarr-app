@@ -74,26 +74,19 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
         ),
       ),
       titleSpacing: 2,
-      title: appPresentationPlatform.isNativeMobile
-          ? MediaLibraryKindMenu(
-              types: types,
-              activeKind: type.kind,
-              registry: defaultLibraryKindRegistry,
-              onSelected: onKindSelected,
-              trigger: AppShellBrand(
-                icon: type.identity.icon,
-                kindTitle: type.identity.title,
-                iconKey: const Key('app.kind-icon'),
-                titleKey: const Key('app.brand-title'),
-                showIcon: false,
-              ),
-            )
-          : AppShellBrand(
-              icon: type.identity.icon,
-              kindTitle: type.identity.title,
-              iconKey: const Key('app.kind-icon'),
-              titleKey: const Key('app.brand-title'),
-            ),
+      title: MediaLibraryKindMenu(
+        types: types,
+        activeKind: type.kind,
+        registry: defaultLibraryKindRegistry,
+        onSelected: onKindSelected,
+        trigger: AppShellBrand(
+          icon: type.identity.icon,
+          kindTitle: type.identity.title,
+          iconKey: const Key('app.kind-icon'),
+          titleKey: const Key('app.brand-title'),
+          showIcon: !appPresentationPlatform.isNativeMobile,
+        ),
+      ),
       systemOverlayStyle: appPresentationPlatform.isNativeMobile
           ? nativeSystemUiStyle(
               accent: accent,
@@ -122,13 +115,6 @@ class AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
           Center(child: _AccountLibraryLabel(kindTitle: type.identity.title)),
       ]),
       actions: [
-        if (!appPresentationPlatform.isNativeMobile)
-          MediaLibraryKindMenu(
-            types: types,
-            activeKind: type.kind,
-            registry: defaultLibraryKindRegistry,
-            onSelected: onKindSelected,
-          ),
         if (!appPresentationPlatform.isNativeMobile)
           SyncActionButton(style: toolbarIconStyle),
         AppUpdateHeaderButton(style: toolbarIconStyle, kind: type.kind),
