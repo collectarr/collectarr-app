@@ -158,11 +158,9 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                                                               .radio_button_checked
                                                           : Icons
                                                               .radio_button_unchecked,
-                                                      size: 18,
-                                                      color: selected
-                                                          ? palette
-                                                              .utilityAction
-                                                          : palette.textMuted)
+                                                      size: 20,
+                                                      color:
+                                                          palette.textPrimary)
                                                   : Center(
                                                       child: PickListCheckbox(
                                                           selected: selected)))
