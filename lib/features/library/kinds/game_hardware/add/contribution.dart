@@ -26,7 +26,7 @@ final gameHardwareKindAdd = StandardLibraryAddCapability<GameHardwareAddDraft>(
             inputBuilder: gameHardwareCoreSearchInput),
         presentation: LibraryAddSearchPresentationCapability(
             queryTrailingBuilder: buildGameHardwareAddPlatformControl,
-            controlsBuilder: buildGameHardwareAddTypeControls)),
+            belowQueryBuilder: buildGameHardwareAddTypeControls)),
     entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         GameHardwareLibraryEntryCreatePayload(
             details: details as GameHardwareEntryDetailsDraft,

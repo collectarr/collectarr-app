@@ -307,6 +307,7 @@ class LibraryAddSearchPresentationCapability {
     if (custom != null) return custom;
     final label = item.summary.primaryLabel.trim().toLowerCase();
     final query = context.query.trim().toLowerCase();
+    this.belowQueryBuilder,
     return label.isNotEmpty && query.isNotEmpty && label.contains(query)
         ? 'Title'
         : null;
@@ -318,6 +319,10 @@ abstract interface class LibraryAddCapability<
   CatalogMediaKind get kind;
 
   TDraft createInitialDraft();
+
+  /// A row of kind filters under the title field, shown before any search.
+  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
+      belowQueryBuilder;
   LibraryKindAddDraft createManualDraft();
 
   /// Kind-entry validation copy for a manual candidate that could not be

@@ -11,6 +11,12 @@ import 'platform_picker_dialog.dart';
 
 const gameAddPlatformFilterId = LibraryAddFilterId('game.search.platform');
 
+/// The reference starts on PC; the last choice is remembered after that.
+final gameAddInitialFilters =
+    Map<LibraryAddFilterId, LibraryAddFilterValue>.unmodifiable({
+  gameAddPlatformFilterId: const LibraryAddOptionFilterValue('PC'),
+});
+
 /// Release regions of the reference Add Games results.
 enum GameAddRegion {
   us('us', 'US', ['ntsc-u', 'us', 'usa', 'north america', 'canada']),

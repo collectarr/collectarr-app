@@ -48,12 +48,13 @@ void main() {
     expect(api.captured!.fieldFilters, input.fieldFilters);
     expect(api.captured!.offset, 25);
   });
-  test('Hardware defaults to Consoles without starting an empty search', () {
+  test('Hardware defaults to PC Consoles without starting an empty search', () {
     final search = gameHardwareKindAdd.search;
     final context = LibraryAddSearchContext(
         advancedFilters: search.input.initialAdvancedFilters);
     expect(search.input.hasSearchInput(context), isFalse);
     expect(search.core.inputBuilder(context, limit: 25).fieldFilters, {
+      'platform': ['PC'],
       'hardware_type': ['Console']
     });
   });

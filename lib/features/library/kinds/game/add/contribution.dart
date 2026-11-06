@@ -57,8 +57,9 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     return null;
   },
   search: LibraryAddSearchCapability(
-    input: const LibraryAddSearchInputCapability(
-      codeSearchTab: LibraryAddCodeSearchTab(
+    input: LibraryAddSearchInputCapability(
+      initialAdvancedFilters: gameAddInitialFilters,
+      codeSearchTab: const LibraryAddCodeSearchTab(
         label: 'Platform',
         hintText: 'Filter games...',
         icon: AppIcons.viewList,

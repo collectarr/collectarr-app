@@ -18,6 +18,12 @@ void main() {
     expect(gameAddRegionFor(null), isNull);
   });
 
+  test('Add Games starts on PC', () {
+    final filter = gameKindAdd
+        .search.input.initialAdvancedFilters[gameAddPlatformFilterId];
+    expect(filter?.displayValue, 'PC');
+  });
+
   test('Add Games configures the Platform search tab', () {
     final search = gameKindAdd.search;
     final tab = search.input.codeSearchTab;

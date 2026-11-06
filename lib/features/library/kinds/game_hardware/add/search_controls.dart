@@ -2,7 +2,9 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/add/controllers/dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/search_context.dart';
-import 'package:collectarr_app/features/library/add/panes/choice_menu.dart';
+import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
+import 'package:collectarr_app/ui/app_dropdown_menu.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +27,7 @@ final gameHardwareInitialSearchFilters =
     Map<LibraryAddFilterId, LibraryAddFilterValue>.unmodifiable({
   LibraryAddFilterId('game_hardware.search.type.Console'):
       LibraryAddOptionFilterValue('true'),
+  gameHardwareAddPlatformId: LibraryAddOptionFilterValue('PC'),
 });
 String? _platform(LibraryAddSearchContext context) {
   final value = context.textValueFor(gameHardwareAddPlatformId);
@@ -32,9 +35,7 @@ String? _platform(LibraryAddSearchContext context) {
 }
 
 bool gameHardwareHasSearchInput(LibraryAddSearchContext context) =>
-    context.query.trim().isNotEmpty ||
-    context.identifierCode.trim().isNotEmpty ||
-    _platform(context) != null;
+    context.query.trim().isNotEmpty || context.identifierCode.trim().isNotEmpty;
 
 MetadataSearchQuery gameHardwareCoreSearchInput(LibraryAddSearchContext context,
         {required int limit}) =>
@@ -64,21 +65,50 @@ const _searchPlatforms = [
   'Other'
 ];
 
+/// The platform inside the title field, as in the reference.
 Widget buildGameHardwareAddPlatformControl(
     BuildContext context, LibraryAddModeBarRequest request) {
   final platform = request.advancedFilterText(gameHardwareAddPlatformId);
-  return LibraryAddChoiceMenu<String>(
+  final palette = appPalette(context);
+  final menu = AppDropdownMenuStyle.of(context);
+  final muted = palette.isDark ? const Color(0xff888888) : palette.textMuted;
+  return PopupMenuButton<String>(
       key: const ValueKey('game-hardware-add-platform'),
       tooltip: 'Platform',
-      width: 160,
-      label: platform.isEmpty ? 'All platforms' : platform,
-      values: const ['', ..._searchPlatforms],
-      labelFor: (value) => value.isEmpty ? 'All platforms' : value,
+      popUpAnimationStyle: AnimationStyle.noAnimation,
+      position: PopupMenuPosition.under,
+      color: menu.background,
+      shape: menu.shape,
+      elevation: AppDropdownMenuStyle.elevation,
+      menuPadding: AppDropdownMenuStyle.padding,
+      itemBuilder: (context) => [
+            for (final value in const ['', ..._searchPlatforms])
+              menu.row(
+                  value: value,
+                  current: value == platform,
+                  child: Text(value.isEmpty ? 'All platforms' : value,
+                      style: const TextStyle(fontSize: 14))),
+          ],
       onSelected: (value) {
         request.onAdvancedFilterChanged(
             gameHardwareAddPlatformId, LibraryAddOptionFilterValue(value));
         request.onSearch();
-      });
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 7),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          if (platform.isNotEmpty) ...[
+            PlatformIcon(platform, size: 18, color: muted),
+            const SizedBox(width: 6),
+          ],
+          Text(platform.isEmpty ? 'All' : platform,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 14, color: muted)),
+          const SizedBox(width: 5),
+          Icon(AppIcons.chevronDown, size: 12, color: muted),
+        ]),
+      ));
 }
 
 Widget buildGameHardwareAddTypeControls(

@@ -864,8 +864,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (listing == null || !_listingScopeLoaded) return;
     final filter =
         _controller.state.search.advancedFilters[listing.scopeFilterId];
-    final scope =
-        filter != null && filter.hasValue ? filter.displayValue : null;
+    // An empty scope records a choice of All, over the kind's first default.
+    final scope = filter != null && filter.hasValue ? filter.displayValue : '';
     if (scope == _rememberedListingScope) return;
     _rememberedListingScope = scope;
     unawaited(SharedPreferences.getInstance().then((preferences) =>
@@ -1145,6 +1145,16 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final body = _besideBrowseGroups(
       browseMode
           ? LibraryAddBrowseGroupList(
+        if (state.mode == LibraryAddDialogMode.search &&
+            addCapability.search.presentation.belowQueryBuilder != null)
+          Container(
+            width: double.infinity,
+            color:
+                palette.isDark ? const Color(0xff666666) : palette.panelRaised,
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
+            child: addCapability.search.presentation.belowQueryBuilder!(
+                context, modeBarRequest),
+          ),
               capability: browse!,
               state: state.browse,
               onOpen: (group) {
