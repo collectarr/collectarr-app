@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/ui/primitives/money_amount_field
 import 'package:collectarr_app/features/library/ui/primitives/responsive_form_row.dart';
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/field_selection.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import '../domain/game_hardware_completeness.dart';
@@ -44,46 +43,13 @@ Map<String, Widget> gameHardwareValueFields(GameHardwareValueBindings b) => {
         _checkField('Manual', b.details.hasManual ?? false,
             (value) => b.setDetails(b.details.copyWith(hasManual: value))),
       ]),
-      'market_value_cents': Builder(
-          builder: (context) => Stack(children: [
-                LibraryMoneyAmountField(
-                    label: 'Value',
-                    amountMinorUnits: b.valueCents,
-                    currency: b.currency,
-                    onChanged: b.setValueCents),
-                Positioned(
-                    right: 0,
-                    top: 2,
-                    child: Tooltip(
-                        message: b.details.valueIsLocked == true
-                            ? 'Unlock the value'
-                            : 'Lock the value',
-                        child: InkWell(
-                            onTap: () => b.setDetails(b.details.copyWith(
-                                valueIsLocked:
-                                    b.details.valueIsLocked != true)),
-                            child: Icon(
-                                b.details.valueIsLocked == true
-                                    ? AppIcons.lock
-                                    : AppIcons.lockOpen,
-                                size: 14,
-                                color: appPalette(context).textMuted)))),
-              ])),
-      'valuations': Builder(
-          builder: (context) => Container(
-              height: 310,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                  border: Border.all(color: appPalette(context).divider),
-                  borderRadius: BorderRadius.circular(4)),
-              child: Column(children: [
-                const Text('Values from PriceCharting'),
-                Expanded(
-                    child: Center(
-                        child: Text('No PriceCharting values recorded',
-                            style: TextStyle(
-                                color: appPalette(context).textMuted))))
-              ]))),
+      'market_value_cents': LibraryLockableMoneyField(
+          amountMinorUnits: b.valueCents,
+          currency: b.currency,
+          locked: b.details.valueIsLocked == true,
+          onLockedChanged: (locked) =>
+              b.setDetails(b.details.copyWith(valueIsLocked: locked)),
+          onChanged: b.setValueCents),
       'pricecharting_id': LibraryFormField(
           label: 'PriceCharting ID',
           child: LibraryTextFormControl(

@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/ui/primitives/managed_vocabulary
 import 'package:collectarr_app/features/library/ui/primitives/money_amount_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/responsive_form_row.dart';
 import 'package:collectarr_app/features/library/ui/primitives/segmented_choice_field.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -266,39 +265,14 @@ final class _GameValueField extends StatelessWidget {
   final GameValueBindings bindings;
 
   @override
-  Widget build(BuildContext context) {
-    final locked = bindings.valueLocked;
-    return Stack(children: [
-      LibraryMoneyAmountField(
+  Widget build(BuildContext context) => LibraryLockableMoneyField(
         // Rebuilt when a completeness choice replaces the amount.
         fieldKey: ValueKey('game-value-${bindings.valueCents}'),
-        label: 'Value',
         amountMinorUnits: bindings.valueCents,
         currency: bindings.currency,
-        // A locked value is kept as entered, like the reference.
-        readOnly: locked,
+        locked: bindings.valueLocked,
+        lockedMessage: 'Value is locked: completeness does not change it',
+        onLockedChanged: bindings.setValueLocked,
         onChanged: bindings.setValueCents,
-      ),
-      Positioned(
-        right: 0,
-        top: 2,
-        child: Tooltip(
-          message: locked
-              ? 'Value is locked: completeness does not change it'
-              : 'Lock the value',
-          child: GestureDetector(
-            onTap: () => bindings.setValueLocked(!locked),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: Icon(
-                locked ? AppIcons.lock : AppIcons.lockOpen,
-                size: 14,
-                color: appPalette(context).textMuted,
-              ),
-            ),
-          ),
-        ),
-      ),
-    ]);
-  }
+      );
 }
