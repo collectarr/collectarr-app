@@ -13,7 +13,11 @@ import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'cover_element_aspect.dart'
+    if (dart.library.js_interop) 'cover_element_aspect_web.dart';
 
 class LibraryCoverImage extends ConsumerWidget {
   const LibraryCoverImage({
@@ -31,6 +35,7 @@ class LibraryCoverImage extends ConsumerWidget {
     this.alignment = Alignment.center,
     this.showPlaceholder = true,
     this.allowWebImageElement = true,
+    this.onAspectRatio,
     super.key,
   });
 
@@ -52,6 +57,10 @@ class LibraryCoverImage extends ConsumerWidget {
   /// an `<img>` element. Such elements sit outside Flutter's canvas, so a
   /// cover drawn under translucent layers or text must not use one.
   final bool allowWebImageElement;
+
+  /// Hears the width / height of what this shows: the image's own, or
+  /// [fallbackAspectRatio] for the placeholder.
+  final ValueChanged<double>? onAspectRatio;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -85,6 +94,23 @@ class LibraryCoverImage extends ConsumerWidget {
       return child;
     }
 
+    void showingFallback() {
+      loaded();
+      onAspectRatio?.call(fallbackAspectRatio);
+    }
+
+    Widget reportingShape(Image image, {String? elementUrl}) {
+      final report = onAspectRatio;
+      return report == null
+          ? image
+          : _CoverAspectReporter(
+              image: image.image,
+              elementUrl: elementUrl,
+              onAspectRatio: report,
+              child: image,
+            );
+    }
+
     final fallbackCover = showPlaceholder
         ? Align(
             alignment: alignment,
@@ -112,7 +138,7 @@ class LibraryCoverImage extends ConsumerWidget {
           final safeLocal = local!;
           return ClipRRect(
             borderRadius: BorderRadius.circular(borderRadius),
-            child: Image.memory(
+            child: reportingShape(Image.memory(
               safeLocal,
               fit: fit,
               alignment: alignment,
@@ -121,45 +147,48 @@ class LibraryCoverImage extends ConsumerWidget {
               filterQuality: FilterQuality.high,
               frameBuilder: onFrame,
               errorBuilder: (_, __, ___) {
-                loaded();
+                showingFallback();
                 return fallbackCover;
               },
-            ),
+            )),
           );
         }
         if (url == null) {
-          if (!localLoading) loaded();
+          if (!localLoading) showingFallback();
           return fallbackCover;
         }
         if (kIsWeb) {
           return ClipRRect(
             borderRadius: BorderRadius.circular(borderRadius),
-            child: Image.network(
-              url,
-              // An `<img>` element keeps the address it was created with, so
-              // another cover needs a new element.
-              key: ValueKey(url),
-              fit: fit,
-              alignment: alignment,
-              cacheWidth: null,
-              gaplessPlayback: true,
-              filterQuality: FilterQuality.high,
-              webHtmlElementStrategy: allowWebImageElement
-                  ? WebHtmlElementStrategy.fallback
-                  : WebHtmlElementStrategy.never,
-              frameBuilder: onFrame,
-              loadingBuilder: (_, child, progress) {
-                if (progress == null) {
-                  return child;
-                }
-                return _CoverLoadingShell(
-                  borderRadius: borderRadius,
-                );
-              },
-              errorBuilder: (_, __, ___) {
-                loaded();
-                return fallbackCover;
-              },
+            child: reportingShape(
+              Image.network(
+                url,
+                // An `<img>` element keeps the address it was created with, so
+                // another cover needs a new element.
+                key: ValueKey(url),
+                fit: fit,
+                alignment: alignment,
+                cacheWidth: null,
+                gaplessPlayback: true,
+                filterQuality: FilterQuality.high,
+                webHtmlElementStrategy: allowWebImageElement
+                    ? WebHtmlElementStrategy.fallback
+                    : WebHtmlElementStrategy.never,
+                frameBuilder: onFrame,
+                loadingBuilder: (_, child, progress) {
+                  if (progress == null) {
+                    return child;
+                  }
+                  return _CoverLoadingShell(
+                    borderRadius: borderRadius,
+                  );
+                },
+                errorBuilder: (_, __, ___) {
+                  showingFallback();
+                  return fallbackCover;
+                },
+              ),
+              elementUrl: url,
             ),
           );
         }
@@ -177,19 +206,22 @@ class LibraryCoverImage extends ConsumerWidget {
               borderRadius: borderRadius,
             ),
             errorWidget: (_, __, ___) {
-              loaded();
+              showingFallback();
               return fallbackCover;
             },
             imageBuilder: (_, imageProvider) {
               loaded();
-              return Image(
+              return reportingShape(Image(
                 image: imageProvider,
                 fit: fit,
                 alignment: alignment,
                 gaplessPlayback: true,
                 filterQuality: FilterQuality.high,
-                errorBuilder: (_, __, ___) => fallbackCover,
-              );
+                errorBuilder: (_, __, ___) {
+                  showingFallback();
+                  return fallbackCover;
+                },
+              ));
             },
           ),
         );
@@ -254,6 +286,167 @@ class LibraryCoverImage extends ConsumerWidget {
     final rawWidth = constraints.maxWidth * pixelRatio;
     return ((rawWidth / 64).ceil() * 64).toInt();
   }
+}
+
+/// Reports the width / height of an image another widget is showing, through
+/// the same cached stream, so nothing is fetched or decoded twice.
+class _CoverAspectReporter extends StatefulWidget {
+  const _CoverAspectReporter({
+    required this.image,
+    required this.elementUrl,
+    required this.onAspectRatio,
+    required this.child,
+  });
+
+  final ImageProvider image;
+
+  /// The address to measure when the web app shows the image as an `<img>`
+  /// element, whose pixels and size Flutter cannot read.
+  final String? elementUrl;
+  final ValueChanged<double> onAspectRatio;
+  final Widget child;
+
+  @override
+  State<_CoverAspectReporter> createState() => _CoverAspectReporterState();
+}
+
+class _CoverAspectReporterState extends State<_CoverAspectReporter> {
+  ImageStream? _stream;
+  late final _listener =
+      ImageStreamListener(_onImage, onError: (_, __) {/* Image shows it. */});
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _resolve();
+  }
+
+  @override
+  void didUpdateWidget(covariant _CoverAspectReporter oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.image != widget.image) _resolve();
+  }
+
+  @override
+  void dispose() {
+    _stream?.removeListener(_listener);
+    super.dispose();
+  }
+
+  void _resolve() {
+    final stream = widget.image.resolve(createLocalImageConfiguration(context));
+    if (stream.key == _stream?.key) return;
+    _stream?.removeListener(_listener);
+    _stream = stream..addListener(_listener);
+  }
+
+  void _onImage(ImageInfo info, bool _) {
+    final elementUrl = widget.elementUrl;
+    try {
+      widget.onAspectRatio(info.image.width / info.image.height);
+    } on UnsupportedError {
+      if (elementUrl != null) _measureElement(elementUrl);
+    }
+    info.dispose();
+  }
+
+  Future<void> _measureElement(String url) async {
+    final stream = _stream;
+    final aspectRatio = await coverElementAspectRatio(url);
+    if (aspectRatio != null && mounted && identical(stream, _stream)) {
+      widget.onAspectRatio(aspectRatio);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
+/// Covers already measured, so one that scrolls back into view has its shape
+/// from the first frame.
+final _knownCoverAspectRatios = <Object, double>{};
+const _kKnownCoverAspectRatioLimit = 4096;
+
+/// Follows the shape of a cover, so what surrounds it (a tile's shadow and
+/// active frame, a flow card) hugs the image and leaves no gaps beside it. The
+/// builder has [fallbackAspectRatio] until the image reports through
+/// `onAspectRatio`, which goes to the cover's image widget.
+class LibraryCoverShape extends StatefulWidget {
+  const LibraryCoverShape({
+    required this.imageUrl,
+    required this.libraryEntryRef,
+    required this.fallbackAspectRatio,
+    required this.builder,
+    this.followsImage = true,
+    super.key,
+  });
+
+  final String? imageUrl;
+  final LibraryEntryRef? libraryEntryRef;
+  final double fallbackAspectRatio;
+
+  /// Off for a cover in an opaque case of a fixed shape, such as a slab.
+  final bool followsImage;
+  final Widget Function(
+    BuildContext context,
+    double aspectRatio,
+    ValueChanged<double> onAspectRatio,
+  ) builder;
+
+  @override
+  State<LibraryCoverShape> createState() => _LibraryCoverShapeState();
+}
+
+class _LibraryCoverShapeState extends State<LibraryCoverShape> {
+  double? _aspectRatio;
+
+  Object get _coverKey => (widget.libraryEntryRef, widget.imageUrl);
+
+  @override
+  void initState() {
+    super.initState();
+    _aspectRatio = _knownCoverAspectRatios[_coverKey];
+  }
+
+  @override
+  void didUpdateWidget(covariant LibraryCoverShape oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imageUrl != widget.imageUrl ||
+        oldWidget.libraryEntryRef != widget.libraryEntryRef) {
+      _aspectRatio = _knownCoverAspectRatios[_coverKey];
+    }
+  }
+
+  void _report(double aspectRatio) {
+    if (!aspectRatio.isFinite || aspectRatio <= 0) return;
+    final known = _knownCoverAspectRatios;
+    known.remove(_coverKey);
+    known[_coverKey] = aspectRatio;
+    if (known.length > _kKnownCoverAspectRatioLimit) {
+      known.remove(known.keys.first);
+    }
+    if (aspectRatio == _aspectRatio) return;
+    void apply() {
+      if (mounted) setState(() => _aspectRatio = aspectRatio);
+    }
+
+    // A cached image reports while its widget is still being built.
+    if (WidgetsBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => apply());
+    } else {
+      apply();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(
+        context,
+        widget.followsImage
+            ? _aspectRatio ?? widget.fallbackAspectRatio
+            : widget.fallbackAspectRatio,
+        _report,
+      );
 }
 
 class _CoverLoadingShell extends StatelessWidget {
@@ -356,8 +549,12 @@ class LibraryInteractiveCover extends StatefulWidget {
     this.enableSecondaryControl = true,
     this.showFrame = true,
     this.onMissingSecondaryPressed,
+    this.onAspectRatio,
     super.key,
   });
+
+  /// Hears the width / height of the front cover; see [LibraryCoverShape].
+  final ValueChanged<double>? onAspectRatio;
 
   final String title;
   final CatalogMediaKind? mediaKind;
@@ -755,6 +952,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                     borderRadius: widget.borderRadius,
                     fit: widget.fit,
                     alignment: widget.alignment,
+                    onAspectRatio: _showSecondary ? null : widget.onAspectRatio,
                   ),
                 ),
                 if (interactive && hoverCue)

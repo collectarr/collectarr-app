@@ -58,6 +58,15 @@ double libraryWorkspaceGridMainAxisExtent({
   return coverSize * libraryViewProfileForKind(type.kind).coverGridHeightFactor;
 }
 
+/// The cell width of Covers and Shelves, whose covers share one height and take
+/// their width from their own shape. As in the reference, the cell leaves room
+/// for covers wider than the kind's shape, so they keep that height too.
+double libraryCoverCellWidth({
+  required double coverSize,
+  required double coverHeight,
+}) =>
+    math.max(coverSize, coverHeight * 0.9);
+
 /// Space between the grid and the workspace edges: fixed in every view, so
 /// Item Spacing only changes the gaps between items.
 const _kWorkspaceGridPadding = EdgeInsets.all(10);
@@ -265,12 +274,16 @@ class LibraryWorkspace extends ConsumerWidget {
       type: type,
       coverSize: viewState.coverSize,
     );
+    final coverCellWidth = libraryCoverCellWidth(
+      coverSize: viewState.coverSize,
+      coverHeight: coverMainAxisExtent,
+    );
 
     return switch (viewState.viewMode) {
       LibraryViewMode.grid => LibraryWorkspaceGrid<LibraryProjectionItem>(
           items: items,
           emptyBuilder: _emptyBuilder,
-          maxCrossAxisExtent: viewState.coverSize,
+          maxCrossAxisExtent: coverCellWidth,
           mainAxisExtent: coverMainAxisExtent,
           initialCrossAxisCount: initialCrossAxisCount,
           crossAxisSpacing: gridSpacing,
@@ -376,7 +389,7 @@ class LibraryWorkspace extends ConsumerWidget {
               : (item, d) => onItemContextMenu!(item, d.globalPosition),
           accent: accent,
           shelfHeight: coverMainAxisExtent,
-          bookWidth: viewState.coverSize,
+          bookWidth: coverCellWidth,
           fallbackCoverAspectRatio: fallbackCoverAspectRatio,
           emptyBuilder: _emptyBuilder,
           bookHorizontalPadding: 1.5,

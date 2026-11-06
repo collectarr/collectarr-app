@@ -99,136 +99,158 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
       LibraryDensity.dense => 3.0,
     };
 
-    return RepaintBoundary(
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        // Only the active item fills and frames the whole cell. Desktop bulk
-        // selection tints the painted cover, leaving letterboxing transparent.
-        decoration: BoxDecoration(
-          color: active || (mobile && selected) ? resolvedSelectedColor : null,
-          border: active
-              ? Border.all(
-                  color: palette.utilityAction,
-                  width: selectedBorderWidth,
-                )
-              : null,
-          // The reference draws covers bare, with only a 3 px black shadow.
-          boxShadow: const [BoxShadow(color: Colors.black, blurRadius: 3)],
+    Widget tile(ValueChanged<double> onAspectRatio) => RepaintBoundary(
+          child: Container(
+            clipBehavior: Clip.antiAlias,
+            // Only the active item fills and frames the cover.
+            decoration: BoxDecoration(
+              color:
+                  active || (mobile && selected) ? resolvedSelectedColor : null,
+              border: active
+                  ? Border.all(
+                      color: palette.utilityAction,
+                      width: selectedBorderWidth,
+                    )
+                  : null,
+              // The reference draws covers bare, with only a 3 px black shadow.
+              boxShadow: const [BoxShadow(color: Colors.black, blurRadius: 3)],
+            ),
+            child: AppPressTap(
+                onTap: widget.onTap,
+                builder: (context, onReleaseTap) => Material(
+                      color: Colors.transparent,
+                      child: MouseRegion(
+                        onEnter: (_) => _setHovered(true),
+                        onExit: (_) => _setHovered(false),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            InkWell(
+                              mouseCursor: WidgetStateMouseCursor.clickable,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: onReleaseTap,
+                              onDoubleTap: widget.onDoubleTap,
+                              onLongPress: widget.onLongPress,
+                              onSecondaryTapUp: widget.onSecondaryTapUp,
+                              child: _highlightCover(
+                                color: resolvedSelectedColor,
+                                child: LibraryItemContent(
+                                  view:
+                                      widget.surface == LibraryCoverSurface.grid
+                                          ? LibraryItemContentView.cover
+                                          : LibraryItemContentView.shelf,
+                                  data: LibraryCardBodyData(
+                                    item: item,
+                                    presentation: presentation,
+                                    selected: selected,
+                                    active: widget.active,
+                                    showHeadline: true,
+                                    titleColor: palette.itemTitle,
+                                    detailColor: palette.textMuted,
+                                    mutedColor: palette.textMuted,
+                                    customFieldBadges: item.customFieldBadges,
+                                    coverWidth: widget.coverSize,
+                                    pillStatus: LibraryItemStatusBadge(
+                                        item: item,
+                                        selected: selected,
+                                        style: LibraryCollectionStatusMarkStyle
+                                            .pill),
+                                    coverStatus: LibraryItemStatusBadge(
+                                        item: item,
+                                        selected: selected,
+                                        style: LibraryCollectionStatusMarkStyle
+                                            .cover),
+                                    buildCover: ({required alignment}) =>
+                                        wrapCover(LibraryInteractiveCover(
+                                      title: dto.primaryLabel,
+                                      mediaKind: item.source.mediaKind,
+                                      itemNumber: presentation.itemNumber,
+                                      imageUrl: dto.imageUrl,
+                                      libraryEntryRef:
+                                          item.source.libraryEntryRef,
+                                      targetCacheWidth: targetCacheWidth,
+                                      fallbackAspectRatio:
+                                          widget.fallbackCoverAspectRatio,
+                                      accentColor: widget.accentColor,
+                                      fit: BoxFit.contain,
+                                      alignment: alignment,
+                                      enableFullscreen: false,
+                                      enableSecondaryControl: false,
+                                      showFrame: false,
+                                      onAspectRatio: onAspectRatio,
+                                    )),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (showEditButton)
+                              Positioned(
+                                top: 4,
+                                right: 5,
+                                child: LibraryTileHoverActionButton(
+                                  icon: AppIcons.inlineEdit,
+                                  tooltip: 'Edit',
+                                  onTap: widget.onEditTap!,
+                                ),
+                              ),
+                            // As in the reference, the tick box sits bottom left
+                            // and the status bottom right.
+                            Positioned(
+                              right: 5,
+                              bottom: badgeInset,
+                              child: IgnorePointer(
+                                child: LibraryItemStatusBadge(
+                                  item: item,
+                                  selected: selected,
+                                  style: LibraryCollectionStatusMarkStyle.cover,
+                                ),
+                              ),
+                            ),
+                            if (widget.selectionMode &&
+                                widget.onSelectionToggleTap != null)
+                              Positioned.fill(
+                                child: LibraryTileSelectionTapArea(
+                                    onTap: mobile
+                                        ? widget.onSelectionToggleTap!
+                                        : widget.onTap,
+                                    child: const SizedBox.expand()),
+                              ),
+                            if (showSelectionToggle)
+                              Positioned(
+                                left: 5,
+                                bottom: badgeInset,
+                                child: LibraryTileSelectionToggleButton(
+                                  onTap: widget.onSelectionToggleTap,
+                                  child: LibraryTileSelectionToggle(
+                                    selected: selected,
+                                    accentColor: resolvedSelectionColor,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    )),
+          ),
+        );
+
+    // The tile takes the cover's own shape within its cell, as in the reference:
+    // a box of another shape would show its shadow in the gaps beside the
+    // cover. Shelf covers stand on the plank.
+    return LibraryCoverShape(
+      imageUrl: dto.imageUrl,
+      libraryEntryRef: item.source.libraryEntryRef,
+      fallbackAspectRatio: widget.fallbackCoverAspectRatio,
+      followsImage: presentation.coverOverlayBuilder == null,
+      builder: (context, aspectRatio, onAspectRatio) => Align(
+        alignment: widget.surface == LibraryCoverSurface.shelf
+            ? Alignment.bottomCenter
+            : Alignment.center,
+        child: AspectRatio(
+          aspectRatio: aspectRatio,
+          child: tile(onAspectRatio),
         ),
-        child: AppPressTap(
-            onTap: widget.onTap,
-            builder: (context, onReleaseTap) => Material(
-                  color: Colors.transparent,
-                  child: MouseRegion(
-                    onEnter: (_) => _setHovered(true),
-                    onExit: (_) => _setHovered(false),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        InkWell(
-                          mouseCursor: WidgetStateMouseCursor.clickable,
-                          hoverColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                          onTap: onReleaseTap,
-                          onDoubleTap: widget.onDoubleTap,
-                          onLongPress: widget.onLongPress,
-                          onSecondaryTapUp: widget.onSecondaryTapUp,
-                          child: _highlightCover(
-                            color: resolvedSelectedColor,
-                            child: LibraryItemContent(
-                              view: widget.surface == LibraryCoverSurface.grid
-                                  ? LibraryItemContentView.cover
-                                  : LibraryItemContentView.shelf,
-                              data: LibraryCardBodyData(
-                                item: item,
-                                presentation: presentation,
-                                selected: selected,
-                                active: widget.active,
-                                showHeadline: true,
-                                titleColor: palette.itemTitle,
-                                detailColor: palette.textMuted,
-                                mutedColor: palette.textMuted,
-                                customFieldBadges: item.customFieldBadges,
-                                coverWidth: widget.coverSize,
-                                pillStatus: LibraryItemStatusBadge(
-                                    item: item,
-                                    selected: selected,
-                                    style:
-                                        LibraryCollectionStatusMarkStyle.pill),
-                                coverStatus: LibraryItemStatusBadge(
-                                    item: item,
-                                    selected: selected,
-                                    style:
-                                        LibraryCollectionStatusMarkStyle.cover),
-                                buildCover: ({required alignment}) =>
-                                    wrapCover(LibraryInteractiveCover(
-                                  title: dto.primaryLabel,
-                                  mediaKind: item.source.mediaKind,
-                                  itemNumber: presentation.itemNumber,
-                                  imageUrl: dto.imageUrl,
-                                  libraryEntryRef: item.source.libraryEntryRef,
-                                  targetCacheWidth: targetCacheWidth,
-                                  fallbackAspectRatio:
-                                      widget.fallbackCoverAspectRatio,
-                                  accentColor: widget.accentColor,
-                                  fit: BoxFit.contain,
-                                  alignment: alignment,
-                                  enableFullscreen: false,
-                                  enableSecondaryControl: false,
-                                  showFrame: false,
-                                )),
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (showEditButton)
-                          Positioned(
-                            top: 4,
-                            right: 5,
-                            child: LibraryTileHoverActionButton(
-                              icon: AppIcons.inlineEdit,
-                              tooltip: 'Edit',
-                              onTap: widget.onEditTap!,
-                            ),
-                          ),
-                        // As in the reference, the tick box sits bottom left
-                        // and the status bottom right.
-                        Positioned(
-                          right: 5,
-                          bottom: badgeInset,
-                          child: IgnorePointer(
-                            child: LibraryItemStatusBadge(
-                              item: item,
-                              selected: selected,
-                              style: LibraryCollectionStatusMarkStyle.cover,
-                            ),
-                          ),
-                        ),
-                        if (widget.selectionMode &&
-                            widget.onSelectionToggleTap != null)
-                          Positioned.fill(
-                            child: LibraryTileSelectionTapArea(
-                                onTap: mobile
-                                    ? widget.onSelectionToggleTap!
-                                    : widget.onTap,
-                                child: const SizedBox.expand()),
-                          ),
-                        if (showSelectionToggle)
-                          Positioned(
-                            left: 5,
-                            bottom: badgeInset,
-                            child: LibraryTileSelectionToggleButton(
-                              onTap: widget.onSelectionToggleTap,
-                              child: LibraryTileSelectionToggle(
-                                selected: selected,
-                                accentColor: resolvedSelectionColor,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                )),
       ),
     );
   }
@@ -237,7 +259,8 @@ class _LibraryCoverTileState extends State<LibraryCoverTile> {
     if (appPresentationPlatform.isNativeMobile) {
       return Opacity(opacity: widget.selected ? .5 : 1, child: child);
     }
-    // srcATop preserves the cover's alpha, so transparent side gaps stay clear.
+    // srcATop preserves the cover's alpha, so a transparent cover's clear parts
+    // stay clear.
     return ColorFiltered(
         colorFilter: ColorFilter.mode(
             color.withValues(alpha: widget.selected ? .5 : 0),

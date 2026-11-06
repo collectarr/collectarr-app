@@ -25,4 +25,12 @@ void main() {
   test('a scaled maximum never takes the card below its minimum', () {
     expect(width(276, maxWidth: 100), 150);
   });
+
+  test('a cover cell leaves room for covers wider than the kind\'s shape', () {
+    expect(libraryCoverCellWidth(coverSize: 140, coverHeight: 200), 180);
+  });
+
+  test('a cover cell is never narrower than the cover size', () {
+    expect(libraryCoverCellWidth(coverSize: 200, coverHeight: 200), 200);
+  });
 }

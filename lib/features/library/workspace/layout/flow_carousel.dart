@@ -568,15 +568,22 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
     final showEditButton = _hovered && widget.onEditTap != null;
     final wrapCover =
         presentation.coverOverlayBuilder ?? (Widget cover) => cover;
-    // The card hugs a cover of the kind's aspect ratio, as tall as the stage
-    // allows beneath it the title and subtitle, so the cover never gets bars.
-    return LayoutBuilder(
-      builder: (context, constraints) => SizedBox(
-        width: math.min(
-                _kFlowCoverMaxWidth,
-                math.max(0.0, constraints.maxHeight - _kFlowCardChromeHeight) *
-                    widget.coverAspectRatio) +
-            _kFlowCardHorizontalPadding,
+    // The card hugs the cover at its own shape, so the cover never gets bars.
+    // Covers share one height, that of a cover of the kind's aspect ratio as
+    // tall as the stage allows beneath it the title and subtitle; only one too
+    // wide for its page is smaller.
+    Widget card(
+      BoxConstraints constraints,
+      double aspectRatio,
+      ValueChanged<double> onAspectRatio,
+    ) {
+      final coverHeight = math.min(
+          _kFlowCoverMaxWidth / widget.coverAspectRatio,
+          math.max(0.0, constraints.maxHeight - _kFlowCardChromeHeight));
+      final coverWidth = math.min(coverHeight * aspectRatio,
+          math.max(0.0, constraints.maxWidth - _kFlowCardHorizontalPadding));
+      return SizedBox(
+        width: coverWidth + _kFlowCardHorizontalPadding,
         child: Material(
           color: Colors.transparent,
           child: InkWell(
@@ -632,7 +639,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                   pillStatus: const SizedBox.shrink(),
                   coverStatus: const SizedBox.shrink(),
                   buildCover: ({required alignment}) => AspectRatio(
-                    aspectRatio: widget.coverAspectRatio,
+                    aspectRatio: aspectRatio,
                     child: Stack(
                       children: [
                         Positioned.fill(
@@ -650,6 +657,8 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                               alignment: alignment,
                               enableSecondaryControl: false,
                               enableHoverCue: false,
+                              fallbackAspectRatio: widget.coverAspectRatio,
+                              onAspectRatio: onAspectRatio,
                             )),
                           ),
                         ),
@@ -671,6 +680,17 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
             ),
           ),
         ),
+      );
+    }
+
+    return LibraryCoverShape(
+      imageUrl: dto.imageUrl,
+      libraryEntryRef: widget.item.source.libraryEntryRef,
+      fallbackAspectRatio: widget.coverAspectRatio,
+      followsImage: presentation.coverOverlayBuilder == null,
+      builder: (context, aspectRatio, onAspectRatio) => LayoutBuilder(
+        builder: (context, constraints) =>
+            card(constraints, aspectRatio, onAspectRatio),
       ),
     );
   }
