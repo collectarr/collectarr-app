@@ -69,16 +69,18 @@ final comicUniversalTransferableFields =
   )),
 );
 
-Iterable<String?> comicLinkedMetadataValues(ComicCatalogItem metadata) => [
-      metadata.seriesTitle,
-      metadata.issueNumber,
-      metadata.publisher,
-      metadata.variant,
-      metadata.imprint,
-      metadata.country,
-      metadata.language,
-      ...metadata.creators.map((credit) => credit.name),
-      ...metadata.genres,
+Iterable<(String, String?)> comicLinkedMetadataValues(
+        ComicCatalogItem metadata) =>
+    [
+      ('Series', metadata.seriesTitle),
+      ('Issue', metadata.issueNumber),
+      ('Publisher', metadata.publisher),
+      ('Variant', metadata.variant),
+      ('Imprint', metadata.imprint),
+      ('Country', metadata.country),
+      ('Language', metadata.language),
+      ...metadata.creators.map((credit) => ('Creator', credit.name)),
+      ...metadata.genres.map((genre) => ('Genre', genre)),
     ];
 
 ComicCatalogItem? comicLinkedMetadata(LibraryWorkspaceContext source) {

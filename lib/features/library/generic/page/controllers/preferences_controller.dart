@@ -166,7 +166,7 @@ abstract final class LibraryPagePreferencesControllerOps {
     state._mutateState(() {
       state._session.facets.selectedBucket = null;
       state._session.facets.selectedLetter = null;
-      state._session.facets.linkedMetadataFilter = null;
+      state._session.facets.linkedMetadataFilters = const [];
       state._session.preferences.activeSmartListId = null;
       state._session.preferences.activeSmartListName = null;
       state._session.preferences.scopeHistory = const [];

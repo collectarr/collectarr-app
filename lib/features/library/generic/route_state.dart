@@ -16,7 +16,7 @@ class LibraryRouteState {
     this.groupMode,
     this.folderPreset,
     this.selectedBucket,
-    this.linkedMetadataValue,
+    this.linkedMetadataFilters = const [],
     this.selectedLetter,
     this.collectionStatusScope = kDefaultCollectionStatusScope,
     this.bucketCompletionScope = LibraryBucketCompletionScope.all,
@@ -44,7 +44,7 @@ class LibraryRouteState {
   final String? groupMode;
   final LibraryFolderPreset? folderPreset;
   final String? selectedBucket;
-  final String? linkedMetadataValue;
+  final List<LibraryLinkedMetadataFilter> linkedMetadataFilters;
   final String? selectedLetter;
   final LibraryCollectionStatusScope collectionStatusScope;
   final LibraryBucketCompletionScope bucketCompletionScope;
@@ -58,7 +58,7 @@ class LibraryRouteState {
         folderPreset != null ||
         groupMode != null ||
         selectedBucket != null ||
-        linkedMetadataValue != null ||
+        linkedMetadataFilters.isNotEmpty ||
         selectedLetter != null ||
         collectionStatusScope != kDefaultCollectionStatusScope ||
         bucketCompletionScope != LibraryBucketCompletionScope.all ||
@@ -85,7 +85,8 @@ class LibraryRouteState {
       groupMode: folderPreset?.primaryMode,
       folderPreset: folderPreset,
       selectedBucket: _trimmed(params[filterValueKey]),
-      linkedMetadataValue: _trimmed(params[linkedValueKey]),
+      linkedMetadataFilters:
+          _decodeLinkedMetadataFilters(params[linkedValueKey]),
       selectedLetter: _trimmed(params[letterKey]),
       collectionStatusScope:
           _enumByName(LibraryCollectionStatusScope.values, params[scopeKey]) ??
@@ -120,9 +121,11 @@ class LibraryRouteState {
     if (trimmedBucket != null) {
       params[filterValueKey] = trimmedBucket;
     }
-    final trimmedLinkedValue = _trimmed(linkedMetadataValue);
-    if (trimmedLinkedValue != null) {
-      params[linkedValueKey] = trimmedLinkedValue;
+    if (linkedMetadataFilters.isNotEmpty) {
+      params[linkedValueKey] = jsonEncode([
+        for (final filter in linkedMetadataFilters)
+          {'field': filter.field, 'value': filter.value}
+      ]);
     }
     final trimmedLetter = _trimmed(selectedLetter);
     if (trimmedLetter != null) {
@@ -195,7 +198,7 @@ class LibraryRouteState {
       groupMode: filteredGroupMode,
       folderPreset: filteredFolderPreset,
       selectedBucket: selectedBucket,
-      linkedMetadataValue: linkedMetadataValue,
+      linkedMetadataFilters: linkedMetadataFilters,
       selectedLetter: selectedLetter,
       collectionStatusScope: collectionStatusScope,
       bucketCompletionScope: filteredBucketCompletionScope,
@@ -455,4 +458,23 @@ String _normalizeBase64(String rawValue) {
     return rawValue;
   }
   return '$rawValue${'=' * (4 - remainder)}';
+}
+
+List<LibraryLinkedMetadataFilter> _decodeLinkedMetadataFilters(String? raw) {
+  if (raw == null || raw.isEmpty) return const [];
+  final Object? decoded;
+  try {
+    decoded = jsonDecode(raw);
+  } on FormatException {
+    return const [];
+  }
+  if (decoded is! List) return const [];
+  return [
+    for (final entry in decoded)
+      if (entry is Map && entry['value'] is String)
+        LibraryLinkedMetadataFilter(
+          value: entry['value'] as String,
+          field: entry['field'] as String?,
+        ),
+  ];
 }

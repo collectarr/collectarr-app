@@ -146,17 +146,21 @@ final movieTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
-      metadata.seriesTitle,
-      metadata.itemNumber,
-      metadata.publisher,
-      metadata.studio,
-      metadata.variant,
-      metadata.country,
-      metadata.originalLanguage,
-      metadata.language,
-      ...metadata.creators.map((credit) => credit.name),
-      ...metadata.genres,
+Iterable<(String, String?)> movieLinkedMetadataValues(
+        MovieCatalogMetadata metadata) =>
+    [
+      ('Series', metadata.seriesTitle),
+      ('Number', metadata.itemNumber),
+      ('Publisher', metadata.publisher),
+      ('Studio', metadata.studio),
+      ('Edition', metadata.variant),
+      ('Country', metadata.country),
+      ('Original Language', metadata.originalLanguage),
+      ('Language', metadata.language),
+      ('Age Rating', metadata.ageRating),
+      ('Audience Rating', metadata.audienceRating),
+      ...metadata.creators.map((credit) => ('Creator', credit.name)),
+      ...metadata.genres.map((genre) => ('Genre', genre)),
     ];
 
 MovieCatalogMetadata? movieLinkedMetadata(LibraryWorkspaceContext source) {

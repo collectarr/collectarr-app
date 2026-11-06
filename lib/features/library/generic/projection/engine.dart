@@ -62,9 +62,17 @@ class LibraryProjectionEngine {
         continue;
       }
       // Folder counts follow the Collection Status scope, as in the
-      // reference.
+      // reference, and the value chips.
       var matchesScope = filterEngine.matchesCollectionStatusScope(
-          item, query.collectionStatusScope);
+              item, query.collectionStatusScope) &&
+          filterEngine.matchesLinkedMetadata(
+            item,
+            query.linkedMetadataFilters,
+            type,
+            customFieldDefinitions: customFieldDefinitions,
+            customFieldValuesByDefinitionByItem:
+                customFieldValuesByDefinitionByItem,
+          );
       for (final filter in query.bucketScopeFilters) {
         if (!matchesScope) break;
         if (!groupingEngine
@@ -95,6 +103,7 @@ class LibraryProjectionEngine {
         searchTarget: searchTarget,
         index: index,
         activeLoanLibraryEntryIds: activeLoanLibraryEntryIds,
+        customFieldDefinitions: customFieldDefinitions,
         customFieldValuesByDefinitionByItem:
             customFieldValuesByDefinitionByItem,
       )) {

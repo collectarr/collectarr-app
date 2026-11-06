@@ -84,13 +84,21 @@ final gameTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
-      metadata.seriesTitle,
-      metadata.country,
-      metadata.releaseRegion,
-      metadata.publisher,
-      ...metadata.creators.map((credit) => credit.name),
-      ...metadata.genres,
+Iterable<(String, String?)> gameLinkedMetadataValues(
+        GameCatalogMetadata metadata) =>
+    [
+      ('Series', metadata.seriesTitle),
+      ...metadata.platforms.map((platform) => ('Platform', platform)),
+      if (metadata.releaseDateParts?.year case final year?) ('Year', '$year'),
+      ('Country', metadata.country),
+      ('Region', metadata.releaseRegion),
+      ...splitGamePublishers(metadata.publisher)
+          .map((publisher) => ('Publisher', publisher)),
+      ...metadata.developers.map((developer) => ('Developer', developer)),
+      ('Format', metadata.physicalFormatLabel ?? metadata.physicalFormat),
+      ('Age Rating', metadata.audienceRating),
+      ...metadata.creators.map((credit) => ('Creator', credit.name)),
+      ...metadata.genres.map((genre) => ('Genre', genre)),
     ];
 
 GameCatalogMetadata? gameLinkedMetadata(LibraryWorkspaceContext source) {

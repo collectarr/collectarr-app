@@ -141,16 +141,19 @@ final bookTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
-      metadata.seriesTitle,
-      metadata.itemNumber,
-      metadata.publisher,
-      metadata.variant,
-      metadata.imprint,
-      metadata.country,
-      metadata.language,
-      ...metadata.creators.map((credit) => credit.name),
-      ...metadata.genres,
+Iterable<(String, String?)> bookLinkedMetadataValues(
+        BookCatalogMetadata metadata) =>
+    [
+      ('Series', metadata.seriesTitle),
+      ('Series Group', metadata.seriesGroup),
+      ('Number', metadata.itemNumber),
+      ('Publisher', metadata.publisher),
+      ('Edition', metadata.variant),
+      ('Imprint', metadata.imprint),
+      ('Country', metadata.country),
+      ('Language', metadata.language),
+      ...metadata.creators.map((credit) => ('Creator', credit.name)),
+      ...metadata.genres.map((genre) => ('Genre', genre)),
     ];
 
 BookCatalogMetadata? bookLinkedMetadata(LibraryWorkspaceContext source) {

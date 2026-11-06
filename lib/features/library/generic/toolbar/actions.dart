@@ -27,6 +27,7 @@ class LibraryToolbarActions {
     required this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.onClearBucket,
+    required this.onRemoveLinkedMetadataFilter,
     required this.onRefreshMetadata,
     this.onCollectionStatusScopeChanged,
     required this.onQuickViewSelected,
@@ -75,6 +76,7 @@ class LibraryToolbarActions {
   final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback onClearBucket;
+  final ValueChanged<LibraryLinkedMetadataFilter> onRemoveLinkedMetadataFilter;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;

@@ -58,8 +58,9 @@ class LibraryToolbar extends StatelessWidget {
     this.onDensityPresetChanged = _noopDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
-    this.linkedMetadataFilterLabel,
+    this.linkedMetadataFilters = const [],
     required this.onClearBucket,
+    required this.onRemoveLinkedMetadataFilter,
     required this.onRefreshMetadata,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.onCollectionStatusScopeChanged,
@@ -147,8 +148,9 @@ class LibraryToolbar extends StatelessWidget {
         onDensityPresetChanged = actions.onDensityPresetChanged,
         onCoverSizeChanged = actions.onCoverSizeChanged,
         selectedBucket = state.selectedBucket,
-        linkedMetadataFilterLabel = state.linkedMetadataFilterLabel,
+        linkedMetadataFilters = state.linkedMetadataFilters,
         onClearBucket = actions.onClearBucket,
+        onRemoveLinkedMetadataFilter = actions.onRemoveLinkedMetadataFilter,
         onRefreshMetadata = actions.onRefreshMetadata,
         collectionStatusScope = state.collectionStatusScope,
         onCollectionStatusScopeChanged = actions.onCollectionStatusScopeChanged,
@@ -229,8 +231,9 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final String? selectedBucket;
-  final String? linkedMetadataFilterLabel;
+  final List<LibraryLinkedMetadataFilter> linkedMetadataFilters;
   final VoidCallback onClearBucket;
+  final ValueChanged<LibraryLinkedMetadataFilter> onRemoveLinkedMetadataFilter;
   final VoidCallback onRefreshMetadata;
   final LibraryCollectionStatusScope collectionStatusScope;
   final ValueChanged<LibraryCollectionStatusScope>?
@@ -316,7 +319,8 @@ class LibraryToolbar extends StatelessWidget {
                   counts: counts,
                   viewMode: viewState.viewMode,
                   selectedBucket: selectedBucket,
-                  linkedMetadataFilterLabel: linkedMetadataFilterLabel,
+                  linkedMetadataFilters: linkedMetadataFilters,
+                  onRemoveLinkedMetadataFilter: onRemoveLinkedMetadataFilter,
                   onAdd: onAdd,
                   onScan: onScan,
                   onSearchChanged: onSearchChanged,
@@ -428,7 +432,9 @@ class LibraryToolbar extends StatelessWidget {
                       onDensityPresetChanged: onDensityPresetChanged,
                       onCoverSizeChanged: onCoverSizeChanged,
                       selectedBucket: selectedBucket,
-                      linkedMetadataFilterLabel: linkedMetadataFilterLabel,
+                      linkedMetadataFilters: linkedMetadataFilters,
+                      onRemoveLinkedMetadataFilter:
+                          onRemoveLinkedMetadataFilter,
                       onClearBucket: onClearBucket,
                       quickView: quickView,
                       activeSortFavoriteId: activeSortFavoriteId,

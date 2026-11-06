@@ -1,13 +1,14 @@
 import 'package:collectarr_app/features/library/generic/filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:flutter/foundation.dart';
 
 class LibrarySidebarScopeSnapshot {
   const LibrarySidebarScopeSnapshot({
     required this.groupMode,
     this.selectedBucket,
     this.selectedLetter,
-    this.linkedMetadataFilter,
+    this.linkedMetadataFilters = const [],
     this.collectionStatusScope = kDefaultCollectionStatusScope,
     this.bucketCompletionScope = LibraryBucketCompletionScope.all,
     this.quickView,
@@ -20,7 +21,7 @@ class LibrarySidebarScopeSnapshot {
   final String groupMode;
   final String? selectedBucket;
   final String? selectedLetter;
-  final LibraryLinkedMetadataFilter? linkedMetadataFilter;
+  final List<LibraryLinkedMetadataFilter> linkedMetadataFilters;
   final LibraryCollectionStatusScope collectionStatusScope;
   final LibraryBucketCompletionScope bucketCompletionScope;
   final LibraryQuickView? quickView;
@@ -34,7 +35,7 @@ class LibrarySidebarScopeSnapshot {
         groupMode: groupMode,
         selectedBucket: bucket,
         selectedLetter: selectedLetter,
-        linkedMetadataFilter: linkedMetadataFilter,
+        linkedMetadataFilters: linkedMetadataFilters,
         collectionStatusScope: collectionStatusScope,
         bucketCompletionScope: bucketCompletionScope,
         quickView: quickView,
@@ -47,7 +48,7 @@ class LibrarySidebarScopeSnapshot {
   bool get isRootScope =>
       selectedBucket == null &&
       selectedLetter == null &&
-      linkedMetadataFilter == null &&
+      linkedMetadataFilters.isEmpty &&
       collectionStatusScope == kDefaultCollectionStatusScope &&
       bucketCompletionScope == LibraryBucketCompletionScope.all &&
       quickView == null &&
@@ -64,7 +65,7 @@ class LibrarySidebarScopeSnapshot {
         other.groupMode == groupMode &&
         other.selectedBucket == selectedBucket &&
         other.selectedLetter == selectedLetter &&
-        other.linkedMetadataFilter == linkedMetadataFilter &&
+        listEquals(other.linkedMetadataFilters, linkedMetadataFilters) &&
         other.collectionStatusScope == collectionStatusScope &&
         other.bucketCompletionScope == bucketCompletionScope &&
         other.quickView == quickView &&
@@ -79,7 +80,7 @@ class LibrarySidebarScopeSnapshot {
         groupMode,
         selectedBucket,
         selectedLetter,
-        linkedMetadataFilter,
+        Object.hashAll(linkedMetadataFilters),
         collectionStatusScope,
         bucketCompletionScope,
         quickView,

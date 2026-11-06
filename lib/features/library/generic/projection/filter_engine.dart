@@ -10,6 +10,60 @@ import 'package:collectarr_app/features/library/ui/primitives/collection_status_
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/search_target.dart';
 
+/// Every value of [item] a value chip can filter by: the kind's named fields,
+/// then custom fields under their names, then what else search knows.
+Iterable<LibraryLinkedMetadataValue> libraryLinkedMetadataValuesForItem(
+  LibraryProjectionView item,
+  LibraryKindRegistration type, {
+  List<CustomFieldDefinition> customFieldDefinitions = const [],
+  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
+      const {},
+}) sync* {
+  yield* libraryLinkedMetadataForKind(type.kind).valuesForEntry(item.source);
+  final customValues =
+      customFieldValuesByDefinitionByItem[item.source.libraryEntryRef?.key];
+  if (customValues != null) {
+    for (final definition in customFieldDefinitions) {
+      final raw = customValues[definition.id]?.trim();
+      if (raw == null || raw.isEmpty) continue;
+      final parsed = parseCustomFieldMultiValues(raw);
+      for (final value in parsed.isNotEmpty ? parsed : [raw]) {
+        yield (field: definition.name, value: value);
+      }
+    }
+  }
+  for (final value in libraryKindWorkspaceForKind(type.kind)
+      .fieldsForTarget(item.target)
+      .searchValuesFor(item)) {
+    yield (field: null, value: value);
+  }
+}
+
+/// The filter a tap on [value] of [item] adds, named after the field holding
+/// the value.
+LibraryLinkedMetadataFilter libraryLinkedMetadataFilterForValue(
+  String value, {
+  required LibraryKindRegistration type,
+  LibraryProjectionView? item,
+  List<CustomFieldDefinition> customFieldDefinitions = const [],
+  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
+      const {},
+}) {
+  final unnamed = LibraryLinkedMetadataFilter(value: value);
+  if (item == null) return unnamed;
+  for (final candidate in libraryLinkedMetadataValuesForItem(
+    item,
+    type,
+    customFieldDefinitions: customFieldDefinitions,
+    customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
+  )) {
+    if (candidate.field != null && unnamed.matches(candidate)) {
+      return LibraryLinkedMetadataFilter(value: value, field: candidate.field);
+    }
+  }
+  return unnamed;
+}
+
 class LibraryFilterEngine {
   const LibraryFilterEngine({
     this.groupingEngine = const LibraryGroupingEngine(),
@@ -25,6 +79,7 @@ class LibraryFilterEngine {
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
     LibraryProjectionIndex? index,
     Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
+    List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
   }) {
@@ -59,7 +114,13 @@ class LibraryFilterEngine {
     )) {
       return false;
     }
-    if (!_matchesLinkedMetadata(item, query.linkedMetadataFilter, type)) {
+    if (!matchesLinkedMetadata(
+      item,
+      query.linkedMetadataFilters,
+      type,
+      customFieldDefinitions: customFieldDefinitions,
+      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
+    )) {
       return false;
     }
     return true;
@@ -286,24 +347,26 @@ class LibraryFilterEngine {
     };
   }
 
-  bool _matchesLinkedMetadata(
+  /// Whether [item] holds, for each field among [filters], one of its values.
+  bool matchesLinkedMetadata(
     LibraryProjectionItem item,
-    LibraryLinkedMetadataFilter? linkedMetadataFilter,
-    LibraryKindRegistration type,
-  ) {
-    if (linkedMetadataFilter == null) {
+    List<LibraryLinkedMetadataFilter> filters,
+    LibraryKindRegistration type, {
+    List<CustomFieldDefinition> customFieldDefinitions = const [],
+    Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
+        const {},
+  }) {
+    if (filters.isEmpty) {
       return true;
     }
-    final normalized = linkedMetadataFilter.value.trim().toLowerCase();
-    if (normalized.isEmpty) {
-      return true;
-    }
-    for (final candidate in libraryLinkedMetadataForKind(type.kind)
-        .candidatesForEntry(item.source)) {
-      if (candidate.trim().toLowerCase() == normalized) {
-        return true;
-      }
-    }
-    return false;
+    final values = libraryLinkedMetadataValuesForItem(
+      item,
+      type,
+      customFieldDefinitions: customFieldDefinitions,
+      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
+    ).toList();
+    return filters.map((filter) => filter.field).toSet().every((field) =>
+        filters.where((filter) => filter.field == field).any(
+            (filter) => values.any((candidate) => filter.matches(candidate))));
   }
 }

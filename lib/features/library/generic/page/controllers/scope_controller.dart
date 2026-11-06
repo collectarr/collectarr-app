@@ -69,7 +69,6 @@ abstract final class _LibraryScopeControllerOps {
         groupMode: previous.groupMode,
         selectedBucket: bucket,
         selectedLetter: null,
-        linkedMetadataFilter: null,
         collectionStatusScope: previous.collectionStatusScope,
         quickView: previous.quickView,
         filterSelection: previous.filterSelection,
@@ -94,7 +93,7 @@ abstract final class _LibraryScopeControllerOps {
         state._session.preferences.groupMode = resolvedChildMode;
         state._session.facets.selectedBucket = null;
         state._session.facets.selectedLetter = null;
-        state._session.facets.linkedMetadataFilter = null;
+        state._session.facets.linkedMetadataFilters = const [];
         state._session.preferences.activeSmartListId = null;
         state._session.preferences.activeSmartListName = null;
       });
@@ -102,9 +101,9 @@ abstract final class _LibraryScopeControllerOps {
       return;
     }
     mutateSidebarScope(state, () {
+      // Value chips accumulate with the folder.
       state._session.facets.selectedBucket = bucket;
       state._session.facets.selectedLetter = null;
-      state._session.facets.linkedMetadataFilter = null;
       state._session.preferences.activeSmartListId = null;
       state._session.preferences.activeSmartListName = null;
     });
@@ -118,25 +117,71 @@ abstract final class _LibraryScopeControllerOps {
       if (!state._usesPhonePane) {
         state._session.facets.selectedBucket = null;
       }
-      state._session.facets.linkedMetadataFilter = null;
       state._session.preferences.activeSmartListId = null;
       state._session.preferences.activeSmartListName = null;
     });
   }
 
-  static void toggleLinkedMetadataFilter(
+  static LibraryLinkedMetadataFilter _linkedMetadataFilterFor(
     GenericLibraryPageState state,
+    LibraryProjectionView? item,
     String value,
   ) {
+    final customFields = state.ref
+        .read(libraryCustomFieldCacheProvider(state.widget.type.kind.apiValue))
+        .asData
+        ?.value;
+    return libraryLinkedMetadataFilterForValue(
+      value,
+      type: state.widget.type,
+      item: item,
+      customFieldDefinitions: customFields?.definitions ?? const [],
+      customFieldValuesByDefinitionByItem:
+          customFields?.valuesByDefinitionByItem ?? const {},
+    );
+  }
+
+  /// Adds a chip for [value] of [item], or removes it if it is already on.
+  static void toggleLinkedMetadataFilter(
+    GenericLibraryPageState state,
+    LibraryProjectionView? item,
+    String value,
+  ) {
+    final filter = _linkedMetadataFilterFor(state, item, value);
+    final filters = state._session.facets.linkedMetadataFilters;
     mutateSidebarScope(state, () {
-      state._session.facets.linkedMetadataFilter =
-          state._session.facets.linkedMetadataFilter?.value == value
-              ? null
-              : LibraryLinkedMetadataFilter(value: value);
-      state._session.facets.selectedBucket = null;
-      state._session.facets.selectedLetter = null;
+      state._session.facets.linkedMetadataFilters = filters.contains(filter)
+          ? [
+              for (final other in filters)
+                if (other != filter) other
+            ]
+          : [...filters, filter];
       state._session.preferences.activeSmartListId = null;
       state._session.preferences.activeSmartListName = null;
+    });
+  }
+
+  static void addLinkedMetadataFilter(
+    GenericLibraryPageState state,
+    LibraryProjectionView? item,
+    String value,
+  ) {
+    final filter = _linkedMetadataFilterFor(state, item, value);
+    final filters = state._session.facets.linkedMetadataFilters;
+    if (!filters.contains(filter)) {
+      state._session.facets.linkedMetadataFilters = [...filters, filter];
+    }
+  }
+
+  static void removeLinkedMetadataFilter(
+    GenericLibraryPageState state,
+    LibraryLinkedMetadataFilter filter,
+  ) {
+    mutateSidebarScope(state, () {
+      state._session.facets.linkedMetadataFilters = [
+        for (final other in state._session.facets.linkedMetadataFilters)
+          if (other != filter) other
+      ];
     });
   }
 
@@ -173,7 +218,7 @@ abstract final class _LibraryScopeControllerOps {
       groupMode: state._activeGroupMode,
       selectedBucket: state._session.facets.selectedBucket,
       selectedLetter: state._session.facets.selectedLetter,
-      linkedMetadataFilter: state._session.facets.linkedMetadataFilter,
+      linkedMetadataFilters: state._session.facets.linkedMetadataFilters,
       collectionStatusScope: state._session.facets.collectionStatusScope,
       bucketCompletionScope: state._session.facets.bucketCompletionScope,
       quickView: state._session.facets.quickView,
@@ -191,7 +236,8 @@ abstract final class _LibraryScopeControllerOps {
     state._session.preferences.groupMode = snapshot.groupMode;
     state._session.facets.selectedBucket = snapshot.selectedBucket;
     state._session.facets.selectedLetter = snapshot.selectedLetter;
-    state._session.facets.linkedMetadataFilter = snapshot.linkedMetadataFilter;
+    state._session.facets.linkedMetadataFilters =
+        snapshot.linkedMetadataFilters;
     state._session.facets.collectionStatusScope =
         snapshot.collectionStatusScope;
     state._session.facets.bucketCompletionScope =
@@ -245,7 +291,7 @@ abstract final class _LibraryScopeControllerOps {
     state._mutateState(() {
       state._session.facets.selectedBucket = null;
       state._session.facets.selectedLetter = null;
-      state._session.facets.linkedMetadataFilter = null;
+      state._session.facets.linkedMetadataFilters = const [];
       state._session.facets.collectionStatusScope =
           kDefaultCollectionStatusScope;
       state._session.facets.bucketCompletionScope =
@@ -270,8 +316,9 @@ abstract final class _LibraryScopeControllerOps {
     if (snapshot.selectedBucket != null) {
       return '${genericGroupModeLabel(snapshot.groupMode, state.widget.type)}: ${snapshot.selectedBucket}';
     }
-    if (snapshot.linkedMetadataFilter != null) {
-      return snapshot.linkedMetadataFilter!.chipLabel;
+    if (libraryLinkedMetadataFiltersLabel(snapshot.linkedMetadataFilters)
+        case final label?) {
+      return label;
     }
     if (snapshot.collectionStatusScope != kDefaultCollectionStatusScope) {
       return snapshot.collectionStatusScope.label;

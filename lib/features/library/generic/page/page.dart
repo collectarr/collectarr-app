@@ -326,9 +326,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       setSelectedBucket: (value) => _session.facets.selectedBucket = value,
       getSelectedLetter: () => _session.facets.selectedLetter,
       setSelectedLetter: (value) => _session.facets.selectedLetter = value,
-      getLinkedMetadataFilter: () => _session.facets.linkedMetadataFilter,
-      setLinkedMetadataFilter: (value) =>
-          _session.facets.linkedMetadataFilter = value,
+      getLinkedMetadataFilters: () => _session.facets.linkedMetadataFilters,
+      setLinkedMetadataFilters: (value) =>
+          _session.facets.linkedMetadataFilters = value,
       getCollectionStatusScope: () => _session.facets.collectionStatusScope,
       setCollectionStatusScope: (value) =>
           _session.facets.collectionStatusScope = value,
@@ -777,8 +777,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _LibraryScopeControllerOps.setSelectedLetter(this, letter);
   }
 
-  void _toggleLinkedMetadataFilter(String value) {
-    _LibraryScopeControllerOps.toggleLinkedMetadataFilter(this, value);
+  void _toggleLinkedMetadataFilter(
+    LibraryProjectionView? item,
+    String value,
+  ) {
+    _LibraryScopeControllerOps.toggleLinkedMetadataFilter(this, item, value);
+  }
+
+  void _removeLinkedMetadataFilter(LibraryLinkedMetadataFilter filter) {
+    _LibraryScopeControllerOps.removeLinkedMetadataFilter(this, filter);
   }
 
   void _mutateSidebarScope(VoidCallback mutate) {
@@ -810,11 +817,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   void _clearToolbarSearchChip() {
     _mutateSidebarScope(() {
-      if (_session.facets.linkedMetadataFilter != null) {
-        _session.facets.linkedMetadataFilter = null;
-      } else {
-        _session.facets.selectedBucket = null;
-      }
+      _session.facets.selectedBucket = null;
       _session.preferences.activeSmartListId = null;
       _session.preferences.activeSmartListName = null;
     });
@@ -981,7 +984,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
               null,
             ),
           ),
-          onFilterByValue: _toggleLinkedMetadataFilter,
+          onFilterByValue: (value) =>
+              _toggleLinkedMetadataFilter(selectedItem, value),
         ),
       ),
       allLibraryEntries: allLibraryEntries,

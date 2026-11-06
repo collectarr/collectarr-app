@@ -101,9 +101,12 @@ class _GameInspectorHeader extends StatelessWidget {
     );
     final hasStatus = entry != null || inspector.item.source.isWishlisted;
     Widget link(String value,
-            {double size = 15, FontWeight weight = FontWeight.w400}) =>
+            {String? filterValue,
+            double size = 15,
+            FontWeight weight = FontWeight.w400}) =>
         _FilterLink(
           value: value,
+          filterValue: filterValue ?? value,
           onFilter: onFilter,
           style: TextStyle(
               fontSize: size, fontWeight: weight, color: palette.textPrimary),
@@ -176,7 +179,8 @@ class _GameInspectorHeader extends StatelessWidget {
                     if (platform.isNotEmpty)
                       link(platform, weight: kAppBoldFontWeight),
                     if (year != null)
-                      link('($year)', weight: kAppBoldFontWeight),
+                      link('($year)',
+                          filterValue: '$year', weight: kAppBoldFontWeight),
                   ]),
             if (publishers.isNotEmpty) ...[
               label('Publisher'),
@@ -435,9 +439,13 @@ class _GameLinkList extends StatelessWidget {
 
 class _FilterLink extends StatelessWidget {
   const _FilterLink(
-      {required this.value, required this.onFilter, required this.style});
+      {required this.value,
+      required this.filterValue,
+      required this.onFilter,
+      required this.style});
 
   final String value;
+  final String filterValue;
   final ValueChanged<String>? onFilter;
   final TextStyle style;
 
@@ -447,7 +455,7 @@ class _FilterLink extends StatelessWidget {
             ? SystemMouseCursors.basic
             : SystemMouseCursors.click,
         child: GestureDetector(
-          onTap: onFilter == null ? null : () => onFilter!(value),
+          onTap: onFilter == null ? null : () => onFilter!(filterValue),
           child: Text(value, style: style),
         ),
       );

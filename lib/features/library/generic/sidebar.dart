@@ -34,7 +34,6 @@ class LibrarySidebar extends StatelessWidget {
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.bucketCompletionScope = LibraryBucketCompletionScope.all,
     this.collectionStatusScopeLabel,
-    this.linkedMetadataFilterLabel,
     this.selectedLetter,
     this.bucketStatusSummary,
     this.onCollectionStatusScopeChanged,
@@ -76,7 +75,6 @@ class LibrarySidebar extends StatelessWidget {
   final LibraryCollectionStatusScope collectionStatusScope;
   final LibraryBucketCompletionScope bucketCompletionScope;
   final String? collectionStatusScopeLabel;
-  final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
   final LibraryBucketStatusSummary? bucketStatusSummary;
   final ValueChanged<LibraryCollectionStatusScope>?
@@ -148,7 +146,6 @@ class LibrarySidebar extends StatelessWidget {
         quickView: quickView,
         collectionStatusScope: collectionStatusScope,
         collectionStatusScopeLabel: collectionStatusScopeLabel,
-        linkedMetadataFilterLabel: linkedMetadataFilterLabel,
         selectedLetter: selectedLetter,
         bucketStatusSummary: bucketStatusSummary,
         onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,

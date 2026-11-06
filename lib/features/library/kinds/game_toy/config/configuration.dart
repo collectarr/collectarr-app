@@ -83,9 +83,9 @@ final gameToyTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> gameToyLinkedMetadataValues(
+Iterable<(String, String?)> gameToyLinkedMetadataValues(
         GameToyCatalogMetadata metadata) =>
-    [metadata.seriesTitle];
+    [('Series', metadata.seriesTitle)];
 GameToyCatalogMetadata? gameToyLinkedMetadata(LibraryWorkspaceContext source) {
   final data = source.kindPresentationData;
   return data is GameToyWorkspaceData ? data.metadata : null;

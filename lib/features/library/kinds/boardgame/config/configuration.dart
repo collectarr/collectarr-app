@@ -117,18 +117,18 @@ final boardgameTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> boardGameLinkedMetadataValues(
+Iterable<(String, String?)> boardGameLinkedMetadataValues(
   BoardGameMetadata metadata,
 ) =>
     [
-      metadata.seriesTitle,
-      metadata.itemNumber,
-      metadata.publisher,
-      ...metadata.publishers,
-      metadata.variantName,
-      ...metadata.languages,
-      ...metadata.categories,
-      ...metadata.credits.map((credit) => credit.name),
+      ('Series', metadata.seriesTitle),
+      ('Number', metadata.itemNumber),
+      ('Publisher', metadata.publisher),
+      ...metadata.publishers.map((publisher) => ('Publisher', publisher)),
+      ('Edition', metadata.variantName),
+      ...metadata.languages.map((language) => ('Language', language)),
+      ...metadata.categories.map((category) => ('Category', category)),
+      ...metadata.credits.map((credit) => ('Creator', credit.name)),
     ];
 
 BoardGameMetadata? boardGameLinkedMetadata(LibraryWorkspaceContext source) {

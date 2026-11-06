@@ -71,6 +71,7 @@ void main() {
               onCoverSizeChanged: (_) {},
               selectedBucket: null,
               onClearBucket: () {},
+              onRemoveLinkedMetadataFilter: (_) {},
               quickView: null,
               hasActiveFilters: false,
               onQuickViewSelected: (_) {},
@@ -143,6 +144,7 @@ void main() {
               onCoverSizeChanged: (_) {},
               selectedBucket: null,
               onClearBucket: () {},
+              onRemoveLinkedMetadataFilter: (_) {},
               quickView: null,
               hasActiveFilters: false,
               onQuickViewSelected: (_) {},
@@ -184,6 +186,7 @@ void main() {
               onCoverSizeChanged: (_) {},
               selectedBucket: null,
               onClearBucket: () {},
+              onRemoveLinkedMetadataFilter: (_) {},
               quickView: null,
               hasActiveFilters: false,
               onQuickViewSelected: (_) {},
@@ -250,6 +253,7 @@ void main() {
               onCoverSizeChanged: (_) {},
               selectedBucket: null,
               onClearBucket: () {},
+              onRemoveLinkedMetadataFilter: (_) {},
               quickView: null,
               hasActiveFilters: false,
               onQuickViewSelected: (_) {},
@@ -388,7 +392,7 @@ void main() {
   ) async {
     final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
     final runtime = type;
-    String? linkedLabel;
+    var linked = const <LibraryLinkedMetadataFilter>[];
     var cleared = false;
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1.0;
@@ -413,8 +417,9 @@ void main() {
                 onDetailsLayoutChanged: (_) {},
                 onCoverSizeChanged: (_) {},
                 selectedBucket: 'Example series',
-                linkedMetadataFilterLabel: linkedLabel,
-                onClearBucket: () => cleared = true,
+                linkedMetadataFilters: linked,
+                onRemoveLinkedMetadataFilter: (_) => cleared = true,
+                onClearBucket: () {},
                 quickView: null,
                 hasActiveFilters: false,
                 onQuickViewSelected: (_) {},
@@ -438,11 +443,15 @@ void main() {
             .dx,
         4);
 
-    linkedLabel = 'Producer: Demo Contributor';
+    linked = const [
+      LibraryLinkedMetadataFilter(value: 'Demo Contributor', field: 'Producer'),
+      LibraryLinkedMetadataFilter(value: 'Demo Genre', field: 'Genre'),
+    ];
     await tester.pumpWidget(buildToolbar());
-    expect(find.byType(LibraryToolbarScopeChip), findsOneWidget);
-    expect(find.text(linkedLabel), findsOneWidget);
-    await tester.tap(find.byTooltip('Clear'));
+    expect(find.byType(LibraryToolbarScopeChip), findsNWidgets(2));
+    expect(find.text('Producer: Demo Contributor'), findsOneWidget);
+    expect(find.text('Genre: Demo Genre'), findsOneWidget);
+    await tester.tap(find.byTooltip('Clear').first);
     expect(cleared, isTrue);
   }, variant: TargetPlatformVariant.only(TargetPlatform.windows));
 
@@ -480,6 +489,7 @@ void main() {
               hasActiveFilters: false,
               onClearFilters: () {},
               onClearBucket: () {},
+              onRemoveLinkedMetadataFilter: (_) {},
               onFolders: () => foldersPressed++,
             ),
           ),

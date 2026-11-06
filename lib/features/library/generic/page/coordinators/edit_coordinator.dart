@@ -58,14 +58,7 @@ class LibraryPageEditCoordinator {
                 )
             : null,
         onEdit: (_) => unawaited(showEditDialog(item, null)),
-        onFilterByValue: (value) => _s._rebuild(() {
-          _s._session.facets.linkedMetadataFilter =
-              _s._session.facets.linkedMetadataFilter?.value == value
-                  ? null
-                  : LibraryLinkedMetadataFilter(value: value);
-          _s._session.facets.selectedBucket = null;
-          _s._session.facets.selectedLetter = null;
-        }),
+        onFilterByValue: (value) => _s._toggleLinkedMetadataFilter(item, value),
       );
 
   Future<void> showEditDialog(

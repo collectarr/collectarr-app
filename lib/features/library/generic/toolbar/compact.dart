@@ -28,7 +28,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     required this.counts,
     required this.viewMode,
     required this.selectedBucket,
-    this.linkedMetadataFilterLabel,
+    this.linkedMetadataFilters = const [],
+    required this.onRemoveLinkedMetadataFilter,
     required this.onAdd,
     required this.onScan,
     required this.onSearchChanged,
@@ -95,7 +96,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final LibraryToolbarCounts counts;
   final LibraryViewMode viewMode;
   final String? selectedBucket;
-  final String? linkedMetadataFilterLabel;
+  final List<LibraryLinkedMetadataFilter> linkedMetadataFilters;
+  final ValueChanged<LibraryLinkedMetadataFilter> onRemoveLinkedMetadataFilter;
   final VoidCallback onAdd;
   final VoidCallback onScan;
   final ValueChanged<String> onSearchChanged;
@@ -187,9 +189,10 @@ class LibraryCompactToolbarContent extends StatelessWidget {
               child: Padding(
                   padding: const EdgeInsets.all(8),
                   child: Text(_librarySearchTargetLabel(searchTarget)))),
-        if (linkedMetadataFilterLabel != null)
+        for (final filter in linkedMetadataFilters)
           LibraryToolbarScopeChip(
-              label: linkedMetadataFilterLabel!, onClear: onClearBucket),
+              label: filter.chipLabel,
+              onClear: () => onRemoveLinkedMetadataFilter(filter)),
       ]);
     }
     return Column(
@@ -271,7 +274,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
               LibraryToolsButton(
                 type: type,
                 counts: counts,
-                selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
+                selectedBucket: selectedBucket ??
+                    libraryLinkedMetadataFiltersLabel(linkedMetadataFilters),
                 quickView: quickView,
                 hasActiveFilters: hasActiveFilters,
                 onQuickViewSelected: onQuickViewSelected,
@@ -329,10 +333,10 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (linkedMetadataFilterLabel != null)
+                    for (final filter in linkedMetadataFilters)
                       LibraryToolbarScopeChip(
-                        label: linkedMetadataFilterLabel!,
-                        onClear: onClearBucket,
+                        label: filter.chipLabel,
+                        onClear: () => onRemoveLinkedMetadataFilter(filter),
                       ),
                     LibraryItemCountLabel(
                       shown: counts.shown,

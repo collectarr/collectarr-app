@@ -84,9 +84,9 @@ final gameHardwareTransferableFields = <TransferableField>[
   ),
 ];
 
-Iterable<String?> gameHardwareLinkedMetadataValues(
+Iterable<(String, String?)> gameHardwareLinkedMetadataValues(
         GameHardwareCatalogMetadata metadata) =>
-    [metadata.seriesTitle];
+    [('Series', metadata.seriesTitle), ('Platform', metadata.platform)];
 GameHardwareCatalogMetadata? gameHardwareLinkedMetadata(
     LibraryWorkspaceContext source) {
   final data = source.kindPresentationData;

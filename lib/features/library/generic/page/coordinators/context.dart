@@ -61,9 +61,10 @@ class LibraryPageCoordinatorContext {
     required void Function(String? value) setSelectedBucket,
     required String? Function() getSelectedLetter,
     required void Function(String? value) setSelectedLetter,
-    required LibraryLinkedMetadataFilter? Function() getLinkedMetadataFilter,
-    required void Function(LibraryLinkedMetadataFilter? value)
-        setLinkedMetadataFilter,
+    required List<LibraryLinkedMetadataFilter> Function()
+        getLinkedMetadataFilters,
+    required void Function(List<LibraryLinkedMetadataFilter> value)
+        setLinkedMetadataFilters,
     required LibraryCollectionStatusScope Function() getCollectionStatusScope,
     required void Function(LibraryCollectionStatusScope value)
         setCollectionStatusScope,
@@ -134,8 +135,8 @@ class LibraryPageCoordinatorContext {
         _setSelectedBucket = setSelectedBucket,
         _getSelectedLetter = getSelectedLetter,
         _setSelectedLetter = setSelectedLetter,
-        _getLinkedMetadataFilter = getLinkedMetadataFilter,
-        _setLinkedMetadataFilter = setLinkedMetadataFilter,
+        _getLinkedMetadataFilters = getLinkedMetadataFilters,
+        _setLinkedMetadataFilters = setLinkedMetadataFilters,
         _getCollectionStatusScope = getCollectionStatusScope,
         _setCollectionStatusScope = setCollectionStatusScope,
         _getBucketCompletionScope = getBucketCompletionScope,
@@ -194,9 +195,9 @@ class LibraryPageCoordinatorContext {
   final void Function(String? value) _setSelectedBucket;
   final String? Function() _getSelectedLetter;
   final void Function(String? value) _setSelectedLetter;
-  final LibraryLinkedMetadataFilter? Function() _getLinkedMetadataFilter;
-  final void Function(LibraryLinkedMetadataFilter? value)
-      _setLinkedMetadataFilter;
+  final List<LibraryLinkedMetadataFilter> Function() _getLinkedMetadataFilters;
+  final void Function(List<LibraryLinkedMetadataFilter> value)
+      _setLinkedMetadataFilters;
   final LibraryCollectionStatusScope Function() _getCollectionStatusScope;
   final void Function(LibraryCollectionStatusScope value)
       _setCollectionStatusScope;
@@ -278,10 +279,10 @@ class LibraryPageCoordinatorContext {
   String? get selectedLetter => _getSelectedLetter();
   set selectedLetter(String? value) => _setSelectedLetter(value);
 
-  LibraryLinkedMetadataFilter? get linkedMetadataFilter =>
-      _getLinkedMetadataFilter();
-  set linkedMetadataFilter(LibraryLinkedMetadataFilter? value) =>
-      _setLinkedMetadataFilter(value);
+  List<LibraryLinkedMetadataFilter> get linkedMetadataFilters =>
+      _getLinkedMetadataFilters();
+  set linkedMetadataFilters(List<LibraryLinkedMetadataFilter> value) =>
+      _setLinkedMetadataFilters(value);
 
   LibraryCollectionStatusScope get collectionStatusScope =>
       _getCollectionStatusScope();

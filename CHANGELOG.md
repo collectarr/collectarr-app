@@ -19,6 +19,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Value filter chips name their field, such as Platform: PC, and accumulate: values of one field widen the results, values of different fields narrow them, and each chip clears on its own.
 - Games offer 222 platforms under their short names (Wii, PSP, SNES, Genesis / Mega Drive, Nintendo Switch 2) in Pick Platform and the editor; existing games move to the new names when the app updates.
 - Platform and Custom Label icons load in bulk with an index.csv that names their files, and one image can serve several values.
 - Add Toys opens on a List of toy types with owned and total counts; a type shows its toys by series with tick boxes, filters and a search.
@@ -84,6 +85,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Clicking a value in the details panel, such as a Games platform, developer or publisher, now filters by it instead of showing nothing.
 - Covers, Shelves and Flow Carousel show covers at one height and their own shape, as in CLZ, with the shadow, active frame and Flow card hugging each cover, so covers of another shape no longer get black bars.
 - The cover size slider changes the width of Library cards at every step of its range, and the smallest cards keep their value whole.
 - Add Games and Add Hardware start on PC, and Hardware shows its platform in the title field with Consoles, Controllers and Accessories before any search.

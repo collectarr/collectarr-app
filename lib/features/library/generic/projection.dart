@@ -32,13 +32,37 @@ export 'quick_view.dart';
 
 part 'projection_service.dart';
 
+/// One active value chip. Chips of one field widen the results and chips of
+/// different fields narrow them.
+@immutable
 class LibraryLinkedMetadataFilter {
-  const LibraryLinkedMetadataFilter({required this.value});
+  const LibraryLinkedMetadataFilter({required this.value, this.field});
 
   final String value;
 
-  String get chipLabel => 'Metadata: $value';
+  /// The name of the field the value was picked from, if it has one.
+  final String? field;
+
+  String get chipLabel => field == null ? value : '$field: $value';
+
+  bool matches(LibraryLinkedMetadataValue candidate) =>
+      (field == null || candidate.field == field) &&
+      candidate.value.trim().toLowerCase() == value.trim().toLowerCase();
+
+  @override
+  bool operator ==(Object other) =>
+      other is LibraryLinkedMetadataFilter &&
+      other.value == value &&
+      other.field == field;
+
+  @override
+  int get hashCode => Object.hash(value, field);
 }
+
+/// The active chips named together, where only one label fits.
+String? libraryLinkedMetadataFiltersLabel(
+        List<LibraryLinkedMetadataFilter> filters) =>
+    filters.isEmpty ? null : filters.map((f) => f.chipLabel).join(', ');
 
 class LibraryBucketScopeFilter {
   const LibraryBucketScopeFilter({
@@ -374,7 +398,7 @@ class LibraryProjection {
     required LibraryKindRegistration type,
     required List<LibrarySortRuleRuntime> sortRules,
     required String query,
-    LibraryLinkedMetadataFilter? linkedMetadataFilter,
+    List<LibraryLinkedMetadataFilter> linkedMetadataFilters = const [],
     required String? selectedBucket,
     required String? selectedItemId,
     required LibraryQuickView? quickView,
@@ -399,7 +423,7 @@ class LibraryProjection {
       type: type,
       sortRules: sortRules,
       query: query,
-      linkedMetadataFilter: linkedMetadataFilter,
+      linkedMetadataFilters: linkedMetadataFilters,
       selectedBucket: selectedBucket,
       selectedItemId: selectedItemId,
       quickView: quickView,
@@ -581,21 +605,3 @@ List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
   LibrarySortingOptions sorting,
   List<LibraryFolderTreeNode> nodes,
 })? _lastFolderTree;
-
-bool libraryEntryMatchesLinkedMetadataFilter(
-  LibraryProjectionView item,
-  String value,
-  LibraryKindRegistration type,
-) {
-  final normalized = value.trim().toLowerCase();
-  if (normalized.isEmpty) {
-    return true;
-  }
-  for (final candidate in libraryLinkedMetadataForKind(type.kind)
-      .candidatesForEntry(item.source)) {
-    if (candidate.trim().toLowerCase() == normalized) {
-      return true;
-    }
-  }
-  return false;
-}

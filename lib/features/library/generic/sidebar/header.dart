@@ -28,7 +28,6 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.quickView,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.collectionStatusScopeLabel,
-    this.linkedMetadataFilterLabel,
     this.selectedLetter,
     this.bucketStatusSummary,
     this.onCollectionStatusScopeChanged,
@@ -59,7 +58,6 @@ class LibrarySidebarHeader extends StatelessWidget {
   final LibraryQuickView? quickView;
   final LibraryCollectionStatusScope collectionStatusScope;
   final String? collectionStatusScopeLabel;
-  final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
   final LibraryBucketStatusSummary? bucketStatusSummary;
   final ValueChanged<LibraryCollectionStatusScope>?

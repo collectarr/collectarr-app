@@ -20,7 +20,7 @@ final class LibraryProjectionQuery {
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.bucketScopeFilters = const [],
     this.filterSelection = LibraryFilterSelection.none,
-    this.linkedMetadataFilter,
+    this.linkedMetadataFilters = const [],
     this.constrainedItemIds,
     this.collectionEntryIds,
     this.sorting = const LibrarySortingOptions(),
@@ -37,7 +37,7 @@ final class LibraryProjectionQuery {
   final LibraryCollectionStatusScope collectionStatusScope;
   final List<LibraryBucketScopeFilter> bucketScopeFilters;
   final LibraryFilterSelection filterSelection;
-  final LibraryLinkedMetadataFilter? linkedMetadataFilter;
+  final List<LibraryLinkedMetadataFilter> linkedMetadataFilters;
   final Set<String>? constrainedItemIds;
   final Set<String>? collectionEntryIds;
   final LibrarySortingOptions sorting;

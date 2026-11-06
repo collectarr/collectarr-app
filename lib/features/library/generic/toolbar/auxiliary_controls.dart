@@ -1162,12 +1162,12 @@ class _ToolbarPill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         height: 26,
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: child,
+        // Hugs its content wherever it sits, also in a row with a width limit.
+        child: Center(widthFactor: 1, child: child),
       );
 }
 

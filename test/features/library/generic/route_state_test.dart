@@ -57,7 +57,10 @@ void main() {
       ),
       selectedBucket: 'Action',
       selectedLetter: 'A',
-      linkedMetadataValue: 'Ridley Scott',
+      linkedMetadataFilters: const [
+        LibraryLinkedMetadataFilter(value: 'Ridley Scott', field: 'Director'),
+        LibraryLinkedMetadataFilter(value: 'Sci-Fi'),
+      ],
       collectionStatusScope: LibraryCollectionStatusScope.inCollection,
       bucketCompletionScope: LibraryBucketCompletionScope.completed,
       quickView: LibraryQuickView.missingMetadata,
@@ -95,7 +98,7 @@ void main() {
     );
     expect(parsed.selectedBucket, 'Action');
     expect(parsed.selectedLetter, 'A');
-    expect(parsed.linkedMetadataValue, 'Ridley Scott');
+    expect(parsed.linkedMetadataFilters, state.linkedMetadataFilters);
     expect(
       parsed.collectionStatusScope,
       LibraryCollectionStatusScope.inCollection,

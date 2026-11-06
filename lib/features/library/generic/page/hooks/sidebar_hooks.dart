@@ -72,7 +72,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
 
   bool get _hasActiveFilter =>
       _searchControllerOps.state.query.trim().isNotEmpty ||
-      _session.facets.linkedMetadataFilter != null ||
+      _session.facets.linkedMetadataFilters.isNotEmpty ||
       (_session.facets.selectedBucket != null &&
           _session.facets.selectedBucket !=
               genericAllBucketLabel(widget.type)) ||
@@ -104,7 +104,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       }
       _session.facets.selectedBucket = null;
       _session.facets.selectedLetter = null;
-      _session.facets.linkedMetadataFilter = null;
+      _session.facets.linkedMetadataFilters = const [];
       _session.preferences.activeSmartListId = null;
       _session.preferences.activeSmartListName = null;
       _session.preferences.scopeHistory = const [];
@@ -171,7 +171,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       groupMode: viewState.isSidebarVisible ? _activeGroupMode : null,
       folderPreset: viewState.isSidebarVisible ? _activeFolderPreset : null,
       selectedBucket: _session.facets.selectedBucket,
-      linkedMetadataValue: _session.facets.linkedMetadataFilter?.value,
+      linkedMetadataFilters: _session.facets.linkedMetadataFilters,
       selectedLetter: _session.facets.selectedLetter,
       collectionStatusScope: _session.facets.collectionStatusScope,
       bucketCompletionScope:
@@ -248,10 +248,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
                 : LibraryFolderPreset.single(_session.preferences.groupMode!));
     _session.facets.selectedBucket = routeState.selectedBucket;
     _session.facets.selectedLetter = routeState.selectedLetter;
-    _session.facets.linkedMetadataFilter = routeState.linkedMetadataValue ==
-            null
-        ? null
-        : LibraryLinkedMetadataFilter(value: routeState.linkedMetadataValue!);
+    _session.facets.linkedMetadataFilters = routeState.linkedMetadataFilters;
     _session.facets.collectionStatusScope = routeState.collectionStatusScope;
     _session.facets.bucketCompletionScope = routeState.bucketCompletionScope;
     _session.facets.quickView = routeState.quickView;

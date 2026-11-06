@@ -22,7 +22,7 @@ class LibraryProjectionRequest {
     required this.type,
     required this.sortRules,
     required this.query,
-    required this.linkedMetadataFilter,
+    required this.linkedMetadataFilters,
     required this.selectedBucket,
     required this.selectedItemId,
     required this.quickView,
@@ -47,7 +47,7 @@ class LibraryProjectionRequest {
   /// size or pane changes keep the cached projection.
   final List<LibrarySortRuleRuntime> sortRules;
   final String query;
-  final LibraryLinkedMetadataFilter? linkedMetadataFilter;
+  final List<LibraryLinkedMetadataFilter> linkedMetadataFilters;
   final String? selectedBucket;
   final String? selectedItemId;
   final LibraryQuickView? quickView;
@@ -72,7 +72,7 @@ class LibraryProjectionRequest {
         type == other.type &&
         listEquals(sortRules, other.sortRules) &&
         query == other.query &&
-        linkedMetadataFilter == other.linkedMetadataFilter &&
+        listEquals(linkedMetadataFilters, other.linkedMetadataFilters) &&
         selectedBucket == other.selectedBucket &&
         selectedItemId == other.selectedItemId &&
         quickView == other.quickView &&
@@ -102,7 +102,7 @@ class LibraryProjectionRequest {
         type,
         Object.hashAll(sortRules),
         query,
-        linkedMetadataFilter,
+        Object.hashAll(linkedMetadataFilters),
         selectedBucket,
         selectedItemId,
         quickView,
@@ -209,7 +209,7 @@ final libraryProjectionProvider = Provider.autoDispose
     type: request.type,
     sortRules: request.sortRules,
     query: request.query,
-    linkedMetadataFilter: request.linkedMetadataFilter,
+    linkedMetadataFilters: request.linkedMetadataFilters,
     selectedBucket: request.selectedBucket,
     selectedItemId: request.selectedItemId,
     quickView: request.quickView,

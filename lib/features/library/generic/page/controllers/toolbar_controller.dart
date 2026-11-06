@@ -97,8 +97,7 @@ class LibraryPageToolbarController {
             searchState.query.isNotEmpty || searchState.pinnedItemId != null,
         searchSuggestions: searchSuggestions,
         selectedBucket: _s._session.facets.selectedBucket,
-        linkedMetadataFilterLabel:
-            _s._session.facets.linkedMetadataFilter?.chipLabel,
+        linkedMetadataFilters: _s._session.facets.linkedMetadataFilters,
         collectionStatusScope: _s._session.facets.collectionStatusScope,
         quickView: _s._session.facets.quickView,
         availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
@@ -163,6 +162,7 @@ class LibraryPageToolbarController {
             onSetGroupPresentation: _s._setGroupPresentation,
             onUpdateViewState: _s._updateViewState,
             onClearToolbarSearchChip: _s._clearToolbarSearchChip,
+            onRemoveLinkedMetadataFilter: _s._removeLinkedMetadataFilter,
             onQuickViewSelected: (value) => _s._setQuickView(
               _s._session.facets.quickView == value ? null : value,
             ),

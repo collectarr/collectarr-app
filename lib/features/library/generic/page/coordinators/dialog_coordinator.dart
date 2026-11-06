@@ -94,7 +94,7 @@ class LibraryPageDialogCoordinator {
       _page.selectedId = selectedEntryId;
       _page.selectedBucket = null;
       _page.selectedLetter = null;
-      _page.linkedMetadataFilter = null;
+      _page.linkedMetadataFilters = const [];
       _page.collectionStatusScope = kDefaultCollectionStatusScope;
       _page.bucketCompletionScope = LibraryBucketCompletionScope.all;
       _page.quickView = null;

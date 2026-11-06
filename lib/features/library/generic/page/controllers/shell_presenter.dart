@@ -339,8 +339,6 @@ abstract final class LibraryPageShellPresenter {
                     kDefaultCollectionStatusScope
                 ? null
                 : state._session.facets.collectionStatusScope.label,
-        linkedMetadataFilterLabel:
-            state._session.facets.linkedMetadataFilter?.chipLabel,
         sidebarSelectedLetter: state._session.facets.selectedLetter,
         bucketStatusSummary: bucketStatusSummary,
         filterSelection: state._session.selection.filterSelection,
@@ -349,7 +347,8 @@ abstract final class LibraryPageShellPresenter {
         onBucketCompletionScopeChanged: canUseBucketCompletionScope
             ? state._setBucketCompletionScope
             : null,
-        onFilterByValue: state._toggleLinkedMetadataFilter,
+        onFilterByValue: (value) =>
+            state._toggleLinkedMetadataFilter(projection.selectedItem, value),
         selectedLetter: state._session.facets.selectedLetter,
         alphabetField: state._alphabetField,
         availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
@@ -410,9 +409,9 @@ abstract final class LibraryPageShellPresenter {
             (stateValue) => stateValue.copyWith(coverSize: size),
           ),
           selectedBucket: state._session.facets.selectedBucket,
-          linkedMetadataFilterLabel:
-              state._session.facets.linkedMetadataFilter?.chipLabel,
+          linkedMetadataFilters: state._session.facets.linkedMetadataFilters,
           onClearBucket: state._clearToolbarSearchChip,
+          onRemoveLinkedMetadataFilter: state._removeLinkedMetadataFilter,
           quickView: state._session.facets.quickView,
           activeSortFavoriteId: state._activeSortFavorite?.id,
           sortFavorites: state._sortFavorites,

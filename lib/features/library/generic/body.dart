@@ -135,7 +135,6 @@ class LibraryBody extends StatelessWidget {
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
     this.bucketCompletionScope = LibraryBucketCompletionScope.all,
     this.collectionStatusScopeLabel,
-    this.linkedMetadataFilterLabel,
     this.sidebarSelectedLetter,
     this.bucketStatusSummary,
     this.filterSelection = LibraryFilterSelection.none,
@@ -216,7 +215,6 @@ class LibraryBody extends StatelessWidget {
   final LibraryCollectionStatusScope collectionStatusScope;
   final LibraryBucketCompletionScope bucketCompletionScope;
   final String? collectionStatusScopeLabel;
-  final String? linkedMetadataFilterLabel;
   final String? sidebarSelectedLetter;
   final LibraryBucketStatusSummary? bucketStatusSummary;
   final LibraryFilterSelection filterSelection;
@@ -549,7 +547,6 @@ class LibraryBody extends StatelessWidget {
             collectionStatusScope: collectionStatusScope,
             bucketCompletionScope: bucketCompletionScope,
             collectionStatusScopeLabel: collectionStatusScopeLabel,
-            linkedMetadataFilterLabel: linkedMetadataFilterLabel,
             selectedLetter: sidebarSelectedLetter,
             bucketStatusSummary: bucketStatusSummary,
             onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,

@@ -1,9 +1,15 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
+/// A value an entry can be filtered by, with the name of its field. Values of
+/// no particular field, such as search tokens, have no name.
+typedef LibraryLinkedMetadataValue = ({String? field, String value});
+
 abstract interface class LibraryLinkedMetadataCapability {
   const LibraryLinkedMetadataCapability();
 
-  Iterable<String> candidatesForEntry(LibraryWorkspaceContext source);
+  /// The entry's values, those of named fields first.
+  Iterable<LibraryLinkedMetadataValue> valuesForEntry(
+      LibraryWorkspaceContext source);
 }
 
 class DefaultLibraryLinkedMetadataCapability
@@ -11,8 +17,9 @@ class DefaultLibraryLinkedMetadataCapability
   const DefaultLibraryLinkedMetadataCapability();
 
   @override
-  Iterable<String> candidatesForEntry(LibraryWorkspaceContext source) sync* {
-    yield* _commonCandidates(source);
+  Iterable<LibraryLinkedMetadataValue> valuesForEntry(
+      LibraryWorkspaceContext source) sync* {
+    yield* _commonValues(source);
   }
 }
 
@@ -24,31 +31,35 @@ class TypedLibraryLinkedMetadataCapability<TMetadata>
   );
 
   final TMetadata? Function(LibraryWorkspaceContext source) _metadataReader;
-  final Iterable<String?> Function(TMetadata metadata) _metadataValues;
+
+  /// The metadata's values as (field name, value).
+  final Iterable<(String, String?)> Function(TMetadata metadata)
+      _metadataValues;
 
   @override
-  Iterable<String> candidatesForEntry(LibraryWorkspaceContext source) sync* {
-    yield* _commonCandidates(source);
+  Iterable<LibraryLinkedMetadataValue> valuesForEntry(
+      LibraryWorkspaceContext source) sync* {
     final metadata = _metadataReader(source);
     if (metadata != null) {
-      yield* _nonEmptyStrings(_metadataValues(metadata));
+      for (final (field, value) in _metadataValues(metadata)) {
+        final trimmed = value?.trim();
+        if (trimmed != null && trimmed.isNotEmpty) {
+          yield (field: field, value: trimmed);
+        }
+      }
     }
+    yield* _commonValues(source);
   }
 }
 
-Iterable<String> _commonCandidates(LibraryWorkspaceContext source) sync* {
-  final summaryTitle = source.catalogSummary?.primaryLabel;
-  if (summaryTitle != null) {
-    yield* _nonEmptyStrings([summaryTitle]);
+Iterable<LibraryLinkedMetadataValue> _commonValues(
+    LibraryWorkspaceContext source) sync* {
+  final summaryTitle = source.catalogSummary?.primaryLabel.trim();
+  if (summaryTitle != null && summaryTitle.isNotEmpty) {
+    yield (field: 'Title', value: summaryTitle);
   }
-  yield* _nonEmptyStrings(source.catalogSearchTokens);
-}
-
-Iterable<String> _nonEmptyStrings(Iterable<String?> values) sync* {
-  for (final value in values) {
-    final trimmed = value?.trim();
-    if (trimmed != null && trimmed.isNotEmpty) {
-      yield trimmed;
-    }
+  for (final token in source.catalogSearchTokens) {
+    final trimmed = token.trim();
+    if (trimmed.isNotEmpty) yield (field: null, value: trimmed);
   }
 }

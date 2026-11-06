@@ -263,7 +263,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._session.selection.selectedId = null;
       state._session.facets.selectedBucket = null;
       state._session.facets.selectedLetter = null;
-      state._session.facets.linkedMetadataFilter = null;
+      state._session.facets.linkedMetadataFilters = const [];
       state._session.selection.value = LibrarySelectionState.empty();
       state._session.selection.filterSelection = LibraryFilterSelection.none;
       state._session.facets.collectionStatusScope =

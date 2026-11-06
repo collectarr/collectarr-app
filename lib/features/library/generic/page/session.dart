@@ -41,7 +41,7 @@ final class LibraryPageFacetSession {
   String? selectedLetter;
   String? lastEnsureSignature;
   LibraryFacetIdRuntime? lastEnsureFacetId;
-  LibraryLinkedMetadataFilter? linkedMetadataFilter;
+  List<LibraryLinkedMetadataFilter> linkedMetadataFilters = const [];
   LibraryQuickView? quickView;
   LibraryCollectionStatusScope collectionStatusScope =
       kDefaultCollectionStatusScope;

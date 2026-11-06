@@ -41,6 +41,7 @@ class LibraryToolbarViewContext {
     required this.onSetGroupPresentation,
     required this.onUpdateViewState,
     required this.onClearToolbarSearchChip,
+    required this.onRemoveLinkedMetadataFilter,
     required this.onQuickViewSelected,
     required this.onSetSelectedLetter,
     required this.onApplyViewPreset,
@@ -66,6 +67,7 @@ class LibraryToolbarViewContext {
     LibraryWorkspaceViewState Function(LibraryWorkspaceViewState),
   ) onUpdateViewState;
   final VoidCallback onClearToolbarSearchChip;
+  final ValueChanged<LibraryLinkedMetadataFilter> onRemoveLinkedMetadataFilter;
   final ValueChanged<LibraryQuickView?> onQuickViewSelected;
   final ValueChanged<String?> onSetSelectedLetter;
   final ValueChanged<LibraryWorkspacePreset> onApplyViewPreset;
@@ -252,6 +254,8 @@ class LibraryToolbarActionRegistry {
         (LibraryWorkspaceViewState next) => next.copyWith(coverSize: size),
       ),
       onClearBucket: actionContext.view.onClearToolbarSearchChip,
+      onRemoveLinkedMetadataFilter:
+          actionContext.view.onRemoveLinkedMetadataFilter,
       onRefreshMetadata: () =>
           actionContext.metadata.onRefreshMetadata(projection),
       onCollectionStatusScopeChanged:

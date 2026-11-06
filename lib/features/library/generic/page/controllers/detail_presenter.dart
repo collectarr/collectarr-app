@@ -118,8 +118,8 @@ abstract final class _LibraryDetailPresenter {
                   back();
                   return;
                 }
-                state._session.facets.linkedMetadataFilter =
-                    LibraryLinkedMetadataFilter(value: value);
+                _LibraryScopeControllerOps.addLinkedMetadataFilter(
+                    state, request.item, value);
                 final uri = state._buildRouteState().toUri(
                     Uri(path: AppRoutes.libraries),
                     type: state.widget.type);

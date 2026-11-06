@@ -45,7 +45,7 @@ abstract final class LibraryPageNumberNavigationControllerOps {
     }
     state._mutateSidebarScope(() {
       state._session.facets.selectedLetter = null;
-      state._session.facets.linkedMetadataFilter = null;
+      state._session.facets.linkedMetadataFilters = const [];
       state._session.facets.collectionStatusScope =
           kDefaultCollectionStatusScope;
       state._session.facets.bucketCompletionScope =

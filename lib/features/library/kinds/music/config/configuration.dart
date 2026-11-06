@@ -97,15 +97,16 @@ final musicTransferableFields = <TransferableField>[
 
 const musicAddChrome = LibraryAddChromeConfig();
 
-Iterable<String?> musicLinkedMetadataValues(MusicAlbum music) => [
-      music.artist,
-      music.publisher,
-      music.countryCode,
-      ...music.credits.map((credit) => credit.name),
+Iterable<(String, String?)> musicLinkedMetadataValues(MusicAlbum music) => [
+      ('Artist', music.artist),
+      ('Box Set', music.boxSet),
+      ('Label', music.publisher),
+      ('Country', music.countryCode),
+      ...music.credits.map((credit) => ('Credit', credit.name)),
       ...music.discs.expand(
-        (disc) => disc.credits.map((credit) => credit.name),
+        (disc) => disc.credits.map((credit) => ('Credit', credit.name)),
       ),
-      ...music.genres,
+      ...music.genres.map((genre) => ('Genre', genre)),
     ];
 
 MusicAlbum? musicLinkedMetadata(LibraryWorkspaceContext source) {

@@ -53,7 +53,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onDensityPresetChanged = _noopDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
-    this.linkedMetadataFilterLabel,
+    this.linkedMetadataFilters = const [],
+    required this.onRemoveLinkedMetadataFilter,
     required this.onClearBucket,
     required this.quickView,
     required this.hasActiveFilters,
@@ -123,7 +124,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback? onEditSort;
   final String? selectedBucket;
-  final String? linkedMetadataFilterLabel;
+  final List<LibraryLinkedMetadataFilter> linkedMetadataFilters;
+  final ValueChanged<LibraryLinkedMetadataFilter> onRemoveLinkedMetadataFilter;
   final VoidCallback onClearBucket;
   final LibraryQuickView? quickView;
   final bool hasActiveFilters;
@@ -196,173 +198,193 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
           horizontal: _kLibraryToolbarBandHorizontalPadding,
           vertical: _kLibraryToolbarBandVerticalPadding,
         ),
-        child: SizedBox(
-          height: kLibraryToolbarBandHeight,
-          child: Row(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      if (!viewState.isSidebarVisible &&
-                          onGroupModeChanged != null) ...[
-                        LibraryGroupModeMenuButton(
-                          type: type,
-                          folderPreset: folderPreset,
-                          availableModes: availableGroupModes,
-                          accent: type.identity.accent,
-                          icon: folderPreset == null
-                              ? Icons.account_tree_outlined
-                              : genericFolderPresetIcon(folderPreset!, type),
-                          onChanged: onGroupModeChanged!,
-                          sidebarVisible: viewState.isSidebarVisible,
-                          onSidebarVisibilityChanged:
-                              onSidebarVisibilityChanged,
-                          onClearBucket: onClearBucket,
-                          pinnedFolderPresets: pinnedFolderPresets,
-                          onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
-                          iconOnly: true,
-                        ),
-                        const SizedBox(width: 4),
-                      ],
-                      LibraryViewModeDropdown(
-                        viewMode: viewState.viewMode,
-                        onChanged: onViewModeChanged,
-                        iconOnly: true,
-                      ),
-                      if (onEditSort != null)
-                        const _LibraryDesktopToolbarSeparator(),
-                      if (onEditSort != null)
-                        LibraryToolbarSortButton(
-                          fieldLabel: (id) {
-                            final fields =
-                                libraryKindWorkspaceForKind(type.kind)
-                                    .workspaceFields;
-                            return fields
-                                .sortDefinitionFor(fields.decodeSortId(id))
-                                .label;
-                          },
-                          onPressed: onEditSort!,
-                          sortFavorites: sortFavorites,
-                          activeSortFavoriteId: activeSortFavoriteId,
-                          pinnedSortFavoriteIds: pinnedSortFavoriteIds,
-                          onSortFavoriteSelected: onSortFavoriteSelected,
-                          onManageFavoritesPressed: onManageSortFavorites,
-                          iconOnly: true,
-                        ),
-                      if (viewState.viewMode == LibraryViewMode.list) ...[
-                        const _LibraryDesktopToolbarSeparator(),
-                        _LibraryDesktopToolbarSection(
-                          label: 'Columns',
-                          child: _LibraryColumnLauncher(
-                            activeLabel: activeColumnFavoriteLabel,
-                            onManageColumns: onEditColumns,
-                            onManageColumnFavorites: onManageColumnFavorites,
-                            pinnedPresets: pinnedColumnPresets,
-                            overflowPresets: overflowColumnPresets,
-                            onPresetSelected: onColumnFavoriteSelected,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          SizedBox(
+            height: kLibraryToolbarBandHeight,
+            child: Row(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        if (!viewState.isSidebarVisible &&
+                            onGroupModeChanged != null) ...[
+                          LibraryGroupModeMenuButton(
+                            type: type,
+                            folderPreset: folderPreset,
+                            availableModes: availableGroupModes,
+                            accent: type.identity.accent,
+                            icon: folderPreset == null
+                                ? Icons.account_tree_outlined
+                                : genericFolderPresetIcon(folderPreset!, type),
+                            onChanged: onGroupModeChanged!,
+                            sidebarVisible: viewState.isSidebarVisible,
+                            onSidebarVisibilityChanged:
+                                onSidebarVisibilityChanged,
+                            onClearBucket: onClearBucket,
+                            pinnedFolderPresets: pinnedFolderPresets,
+                            onPinnedPresetsChanged:
+                                onPinnedFolderPresetsChanged,
+                            iconOnly: true,
                           ),
-                        ),
-                      ],
-                      if (viewState.detailsLayout ==
-                          LibraryDetailsLayout.hidden) ...[
-                        const _LibraryDesktopToolbarSeparator(),
-                        LibraryDetailsLayoutDropdown(
-                          detailsLayout: viewState.detailsLayout,
-                          onChanged: onDetailsLayoutChanged,
+                          const SizedBox(width: 4),
+                        ],
+                        LibraryViewModeDropdown(
+                          viewMode: viewState.viewMode,
+                          onChanged: onViewModeChanged,
                           iconOnly: true,
                         ),
-                      ],
-                      if (viewState.viewMode == LibraryViewMode.list) ...[
-                        const _LibraryDesktopToolbarSeparator(),
-                        const SizedBox(width: 8),
-                        _LibraryDesktopToolbarSection(
-                          label: 'Item Spacing',
-                          child: _buildSpacingSlider(
-                            context,
-                            tooltip: 'Item Spacing',
+                        if (onEditSort != null)
+                          const _LibraryDesktopToolbarSeparator(),
+                        if (onEditSort != null)
+                          LibraryToolbarSortButton(
+                            fieldLabel: (id) {
+                              final fields =
+                                  libraryKindWorkspaceForKind(type.kind)
+                                      .workspaceFields;
+                              return fields
+                                  .sortDefinitionFor(fields.decodeSortId(id))
+                                  .label;
+                            },
+                            onPressed: onEditSort!,
+                            sortFavorites: sortFavorites,
+                            activeSortFavoriteId: activeSortFavoriteId,
+                            pinnedSortFavoriteIds: pinnedSortFavoriteIds,
+                            onSortFavoriteSelected: onSortFavoriteSelected,
+                            onManageFavoritesPressed: onManageSortFavorites,
+                            iconOnly: true,
                           ),
-                        ),
-                      ] else ...[
-                        const _LibraryDesktopToolbarSeparator(),
-                        const SizedBox(width: 8),
-                        _LibraryDesktopToolbarSection(
-                          label: viewState.viewMode.supportsCoverSize
-                              ? 'Covers & Spacing'
-                              : 'Spacing',
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (viewState.viewMode.supportsCoverSize)
-                                LibraryCoverSizeSlider(
-                                  viewMode: viewState.viewMode,
-                                  coverSize: viewState.coverSize,
-                                  minCoverSize:
-                                      libraryViewProfileForKind(type.kind)
-                                          .minCoverSize,
-                                  maxCoverSize:
-                                      libraryViewProfileForKind(type.kind)
-                                          .maxCoverSize,
-                                  onChanged: onCoverSizeChanged,
+                        if (viewState.viewMode == LibraryViewMode.list) ...[
+                          const _LibraryDesktopToolbarSeparator(),
+                          _LibraryDesktopToolbarSection(
+                            label: 'Columns',
+                            child: _LibraryColumnLauncher(
+                              activeLabel: activeColumnFavoriteLabel,
+                              onManageColumns: onEditColumns,
+                              onManageColumnFavorites: onManageColumnFavorites,
+                              pinnedPresets: pinnedColumnPresets,
+                              overflowPresets: overflowColumnPresets,
+                              onPresetSelected: onColumnFavoriteSelected,
+                            ),
+                          ),
+                        ],
+                        if (viewState.detailsLayout ==
+                            LibraryDetailsLayout.hidden) ...[
+                          const _LibraryDesktopToolbarSeparator(),
+                          LibraryDetailsLayoutDropdown(
+                            detailsLayout: viewState.detailsLayout,
+                            onChanged: onDetailsLayoutChanged,
+                            iconOnly: true,
+                          ),
+                        ],
+                        if (viewState.viewMode == LibraryViewMode.list) ...[
+                          const _LibraryDesktopToolbarSeparator(),
+                          const SizedBox(width: 8),
+                          _LibraryDesktopToolbarSection(
+                            label: 'Item Spacing',
+                            child: _buildSpacingSlider(
+                              context,
+                              tooltip: 'Item Spacing',
+                            ),
+                          ),
+                        ] else ...[
+                          const _LibraryDesktopToolbarSeparator(),
+                          const SizedBox(width: 8),
+                          _LibraryDesktopToolbarSection(
+                            label: viewState.viewMode.supportsCoverSize
+                                ? 'Covers & Spacing'
+                                : 'Spacing',
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (viewState.viewMode.supportsCoverSize)
+                                  LibraryCoverSizeSlider(
+                                    viewMode: viewState.viewMode,
+                                    coverSize: viewState.coverSize,
+                                    minCoverSize:
+                                        libraryViewProfileForKind(type.kind)
+                                            .minCoverSize,
+                                    maxCoverSize:
+                                        libraryViewProfileForKind(type.kind)
+                                            .maxCoverSize,
+                                    onChanged: onCoverSizeChanged,
+                                  ),
+                                if (viewState.viewMode.supportsCoverSize)
+                                  const SizedBox(width: 8),
+                                _buildSpacingSlider(
+                                  context,
+                                  tooltip: 'Item Spacing',
                                 ),
-                              if (viewState.viewMode.supportsCoverSize)
-                                const SizedBox(width: 8),
-                              _buildSpacingSlider(
-                                context,
-                                tooltip: 'Item Spacing',
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
+                        if (viewState.viewMode == LibraryViewMode.shelves) ...[
+                          const _LibraryDesktopToolbarSeparator(),
+                          const LibraryShelfStyleDropdown(),
+                        ],
                       ],
-                      if (viewState.viewMode == LibraryViewMode.shelves) ...[
-                        const _LibraryDesktopToolbarSeparator(),
-                        const LibraryShelfStyleDropdown(),
-                      ],
-                    ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              LibraryWorkspaceControlStrip(
-                children: [
-                  LibraryItemCountLabel(
-                    shown: counts.shown,
-                    total: counts.total,
-                    singularLabel: type.identity.singularLabel,
-                    pluralLabel: type.identity.pluralLabel,
-                  ),
-                  if (linkedMetadataFilterLabel != null)
-                    LibraryToolbarScopeChip(
-                      label: linkedMetadataFilterLabel!,
-                      onClear: onClearBucket,
+                const SizedBox(width: 6),
+                LibraryWorkspaceControlStrip(
+                  children: [
+                    LibraryItemCountLabel(
+                      shown: counts.shown,
+                      total: counts.total,
+                      singularLabel: type.identity.singularLabel,
+                      pluralLabel: type.identity.pluralLabel,
                     ),
-                  LibraryToolsButton(
-                    type: type,
-                    counts: counts,
-                    // The folder button already names the folder on a phone.
-                    selectedBucket: linkedMetadataFilterLabel,
-                    quickView: quickView,
-                    hasActiveFilters: hasActiveFilters,
-                    onQuickViewSelected: onQuickViewSelected,
-                    onClearFilters: onClearFilters,
-                    onRandomPick: onRandomPick,
-                    shelfState: shelfState,
-                    onSmartLists: onSmartLists,
-                    onFolders: onFolders,
-                    onReadingQueue: onReadingQueue,
-                    onEditConditionPickList: onEditConditionPickList,
-                    onEditGradePickList: onEditGradePickList,
-                    onShareCollection: onShareCollection,
-                    onCompareMetadataWithServer: onCompareMetadataWithServer,
-                    extraActions: extraActions,
-                  ),
-                ],
-              ),
-            ],
+                    LibraryToolsButton(
+                      type: type,
+                      counts: counts,
+                      // The folder button already names the folder on a phone.
+                      selectedBucket: libraryLinkedMetadataFiltersLabel(
+                          linkedMetadataFilters),
+                      quickView: quickView,
+                      hasActiveFilters: hasActiveFilters,
+                      onQuickViewSelected: onQuickViewSelected,
+                      onClearFilters: onClearFilters,
+                      onRandomPick: onRandomPick,
+                      shelfState: shelfState,
+                      onSmartLists: onSmartLists,
+                      onFolders: onFolders,
+                      onReadingQueue: onReadingQueue,
+                      onEditConditionPickList: onEditConditionPickList,
+                      onEditGradePickList: onEditGradePickList,
+                      onShareCollection: onShareCollection,
+                      onCompareMetadataWithServer: onCompareMetadataWithServer,
+                      extraActions: extraActions,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
+          // Value chips accumulate, so they get a row that wraps instead of
+          // pushing the toolbar's controls out of view.
+          if (linkedMetadataFilters.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: [
+                    for (final filter in linkedMetadataFilters)
+                      LibraryToolbarScopeChip(
+                        label: filter.chipLabel,
+                        onClear: () => onRemoveLinkedMetadataFilter(filter),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+        ]),
       ),
     ));
   }
@@ -444,7 +466,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   type: type,
                   counts: counts,
                   // The folder button already names the folder on a phone.
-                  selectedBucket: linkedMetadataFilterLabel,
+                  selectedBucket:
+                      libraryLinkedMetadataFiltersLabel(linkedMetadataFilters),
                   quickView: quickView,
                   hasActiveFilters: hasActiveFilters,
                   onQuickViewSelected: onQuickViewSelected,

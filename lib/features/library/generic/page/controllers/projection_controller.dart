@@ -54,7 +54,7 @@ abstract final class _LibraryProjectionControllerOps {
                   missingNumbers: bucket.missingNumbers,
                 ),
           ];
-    final linkedMetadataFilter = state._session.facets.linkedMetadataFilter;
+    final linkedMetadataFilters = state._session.facets.linkedMetadataFilters;
     final selectedBucket = state._usesExternalFacetBuckets(mode)
         ? null
         : state._session.facets.selectedBucket;
@@ -82,7 +82,7 @@ abstract final class _LibraryProjectionControllerOps {
           type: state.widget.type,
           sortRules: viewState.sortRules,
           query: query,
-          linkedMetadataFilter: linkedMetadataFilter,
+          linkedMetadataFilters: linkedMetadataFilters,
           selectedBucket: selectedBucket,
           selectedItemId: selectedItemId,
           quickView: quickView,
