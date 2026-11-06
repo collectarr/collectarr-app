@@ -80,6 +80,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- The caret is centred in multi-value fields such as Genre.
 - Pick fields such as Platform and Format show a blue frame while their menu is open.
 - Covers on vertical cards are sharp at every size instead of blurry.
 - The crosses that remove a Publisher, Developer, credit or chip value and the + beside those fields match the bolder close-button glyph, and the crosses underline under the pointer as in CLZ.

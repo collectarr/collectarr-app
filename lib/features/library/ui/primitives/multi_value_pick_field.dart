@@ -204,30 +204,34 @@ class _LibraryMultiValuePickFieldState<TValue>
               }
               return KeyEventResult.ignored;
             },
+            // One line tall: left to itself the field takes the theme's input
+            // height and draws its text and caret at the top of the row.
             child: Center(
-                child: TextField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    enabled: widget.enabled,
-                    style: textStyle,
-                    textAlignVertical: TextAlignVertical.center,
-                    textInputAction: TextInputAction.done,
-                    decoration: InputDecoration(
-                        hintText: widget.hintText,
-                        isCollapsed: true,
-                        isDense: true,
-                        filled: false,
-                        contentPadding: EdgeInsets.zero,
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        disabledBorder: InputBorder.none),
-                    // Enter adds the value and keeps typing in the field.
-                    onEditingComplete: () {},
-                    onSubmitted: (_) {
-                      submit();
-                      _commitEntry();
-                    })),
+                child: SizedBox(
+                    height: 20,
+                    child: TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        enabled: widget.enabled,
+                        style: textStyle,
+                        textAlignVertical: TextAlignVertical.center,
+                        textInputAction: TextInputAction.done,
+                        decoration: InputDecoration(
+                            hintText: widget.hintText,
+                            isCollapsed: true,
+                            isDense: true,
+                            filled: false,
+                            contentPadding: EdgeInsets.zero,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none),
+                        // Enter adds the value and keeps typing in the field.
+                        onEditingComplete: () {},
+                        onSubmitted: (_) {
+                          submit();
+                          _commitEntry();
+                        }))),
           ),
           optionsViewBuilder: (context, select, options) => Align(
               alignment: Alignment.topLeft,
