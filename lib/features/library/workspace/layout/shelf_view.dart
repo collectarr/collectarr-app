@@ -20,6 +20,7 @@ class LibraryShelfView<T> extends ConsumerStatefulWidget {
     required this.onTap,
     required this.onToggleSelectionItem,
     required this.onDoubleTap,
+    this.onEditItem,
     this.onLongPress,
     this.onSecondaryTapUp,
     required this.accent,
@@ -40,6 +41,7 @@ class LibraryShelfView<T> extends ConsumerStatefulWidget {
   final void Function(T item) onTap;
   final void Function(T item) onToggleSelectionItem;
   final void Function(T item)? onDoubleTap;
+  final void Function(T item)? onEditItem;
   final void Function(T item)? onLongPress;
   final void Function(T item, TapUpDetails details)? onSecondaryTapUp;
   final Color accent;
@@ -146,6 +148,7 @@ class _LibraryShelfViewState<T> extends ConsumerState<LibraryShelfView<T>>
               onTap: widget.onTap,
               onToggleSelectionItem: widget.onToggleSelectionItem,
               onDoubleTap: widget.onDoubleTap,
+              onEditItem: widget.onEditItem,
               onLongPress: widget.onLongPress,
               onSecondaryTapUp: widget.onSecondaryTapUp,
               accent: widget.accent,
@@ -178,6 +181,7 @@ class _ShelfRow<T> extends StatelessWidget {
     required this.onTap,
     required this.onToggleSelectionItem,
     required this.onDoubleTap,
+    this.onEditItem,
     this.onLongPress,
     this.onSecondaryTapUp,
     required this.accent,
@@ -196,6 +200,7 @@ class _ShelfRow<T> extends StatelessWidget {
   final void Function(T item) onTap;
   final void Function(T item) onToggleSelectionItem;
   final void Function(T item)? onDoubleTap;
+  final void Function(T item)? onEditItem;
   final void Function(T item)? onLongPress;
   final void Function(T item, TapUpDetails details)? onSecondaryTapUp;
   final Color accent;
@@ -303,6 +308,7 @@ class _ShelfRow<T> extends StatelessWidget {
             onTap: () => onTap(item),
             onSelectionToggleTap: () => onToggleSelectionItem(item),
             onDoubleTap: onDoubleTap == null ? null : () => onDoubleTap!(item),
+            onEditTap: onEditItem == null ? null : () => onEditItem!(item),
             onLongPress: onLongPress == null ? null : () => onLongPress!(item),
             onSecondaryTapUp: onSecondaryTapUp != null
                 ? (d) => onSecondaryTapUp!(item, d)

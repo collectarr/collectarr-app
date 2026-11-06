@@ -384,6 +384,7 @@ class LibraryWorkspace extends ConsumerWidget {
           onToggleSelectionItem: (item) =>
               onToggleSelectionItem(item.target.id),
           onDoubleTap: selectionEnabled ? null : onOpenItem,
+          onEditItem: onEditItem,
           onSecondaryTapUp: onItemContextMenu == null
               ? null
               : (item, d) => onItemContextMenu!(item, d.globalPosition),

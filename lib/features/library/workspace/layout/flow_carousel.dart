@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/cover_tile.dart'
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -664,11 +665,11 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                         ),
                         if (showEditButton)
                           Positioned(
-                            top: 8,
-                            right: 8,
+                            top: 4,
+                            right: 5,
                             child: LibraryTileHoverActionButton(
-                              icon: Icons.edit_outlined,
-                              tooltip: 'Edit item',
+                              icon: AppIcons.inlineEdit,
+                              tooltip: 'Edit',
                               onTap: widget.onEditTap!,
                             ),
                           ),
