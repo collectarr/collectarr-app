@@ -31,7 +31,7 @@
 - Comic cards show issue numbers, dates and grades in the appropriate positions, while vertical cards match CLZ dimensions and margins across kinds, retain series titles on slabbed comics, and Flow displays slab labels.
 - Edit dialog headers use the shared edit pen icon matching the list view and toolbar actions.
 - The dark mobile sidebar uses the same darker background as the reference navigation.
-- Mobile editor actions adapt to the available space, tabs have larger touch targets, and dynamic tab changes update the header.
+- Mobile editors show full field labels and keep Remove, Previous and Next in the bar, tabs have larger touch targets, and dynamic tab changes update the header.
 - Mobile Add remembers the selected method per library, offers a reset action, and adapts the method picker to larger text.
 - The mobile sidebar has larger touch rows and icons, matching the compact CLZ navigation style.
 - The sidebar and sign-in logo has transparent corners.

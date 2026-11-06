@@ -110,8 +110,9 @@ class _LibraryMobileEditorScaffoldState
 
     final viewport = MediaQuery.sizeOf(context);
     final isTablet = viewport.width >= 720;
-    final compactActions =
-        viewport.width < 600 || MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    // Remove, Previous and Next stay in the bar, as in the reference, until
+    // large system text leaves no room for them.
+    final compactActions = MediaQuery.textScalerOf(context).scale(1) > 1.3;
 
     final page = ValueListenableBuilder<Widget?>(
       valueListenable: _headerTabs,
