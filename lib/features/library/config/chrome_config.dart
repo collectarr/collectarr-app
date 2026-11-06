@@ -40,6 +40,7 @@ class LibraryAddChromeConfig {
     this.kindFilterOptions = const [],
     this.defaultKindFilters = const {},
     this.confirmSheetSize,
+    this.dialogTitle,
   });
 
   final bool canScanCover;
@@ -50,6 +51,9 @@ class LibraryAddChromeConfig {
   /// A fixed "Confirm your selection" sheet, centred at the bottom, for kinds
   /// whose preview is short; null spans the dialog at 65 % of its height.
   final Size? confirmSheetSize;
+
+  /// Replaces the dialog's default "Add ... By:" title.
+  final String? dialogTitle;
 }
 
 class LibraryAddKindFilterOption {

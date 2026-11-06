@@ -9,7 +9,8 @@ final gameHardwareKindAdd = StandardLibraryAddCapability<GameHardwareAddDraft>(
     manualCandidateBuilder: buildGameHardwareManualCandidate,
     manualProposalBuilder: buildGameHardwareManualProposalData,
     manualPaneBuilder: buildGameHardwareAddManualPane,
-    chrome: const LibraryAddChromeConfig(supportsTracking: false),
+    chrome: const LibraryAddChromeConfig(
+        supportsTracking: false, dialogTitle: 'Add Hardware'),
     search: LibraryAddSearchCapability(
         input: LibraryAddSearchInputCapability(
             initialAdvancedFilters: gameHardwareInitialSearchFilters,

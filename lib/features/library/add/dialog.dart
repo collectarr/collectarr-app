@@ -1322,7 +1322,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       insetPadding: const EdgeInsets.symmetric(
           horizontal: kAppEditorTopInset, vertical: kAppEditorTopInset),
       header: AccentDialogHeader(
-        title: 'Add ${widget.type.identity.pluralLabel} By:',
+        title: libraryAddForKind(widget.type.kind).chrome.dialogTitle ??
+            'Add ${widget.type.identity.pluralLabel} By:',
         icon: widget.type.identity.icon,
         onClose: _closeDialog,
       ),
