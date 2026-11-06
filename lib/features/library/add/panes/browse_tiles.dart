@@ -5,10 +5,12 @@ import 'package:collectarr_app/features/library/add/controllers/browse_state.dar
 import 'package:collectarr_app/features/library/add/panes/search_pane.dart';
 import 'package:collectarr_app/features/library/add/shared.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
+import 'package:collectarr_app/features/pick_lists/list_value_images.dart';
 import 'package:collectarr_app/ui/app_dropdown_menu.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum _Ownership { all, inCollection, notInCollection }
 
@@ -102,6 +104,7 @@ class _LibraryAddBrowseTilesPaneState extends State<LibraryAddBrowseTilesPane> {
                 _GroupTile(
                   group: group,
                   owned: widget.ownedCounts[group.ownedKey] ?? 0,
+                  imageList: widget.tiles.imageList,
                   onTap: () => widget.onOpen(group),
                 ),
             ],
@@ -306,19 +309,31 @@ class _Message extends StatelessWidget {
 
 /// A named tile. The reference shows each line's logo here; those are its
 /// licensors' artwork, so the tile carries the name instead.
-class _GroupTile extends StatelessWidget {
+class _GroupTile extends ConsumerWidget {
   const _GroupTile(
-      {required this.group, required this.owned, required this.onTap});
+      {required this.group,
+      required this.owned,
+      required this.imageList,
+      required this.onTap});
 
   final LibraryAddBrowseGroup group;
   final int owned;
+  final String? imageList;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
+    final list = imageList;
+    final image = list == null
+        ? null
+        : ref
+            .watch(listValueImageProvider((list: list, value: group.title)))
+            .value;
+    // Logos are drawn for a white ground, as on the reference's tiles.
+    final textColor = image == null ? palette.textPrimary : Colors.black;
     return Material(
-      color: palette.panelRaised,
+      color: image == null ? palette.panelRaised : Colors.white,
       child: InkWell(
         key: ValueKey('library-add-browse-tile-${group.title}'),
         mouseCursor: WidgetStateMouseCursor.clickable,
@@ -328,13 +343,18 @@ class _GroupTile extends StatelessWidget {
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.all(12),
-                child: Text(group.title,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: palette.textPrimary,
-                        fontSize: 28,
-                        height: 1.1,
-                        fontWeight: FontWeight.w700)),
+                child: image != null
+                    ? Tooltip(
+                        message: group.title,
+                        child: ListValueImageView(image),
+                      )
+                    : Text(group.title,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: textColor,
+                            fontSize: 28,
+                            height: 1.1,
+                            fontWeight: FontWeight.w700)),
               ),
             ),
           ),
@@ -342,7 +362,7 @@ class _GroupTile extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 8),
             child: Text('$owned / ${group.countLabel}',
                 style: TextStyle(
-                    color: palette.textPrimary,
+                    color: textColor,
                     fontSize: 14,
                     fontWeight: FontWeight.w700)),
           ),

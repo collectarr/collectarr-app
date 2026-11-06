@@ -15,6 +15,9 @@ const _toyTypes = [
   'U.B. Funkeys',
 ];
 
+/// The list holding the logos the user loads for the toy lines.
+const gameToyTypeLogosList = 'toy_type';
+
 /// Core returns at most this many rows a page.
 const _pageSize = 100;
 
@@ -37,6 +40,7 @@ final gameToyAddTypes = LibraryAddBrowseCapability(
   ownedGroupKey: (entry) => _toyTypeKey(entry.catalogData['toy_type']),
   tiles: LibraryAddBrowseTiles(
     prompt: 'Choose your toy type',
+    imageList: gameToyTypeLogosList,
     sectionLabel: 'Series',
     sectionOf: (item) => item.kindCapability
         .mapTransport((transport) => transport.kindData['series_title'])

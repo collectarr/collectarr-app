@@ -19,6 +19,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Logos loaded from your own files in Settings > Customization > Toys replace the type names on the tiles of Add Toys.
 - Any item can have no title, as in CLZ, when adding it manually or importing it; only proposing it to Core asks for one.
 - Value filter chips name their field, such as Platform: PC, and accumulate: values of one field widen the results, values of different fields narrow them, and each chip clears on its own.
 - Games offer 222 platforms under their short names (Wii, PSP, SNES, Genesis / Mega Drive, Nintendo Switch 2) in Pick Platform and the editor; existing games move to the new names when the app updates.

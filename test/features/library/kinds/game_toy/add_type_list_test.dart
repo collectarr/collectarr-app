@@ -7,6 +7,7 @@ void main() {
     expect(browse?.label, 'List');
     expect(browse?.tiles?.prompt, 'Choose your toy type');
     expect(browse?.tiles?.sectionLabel, 'Series');
+    expect(browse?.tiles?.imageList, 'toy_type');
   });
 
   test('Add Manually follows the reference for toys', () {

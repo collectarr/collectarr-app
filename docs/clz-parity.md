@@ -101,7 +101,9 @@ Keep these when matching the reference visually.
 - Hardware/Toys must not be inferred from collection names: a renamed
   collection retains its concrete type, and moves must preserve that type.
 - Add Toys' type tiles carry the type's name, as CLZ's logos are its licensors'
-  artwork; its toys show no price, as Collectarr does not fetch them. Add Manually
+  artwork and Collectarr ships none; logos the user loads from their own files
+  in Settings > Customization > Toys > Toy type logos replace the name. Its toys
+  show no price, as Collectarr does not fetch them. Add Manually
   keeps Propose to Core beside Cancel and Add, as the editor does.
 - Platform category glyphs, the app identity, kind icons in headers, Flow
   Carousel and the extra search/tools controls are deliberate additions.

@@ -168,7 +168,11 @@ class LibraryAddBrowseTiles {
     required this.prompt,
     required this.sectionLabel,
     required this.sectionOf,
+    this.imageList,
   });
+
+  /// The list whose images, loaded by the user, stand in for the tiles' names.
+  final String? imageList;
 
   /// The heading over the tiles, as "Choose your toy type".
   final String prompt;
