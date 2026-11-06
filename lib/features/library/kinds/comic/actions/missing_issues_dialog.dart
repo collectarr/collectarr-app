@@ -32,6 +32,9 @@ const _seriesWidth = 460.0;
 const _countWidth = 68.0;
 const _rowHeight = 30.0;
 
+/// Below this the table's fixed columns no longer fit, so each series stacks.
+const _tableMinWidth = _seriesWidth + 2 * _countWidth + 240;
+
 // The reference's table: #262626 body ruled #383838 under a #464950 heading,
 // below a #131313 filter bar.
 Color _bodyColor(AppThemePalette palette) =>
@@ -133,27 +136,36 @@ class _MissingComicsDialogState extends State<_MissingComicsDialog> {
       ),
       body: ColoredBox(
         color: _bodyColor(palette),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _HeadingRow(
-              seriesAscending: _seriesAscending,
-              onSortSeries: () =>
-                  setState(() => _seriesAscending = !_seriesAscending),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: reports.length,
-                itemBuilder: (context, index) => _SeriesRow(
-                  report: reports[index],
-                  issues: missingComicIssuesText(reports[index], _options),
-                  onHide: () =>
-                      setState(() => _hidden.add(reports[index].seriesKey)),
+        child: LayoutBuilder(builder: (context, constraints) {
+          final compact = constraints.maxWidth < _tableMinWidth;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (!compact)
+                _HeadingRow(
+                  seriesAscending: _seriesAscending,
+                  onSortSeries: () =>
+                      setState(() => _seriesAscending = !_seriesAscending),
+                ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: reports.length,
+                  itemBuilder: (context, index) {
+                    final report = reports[index];
+                    final issues = missingComicIssuesText(report, _options);
+                    void hide() =>
+                        setState(() => _hidden.add(report.seriesKey));
+                    return compact
+                        ? _CompactSeriesRow(
+                            report: report, issues: issues, onHide: hide)
+                        : _SeriesRow(
+                            report: report, issues: issues, onHide: hide);
+                  },
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          );
+        }),
       ),
       footer: DialogActionFooter(actions: [
         DialogActionButton(
@@ -444,6 +456,63 @@ class _SeriesRow extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// A series on a phone, as in the reference: the title, what is owned and the
+/// missing issues stacked in one row.
+class _CompactSeriesRow extends StatelessWidget {
+  const _CompactSeriesRow({
+    required this.report,
+    required this.issues,
+    required this.onHide,
+  });
+
+  final MissingComicSeriesReport report;
+  final String issues;
+  final VoidCallback onHide;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final owned = report.entryIssueCount;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: _ruleColor(palette))),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Expanded(
+              child: Text(report.seriesTitle,
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: palette.textPrimary)),
+            ),
+            AppClickTarget(
+              key: ValueKey('missing-comics-hide-${report.seriesKey}'),
+              onClick: onHide,
+              builder: (context, _) => Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Text('Hide',
+                    style: TextStyle(color: palette.utilityAction)),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 2),
+          Text('have: $owned ${owned == 1 ? 'comic' : 'comics'}',
+              style: TextStyle(fontSize: 13, color: palette.textMuted)),
+          if (issues.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(issues,
+                style: TextStyle(fontSize: 14, color: palette.textPrimary)),
+          ],
+        ],
       ),
     );
   }
