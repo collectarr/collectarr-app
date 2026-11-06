@@ -95,6 +95,7 @@
 - Dropdown lists such as Audience Rating show their options in white, as in CLZ.
 - The circles of single-choice Select panels are white, as in CLZ, selected or not.
 - Link and trailer buttons read New Link and New Trailer, as in CLZ, and look like Add Disc.
+- The arrow of Collection Status and similar fields highlights on hover, as in CLZ.
 - CLZ XML imports keep barcodes and the Hardware category.
 - The alphabet bar updates the folder panel and its counts and the item count, as in CLZ, stays on when a folder is picked, and moves the selection to the first remaining item when the selected one is filtered out.
 - Clicking a value in the details panel, such as a Games platform, developer or publisher, now filters by it instead of showing nothing.

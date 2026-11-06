@@ -39,6 +39,7 @@ class LibraryMenuSelectField<T> extends StatefulWidget {
 
 class _LibraryMenuSelectFieldState<T> extends State<LibraryMenuSelectField<T>> {
   bool _open = false;
+  bool _caretHovered = false;
 
   void _setOpen(bool open) => setState(() => _open = open);
 
@@ -53,6 +54,8 @@ class _LibraryMenuSelectFieldState<T> extends State<LibraryMenuSelectField<T>> {
     // While its menu is open the field reads as focused, like the reference:
     // a blue frame, with the caret button flat and set off by a blue rule.
     final highlighted = _open && background == null;
+    final fieldFill =
+        Theme.of(context).inputDecorationTheme.fillColor ?? palette.surface;
     final control = LayoutBuilder(
       builder: (context, constraints) => PopupMenuButton<T>(
         popUpAnimationStyle: AnimationStyle.noAnimation,
@@ -116,12 +119,7 @@ class _LibraryMenuSelectFieldState<T> extends State<LibraryMenuSelectField<T>> {
                     borderRadius: BorderRadius.circular(4),
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: background != null
-                            ? null
-                            : Theme.of(context)
-                                    .inputDecorationTheme
-                                    .fillColor ??
-                                palette.surface,
+                        color: background != null ? null : fieldFill,
                         gradient: background,
                         border: Border.all(
                             color: background != null
@@ -137,25 +135,34 @@ class _LibraryMenuSelectFieldState<T> extends State<LibraryMenuSelectField<T>> {
                           padding: const EdgeInsets.symmetric(horizontal: 7),
                           child: display,
                         )),
-                        DecoratedBox(
-                            decoration: BoxDecoration(
-                                color: background != null || highlighted
-                                    ? Colors.transparent
-                                    : palette.divider,
-                                border: highlighted
-                                    ? Border(
-                                        left: BorderSide(
-                                            color: palette.utilityAction))
-                                    : null),
-                            child: SizedBox(
-                                width: 34,
-                                height: 34,
-                                child: Center(
-                                    child: Icon(AppIcons.caretDown,
-                                        size: 12,
-                                        color: background != null
-                                            ? _onSlab
-                                            : palette.textMuted)))),
+                        // Hovered, the caret button sinks to the field's fill,
+                        // as in the reference.
+                        MouseRegion(
+                            onEnter: (_) =>
+                                setState(() => _caretHovered = true),
+                            onExit: (_) =>
+                                setState(() => _caretHovered = false),
+                            child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                    color: background != null || highlighted
+                                        ? Colors.transparent
+                                        : _caretHovered
+                                            ? fieldFill
+                                            : palette.divider,
+                                    border: highlighted
+                                        ? Border(
+                                            left: BorderSide(
+                                                color: palette.utilityAction))
+                                        : null),
+                                child: SizedBox(
+                                    width: 34,
+                                    height: 34,
+                                    child: Center(
+                                        child: Icon(AppIcons.caretDown,
+                                            size: 12,
+                                            color: background != null
+                                                ? _onSlab
+                                                : palette.textMuted))))),
                       ]),
                     ),
                   ),
