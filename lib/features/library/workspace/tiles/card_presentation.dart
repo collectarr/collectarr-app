@@ -153,6 +153,7 @@ class LibraryCardPill {
     this.lead,
     this.leadIcon,
     this.leadBackground,
+    this.leadLetters,
     this.value,
     this.valueIcon,
   });
@@ -162,6 +163,10 @@ class LibraryCardPill {
 
   /// Fills the lead segment, whose text then turns dark.
   final Gradient? leadBackground;
+
+  /// What the lead reads as when letters are preferred, such as a raw grade's
+  /// NM for 9.4.
+  final String? leadLetters;
   final String? value;
   final IconData? valueIcon;
 }

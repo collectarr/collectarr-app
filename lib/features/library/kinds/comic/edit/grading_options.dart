@@ -51,6 +51,35 @@ String? comicGradeCode(String? grade) => switch (grade?.trim()) {
       _ => null,
     };
 
+/// The standard letters of a numeric grade code: "NM" for "9.4".
+String? comicGradeLetters(String? code) => const {
+      '10.0': 'GM',
+      '9.9': 'M',
+      '9.8': 'NM/M',
+      '9.6': 'NM+',
+      '9.4': 'NM',
+      '9.2': 'NM-',
+      '9.0': 'VF/NM',
+      '8.5': 'VF+',
+      '8.0': 'VF',
+      '7.5': 'VF-',
+      '7.0': 'FN/VF',
+      '6.5': 'FN+',
+      '6.0': 'FN',
+      '5.5': 'FN-',
+      '5.0': 'VG/FN',
+      '4.5': 'VG+',
+      '4.0': 'VG',
+      '3.5': 'VG-',
+      '3.0': 'GD/VG',
+      '2.5': 'GD+',
+      '2.0': 'GD',
+      '1.8': 'GD-',
+      '1.5': 'FR/GD',
+      '1.0': 'FR',
+      '0.5': 'PR',
+    }[code];
+
 /// The reference's page qualities, whitest first.
 final List<LibraryFixedSelectOption> comicPageQualityOptions = [
   for (final quality in const [

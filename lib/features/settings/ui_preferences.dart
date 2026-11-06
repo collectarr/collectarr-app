@@ -25,6 +25,7 @@ class UiPreferences {
   const UiPreferences({
     this.animationsEnabled = true,
     this.forcePhoneLayout = false,
+    this.showCardPillLetters = false,
     this.latestFolderImages = false,
     this.disableLibrarySwitchAnimation = false,
     this.disableLibraryCoverPrewarm = false,
@@ -63,6 +64,9 @@ class UiPreferences {
 
   /// Keeps a tablet on the phone's single pane, as in the reference.
   final bool forcePhoneLayout;
+
+  /// Card pills show a raw grade's letters, such as NM, instead of 9.4.
+  final bool showCardPillLetters;
 
   /// A folder's image comes from its latest item instead of its earliest.
   final bool latestFolderImages;
@@ -123,6 +127,7 @@ class UiPreferences {
   UiPreferences copyWith({
     bool? animationsEnabled,
     bool? forcePhoneLayout,
+    bool? showCardPillLetters,
     bool? latestFolderImages,
     bool? disableLibrarySwitchAnimation,
     bool? disableLibraryCoverPrewarm,
@@ -159,6 +164,7 @@ class UiPreferences {
     return UiPreferences(
       animationsEnabled: animationsEnabled ?? this.animationsEnabled,
       forcePhoneLayout: forcePhoneLayout ?? this.forcePhoneLayout,
+      showCardPillLetters: showCardPillLetters ?? this.showCardPillLetters,
       latestFolderImages: latestFolderImages ?? this.latestFolderImages,
       disableLibrarySwitchAnimation:
           disableLibrarySwitchAnimation ?? this.disableLibrarySwitchAnimation,
@@ -213,6 +219,7 @@ class UiPreferencesStore {
   static const _prefix = 'collectarr.ui';
   static const animationsEnabledKey = '$_prefix.animations_enabled';
   static const forcePhoneLayoutKey = '$_prefix.force_phone_layout';
+  static const showCardPillLettersKey = '$_prefix.show_card_pill_letters';
   static const latestFolderImagesKey = '$_prefix.latest_folder_images';
   static const disableLibrarySwitchAnimationKey =
       '$_prefix.disable_library_switch_animation';
@@ -273,6 +280,7 @@ class UiPreferencesStore {
     return UiPreferences(
       animationsEnabled: prefs.getBool(animationsEnabledKey) ?? true,
       forcePhoneLayout: prefs.getBool(forcePhoneLayoutKey) ?? false,
+      showCardPillLetters: prefs.getBool(showCardPillLettersKey) ?? false,
       latestFolderImages: prefs.getBool(latestFolderImagesKey) ?? false,
       disableLibrarySwitchAnimation:
           prefs.getBool(disableLibrarySwitchAnimationKey) ?? false,
@@ -344,6 +352,7 @@ class UiPreferencesStore {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(animationsEnabledKey, preferences.animationsEnabled);
     await prefs.setBool(forcePhoneLayoutKey, preferences.forcePhoneLayout);
+    await prefs.setBool(showCardPillLettersKey, preferences.showCardPillLetters);
     await prefs.setBool(latestFolderImagesKey, preferences.latestFolderImages);
     await prefs.setBool(
       disableLibrarySwitchAnimationKey,
@@ -422,6 +431,9 @@ class UiPreferencesController extends Notifier<UiPreferences> {
 
   Future<void> setAnimationsEnabled(bool enabled) =>
       _update((s) => s.copyWith(animationsEnabled: enabled));
+
+  Future<void> setShowCardPillLetters(bool enabled) =>
+      _update((s) => s.copyWith(showCardPillLetters: enabled));
 
   Future<void> setForcePhoneLayout(bool enabled) =>
       _update((s) => s.copyWith(forcePhoneLayout: enabled));

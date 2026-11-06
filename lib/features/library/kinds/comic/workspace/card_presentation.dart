@@ -133,6 +133,7 @@ LibraryCardPill? comicGradeAndValuePill({
   if (code == null && valueCents == null) return null;
   return LibraryCardPill(
     lead: code ?? '–',
+    leadLetters: slabbed ? null : comicGradeLetters(code),
     leadIcon: slabbed ? Icons.crop_portrait : null,
     leadBackground:
         slabbed ? comicSlabLabelGradient(comicSlabLabel(labelType)) : null,

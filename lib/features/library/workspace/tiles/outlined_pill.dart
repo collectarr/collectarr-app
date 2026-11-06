@@ -1,4 +1,6 @@
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'card_presentation.dart';
 
 /// A [LibraryCardPill] outlined in [color]: the lead segment, on its own
@@ -11,6 +13,16 @@ class LibraryOutlinedPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final letters = pill.leadLetters;
+    if (letters == null) return _pill(pill.lead);
+    return Consumer(
+        builder: (context, ref, _) => _pill(ref.watch(uiPreferencesProvider
+                .select((value) => value.showCardPillLetters))
+            ? letters
+            : pill.lead));
+  }
+
+  Widget _pill(String? lead) {
     Widget segment(String text, IconData? icon, Color color) =>
         Row(mainAxisSize: MainAxisSize.min, children: [
           if (icon != null) ...[
@@ -27,7 +39,6 @@ class LibraryOutlinedPill extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                       height: 20 / 14))),
         ]);
-    final lead = pill.lead;
     final value = pill.value;
     final leadBackground = pill.leadBackground;
     return Container(
