@@ -92,6 +92,7 @@
 - Platforms without a logo, such as Game Boy, show an icon that fits its tile instead of being cut off on the right, and all platform icons are the same size.
 - Flow Carousel no longer offers an Item Spacing slider that had no effect.
 - Shelves and Flow Carousel show the same Edit button at the top right of a hovered item as the other views.
+- Dropdown lists such as Audience Rating show their options in white, as in CLZ.
 - CLZ XML imports keep barcodes and the Hardware category.
 - The alphabet bar updates the folder panel and its counts and the item count, as in CLZ, stays on when a folder is picked, and moves the selection to the first remaining item when the selected one is filtered out.
 - Clicking a value in the details panel, such as a Games platform, developer or publisher, now filters by it instead of showing nothing.

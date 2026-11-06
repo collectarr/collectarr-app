@@ -171,8 +171,10 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                   current: currentValue == option.toLowerCase(),
                   child: Text(option,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w400))),
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: appPalette(context).textPrimary))),
           ];
     setState(() => _menuOpen = true);
     final selected = await showMenu<String>(
