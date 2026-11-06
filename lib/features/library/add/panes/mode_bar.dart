@@ -1169,8 +1169,7 @@ class _SuggestionTile extends StatelessWidget {
         .whereType<String>()
         .map((value) => value.trim())
         .where((value) => value.isNotEmpty);
-    final subtitleText =
-        subtitle.isEmpty ? item.summary.kind.apiValue : subtitle.join(' / ');
+    final subtitleText = subtitle.join(' / ');
     return InkWell(
       mouseCursor: SystemMouseCursors.click,
       hoverColor:
