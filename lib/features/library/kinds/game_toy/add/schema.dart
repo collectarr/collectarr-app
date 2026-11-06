@@ -5,16 +5,13 @@ import 'manual_draft.dart';
 
 final gameToyAddSchema = gameToyManualSchema();
 LibraryFormSchema<GameToyAddManualDraft> gameToyManualSchema() =>
-    LibraryFormSchema(
-        validate: (draft) =>
-            draft.catalogTitle.trim().isEmpty ? 'Enter a title' : null,
-        sections: [
-          gameToyMainSection<GameToyAddManualDraft>(
-              titleFieldId: 'catalog_title',
-              fields: [
-                libraryAddCatalogTitleField<GameToyAddManualDraft>(),
-                for (final field in gameToyMainFields<GameToyAddManualDraft>(
-                    values: (draft) => draft.values))
-                  if (field.id != 'title') field
-              ])
-        ]);
+    LibraryFormSchema(sections: [
+      gameToyMainSection<GameToyAddManualDraft>(
+          titleFieldId: 'catalog_title',
+          fields: [
+            libraryAddCatalogTitleField<GameToyAddManualDraft>(),
+            for (final field in gameToyMainFields<GameToyAddManualDraft>(
+                values: (draft) => draft.values))
+              if (field.id != 'title') field
+          ])
+    ]);

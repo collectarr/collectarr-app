@@ -10,7 +10,7 @@ CatalogSearchCandidate? buildBookManualCandidate(
   LibraryKindAddDraft draft, {
   required String title,
 }) {
-  if (draft is! BookAddManualDraft || title.trim().isEmpty) return null;
+  if (draft is! BookAddManualDraft) return null;
   if (bookAddSchema.validate?.call(draft) != null) return null;
   final id = 'manual-book-${DateTime.now().microsecondsSinceEpoch}';
   final metadata = bookMetadataFromManualFormValues(

@@ -65,7 +65,7 @@ LibraryFormSchema<MusicAddManualDraft> musicAddSchemaFor({
         fullWidthFieldIds: const {'catalog_title'},
         fields: [
           libraryAddCatalogTitleField<MusicAddManualDraft>(
-              actions: musicTitleActions, required: false),
+              actions: musicTitleActions),
           for (final field in sharedFields)
             if (field.id != MusicFieldIdentities.titleId &&
                 field.id != 'cover_image_url' &&

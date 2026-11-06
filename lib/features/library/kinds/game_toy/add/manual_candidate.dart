@@ -7,7 +7,7 @@ import 'manual_draft.dart';
 
 CatalogSearchCandidate? buildGameToyManualCandidate(LibraryKindAddDraft draft,
     {required String title}) {
-  if (draft is! GameToyAddManualDraft || title.trim().isEmpty) return null;
+  if (draft is! GameToyAddManualDraft) return null;
   final metadata = draft.values.toMetadata(title: title, links: [
     for (final link in draft.externalLinks
         .where((link) => link.urlController.text.trim().isNotEmpty))

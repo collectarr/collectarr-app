@@ -12,7 +12,7 @@ CatalogSearchCandidate? buildGameManualCandidate(
   LibraryKindAddDraft draft, {
   required String title,
 }) {
-  if (draft is! GameAddManualDraft || title.trim().isEmpty) return null;
+  if (draft is! GameAddManualDraft) return null;
   if (gameAddSchema.validate?.call(draft) != null) return null;
   final id = 'manual-game-${DateTime.now().microsecondsSinceEpoch}';
   final metadata = gameMetadataFromManualFormValues(

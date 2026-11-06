@@ -8,18 +8,15 @@ final gameHardwareAddSchema = gameHardwareManualSchema();
 LibraryFormSchema<GameHardwareAddManualDraft> gameHardwareManualSchema(
         {Widget Function(BuildContext, GameHardwareAddManualDraft)?
             serialNumberBuilder}) =>
-    LibraryFormSchema(
-        validate: (draft) =>
-            draft.catalogTitle.trim().isEmpty ? 'Enter a title' : null,
-        sections: [
-          gameHardwareMainSection<GameHardwareAddManualDraft>(
-              titleFieldId: 'catalog_title',
-              fields: [
-                libraryAddCatalogTitleField<GameHardwareAddManualDraft>(),
-                for (final field
-                    in gameHardwareMainFields<GameHardwareAddManualDraft>(
-                        values: (draft) => draft.values,
-                        serialNumberBuilder: serialNumberBuilder))
-                  if (field.id != 'title') field
-              ])
-        ]);
+    LibraryFormSchema(sections: [
+      gameHardwareMainSection<GameHardwareAddManualDraft>(
+          titleFieldId: 'catalog_title',
+          fields: [
+            libraryAddCatalogTitleField<GameHardwareAddManualDraft>(),
+            for (final field
+                in gameHardwareMainFields<GameHardwareAddManualDraft>(
+                    values: (draft) => draft.values,
+                    serialNumberBuilder: serialNumberBuilder))
+              if (field.id != 'title') field
+          ])
+    ]);

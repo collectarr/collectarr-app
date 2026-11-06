@@ -11,6 +11,14 @@ Future<JsonMap> createLibraryMetadataProposal({
   return api.createCatalogItemProposal(kind: kind, catalogItem: catalogItem);
 }
 
+/// Why an item without a title cannot be proposed to Core.
+final class LibraryProposalNeedsTitle implements Exception {
+  const LibraryProposalNeedsTitle();
+
+  @override
+  String toString() => 'Core needs a title. Enter one to propose this item.';
+}
+
 Future<JsonMap> createAndRecordLibraryMetadataProposal({
   MetadataProposalStore store = const MetadataProposalStore(),
   required ApiClient api,
@@ -18,6 +26,10 @@ Future<JsonMap> createAndRecordLibraryMetadataProposal({
   required JsonMap catalogItem,
   required String source,
 }) async {
+  // Core refuses an item without a title; the library itself needs none.
+  if ((catalogItem['title'] as String?)?.trim().isEmpty ?? true) {
+    throw const LibraryProposalNeedsTitle();
+  }
   final response = await createLibraryMetadataProposal(
     api: api,
     kind: kind,

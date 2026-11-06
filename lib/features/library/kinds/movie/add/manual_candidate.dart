@@ -9,7 +9,7 @@ CatalogSearchCandidate? buildMovieManualCandidate(
   LibraryKindAddDraft draft, {
   required String title,
 }) {
-  if (draft is! MovieAddManualDraft || title.trim().isEmpty) return null;
+  if (draft is! MovieAddManualDraft) return null;
   if (movieAddSchema.validate?.call(draft) != null) return null;
 
   final id = 'manual-movie-${DateTime.now().microsecondsSinceEpoch}';

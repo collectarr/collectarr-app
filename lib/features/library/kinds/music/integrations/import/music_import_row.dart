@@ -19,10 +19,6 @@ CollectionImportRow musicImportRow({
   required MusicAlbum album,
   MusicPersonalData personal = const MusicPersonalData(),
 }) {
-  if (album.title.trim().isEmpty) {
-    throw const LibraryImportFormatException(
-        'An album has no title. Export the Title field and try again.');
-  }
   final catalog = Map<String, dynamic>.from(album.toJson())
     ..remove('id')
     ..remove('kind');

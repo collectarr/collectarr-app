@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
-import 'package:collectarr_app/features/imports/framework/library_guided_importer.dart';
 import 'package:collectarr_app/features/library/entries/record.dart';
 import 'package:uuid/uuid.dart';
 
@@ -33,10 +32,6 @@ CollectionImportRow clzImportRow(
     DateTime? updatedAt,
     CollectionImportLoan? loan,
     Map<String, String?> customFieldValues = const {}}) {
-  if (title.trim().isEmpty) {
-    throw const LibraryImportFormatException(
-        'An exported item has no title. Include the Title field and export again.');
-  }
   final record = LibraryEntryRecord(
       id: id,
       kind: kind,

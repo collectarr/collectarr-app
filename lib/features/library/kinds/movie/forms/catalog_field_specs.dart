@@ -76,8 +76,6 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         label: MovieFieldIdentities.titleLabel,
         value: (draft) => values(draft).title,
         setValue: (draft, value) => values(draft).title = value,
-        validator: (draft) =>
-            values(draft).title.trim().isEmpty ? 'Enter a title' : null,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'display_title',

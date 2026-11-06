@@ -11,7 +11,7 @@ CatalogSearchCandidate? buildBoardgameManualCandidate(
   LibraryKindAddDraft draft, {
   required String title,
 }) {
-  if (draft is! BoardgameAddManualDraft || title.trim().isEmpty) return null;
+  if (draft is! BoardgameAddManualDraft) return null;
   if (boardGameAddSchema.validate?.call(draft) != null) return null;
   final id = 'manual-boardgame-${DateTime.now().microsecondsSinceEpoch}';
   final BoardGameMetadata metadata = boardGameMetadataFromManualFormValues(
