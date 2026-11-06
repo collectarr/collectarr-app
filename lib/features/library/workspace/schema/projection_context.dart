@@ -8,7 +8,11 @@ final class LibrarySortingOptions {
     this.useSortTitles = true,
     this.useSortNames = true,
     this.pickListSortNames = const {},
+    this.latestFolderImages = false,
   });
+
+  /// A folder's image comes from its highest-numbered item, not its lowest.
+  final bool latestFolderImages;
 
   /// Order titles by their sort title ("Wall, The") rather than as written.
   final bool useSortTitles;
@@ -25,10 +29,12 @@ final class LibrarySortingOptions {
       other is LibrarySortingOptions &&
       other.useSortTitles == useSortTitles &&
       other.useSortNames == useSortNames &&
+      other.latestFolderImages == latestFolderImages &&
       _nestedMapEquals(other.pickListSortNames, pickListSortNames);
 
   @override
   int get hashCode => Object.hash(
+        latestFolderImages,
         useSortTitles,
         useSortNames,
         Object.hashAllUnordered([

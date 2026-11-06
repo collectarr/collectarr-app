@@ -126,7 +126,10 @@ class LibraryGroupingEngine {
             (imageUrl != null && current.url == null) ||
             ((imageUrl != null) == (current.url != null) &&
                 number != null &&
-                (current.number == null || number < current.number!))) {
+                (current.number == null ||
+                    (sorting.latestFolderImages
+                        ? number > current.number!
+                        : number < current.number!)))) {
           covers[bucket] = (
             url: imageUrl,
             entry: item.source.libraryEntryRef,

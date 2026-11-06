@@ -201,6 +201,7 @@ final libraryProjectionProvider = Provider.autoDispose
       LibrarySortingOptions(
           useSortTitles: !p.ignoreSortTitles,
           useSortNames: !p.ignoreSortNames,
+          latestFolderImages: p.latestFolderImages,
           pickListSortNames: pickListSortNames)));
   return LibraryProjection.fromShelf(
     sorting: sorting,

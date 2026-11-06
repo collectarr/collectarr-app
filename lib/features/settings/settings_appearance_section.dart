@@ -146,6 +146,10 @@ class _SettingsAppearanceSectionState
               label: 'Show pencil icons (for editing)',
               value: preferences.showEditIcons,
               onChanged: controller.setShowEditIcons),
+          SettingsCheck(
+              label: 'Use the latest item for folder images',
+              value: preferences.latestFolderImages,
+              onChanged: controller.setLatestFolderImages),
           if (appPresentationPlatform.isNativeMobile) ...[
             const SizedBox(height: 10),
             const SettingsLegend('Tablet'),

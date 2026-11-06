@@ -21,6 +21,7 @@
 - On phones the library offers CLZ's List, Cards and Images, with the cover size slider on the Images page and the alphabet filter in the single toolbar row, opens on the whole collection the first time and then wherever you left it.
 - Tablets show folders, items and details side by side, and Force Phone Layout keeps them on a single panel.
 - Comics statistics have a tab per collection with totals, series, key, publisher, purchase price, grade, year, creator and character charts, and the most recent and most valuable comics.
+- Folders on phones show the cover of their earliest item, or their latest with a new setting.
 - Comics Pre-fill sets Raw / Slabbed, Grade, Grading Company and Label Type, and can fill Purchase Price with each comic's cover price less a discount.
 - Add Games' Platform tab lists each game of a platform once as soon as it opens, loads more while you scroll, shows the total, filters as you type, narrows to games in or not in your collection and remembers the platform.
 - Game details show a trailer's thumbnail with a play mark, and the Personal table lists purchase, condition, quantity, owner, tags and notes.

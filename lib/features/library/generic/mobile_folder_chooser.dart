@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/layout/bucket_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/schema/group_values.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/workspace/config/tokens.dart';
@@ -22,6 +23,30 @@ class LibraryMobileFolderChooser extends StatefulWidget {
   @override
   State<LibraryMobileFolderChooser> createState() =>
       _LibraryMobileFolderChooserState();
+}
+
+/// The folder's item cover, as in the reference, or a folder icon without one.
+class _FolderImage extends StatelessWidget {
+  const _FolderImage({required this.bucket});
+
+  final LibraryBucket bucket;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+      width: 34,
+      height: 50,
+      child: bucket.coverUrl == null && bucket.coverEntryRef == null
+          ? const Icon(Icons.folder_outlined)
+          : LibraryCoverImage(
+              title: bucket.title,
+              imageUrl: bucket.coverUrl,
+              libraryEntryRef: bucket.coverEntryRef,
+              targetCacheWidth: 68,
+              fallbackAspectRatio: 34 / 50,
+              fit: BoxFit.cover,
+              borderRadius: 0,
+              showPlaceholder: false,
+            ));
 }
 
 class _LibraryMobileFolderChooserState
@@ -82,7 +107,7 @@ class _LibraryMobileFolderChooserState
                 final bucket = buckets[index];
                 return ListTile(
                   key: Key('library.mobile-folder-${bucket.title}'),
-                  leading: const Icon(Icons.folder_outlined),
+                  leading: _FolderImage(bucket: bucket),
                   title: Text(bucket.title),
                   trailing: CircleAvatar(
                     radius: 12,
