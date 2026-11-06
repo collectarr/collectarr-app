@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_issue_label.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/projections.dart';
@@ -19,7 +20,14 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
   String get title => common.title;
   String? get coverImageUrl => common.coverImageUrl;
   @override
-  String get primaryLabel => title;
+  String get primaryLabel => title.trim().isNotEmpty
+      ? title
+      : comicHeadline(
+              series: comic.seriesTitle,
+              issueNumber: comic.issueNumber,
+              variant: comic.variant,
+              title: title) ??
+          title;
   @override
   String? get imageUrl => coverImageUrl;
   @override

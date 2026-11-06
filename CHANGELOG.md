@@ -78,6 +78,7 @@
 
 ### Fixes
 - Missing Comics no longer overflows on phones.
+- Comics without their own title show their series and issue in dialogs instead of an empty name.
 - Add Games asks Core for the chosen platform, so results are no longer cut short by filtering after each page.
 - Add dialogs use CLZ's translucent panels and search row color, and the Add Games region segments stay dimmed until a game is chosen.
 - The extra Search eBay button at the end of the details is off by default, as in CLZ; it can be turned on in Settings.
