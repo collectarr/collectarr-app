@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/remove_icon_button.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -30,15 +31,11 @@ class LibraryValueChip extends StatelessWidget {
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                   height: 20 / 14))))),
-              SizedBox(
+              LibraryRemoveIconButton(
+                  tooltip: 'Remove $label',
                   width: 24,
-                  height: 26,
-                  child: IconButton(
-                      tooltip: 'Remove $label',
-                      padding: EdgeInsets.zero,
-                      onPressed: onDeleted,
-                      icon: Icon(Icons.close,
-                          size: 14, color: palette.textMuted))),
+                  height: height,
+                  onPressed: onDeleted),
             ])));
   }
 }

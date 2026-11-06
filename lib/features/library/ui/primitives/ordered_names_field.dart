@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/features/library/ui/primitives/remove_icon_button.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/metrics.dart';
@@ -124,11 +125,9 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
         SizedBox(
             width: 30,
             height: rowHeight,
-            child: IconButton(
+            child: LibraryRemoveIconButton(
                 tooltip: 'Remove ${widget.label}',
-                padding: EdgeInsets.zero,
-                color: palette.textMuted.withValues(alpha: .7),
-                icon: const Icon(Icons.close, size: 16),
+                height: rowHeight,
                 onPressed: () => _remove(value.id))),
         if (widget.rowTrailingBuilder != null)
           widget.rowTrailingBuilder!(value),
@@ -159,7 +158,7 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
               padding: EdgeInsets.zero,
               onPressed: _picking ? null : _add,
               color: appPalette(context).textPrimary.withValues(alpha: .7),
-              icon: const Icon(Icons.add, size: 16),
+              icon: const Icon(AppIcons.add, size: 14),
             )),
         child: widget.values.isEmpty
             ? SizedBox(
@@ -258,10 +257,8 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
                                 _update(value.id, value.name, result);
                               }
                             }),
-                        IconButton(
+                        LibraryRemoveIconButton(
                             tooltip: 'Remove ${widget.label}',
-                            visualDensity: VisualDensity.compact,
-                            icon: const Icon(Icons.close, size: 17),
                             onPressed: () => _remove(value.id)),
                       ]));
                 },

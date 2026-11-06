@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/fields/layout_widgets.dart';
+import 'package:collectarr_app/features/library/ui/primitives/remove_icon_button.dart';
 import 'package:collectarr_app/features/library/edit/fields/value_fields.dart';
 import 'package:flutter/material.dart';
 
@@ -131,16 +132,13 @@ final class LibraryNamedDetailList extends StatelessWidget {
                                 ),
                                 if (rowActionsBuilder != null)
                                   rowActionsBuilder!(context, index, credit),
-                                IconButton(
-                                  tooltip: removeTooltip,
-                                  visualDensity: VisualDensity.compact,
-                                  onPressed: () {
-                                    onRemove(index);
-                                    setState(() {});
-                                    onChanged();
-                                  },
-                                  icon: const Icon(Icons.close, size: 18),
-                                ),
+                                LibraryRemoveIconButton(
+                                    tooltip: removeTooltip,
+                                    onPressed: () {
+                                      onRemove(index);
+                                      setState(() {});
+                                      onChanged();
+                                    }),
                               ],
                             ),
                             if (detailsBuilder != null) ...[
