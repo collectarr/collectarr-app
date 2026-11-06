@@ -561,12 +561,13 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                       selected: mode == LibraryAddDialogMode.browse,
                       onTap: () => onModeChanged(LibraryAddDialogMode.browse),
                     ),
-                  LibraryAddModeTab(
-                    icon: Icon(searchIcon),
-                    label: searchLabel,
-                    selected: mode == LibraryAddDialogMode.search,
-                    onTap: () => onModeChanged(LibraryAddDialogMode.search),
-                  ),
+                  if (browseTab?.tiles == null)
+                    LibraryAddModeTab(
+                      icon: Icon(searchIcon),
+                      label: searchLabel,
+                      selected: mode == LibraryAddDialogMode.search,
+                      onTap: () => onModeChanged(LibraryAddDialogMode.search),
+                    ),
                   LibraryAddModeTab(
                     icon: SvgPicture.asset(
                       AppIcons.barcodeScanSvg,

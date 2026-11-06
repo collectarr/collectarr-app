@@ -65,6 +65,7 @@ import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/features/library/add/panes/browse_tiles.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
@@ -140,6 +141,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   /// count they were read for.
   Set<String> _ownedGroupKeys = const {};
   Set<String> _ownedListingKeys = const {};
+  Map<String, int> _ownedGroupCounts = const {};
   String? _rememberedListingScope;
   bool _listingScopeLoaded = false;
   int? _ownedGroupsEntryCount;
@@ -202,6 +204,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       });
     }
     unawaited(_loadListingScope());
+    if (libraryAddForKind(widget.type.kind).search.browse?.tiles != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _controller.searchBrowseGroups('');
+      });
+    }
     _manualCustomFieldDefinitions =
         List<CustomFieldDefinition>.of(widget.customFieldDefinitions);
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
@@ -868,10 +875,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final scope = filter != null && filter.hasValue ? filter.displayValue : '';
     if (scope == _rememberedListingScope) return;
     _rememberedListingScope = scope;
-    unawaited(SharedPreferences.getInstance().then((preferences) =>
-        scope == null
-            ? preferences.remove(_listingScopeKey)
-            : preferences.setString(_listingScopeKey, scope)));
+    unawaited(SharedPreferences.getInstance()
+        .then((preferences) => preferences.setString(_listingScopeKey, scope)));
   }
 
   void _filterListing(String text) {
@@ -1125,7 +1130,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             onListingFilterChanged: _filterListing,
             searchRowWidth: isMobilePhone
                 ? null
-                : browseMode
+                : browseMode && browse?.tiles == null
                     ? LibraryAddBrowseGroupList.width
                     : grouping == null
                         ? null
@@ -1140,11 +1145,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             group: selectedGroup, grouping: grouping),
           ),
         ),
-      ],
-    );
-    final body = _besideBrowseGroups(
-      browseMode
-          ? LibraryAddBrowseGroupList(
         if (state.mode == LibraryAddDialogMode.search &&
             addCapability.search.presentation.belowQueryBuilder != null)
           Container(
@@ -1155,107 +1155,133 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             child: addCapability.search.presentation.belowQueryBuilder!(
                 context, modeBarRequest),
           ),
-              capability: browse!,
-              state: state.browse,
-              onOpen: (group) {
-                if (isMobilePhone) {
-                  FocusScope.of(context).unfocus();
-                }
-                _controller.openBrowseGroup(group);
-              },
-              ownedKeys: _ownedGroupKeys,
-              onAddManually: state.browse.searched
-                  ? () => _openManualDialog(accent, addCapability)
-                  : null,
-            )
-          : null,
-      browseMode && openedGroup == null
-          ? ColoredBox(color: libraryAddSearchBackground(context))
-          : LibraryAddSearchPane(
-              type: widget.type,
-              isBusy: state.search.isBusy || state.browse.isLoadingItems,
-              isLoadingMoreResults: state.search.isLoadingMoreResults,
-              hasMoreResults: state.search.hasMoreResults,
-              loadMoreError: state.search.loadMoreError,
-              onLoadMoreResults: _controller.loadMoreResults,
-              error: browseMode ? state.browse.error : state.search.error,
-              accent: accent,
-              selectionColor: (state.target == LibraryAddTarget.wishlist
-                      ? LibraryCollectionStatusScope.wishList
-                      : state.target == LibraryAddTarget.track
-                          ? LibraryCollectionStatusScope.notInCollection
-                          : libraryCollectionStatusFromValue(
-                              state.commonDraft.collectionStatus))
-                  .color,
-              results: visibleCore,
-              isListing: listing != null,
-              listingSearch: state.search.coreSearchGeneration,
-              listingLoadsOnScroll:
-                  _listingOwnership != LibraryAddOwnership.inCollection,
-              totalResults: _listingOwnership == LibraryAddOwnership.all
-                  ? state.search.totalResults
-                  : null,
-              selectedResultId: state.selection.selectedResultId,
-              checkedResultIds: state.selection.checkedResultIds,
-              entryCatalogRefs: listing == null
-                  ? entryByCatalogRef.keys.toSet()
-                  : {
-                      for (final item in visibleCore)
-                        if (ownsListingRow(item)) item.reference,
-                    },
-              coreMatchSummary: (item) => addCapability.search.presentation
-                  .coreMatchSummary(item, searchContext),
-              resultPolicy: resultPolicy,
-              resultPolicyState: state.selection.resultPolicyState,
-              onResultPolicyOptionChanged: _controller.setResultPolicyOption,
-              onSelectResult: (id) {
-                if (isMobilePhone) {
-                  FocusScope.of(context).unfocus();
-                }
-                _controller.selectResult(id);
-              },
-              onToggleResultCheck: _controller.toggleCheckedResult,
-              searched: state.search.coreSearchGeneration > 0,
-              selectedGroupKey: _selectedGroupKey,
-              onSelectGroup: (key) => setState(() => _selectedGroupKey = key),
-              groupListWidth: _groupListWidth,
-              onGroupListResize: (width) => setState(() => _groupListWidth =
-                  width.clamp(LibraryAddResultGrouping.minListWidth, 720.0)),
-              showVariantFacet: state.mode == LibraryAddDialogMode.search,
-              coverBlocks: browseMode && browse?.coverBlock != null
-                  ? LibraryAddCoverBlockView(
-                      block: browse!.coverBlock!,
-                      layout: _blockLayout,
-                      onLayoutChanged: (layout) =>
-                          setState(() => _blockLayout = layout),
-                      descending: _blocksDescending,
-                      onDescendingChanged: (descending) =>
-                          setState(() => _blocksDescending = descending),
-                      onAddManually: () =>
-                          _openManualDialog(accent, addCapability),
-                    )
-                  : null,
-              headerTrailing: browseMode
-                  ? LibraryAddCheckAllToggle(
-                      count: visibleCore.length,
-                      partial: visibleCore.any((item) => state
-                          .selection.checkedResultIds
-                          .contains(item.reference.id)),
-                      checked: visibleCore.isNotEmpty &&
-                          visibleCore.every((item) => state
-                              .selection.checkedResultIds
-                              .contains(item.reference.id)),
-                      onChanged: (checked) => _controller.setAllResultsChecked(
-                          visibleCore.map((item) => item.reference.id),
-                          checked),
-                    )
-                  : kindControls,
-              onAddManually: browseMode
-                  ? null
-                  : () => _openManualDialog(accent, addCapability),
-            ),
-      isMobilePhone: isMobilePhone,
+      ],
     );
+    final tiles = browseMode ? browse?.tiles : null;
+    final body = tiles != null
+        ? LibraryAddBrowseTilesPane(
+            capability: browse!,
+            tiles: tiles,
+            state: state.browse,
+            results: state.search.results,
+            ownedCounts: _ownedGroupCounts,
+            ownedRefs: entryByCatalogRef.keys.toSet(),
+            checkedIds: state.selection.checkedResultIds,
+            accent: accent,
+            onOpen: _controller.openBrowseGroup,
+            onBack: _controller.closeBrowseGroup,
+            onToggle: _controller.toggleCheckedResult,
+          )
+        : _besideBrowseGroups(
+            browseMode
+                ? LibraryAddBrowseGroupList(
+                    capability: browse!,
+                    state: state.browse,
+                    onOpen: (group) {
+                      if (isMobilePhone) {
+                        FocusScope.of(context).unfocus();
+                      }
+                      _controller.openBrowseGroup(group);
+                    },
+                    ownedKeys: _ownedGroupKeys,
+                    onAddManually: state.browse.searched
+                        ? () => _openManualDialog(accent, addCapability)
+                        : null,
+                  )
+                : null,
+            browseMode && openedGroup == null
+                ? ColoredBox(color: libraryAddSearchBackground(context))
+                : LibraryAddSearchPane(
+                    type: widget.type,
+                    isBusy: state.search.isBusy || state.browse.isLoadingItems,
+                    isLoadingMoreResults: state.search.isLoadingMoreResults,
+                    hasMoreResults: state.search.hasMoreResults,
+                    loadMoreError: state.search.loadMoreError,
+                    onLoadMoreResults: _controller.loadMoreResults,
+                    error: browseMode ? state.browse.error : state.search.error,
+                    accent: accent,
+                    selectionColor: (state.target == LibraryAddTarget.wishlist
+                            ? LibraryCollectionStatusScope.wishList
+                            : state.target == LibraryAddTarget.track
+                                ? LibraryCollectionStatusScope.notInCollection
+                                : libraryCollectionStatusFromValue(
+                                    state.commonDraft.collectionStatus))
+                        .color,
+                    results: visibleCore,
+                    isListing: listing != null,
+                    listingSearch: state.search.coreSearchGeneration,
+                    listingLoadsOnScroll:
+                        _listingOwnership != LibraryAddOwnership.inCollection,
+                    totalResults: _listingOwnership == LibraryAddOwnership.all
+                        ? state.search.totalResults
+                        : null,
+                    selectedResultId: state.selection.selectedResultId,
+                    checkedResultIds: state.selection.checkedResultIds,
+                    entryCatalogRefs: listing == null
+                        ? entryByCatalogRef.keys.toSet()
+                        : {
+                            for (final item in visibleCore)
+                              if (ownsListingRow(item)) item.reference,
+                          },
+                    coreMatchSummary: (item) => addCapability
+                        .search.presentation
+                        .coreMatchSummary(item, searchContext),
+                    resultPolicy: resultPolicy,
+                    resultPolicyState: state.selection.resultPolicyState,
+                    onResultPolicyOptionChanged:
+                        _controller.setResultPolicyOption,
+                    onSelectResult: (id) {
+                      if (isMobilePhone) {
+                        FocusScope.of(context).unfocus();
+                      }
+                      _controller.selectResult(id);
+                    },
+                    onToggleResultCheck: _controller.toggleCheckedResult,
+                    searched: state.search.coreSearchGeneration > 0,
+                    selectedGroupKey: _selectedGroupKey,
+                    onSelectGroup: (key) =>
+                        setState(() => _selectedGroupKey = key),
+                    groupListWidth: _groupListWidth,
+                    onGroupListResize: (width) => setState(() =>
+                        _groupListWidth = width.clamp(
+                            LibraryAddResultGrouping.minListWidth, 720.0)),
+                    showVariantFacet: state.mode == LibraryAddDialogMode.search,
+                    coverBlocks: browseMode && browse?.coverBlock != null
+                        ? LibraryAddCoverBlockView(
+                            block: browse!.coverBlock!,
+                            layout: _blockLayout,
+                            onLayoutChanged: (layout) =>
+                                setState(() => _blockLayout = layout),
+                            descending: _blocksDescending,
+                            onDescendingChanged: (descending) =>
+                                setState(() => _blocksDescending = descending),
+                            onAddManually: () =>
+                                _openManualDialog(accent, addCapability),
+                          )
+                        : null,
+                    headerTrailing: browseMode
+                        ? LibraryAddCheckAllToggle(
+                            count: visibleCore.length,
+                            partial: visibleCore.any((item) => state
+                                .selection.checkedResultIds
+                                .contains(item.reference.id)),
+                            checked: visibleCore.isNotEmpty &&
+                                visibleCore.every((item) => state
+                                    .selection.checkedResultIds
+                                    .contains(item.reference.id)),
+                            onChanged: (checked) =>
+                                _controller.setAllResultsChecked(
+                                    visibleCore
+                                        .map((item) => item.reference.id),
+                                    checked),
+                          )
+                        : kindControls,
+                    onAddManually: browseMode
+                        ? null
+                        : () => _openManualDialog(accent, addCapability),
+                  ),
+            isMobilePhone: isMobilePhone,
+          );
     final overlay = selectedItem == null
         ? null
         : LibraryAddConfirmSheet(
@@ -1303,7 +1329,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         },
       );
     }
-    final defaultDialogWidth = listing != null
+    final defaultDialogWidth = listing != null || tiles != null
         ? LibraryAddListingTab.dialogWidth
         : browseMode
             ? LibraryAddDialogLayout.browseDialogWidth
@@ -1387,6 +1413,15 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           for (final entry in entries)
             if (keyOf(entry) case final key?) key,
       };
+      final counts = <String, int>{};
+      if (keyOf != null) {
+        for (final entry in entries) {
+          if (keyOf(entry) case final key?) {
+            counts[key] = (counts[key] ?? 0) + 1;
+          }
+        }
+      }
+      _ownedGroupCounts = counts;
       _ownedListingKeys = {
         if (listingKeyOf != null)
           for (final entry in entries)

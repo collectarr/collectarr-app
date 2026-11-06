@@ -1,5 +1,6 @@
 import '../game_toy_module_dependencies.dart';
 import 'preview.dart';
+import 'type_list.dart';
 
 final gameToyKindAdd = StandardLibraryAddCapability<GameToyAddDraft>(
     kind: CatalogMediaKind.gameToy,
@@ -17,6 +18,7 @@ final gameToyKindAdd = StandardLibraryAddCapability<GameToyAddDraft>(
         plainManualAdd: true,
         resultTickBoxes: false),
     search: LibraryAddSearchCapability(
+        browse: gameToyAddTypes,
         input: const LibraryAddSearchInputCapability(),
         core: LibraryAddCoreSearchCapability(
             ranking: buildLibraryAddSearchRanking(fields: const []),

@@ -131,6 +131,7 @@ class LibraryAddBrowseCapability {
     required this.loadItemRows,
     this.coverBlock,
     this.ownedGroupKey,
+    this.tiles,
   });
 
   /// Names the tab, the group list and its empty state, as "Series".
@@ -154,6 +155,27 @@ class LibraryAddBrowseCapability {
   /// The group a library entry belongs to, as a group's
   /// [LibraryAddBrowseGroup.ownedKey].
   final String? Function(LibraryEntryRecord entry)? ownedGroupKey;
+
+  /// Set, the tab lists every group as tiles instead of searching them, and
+  /// replaces the Title tab on desktop.
+  final LibraryAddBrowseTiles? tiles;
+}
+
+/// How a tab of group tiles names its page and sorts a group's items.
+@immutable
+class LibraryAddBrowseTiles {
+  const LibraryAddBrowseTiles({
+    required this.prompt,
+    required this.sectionLabel,
+    required this.sectionOf,
+  });
+
+  /// The heading over the tiles, as "Choose your toy type".
+  final String prompt;
+
+  /// What a group's sections are called, as "Series".
+  final String sectionLabel;
+  final String? Function(CatalogSearchCandidate item) sectionOf;
 }
 
 /// What the cover grid writes around one item's cover: a boxed badge with
@@ -285,6 +307,7 @@ class LibraryAddSearchPresentationCapability {
   const LibraryAddSearchPresentationCapability({
     this.controlsBuilder,
     this.queryTrailingBuilder,
+    this.belowQueryBuilder,
     this.coreMatchSummaryBuilder,
   });
 
@@ -296,6 +319,10 @@ class LibraryAddSearchPresentationCapability {
   /// picker that scopes the search.
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
       queryTrailingBuilder;
+
+  /// A row of kind filters under the title field, shown before any search.
+  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
+      belowQueryBuilder;
   final LibraryAddMatchSummaryBuilder<CatalogSearchCandidate>?
       coreMatchSummaryBuilder;
 
@@ -307,7 +334,6 @@ class LibraryAddSearchPresentationCapability {
     if (custom != null) return custom;
     final label = item.summary.primaryLabel.trim().toLowerCase();
     final query = context.query.trim().toLowerCase();
-    this.belowQueryBuilder,
     return label.isNotEmpty && query.isNotEmpty && label.contains(query)
         ? 'Title'
         : null;
@@ -319,10 +345,6 @@ abstract interface class LibraryAddCapability<
   CatalogMediaKind get kind;
 
   TDraft createInitialDraft();
-
-  /// A row of kind filters under the title field, shown before any search.
-  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
-      belowQueryBuilder;
   LibraryKindAddDraft createManualDraft();
 
   /// Kind-entry validation copy for a manual candidate that could not be

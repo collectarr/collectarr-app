@@ -20,7 +20,7 @@ mixin _LibraryAddBrowseFlow on ValueNotifier<LibraryAddSessionState> {
     final capability = _browseCapability;
     final text = query.trim();
     final generation = ++_browseGeneration;
-    if (text.isEmpty) {
+    if (text.isEmpty && capability?.tiles == null) {
       state = state.copyWith(
         browse: state.browse.copyWith(
           query: query,

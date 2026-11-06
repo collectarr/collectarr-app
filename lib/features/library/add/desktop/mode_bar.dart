@@ -171,77 +171,79 @@ extension _DesktopAddModeBar on _LibraryAddModeBarState {
               ? widget.onScanCover
               : null,
         ),
-        _besideSearchRow(ColoredBox(
-          color: libraryAddSearchRowBackground(context),
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.mode == LibraryAddDialogMode.code &&
-                    widget.listingScope != null)
-                  Row(children: [
-                    Expanded(flex: 3, child: widget.listingScope!),
-                    const SizedBox(width: 10),
-                    Expanded(flex: 2, child: widget.listingOwnership!),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      flex: 3,
-                      child: _LibraryAddModeTextField(
-                        fieldKey: const ValueKey('library-add-code-field'),
-                        controller: widget.codeQueryController!,
-                        label: widget.codeSearchTab!.label,
-                        hintText: widget.codeSearchTab!.hintText,
-                        onChanged: widget.onListingFilterChanged,
-                        onSubmitted: widget.onSearchCode,
-                      ),
-                    ),
-                  ])
-                else
-                  Row(
-                    children: [
-                      if (widget.mode == LibraryAddDialogMode.search &&
-                          showAdvancedToggle) ...[
-                        _AdvancedToggleButton(
-                          expanded: widget.showAdvanced,
-                          accent: widget.accent,
-                          onPressed: widget.onToggleAdvanced,
-                        ),
-                        const SizedBox(width: 5),
-                      ],
-                      Expanded(
-                          child: _buildInput(searchLabels.addSearchTabLabel,
-                              searchLabels.queryHint)),
+        if (widget.mode != LibraryAddDialogMode.browse ||
+            widget.browseTab?.tiles == null)
+          _besideSearchRow(ColoredBox(
+            color: libraryAddSearchRowBackground(context),
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.mode == LibraryAddDialogMode.code &&
+                      widget.listingScope != null)
+                    Row(children: [
+                      Expanded(flex: 3, child: widget.listingScope!),
                       const SizedBox(width: 10),
-                      _LibraryAddSearchButton(
-                        isBusy: widget.isSearching,
-                        onPressed: isBusy
-                            ? null
-                            : switch (widget.mode) {
-                                LibraryAddDialogMode.browse =>
-                                  widget.onSearchBrowse,
-                                LibraryAddDialogMode.search => _handleSearch,
-                                LibraryAddDialogMode.identifier =>
-                                  widget.onLookupIdentifier,
-                                LibraryAddDialogMode.code =>
-                                  widget.onSearchCode,
-                              },
+                      Expanded(flex: 2, child: widget.listingOwnership!),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 3,
+                        child: _LibraryAddModeTextField(
+                          fieldKey: const ValueKey('library-add-code-field'),
+                          controller: widget.codeQueryController!,
+                          label: widget.codeSearchTab!.label,
+                          hintText: widget.codeSearchTab!.hintText,
+                          onChanged: widget.onListingFilterChanged,
+                          onSubmitted: widget.onSearchCode,
+                        ),
                       ),
-                    ],
-                  ),
-                if (widget.mode == LibraryAddDialogMode.search &&
-                    widget.showAdvanced) ...[
-                  const SizedBox(height: 5),
-                  _AdvancedSearchFields(
-                    advancedFilterDescriptors: advancedFields,
-                    controllers: _advancedControllers,
-                    onSubmitted: _handleSearch,
-                  ),
+                    ])
+                  else
+                    Row(
+                      children: [
+                        if (widget.mode == LibraryAddDialogMode.search &&
+                            showAdvancedToggle) ...[
+                          _AdvancedToggleButton(
+                            expanded: widget.showAdvanced,
+                            accent: widget.accent,
+                            onPressed: widget.onToggleAdvanced,
+                          ),
+                          const SizedBox(width: 5),
+                        ],
+                        Expanded(
+                            child: _buildInput(searchLabels.addSearchTabLabel,
+                                searchLabels.queryHint)),
+                        const SizedBox(width: 10),
+                        _LibraryAddSearchButton(
+                          isBusy: widget.isSearching,
+                          onPressed: isBusy
+                              ? null
+                              : switch (widget.mode) {
+                                  LibraryAddDialogMode.browse =>
+                                    widget.onSearchBrowse,
+                                  LibraryAddDialogMode.search => _handleSearch,
+                                  LibraryAddDialogMode.identifier =>
+                                    widget.onLookupIdentifier,
+                                  LibraryAddDialogMode.code =>
+                                    widget.onSearchCode,
+                                },
+                        ),
+                      ],
+                    ),
+                  if (widget.mode == LibraryAddDialogMode.search &&
+                      widget.showAdvanced) ...[
+                    const SizedBox(height: 5),
+                    _AdvancedSearchFields(
+                      advancedFilterDescriptors: advancedFields,
+                      controllers: _advancedControllers,
+                      onSubmitted: _handleSearch,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        )),
+          )),
       ],
     );
   }
