@@ -19,6 +19,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- 23 more platforms show their own public-domain logo, such as Nintendo Switch, Wii, NES, Dreamcast, Game Boy Color and WonderSwan, without loading any files.
 - The library opens on the last one you used instead of always on Music.
 - The library switcher is a dropdown on the CLR title in the header, on every device, and replaces the separate button at the top right.
 - Logos loaded from your own files in Settings > Customization > Toys replace the type names on the tiles of Add Toys.

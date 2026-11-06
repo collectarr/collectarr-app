@@ -5,7 +5,7 @@
 //
 //   dart run tool/download_platform_logos.dart <output folder>
 //
-// Collectarr does not ship these logos. Each file is checked against its
+// These logos are too wide to ship as icons (see assets/LOGOS.md). Each file is checked against its
 // Commons licence before it is saved and skipped unless Commons marks it
 // public domain. The marks remain their owners' trademarks; use them only to
 // identify a platform. Microsoft's Windows and Xbox logos are not listed:
@@ -16,18 +16,13 @@ import 'dart:io';
 
 /// Platform, as Collectarr names it, and its Commons file.
 const _logos = [
-  ('Nintendo Switch', 'Nintendo Switch Logo.svg'),
-  ('Nintendo Switch 2', 'Nintendo Switch 2 logo.svg'),
   ('Wii U', 'WiiU.svg'),
-  ('Wii', 'Wii.svg'),
   ('Nintendo 3DS', 'Nintendo 3DS logo.svg'),
   ('Nintendo DS', 'Nintendo DS Logo.svg'),
   ('GameCube', 'Nintendo GameCube Official Logo.svg'),
-  ('NES', 'NES logo.svg'),
   ('SNES', 'SNES logo.svg'),
   ('Game Boy', 'Nintendo Game Boy Logo.svg'),
   ('Game Boy Advance', 'Game Boy Advance logo.svg'),
-  ('Dreamcast', 'Dreamcast logo.svg'),
   ('Saturn', 'Sega Saturn Black Logo.svg'),
   ('Genesis / Mega Drive', 'Sega genesis logo.svg'),
 ];

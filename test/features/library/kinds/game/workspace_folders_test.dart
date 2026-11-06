@@ -179,7 +179,7 @@ void main() {
         DateTime.utc(2026, 4, 5));
   });
 
-  test('platform icons use CC0 logos where they exist, else glyphs', () {
+  test('platform icons use free logos where they exist, else glyphs', () {
     String? asset(String platform) => platformLogoFor(platform)?.asset;
     final ps4 = platformLogoFor('PlayStation 4')!;
     expect(ps4.asset, 'assets/platform_logos/playstation.svg');
@@ -209,13 +209,19 @@ void main() {
     ]) {
       expect(File(asset(platform)!).existsSync(), isTrue, reason: platform);
     }
-    for (final platform in ['PC', 'Windows', 'Nintendo Switch', 'Xbox One']) {
+    final dreamcast = platformLogoFor('Dreamcast')!;
+    expect(dreamcast.asset, 'assets/platform_logos/dreamcast.svg');
+    expect(dreamcast.ownColors, isTrue);
+    expect(
+        asset('Nintendo Switch'), 'assets/platform_logos/nintendoswitch.svg');
+    expect(File(dreamcast.asset).existsSync(), isTrue);
+    for (final platform in ['PC', 'Windows', 'Game Boy', 'Xbox One']) {
       expect(platformLogoFor(platform), isNull, reason: platform);
     }
     expect(resolvePlatformIcon('PC'), Icons.desktop_windows);
     expect(resolvePlatformIcon('Windows'), Icons.desktop_windows);
     expect(resolvePlatformIcon('Mobile'), Icons.smartphone);
-    expect(resolvePlatformIcon('Nintendo Switch'), Icons.sports_esports);
+    expect(resolvePlatformIcon('Game Boy'), Icons.sports_esports);
   });
 
   test('Games sorts include the reference sort fields', () {

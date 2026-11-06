@@ -7,20 +7,60 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// for, shared by every kind that names a platform.
 const platformIconsList = 'platform';
 
-/// A platform's logo from `assets/platform_logos/` (CC0 Simple Icons, see
-/// NOTICE.md there), with the PlayStation generation drawn as a number.
-typedef PlatformLogo = ({String asset, String? generation, bool wordmark});
+/// A platform's logo from `assets/platform_logos/` (see `assets/LOGOS.md`),
+/// with the PlayStation generation drawn as a number. Drawings with
+/// [PlatformLogo.ownColors] are not tinted and sit on a white tile.
+typedef PlatformLogo = ({
+  String asset,
+  String? generation,
+  bool wordmark,
+  bool ownColors
+});
 
-/// The logo for [platform], or null when Simple Icons has none (Xbox,
-/// Nintendo, Windows and others keep a generic glyph).
+/// Public-domain logos of exactly these platforms, which stay legible at list
+/// size; wider ones are left out, as they shrink to a line in a square.
+const _publicDomainLogos = {
+  'atari jaguar': 'atarijaguar',
+  'atari jaguar cd': 'atarijaguarcd',
+  'cd-i': 'cdi',
+  'cdtv': 'cdtv',
+  'colecovision': 'colecovision',
+  'commodore pet': 'commodorepet',
+  'dreamcast': 'dreamcast',
+  'game & watch': 'gameandwatch',
+  'game boy color': 'gameboycolor',
+  'ms-dos': 'msdos',
+  'msx': 'msx',
+  'neo geo cd': 'neogeocd',
+  'nes': 'nes',
+  'nintendo switch': 'nintendoswitch',
+  'nintendo switch 2': 'nintendoswitch2',
+  'nuon': 'nuon',
+  'ouya': 'ouya',
+  'pc engine': 'pcengine',
+  'super famicom': 'superfamicom',
+  'video information system': 'vis',
+  'wii': 'wii',
+  'wonderswan': 'wonderswan',
+  'wonderswan color': 'wonderswancolor',
+};
+
+/// The logo for [platform], or null when none has a free license (Xbox,
+/// Windows and others keep a generic glyph).
 PlatformLogo? platformLogoFor(String platform) {
   final lower = platform.toLowerCase();
-  PlatformLogo logo(String name, {String? generation, bool wordmark = false}) =>
+  PlatformLogo logo(String name,
+          {String? generation,
+          bool wordmark = false,
+          bool ownColors = false}) =>
       (
         asset: 'assets/platform_logos/$name.svg',
         generation: generation,
-        wordmark: wordmark
+        wordmark: wordmark,
+        ownColors: ownColors
       );
+  final publicDomain = _publicDomainLogos[lower.trim()];
+  if (publicDomain != null) return logo(publicDomain, ownColors: true);
   if (lower.contains('vita')) {
     return logo('playstationvita', wordmark: true);
   }
@@ -101,6 +141,18 @@ class PlatformIcon extends ConsumerWidget {
               child: ListValueImageView(loaded, blackSvgTint: ink)));
     }
     final logo = platformLogoFor(name);
+    if (logo != null && logo.ownColors) {
+      return Tooltip(
+          message: name,
+          child: Container(
+              width: size,
+              height: size,
+              padding: EdgeInsets.all(size * 0.06),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(size * 0.18)),
+              child: SvgPicture.asset(logo.asset)));
+    }
     final Widget mark;
     if (logo == null) {
       mark = Icon(resolvePlatformIcon(name), size: size, color: ink);

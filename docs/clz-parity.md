@@ -92,7 +92,7 @@ Keep these when matching the reference visually.
 
 ### Deliberate Games behavior
 
-- Platform icons are CC0 Simple Icons logos where one exists (PlayStation with its generation, PSP, Vita, Steam, Steam Deck, Sega, Atari, Apple, Linux, Android) and Collectarr glyphs otherwise (Xbox, Nintendo, PC). Users can replace them with their own SVG or raster files in Settings > Customization > Games > Platform icons. CLZ's own platform images are never copied; see `assets/LOGOS.md`.
+- Platform icons are Simple Icons logos (PlayStation with its generation, PSP, Vita, Steam, Steam Deck, Sega, Atari, Apple, Linux, Android) or public-domain Wikimedia Commons logos where one is legible at icon size (`assets/LOGOS.md`), and Collectarr glyphs otherwise (Xbox, PC and others). Users can replace them with their own SVG or raster files in Settings > Customization > Games > Platform icons. CLZ's own platform images are never copied; see `assets/LOGOS.md`.
 - Games, Hardware and Toys expose only their own fields. CLZ also shows generic Games columns and Toy folders across inventory types; Collectarr keeps Toy classification exclusively in Toys.
 - Without a recorded amount for a newly chosen completeness tier, preserve the
   manually entered value. A locked value also survives tier changes. Choosing
@@ -136,23 +136,15 @@ never opens a collection database. Keep downloaded artwork outside the
 repository or in the ignored `local-assets/` directory. Public-domain
 copyright status does not remove trademark restrictions.
 
-Keep the current FOSS device/category glyphs. The
-[Font Awesome Free license](https://github.com/FortAwesome/Font-Awesome/blob/7.x/LICENSE.txt)
-permits its font/SVG distribution under OFL/CC BY with attribution, but brand
-marks remain their owners' trademarks. Its presence in an icon font is not
-blanket permission from the platform owner. The
-[Simple Icons disclaimer](https://github.com/simple-icons/simple-icons/blob/develop/DISCLAIMER.md)
-also distinguishes the project's CC0 license from individual artwork licenses,
-trademarks and brand guidelines.
-
+Collectarr ships a platform logo only when its artwork has a free license or is
+marked public domain on Commons, recorded with its source in `assets/LOGOS.md`.
+A logo's copyright status grants no trademark rights: the marks only identify a
+platform. Keep FOSS glyphs for the rest, and never extract CLZ's pack.
 [Microsoft's app trademark guidance](https://learn.microsoft.com/en-us/windows/apps/publish/partner-center/trademark-and-copyright-protection)
-explicitly requires a formal license for its graphical marks in apps; plain
-platform names are a different use. PlayStation's
-[trademark notice](https://www.playstation.com/en-us/legal/copyright-and-trademark-notice/)
-identifies the PlayStation/PS4/PS5 marks but grants no general redistribution
-permission. These sources do not establish clearance for a complete platform
-logo pack. Before adding a mark, document both the artwork license/source and
-the brand owner's applicable terms or permission. Do not extract CLZ's pack.
+requires a formal license for its graphical marks in apps, so Windows and Xbox
+keep glyphs. The
+[Simple Icons disclaimer](https://github.com/simple-icons/simple-icons/blob/develop/DISCLAIMER.md)
+notes that not every icon is CC0: check each icon's license field.
 
 ## Open differences
 
