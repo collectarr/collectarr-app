@@ -20,7 +20,8 @@ Widget _buildRawGradeSetting(BuildContext context, CatalogMediaKind kind) =>
         builder: (context, ref, _) => Padding(
             padding: const EdgeInsets.only(top: 14),
             child: SettingsCheck(
-                label: 'Show Grade as letters for raw comics (NM instead of 9.4)',
+                label:
+                    'Show Grade as letters for raw comics (NM instead of 9.4)',
                 value: ref.watch(uiPreferencesProvider
                     .select((value) => value.showCardPillLetters)),
                 onChanged: ref

@@ -361,7 +361,8 @@ class UiPreferencesStore {
     await prefs.setBool(animationsEnabledKey, preferences.animationsEnabled);
     await prefs.setBool(forcePhoneLayoutKey, preferences.forcePhoneLayout);
     await prefs.setBool(shakeToShuffleKey, preferences.shakeToShuffle);
-    await prefs.setBool(showCardPillLettersKey, preferences.showCardPillLetters);
+    await prefs.setBool(
+        showCardPillLettersKey, preferences.showCardPillLetters);
     await prefs.setBool(latestFolderImagesKey, preferences.latestFolderImages);
     await prefs.setBool(
       disableLibrarySwitchAnimationKey,

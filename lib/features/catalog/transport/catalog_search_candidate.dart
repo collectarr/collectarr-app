@@ -139,7 +139,10 @@ final class CatalogSearchCandidate {
     final cents = kindData?['cover_price_cents'];
     if (cents is! num) return null;
     final currency = kindData?['currency'];
-    return (cents: cents.toInt(), currency: currency is String ? currency : null);
+    return (
+      cents: cents.toInt(),
+      currency: currency is String ? currency : null
+    );
   }
 
   /// Decodes a Core search response at the catalog transport boundary and

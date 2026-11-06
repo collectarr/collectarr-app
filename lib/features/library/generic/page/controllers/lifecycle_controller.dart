@@ -101,8 +101,8 @@ abstract final class _LibraryPageLifecycleControllerOps {
           state._session.facets.selectedBucket == null &&
           !LibraryRouteState.fromUri(state.widget.routeUri)
               .hasExplicitViewState) {
-        state._mutateState(() => state._session.facets.selectedBucket =
-            savedFolder == null
+        state._mutateState(
+            () => state._session.facets.selectedBucket = savedFolder == null
                 ? genericAllBucketLabel(state.widget.type)
                 : savedFolder.isEmpty
                     ? null

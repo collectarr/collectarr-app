@@ -11,8 +11,8 @@ abstract final class LibraryPageShellPresenter {
     LibraryWorkspaceViewState viewState,
   ) {
     if (!libraryUsesTabletPanes(state.context,
-        forcePhoneLayout: state.ref.watch(uiPreferencesProvider
-            .select((value) => value.forcePhoneLayout)))) {
+        forcePhoneLayout: state.ref.watch(
+            uiPreferencesProvider.select((value) => value.forcePhoneLayout)))) {
       return EdgeInsetsDirectional.zero;
     }
     final panes = LibraryTabletPanes.of(MediaQuery.sizeOf(state.context),

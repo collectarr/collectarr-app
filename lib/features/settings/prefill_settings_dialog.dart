@@ -444,8 +444,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                       child: _checkbox(
                           'Fill with Cover Price',
                           _fillPriceFromCover,
-                          (value) => setState(
-                              () => _fillPriceFromCover = value))))),
+                          (value) =>
+                              setState(() => _fillPriceFromCover = value))))),
           const SizedBox(width: 12),
           SizedBox(
               width: 100,
