@@ -1,4 +1,5 @@
 import '../game_toy_module_dependencies.dart';
+import 'preview.dart';
 
 final gameToyKindAdd = StandardLibraryAddCapability<GameToyAddDraft>(
     kind: CatalogMediaKind.gameToy,
@@ -8,6 +9,7 @@ final gameToyKindAdd = StandardLibraryAddCapability<GameToyAddDraft>(
     manualCandidateBuilder: buildGameToyManualCandidate,
     manualProposalBuilder: buildGameToyManualProposalData,
     manualPaneBuilder: buildGameToyAddManualPane,
+    previewPaneBuilder: buildGameToyAddPreview,
     chrome: const LibraryAddChromeConfig(
         supportsTracking: false,
         dialogTitle: 'Add Toys',

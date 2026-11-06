@@ -1,3 +1,4 @@
+import 'preview.dart';
 import 'search_controls.dart';
 import '../game_hardware_module_dependencies.dart';
 
@@ -9,6 +10,7 @@ final gameHardwareKindAdd = StandardLibraryAddCapability<GameHardwareAddDraft>(
     manualCandidateBuilder: buildGameHardwareManualCandidate,
     manualProposalBuilder: buildGameHardwareManualProposalData,
     manualPaneBuilder: buildGameHardwareAddManualPane,
+    previewPaneBuilder: buildGameHardwareAddPreview,
     chrome: const LibraryAddChromeConfig(
         supportsTracking: false,
         dialogTitle: 'Add Hardware',
