@@ -19,6 +19,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Games offer 222 platforms under their short names (Wii, PSP, SNES, Genesis / Mega Drive, Nintendo Switch 2) in Pick Platform and the editor; existing games move to the new names when the app updates.
 - Platform and Custom Label icons load in bulk with an index.csv that names their files, and one image can serve several values.
 - Add Toys opens on a List of toy types with owned and total counts; a type shows its toys by series with tick boxes, filters and a search.
 - Games, Hardware, Toys and Comics descriptions can be edited as they appear, with buttons for bold, italic, underline and lists, or as raw HTML with a Rich/Raw switch.

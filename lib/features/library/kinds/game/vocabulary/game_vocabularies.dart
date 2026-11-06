@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_platforms.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 
@@ -149,6 +150,7 @@ abstract final class GameVocabularies {
   static const platform = VocabularyDefinition<String>(
     id: GameVocabularyIds.platform,
     label: 'Platform',
+    builtIns: gamePlatforms,
     valuesFrom:
         TypedVocabularyProjector<GameCatalogMetadata>(_platformCatalogValues),
     // Platforms are filed by their name.

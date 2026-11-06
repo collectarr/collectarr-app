@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game/domain/game_platforms.dart';
 import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
@@ -8,51 +9,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 const _favoritesKey = 'game.add.platformFavorites';
 
-/// The reference lists platforms by console generation, newest first, then
-/// the rest alphabetically.
-const _generations = [
-  ['PlayStation 5', 'Xbox Series X/S'],
-  ['PlayStation 4', 'Xbox One', 'Nintendo Switch'],
-  [
-    'PC',
-    'PlayStation 3',
-    'Xbox 360',
-    'Nintendo Wii U',
-    'Nintendo Wii',
-    'Nintendo 3DS',
-    'PlayStation Vita',
-  ],
-  [
-    'Nintendo DS',
-    'PlayStation Portable',
-    'Game Boy Advance',
-    'PlayStation 2',
-    'Xbox',
-    'Sega Dreamcast',
-  ],
-  [
-    'PlayStation',
-    'Nintendo 64',
-    'Nintendo GameCube',
-    'Sega Saturn',
-    'Game Boy Color',
-  ],
-  [
-    'Sega Genesis',
-    'Super Nintendo Entertainment System',
-    'Nintendo Entertainment System',
-    'Game Boy',
-  ],
-];
-
-/// Platform groups for the picker: the generations, then [current] when it
-/// is not one of them.
+/// Platform groups for the picker: the Games platforms, then [current] when
+/// it is not one of them.
 List<List<String>> gamePlatformPickerGroups([String? current]) {
-  final listed = {for (final group in _generations) ...group};
   final other = current?.trim() ?? '';
   return [
-    ..._generations,
-    if (other.isNotEmpty && !listed.contains(other)) [other]
+    ...gamePlatformGroups,
+    if (other.isNotEmpty && !gamePlatforms.contains(other)) [other]
   ];
 }
 
@@ -93,7 +56,12 @@ class _GamePlatformPickerDialogState extends State<GamePlatformPickerDialog> {
   Future<void> _loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
-    setState(() => _favorites = prefs.getStringList(_favoritesKey) ?? []);
+    // Favorites saved under a platform's former name no longer apply.
+    setState(() => _favorites = [
+          for (final platform
+              in prefs.getStringList(_favoritesKey) ?? const <String>[])
+            if (gamePlatforms.contains(platform)) platform
+        ]);
   }
 
   Future<void> _toggleFavorite(String platform) async {

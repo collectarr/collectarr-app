@@ -125,11 +125,6 @@ void main() {
       () async {
     // A released schema 1 pick-list table with one borrower.
     final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
-      raw.execute('CREATE TABLE pick_list_values_cache ('
-          'id TEXT NOT NULL PRIMARY KEY, list_name TEXT NOT NULL, '
-          'media_kind TEXT NULL, value TEXT NOT NULL, sort_name TEXT NULL, '
-          'is_hidden INTEGER NOT NULL DEFAULT 0, '
-          'sort_order INTEGER NOT NULL DEFAULT 0)');
       _createReleasedEntryTables(raw);
       raw.execute("INSERT INTO pick_list_values_cache (id, list_name, value) "
           "VALUES ('b1', 'borrower', 'Alex')");
@@ -326,6 +321,49 @@ void main() {
     final version = await db.customSelect('PRAGMA user_version').getSingle();
     expect(version.data.values.single, 6);
   });
+
+  test('upgrades released schema 5 Games to the short platform names',
+      () async {
+    const former = '{"platforms":["PC","Nintendo Wii","Sega Genesis"]}';
+    const renamed = '{"platforms":["PC","Wii","Genesis / Mega Drive"]}';
+    final db = LocalDatabase(NativeDatabase.memory(setup: (raw) {
+      _createReleasedEntryTables(raw);
+      raw.execute("INSERT INTO library_entries VALUES "
+          "('e1', 'game', '{\"catalog_data\":$former}', 0, NULL),"
+          "('e2', 'movie', '{\"catalog_data\":$former}', 0, NULL)");
+      raw.execute("INSERT INTO sync_queue VALUES "
+          "('q1', 'library_entry', 'e1', 'upsert', "
+          "'{\"kind\":\"game\",\"catalog_data\":$former}', 0)");
+      raw.execute("INSERT INTO catalog_items_cache "
+          "(catalog_kind, item_id, payload_json, fetched_at) VALUES "
+          "('game', 'i1', '{\"kind_data\":$former}', 0)");
+      raw.execute("INSERT INTO pick_list_values_cache (id, list_name, value) "
+          "VALUES ('p1', 'game.platform', 'Nintendo Wii'),"
+          "('p2', 'game.platform', 'Sega Saturn'),"
+          "('p3', 'game.platform', 'Saturn')");
+      raw.execute('PRAGMA user_version = 5');
+    }));
+    addTearDown(db.close);
+    Future<List<String>> payloads(String table) async => [
+          for (final row in await db
+              .customSelect('SELECT payload_json FROM $table ORDER BY rowid')
+              .get())
+            row.read<String>('payload_json')
+        ];
+
+    expect(await payloads('library_entries'), [
+      '{"catalog_data":$renamed}',
+      '{"catalog_data":$former}',
+    ]);
+    expect(await payloads('sync_queue'),
+        ['{"kind":"game","catalog_data":$renamed}']);
+    expect(await payloads('catalog_items_cache'), ['{"kind_data":$renamed}']);
+    final values = await db
+        .customSelect('SELECT value FROM pick_list_values_cache ORDER BY id')
+        .get();
+    expect([for (final row in values) row.read<String>('value')],
+        ['Wii', 'Saturn']);
+  });
 }
 
 /// The released entry, Sync queue and catalog cache tables, as schemas 1 to 5
@@ -344,4 +382,9 @@ void _createReleasedEntryTables(Database raw) {
       "item_id TEXT NOT NULL, origin TEXT NOT NULL DEFAULT 'core', "
       'payload_json TEXT NOT NULL, fetched_at INTEGER NOT NULL, '
       'PRIMARY KEY (catalog_kind, item_id))');
+  raw.execute('CREATE TABLE pick_list_values_cache ('
+      'id TEXT NOT NULL PRIMARY KEY, list_name TEXT NOT NULL, '
+      'media_kind TEXT NULL, value TEXT NOT NULL, sort_name TEXT NULL, '
+      'is_hidden INTEGER NOT NULL DEFAULT 0, '
+      'sort_order INTEGER NOT NULL DEFAULT 0)');
 }

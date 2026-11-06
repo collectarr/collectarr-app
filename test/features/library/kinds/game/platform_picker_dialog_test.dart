@@ -8,7 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   test('platforms are grouped by generation, newest first', () {
     final groups = gamePlatformPickerGroups('Neo Geo');
-    expect(groups.first, ['PlayStation 5', 'Xbox Series X/S']);
+    expect(
+        groups.first, ['PlayStation 5', 'Xbox Series X', 'Nintendo Switch 2']);
     expect(groups[2].first, 'PC');
     expect(groups.last, contains('Neo Geo'));
     expect(groups.expand((group) => group).toSet().length,
@@ -54,10 +55,10 @@ void main() {
     await tester.enterText(
         find.byKey(const ValueKey('game-platform-picker-search')), 'cube');
     await tester.pump();
-    expect(find.text('Nintendo GameCube'), findsOneWidget);
+    expect(find.text('GameCube'), findsOneWidget);
     expect(find.text('PC'), findsNothing);
-    await tester.tap(find.text('Nintendo GameCube'));
+    await tester.tap(find.text('GameCube'));
     await tester.pumpAndSettle();
-    expect(chosen, 'Nintendo GameCube');
+    expect(chosen, 'GameCube');
   });
 }

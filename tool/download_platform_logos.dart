@@ -1,6 +1,7 @@
 // Downloads public-domain platform logos from Wikimedia Commons into a
-// folder of your choice, each named after its platform, ready for
-// Settings > Customization > Games > Platform icons > Load icons from files.
+// folder of your choice with an index.csv naming their platforms; select them
+// all in Settings > Customization > Games > Platform icons > Load icons from
+// files.
 //
 //   dart run tool/download_platform_logos.dart <output folder>
 //
@@ -17,18 +18,18 @@ import 'dart:io';
 const _logos = [
   ('Nintendo Switch', 'Nintendo Switch Logo.svg'),
   ('Nintendo Switch 2', 'Nintendo Switch 2 logo.svg'),
-  ('Nintendo Wii U', 'WiiU.svg'),
-  ('Nintendo Wii', 'Wii.svg'),
+  ('Wii U', 'WiiU.svg'),
+  ('Wii', 'Wii.svg'),
   ('Nintendo 3DS', 'Nintendo 3DS logo.svg'),
   ('Nintendo DS', 'Nintendo DS Logo.svg'),
-  ('Nintendo GameCube', 'Nintendo GameCube Official Logo.svg'),
-  ('Nintendo Entertainment System', 'NES logo.svg'),
-  ('Super Nintendo Entertainment System', 'SNES logo.svg'),
+  ('GameCube', 'Nintendo GameCube Official Logo.svg'),
+  ('NES', 'NES logo.svg'),
+  ('SNES', 'SNES logo.svg'),
   ('Game Boy', 'Nintendo Game Boy Logo.svg'),
   ('Game Boy Advance', 'Game Boy Advance logo.svg'),
-  ('Sega Dreamcast', 'Dreamcast logo.svg'),
-  ('Sega Saturn', 'Sega Saturn Black Logo.svg'),
-  ('Sega Genesis', 'Sega genesis logo.svg'),
+  ('Dreamcast', 'Dreamcast logo.svg'),
+  ('Saturn', 'Sega Saturn Black Logo.svg'),
+  ('Genesis / Mega Drive', 'Sega genesis logo.svg'),
 ];
 
 const _userAgent = 'Collectarr platform logo downloader '
@@ -43,6 +44,7 @@ Future<void> main(List<String> args) async {
   }
   final output = Directory(args.single)..createSync(recursive: true);
   final client = HttpClient()..userAgent = _userAgent;
+  final index = StringBuffer('Name,File\n');
   var saved = 0;
   try {
     for (final (platform, file) in _logos) {
@@ -57,7 +59,10 @@ Future<void> main(List<String> args) async {
           continue;
         }
         final bytes = await _download(client, info.url);
-        File('${output.path}${Platform.pathSeparator}$platform.svg')
+        // A platform's name can hold a slash, which a file name cannot.
+        final fileName = '${platform.replaceAll(' / ', ' - ')}.svg';
+        index.writeln('$platform,$fileName');
+        File('${output.path}${Platform.pathSeparator}$fileName')
             .writeAsBytesSync(bytes);
         saved++;
         stdout.writeln('Saved $platform.svg (${info.licence}) from '
@@ -69,6 +74,8 @@ Future<void> main(List<String> args) async {
   } finally {
     client.close();
   }
+  File('${output.path}${Platform.pathSeparator}index.csv')
+      .writeAsStringSync(index.toString());
   stdout.writeln('$saved of ${_logos.length} logos saved to ${output.path}.');
 }
 

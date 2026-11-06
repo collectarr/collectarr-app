@@ -152,6 +152,38 @@ class LocalDatabase extends _$LocalDatabase {
                     " AND json_extract(payload_json, '\$.kind') = 'comic'",
                 'personal_data',
                 _clearUngraded);
+            // Games use the reference's short platform names, in entries,
+            // pending changes, the cache and the Platform pick list.
+            await _updatePayloadSectionIn('library_entries',
+                " WHERE kind = 'game'", 'catalog_data', _renameGamePlatforms);
+            await _updatePayloadSectionIn(
+                'sync_queue',
+                " WHERE entity_type = 'library_entry'"
+                    " AND json_extract(payload_json, '\$.kind') = 'game'",
+                'catalog_data',
+                _renameGamePlatforms);
+            await _updatePayloadSectionIn(
+                'catalog_items_cache',
+                " WHERE catalog_kind = 'game'",
+                'kind_data',
+                _renameGamePlatforms);
+            for (final MapEntry(key: former, value: name)
+                in _gamePlatformRenames.entries) {
+              final names = [
+                Variable.withString(name),
+                Variable.withString(former),
+              ];
+              await customUpdate(
+                  'DELETE FROM pick_list_values_cache '
+                  "WHERE list_name = 'game.platform' AND value = ?2 AND EXISTS "
+                  '(SELECT 1 FROM pick_list_values_cache kept '
+                  "WHERE kept.list_name = 'game.platform' AND kept.value = ?1)",
+                  variables: names);
+              await customUpdate(
+                  'UPDATE pick_list_values_cache SET value = ?1 '
+                  "WHERE list_name = 'game.platform' AND value = ?2",
+                  variables: names);
+            }
           }
         },
       );
@@ -181,6 +213,33 @@ class LocalDatabase extends _$LocalDatabase {
   static bool _clearUngraded(Map<String, dynamic> personal) {
     if (personal['grade'] != 'Ungraded') return false;
     personal['grade'] = null;
+    return true;
+  }
+
+  /// Released Games platform names and the names that replaced them.
+  static const _gamePlatformRenames = {
+    'Xbox Series X/S': 'Xbox Series X',
+    'Nintendo Wii U': 'Wii U',
+    'Nintendo Wii': 'Wii',
+    'PlayStation Portable': 'PSP',
+    'Sega Dreamcast': 'Dreamcast',
+    'Nintendo GameCube': 'GameCube',
+    'Sega Saturn': 'Saturn',
+    'Sega Genesis': 'Genesis / Mega Drive',
+    'Super Nintendo Entertainment System': 'SNES',
+    'Nintendo Entertainment System': 'NES',
+  };
+
+  static bool _renameGamePlatforms(Map<String, dynamic> game) {
+    final platforms = game['platforms'];
+    if (platforms is! List ||
+        !platforms.any(_gamePlatformRenames.containsKey)) {
+      return false;
+    }
+    game['platforms'] = {
+      for (final platform in platforms)
+        _gamePlatformRenames[platform] ?? platform
+    }.toList();
     return true;
   }
 

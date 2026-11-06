@@ -127,13 +127,14 @@ Keep these when matching the reference visually.
 
 For optional local artwork, run
 `dart run tool/download_platform_logos.dart <output folder>`, then load the
-files from Settings > Customization > Games > Platform icons. The helper skips files
+folder's files with its `index.csv` from Settings > Customization > Games >
+Platform icons. The helper skips files
 unless Commons marks them public domain, excludes Windows and Xbox, and
 never opens a collection database. Keep downloaded artwork outside the
 repository or in the ignored `local-assets/` directory. Public-domain
 copyright status does not remove trademark restrictions.
 
-Keep the current FOSS device/category glyphs and platform names. The
+Keep the current FOSS device/category glyphs. The
 [Font Awesome Free license](https://github.com/FortAwesome/Font-Awesome/blob/7.x/LICENSE.txt)
 permits its font/SVG distribution under OFL/CC BY with attribution, but brand
 marks remain their owners' trademarks. Its presence in an icon font is not
@@ -260,7 +261,6 @@ navigation, larger system text and light appearance.
 | P2 | Import sources | Delicious Library, Game Collector, PriceCharting and Game Collector user-defined fields appear as unavailable placeholders until verified exports are available; CLZ supports those imports |
 | P3 | Add Games collection filter | CLZ's In Collection lists matches at once; Core does not know the local collection, so Collectarr filters the loaded pages and offers Load more instead of fetching a whole platform |
 | P3 | Vertical card value | At the smallest card size a long currency label such as "US$" shortens the value pill; CLZ's default cards are wider |
-| P2 | Platform vocabulary | CLZ offers about 225 platforms with short names (Wii, PSP, SNES, Genesis / Mega Drive, Nintendo Switch 2); Collectarr's Pick Platform uses its 27 built-in names (Nintendo Wii, PlayStation Portable, ...). Renaming them changes stored entry values and needs an ordered migration, so it is an owner decision |
 | P2 | Pick lists | CLZ: Audience Rating, Condition, Developer, Format, Genre, Image Type, Loaned To, Location, Owner, Platform, Publisher, Purchase Store, Region, Series, Storage Device, Sub Type, Tag. The unused Age Rating and "Edition / Format" lists were removed (2026-10-23). Collectarr still adds Sold To (its own Sold fields) and has no Image Type list for My Images |
 | P3 | Column chooser gaps | Games has no Back Cover image, Description, eBay, Core GameID/MediaID or Toy NFCID columns. Collectarr keeps its Status, Wishlist, Franchise and Box/Manual Only value columns |
 | P3 | Add manual tabs | CLZ lists Personal last; Collectarr lists it after Value |
