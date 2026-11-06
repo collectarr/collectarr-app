@@ -80,6 +80,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Tags, Owner and Storage Device no longer offer a Sort Name.
 - The date calendar opens under its field at any app zoom.
 - The caret is centred in multi-value fields such as Genre.
 - Pick fields such as Platform and Format show a blue frame while their menu is open.

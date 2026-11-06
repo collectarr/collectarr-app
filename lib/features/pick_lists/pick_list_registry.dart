@@ -26,6 +26,8 @@ class PickListRegistry {
       valueMode: PickListValueMode.multi,
       controlType: PickListControlType.tagList,
       allowFoldering: true,
+      // Tags are filed by their name.
+      hasSortName: false,
     ),
     PickListDefinition(
       id: 'owners',
@@ -34,6 +36,8 @@ class PickListRegistry {
       scope: PickListScope.libraryEntry,
       valueMode: PickListValueMode.single,
       controlType: PickListControlType.personList,
+      // Owners are filed by their name.
+      hasSortName: false,
     ),
     PickListDefinition(
       id: 'collection_status',

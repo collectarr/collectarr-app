@@ -49,6 +49,7 @@ void main() {
       expect(GameVocabularies.condition.hasSortName, isFalse);
       expect(GameVocabularies.audienceRating.hasSortName, isFalse);
       expect(GameVocabularies.genre.hasSortName, isFalse);
+      expect(GameVocabularies.storageDevice.hasSortName, isFalse);
       expect(GameVocabularies.series.hasSortName, isTrue);
       expect(GameHardwareVocabularies.platform.hasSortName, isFalse);
       expect(GameHardwareVocabularies.condition.hasSortName, isFalse);

@@ -440,6 +440,8 @@ abstract final class MusicVocabularies {
   static const storageDevice = VocabularyDefinition<String>(
     id: MusicVocabularyIds.storageDevice,
     label: 'Storage Device',
+    // Storage devices are filed by their name.
+    hasSortName: false,
   );
   static const grade = VocabularyDefinition<String>(
     id: MusicVocabularyIds.grade,

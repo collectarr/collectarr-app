@@ -222,6 +222,8 @@ abstract final class GameVocabularies {
   static const storageDevice = VocabularyDefinition<String>(
     id: GameVocabularyIds.storageDevice,
     label: 'Storage Device',
+    // Storage devices are filed by their name.
+    hasSortName: false,
   );
 
   static const all = <VocabularyDefinition<dynamic>>[
