@@ -85,7 +85,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
-- The alphabet bar updates the folder panel and its counts and the item count, as in CLZ, and stays on when a folder is picked.
+- The alphabet bar updates the folder panel and its counts and the item count, as in CLZ, stays on when a folder is picked, and moves the selection to the first remaining item when the selected one is filtered out.
 - Clicking a value in the details panel, such as a Games platform, developer or publisher, now filters by it instead of showing nothing.
 - Covers, Shelves and Flow Carousel show covers at one height and their own shape, as in CLZ, with the shadow, active frame and Flow card hugging each cover, so covers of another shape no longer get black bars.
 - The cover size slider changes the width of Library cards at every step of its range, and the smallest cards keep their value whole.

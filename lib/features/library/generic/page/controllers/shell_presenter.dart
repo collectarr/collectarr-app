@@ -141,12 +141,13 @@ abstract final class LibraryPageShellPresenter {
       allLibraryEntries: allLibraryEntries,
       allWishlistItems: allWishlistItems,
     );
+    final visibleItems = state._visibleItems(projection);
     if (state._session.selection.selectedId != null &&
-        projection.filteredItems.isNotEmpty &&
-        !projection.filteredItems.any(
+        visibleItems.isNotEmpty &&
+        !visibleItems.any(
           (item) => item.target.id == state._session.selection.selectedId,
         )) {
-      final firstVisibleId = projection.filteredItems.first.target.id;
+      final firstVisibleId = visibleItems.first.target.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!state.mounted ||
             state._session.selection.selectedId == firstVisibleId) {
@@ -169,8 +170,7 @@ abstract final class LibraryPageShellPresenter {
         state._session.facets.selectedBucket == null &&
         trimmedSearchQuery.isEmpty &&
         workspaceOverride == null;
-    final canSelect =
-        !showFolderRoot && state._visibleItems(projection).isNotEmpty;
+    final canSelect = !showFolderRoot && visibleItems.isNotEmpty;
     final mobileSearch = state._mobileSearch;
     if (mobileSearch != null &&
         mobileSearch.selectionAvailable.value != canSelect) {
@@ -186,15 +186,14 @@ abstract final class LibraryPageShellPresenter {
       _lastSelectedItemByKind[kind] = selectedId;
     } else if (!state._session.selection.value.enabled &&
         state._session.selection.value.itemIds.isEmpty &&
-        projection.filteredItems.isNotEmpty) {
+        visibleItems.isNotEmpty) {
       // Like the reference app, the details panel always shows an album:
       // the last one selected in this session, otherwise the first visible.
       final remembered = _lastSelectedItemByKind[kind];
       final restoreId = remembered != null &&
-              projection.filteredItems
-                  .any((item) => item.target.id == remembered)
+              visibleItems.any((item) => item.target.id == remembered)
           ? remembered
-          : projection.filteredItems.first.target.id;
+          : visibleItems.first.target.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!state.mounted ||
             state._session.selection.selectedId != null ||
