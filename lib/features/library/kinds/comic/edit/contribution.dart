@@ -14,6 +14,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
     _ => null,
   },
   prefillFields: comicPrefillFields,
+  prefillPriceFromCover: true,
   defaultCondition: 'Near Mint',
   defaultCollectionValue: '',
   editChrome: const LibraryEditChromeConfig(

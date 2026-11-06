@@ -70,9 +70,14 @@ final class LibraryAddBatchRequest {
     this.onSubmissionCommitted,
     this.autocapTitles,
     this.coreData = const CoreDataSettings(),
+    this.pricePaidFromCover,
   });
 
   final LibraryAddMutationDependencies dependencies;
+
+  /// An item's price paid from its cover price, when a pre-fill asks for it;
+  /// null leaves the common draft's price.
+  final int? Function(int? coverPriceCents)? pricePaidFromCover;
 
   /// Which Core fields the new entries receive.
   final CoreDataSettings coreData;
@@ -128,11 +133,16 @@ final class LibraryAddCoordinator {
         final isDigitalLibraryEntry = digitalLibraryEntry == true;
         final reference = item.reference;
 
+        final coverPrice = item.coverPrice;
+        final priceFromCover =
+            request.pricePaidFromCover?.call(coverPrice?.cents);
         final itemCommon = LibraryAddCommonDraft(
           condition: isDigitalLibraryEntry ? null : baseCommon.condition,
           purchaseDate: baseCommon.purchaseDate,
-          pricePaidCents: baseCommon.pricePaidCents,
-          currency: baseCommon.currency,
+          pricePaidCents: priceFromCover ?? baseCommon.pricePaidCents,
+          currency: priceFromCover == null
+              ? baseCommon.currency
+              : coverPrice?.currency ?? baseCommon.currency,
           personalNotes: baseCommon.personalNotes,
           tags: baseCommon.tags,
           locationId: isDigitalLibraryEntry ? null : baseCommon.locationId,

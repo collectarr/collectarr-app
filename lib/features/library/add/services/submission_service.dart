@@ -141,6 +141,10 @@ final class LibraryAddSubmissionService {
         target: request.target,
         commonDraft:
             defaults?.applyTo(request.commonDraft) ?? request.commonDraft,
+        // A price typed for this Add wins over the pre-fill.
+        pricePaidFromCover: request.commonDraft.pricePaidCents == null
+            ? defaults?.priceFromCover
+            : null,
         trackingDraft: request.trackingDraft,
         kindDraftsByCatalogRef: {
           for (final candidate in candidates)
@@ -192,6 +196,10 @@ final class LibraryAddSubmissionService {
         commonDraft: defaults?.applyTo(
                 request.commonDraft ?? request.defaults.toCommonDraft()) ??
             request.commonDraft,
+        // A price typed for this Add wins over the pre-fill.
+        pricePaidFromCover: request.commonDraft?.pricePaidCents == null
+            ? defaults?.priceFromCover
+            : null,
         trackingDraft: request.trackingDraft,
         kindDraftsByCatalogRef: request.kindDraftsByCatalogRef,
         upsertCatalogItems: request.upsertCatalogItems,

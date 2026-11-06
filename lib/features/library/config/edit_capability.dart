@@ -107,11 +107,15 @@ final class LibraryEditPresentationCapability {
     required this.defaultCondition,
     required this.defaultCollectionValue,
     this.prefillFields,
+    this.prefillPriceFromCover = false,
   });
 
   /// When set, Pre-fill Settings shows these controls, Owner, Quantity and
   /// Tags instead of Condition, as in the reference Games pre-fill.
   final LibraryPrefillFieldsBuilder? prefillFields;
+
+  /// Pre-fill Settings also offers Fill with Cover Price and Discount %.
+  final bool prefillPriceFromCover;
 
   final LibraryTargetEditRegistry editRegistry;
   final LibraryEditPresentation presentation;
@@ -320,8 +324,10 @@ final class LibraryEditCapabilitySet {
     LibraryEntryTransferUpdatePayloadBuilder? entryTransferUpdatePayloadBuilder,
     LibraryEntryDetailsResetPayloadBuilder? entryDetailsResetPayloadBuilder,
     LibraryPrefillFieldsBuilder? prefillFields,
+    bool prefillPriceFromCover = false,
   })  : presentationCapability = LibraryEditPresentationCapability(
           prefillFields: prefillFields,
+          prefillPriceFromCover: prefillPriceFromCover,
           editRegistry: editRegistry,
           presentation: presentation,
           editChrome: editChrome,

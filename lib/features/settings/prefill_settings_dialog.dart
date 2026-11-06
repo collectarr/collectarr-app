@@ -43,6 +43,9 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   final _conditionController = TextEditingController();
   bool _alwaysShow = true;
   bool _fillToday = false;
+  bool _fillPriceFromCover = false;
+  int _coverDiscountPercent = 0;
+  int _coverDiscountResets = 0;
   bool _loaded = false;
   bool _showAdditionalFields = false;
   List<StorageLocation> _availableLocations = const [];
@@ -82,6 +85,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           defaults.personalValues['condition'] as String? ?? '';
       _alwaysShow = defaults.alwaysShow;
       _fillToday = defaults.fillPurchaseDateWithToday;
+      _fillPriceFromCover = defaults.fillPriceWithCoverPrice;
+      _coverDiscountPercent = defaults.coverPriceDiscountPercent;
       _availableLocations = locations;
       _selectedLocationId = defaults.locationId;
       if (widget.kind case final kind?) {
@@ -404,6 +409,9 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                                         setState(() => _fillToday = value))))),
                     if (fields['purchase_store'] case final field?) field,
                     if (fields['price_paid_cents'] case final field?) field,
+                    if (libraryEditPresentationForKind(draft.record.kind)
+                        .prefillPriceFromCover)
+                      _coverPriceFill(),
                     LibraryFormField(
                         label: 'Quantity',
                         child: LibraryTextFormControl(
@@ -424,6 +432,38 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
             label: 'Tags', options: _tagOptions, controller: _tags),
       ]);
 
+  /// Beside Purchase Price: each new item's cover price, less a discount.
+  Widget _coverPriceFill() => Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+              child: SizedBox(
+                  height: 55,
+                  child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: _checkbox(
+                          'Fill with Cover Price',
+                          _fillPriceFromCover,
+                          (value) => setState(
+                              () => _fillPriceFromCover = value))))),
+          const SizedBox(width: 12),
+          SizedBox(
+              width: 100,
+              child: LibraryFormField(
+                  label: 'Discount %',
+                  child: LibraryTextFormControl(
+                      key: ValueKey(
+                          'prefill-cover-discount-$_coverDiscountResets'),
+                      enabled: _fillPriceFromCover,
+                      keyboardType: TextInputType.number,
+                      initialValue: _coverDiscountPercent == 0
+                          ? ''
+                          : '$_coverDiscountPercent',
+                      onChanged: (text) => _coverDiscountPercent =
+                          (int.tryParse(text.trim()) ?? 0).clamp(0, 100)))),
+        ],
+      );
+
   Widget _header() {
     return AccentDialogHeader(
       title: _title,
@@ -438,6 +478,9 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
         _personalDraft?.reset();
         _conditionController.clear();
         _fillToday = false;
+        _fillPriceFromCover = false;
+        _coverDiscountPercent = 0;
+        _coverDiscountResets++;
       });
 
   Widget _checkbox(String label, bool value, ValueChanged<bool> onChanged) =>
@@ -497,6 +540,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
     final defaults = PrefillDefaults(
       alwaysShow: _alwaysShow,
       fillPurchaseDateWithToday: _fillToday,
+      fillPriceWithCoverPrice: _fillPriceFromCover,
+      coverPriceDiscountPercent: _coverDiscountPercent,
       locationId: _selectedLocationId,
       tags: _tags.value.isEmpty ? null : _tags.value,
       // A pre-fill never sets the value: completeness controls may recompute

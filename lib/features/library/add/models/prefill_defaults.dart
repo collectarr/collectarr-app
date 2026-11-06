@@ -13,12 +13,26 @@ class PrefillDefaults {
       this.tags,
       this.personalValues = const {},
       this.alwaysShow = true,
-      this.fillPurchaseDateWithToday = false});
+      this.fillPurchaseDateWithToday = false,
+      this.fillPriceWithCoverPrice = false,
+      this.coverPriceDiscountPercent = 0});
   final String? locationId;
   final List<String>? tags;
   final Map<String, dynamic> personalValues;
   final bool alwaysShow;
   final bool fillPurchaseDateWithToday;
+
+  /// Purchase Price comes from each new item's cover price, less
+  /// [coverPriceDiscountPercent], instead of one fixed price.
+  final bool fillPriceWithCoverPrice;
+  final int coverPriceDiscountPercent;
+
+  /// The price paid for an item with [coverPriceCents], when this pre-fill
+  /// takes it from the cover price.
+  int? priceFromCover(int? coverPriceCents) =>
+      !fillPriceWithCoverPrice || coverPriceCents == null
+          ? null
+          : (coverPriceCents * (100 - coverPriceDiscountPercent) / 100).round();
 
   static Future<PrefillDefaults> load([CatalogMediaKind? kind]) async {
     final prefs = await SharedPreferences.getInstance();
@@ -32,6 +46,12 @@ class PrefillDefaults {
         fillPurchaseDateWithToday: prefs.getBool(
                 'collectarr.prefill.${kind?.apiValue ?? 'all'}.purchase_today') ??
             false,
+        fillPriceWithCoverPrice: prefs.getBool(
+                'collectarr.prefill.${kind?.apiValue ?? 'all'}.price_from_cover') ??
+            false,
+        coverPriceDiscountPercent: prefs.getInt(
+                'collectarr.prefill.${kind?.apiValue ?? 'all'}.cover_discount') ??
+            0,
         locationId: prefs.getString(_locationKey),
         tags: prefs.getStringList(_tagsKey),
         personalValues: raw == null
@@ -47,6 +67,12 @@ class PrefillDefaults {
     await prefs.setBool(
         'collectarr.prefill.${kind?.apiValue ?? 'all'}.purchase_today',
         fillPurchaseDateWithToday);
+    await prefs.setBool(
+        'collectarr.prefill.${kind?.apiValue ?? 'all'}.price_from_cover',
+        fillPriceWithCoverPrice);
+    await prefs.setInt(
+        'collectarr.prefill.${kind?.apiValue ?? 'all'}.cover_discount',
+        coverPriceDiscountPercent);
     if (locationId == null || locationId!.isEmpty) {
       await prefs.remove(_locationKey);
     } else {

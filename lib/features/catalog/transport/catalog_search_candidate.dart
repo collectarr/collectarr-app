@@ -133,6 +133,15 @@ final class CatalogSearchCandidate {
   CatalogImportTransport toImportTransport() =>
       kindCapability.toImportTransport();
 
+  /// The selected transport's cover price, with its currency when it has one.
+  ({int cents, String? currency})? get coverPrice {
+    final kindData = kindCapability._item?.kindData;
+    final cents = kindData?['cover_price_cents'];
+    if (cents is! num) return null;
+    final currency = kindData?['currency'];
+    return (cents: cents.toInt(), currency: currency is String ? currency : null);
+  }
+
   /// Decodes a Core search response at the catalog transport boundary and
   /// immediately projects it to the small candidate shape used by mixed
   /// search/import hosts. The generated catalog DTO never leaves this
