@@ -1,20 +1,29 @@
+import 'dart:math' as math;
+
+import 'package:collectarr_app/features/library/edit/covers/panel_frame.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 
-/// Interactive crop and quarter-turn editor of the cover panels.
+/// Interactive crop and quarter-turn editor of the cover panels. As in the
+/// reference it takes over the panel in place: a blue toolbar over the cover at
+/// the panel's width, with Reset leaving without any change.
 final class LibraryCoverCropEditor extends StatefulWidget {
   const LibraryCoverCropEditor({
     super.key,
     required this.title,
     required this.imageBytes,
     required this.onApply,
+    required this.onReset,
   });
 
   final String title;
   final Uint8List imageBytes;
   final Future<void> Function(Uint8List bytes) onApply;
+  final VoidCallback onReset;
 
   @override
   State<LibraryCoverCropEditor> createState() => _LibraryCoverCropEditorState();
@@ -22,9 +31,12 @@ final class LibraryCoverCropEditor extends StatefulWidget {
 
 final class _LibraryCoverCropEditorState extends State<LibraryCoverCropEditor> {
   static const double _minimumCropSize = 0.08;
+  static const Color _toolbarHover = Color(0xff349cd5);
+  static const Color _cropColor = Color(0xff3399ff);
 
   late Uint8List _workingBytes;
   late img.Image _decodedImage;
+  late final double _originalRatio;
   _CropBounds _bounds = const _CropBounds.fullFrame();
   bool _rotating = false;
   bool _applying = false;
@@ -34,99 +46,52 @@ final class _LibraryCoverCropEditorState extends State<LibraryCoverCropEditor> {
     super.initState();
     _workingBytes = widget.imageBytes;
     _decodedImage = _decode(_workingBytes);
+    _originalRatio = _decodedImage.width / _decodedImage.height;
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final palette = appPalette(context);
     final busy = _rotating || _applying;
+    Widget button(IconData icon, String label, VoidCallback onPressed) =>
+        LibraryCoverToolbarButton(
+          icon: icon,
+          label: label,
+          foregroundColor: Colors.white,
+          hoverColor: _toolbarHover,
+          onPressed: busy ? null : onPressed,
+        );
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: colors.outlineVariant),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return LibraryCoverPanelFrame(
+      title: widget.title,
+      toolbarColor: palette.utilityAction,
+      // The preview keeps the inset itself: handles straddle the cover's edge
+      // and only take the pointer within their parent's bounds.
+      padding: EdgeInsets.zero,
+      toolbar: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 7, 10, 5),
-            child: Text(
-              widget.title,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-          ),
-          ColoredBox(
-            color: colors.primary,
-            child: Row(
-              children: [
-                TextButton.icon(
-                  onPressed: busy ? null : _reset,
-                  style: _toolbarButtonStyle(colors),
-                  icon: const Icon(Icons.close),
-                  label: const Text('Reset'),
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: busy ? null : _rotate,
-                  style: _toolbarButtonStyle(colors),
-                  icon: const Icon(Icons.rotate_right),
-                  label: const Text('Rotate'),
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: busy ? null : _apply,
-                  style: _toolbarButtonStyle(colors),
-                  icon: _applying
-                      ? SizedBox.square(
-                          dimension: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              colors.onPrimary,
-                            ),
-                          ),
-                        )
-                      : const Icon(Icons.check),
-                  label: const Text('Apply'),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: AspectRatio(
-                aspectRatio: 1.08,
-                child: AbsorbPointer(
-                  absorbing: busy,
-                  child: _CropPreview(
-                    imageBytes: _workingBytes,
-                    imageWidth: _decodedImage.width,
-                    imageHeight: _decodedImage.height,
-                    bounds: _bounds,
-                    accent: colors.primary,
-                    onHandleDrag: _moveHandle,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          button(AppIcons.close, 'Reset', widget.onReset),
+          const Spacer(),
+          button(AppIcons.rotateRight, 'Rotate', _rotate),
+          const Spacer(),
+          button(AppIcons.check, 'Apply', _apply),
         ],
+      ),
+      child: AbsorbPointer(
+        absorbing: busy,
+        child: _CropPreview(
+          imageBytes: _workingBytes,
+          imageWidth: _decodedImage.width,
+          imageHeight: _decodedImage.height,
+          originalRatio: _originalRatio,
+          bounds: _bounds,
+          color: _cropColor,
+          onHandleDrag: _moveHandle,
+          onCropDrag: _moveCrop,
+        ),
       ),
     );
   }
-
-  ButtonStyle _toolbarButtonStyle(ColorScheme colors) => TextButton.styleFrom(
-        foregroundColor: colors.onPrimary,
-        minimumSize: const Size(0, 38),
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: VisualDensity.compact,
-      );
 
   Future<void> _rotate() async {
     setState(() => _rotating = true);
@@ -146,11 +111,19 @@ final class _LibraryCoverCropEditorState extends State<LibraryCoverCropEditor> {
     }
   }
 
-  void _reset() {
+  void _moveCrop(Offset delta, Size imageSize) {
+    if (imageSize.width <= 0 || imageSize.height <= 0) return;
+    final width = _bounds.right - _bounds.left;
+    final height = _bounds.bottom - _bounds.top;
+    final left = (_bounds.left + delta.dx / imageSize.width)
+        .clamp(0.0, 1.0 - width)
+        .toDouble();
+    final top = (_bounds.top + delta.dy / imageSize.height)
+        .clamp(0.0, 1.0 - height)
+        .toDouble();
     setState(() {
-      _workingBytes = widget.imageBytes;
-      _decodedImage = _decode(widget.imageBytes);
-      _bounds = const _CropBounds.fullFrame();
+      _bounds = _CropBounds(
+          left: left, top: top, right: left + width, bottom: top + height);
     });
   }
 
@@ -259,6 +232,13 @@ enum _CropHandle {
       this == topRight || this == right || this == bottomRight;
   bool get movesBottom =>
       this == bottomLeft || this == bottom || this == bottomRight;
+
+  MouseCursor get cursor => switch (this) {
+        topLeft || bottomRight => SystemMouseCursors.resizeUpLeftDownRight,
+        topRight || bottomLeft => SystemMouseCursors.resizeUpRightDownLeft,
+        top || bottom => SystemMouseCursors.resizeUpDown,
+        left || right => SystemMouseCursors.resizeLeftRight,
+      };
 }
 
 final class _CropBounds {
@@ -286,35 +266,34 @@ final class _CropPreview extends StatelessWidget {
     required this.imageBytes,
     required this.imageWidth,
     required this.imageHeight,
+    required this.originalRatio,
     required this.bounds,
-    required this.accent,
+    required this.color,
     required this.onHandleDrag,
+    required this.onCropDrag,
   });
 
   final Uint8List imageBytes;
   final int imageWidth;
   final int imageHeight;
+
+  /// Keeps the panel's height through a turn to a wider image.
+  final double originalRatio;
   final _CropBounds bounds;
-  final Color accent;
+  final Color color;
   final void Function(_CropHandle handle, Offset delta, Size imageSize)
       onHandleDrag;
+  final void Function(Offset delta, Size imageSize) onCropDrag;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final available = Size(constraints.maxWidth, constraints.maxHeight);
-        final imageRatio = imageWidth / imageHeight;
-        final availableRatio = available.width / available.height;
-        final imageSize = availableRatio > imageRatio
-            ? Size(available.height * imageRatio, available.height)
-            : Size(available.width, available.width / imageRatio);
-        final imageRect = Rect.fromLTWH(
-          (available.width - imageSize.width) / 2,
-          (available.height - imageSize.height) / 2,
-          imageSize.width,
-          imageSize.height,
-        );
+        const inset = LibraryCoverPanelFrame.inset;
+        final width = constraints.maxWidth - inset * 2;
+        final imageSize = Size(width, width * imageHeight / imageWidth);
+        final height = math.max(imageSize.height, width / originalRatio);
+        final imageRect = const Offset(inset, inset) & imageSize;
         final cropRect = Rect.fromLTRB(
           imageRect.left + imageRect.width * bounds.left,
           imageRect.top + imageRect.height * bounds.top,
@@ -322,30 +301,38 @@ final class _CropPreview extends StatelessWidget {
           imageRect.top + imageRect.height * bounds.bottom,
         );
 
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            const ColoredBox(color: Color(0xFFE3E3E1)),
-            Positioned.fromRect(
-              rect: imageRect,
-              child: Image.memory(imageBytes, fit: BoxFit.fill),
-            ),
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _CropOverlayPainter(
-                  imageRect: imageRect,
-                  cropRect: cropRect,
-                  accent: accent,
+        return SizedBox(
+          height: height + inset * 2,
+          child: Stack(
+            children: [
+              Positioned.fromRect(
+                rect: imageRect,
+                child: Image.memory(imageBytes, fit: BoxFit.fill),
+              ),
+              Positioned.fromRect(
+                rect: cropRect,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.move,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onPanUpdate: (details) =>
+                        onCropDrag(details.delta, imageSize),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: color),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-            for (final handle in _CropHandle.values)
-              _positionedHandle(
-                handle,
-                cropRect,
-                imageSize,
-              ),
-          ],
+              for (final handle in _CropHandle.values)
+                _positionedHandle(
+                  handle,
+                  cropRect,
+                  imageSize,
+                ),
+            ],
+          ),
         );
       },
     );
@@ -372,72 +359,19 @@ final class _CropPreview extends StatelessWidget {
       width: 20,
       height: 20,
       child: MouseRegion(
-        cursor: SystemMouseCursors.move,
+        cursor: handle.cursor,
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onPanUpdate: (details) =>
               onHandleDrag(handle, details.delta, imageSize),
           child: Center(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: accent,
-                border: Border.all(color: Colors.white, width: 1),
-                borderRadius: BorderRadius.circular(1),
-              ),
-              child: const SizedBox.square(dimension: 7),
+            child: ColoredBox(
+              color: color,
+              child: const SizedBox.square(dimension: 5),
             ),
           ),
         ),
       ),
     );
   }
-}
-
-final class _CropOverlayPainter extends CustomPainter {
-  const _CropOverlayPainter({
-    required this.imageRect,
-    required this.cropRect,
-    required this.accent,
-  });
-
-  final Rect imageRect;
-  final Rect cropRect;
-  final Color accent;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final outside = Path.combine(
-      PathOperation.difference,
-      Path()..addRect(imageRect),
-      Path()..addRect(cropRect),
-    );
-    canvas.drawPath(
-      outside,
-      Paint()..color = Colors.black.withValues(alpha: 0.52),
-    );
-    canvas.drawRect(
-      cropRect,
-      Paint()
-        ..color = accent
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5,
-    );
-    final grid = Paint()
-      ..color = Colors.white.withValues(alpha: 0.48)
-      ..strokeWidth = 0.7;
-    for (var division = 1; division < 3; division++) {
-      final x = cropRect.left + cropRect.width * division / 3;
-      final y = cropRect.top + cropRect.height * division / 3;
-      canvas.drawLine(
-          Offset(x, cropRect.top), Offset(x, cropRect.bottom), grid);
-      canvas.drawLine(
-          Offset(cropRect.left, y), Offset(cropRect.right, y), grid);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _CropOverlayPainter oldDelegate) =>
-      oldDelegate.imageRect != imageRect ||
-      oldDelegate.cropRect != cropRect ||
-      oldDelegate.accent != accent;
 }

@@ -224,6 +224,8 @@ abstract final class AppIcons {
   // --- Sorting & View Controls ---
   static const IconData check =
       IconData(0xf00c, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData rotateRight =
+      IconData(0xf01e, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData toolbarTools =
       IconData(0xf1de, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData columns =
