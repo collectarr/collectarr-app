@@ -80,6 +80,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Covers on vertical cards are sharp at every size instead of blurry.
 - The crosses that remove a Publisher, Developer, credit or chip value and the + beside those fields match the bolder close-button glyph, and the crosses underline under the pointer as in CLZ.
 - A locked Value in Games, Hardware and Toys looks locked, with a light field and grey text as in CLZ, and Hardware and Toys no longer let you edit it.
 - Games, Hardware and Toys no longer show the PriceCharting chart on the Value tab, whose fields now use the full width.

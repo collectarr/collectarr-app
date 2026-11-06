@@ -101,8 +101,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
       coverFocused: coverFocused,
     );
 
-    final coverCacheWidth = _targetCacheWidth(context);
-
     if (coverFocused) {
       return MouseRegion(
           onEnter: (_) => setState(() => _hovered = true),
@@ -111,7 +109,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
             context: context,
             selectedTitleColor: selectedTitleColor,
             mutedColor: resolvedMutedTextColor,
-            coverCacheWidth: coverCacheWidth,
             presentation: presentation,
           ));
     }
@@ -122,7 +119,7 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
           context: context,
           selectedTitleColor: selectedTitleColor,
           mutedColor: resolvedMutedTextColor,
-          coverCacheWidth: coverCacheWidth,
+          coverCacheWidth: _targetCacheWidth(context, coverWidth),
           presentation: presentation,
         ));
   }
@@ -254,7 +251,6 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     required BuildContext context,
     required Color selectedTitleColor,
     required Color mutedColor,
-    required int? coverCacheWidth,
     required LibraryCardPresentation presentation,
   }) {
     final palette = appPalette(context);
@@ -275,13 +271,22 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
         : palette.isDark
             ? kLibraryCardDetailIdle
             : palette.textMuted;
-    Widget buildCover({required Alignment alignment}) => _buildCover(
-          context: context,
-          coverCacheWidth: coverCacheWidth,
-          presentation: presentation,
-          fit: BoxFit.contain,
-          alignment: alignment,
-          borderRadius: 0,
+    // The cover fills the card, which can be far wider than [coverWidth], so
+    // it decodes for the width it is laid out at. Like cover tiles it keeps
+    // twice that, for fine cover text and for app zoom.
+    Widget buildCover({required Alignment alignment}) => LayoutBuilder(
+          builder: (context, constraints) => _buildCover(
+            context: context,
+            coverCacheWidth: _targetCacheWidth(
+                context,
+                constraints.hasBoundedWidth
+                    ? constraints.maxWidth * 2
+                    : coverWidth * 2),
+            presentation: presentation,
+            fit: BoxFit.contain,
+            alignment: alignment,
+            borderRadius: 0,
+          ),
         );
 
     return RepaintBoundary(
@@ -437,10 +442,10 @@ class _LibraryWorkspaceCardState extends State<LibraryWorkspaceCard> {
     return wrapOverlay != null ? wrapOverlay(cover) : cover;
   }
 
-  int? _targetCacheWidth(BuildContext context) {
+  int? _targetCacheWidth(BuildContext context, double width) {
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
     if (pixelRatio <= 0) return null;
-    final rawWidth = coverWidth * pixelRatio;
+    final rawWidth = width * pixelRatio;
     return ((rawWidth / 64).ceil() * 64).toInt();
   }
 }
