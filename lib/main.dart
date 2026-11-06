@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/fonts/local_font_controller.dart';
 import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
+import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:collectarr_app/ui/app_zoom.dart';
 import 'package:collectarr_app/ui/browser_zoom.dart';
@@ -35,6 +36,7 @@ void main() {
 
       await LocalFontController.instance.initialize();
       await loadStartupThemeMode();
+      await loadStartupLibraryKind();
       await _logFontDiagnostics(container!);
 
       runApp(

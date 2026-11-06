@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fakes/secure_storage_mock.dart';
 
@@ -14,5 +15,7 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   TestWidgetsFlutterBinding.ensureInitialized();
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   setUp(setUpSecureStorageMock);
+  // Selecting a library saves it, so every test needs a preferences store.
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   await testMain();
 }

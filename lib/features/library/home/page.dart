@@ -360,7 +360,9 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         }
         final currentKind = ref.read(selectedLibraryKindProvider);
         if (currentKind != selected.kind) {
-          ref.read(selectedLibraryKindProvider.notifier).select(selected.kind);
+          ref
+              .read(selectedLibraryKindProvider.notifier)
+              .select(selected.kind, remember: routeSelected != null);
         }
       });
     }
