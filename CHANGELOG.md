@@ -17,6 +17,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- Comics statistics have a tab per collection with totals, series, key, publisher, purchase price, grade, year, creator and character charts, and the most recent and most valuable comics.
 - Comics Pre-fill sets Raw / Slabbed, Grade, Grading Company and Label Type.
 - Add Games' Platform tab lists each game of a platform once as soon as it opens, loads more while you scroll, shows the total, filters as you type, narrows to games in or not in your collection and remembers the platform.
 - Game details show a trailer's thumbnail with a play mark, and the Personal table lists purchase, condition, quantity, owner, tags and notes.

@@ -198,51 +198,6 @@ class LibraryStatsHealthRow {
   final double fraction;
 }
 
-class LibraryMissingIssuesCard extends StatelessWidget {
-  const LibraryMissingIssuesCard({
-    super.key,
-    required this.selectedSeries,
-    required this.missingIssues,
-  });
-
-  final String? selectedSeries;
-  final List<int> missingIssues;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = libraryStatsColors(context);
-    return SizedBox(
-      width: kLibraryStatsCardWidth,
-      child: _StatsPanel(
-        title: selectedSeries == null ? 'Series gaps' : 'Gaps: $selectedSeries',
-        child: selectedSeries == null
-            ? Text(
-                'Select a series',
-                style: TextStyle(color: colors.textMuted, fontSize: 12),
-              )
-            : missingIssues.isEmpty
-                ? Text(
-                    'No gaps',
-                    style: TextStyle(color: colors.textMuted, fontSize: 12),
-                  )
-                : Wrap(
-                    spacing: 5,
-                    runSpacing: 5,
-                    children: [
-                      for (final issue in missingIssues.take(10))
-                        _MissingIssuePill(value: issue),
-                      if (missingIssues.length > 10)
-                        _MissingIssuePill(
-                          value: missingIssues.length - 10,
-                          more: true,
-                        ),
-                    ],
-                  ),
-      ),
-    );
-  }
-}
-
 class LibraryMissingSequenceCard extends StatelessWidget {
   const LibraryMissingSequenceCard({
     super.key,
@@ -474,36 +429,6 @@ class _MoneyDistributionRow extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _MissingIssuePill extends StatelessWidget {
-  const _MissingIssuePill({required this.value, this.more = false});
-
-  final int value;
-  final bool more;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = libraryStatsColors(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.meterBackground,
-        border: Border.all(color: colors.accent),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        child: Text(
-          more ? '+$value' : '#$value',
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
       ),
     );
   }
