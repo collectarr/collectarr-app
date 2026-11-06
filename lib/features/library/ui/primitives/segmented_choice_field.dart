@@ -33,6 +33,8 @@ final class LibrarySegmentedChoiceField<T> extends StatelessWidget {
     final fill = dark ? const Color(0xFF444444) : palette.field;
     final selectedFill =
         dark ? const Color(0xFF666666) : const Color(0xFFE6E6E6);
+    // Halfway to the selected fill, so a hovered segment reads as selectable.
+    final hoverFill = Color.lerp(fill, selectedFill, 0.5)!;
     final mutedText = dark ? const Color(0xFF999999) : palette.textMuted;
     return LibraryFormField(
       label: label,
@@ -55,26 +57,21 @@ final class LibrarySegmentedChoiceField<T> extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => onChanged(option.$1),
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: option.$1 == value ? selectedFill : null,
-                        border: index == 0
-                            ? null
-                            : Border(left: BorderSide(color: separator)),
-                      ),
-                      child: Text(
-                        option.$2,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: option.$1 == value
-                              ? palette.textPrimary
-                              : mutedText,
-                        ),
+                  child: _Segment(
+                    selectedFill: option.$1 == value ? selectedFill : null,
+                    hoverFill: hoverFill,
+                    border: index == 0
+                        ? null
+                        : Border(left: BorderSide(color: separator)),
+                    child: Text(
+                      option.$2,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: option.$1 == value
+                            ? palette.textPrimary
+                            : mutedText,
                       ),
                     ),
                   ),
@@ -85,4 +82,41 @@ final class LibrarySegmentedChoiceField<T> extends StatelessWidget {
       ),
     );
   }
+}
+
+/// One segment; shades on hover unless it is the selected one.
+final class _Segment extends StatefulWidget {
+  const _Segment({
+    required this.selectedFill,
+    required this.hoverFill,
+    required this.border,
+    required this.child,
+  });
+
+  final Color? selectedFill;
+  final Color hoverFill;
+  final Border? border;
+  final Widget child;
+
+  @override
+  State<_Segment> createState() => _SegmentState();
+}
+
+class _SegmentState extends State<_Segment> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) => MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: widget.selectedFill ?? (_hovered ? widget.hoverFill : null),
+            border: widget.border,
+          ),
+          child: widget.child,
+        ),
+      );
 }

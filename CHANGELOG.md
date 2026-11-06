@@ -83,6 +83,7 @@
 - Games Platform, Region, Format, Condition, Audience Rating and Genre, Hardware Platform and Condition, Toys Condition, and Purchase Store in every kind, no longer offer a Sort Name.
 - Selection fields such as Collection Status show a blue frame while their menu is open, as in CLZ.
 - Single-choice pick lists show the current value first, as in CLZ.
+- Segmented choices such as Completeness shade the segment under the pointer.
 - Keeping this device's version after a sync conflict sends that version, where it sent the other device's.
 - Unresolved sync conflicts are kept until you decide, where the next sync or a restart lost them with the rejected edit.
 - Missing Comics no longer overflows on phones.
