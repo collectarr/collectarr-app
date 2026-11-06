@@ -109,9 +109,15 @@ class _LibraryMobileFolderChooserState
                   key: Key('library.mobile-folder-${bucket.title}'),
                   leading: _FolderImage(bucket: bucket),
                   title: Text(bucket.title),
-                  trailing: CircleAvatar(
-                    radius: 12,
-                    backgroundColor: palette.textMuted.withValues(alpha: .65),
+                  trailing: Container(
+                    constraints:
+                        const BoxConstraints(minWidth: 24, minHeight: 24),
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    decoration: BoxDecoration(
+                      color: palette.textMuted.withValues(alpha: .65),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Text('${bucket.count}',
                         style:
                             const TextStyle(color: Colors.white, fontSize: 13)),
