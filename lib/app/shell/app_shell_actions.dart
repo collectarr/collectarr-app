@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/add/launcher.dart';
+import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/library/covers/download_covers_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/collections/dialog.dart';
@@ -157,6 +158,9 @@ class AppShellActions {
           accent: accent,
           mediaKind: type.kind.apiValue,
         );
+        return;
+      case DrawerAction.syncNow:
+        await ref.read(syncControllerProvider.notifier).syncNow();
         return;
       case DrawerAction.cloudSharing:
         await _withShelf(

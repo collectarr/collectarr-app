@@ -17,6 +17,7 @@ enum DrawerAction {
   calendar,
   admin,
   manageCustomFields,
+  syncNow,
   cloudSharing,
   prefillSettings,
   settings,
@@ -191,6 +192,13 @@ const appDrawerDestinations = <AppDrawerDestination>[
       svgAsset: AppIcons.customFieldsSvg,
       section: AppDrawerSection.customization,
       behavior: DrawerActionBehavior.overlayPage),
+  AppDrawerDestination(
+      action: DrawerAction.syncNow,
+      label: 'Sync with Cloud',
+      icon: AppIcons.sync,
+      section: AppDrawerSection.customization,
+      behavior: DrawerActionBehavior.modal,
+      nativeOnly: true),
   AppDrawerDestination(
       action: DrawerAction.cloudSharing,
       label: 'Cloud Sync & Sharing',
