@@ -35,6 +35,22 @@ typedef LibraryItemContextMenuCallback = void Function(
   Offset globalPosition,
 );
 
+/// The width of a card at the cover size slider's position in its range: the
+/// slider's minimum gives [minWidth], wide enough for the card's content, its
+/// maximum gives [maxWidth], and every step between changes the card.
+double libraryCardWidthForCoverSize({
+  required double coverSize,
+  required double minCoverSize,
+  required double maxCoverSize,
+  required double minWidth,
+  required double maxWidth,
+}) {
+  final range = maxCoverSize - minCoverSize;
+  final position =
+      range > 0 ? ((coverSize - minCoverSize) / range).clamp(0.0, 1.0) : 0.0;
+  return minWidth + (math.max(minWidth, maxWidth) - minWidth) * position;
+}
+
 double libraryWorkspaceGridMainAxisExtent({
   required LibraryKindRegistration type,
   required double coverSize,
@@ -47,6 +63,14 @@ double libraryWorkspaceGridMainAxisExtent({
 const _kWorkspaceGridPadding = EdgeInsets.all(10);
 
 const _kHorizontalCardMinHeight = 80.0;
+
+/// Card widths at the cover size slider's ends. Each minimum keeps a card's
+/// title, platform tile and a value such as "US\$ 1,299.99" whole.
+const _kVerticalCardMinWidth = 150.0;
+const _kVerticalCardMaxWidth = 244.0;
+const _kCoverFocusedCardMinWidth = 164.0;
+const _kCoverFocusedCardMaxWidth = 248.0;
+const _kHorizontalCardMinWidth = 312.0;
 
 class LibraryWorkspace extends ConsumerWidget {
   const LibraryWorkspace({
@@ -203,18 +227,23 @@ class LibraryWorkspace extends ConsumerWidget {
         : 1.0;
     final cardCoverWidth =
         (uiPrefs.cardCoverWidth * cardScale).clamp(60.0, 164.0).toDouble();
-    // Horizontal cards follow the slider across its whole range; only the
-    // card and cover sizes of the other card views are capped.
+    double cardWidth(double minWidth, double maxWidth) =>
+        libraryCardWidthForCoverSize(
+          coverSize: viewState.coverSize,
+          minCoverSize: viewProfile.minCoverSize,
+          maxCoverSize: viewProfile.maxCoverSize,
+          minWidth: minWidth,
+          maxWidth: maxWidth * density.cardScaleFactor,
+        );
     final horizontalScale = defaultCoverSize > 0
         ? viewState.coverSize / defaultCoverSize * density.cardScaleFactor
         : 1.0;
-    final horizontalCardWidth = math.max(312.0, 430.0 * horizontalScale);
+    final horizontalCardWidth = cardWidth(_kHorizontalCardMinWidth,
+        430.0 * viewProfile.maxCoverSize / defaultCoverSize);
     final horizontalCoverWidth =
         math.max(60.0, uiPrefs.cardCoverWidth * horizontalScale);
     final standardVerticalTileWidth =
-        ((viewState.coverSize + 10) * density.cardScaleFactor)
-            .clamp(120.0, 244.0)
-            .toDouble();
+        cardWidth(_kVerticalCardMinWidth, _kVerticalCardMaxWidth);
     final cardFooterHeight = viewProfile.cardFooterHeight ??
         (items.any((item) => item.customFieldBadges.isNotEmpty) ? 80.0 : 62.0);
     final showsHeadline = viewProfile.cardHeaderHeight > 0 &&
@@ -228,9 +257,7 @@ class LibraryWorkspace extends ConsumerWidget {
         10 +
         cardFooterHeight;
     final coverFocusedTileWidth =
-        ((viewState.coverSize + 56) * density.cardScaleFactor)
-            .clamp(164.0, 248.0)
-            .toDouble();
+        cardWidth(_kCoverFocusedCardMinWidth, _kCoverFocusedCardMaxWidth);
     final coverFocusedTileHeight = coverFocusedTileWidth *
             libraryViewProfileForKind(type.kind).coverGridHeightFactor +
         cardFooterHeight;

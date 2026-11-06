@@ -260,7 +260,6 @@ navigation, larger system text and light appearance.
 | --- | --- | --- |
 | P2 | Import sources | Delicious Library, Game Collector, PriceCharting and Game Collector user-defined fields appear as unavailable placeholders until verified exports are available; CLZ supports those imports |
 | P3 | Add Games collection filter | CLZ's In Collection lists matches at once; Core does not know the local collection, so Collectarr filters the loaded pages and offers Load more instead of fetching a whole platform |
-| P3 | Vertical card value | At the smallest card size a long currency label such as "US$" shortens the value pill; CLZ's default cards are wider |
 | P2 | Pick lists | CLZ: Audience Rating, Condition, Developer, Format, Genre, Image Type, Loaned To, Location, Owner, Platform, Publisher, Purchase Store, Region, Series, Storage Device, Sub Type, Tag. The unused Age Rating and "Edition / Format" lists were removed (2026-10-23). Collectarr still adds Sold To (its own Sold fields) and has no Image Type list for My Images |
 | P3 | Column chooser gaps | Games has no Back Cover image, Description, eBay, Core GameID/MediaID or Toy NFCID columns. Collectarr keeps its Status, Wishlist, Franchise and Box/Manual Only value columns |
 | P3 | Add manual tabs | CLZ lists Personal last; Collectarr lists it after Value |

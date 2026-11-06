@@ -84,6 +84,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- The cover size slider changes the width of Library cards at every step of its range, and the smallest cards keep their value whole.
 - Add Games and Add Hardware start on PC, and Hardware shows its platform in the title field with Consoles, Controllers and Accessories before any search.
 - The Add confirm sheet of Hardware and Toys is compact like the Games one, and all three offer Find on eBay.
 - Add Hardware results show the platform, and Hardware and Toys results open the confirm sheet without a tick box, as in CLZ.
