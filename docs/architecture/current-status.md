@@ -177,5 +177,5 @@ colors, action widgets and count text. No toolbar presentation owns domain state
   builds them explicitly. Migrating to `material_ui` (`dart fix` ships its
   data) removes that helper, but waits until the packages that still use
   `flutter/material` (flutter_riverpod, printing, mobile_scanner, qr_flutter,
-  image_picker_for_web, url_launcher_web, google_mlkit_text_recognition) move
+  image_picker_for_web, url_launcher_web) move
   too, or their widgets lose the app theme.

@@ -1,9 +1,9 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/barcode/barcode_camera_view.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/ui/app_close_button.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 
 class BarcodeScanSheet extends StatefulWidget {
   const BarcodeScanSheet({
@@ -32,7 +32,6 @@ class BarcodeScanSheet extends StatefulWidget {
 class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
   final _manualController = TextEditingController();
   late final bool _cameraSupported;
-  MobileScannerController? _scannerController;
   bool _hasReturned = false;
 
   @override
@@ -40,26 +39,11 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
     super.initState();
     _cameraSupported = widget.cameraSupported ??
         barcodeScannerCameraSupported(devicePlatform: widget.devicePlatform);
-    if (_cameraSupported) {
-      _scannerController = MobileScannerController(
-        formats: const [
-          BarcodeFormat.ean13,
-          BarcodeFormat.ean8,
-          BarcodeFormat.upcA,
-          BarcodeFormat.upcE,
-          BarcodeFormat.code128,
-          BarcodeFormat.code39,
-          BarcodeFormat.itf14,
-          BarcodeFormat.qrCode,
-        ],
-      );
-    }
   }
 
   @override
   void dispose() {
     _manualController.dispose();
-    _scannerController?.dispose();
     super.dispose();
   }
 
@@ -111,18 +95,24 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
                   height: 260,
                   child: ColoredBox(
                     color: colorScheme.surfaceContainerHighest,
-                    child: MobileScanner(
-                      controller: _scannerController!,
-                      onDetect: _onDetect,
-                      errorBuilder: (context, error) => _ScannerFallback(
-                        message: barcodeScannerErrorMessage(error.errorCode),
-                      ),
+                    child: BarcodeCameraView(
+                      symbologies: const {
+                        ScannedCodeSymbology.ean13,
+                        ScannedCodeSymbology.ean8,
+                        ScannedCodeSymbology.upcA,
+                        ScannedCodeSymbology.upcE,
+                        ScannedCodeSymbology.code128,
+                        ScannedCodeSymbology.code39,
+                        ScannedCodeSymbology.itf14,
+                        ScannedCodeSymbology.qrCode,
+                      },
+                      onCodes: _onCodes,
                     ),
                   ),
                 ),
               )
             else
-              _ScannerFallback(
+              BarcodeScannerFallback(
                 message: barcodeScannerUnavailableMessage(
                   devicePlatform: widget.devicePlatform,
                 ),
@@ -154,18 +144,12 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
     );
   }
 
-  void _onDetect(BarcodeCapture capture) {
+  void _onCodes(List<ScannedCode> codes) {
     if (_hasReturned) {
       return;
     }
-    for (final barcode in capture.barcodes) {
-      final scannedCode = scannedCodeFromBarcode(barcode);
-      if (scannedCode != null) {
-        _hasReturned = true;
-        Navigator.of(context).pop(scannedCode);
-        return;
-      }
-    }
+    _hasReturned = true;
+    Navigator.of(context).pop(codes.first);
   }
 
   void _submitManual() {
@@ -175,40 +159,5 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
     }
     _hasReturned = true;
     Navigator.of(context).pop(scannedCode);
-  }
-}
-
-class _ScannerFallback extends StatelessWidget {
-  const _ScannerFallback({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      height: 150,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.videocam_off_outlined,
-              color: colorScheme.onSurfaceVariant),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-          ),
-        ],
-      ),
-    );
   }
 }

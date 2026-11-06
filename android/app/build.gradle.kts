@@ -35,6 +35,7 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
@@ -44,10 +45,5 @@ flutter {
 }
 
 dependencies {
-    // Keep optional ML Kit text recognition scripts in release builds so R8
-    // does not strip classes referenced by the plugin initialization path.
-    implementation("com.google.mlkit:text-recognition-chinese:16.0.1")
-    implementation("com.google.mlkit:text-recognition-devanagari:16.0.1")
-    implementation("com.google.mlkit:text-recognition-japanese:16.0.1")
-    implementation("com.google.mlkit:text-recognition-korean:16.0.1")
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.22.0")
 }

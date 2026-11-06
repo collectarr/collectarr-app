@@ -1,11 +1,11 @@
 import 'package:collectarr_app/ui/app_bottom_sheet.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/barcode/barcode_camera_view.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 
 /// A batch barcode scanner that stays open and collects multiple barcodes.
 /// Returns generic scanned codes when the user confirms.
@@ -28,7 +28,6 @@ class BarcodeBatchScanSheet extends StatefulWidget {
 class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
   final List<ScannedCode> _scannedBarcodes = [];
   late final bool _cameraSupported;
-  MobileScannerController? _scannerController;
   String? _lastScannedValue;
 
   @override
@@ -36,34 +35,13 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
     super.initState();
     _cameraSupported = widget.cameraSupported ??
         barcodeScannerCameraSupported(devicePlatform: widget.devicePlatform);
-    if (_cameraSupported) {
-      _scannerController = MobileScannerController(
-        formats: const [
-          BarcodeFormat.ean13,
-          BarcodeFormat.ean8,
-          BarcodeFormat.upcA,
-          BarcodeFormat.upcE,
-          BarcodeFormat.code128,
-          BarcodeFormat.code39,
-          BarcodeFormat.itf14,
-        ],
-      );
-    }
   }
 
-  @override
-  void dispose() {
-    _scannerController?.dispose();
-    super.dispose();
-  }
-
-  void _onDetect(BarcodeCapture capture) {
+  void _onCodes(List<ScannedCode> codes) {
     final newBarcodes = <ScannedCode>[];
     String? lastScannedValue;
-    for (final barcode in capture.barcodes) {
-      final scannedCode = scannedCodeFromBarcode(barcode);
-      if (scannedCode != null &&
-          scannedCode.value != _lastScannedValue &&
+    for (final scannedCode in codes) {
+      if (scannedCode.value != _lastScannedValue &&
           !_scannedBarcodes.any((code) => code.value == scannedCode.value) &&
           !newBarcodes.any((code) => code.value == scannedCode.value)) {
         newBarcodes.add(scannedCode);
@@ -143,9 +121,17 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
                 borderRadius: BorderRadius.circular(8),
                 child: SizedBox(
                   height: 200,
-                  child: MobileScanner(
-                    controller: _scannerController!,
-                    onDetect: _onDetect,
+                  child: BarcodeCameraView(
+                    symbologies: const {
+                      ScannedCodeSymbology.ean13,
+                      ScannedCodeSymbology.ean8,
+                      ScannedCodeSymbology.upcA,
+                      ScannedCodeSymbology.upcE,
+                      ScannedCodeSymbology.code128,
+                      ScannedCodeSymbology.code39,
+                      ScannedCodeSymbology.itf14,
+                    },
+                    onCodes: _onCodes,
                   ),
                 ),
               ),

@@ -1,0 +1,13 @@
+Cover text recognition models
+
+det.onnx   PP-OCRv4 mobile text detection, by the PaddleOCR authors
+           (ch_PP-OCRv4_det_infer.onnx from rapidocr_onnxruntime 1.3)
+rec.onnx   PP-OCRv5 mobile Latin text recognition, by the PaddleOCR authors
+           (latin_PP-OCRv5_rec_mobile.onnx from RapidOCR 3.10.0)
+keys.txt   The character list stored in rec.onnx's metadata.
+
+The models come unchanged from RapidOCR's ONNX conversions and are licensed
+under the Apache License, Version 2.0 (LICENSE.txt).
+
+https://github.com/PaddlePaddle/PaddleOCR
+https://github.com/RapidAI/RapidOCR

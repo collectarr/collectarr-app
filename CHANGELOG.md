@@ -19,6 +19,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- On Android, barcodes and cover text are read by open-source engines (ZXing and a Latin PaddleOCR model) instead of Google's closed ML Kit, and Cover Scan finds more titles.
 - Settings > Data can load icons for import sources from your own files; without them the sources show generic icons.
 - 23 more platforms show their own public-domain logo, such as Nintendo Switch, Wii, NES, Dreamcast, Game Boy Color and WonderSwan, without loading any files.
 - The library opens on the last one you used instead of always on Music.

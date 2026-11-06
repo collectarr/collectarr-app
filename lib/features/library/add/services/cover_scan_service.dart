@@ -11,9 +11,8 @@ import 'package:collectarr_app/features/library/edit/fields/value_fields.dart'
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart'
-    as mlkit;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -403,7 +402,8 @@ bool localCoverTextRecognitionSupported({
     return false;
   }
   return switch (platform ?? defaultTargetPlatform) {
-    TargetPlatform.android || TargetPlatform.iOS => true,
+    TargetPlatform.android => true,
+    TargetPlatform.iOS ||
     TargetPlatform.fuchsia ||
     TargetPlatform.linux ||
     TargetPlatform.macOS ||
@@ -415,7 +415,7 @@ bool localCoverTextRecognitionSupported({
 class CompositeLibraryCoverTextRecognizer
     implements LibraryCoverTextRecognizer {
   const CompositeLibraryCoverTextRecognizer({
-    this.nativeRecognizer = const GoogleMlKitLibraryCoverTextRecognizer(),
+    this.nativeRecognizer = const OnDeviceLibraryCoverTextRecognizer(),
     this.fallbackRecognizer = const ReviewSeedLibraryCoverTextRecognizer(),
   });
 
@@ -438,9 +438,11 @@ class CompositeLibraryCoverTextRecognizer
   }
 }
 
-class GoogleMlKitLibraryCoverTextRecognizer
-    implements LibraryCoverTextRecognizer {
-  const GoogleMlKitLibraryCoverTextRecognizer();
+/// Reads the cover with the open models bundled in the Android app.
+class OnDeviceLibraryCoverTextRecognizer implements LibraryCoverTextRecognizer {
+  const OnDeviceLibraryCoverTextRecognizer();
+
+  static const _channel = MethodChannel('collectarr/cover_ocr');
 
   @override
   Future<String?> recognizeText({
@@ -450,17 +452,31 @@ class GoogleMlKitLibraryCoverTextRecognizer
     if (!localCoverTextRecognitionSupported()) {
       return null;
     }
-    final inputImage = await _buildMlKitInputImage(image);
-    if (inputImage == null) {
+    final preparedBytes = image.transformsApplied ? image.preparedBytes : null;
+    final tempPath = preparedBytes == null
+        ? null
+        : path.join(
+            (await getTemporaryDirectory()).path,
+            'cover-scan-${DateTime.now().microsecondsSinceEpoch}.png',
+          );
+    final imagePath = tempPath ?? image.reviewedImage.sourceFile.path.trim();
+    if (imagePath.isEmpty) {
       return null;
     }
-    final recognizer = mlkit.TextRecognizer(
-      script: mlkit.TextRecognitionScript.latin,
-    );
     try {
-      final result = await recognizer.processImage(inputImage);
-      final text = result.text.trim();
-      return text.isEmpty ? null : text;
+      if (tempPath != null) {
+        await XFile.fromData(
+          preparedBytes!,
+          mimeType: 'image/png',
+          name: path.basename(tempPath),
+        ).saveTo(tempPath);
+      }
+      final text = await _channel.invokeMethod<String>(
+        'read',
+        <String, Object?>{'path': imagePath},
+      );
+      final trimmed = text?.trim();
+      return trimmed == null || trimmed.isEmpty ? null : trimmed;
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'cover_scan',
@@ -469,34 +485,8 @@ class GoogleMlKitLibraryCoverTextRecognizer
         stackTrace: stackTrace,
       );
       return null;
-    } finally {
-      await recognizer.close();
     }
   }
-}
-
-Future<mlkit.InputImage?> _buildMlKitInputImage(
-  LibraryCoverPreparedImage image,
-) async {
-  final preparedBytes = image.preparedBytes;
-  if (preparedBytes != null && image.transformsApplied) {
-    final tempDir = await getTemporaryDirectory();
-    final tempPath = path.join(
-      tempDir.path,
-      'cover-scan-${DateTime.now().microsecondsSinceEpoch}.png',
-    );
-    await XFile.fromData(
-      preparedBytes,
-      mimeType: 'image/png',
-      name: path.basename(tempPath),
-    ).saveTo(tempPath);
-    return mlkit.InputImage.fromFilePath(tempPath);
-  }
-  final sourcePath = image.reviewedImage.sourceFile.path.trim();
-  if (sourcePath.isEmpty) {
-    return null;
-  }
-  return mlkit.InputImage.fromFilePath(sourcePath);
 }
 
 class LibraryCoverCropBounds {

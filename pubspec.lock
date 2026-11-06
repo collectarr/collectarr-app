@@ -137,6 +137,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  camera:
+    dependency: "direct main"
+    description:
+      name: camera
+      sha256: "4a0863bc142f6fbfdca19161205574fd8a8f00d4753b48d214c4dfbdcc534c51"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.12.2"
+  camera_android_camerax:
+    dependency: transitive
+    description:
+      name: camera_android_camerax
+      sha256: b5e0a2a8e63f2788139379926a9abc3a64eed5e309c1384e5db25b74f15b7307
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.6+1"
+  camera_avfoundation:
+    dependency: transitive
+    description:
+      name: camera_avfoundation
+      sha256: "971f7b4938ae761797dd667c078af92f1b6a1bb7760774c0cbcf9c9d4a14bdf1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.1"
+  camera_platform_interface:
+    dependency: transitive
+    description:
+      name: camera_platform_interface
+      sha256: b3083b183ef1daa408d5f0c98c8c7ac0325b490695fb4557ff4210fcf04c5984
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.15.0"
+  camera_web:
+    dependency: transitive
+    description:
+      name: camera_web
+      sha256: "54183db5a296cf29478dd150d7685b761f9e8eeb4a11114bcbc2792adea7cb3b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.6"
   characters:
     dependency: transitive
     description:
@@ -514,6 +554,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_zxing:
+    dependency: "direct main"
+    description:
+      name: flutter_zxing
+      sha256: ee2b97bf69b01385b91497501c060f4e3b53686709892e005de10f3ad30eee98
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   font_awesome_flutter:
     dependency: "direct main"
     description:
@@ -543,22 +591,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "18.1.1"
-  google_mlkit_commons:
-    dependency: transitive
-    description:
-      name: google_mlkit_commons
-      sha256: "621e94de22fd0f1e902e593b892746d80ab7542b39c2552aa091d904eb82fc6f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.13.0"
-  google_mlkit_text_recognition:
-    dependency: "direct main"
-    description:
-      name: google_mlkit_text_recognition
-      sha256: e13685af5093c8be009a3555909b72a80e10cfe8f97752bcbdf99fa0ccbda810
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.17.1"
   graphs:
     dependency: transitive
     description:
@@ -815,11 +847,10 @@ packages:
   mobile_scanner:
     dependency: "direct main"
     description:
-      name: mobile_scanner
-      sha256: "5a51ea79f0cf8293f616a5d08baae185b59b5e6bb24df01f2a63037ade0bade0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.4.2"
+      path: "third_party/mobile_scanner"
+      relative: true
+    source: path
+    version: "7.4.0"
   native_toolchain_c:
     dependency: transitive
     description:
