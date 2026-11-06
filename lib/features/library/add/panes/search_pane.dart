@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/ui/primitives/platform_icon.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_add_registry.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -1271,6 +1273,20 @@ class SearchResultTile extends StatelessWidget {
                         if (secondary.isNotEmpty) Text(secondary),
                         Row(
                           children: [
+                            if (display?.platform case final platform?) ...[
+                              Padding(
+                                padding: const EdgeInsets.only(top: 3),
+                                child: PlatformIcon(platform,
+                                    size: 20, color: palette.textMuted),
+                              ),
+                              const SizedBox(width: 6),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 3),
+                                child: Text(platform,
+                                    style: TextStyle(color: palette.textMuted)),
+                              ),
+                              const SizedBox(width: 6),
+                            ],
                             Expanded(child: Text(detail)),
                             if (trailing.isNotEmpty) ...[
                               const SizedBox(width: 8),
@@ -1283,13 +1299,15 @@ class SearchResultTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 20),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20, right: 13),
-                  child: LibraryAddResultCheckbox(
-                    checked: checked,
-                    onPressed: onToggleCheck,
+                if (collectarrKindAdds[type.kind]?.chrome.resultTickBoxes ??
+                    true)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20, right: 13),
+                    child: LibraryAddResultCheckbox(
+                      checked: checked,
+                      onPressed: onToggleCheck,
+                    ),
                   ),
-                ),
               ],
             ),
           ),

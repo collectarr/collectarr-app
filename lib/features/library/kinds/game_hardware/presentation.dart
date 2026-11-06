@@ -12,6 +12,20 @@ final class GameHardwarePresentationBuilder
     extends LibraryMediaPresentationBuilder {
   const GameHardwarePresentationBuilder();
   @override
+  LibraryAddSearchResultDisplay? buildSearchResultDisplay(
+      {required CatalogSearchCandidate item}) {
+    final platform = item.kindCapability
+        .mapTransport((transport) => transport.kindData['platform'])
+        ?.toString()
+        .trim();
+    return LibraryAddSearchResultDisplay(
+        title: item.summary.primaryLabel,
+        secondaryLine: null,
+        detailLine: null,
+        platform: platform == null || platform.isEmpty ? null : platform);
+  }
+
+  @override
   CatalogSearchCandidate mergeHydratedAddItem(
           {required CatalogSearchCandidate hydrated,
           required CatalogSearchCandidate fallback}) =>

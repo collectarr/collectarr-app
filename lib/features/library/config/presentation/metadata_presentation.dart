@@ -27,6 +27,7 @@ class LibraryAddSearchResultDisplay {
     required this.detailLine,
     this.trailingDetail,
     this.year,
+    this.platform,
   });
 
   final String title;
@@ -36,6 +37,9 @@ class LibraryAddSearchResultDisplay {
   /// Right-aligned on the detail line, such as a barcode.
   final String? trailingDetail;
   final int? year;
+
+  /// Shown with its icon on the row's last line, as in the reference.
+  final String? platform;
 }
 
 enum LibraryMetadataSectionPlacement { context, credits }

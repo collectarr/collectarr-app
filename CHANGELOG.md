@@ -81,6 +81,7 @@
 - Removing selected items shows a progress window whose bar fills as they are removed, like imports and exports.
 
 ### Fixes
+- Add Hardware results show the platform, and Hardware and Toys results open the confirm sheet without a tick box, as in CLZ.
 - Add Manually for Games, Hardware and Toys starts empty, is titled "Add game manually" and ends in Cancel and Add, with a missing title reported on Add.
 - Add search suggestions no longer show an internal name such as game_toy under items with no details.
 - The Add dialogs of Hardware and Toys are titled Add Hardware and Add Toys, as in CLZ.
