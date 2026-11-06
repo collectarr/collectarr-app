@@ -190,13 +190,6 @@ class LibraryCompactToolbarContent extends StatelessWidget {
         if (linkedMetadataFilterLabel != null)
           LibraryToolbarScopeChip(
               label: linkedMetadataFilterLabel!, onClear: onClearBucket),
-        if (showAlphabetRow)
-          LibraryToolbarAlphabetRow(
-              letters: availableLetters,
-              selectedLetter: selectedLetter,
-              alphabetOptions: alphabetOptions,
-              accent: accent,
-              onLetterSelected: onLetterSelected!),
       ]);
     }
     return Column(

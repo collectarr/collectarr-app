@@ -371,6 +371,11 @@ abstract final class LibraryPageShellPresenter {
           showMobileFolderRoot:
               appPresentationPlatform.isNativeMobile && showFolderRoot,
           tabletPanes: tabletPanes,
+          availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
+            projection.filteredItems.expand(state._alphabetField.values),
+          ),
+          selectedLetter: state._session.facets.selectedLetter,
+          onLetterSelected: state._setSelectedLetter,
           onEditColumns: state._dialogCoordinator.showColumnChooserFlow,
           columnFavoritePresets: state._columnFavoritePresets,
           activeColumnFavoriteLabel: state._activeColumnFavoriteLabel,

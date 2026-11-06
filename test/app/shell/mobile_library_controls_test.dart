@@ -1,8 +1,7 @@
 import 'package:collectarr_app/app/app_shell.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/view_and_organize_sheet.dart';
-import 'package:collectarr_app/features/library/workspace/config/config.dart';
+import 'package:collectarr_app/features/library/workspace/mobile/mobile_view_mode.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -53,33 +52,19 @@ void main() {
       expect(tester.getSize(row).height, 48);
       await tester.tap(find.byKey(const Key('library.mobile-views')));
       await pumpUntilSettled(tester);
-      for (final mode in LibraryViewMode.values) {
-        expect(find.byKey(ValueKey('view_mode_${mode.name}')), findsOneWidget);
+      for (final mode in LibraryMobileViewMode.values) {
+        expect(
+            find.byKey(ValueKey('mobile_view_${mode.name}')), findsOneWidget);
       }
-      final horizontal =
-          find.byKey(const ValueKey('view_mode_horizontalCards'));
-      await tester.ensureVisible(horizontal);
-      await tester.tap(horizontal);
+      expect(find.text('Shelves'), findsNothing);
+      expect(find.text('Flow carousel'), findsNothing);
+      expect(find.text('Horizontal cards'), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('mobile_view_list')));
       await pumpUntilSettled(tester);
-      await tester.tap(find.byTooltip('Close'));
-      await pumpUntilSettled(tester);
+      expect(find.byKey(const Key('library.mobile-cover-size')), findsNothing);
       await tester.tap(find.byKey(const Key('library.mobile-views')));
       await pumpUntilSettled(tester);
-      expect(
-          tester
-              .widget<ViewAndOrganizeSheet>(find.byType(ViewAndOrganizeSheet))
-              .currentViewMode,
-          LibraryViewMode.horizontalCards);
-      await tester
-          .ensureVisible(find.byKey(const ValueKey('view_mode_cardFlow')));
-      await tester.tap(find.byKey(const ValueKey('view_mode_cardFlow')));
-      await pumpUntilSettled(tester);
-      expect(find.byKey(const ValueKey('cover_size_slider')), findsNothing);
-      await tester.ensureVisible(find.byKey(const ValueKey('view_mode_grid')));
-      await tester.tap(find.byKey(const ValueKey('view_mode_grid')));
-      await pumpUntilSettled(tester);
-      expect(find.byKey(const ValueKey('cover_size_slider')), findsOneWidget);
-      await tester.tap(find.byTooltip('Close'));
+      await tester.tap(find.byKey(const ValueKey('mobile_view_images')));
       await pumpUntilSettled(tester);
       await tester.tap(find.byKey(const Key('library.mobile-sort')));
       await pumpUntilSettled(tester);

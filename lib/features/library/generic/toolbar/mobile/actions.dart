@@ -7,10 +7,14 @@ class LibraryMobileToolbarActions extends StatelessWidget {
       required this.background,
       required this.foreground,
       required this.actions,
+      this.coverSizeSlider,
       required this.countLabel});
   final Color background;
   final Color foreground;
   final List<Widget> actions;
+
+  /// Above the count, as in the reference's Images view.
+  final Widget? coverSizeSlider;
   final String? countLabel;
   @override
   Widget build(BuildContext context) => Column(
@@ -28,6 +32,7 @@ class LibraryMobileToolbarActions extends StatelessWidget {
                   child: Row(
                       key: const Key('library.mobile-controls'),
                       children: actions))),
+          if (coverSizeSlider != null) coverSizeSlider!,
           if (countLabel != null)
             Padding(
                 key: const Key('library.mobile-count'),

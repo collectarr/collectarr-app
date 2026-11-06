@@ -24,6 +24,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kind_registry.dart';
 
+import 'alphabet_row.dart';
+import 'package:collectarr_app/features/library/workspace/mobile/mobile_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/mobile/mobile_view_mode.dart';
+
 import 'mobile/actions.dart';
 
 const double _kLibraryToolbarBandVerticalPadding = 0;
@@ -89,6 +93,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.showBottomBorder = true,
     this.showMobileFolderRoot = false,
     this.tabletPanes = false,
+    this.availableLetters = const {},
+    this.selectedLetter,
+    this.onLetterSelected,
   });
 
   final double? currentSpacing;
@@ -98,6 +105,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
 
   /// The folder panel names the folder, so the toolbar has no folder button.
   final bool tabletPanes;
+  final Set<String> availableLetters;
+  final String? selectedLetter;
+  final ValueChanged<String?>? onLetterSelected;
   final LibraryWorkspaceViewState viewState;
   final LibraryToolbarCounts counts;
   final VoidCallback onEditColumns;
@@ -331,7 +341,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   LibraryToolsButton(
                     type: type,
                     counts: counts,
-                    selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
+                    // The folder button already names the folder on a phone.
+                    selectedBucket: linkedMetadataFilterLabel,
                     quickView: quickView,
                     hasActiveFilters: hasActiveFilters,
                     onQuickViewSelected: onQuickViewSelected,
@@ -388,33 +399,24 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
             ))
           else
             const Spacer(),
+          if (availableLetters.isNotEmpty && onLetterSelected != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: LibraryMobileAlphabetButton(
+                letters: availableLetters,
+                alphabet: libraryToolbarAlphabet,
+                selectedLetter: selectedLetter,
+                background: libraryMobileToolbarButtonColor(context),
+                onLetterSelected: onLetterSelected!,
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: IconButton(
-                key: const Key('library.mobile-views'),
-                tooltip: 'Views and cover size',
-                style: IconButton.styleFrom(
-                    backgroundColor: libraryMobileToolbarButtonColor(context),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5))),
-                icon: const Icon(Icons.grid_view),
-                onPressed: () => showViewAndOrganizeSheet(
-                      context: context,
-                      currentViewMode: viewState.viewMode,
-                      onViewModeChanged: onViewModeChanged,
-                      currentDetailsLayout: viewState.detailsLayout,
-                      onDetailsLayoutChanged: onDetailsLayoutChanged,
-                      currentCoverSize: viewState.coverSize,
-                      minCoverSize:
-                          libraryViewProfileForKind(type.kind).minCoverSize,
-                      maxCoverSize:
-                          libraryViewProfileForKind(type.kind).maxCoverSize,
-                      onCoverSizeChanged: onCoverSizeChanged,
-                      currentSpacing: currentSpacing,
-                      onSpacingChanged: onSpacingChanged,
-                      onOpenColumnChooser: onEditColumns,
-                      onOpenSortDialog: onEditSort,
-                    )),
+            child: LibraryMobileViewMenu(
+              viewMode: viewState.viewMode,
+              background: libraryMobileToolbarButtonColor(context),
+              onChanged: onViewModeChanged,
+            ),
           ),
           if (onEditSort != null)
             Padding(
@@ -439,7 +441,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
               child: LibraryToolsButton(
                   type: type,
                   counts: counts,
-                  selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
+                  // The folder button already names the folder on a phone.
+                  selectedBucket: linkedMetadataFilterLabel,
                   quickView: quickView,
                   hasActiveFilters: hasActiveFilters,
                   onQuickViewSelected: onQuickViewSelected,
@@ -457,6 +460,16 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
             ),
           ),
         ],
+        coverSizeSlider: !showMobileFolderRoot &&
+                LibraryMobileViewMode.from(viewState.viewMode) ==
+                    LibraryMobileViewMode.images
+            ? LibraryMobileCoverSizeSlider(
+                value: viewState.coverSize,
+                min: libraryViewProfileForKind(type.kind).minCoverSize,
+                max: libraryViewProfileForKind(type.kind).maxCoverSize,
+                onChanged: onCoverSizeChanged,
+              )
+            : null,
         countLabel: showMobileFolderRoot
             ? null
             : '${counts.shown}${counts.shown == counts.total ? '' : ' / ${counts.total}'} ${type.identity.countLabel(counts.shown).toLowerCase()}',

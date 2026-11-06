@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/library/workspace/config/typed_field_def
 import 'package:collectarr_app/features/library/workspace/schema/field_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/pane_widths.dart';
+import 'package:collectarr_app/features/library/workspace/mobile/mobile_view_mode.dart';
+import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryWorkspacePreferenceSnapshot {
@@ -152,11 +154,11 @@ class LibraryWorkspacePreferences {
       fields,
     );
     final snapshot = LibraryWorkspacePreferenceSnapshot(
-      viewMode: _enumByName(
+      viewMode: _viewModeForPlatform(_enumByName(
             LibraryViewMode.values,
             prefs.getString(_key('view_mode')),
           ) ??
-          defaultViewMode,
+          defaultViewMode),
       densityPreset: defaultDensityPreset,
       detailsLayout: _enumByName(
             LibraryDetailsLayout.values,
@@ -435,6 +437,13 @@ class LibraryWorkspacePreferences {
     return value.clamp(min, max).toDouble();
   }
 }
+
+/// A phone only ever runs its own presentations, whatever an earlier version
+/// stored.
+LibraryViewMode _viewModeForPlatform(LibraryViewMode mode) =>
+    appPresentationPlatform.isNativeMobile
+        ? LibraryMobileViewMode.from(mode).workspaceMode
+        : mode;
 
 T? _enumByName<T extends Enum>(List<T> values, Object? rawValue) {
   if (rawValue is! String || rawValue.isEmpty) {

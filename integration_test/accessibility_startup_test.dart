@@ -58,11 +58,7 @@ void main() {
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
       if (appPresentationPlatform.isNativeMobile) {
-        await tester.tap(find.byKey(const Key('library.mobile-views')));
-        await pumpUntilSettled(tester);
-        expect(find.byType(Slider), findsWidgets);
-        await tester.tap(find.byTooltip('Close'));
-        await pumpUntilSettled(tester);
+        expect(find.byKey(const Key('library.mobile-views')), findsOneWidget);
       } else {
         expect(find.byType(Slider), findsWidgets);
       }

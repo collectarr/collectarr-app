@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/workspace/layout/compact_workspace_views.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/mobile/mobile_layout.dart';
+import 'package:collectarr_app/features/library/workspace/mobile/mobile_workspace.dart';
 import 'package:collectarr_app/ui/adaptive/platform_layout.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/ui/primitives/collection_status_field.dart'
@@ -107,22 +107,13 @@ class LibraryWorkspace extends ConsumerWidget {
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final int? initialCrossAxisCount;
 
-  bool _isActive(LibraryProjectionItem item) =>
-      !appPresentationPlatform.isNativeMobile && item.target.id == selectedId;
+  bool _isActive(LibraryProjectionItem item) => item.target.id == selectedId;
 
   bool _isSelectionSelected(LibraryProjectionItem item) =>
       selectedIds.contains(item.target.id);
 
   VoidCallback _selectionTap(LibraryProjectionItem item) {
     return () {
-      if (appPresentationPlatform.isNativeMobile) {
-        if (selectionEnabled) {
-          onToggleSelectionItem(item.target.id);
-        } else {
-          onOpenItem(item);
-        }
-        return;
-      }
       final isRangeSelection = isLibraryRangeModifierPressed();
       final isToggleSelection = isLibraryToggleModifierPressed();
       if (isRangeSelection) {
@@ -158,6 +149,23 @@ class LibraryWorkspace extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (appPresentationPlatform.isNativeMobile) {
+      return LibraryMobileWorkspace(
+        tabletPanes: libraryUsesTabletPanes(context,
+            forcePhoneLayout: ref.watch(uiPreferencesProvider
+                .select((value) => value.forcePhoneLayout))),
+        selectedId: selectedId,
+        onActivateItem: onActivateItem,
+        type: type,
+        items: items,
+        viewState: viewState,
+        selectionEnabled: selectionEnabled,
+        selectedIds: selectedIds,
+        onOpenItem: onOpenItem,
+        onToggleSelectionItem: onToggleSelectionItem,
+        emptyBuilder: _emptyBuilder,
+      );
+    }
     final uiPrefs = ref.watch(uiPreferencesProvider);
     final palette = appPalette(context);
     final gridSpacing = uiPrefs.gridSpacing;
@@ -235,10 +243,7 @@ class LibraryWorkspace extends ConsumerWidget {
             selectionMode: selectionEnabled,
             onTap: _selectionTap(item),
             onSelectionToggleTap: () => onToggleSelectionItem(item.target.id),
-            onDoubleTap:
-                selectionEnabled || appPresentationPlatform.isNativeMobile
-                    ? null
-                    : () => onOpenItem(item),
+            onDoubleTap: selectionEnabled ? null : () => onOpenItem(item),
             onEditTap: () => onEditItem(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
@@ -275,10 +280,7 @@ class LibraryWorkspace extends ConsumerWidget {
             selected: _isActive(item),
             checked: _isSelectionSelected(item),
             onTap: _selectionTap(item),
-            onDoubleTap:
-                selectionEnabled || appPresentationPlatform.isNativeMobile
-                    ? null
-                    : () => onOpenItem(item),
+            onDoubleTap: selectionEnabled ? null : () => onOpenItem(item),
             onSecondaryTapUp: onItemContextMenu == null
                 ? null
                 : (d) => onItemContextMenu!(item, d.globalPosition),
@@ -322,10 +324,7 @@ class LibraryWorkspace extends ConsumerWidget {
           onTap: (item) => _selectionTap(item)(),
           onToggleSelectionItem: (item) =>
               onToggleSelectionItem(item.target.id),
-          onDoubleTap:
-              selectionEnabled || appPresentationPlatform.isNativeMobile
-                  ? null
-                  : onOpenItem,
+          onDoubleTap: selectionEnabled ? null : onOpenItem,
           onSecondaryTapUp: onItemContextMenu == null
               ? null
               : (item, d) => onItemContextMenu!(item, d.globalPosition),
@@ -349,28 +348,6 @@ class LibraryWorkspace extends ConsumerWidget {
   }
 
   Widget _buildTable(UiPreferences preferences) {
-    if (appPresentationPlatform.isNativeMobile) {
-      return CompactWorkspaceListView<LibraryProjectionItem>(
-        items: items,
-        titleBuilder: (item) => item.dto.primaryLabel,
-        subtitleBuilder: (item) => item.dto.secondaryLabel,
-        idExtractor: (item) => item.target.id,
-        selectedIds: selectedIds,
-        selectionMode: selectionEnabled,
-        onItemTap: onOpenItem,
-        onItemSelect: (item, _) => onToggleSelectionItem(item.target.id),
-        coverBuilder: (context, item, width, height) => LibraryInteractiveCover(
-          title: item.dto.primaryLabel,
-          mediaKind: item.source.mediaKind,
-          imageUrl: item.dto.imageUrl,
-          libraryEntryRef: item.source.libraryEntryRef,
-          enableFullscreen: false,
-          enableHoverCue: false,
-          enableSecondaryControl: false,
-        ),
-        emptyBuilder: _emptyBuilder,
-      );
-    }
     if (items.isEmpty) {
       return Builder(builder: _emptyBuilder);
     }
@@ -651,10 +628,7 @@ class LibraryWorkspace extends ConsumerWidget {
               selected: _isActive(item),
               checked: _isSelectionSelected(item),
               onTap: _selectionTap(item),
-              onDoubleTap:
-                  selectionEnabled || appPresentationPlatform.isNativeMobile
-                      ? null
-                      : () => onOpenItem(item),
+              onDoubleTap: selectionEnabled ? null : () => onOpenItem(item),
               onSecondaryTapUp: onItemContextMenu == null
                   ? null
                   : (d) => onItemContextMenu!(item, d.globalPosition),

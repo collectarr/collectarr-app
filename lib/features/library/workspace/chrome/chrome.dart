@@ -11,7 +11,6 @@ import '../config/tokens.dart';
 export 'compact_filter_surface.dart';
 export 'compact_library_top_chrome.dart';
 export 'actions.dart';
-export 'view_and_organize_sheet.dart';
 export 'controls.dart';
 export 'menus.dart';
 export 'search.dart';

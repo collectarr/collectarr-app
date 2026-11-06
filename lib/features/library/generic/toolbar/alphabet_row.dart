@@ -3,6 +3,38 @@ import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'alphabet_options.dart';
 
+/// The letter buckets every library's alphabet filter offers.
+const libraryToolbarAlphabet = [
+  '#',
+  '0-9',
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z'
+];
+
 class LibraryToolbarAlphabetRow extends StatelessWidget {
   const LibraryToolbarAlphabetRow(
       {super.key,
@@ -20,44 +52,14 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final available =
         letters.map((letter) => letter.trim().toUpperCase()).toSet();
-    const alphabet = [
-      '#',
-      '0-9',
-      'A',
-      'B',
-      'C',
-      'D',
-      'E',
-      'F',
-      'G',
-      'H',
-      'I',
-      'J',
-      'K',
-      'L',
-      'M',
-      'N',
-      'O',
-      'P',
-      'Q',
-      'R',
-      'S',
-      'T',
-      'U',
-      'V',
-      'W',
-      'X',
-      'Y',
-      'Z'
-    ];
     // Reference slot widths at 14 px: letters 24, All 32, 0-9 34.
     double slotWidth(String label) => switch (label) {
           'All' => 32,
           '0-9' => 34,
           _ => 24,
         };
-    final designWidth =
-        ['All', ...alphabet].fold<double>(0, (sum, l) => sum + slotWidth(l));
+    final designWidth = ['All', ...libraryToolbarAlphabet]
+        .fold<double>(0, (sum, l) => sum + slotWidth(l));
     void select(String value) => onLetterSelected(
         value == 'All' || value == selectedLetter ? null : value);
     final palette = appPalette(context);
@@ -80,7 +82,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
                   tooltip: 'Filter A–Z',
                   onSelected: select,
                   itemBuilder: (_) => [
-                    for (final label in ['All', ...alphabet])
+                    for (final label in ['All', ...libraryToolbarAlphabet])
                       PopupMenuItem(
                           value: label,
                           height: 30,
@@ -106,7 +108,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              for (final label in ['All', ...alphabet])
+              for (final label in ['All', ...libraryToolbarAlphabet])
                 _AlphabetLetterButton(
                   label: label,
                   width: slotWidth(label) *

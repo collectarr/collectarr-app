@@ -65,6 +65,7 @@ class LibraryCardPresentation {
     this.verticalSubtitle,
     this.verticalSubtitleEmphasized = false,
     this.verticalTrailing,
+    this.mobileTile,
     required this.horizontalBodyBuilder,
     required this.verticalBodyBuilder,
     required this.coverBodyBuilder,
@@ -116,6 +117,10 @@ class LibraryCardPresentation {
   final bool verticalSubtitleEmphasized;
   final String? verticalTrailing;
 
+  /// What the phone's List and Cards show; a kind without one shows its
+  /// primary and secondary labels.
+  final LibraryMobileTileContent? mobileTile;
+
   /// Complete kind-owned bodies, including explicitly selected shared templates.
   final LibraryCardBodyBuilder horizontalBodyBuilder;
   final LibraryCardBodyBuilder verticalBodyBuilder;
@@ -123,6 +128,23 @@ class LibraryCardPresentation {
   final LibraryCardBodyBuilder flowBodyBuilder;
   final LibraryFlowFooterBuilder flowFooterBuilder;
   final LibraryCardBodyBuilder shelfBodyBuilder;
+}
+
+/// The kind-resolved lines of a phone List row or Cards tile.
+class LibraryMobileTileContent {
+  const LibraryMobileTileContent({
+    required this.headline,
+    this.subtitle,
+    this.numberLabel,
+    this.date,
+    this.pill,
+  });
+
+  final String headline;
+  final String? subtitle;
+  final String? numberLabel;
+  final String? date;
+  final LibraryCardPill? pill;
 }
 
 /// An outlined pill of a lead segment, such as a grade, and a value.

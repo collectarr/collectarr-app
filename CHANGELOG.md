@@ -17,6 +17,7 @@
 - The CLZ parity guide lists only open differences, items not yet compared and deliberate differences, without finished work.
 
 ### Features
+- On phones the library offers CLZ's List, Cards and Images, with the cover size slider on the Images page and the alphabet filter in the single toolbar row.
 - Tablets show folders, items and details side by side, and Force Phone Layout keeps them on a single panel.
 - Comics statistics have a tab per collection with totals, series, key, publisher, purchase price, grade, year, creator and character charts, and the most recent and most valuable comics.
 - Comics Pre-fill sets Raw / Slabbed, Grade, Grading Company and Label Type.
