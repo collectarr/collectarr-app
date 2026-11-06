@@ -170,7 +170,7 @@ def render(data, out):
     for key, slot in SLOTS.items():
         if data.get(key):
             draw(canvas, slot, data[key])
-    canvas.convert('RGB').save(out, optimize=True)
+    canvas.convert('RGB').save(out, quality=90, method=6)
 
 
 def main():

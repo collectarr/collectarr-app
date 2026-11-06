@@ -1,5 +1,6 @@
 """Format Collectarr GitHub releases; preserve editorial summaries across regeneration."""
 import argparse
+import base64
 import json
 import re
 import subprocess
@@ -11,6 +12,9 @@ import release_banner
 
 # GitHub rejects release descriptions over 125,000 characters.
 BODY_LIMIT = 120_000
+# Banners live on this orphan branch, so they stay out of the release downloads.
+BANNER_BRANCH = 'release-banners'
+BANNER = re.compile(r'!\[[^\]]*\]\((\S+)\)')
 CLOSING = re.compile(r'\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)', re.IGNORECASE)
 
 
@@ -88,6 +92,18 @@ def summary_text(entry):
     return entry if isinstance(entry, str) else entry['summary']
 
 
+def publish_banner(repo, tag, path):
+    """Commit the banner to its branch; the commit-pinned URL never serves a stale replacement."""
+    name = f'{tag}.webp'
+    existing = subprocess.run(['gh', 'api', f'repos/{repo}/contents/{name}?ref={BANNER_BRANCH}', '--jq', '.sha'], capture_output=True, text=True)
+    request = {'message': f'chore: add the {tag} release banner', 'branch': BANNER_BRANCH, 'content': base64.b64encode(path.read_bytes()).decode()}
+    if existing.returncode == 0:
+        request['sha'] = existing.stdout.strip()
+    # Sent on stdin: an encoded banner is longer than a command line argument may be.
+    response = subprocess.run(['gh', 'api', '--method', 'PUT', f'repos/{repo}/contents/{name}', '--input', '-'], input=json.dumps(request), capture_output=True, text=True, encoding='utf-8', check=True)
+    return f"https://raw.githubusercontent.com/{repo}/{json.loads(response.stdout)['commit']['sha']}/{name}"
+
+
 def main():
     sys.stdout.reconfigure(encoding='utf-8')
     parser = argparse.ArgumentParser(description=__doc__)
@@ -96,7 +112,7 @@ def main():
     selection.add_argument('--tag', help='Format this release; the newest published release by default')
     selection.add_argument('--all', action='store_true', help='Backfill every published release')
     parser.add_argument('--write', action='store_true', help='Update published release descriptions')
-    parser.add_argument('--banner', action='store_true', help='Render and upload the release banner again')
+    parser.add_argument('--banner', action='store_true', help='Render and publish the release banner again')
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     summaries_path = root / 'docs' / 'release-summaries.json'
@@ -131,14 +147,14 @@ def main():
         credits = re.sub(r"## What's Changed\n.*?(?=\n## |\n\*\*Full Changelog|\Z)", '', generated, flags=re.DOTALL)
         credits = re.sub(r'\n{3,}', '\n\n', credits).strip()
         url = f'https://github.com/{args.repo}'
-        banner = f'{url}/releases/download/{tag}/release-banner.png'
-        if args.banner or 'release-banner.png' not in (a['name'] for a in release['assets']):
+        published = BANNER.match(old)
+        banner = published and published[1]
+        if args.banner or not banner:
             # Rendered once per release; stats are counted as of publication, so --banner can redo older releases.
-            # GitHub names the asset after the file.
-            path = Path(tempfile.mkdtemp()) / 'release-banner.png'
+            path = Path(tempfile.mkdtemp()) / f'{tag}.webp'
             release_banner.render(release_banner.release_data(args.repo, tag, summaries[tag]), path)
             if args.write:
-                subprocess.run(['gh', 'release', 'upload', tag, str(path), '--clobber', '--repo', args.repo], stdout=subprocess.DEVNULL, check=True)
+                banner = publish_banner(args.repo, tag, path)
             else:
                 banner = path.as_uri()
                 print(f'Rendered the {tag} banner to {path}', file=sys.stderr)
